@@ -875,6 +875,7 @@ export class Renderer {
   enemy(g, e, sx, sy) {
     if (e.hidden) return;                                   // the Puppeteer, offstage during his intermission
     if (e.rb) return this.realmBoss(g, e, sx, sy);
+    if (e.D.reg) return this.regEnemy(g, e, sx, sy);
     if (e.D.sheet === 'champions') return this.champion(g, e, sx, sy);
     const S = this.A.sheets.enemies, meta = S.guide.enemies[e.id];
     if (e.under) return this.mound(g, e, sx, sy, 10);
@@ -890,6 +891,37 @@ export class Renderer {
     this.sprK = 1;
     if (!e.dead) this.mechanicFx(g, e, sx + L.dx, sy + L.dy - L.z, S.img, col * 16, meta.row * 16, 16, L);
     if (!e.dead && e.elite && Math.random() < (e.warden ? 0.6 : 0.35)) this.parts.push({ x: e.x + (Math.random() - 0.5) * 0.8, y: e.y, z: 4 + Math.random() * 12, vx: 0, vy: 0, vz: 4, g: 0, life: 0.6, max: 0.6, color: Math.random() < 0.5 ? (e.warden ? '#ff4a5a' : '#ffd650') : '#ffffff' });
+    if (!e.dead && e.hp < e.maxHp) this.hpBar(sx, sy + 3, e.hp / e.maxHp, 12);
+    if (!e.dead && e.stunT > 0) this.stunStars(g, sx, sy, 18);
+  }
+  // a Realm Update monster (registry art, 4 frames: two to move, attack, hurt), with the same body language as the rest
+  regEnemy(g, e, sx, sy) {
+    const C = this.objDefs || (this.objDefs = new Map());
+    let def = C.get(e.D.reg);
+    if (def === undefined) C.set(e.D.reg, (def = (this.R && this.R.resolve(e.D.reg)) || null));
+    if (!def) return;
+    if (e.under) return this.mound(g, e, sx, sy, 10);
+    const F = Object.keys(def.frames), mv = def.anims.move ? def.anims.move.frames : F.slice(0, 2);
+    let fr;
+    if (e.dead || e.shellT > 0) fr = F[3];
+    else if (e.state === 'tell' || e.state === 'charge' || e.state === 'attack') fr = F[2];
+    else if (e.hurtT > 0.03) fr = F[3];
+    else fr = mv[Math.floor(g.t * (e.hop || e.sk || e.dive ? 9 : 5) + e.phase) % mv.length];
+    const L = this.alive(g, e, sx, sy, 16), K = e.D.scale || 1;
+    L.flip = !L.flip;                                       // the bundle's art faces right; the old sheets face left
+    if (e.fetch && g.t >= e.fetch.land) {                  // the crag dwarf's pick, lying where it fell
+      const pd = C.get('pick') || (C.set('pick', this.R.resolve('ow2_shots/crag_dwarf.spinning_pick')), C.get('pick')), [qx, qy] = this.proj(e.fetch.x, e.fetch.y);
+      if (pd) this.drawDef(pd, Object.keys(pd.frames)[0], Math.round(qx), Math.round(qy), { center: true });
+    }
+    if (!e.dead) this.shadow(sx, sy, Math.max(6, 12 * K - L.z * 0.5));
+    const x = sx + L.dx, y = sy + L.dy - L.z + 1, alpha = e.dead ? Math.max(0, 1 - e.deadT / 0.6) : Math.min(1, L.rise);
+    this.drawDef(def, fr, x, y, { flip: L.flip, alpha, scale: K });
+    if (!e.dead && L.glow) this.drawDef(def, fr, x, y, { flip: L.flip, flash: true, alpha: 0.35, scale: K });
+    if (!e.dead && e.D.heat) {                             // the obsidian scorpion runs hotter as it's hurt
+      const h = 1 - e.hp / e.maxHp;
+      if (h > 0.15 && Math.floor(g.t * (4 + h * 10)) % 2) this.drawDef(def, fr, x, y, { flip: L.flip, flash: true, alpha: 0.12 + h * 0.3, scale: K });
+      if (Math.random() < h * 0.6) this.parts.push({ x: e.x + (Math.random() - 0.5) * 0.6, y: e.y, z: 4 + Math.random() * 6, vx: 0, vy: 0, vz: 10, g: 0, life: 0.5, max: 0.5, color: Math.random() < 0.5 ? '#ff7a1a' : '#ffc94a' });
+    }
     if (!e.dead && e.hp < e.maxHp) this.hpBar(sx, sy + 3, e.hp / e.maxHp, 12);
     if (!e.dead && e.stunT > 0) this.stunStars(g, sx, sy, 18);
   }
@@ -1376,6 +1408,9 @@ export class Renderer {
         if (e.rb) {
           const S = this.A.sheets[e.D.sheet || 'realm_bosses'], F = S.guide.frameWidth, row = S.guide.bosses[e.id].row;
           cols = this.colorsOf('rb:' + e.id, S.img, 0, row * F, F, F);
+        } else if (e.D.reg) {
+          const def = this.R && this.R.resolve(e.D.reg), f = def && Object.values(def.frames)[0];
+          cols = f ? this.colorsOf('g:' + e.D.reg, def.img, f.x, f.y, f.w, f.h) : ['#ffffff'];
         } else if (e.D.sheet === 'champions') {
           const S = this.A.sheets.champions, F = S.guide.frameWidth, row = S.guide.champions[e.id].row;
           cols = this.colorsOf('c:' + e.id, S.img, 0, row * F, F, F);

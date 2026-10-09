@@ -136,6 +136,26 @@ The dunes and the fen keep their own look.
   splitting stinger) are small additions to the enemy AI.
 - Elites (1 per ~15–25 packs) arrive in Phase 5 with their own note.
 
+### Result (2d, built)
+- 25 monsters (`reg:` registry art; `Renderer.regEnemy` draws move/attack/hurt frames with the shared body
+  language: hop, lunge, recoil, tell flash). Stats sit on each land's tier; the Greenmarch is between the shore
+  and the rest of ring 1. The ow2 five fire their own shots; the other twenty use the game's own, chosen to fit.
+- They join the old monsters: every parent in a land also gathers the new ones (the steppe takes the harpy and the
+  dwarf). The Greenmarch's parent is **The Field Warden** (the scarecrow, drawn half again as large, rooted, with
+  rats, goblins, boars and moles about it).
+- Themed packs: crab clusters, rats and boars in the fields, harpy flights, wraith processions. Every campfire camp
+  holds a band: two orc brutes and two bandit archers in the Thornwood, three hedge goblins and a rat in the
+  Greenmarch.
+- Signatures: the **conch hermit** shuts its shell after 4 quick hits (1.5 s, nothing gets through, "CLINK"),
+  pops out squirting, and can't hide again for 3 s. The **mole** uses the burrow movement and comes up flinging
+  dirt. The **bandit archer** kites and looses three arrows in a row. The **crag dwarf** throws his pick, which lies
+  where it fell until he runs over and picks it up (no throwing meanwhile). The **obsidian scorpion** flickers and
+  sheds embers as it's hurt; under a third of its life its stingers split (`when: 'hot'` attacks).
+- Found while testing: the bundle's monster art faces right (the old sheets face left), so their flip is
+  inverted. The first shell rule (3 hits in 0.8 s) kept the hermit shut most of a fight; it's now 4 hits plus a
+  cooldown.
+- `tools/check_ow2.mjs`: every new monster spawns, shoots, dies; each signature happens; every land holds them.
+
 ## Events
 - The **Giant Watermelon** (lowlands/midlands grass, one at a time, very rare, despawns after 10 min).
 - The **Abyssal Kraken** and the **Thornheart Treant** use the boss framework; each gets its own boss note.

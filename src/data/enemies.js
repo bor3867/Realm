@@ -1215,9 +1215,96 @@ Object.assign(BIOME_SPAWNS, { dunes: [['glass_scarab', 2, 4], ['salt_mummy', 1, 
 for (const list of Object.values(PACKS)) for (const p of list) p[1] = Math.round(p[1] * 1.4);       // the older lands grew with the realm
 Object.assign(PACKS, { dunes: [['sand_skimmer', 14]], thornwood: [['briar_bee', 12]], steppe: [['quartz_jackal', 8]] });
 Object.assign(CAMP_LOOT, { dunes: CAMP_LOOT.shore, thornwood: CAMP_LOOT.fen, steppe: CAMP_LOOT.runeholt });
-// the Greenmarch (Realm Update lowlands): until its own monsters arrive (Phase 2d) it borrows the shore's
-Object.assign(GROUPS, { lowlands: GROUPS.shore }); Object.assign(PARENTS, { lowlands: PARENTS.shore });
-Object.assign(BIOME_SPAWNS, { lowlands: BIOME_SPAWNS.shore }); Object.assign(PACKS, { lowlands: [] }); Object.assign(CAMP_LOOT, { lowlands: CAMP_LOOT.shore });
+
+// ---- Realm Update overworld monsters (art: registry sheets ow_enemies / ow2_enemies, drawn by Renderer.regEnemy).
+// The bundle's biomes map onto ours (docs/design/02_overworld.md): shore -> the Drowned Shore, lowlands -> the
+// Greenmarch, midlands -> the Thornwood, highlands -> Runeholt, godlands -> Godfall. Each tier matches its ring; the
+// Greenmarch sits between the shore and the rest of ring 1. The ow2 five each carry one small signature:
+//   shell        the conch hermit hides after a flurry of hits (nothing gets through), then pops out squirting
+//   burrow       the mole tunnels under the field and comes up beside you flinging dirt (surfaceFling)
+//   volley       the bandit archer keeps its distance and looses three arrows in a row
+//   pick         the crag dwarf throws his pick, then has to run and fetch it (no throwing till he has it back)
+//   heat         the obsidian scorpion glows hotter as it's hurt; under a third of its life its stingers split
+// Shots: the ow2 five use their own (ow2_shots); the rest use the game's own, picked to fit.
+const LL = L([1, 3], [1, 3], [0, 1], [0, 1], 0.005), LG = L([6, 8], [6, 9], [3, 4], [3, 4], 0.06);
+const OWE = (k) => 'ow_enemies/' + k, OW2 = (k) => 'ow2_enemies/' + k, OS2 = (k) => 'ow2_shots/' + k;
+Object.assign(ENEMIES, {
+  // ---- the Drowned Shore
+  shore_crab: { name: 'Shore Crab', biome: 'shore', reg: OWE('shore_crab'), hp: 120, def: 3, speed: 2.8, xp: 10, r: 0.42, ai: 'skitter', aggro: 8, contact: 12,
+    attacks: [{ pattern: 'aimed', proj: 'clawsnap', count: 2, arc: 0.3, dmg: 13, speed: 6, range: 5, cd: 1.8, tell: 250 }], loot: LD },
+  driftwood_bandit: { name: 'Driftwood Bandit', biome: 'shore', reg: OWE('driftwood_bandit'), hp: 100, def: 0, speed: 2.4, xp: 10, r: 0.45, ai: 'flank', aggro: 9,
+    attacks: [{ pattern: 'aimed', proj: 'blade', count: 2, arc: 0.2, dmg: 15, speed: 8, range: 6, cd: 1.6, tell: 250 }], loot: LD },
+  tide_slime: { name: 'Tide Slime', biome: 'shore', reg: OWE('tide_slime'), hp: 140, def: 0, speed: 2.0, xp: 11, r: 0.45, ai: 'hop', aggro: 8,
+    attacks: [{ pattern: 'radial', proj: 'slimeglob', count: 6, dmg: 12, speed: 4, range: 5, cd: 2.4, tell: 450 }], loot: LD },
+  gull: { name: 'Gull', biome: 'shore', reg: OWE('gull'), hp: 70, def: 0, speed: 4.0, xp: 8, r: 0.4, ai: 'swoop', aggro: 10, fly: true, contact: 12,
+    attacks: [{ pattern: 'aimed', proj: 'brine', count: 1, dmg: 12, speed: 7, range: 6, cd: 1.5, tell: 200 }], loot: LD },
+  conch_hermit: { name: 'Conch Hermit', biome: 'shore', reg: OW2('conch_hermit'), hp: 160, def: 4, speed: 1.2, xp: 13, r: 0.45, ai: 'shamble', aggro: 8, shell: true,
+    attacks: [{ pattern: 'aimed', proj: OS2('conch_hermit.water_squirt'), count: 1, waves: 3, gap: 0.12, dmg: 14, speed: 7, range: 6, cd: 2.2, tell: 300 }], loot: LD },
+  // ---- the Greenmarch
+  field_rat: { name: 'Field Rat', biome: 'lowlands', reg: OWE('field_rat'), hp: 130, def: 0, speed: 3.8, xp: 14, r: 0.4, ai: 'skitter', aggro: 9, contact: 16,
+    attacks: [{ pattern: 'aimed', proj: 'snapjaw', count: 1, dmg: 16, speed: 7, range: 4, cd: 1.4, tell: 200 }], loot: LL },
+  hedge_goblin: { name: 'Hedge Goblin', biome: 'lowlands', reg: OWE('hedge_goblin'), hp: 200, def: 2, speed: 2.6, xp: 18, r: 0.45, ai: 'flank', aggro: 9,
+    attacks: [{ pattern: 'aimed', proj: 'thornseed', count: 3, arc: 0.5, dmg: 20, speed: 7, range: 6, cd: 2.0, tell: 300 }], loot: LL },
+  wild_boar: { name: 'Wild Boar', biome: 'lowlands', reg: OWE('wild_boar'), hp: 320, def: 4, speed: 2.4, xp: 22, r: 0.5, ai: 'charge', aggro: 9, contact: 26,
+    attacks: [{ pattern: 'radial', proj: 'splinter', count: 6, dmg: 18, speed: 4, range: 4, cd: 3, tell: 600, charge: 10 }], loot: LL },
+  burrow_mole: { name: 'Burrow Mole', biome: 'lowlands', reg: OW2('burrow_mole'), hp: 180, def: 2, speed: 2.4, xp: 18, r: 0.45, ai: 'burrow', aggro: 9, surfaceFling: true,
+    attacks: [{ pattern: 'aimed', proj: OS2('burrow_mole.dirt_clod'), count: 3, arc: 0.6, dmg: 18, speed: 6, range: 5, cd: 1.8, tell: 250 }], loot: LL },
+  scarecrow: { name: 'The Field Warden', biome: 'lowlands', reg: OWE('scarecrow'), scale: 1.5, hp: 1100, def: 5, speed: 0, xp: 110, r: 0.6, ai: 'rooted', aggro: 10,
+    attacks: [{ pattern: 'radial', proj: 'tine', count: 8, turn: 0.2, dmg: 20, speed: 4.5, range: 6, cd: 2.6, tell: 550 },
+      { pattern: 'aimed', proj: 'tine', count: 3, arc: 0.4, dmg: 22, speed: 6, range: 7, cd: 1.8, tell: 350 }],
+    children: ['field_rat', 'hedge_goblin', 'wild_boar', 'burrow_mole'], cap: 6, every: 9, loot: L([2, 4], [2, 4], [1, 2], [1, 2], 0.02), lootLuck: 2 },
+  // ---- the Thornwood
+  bark_spider: { name: 'Bark Spider', biome: 'thornwood', reg: OWE('bark_spider'), hp: 340, def: 4, speed: 3.2, xp: 26, r: 0.45, ai: 'skitter', aggro: 9, contact: 26,
+    attacks: [{ pattern: 'aimed', proj: 'stinger', count: 3, arc: 0.5, dmg: 26, speed: 7, range: 5, cd: 2.0, tell: 300 }], loot: LT },
+  orc_brute: { name: 'Orc Brute', biome: 'thornwood', reg: OWE('orc_brute'), hp: 620, def: 8, speed: 1.8, xp: 38, r: 0.5, ai: 'shamble', aggro: 9, contact: 34, enrage: true,
+    attacks: [{ pattern: 'aimed', proj: 'blade', count: 3, arc: 0.35, dmg: 34, speed: 7, range: 5, cd: 2.0, tell: 400 }], loot: LT },
+  forest_druid: { name: 'Forest Druid', biome: 'thornwood', reg: OWE('forest_druid'), hp: 400, def: 3, speed: 2.0, xp: 34, r: 0.45, ai: 'kite', keep: 6, aggro: 10,
+    heal: { every: 4, r: 5, pct: 0.15 },
+    attacks: [{ pattern: 'aimed', proj: 'wisp', count: 3, arc: 0.5, dmg: 28, speed: 6, range: 7, cd: 2.2, tell: 400, mv: { wave: { amp: 1.2, freq: 6 } } }], loot: LT },
+  mossback_turtle: { name: 'Mossback Turtle', biome: 'thornwood', reg: OWE('mossback_turtle'), hp: 900, def: 14, speed: 0.9, xp: 40, r: 0.55, ai: 'shamble', aggro: 8,
+    attacks: [{ pattern: 'radial', proj: 'bubble', count: 8, dmg: 28, speed: 3.5, range: 5, cd: 3, tell: 650 }], loot: LT },
+  bandit_archer: { name: 'Bandit Archer', biome: 'thornwood', reg: OW2('bandit_archer'), hp: 360, def: 3, speed: 2.2, xp: 32, r: 0.45, ai: 'kite', keep: 6.5, aggro: 11,
+    attacks: [{ pattern: 'aimed', proj: OS2('bandit_archer.bandit_arrow'), count: 1, waves: 3, gap: 0.14, dmg: 30, speed: 9, range: 8, cd: 2.4, tell: 350 }], loot: LT },
+  // ---- Runeholt
+  stone_harpy: { name: 'Stone Harpy', biome: 'runeholt', reg: OWE('stone_harpy'), hp: 750, def: 10, speed: 3.8, xp: 70, r: 0.5, ai: 'swoop', aggro: 11, fly: true, contact: 45,
+    attacks: [{ pattern: 'aimed', proj: 'runestone', count: 3, arc: 0.4, dmg: 44, speed: 7, range: 7, cd: 2.0, tell: 300, mv: { curve: 1.2, alt: true } }], loot: LS },
+  mountain_ram: { name: 'Mountain Ram', biome: 'runeholt', reg: OWE('mountain_ram'), hp: 1000, def: 14, speed: 2.4, xp: 80, r: 0.55, ai: 'charge', aggro: 10, contact: 55,
+    attacks: [{ pattern: 'radial', proj: 'quake', count: 8, dmg: 44, speed: 4, range: 4, cd: 3, tell: 600, charge: 10 }], loot: LS },
+  crag_ogre: { name: 'Crag Ogre', biome: 'runeholt', reg: OWE('crag_ogre'), hp: 1600, def: 16, speed: 1.2, xp: 95, r: 0.6, ai: 'shamble', aggro: 10,
+    attacks: [{ pattern: 'radial', proj: 'glacierchunk', count: 6, dmg: 52, speed: 4.5, range: 6, cd: 2.8, tell: 700 },
+      { pattern: 'aimed', proj: 'hailstone', count: 1, dmg: 58, speed: 7, range: 7, cd: 1.6, tell: 300 }], loot: LS },
+  cave_bat: { name: 'Cave Bat', biome: 'runeholt', reg: OWE('cave_bat'), hp: 500, def: 4, speed: 4.4, xp: 60, r: 0.4, ai: 'zigzag', aggro: 11, fly: true, contact: 38,
+    attacks: [{ pattern: 'aimed', proj: 'iceneedle', count: 2, arc: 0.25, dmg: 40, speed: 8, range: 5, cd: 1.4, tell: 150 }], loot: LS },
+  crag_dwarf: { name: 'Crag Dwarf', biome: 'runeholt', reg: OW2('crag_dwarf'), hp: 1100, def: 16, speed: 2.2, xp: 85, r: 0.45, ai: 'flank', aggro: 10, contact: 40,
+    attacks: [{ pattern: 'aimed', proj: OS2('crag_dwarf.spinning_pick'), count: 1, dmg: 56, speed: 6, range: 7, cd: 2.6, tell: 450, pick: true }], loot: LS },
+  // ---- Godfall
+  rift_wraith: { name: 'Rift Wraith', biome: 'godfall', reg: OWE('rift_wraith'), hp: 1600, def: 10, speed: 2.4, xp: 160, r: 0.5, ai: 'blink', keep: 5, aggro: 11, fly: true,
+    attacks: [{ pattern: 'aimed', proj: 'soulflame', count: 3, arc: 0.4, dmg: 64, speed: 7, range: 8, cd: 2.0, tell: 350 }], loot: LG },
+  blood_maw: { name: 'Blood Maw', biome: 'godfall', reg: OWE('blood_maw'), hp: 2200, def: 12, speed: 1.8, xp: 180, r: 0.55, ai: 'float', aggro: 10, fly: true, contact: 70,
+    attacks: [{ pattern: 'radial', proj: 'bloodclot', count: 10, turn: 0.3, dmg: 62, speed: 4, range: 6, cd: 2.6, tell: 550 }], loot: LG },
+  fallen_knight: { name: 'Fallen Knight', biome: 'godfall', reg: OWE('fallen_knight'), hp: 2800, def: 22, speed: 1.6, xp: 200, r: 0.5, ai: 'shamble', aggro: 10, contact: 70, enrage: true,
+    attacks: [{ pattern: 'aimed', proj: 'gildlash', count: 3, arc: 0.3, dmg: 72, speed: 8, range: 6, cd: 1.8, tell: 350 }], loot: LG },
+  gazer: { name: 'Gazer', biome: 'godfall', reg: OWE('gazer'), hp: 1800, def: 12, speed: 1.8, xp: 170, r: 0.5, ai: 'orbit', keep: 5, aggro: 11, fly: true,
+    attacks: [{ pattern: 'aimed', proj: 'gaze', count: 1, waves: 3, gap: 0.12, dmg: 66, speed: 10, range: 9, cd: 2.2, tell: 400 }], loot: LG },
+  obsidian_scorpion: { name: 'Obsidian Scorpion', biome: 'godfall', reg: OW2('obsidian_scorpion'), hp: 2000, def: 20, speed: 2.8, xp: 190, r: 0.5, ai: 'skitter', aggro: 10, contact: 60, heat: true,
+    attacks: [{ pattern: 'aimed', proj: OS2('obsidian_scorpion.magma_stinger'), count: 2, arc: 0.3, dmg: 68, speed: 8, range: 7, cd: 1.8, tell: 300, when: 'cool' },
+      { pattern: 'aimed', proj: OS2('obsidian_scorpion.magma_stinger'), count: 2, arc: 0.3, dmg: 68, speed: 8, range: 7, cd: 1.6, tell: 250, when: 'hot', mv: { split: { at: 0.5, n: 3 } } }], loot: LG },
+});
+// they live among the old monsters: each land's parents gather them too
+const joinKids = (biome, ids) => { for (const pid of GROUPS[biome]) { const P = ENEMIES[pid]; if (P && P.children) P.children.push(...ids.filter((id) => !P.children.includes(id))); } };
+joinKids('shore', ['shore_crab', 'driftwood_bandit', 'tide_slime', 'gull', 'conch_hermit']);
+joinKids('thornwood', ['bark_spider', 'orc_brute', 'forest_druid', 'mossback_turtle', 'bandit_archer']);
+joinKids('runeholt', ['stone_harpy', 'mountain_ram', 'crag_ogre', 'cave_bat', 'crag_dwarf']);
+joinKids('steppe', ['stone_harpy', 'crag_dwarf']);
+joinKids('godfall', ['rift_wraith', 'blood_maw', 'fallen_knight', 'gazer', 'obsidian_scorpion']);
+Object.assign(GROUPS, { lowlands: ['scarecrow'] }); Object.assign(PARENTS, { lowlands: 'scarecrow' });
+Object.assign(BIOME_SPAWNS, { lowlands: [['field_rat', 2, 4], ['hedge_goblin', 2, 3], ['wild_boar', 1, 2], ['burrow_mole', 1, 2]] });
+// themed packs: crab clusters on the beach, rats in the fields, harpy flights over the crags, wraith processions
+PACKS.shore.push(['shore_crab', 16]); PACKS.runeholt.push(['stone_harpy', 8]); PACKS.godfall.push(['rift_wraith', 6]);
+Object.assign(PACKS, { lowlands: [['field_rat', 12], ['wild_boar', 6]] });
+Object.assign(CAMP_LOOT, { lowlands: [{ slot: 'weapon', tiers: [3, 5], p: 0.8 }, { slot: 'armor', tiers: [3, 5], p: 0.8 }, { slot: 'ring', tiers: [1, 2], p: 0.45 }, { stat: true, p: 0.4 }, { id: 'pot_hp', p: 1 }] });
+// the bands round the campfires: orcs and their archers in the Thornwood, goblins in the Greenmarch
+export const FIRECAMP_BANDS = { thornwood: ['orc_brute', 'orc_brute', 'bandit_archer', 'bandit_archer'], lowlands: ['hedge_goblin', 'hedge_goblin', 'hedge_goblin', 'field_rat'] };
 Object.assign(SPEECH, {
   glass_sphinx: { see: ['Answer me this...', 'No. Wrong.'], die: ['...the riddle... was...'] },
   witch_of_briars: { see: ['Lost, dearie?', 'The thorns are hungry.'], die: ['...plant me... deep...'] },

@@ -3,7 +3,7 @@
 import { R, rng, clamp, dist, dist2, angleTo, TAU } from './util.js';
 import { CLASSES, START_KIT, STATS, MAX_LEVEL, FAME_XP, FAME_GOALS, xpToNext, moveSpeed, fireRate, dmgMult, hpRegen, mpRegen, mitigate } from './data/classes.js';
 import { ITEMS, SETS, rollLoot, bagFor, canEquip, TYPE_SLOT, BAG_ORDER, BAG_NAMES, WEAPON_TYPES, ARMOR_TYPES, ABILITY_TYPES, ADMIN_SET } from './data/items.js';
-import { ENEMIES, PACKS, CAMP_LOOT, BIOME_SPAWNS, BOSS, REALM_BOSSES, PARENTS, HERALDS, BIOME_BOSS, EVENTS_TO_BOSS, GROUPS, DUNGEONS, DUNGEON_BOSSES, portalDrop2 as portalDrop } from './data/enemies.js';
+import { ENEMIES, PACKS, CAMP_LOOT, BIOME_SPAWNS, BOSS, REALM_BOSSES, PARENTS, HERALDS, BIOME_BOSS, EVENTS_TO_BOSS, GROUPS, DUNGEONS, DUNGEON_BOSSES, FIRECAMP_BANDS, portalDrop2 as portalDrop } from './data/enemies.js';
 import { nexus, vaultRoom, realm, dungeon, isSolid, biomeAt, randomTileInBiome, BIOMES, BIOME_RING, BIOME_LABEL, TID } from './world/maps.js';
 import { writeSave } from './save.js';
 import { installD4 } from './dungeons4.js';
@@ -473,6 +473,10 @@ export class Game {
       lead.kids = []; lead.childT = lead.D.every;
       for (let k = 0; k < 4; k++) this.spawnChild(lead, r);
       if (chest) chest.guards = [lead, ...lead.kids];
+    }
+    for (const c of m.firecamps || []) for (const id of FIRECAMP_BANDS[c.biome] || []) {   // a band sits round each campfire
+      const a = r() * TAU, x = c.x + Math.cos(a) * 2.2, y = c.y + Math.sin(a) * 2.2;
+      if (!isSolid(m, x, y)) this.addEnemy(id, x, y).pack = id;
     }
     m.ev = Object.fromEntries(BIOMES.map((b) => [b, { herald: null, progress: 0, cd: 25 + r() * 35 }]));
   }
@@ -1411,6 +1415,11 @@ export class Game {
         }
       }
       const D = e.D, d = Math.sqrt(d2);
+      if (e.shellT > 0) {                                // the conch hermit, shut in its shell: then it pops out squirting
+        e.shellT -= dt;
+        if (e.shellT <= 0) { e.cds[0] = 0; this.vx({ k: 'burst', x: e.x, y: e.y - 0.4, n: 8, colors: ['#c8e8ff', '#ffffff', '#f2b8c8'] }); }
+        continue;
+      }
       if (e.fuseT !== undefined) {                       // a bomber, swelling: then BOOM
         e.fuseT -= dt;
         if (e.fuseT <= 0) {
@@ -1446,7 +1455,7 @@ export class Game {
         if (e.st <= 0) {
           const atk = D.attacks[e.atk];
           if (atk.charge) { e.state = 'charge'; e.st = 0.7; const a = angleTo(e.x, e.y, p.x, p.y); e.cvx = Math.cos(a) * atk.charge; e.cvy = Math.sin(a) * atk.charge; }
-          else { e.state = 'attack'; e.st = 0.18; this.firePattern(e, atk); this.speak(e, 'atk', 0.008); }
+          else { e.state = 'attack'; e.st = 0.18; this.firePattern(e, atk); this.speak(e, 'atk', 0.008); if (atk.pick) this.throwPick(e, atk); }
         }
         continue;
       }
@@ -1459,7 +1468,7 @@ export class Game {
       if (e.state === 'attack' && e.st > 0) continue;
       e.state = 'move';
       // attacks (not while burrowed, mid-hop or mid-dive)
-      if (aggro && !e.under && !e.hop && !e.dive && !e.sk) {
+      if (aggro && !e.under && !e.hop && !e.dive && !e.sk && !e.fetch) {
         if (!e.seen) this.speak(e, 'see', e.herald ? 0.5 : 0.05);
         e.seen = true;
         if (D.enrage && !e.enraged && e.hp < e.maxHp * 0.4) {        // ENRAGE: faster, angrier
@@ -1469,6 +1478,7 @@ export class Game {
         for (let k = 0; k < D.attacks.length; k++) {
           e.cds[k] -= dt * (1 - (e.slowF || 0) * 0.6) * (e.enraged ? 1.6 : 1) * (e.cuedUntil > this.t ? 1.6 : 1);
           const A = D.attacks[k];
+          if (A.when && (A.when === 'hot') !== (e.hp < e.maxHp * 0.35)) continue;    // the scorpion's split stinger waits for it to run hot
           if (e.cds[k] <= 0 && d < A.range + 1) {
             e.cds[k] = A.cd * (0.85 + R() * 0.3);
             e.atk = k; e.state = 'tell'; e.st = A.tell / 1000;
@@ -1504,6 +1514,14 @@ export class Game {
   //   blink  - keeps its distance, teleports around you
   moveEnemy(e, dt, aggro, d) {
     const D = e.D, ai = D.ai, p = aggro ? this.foe(e) : this.player;
+    if (e.fetch) {                                       // the crag dwarf runs to where his pick fell, and picks it up
+      if (this.t < e.fetch.land) return;
+      const dd = dist(e.x, e.y, e.fetch.x, e.fetch.y);
+      if (dd < 0.45 || this.t > e.fetch.land + 5) { e.fetch = null; this.vx({ k: 'burst', x: e.x, y: e.y, n: 6, colors: ['#8a7e6a', '#c8b890'] }); return; }
+      const s = D.speed * 1.7 * dt;
+      this.moveCircle(e, ((e.fetch.x - e.x) / dd) * s, ((e.fetch.y - e.y) / dd) * s, 0.35);
+      return;
+    }
     let tx = e.wx, ty = e.wy, sp = D.speed * 0.65;
     if (e.under && !aggro) this.surface(e);
     if (aggro) {
@@ -1606,7 +1624,15 @@ export class Game {
     e.mvx = (e.mvx || 0) + (dvx - (e.mvx || 0)) * ease; e.mvy = (e.mvy || 0) + (dvy - (e.mvy || 0)) * ease;
     if (Math.abs(e.mvx) + Math.abs(e.mvy) > 0.02) this.moveCircle(e, e.mvx * dt, e.mvy * dt, 0.35);
   }
+  // the crag dwarf's throw: the pick lands where it falls (short of a wall), and he must fetch it before throwing again
+  throwPick(e, A) {
+    const p = this.foe(e), a = angleTo(e.x, e.y, p.x, p.y);
+    let L = 0;
+    while (L < A.range && !isSolid(this.map, e.x + Math.cos(a) * (L + 0.5), e.y + Math.sin(a) * (L + 0.5))) L += 0.5;
+    e.fetch = { x: e.x + Math.cos(a) * L, y: e.y + Math.sin(a) * L, land: this.t + L / A.speed };
+  }
   surface(e) {
+    if (e.D.surfaceFling) e.cds[0] = Math.min(e.cds[0], 0.25);   // the mole comes up flinging dirt
     e.under = false; e.burT = 7 + R() * 4;                // stays up a good while before it digs again
     this.vx({ k: 'burst', x: e.x, y: e.y, n: 16, colors: ['#5a4e44', '#8a7e6a', '#c8b890'] });
     e.born = this.t;                                    // rises out of the ground again
@@ -1708,6 +1734,11 @@ export class Game {
     if (e.surviveUntil > this.t) { if (!quiet) this.float(x, y - 0.8, 'SURVIVE!', '#ff8c1e'); return 0; }
     if (e.frenzyUntil > this.t) { if (!quiet) this.float(x, y - 0.8, e.D.bloodlust ? 'BLOODLUST' : 'INVULNERABLE', '#ff4a5a'); return 0; }
     if (e.invulnT > 0) { if (!quiet) this.float(x, y - 0.8, 'IMMUNE', '#8d88a0'); return 0; }
+    if (e.D && e.D.shell) {                                    // a flurry of hits sends the conch hermit into its shell
+      if (e.shellT > 0) { if (!quiet) this.float(x, y - 0.8, 'CLINK', '#c8e8ff'); return 0; }
+      e.shellHits = (e.shellLast > this.t - 0.6 ? e.shellHits || 0 : 0) + 1; e.shellLast = this.t;
+      if (e.shellHits >= 4 && !(e.shellCd > this.t)) { e.shellHits = 0; e.shellT = 1.5; e.shellCd = this.t + 4.5; e.state = 'move'; e.queue.length = 0; }   // then 3 s out, exposed
+    }
     if (e.rb && this.d4Immune(e, x, y, quiet)) return 0;
     if (e.D && e.D.bx && !e.bxKill && this.bxImmune(e, x, y, quiet)) return 0;
     if (e.id === 'sleepers_nightmare') this.d4LinkHit(e, dmg);
