@@ -35,8 +35,8 @@ The death clip; the rings stop; the loot fountain; the doors open; a portal home
 ## Loot
 Themed (boss tier): Starforged Katana (sword: piercing arcs), Comet Bow (three arrows that leave a trail), Nebula
 Robe (robe: Mana, Wisdom; your ability costs less), Astral Signet (ring: Dexterity, Wisdom), Orrery Orb (halo: a
-ring of stars). Legendary (phase-3 kill, 2%): **Event Horizon** (ring: Attack and Life; your shots curve toward
-enemies). Plus T9–T11 gear.
+ring of stars). Legendary (phase-3 kill, 2%): **Event Horizon** (ring: Attack and Life; 12% of your hits land for 2.5x, and
+you hit harder while you keep moving). Plus T9–T11 gear.
 
 ## Unique to it
 Rings of shots that wheel in orbits and fly off on tangents; a conjunction that freezes every shot and fires them
