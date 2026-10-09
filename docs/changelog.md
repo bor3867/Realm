@@ -38,3 +38,8 @@
   framework; `/kraken`, `/treant`; six items.
 - Rule change: shots fly over open water. Lob landing hooks, registry lob marks, whirlpool drag.
 - Tuning: causeway kept out of the pool; ink 0.78 opacity; seed marks made bold.
+
+## Phase 3 — Frostveil Hollows (dungeon 1 of 6)
+- New dungeon (style `frostveil`), Glacius on the boss framework, chill, wall faces for skinned walls, its portal art,
+  key and loot (Glacius' six items from `ix_items`). Notes: dungeon_frostveil.md, boss_glacius.md.
+- Tuning: tunnels centre to centre (blob edges); Glacius' start moved in from the edge.

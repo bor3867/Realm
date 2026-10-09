@@ -610,7 +610,27 @@ UT.push(
   { id: 'blight_heart', type: 'ring', slot: 'ring', name: 'The Blight Heart', reg: 'ix_items/blight_heart', bonus: { att: 7, dex: 5 }, legendary: true,
     desc: 'The rot at the middle of the oldest tree. Everything you kill bursts into thorns.' },
 );
+// ---- Glacius' hoard (Frostveil Hollows; icons from the registry, ix_items). The Aurora Heart drops only from a phase-3 kill.
+UT.push(
+  { id: 'glacial_fang', type: 'dagger', slot: 'weapon', name: 'Glacial Fang', reg: 'ix_items/glacial_fang',
+    weapon: { dmg: [105, 160], range: 3.6, speed: 14, rate: 1.5, proj: 'iceneedle', size: 0.42 }, desc: 'A tooth of the wyrm, still cold enough to slow what it bites.' },
+  { id: 'rimeheart_bow', type: 'bow', slot: 'weapon', name: 'Rimeheart Bow', reg: 'ix_items/rimeheart_bow',
+    weapon: { dmg: [52, 84], count: 3, arc: 0.18, range: 6, speed: 17, rate: 1.0, proj: 'icicle', size: 0.45, pierce: true }, desc: 'Strung with frozen sinew. Its arrows leave a rime on what they pass through.' },
+  { id: 'wand_of_hoarfrost', type: 'wand', slot: 'weapon', name: 'Wand of Hoarfrost', reg: 'ix_items/wand_of_hoarfrost',
+    weapon: { dmg: [100, 160], range: 8.6, speed: 19, rate: 1.05, proj: 'frostshard', size: 0.42 }, desc: 'Its bolt leaves a long white breath in the air.' },
+  { id: 'frostweave_armor', type: 'robe', slot: 'armor', name: 'Frostweave Robe', reg: 'ix_items/frostweave_armor', bonus: { def: 10, wis: 8, mp: 60 },
+    desc: 'Woven from the lake\'s first ice. The cold can still reach you, but it can no longer hold you.' },
+  { id: 'ring_of_the_wyrm', type: 'ring', slot: 'ring', name: 'Ring of the Wyrm', reg: 'ix_items/ring_of_the_wyrm', bonus: { hp: 90, def: 6, vit: 5 },
+    desc: 'A scale from its coil, bent round into a band.' },
+  { id: 'aurora_heart', type: 'ring', slot: 'ring', name: 'The Aurora Heart', reg: 'ix_items/aurora_heart', bonus: { hp: 30, mp: 30, att: 3, def: 3, spd: 3, dex: 3, vit: 3, wis: 3 }, legendary: true,
+    desc: 'The light that moved inside the wyrm\'s chest. Nothing can slow you while it is yours.' },
+);
 Object.assign(SPECIAL, {
+  glacial_fang: { weapon: { slow: { f: 0.25, t: 1 } } },
+  rimeheart_bow: { weapon: { slow: { f: 0.15, t: 0.8 } } },
+  wand_of_hoarfrost: { weapon: { slow: { f: 0.3, t: 1.2 } } },
+  frostweave_armor: { passive: { nofreeze: true } },
+  aurora_heart: { passive: { noslow: true } },
   tidebreaker_trident: { weapon: { slow: { f: 0.15, t: 0.6 } } },
   leviathan_eye: { passive: { crit: { p: 0.15, x: 2 }, manaonhit: 1 } },
   heartwood_bow: { weapon: { homing: 1.5 } },
@@ -659,7 +679,7 @@ for (const [r, name, desc] of [
   ['legendary', 'Gilded Pet Egg', 'It shines like a coin and beats like a heart. Legends hatch from eggs like this.'],
 ]) add({ id: `pet_egg_${r}`, type: 'egg', slot: 'consumable', tier: null, name, use: { egg: r }, desc });
 // ---- dungeon keys: use one (outside a dungeon) and that dungeon's portal opens where you stand
-for (const [d, name, desc] of [
+for (const [d, name, desc, reg] of [
   ['chapel', 'Sunken Chapel Key', 'Barnacled bronze. You can hear the tide on the other side of the lock.'],
   ['crypt', 'Sunken Crypt Key', 'Carved from a knucklebone. The Lich never throws anything away.'],
   ['forge', 'Drowned Forge Key', 'Still hot from the forge, centuries after the fires went out.'],
@@ -671,7 +691,8 @@ for (const [d, name, desc] of [
   ['theatre', 'Theatre Ticket', 'ADMIT ONE. FINAL PERFORMANCE. The ink is still wet.'],
   ['spire', 'Lighthouse Key', 'Clear glass, and somehow it throws a rainbow on your palm.'],
   ['dream', 'Key of Dreams', 'You are not sure you are holding it. You are not sure you are awake.'],
-]) add({ id: `key_${d}`, type: 'key', slot: 'consumable', tier: null, name, use: { key: d }, desc: `${desc} Use it outside a dungeon to open a portal there.` });
+  ['frostveil', 'Frostveil Key', 'Cut from clear ice. It does not melt in your hand, which is worse.', 'ix_items/frostveil_key'],
+]) add({ id: `key_${d}`, type: 'key', slot: 'consumable', tier: null, name, use: { key: d }, reg: reg || undefined, desc: `${desc} Use it outside a dungeon to open a portal there.` });
 // ---- a vault chest: use it and your vault grows by 8 slots
 add({ id: 'vault_chest', type: 'chest', slot: 'consumable', tier: null, name: 'Vault Chest', use: { vault: 8 },
   desc: 'An iron-bound chest, delivered to your vault the moment you use it. Your vault grows by 8 slots.' });

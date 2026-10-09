@@ -547,9 +547,11 @@ def build():
             cells.append(sway(f0, 0.5) if OBJ_ANIM[name] == 'sway' else pulse(f0, 0.55))
             index['objAnim'][name] = 2
     import dungeons4_art as _d4p
-    for kind in ('realm', 'dungeon', 'nexus', 'closed', 'chapel', 'heart', 'vault', 'scriptorium', 'crypt', 'ember', 'hive', 'theatre', 'spire', 'dream'):
+    import realmupdate_art as _rua
+    for kind in ('realm', 'dungeon', 'nexus', 'closed', 'chapel', 'heart', 'vault', 'scriptorium', 'crypt', 'ember', 'hive', 'theatre', 'spire', 'dream', *_rua.PORTALS):
         import portals as PT
         PT.KINDS.update(_d4p.PORTALS)
+        PT.KINDS.update(_rua.PORTALS)
         index['portals'][kind] = len(cells)
         for f in range(3):
             cells.append(rgba_grid(PT.KINDS[kind](f), PT.PAL))

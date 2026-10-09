@@ -3,7 +3,7 @@
 // an integer factor, so every pixel stays crisp. The camera can rotate: the
 // GROUND layer (tiles, biome edges, foam, decor) rotates as one image, while
 // every sprite stays upright at its rotated position, like classic tiny-MMO cameras.
-import { TILE_NAMES, BIOMES, biomeAt, objectsIn, SKINS, SKIN_TID, TID, FLAT } from './world/maps.js';
+import { TILE_NAMES, BIOMES, biomeAt, objectsIn, SKINS, SKIN_TID, TID, FLAT, WALL_FACE } from './world/maps.js';
 import { hoverY } from './registry.js';
 import { CLASSES } from './data/classes.js';
 import { ITEMS, iconIndex } from './data/items.js';
@@ -15,7 +15,8 @@ const MINI = { 0: '#1e5078', 1: '#102c48', 2: '#d2b074', 3: '#3e6230', 4: '#4e41
   15: '#4e6670', 16: '#8a9aa0', 17: '#221d28', 18: '#c8c0b0', 19: '#4a7a30', 20: '#8e8a9a', 21: '#9a764e', 22: '#18321a', 23: '#5aa0c8', 24: '#3a4a28', 25: '#c4dcee',
   26: '#f0dcae', 27: '#b8dcd8', 28: '#2e3a22', 29: '#121c0e', 30: '#b89a48', 31: '#8a7aa8',
   32: '#3a4a5c', 33: '#7486a0', 34: '#2a6c9c', 35: '#3c2a28', 36: '#6c524a', 37: '#ff8c1e', 38: '#8e1e30',
-  39: '#a86e26', 40: '#e8c878', 41: '#ffc040', 42: '#7a4e28', 43: '#6a1224', 44: '#2e2e56', 45: '#8a6ad0', 46: '#8878bc', 47: '#d8d0f4', 48: '#0a0618', 49: '#d8a8e8', 50: '#98c0f0', 51: '#1a1236' };
+  39: '#a86e26', 40: '#e8c878', 41: '#ffc040', 42: '#7a4e28', 43: '#6a1224', 44: '#2e2e56', 45: '#8a6ad0', 46: '#8878bc', 47: '#d8d0f4', 48: '#0a0618', 49: '#d8a8e8', 50: '#98c0f0', 51: '#1a1236',
+  52: '#5a5866', 53: '#c02a8a', 54: '#dceaf4', 55: '#9ad4f0', 56: '#2a6c9c', 57: '#4a5e86' };   // cliff, rift, Frostveil snow, ice, frigid water, wall
 const DIRS = [[0, -1], [1, 0], [0, 1], [-1, 0]];          // N E S W (matches edge sheet order)
 const WEATHER = {
   shore: { n: 36, color: ['#e8f6ff', '#a8d8f0'], vx: 9, vy: 2, size: 1, blink: false },
@@ -29,6 +30,7 @@ const WEATHER = {
   thornwood: { n: 30, color: ['#6ab04a', '#c83a4a', '#3a7a2a'], vx: 2, vy: 6, size: 1, blink: false },     // drifting leaves and berries
   steppe: { n: 34, color: ['#ffd0ff', '#e880e8', '#ffffff'], vx: 4, vy: -3, size: 1, blink: true },         // crystal motes catching the light
   lowlands: { n: 22, color: ['#fff6c8', '#d8f0a0', '#ffffff'], vx: 6, vy: 1, size: 1, blink: false },        // thistledown on the breeze
+  frostveil: { n: 48, color: ['#ffffff', '#cfffff', '#e8f6ff'], vx: 3, vy: 9, size: 1, blink: false },       // snow sifting down through the ice
 };
 
 // minimap markers: o outline, 1 main colour, 2 accent
@@ -139,6 +141,7 @@ export class Renderer {
       add(o.x, o.y, (sx, sy) => this.obj(o, sx, sy));
       if (list.length > n0 && FLAT.has(o.sprite)) list[n0].sy -= 12;               // flat clutter lies under whoever stands on it
     }
+    if (m.skin) this.wallFaces(g, m, add, list, VR);                // skinned walls stand up: their faces hang toward the camera
     for (const pt of m.portals) add(pt.x, pt.y, (sx, sy) => this.portal(g, pt, sx, sy));
     for (const bag of g.bags) {                                // a bag on a portal is drawn in front of it, never hidden inside
       const onPortal = m.portals.some((pt) => Math.abs(pt.x - bag.x) < 1.8 && Math.abs(pt.y - bag.y) < 1.8);
@@ -189,6 +192,7 @@ export class Renderer {
     this.drawSprFx(dt);
     if (g.darkUntil > g.t && g.darkBy && !g.darkBy.dead) this.darkFx(g);
     if (g.inkUntil > g.t) this.inkFx(g);
+    if (g.player.chill > 0 && !g.player.dead) this.chillFx(g);
     b.restore();
     if (g.map.lights && !darkFirst) this.dusk(g);
     if (!this.settings || this.settings.weather) this.drawWeather(g, dt);
@@ -271,6 +275,28 @@ export class Renderer {
         }
         if (k) { gc.fillStyle = `rgba(0,0,0,${[0, 0.25, 0.5, 0.72][k]})`; gc.fillRect(tx * TS - ox, ty * TS - oy, TS, TS); }
       }
+    }
+  }
+  // RotMG-style walls: the wall's top is its tile (drawn with the ground); its face hangs below it on the camera's side,
+  // over the floor in front, sorted so that anyone standing in front of the wall is drawn over the face
+  wallFaces(g, m, add, list, VR) {
+    const SA = this.skinArt(), faces = this.faceArt || (this.faceArt = {});
+    const dirs = [[0, 1, this.cs], [1, 0, this.sn], [0, -1, -this.cs], [-1, 0, -this.sn]];
+    const [fx, fy] = dirs.reduce((a, b) => (b[2] > a[2] ? b : a));          // the world direction that points down the screen
+    const x0 = Math.max(1, Math.floor(g.player.x - VR)), x1 = Math.min(m.w - 2, Math.ceil(g.player.x + VR));
+    const y0 = Math.max(1, Math.floor(g.player.y - VR)), y1 = Math.min(m.h - 2, Math.ceil(g.player.y + VR));
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
+      const i = y * m.w + x, t = m.tiles[i], nm = TILE_NAMES[t], key = WALL_FACE[nm];
+      if (!key || !m.skin[i]) continue;
+      const j = (y + fy) * m.w + x + fx, tn = m.tiles[j];
+      if (WALL_FACE[TILE_NAMES[tn]] || tn === TID.void) continue;            // only a face that looks out over floor
+      let F = faces[key];
+      if (F === undefined) { const def = this.R && this.R.resolve(key), f = def && def.frames[Object.keys(def.frames)[0]]; F = faces[key] = f ? { img: def.img, f } : null; }
+      if (!F) continue;
+      const n0 = list.length;
+      add(x + 0.5, y + 0.5, (sx, sy) => this.b.drawImage(F.img, F.f.x, F.f.y, F.f.w, F.f.h, sx - 8, sy + 8, 16, 16));
+      if (list.length > n0) list[n0].sy += 7.9;
+      void SA;
     }
   }
   // each ground skin's image and frames, looked up once
@@ -396,9 +422,9 @@ export class Renderer {
         this.drawDef(def, def.anims.opened.frames[0], sx, sy + 4, { alpha: Math.max(0, Math.min(1, (o.until - this.lastT) / 3)) });
         return;
       }
-      const A = Object.values(def.anims)[0], fr = A.frames.length > 1 ? A.frames[Math.floor(this.lastT * (A.fps || 4) + o.x * 0.7 + o.y * 0.3) % A.frames.length] : A.frames[0];
+      const A = Object.values(def.anims)[0], fr = A.frames.length > 1 && !o.unlit ? A.frames[Math.floor(this.lastT * (A.fps || 4) + o.x * 0.7 + o.y * 0.3) % A.frames.length] : A.frames[0];
       if (o.solid) this.shadow(sx, sy + 7, def.size[1] > 8 ? 12 : 10);
-      this.drawDef(def, fr, sx, sy + 8);
+      this.drawDef(def, fr, sx, sy + 8, o.unlit ? { alpha: 0.45 } : undefined);   // a brazier gone out is dark and still
       if (o.sprite === 'ow_objects/midlands_campfire' && Math.random() < 0.35) {
         const ember = Math.random() < 0.6;
         this.parts.push({ x: o.x + (Math.random() - 0.5) * 0.4, y: o.y, z: 6, vx: (Math.random() - 0.5) * 0.3, vy: 0, vz: ember ? 18 + Math.random() * 14 : 8,
@@ -1150,6 +1176,18 @@ export class Renderer {
     if (!p.dead) this.shadow(sx, sy, 12);
     this.spr(S.img, (an.col + frame) * 16, an.row * 16, 16, 16, sx, sy - hop, 8, 15, flip, p.hitT > 0.1);
     if (!p.dead && p.hp < g.stat('hp')) this.hpBar(sx, sy + 3, p.hp / g.stat('hp'), 14);   // RotMG-style bar at your feet
+    if (!p.dead && p.chill > 0) {                                      // Frostveil's chill: a pale bar under the life bar
+      const b = this.b, w = 14, x = Math.round(sx - w / 2), y = Math.round(sy + 6), hot = p.chill > 80 && Math.floor(g.t * 6) % 2;
+      b.fillStyle = '#05040a'; b.fillRect(x - 1, y - 1, w + 2, 4);
+      b.fillStyle = '#1e5078'; b.fillRect(x, y, w, 2);
+      b.fillStyle = hot ? '#ffffff' : p.warmBy ? '#ffc94a' : '#8af6ff'; b.fillRect(x, y, Math.round(w * p.chill / 100), 2);
+    }
+    if (!p.dead && p.frozenUntil > g.t) {                              // frozen solid: a block of ice round you
+      const b = this.b, x = Math.round(sx), y = Math.round(sy);
+      b.globalAlpha = 0.5; b.fillStyle = '#cfffff'; b.fillRect(x - 7, y - 17, 14, 18);
+      b.globalAlpha = 0.9; b.fillStyle = '#ffffff'; b.fillRect(x - 7, y - 17, 14, 1); b.fillRect(x - 7, y - 17, 1, 18); b.fillRect(x - 4, y - 14, 1, 4);
+      b.globalAlpha = 1;
+    }
     const st = p.status, b = this.b, cy = Math.round(sy) - 8;
     const pip = (col, ph) => {
       for (let k = 0; k < 3; k++) {
@@ -1296,6 +1334,17 @@ export class Renderer {
       keep.push(q);
     }
     this.sfxList = keep.length > 60 ? keep.slice(-60) : keep;
+  }
+  // the chill creeping in: frost at the edge of your view, thicker as it builds, pulsing white near freezing
+  chillFx(g) {
+    const b = this.b, BW = this.buf.width, BH = this.buf.height, c = g.player.chill / 100, pulse = c > 0.8 ? 0.5 + 0.5 * Math.sin(g.t * 10) : 0;
+    b.save(); b.setTransform(1, 0, 0, 1, 0, 0); b.scale(this.hi.width / BW, this.hi.height / BH);
+    for (let k = 0; k < 4; k++) {
+      const w = 3 + k * 3;
+      b.globalAlpha = c * (0.32 - k * 0.07) + pulse * 0.08; b.fillStyle = pulse > 0.6 ? '#ffffff' : '#cfffff';
+      b.fillRect(0, 0, BW, w); b.fillRect(0, BH - w, BW, w); b.fillRect(0, 0, w, BH); b.fillRect(BW - w, 0, w, BH);
+    }
+    b.restore(); b.globalAlpha = 1;
   }
   // the Kraken's ink: dark blots splashed across your view, fading; you can still make out the shots between them
   inkFx(g) {
@@ -1503,7 +1552,7 @@ export class Renderer {
     this.parts = keep;
   }
   drawWeather(g, dt) {
-    const dz = { chapel: 'shore', heart: 'godfall', crypt: 'crypt', ember: 'forge' };
+    const dz = { chapel: 'shore', heart: 'godfall', crypt: 'crypt', ember: 'forge', frostveil: 'frostveil' };
     const bi = g.map.kind === 'realm' ? BIOMES[biomeAt(g.map, g.player.x, g.player.y)] : g.map.kind === 'dungeon' ? (dz[g.map.def && Object.keys(g.map.def).length && g.map.def.portal] || 'forge') : 'nexus';
     const kind = WEATHER[bi] ? bi : null;
     const BW = this.buf.width, BH = this.buf.height, b = this.b;

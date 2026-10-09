@@ -9,6 +9,7 @@ import { writeSave } from './save.js';
 import { installD4 } from './dungeons4.js';
 import { installMelon } from './melon.js';
 import { installRealmEvents } from './realmevents.js';
+import { installFrostveil } from './frostveil.js';
 import { installBX } from './bossx.js';
 import { BX, bxEnemyDef } from './bosses/index.js';
 import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUEST_HUNTS, FETCH_ITEMS } from './data/lore.js';
@@ -126,6 +127,7 @@ export class Game {
   enter(where) {
     const p = this.player;
     p.carry = null; p.drowsy = 0; this.invertUntil = 0;                // nothing carried, dreamt or inverted crosses a portal
+    p.chill = 0; p.frozenUntil = 0; p.gust = null;                     // nor any cold
     // remember where you stepped into a dungeon, so its portals can send you back to that spot
     if (DUNGEONS[where] && this.map && this.map.kind === 'realm') this.realmReturn = { x: p.x, y: p.y };
     else if (where === 'nexus' || where === 'vault') this.realmReturn = null;
@@ -565,7 +567,8 @@ export class Game {
       if (elite) { e.elite = true; e.hp = e.maxHp = Math.round(e.maxHp * 2.4); }
       if (e.D.children) { e.kids = []; e.childT = e.D.every * 1.5; }
     });
-    const bossHp = def.boss === 'unstruck' ? BOSS.hp : DUNGEON_BOSSES[def.boss].hp;
+    const bossHp = def.boss === 'unstruck' ? BOSS.hp : BX[def.boss] ? BX[def.boss].hp : DUNGEON_BOSSES[def.boss].hp;
+    const maxDep = Math.max(1, ...m.rooms.map((q) => q.dep || 0));
     // a WARDEN: one of the dungeon's champions, swollen with the seal it guards. Slow to kill, brutal to stand near.
     const warden = (rm) => {
       const e = buff(this.addEnemy(r.pick(def.wardens || def.elites), rm.cx + 0.5, rm.cy + 0.5)), D = e.D;
@@ -581,7 +584,12 @@ export class Game {
     };
     m.rooms.slice(1, -1).forEach((rm) => {
       const big = Math.floor(rm.w * rm.h / 110);
-      if (rm.role === 'puzzle' || rm.role === 'altar') return;          // quiet rooms: the danger here is of another kind
+      if (rm.role === 'puzzle' || rm.role === 'altar' || rm.role === 'rest') return;          // quiet rooms: the danger here is of another kind
+      if (def.compose) {                                                // a dungeon that says who stands where
+        const list = def.compose(rm, r, (rm.dep || 0) / maxDep).map((id) => [id, ...spot(rm)]);
+        if (rm.ambush) rm.pending = list; else spawn(list);
+        return;
+      }
       if (rm.role === 'warden') { spawn(fill(rm, r.int(2, 4), false)); warden(rm); return; }
       if (rm.role === 'treasure') { spawn(fill(rm, r.int(2, 3), true)); return; }
       const list = rm.few ? fill(rm, r.int(1, 3), false) : fill(rm, r.int(3, 5) + big, r.chance(rm.role === 'lever' ? 0.8 : 0.5));
@@ -593,6 +601,9 @@ export class Game {
     if (def.boss === 'unstruck') {
       this.boss = { x: br.cx + 0.5, y: br.cy + 0.5, hp: BOSS.hp, maxHp: BOSS.hp, state: 'sleep', st: 0, phase: 1,
         cycle: 0, room: br, deadT: 0, hurtT: 0, fireT: 0, spin: 0 };
+    } else if (BX[def.boss]) {                         // a Realm Update boss: it waits at the far side of its arena
+      const b = this.spawnRealmBoss(def.boss, { x: br.cx + 0.5, y: br.y + 11 }, bxEnemyDef(def.boss));
+      b.state = 'sleep'; b.room = br;
     } else {
       const b = this.spawnRealmBoss(def.boss, { x: br.cx + 0.5, y: br.cy - 1 }, DUNGEON_BOSSES[def.boss]);
       b.state = 'sleep'; b.room = br;
@@ -712,7 +723,8 @@ export class Game {
     this.updateProjectiles(dt);
     this.updateWorld(dt);
     if (this.map.kind === 'realm') { this.maintainRealm(dt); this.eventClock(dt); this.melonTick(dt); this.eventBossTick(dt); }
-    if (this.map.kind === 'dungeon') { this.updateDungeon(dt); this.updatePuzzles(dt); this.updateTraps(dt); this.updateD4(dt); }
+    if (this.map.kind === 'dungeon') { this.updateDungeon(dt); this.updatePuzzles(dt); this.updateTraps(dt); this.updateD4(dt); if (this.map.def && this.map.def.style === 'frostveil') this.updateFrostveil(dt); }
+    this.updateChill(dt);
     if (this.map.kind !== 'nexus') this.openChests();
     this.saveT = (this.saveT || 0) + dt;
     if (this.saveT > 15) { this.saveT = 0; this.persist(); }
@@ -753,24 +765,30 @@ export class Game {
     let mx = I.right - I.left, my = I.down - I.up;
     if (this.invertUntil > this.t) { mx = -mx; my = -my; }           // the Sleeper's dream-logic
     if (p.status.asleep > 0) { mx = 0; my = 0; }                     // fallen asleep where you stood
+    if (p.frozenUntil > this.t) { mx = 0; my = 0; }                  // frozen solid (Frostveil's chill)
     const len = Math.hypot(mx, my);
     p.moving = len > 0;
     const cs = Math.cos(this.camAngle), sn = Math.sin(this.camAngle);
     // terrain underfoot: shallows and bog drag at you, ice keeps you sliding
     const under = this.map.tiles[Math.floor(p.y) * this.map.w + Math.floor(p.x)];
-    const drag = under === TID.bog ? 0.6 : under === TID.shallows ? 0.8 : 1;
+    const drag = under === TID.bog || under === TID.fvwater ? 0.6 : under === TID.shallows ? 0.8 : 1;
     const bless = p.status.bless > 0 ? p.blessKind : null;
     if (len) { mx /= len; my /= len; }
-    const sp = moveSpeed(this.stat('spd')) * drag * (bless === 'shore' ? 1.25 : 1) * (this.map.kind === 'dungeon' ? this.d4Speed() : 1) * (p.dragUntil > this.t ? p.dragF : 1);
+    const sp = moveSpeed(this.stat('spd')) * drag * (bless === 'shore' ? 1.25 : 1) * (this.map.kind === 'dungeon' ? this.d4Speed() : 1) * (p.dragUntil > this.t ? p.dragF : 1) * this.chillSlow();
     // keys are screen directions: rotate them into the world
     const wx = len ? (mx * cs + my * sn) * sp : 0, wy = len ? (-mx * sn + my * cs) * sp : 0;
     p.vel = p.vel || { x: 0, y: 0 };
-    const grip = under === TID.ice ? Math.min(1, 2.4 * dt) : 1;
+    const icy = under === TID.ice || under === TID.fvice;
+    const grip = icy ? Math.min(1, 2.4 * dt) : 1;
     p.vel.x += (wx - p.vel.x) * grip; p.vel.y += (wy - p.vel.y) * grip;
+    if (p.gust) {                                                    // a gust (Glacius' wing beat): it pushes; on ice, you keep going
+      if (this.t < p.gust.until) this.moveCircle(p, p.gust.vx * dt, p.gust.vy * dt, PLAYER_R);
+      else { if (icy) { p.vel.x += p.gust.vx * 0.7; p.vel.y += p.gust.vy * 0.7; } p.gust = null; }
+    }
     if (Math.abs(p.vel.x) + Math.abs(p.vel.y) > 0.01) this.moveCircle(p, p.vel.x * dt, p.vel.y * dt, PLAYER_R);
     if (len) {
       p.stepT = (p.stepT || 0) - dt;
-      if (p.stepT <= 0) { p.stepT = 0.16; this.vx({ k: 'dust', x: p.x, y: p.y, splash: under === TID.shallows || under === TID.bog, ice: under === TID.ice }); }
+      if (p.stepT <= 0) { p.stepT = 0.16; this.vx({ k: 'dust', x: p.x, y: p.y, splash: under === TID.shallows || under === TID.bog || under === TID.fvwater, ice: icy }); }
     }
     if (bless === 'fen') p.hp = Math.min(this.stat('hp'), p.hp + 25 * dt);
     if (p.regenUntil > this.t) p.hp = Math.min(this.stat('hp'), p.hp + p.regenRate * dt);          // a watermelon slice, mending slowly
@@ -791,8 +809,8 @@ export class Game {
     // shooting
     p.fireCd -= dt;
     const W = this.weapon();
-    if (firing && W && p.fireCd <= 0 && !(p.status.asleep > 0)) {
-      const rate = W.rate * fireRate(this.stat('dex')) * (p.status.berserk ? 1.5 : 1);
+    if (firing && W && p.fireCd <= 0 && !(p.status.asleep > 0) && !(p.frozenUntil > this.t)) {
+      const rate = W.rate * fireRate(this.stat('dex')) * (p.status.berserk ? 1.5 : 1) * this.chillSlow();
       p.fireCd = 1 / rate;
       p.lastShot = this.t;
       p.shotPeriod = 1 / rate;
@@ -1722,7 +1740,7 @@ export class Game {
         dmg: A.dmg, by: nm, hit: false, col: A.col || '#ffd650' });
       return;
     }
-    const tag = (b, k) => { if (A.mv) { b.mv = A.mv; b.cs = A.mv.alt && k % 2 ? -1 : 1; } };
+    const tag = (b, k) => { if (A.mv) { b.mv = A.mv; b.cs = A.mv.alt && k % 2 ? -1 : 1; } if (A.chill) b.chill = A.chill; };
     if (A.pattern === 'radial') {
       e.spin = (e.spin || 0) + (A.turn || 0);
       for (let k = 0; k < A.count; k++) tag(this.shoot('e', ox, oy, e.spin + (k / A.count) * TAU, A.speed, A.range, A.dmg, A.proj, size, false, e.D.name), k);
@@ -1787,6 +1805,7 @@ export class Game {
       if (e.cloneOf) { this.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 30, colors: ['#ffffff', '#8af6ff'] }); this.bubble(e, 'An echo shatters.', '#cfffff'); return d; }
       this.player.kills++;
       this.speak(e, 'die', e.rb ? 1 : 0.04);
+      if (e.D.deathBurst) { const B = e.D.deathBurst, a0 = R() * TAU; for (let k = 0; k < B.n; k++) this.shoot('e', e.x, e.y - 0.4, a0 + (k / B.n) * TAU, B.speed, B.range, B.dmg, B.proj, 0.35, false, e.D.name); }
       if (e.D.split) for (let k = 0; k < e.D.split.n; k++) {   // splitters burst into smaller copies
         const a = (k / e.D.split.n) * TAU, x = e.x + Math.cos(a) * 0.7, y = e.y + Math.sin(a) * 0.7;
         if (!isSolid(this.map, x, y)) this.addEnemy(e.D.split.id, x, y);
@@ -3139,6 +3158,7 @@ export class Game {
           const seen = this.hitVols.get(b.vol);
           if (seen === undefined) { this.hitVols.set(b.vol, this.t); this.hurtPlayer(b.dmg, this.killerName(b)); }
           if (b.drowsy) p.drowsy = Math.min(1, (p.drowsy || 0) + b.drowsy);
+          if (b.chill) this.addChill(b.chill);
           if (this.hitVols.size > 300) for (const [k, v] of this.hitVols) if (this.t - v > 6) this.hitVols.delete(k);
         }
       }
@@ -3833,3 +3853,4 @@ installD4(Game);
 installBX(Game);
 installMelon(Game);
 installRealmEvents(Game);
+installFrostveil(Game);

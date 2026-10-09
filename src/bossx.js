@@ -103,6 +103,7 @@ export const BXF = {
     const b = this.shoot('e', x, y, a, V.speed || 5, V.range || 14, V.dmg || 60, V.sprite || `${e.bx.B.shotSheet || 'bx_shots'}/${e.bx.B.art || e.D.bx}.${V.shot}`, V.size || 0.45, false, e.D.name);
     if (V.mv) b.mv = { ...V.mv };
     if (V.life) b.life = V.life;
+    if (V.chill) b.chill = V.chill;
     b.bxOf = e;
     if (extra) Object.assign(b, extra);
     return b;

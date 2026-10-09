@@ -6,10 +6,10 @@ export const TILE_NAMES = ['water', 'deep', 'sand', 'fen', 'mud', 'snow', 'runef
   'grass', 'cobble', 'dirt', 'hedge', 'shallows', 'bog', 'ice', 'dune', 'glassflat', 'loam', 'bramble', 'steppe', 'quartz',
   'cryptfloor', 'cryptwall', 'cryptwater', 'emberfloor', 'emberwall', 'emberlava', 'carpet',
   'combfloor', 'waxwall', 'honey', 'stageboards', 'velvetwall', 'prismfloor', 'crystalwall', 'dreamfloor', 'dreamwall', 'starvoid', 'dreambridge', 'fadebridge', 'fadegone',
-  'cliff', 'rift'];
+  'cliff', 'rift', 'fvsnow', 'fvice', 'fvwater', 'fvwall'];
 export const TID = Object.fromEntries(TILE_NAMES.map((n, i) => [n, i]));
 const SOLID_TILES = new Set([TID.water, TID.deep, TID.forgewall, TID.void, TID.chapelwall, TID.ribwall, TID.hedge, TID.bramble, TID.cryptwall, TID.emberwall, TID.cryptwater,
-  TID.waxwall, TID.velvetwall, TID.crystalwall, TID.dreamwall, TID.starvoid, TID.fadegone, TID.cliff]);
+  TID.waxwall, TID.velvetwall, TID.crystalwall, TID.dreamwall, TID.starvoid, TID.fadegone, TID.cliff, TID.fvwall]);
 export const BIOMES = ['shore', 'fen', 'runeholt', 'godfall', 'dunes', 'thornwood', 'steppe', 'lowlands'];
 // how deep in each land lies: 0 the coast ... 3 the god's fall. The three newer lands share a ring with an older one.
 export const BIOME_RING = [0, 1, 2, 3, 0, 1, 2, 1];
@@ -25,7 +25,12 @@ export const SKINS = [null,
   ['ow_tiles/midlands_forest_floor', 'loam'], ['ow_tiles/midlands_leaf_litter', 'loam'], ['ow_tiles/midlands_mossy_stone', 'loam'], ['ow_tiles/midlands_stream', 'shallows'],
   ['ow_tiles/highlands_rock_floor', 'runefloor'], ['ow_tiles/highlands_gravel', 'runefloor'], ['ow_tiles/highlands_alpine_grass', 'runefloor'],
   ['ow_tiles/highlands_cliff_top', 'cliff'], ['ow_tiles/highlands_snowcap', 'snow'], ['ow_tiles/highlands_gravel', 'steppe'],
-  ['ow_tiles/godlands_ash_ground', 'ash'], ['ow_tiles/godlands_blood_rock', 'obsidian'], ['ow_tiles/godlands_rift', 'rift']];
+  ['ow_tiles/godlands_ash_ground', 'ash'], ['ow_tiles/godlands_blood_rock', 'obsidian'], ['ow_tiles/godlands_rift', 'rift'],
+  // Frostveil Hollows (expansion_one): snow in patches, ice, frigid water, and the wall's top (its face is drawn by the renderer)
+  ['ex_tiles/frostveil_snow_a', 'fvsnow'], ['ex_tiles/frostveil_snow_b', 'fvsnow'], ['ex_tiles/frostveil_ice', 'fvice'],
+  ['ex_tiles/frostveil_frigid_water', 'fvwater'], ['ex_tiles/frostveil_wall_top', 'fvwall']];
+// a wall skin's face: drawn under the wall, toward the camera, so walls stand up (RotMG-style)
+export const WALL_FACE = { fvwall: 'ex_tiles/frostveil_wall_side' };
 export const SKIN_TID = SKINS.map((s) => (s ? TID[s[1]] : -1));
 export const SK = Object.fromEntries(SKINS.map((s, k) => [s ? s[0].split('/')[1].replace(/^(shore|lowlands|midlands|highlands|godlands)_/, '') + (s[1] === 'deep' || s[1] === 'steppe' ? '@' + s[1] : '') : '-', k]));
 // a fixed per-tile hash (0..1), so jitter and dithering never disturb the generator's random stream
@@ -649,10 +654,11 @@ export function randomTileInBiome(m, b, r, avoid, minD = 14) {
 // Upper dungeons seal their boss behind a gate (def.seals: wardens, levers, a puzzle); the lower ones don't.
 export function dungeon(seed, def) {
   const r = rng(seed);
-  const S = { chapel: 200, crypt: 180, forge: 180, scriptorium: 214, heart: 196, throne: 196, hive: 200, theatre: 190, spire: 220, islands: 230 }[def.style] || 230;
+  const S = { chapel: 200, crypt: 180, forge: 180, scriptorium: 214, heart: 196, throne: 196, hive: 200, theatre: 190, spire: 220, islands: 230, frostveil: 300 }[def.style] || 230;
   const FLOOR = TID[def.floor], WALL = TID[def.wall], HAZ = def.hazard ? TID[def.hazard] : null;
   const WET = def.style === 'crypt' ? TID.cryptwater : TID.water, HOT = def.style === 'ember' ? TID.emberlava : TID.lava;
   const m = makeMap('dungeon', def.name, S, S, TID.void);
+  if (def.style === 'frostveil') m.skin = new Uint8Array(S * S);
   const tile = (x, y) => m.tiles[idx(m, x, y)];
   const set = (x, y, t) => { if (x > 1 && y > 1 && x < S - 2 && y < S - 2) m.tiles[idx(m, x, y)] = t; };
   const carve = (x0, y0, x1, y1, t = FLOOR) => {
@@ -708,6 +714,45 @@ export function dungeon(seed, def) {
 
   // ================================================================ the layouts
   const LAYOUT = {
+    // ---- FROSTVEIL HOLLOWS: a cavern that winds east under the ice. Mouth, caverns, an ice run, the Hall of the
+    // Frozen, more caverns, the Wyrm's Stair, the Frozen Lake; a grotto and a second ice run hang off to the side.
+    frostveil() {
+      const order = ['mouth', 'cavern', 'cavern', 'icerun', 'cavern', 'hall', 'cavern', 'stair', 'lake'];
+      const SIZE = { mouth: [16, 14], cavern: [0, 0], icerun: [30, 9], hall: [34, 11], stair: [13, 11], lake: [36, 40] };
+      let x = 10, cy = S >> 1, prev = null, start = null, lake = null;
+      const path = [];
+      order.forEach((kind, k) => {
+        let w, h, o = { kind, dep: k };
+        if (kind === 'cavern') { const rad = r.int(9, 11); w = h = rad * 2 + 2; Object.assign(o, { shape: 'blob', rad, seed: r() }); }
+        else if (kind === 'lake') { [w, h] = SIZE.lake; o.shape = 'round'; }
+        else if (kind === 'mouth') { [w, h] = SIZE.mouth; Object.assign(o, { shape: 'blob', rad: 7, seed: r(), calm: true }); }
+        else [w, h] = SIZE[kind];
+        if (kind === 'stair') o.role = 'rest';
+        if (kind === 'hall' || kind === 'icerun') o.few = true;
+        const n = room(x, cy - (h >> 1), w, h, o);
+        if (prev) {                                                   // a winding tunnel, three wide, from one to the next
+          const ax = prev.cx, ay = prev.cy, bx = n.cx, by = n.cy, mx = (ax + bx) >> 1, my = ((ay + by) >> 1) + r.int(-5, 5);   // centre to centre: blobs have ragged edges
+          tube(ax, ay, mx, my, 1); tube(mx, my, bx, by, 1); link(prev, n);
+        } else start = n;
+        path.push(n); prev = n; lake = n;
+        x = n.x + n.w + r.int(6, 9);
+        cy = Math.max(46, Math.min(S - 46, cy + r.int(-16, 16)));
+      });
+      // off the main way: a grotto (treasure) and a second ice run, each hanging above or below a cavern
+      const caves = path.filter((n) => n.kind === 'cavern');
+      for (const [kind, w, h] of [['grotto', 15, 13], ['icerun', 26, 9]]) {
+        for (let t = 0; t < 12; t++) {
+          const a = r.pick(caves), up = r.chance(0.5), nx = a.cx - (w >> 1) + r.int(-4, 4), ny = up ? a.y - h - r.int(6, 9) : a.y + a.h + r.int(6, 9);
+          if (!voidAt(nx - 2, ny - 2, nx + w + 1, ny + h + 1)) continue;
+          const n = room(nx, ny, w, h, { kind, dep: a.dep, leaf: true, few: kind === 'icerun', side: true, role: kind === 'grotto' ? 'treasure' : 'fight' });
+          tube(a.cx, a.cy, n.cx, n.cy, 1);
+          link(a, n);
+          break;
+        }
+      }
+      m.fvPath = path.length;
+      return { start, boss: lake };
+    },
     // ---- THE SUNKEN CHAPEL: a drowned cathedral, never quite the same twice
     chapel() {
       const cy = S >> 1, start = room(12, cy - 6, 13, 13, { kind: 'narthex' });
@@ -1093,7 +1138,55 @@ export function dungeon(seed, def) {
   const THEMES = ['foundry', 'golemworks', 'smeltery', 'armory', 'bridgehall', 'quarters'].sort(() => r() - 0.5);
   let themeK = 0;
   const quietRole = (n) => n.role === 'puzzle' || n.role === 'altar' || n.role === 'lever' || n.role === 'mirror' || n.role === 'trial';
+  const FV = (k) => 'ex_decor/frostveil_' + k;
+  const fvBrazier = (x, y, extra = {}) => { if (isF(x, y) && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) put(m, FV('frost_brazier'), x, y, true, { fvBrazier: true, lit: true, ...extra }); };
   const DRESS = {
+    frostveil(n) {
+      const inRoom = (x, y) => x >= n.x && y >= n.y && x < n.x + n.w && y < n.y + n.h && isF(x, y);
+      const edge = (x, y) => [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => tile(x + dx, y + dy) === TID.void);
+      const crystals = (p) => { for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) if (inRoom(x, y) && edge(x, y) && r.chance(p)) put2(null, x, y, FV('ice_crystal')); };
+      const pool = (px, py, rad, t) => { for (let y = py - rad; y <= py + rad; y++) for (let x = px - rad; x <= px + rad; x++) if (inRoom(x, y) && Math.hypot(x - px, y - py) <= rad + 0.3) set(x, y, t); };
+      if (n.kind === 'mouth') {                                       // the way in: pines either side, two braziers, and someone's last camp
+        put2(null, n.x + 2, n.cy - 4, FV('snowy_pine')); put2(null, n.x + 2, n.cy + 4, FV('snowy_pine'));
+        fvBrazier(n.cx - 2, n.cy - 3); fvBrazier(n.cx - 2, n.cy + 3);
+        const cx = n.cx + 3, cy = n.y + 3;
+        put2(null, cx, cy, FV('frost_brazier'), true, { fvBrazier: true, lit: false, unlit: true });
+        put2(null, cx - 1, cy + 1, FV('frozen_statue')); put2(null, cx + 2, cy, FV('snow_rock'), false); put2(null, cx + 1, cy + 2, FV('snow_rock'), false);
+      } else if (n.kind === 'cavern') {                              // snow round the edge, a sheet of ice in the middle, frigid pools, crystals on the walls
+        const rx = n.rad * 0.45;
+        for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) if (inRoom(x, y) && Math.hypot(x - n.cx, (y - n.cy) * 1.2) < rx) set(x, y, TID.fvice);
+        for (let k = 0, p = r.int(2, 3); k < p; k++) { const a = r() * Math.PI * 2, d = n.rad * 0.7; pool(Math.round(n.cx + Math.cos(a) * d), Math.round(n.cy + Math.sin(a) * d), r.int(1, 2), TID.fvwater); }
+        crystals(0.1);
+        const a = r() * Math.PI * 2; fvBrazier(Math.round(n.cx + Math.cos(a) * n.rad * 0.62), Math.round(n.cy + Math.sin(a) * n.rad * 0.62));
+        for (let k = 0; k < 3; k++) { const b = r() * Math.PI * 2, d = n.rad * (0.5 + r() * 0.3); put2(n, Math.round(n.cx + Math.cos(b) * d), Math.round(n.cy + Math.sin(b) * d), FV('snow_rock'), false); }
+      } else if (n.kind === 'icerun') {                              // a run of ice over frigid water, snow rocks for islands of footing
+        for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) set(x, y, (y - n.y < 2 || n.y + n.h - 1 - y < 2) ? TID.fvwater : TID.fvice);
+        for (let x = n.x + 6; x < n.x + n.w - 4; x += r.int(5, 8)) { const y0 = n.y + r.int(2, n.h - 4); carve(x, y0, x + 1, y0 + 1, TID.fvsnow); }
+        for (let x = n.x + 3; x < n.x + n.w - 3; x += r.int(4, 7)) { const y = n.y + r.int(2, n.h - 3); if (tile(x, y) === TID.fvice) set(x, y, TID.fvwater); }
+        carve(n.x, n.cy - 1, n.x + 1, n.cy + 1, TID.fvsnow); carve(n.x + n.w - 3, n.cy - 1, n.x + n.w - 1, n.cy + 1, TID.fvsnow);   // footing at each end
+      } else if (n.kind === 'hall') {                                // the Hall of the Frozen: statues down both sides; some of them are watching
+        for (let x = n.x; x < n.x + n.w; x++) for (let y = n.cy - 1; y <= n.cy + 1; y++) set(x, y, TID.fvice);
+        const spots = [];
+        for (let x = n.x + 2; x < n.x + n.w - 2; x += 2) { spots.push([x, n.y + 1]); spots.push([x, n.y + n.h - 2]); }
+        const wake = new Set(spots.map((_, i) => i).sort(() => r() - 0.5).slice(0, r.int(4, 6)));
+        spots.forEach(([x, y], i) => put2(null, x, y, FV('frozen_statue'), true, { fvStatue: true, sentinel: wake.has(i) }));
+        fvBrazier(n.x + 1, n.cy - 3); fvBrazier(n.x + n.w - 2, n.cy + 3);
+        m.fvHall = { x0: n.x + n.w / 3, x1: n.x + (2 * n.w) / 3, y0: n.y, y1: n.y + n.h, woke: false };
+      } else if (n.kind === 'grotto') {                              // a ring of crystals round the cache, a gap toward the way in
+        for (let k = 0; k < 14; k++) { const a = (k / 14) * Math.PI * 2; if (Math.abs(Math.sin(a)) > 0.92) continue; put2(null, Math.round(n.cx + Math.cos(a) * 4.5), Math.round(n.cy + Math.sin(a) * 3.5), FV('ice_crystal')); }
+        fvBrazier(n.x + 2, n.y + 2);
+      } else if (n.kind === 'stair') {                               // the Wyrm's Stair: the last warm place
+        for (const [dx, dy] of [[2, 2], [n.w - 3, 2], [2, n.h - 3], [n.w - 3, n.h - 3]]) fvBrazier(n.x + dx, n.y + dy);
+        put2(null, n.cx - 3, n.y + 1, FV('snowy_pine')); put2(null, n.cx + 3, n.y + 1, FV('snowy_pine'));
+      } else if (n.kind === 'lake') {                                // the Frozen Lake: ice, a rim of snow, four braziers on the rim
+        for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) {
+          if (!inRoom(x, y)) continue;
+          const d = Math.hypot((x - n.cx) / (n.w / 2), (y - n.cy) / (n.h / 2));
+          set(x, y, d > 0.8 ? TID.fvsnow : TID.fvice);
+        }
+        for (const [dx, dy] of [[0, -1], [0, 1], [-1, 0], [1, 0]]) fvBrazier(Math.round(n.cx + dx * (n.w / 2) * 0.88), Math.round(n.cy + dy * (n.h / 2) * 0.88), { fvRim: true });
+      }
+    },
     chapel(n) {
       if (n.kind === 'nave') {                                          // pillars, pews either side of the aisle, flooded side aisles
         for (let x = n.x + 2; x < n.x + n.w - 2; x += 4) { set(x, n.y + 3, WALL); set(x, n.y + n.h - 4, WALL); }
@@ -1384,7 +1477,7 @@ export function dungeon(seed, def) {
   const DEC = { chapel: ['shell', 'kelp', 'starfish', 'skullmoss'], forge: ['embervent', 'goldrubble', 'bonepile', 'brokenshield'], heart: ['bonepile', 'goldrubble', 'skullmoss', 'embervent'],
     scriptorium: ['icecrystal', 'runepebble', 'snowtuft', 'brokenshield'], crypt: ['bonepile', 'skullmoss', 'shell', 'kelp'],
     ember: ['embervent', 'goldrubble', 'bonepile'], throne: ['goldrubble', 'pillarstub', 'brokenshield'],
-    hive: ['goldrubble', 'shell', 'kelp'], theatre: ['brokenshield', 'goldrubble', 'runepebble'], spire: ['icecrystal', 'runepebble', 'icecrystal'], islands: ['snowtuft', 'runepebble', 'icecrystal'] }[def.style] || ['bonepile', 'goldrubble'];
+    hive: ['goldrubble', 'shell', 'kelp'], theatre: ['brokenshield', 'goldrubble', 'runepebble'], spire: ['icecrystal', 'runepebble', 'icecrystal'], islands: ['snowtuft', 'runepebble', 'icecrystal'], frostveil: ['snowtuft', 'icecrystal', 'snowtuft', 'runepebble'] }[def.style] || ['bonepile', 'goldrubble'];
   for (const n of [...rooms.filter((n) => n !== boss), ...secrets]) {
     for (let j = 0; j < Math.round(n.w * n.h * 0.04); j++) { const x = n.x + r.int(1, n.w - 2), y = n.y + r.int(1, n.h - 2); if (isF(x, y)) m.decor.push({ name: r.pick(DEC), x, y }); }
   }
@@ -1429,8 +1522,19 @@ export function dungeon(seed, def) {
     crystal_cluster: [3.5, '#c8a0ff', 0], prism_pillar: [5, '#ffffff', 0], great_lens: [8, '#fffbe0', 0], lens_pedestal: [3, '#fff6c8', 0], beam_lamp: [3, '#fffbe0', 0],
     dream_lamp: [5.5, '#c8b0ff', 1], moon_shard: [3.5, '#bff0ff', 0], dream_sigil: [3.5, '#ff7ab8', 0],
     'ow_objects/midlands_campfire': [5, '#ff9a3a', 1], 'ow_objects/midlands_glow_mushrooms': [2.5, '#7affc8', 0], 'ow_objects/godlands_blood_fountain': [4, '#ff3a4a', 0],
-    'ow_objects/godlands_rift_crystal': [2, '#ff5ad0', 0], 'ow_objects/godlands_corrupted_obelisk': [3, '#c03aff', 0] };
-  m.lights = m.objects.filter((o) => LIGHT[o.sprite]).map((o) => { const L = LIGHT[o.sprite]; return { x: o.x, y: o.y - 0.4, r: L[0] * 16, col: L[1], fire: !!L[2] }; });
+    'ow_objects/godlands_rift_crystal': [2, '#ff5ad0', 0], 'ow_objects/godlands_corrupted_obelisk': [3, '#c03aff', 0],
+    'ex_decor/frostveil_frost_brazier': [5, '#a8f0ff', 1], 'ex_decor/frostveil_ice_crystal': [2.2, '#8ad8ff', 0] };
+  m.lights = m.objects.filter((o) => LIGHT[o.sprite] && !o.unlit).map((o) => { const L = LIGHT[o.sprite]; return (o.light = { x: o.x, y: o.y - 0.4, r: L[0] * 16, col: L[1], fire: !!L[2] }); });
+  if (def.style === 'frostveil') {                                    // the ice: snow in slow patches, ice, frigid water, the wall tops
+    const pv = noise2(seed ^ 0x51f15e);
+    for (let i = 0; i < m.tiles.length; i++) {
+      const t = m.tiles[i];
+      if (t === TID.fvsnow) m.skin[i] = pv((i % S) / 6, Math.floor(i / S) / 6) > 0.52 ? SK.frostveil_snow_b : SK.frostveil_snow_a;
+      else if (t === TID.fvice) m.skin[i] = SK.frostveil_ice;
+      else if (t === TID.fvwater) m.skin[i] = SK.frostveil_frigid_water;
+      else if (t === TID.fvwall) m.skin[i] = SK.frostveil_wall_top;
+    }
+  }
   for (let y = 2; y < S - 2; y += 4) for (let x = (y >> 2) % 2 * 2 + 2; x < S - 2; x += 4) {    // lava glows (sampled, so a lake is a few soft pools)
     const t = tile(x, y);
     if (t === TID.lava || t === TID.emberlava) m.lights.push({ x: x + 0.5, y: y + 0.5, r: 40, col: '#ff7a1a', fire: true });

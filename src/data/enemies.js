@@ -1306,6 +1306,45 @@ Object.assign(CAMP_LOOT, { lowlands: [{ slot: 'weapon', tiers: [3, 5], p: 0.8 },
 // the Giant Watermelon (src/melon.js): no attacks, no speech, no ordinary loot; it bursts instead
 ENEMIES.giant_watermelon = { name: 'Giant Watermelon', biome: 'event', melon: true, hp: 4000, def: 0, speed: 0, xp: 150, r: 1.3, ai: 'rooted', aggro: 0,
   attacks: [], loot: [] };
+// ================================================================ FROSTVEIL HOLLOWS (Realm Update, docs/design/dungeon_frostveil.md)
+// Art from the registry (ex_frostveil). Runeholt's tier; the dungeon adds its own 1.4x. Frost shots add chill.
+{
+  const LF = L([5, 8], [5, 8], [2, 3], [2, 3], 0.04), FVE = (k) => 'ex_frostveil/' + k;
+  Object.assign(ENEMIES, {
+    frost_sprite: { name: 'Frost Sprite', biome: 'frostveil', reg: FVE('frost_sprite'), hp: 700, def: 6, speed: 2.6, xp: 70, r: 0.4, ai: 'kite', keep: 6, aggro: 11, fly: true,
+      attacks: [{ pattern: 'aimed', proj: 'iceneedle', count: 3, arc: 0.35, dmg: 48, speed: 8, range: 8, cd: 1.8, tell: 300, chill: 12 }], loot: LF },
+    glacial_sentinel: { name: 'Glacial Sentinel', biome: 'frostveil', reg: FVE('glacial_sentinel'), scale: 1.4, hp: 2000, def: 22, speed: 1.0, xp: 120, r: 0.6, ai: 'shamble', aggro: 10, contact: 60,
+      attacks: [{ pattern: 'radial', proj: 'frostshard', count: 8, turn: 0.2, dmg: 55, speed: 4.5, range: 6, cd: 2.8, tell: 650 },
+        { pattern: 'aimed', proj: 'icicle', count: 1, dmg: 62, speed: 8, range: 8, cd: 1.6, tell: 300 }], loot: LF },
+    rime_wolf: { name: 'Rime Wolf', biome: 'frostveil', reg: FVE('rime_wolf'), hp: 800, def: 8, speed: 3.6, xp: 70, r: 0.45, ai: 'flank', aggro: 11, contact: 50,
+      attacks: [{ pattern: 'aimed', proj: 'snapjaw', count: 2, arc: 0.3, dmg: 50, speed: 8, range: 5, cd: 1.6, tell: 200 }], loot: LF },
+    shardling: { name: 'Shardling', biome: 'frostveil', reg: FVE('shardling'), hp: 380, def: 4, speed: 3.8, xp: 40, r: 0.38, ai: 'skitter', aggro: 10, contact: 38,
+      deathBurst: { n: 4, proj: 'shard', dmg: 38, speed: 5, range: 4 },
+      attacks: [{ pattern: 'aimed', proj: 'shard', count: 1, dmg: 40, speed: 7, range: 5, cd: 2.0, tell: 250 }], loot: LF },
+  });
+  const CHF = [{ slot: 'weapon', tiers: [5, 8], p: 0.8 }, { slot: 'armor', tiers: [5, 8], p: 0.8 }, { slot: 'ability', tiers: [2, 3], p: 0.5 }, { slot: 'ring', tiers: [2, 3], p: 0.4 },
+    { stat: true, p: 0.8 }, { id: 'pot_mp', p: 1 }];
+  DUNGEONS.frostveil = { name: 'Frostveil Hollows', floor: 'fvsnow', wall: 'fvwall', hazard: null, rooms: 11, portal: 'frostveil', style: 'frostveil',
+    layout: { secrets: 1 }, seals: [], altar: false, chestLoot: CHF, mobs: ['frost_sprite', 'glacial_sentinel', 'rime_wolf', 'shardling'], elites: [],
+    boss: 'glacius_frozen_wyrm', mobHp: 1.4, ambient: 'rgba(6,14,32,0.55)',
+    // who is in each room, by how deep it lies: wolves and shardlings first, then sentinels with sprites behind them
+    compose(rm, r, deep) {
+      if (rm.kind === 'hall') return ['frost_sprite', 'frost_sprite'];
+      if (rm.kind === 'icerun') return ['shardling', 'shardling', 'shardling', 'shardling', 'frost_sprite'];
+      const out = [];
+      if (deep < 0.35) { out.push('rime_wolf', 'rime_wolf', 'rime_wolf'); for (let k = r.int(3, 4); k > 0; k--) out.push('shardling'); }
+      else if (deep < 0.7) out.push('glacial_sentinel', 'frost_sprite', 'frost_sprite', 'rime_wolf', 'rime_wolf', 'shardling', 'shardling');
+      else out.push('glacial_sentinel', 'glacial_sentinel', 'frost_sprite', 'frost_sprite', 'frost_sprite', 'rime_wolf', 'rime_wolf', 'rime_wolf');
+      if (rm.role === 'treasure') out.push('glacial_sentinel');
+      return out;
+    } };
+  // its portal comes from Runeholt and the steppe (sharing those lands with the Scriptorium and the Theatre)
+  PORTAL_EXTRA.unshift((D) => {
+    if ((D.biome === 'runeholt' || D.biome === 'steppe') && Math.random() < 0.35) return ['frostveil', D.children ? 0.05 : 0.012];
+    return null;
+  });
+  Object.assign(SPEECH, { glacius_frozen_wyrm: { see: ['...WARMTH. I SMELL IT ON YOU.', '...THE LAKE KEEPS WHAT FALLS THROUGH.'], die: ['...the ice... gives...'] } });
+}
 // the bands round the campfires: orcs and their archers in the Thornwood, goblins in the Greenmarch
 export const FIRECAMP_BANDS = { thornwood: ['orc_brute', 'orc_brute', 'bandit_archer', 'bandit_archer'], lowlands: ['hedge_goblin', 'hedge_goblin', 'hedge_goblin', 'field_rat'] };
 Object.assign(SPEECH, {
