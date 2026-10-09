@@ -28,3 +28,7 @@
 ## Phase 2d (overworld monsters)
 - 20 overworld + 5 ow2 monsters in their mapped lands; the Field Warden leads the Greenmarch; packs and campfire bands.
 - Tuning: hermit shell 4 hits / 0.6 s, 1.5 s shut, 4.5 s before it can shut again. Registry monsters' facing inverted.
+
+## Phase 2e (the Giant Watermelon)
+- Rare realm event (src/melon.js), 12 melon items with registry icons, slice heal-over-time, `/melon`.
+- Spawn chance 0.006 tried first (median 0.64 h), set to the bundle's 0.004 (about 1 h). Splashes cut from 6 to 2.

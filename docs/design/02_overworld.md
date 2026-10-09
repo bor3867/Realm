@@ -160,6 +160,26 @@ The dunes and the fen keep their own look.
 - The **Giant Watermelon** (lowlands/midlands grass, one at a time, very rare, despawns after 10 min).
 - The **Abyssal Kraken** and the **Thornheart Treant** use the boss framework; each gets its own boss note.
 
+### Result (2e, built): the Giant Watermelon
+- `src/melon.js` (mixed into Game). One alive at most; a check every 20 s with the bundle's 0.004 chance (a median
+  of about an hour of realm time); it ripens on Greenmarch grass or Thornwood loam with room for its 3x2 body,
+  25+ tiles from you, announced to the realm and marked on the minimap wherever it is. It rots after 10 minutes.
+- An enemy with no attacks (`ENEMIES.giant_watermelon`, `melon: true`, 4000 life, rooted, never shoved). The
+  renderer plays the bundle's clips: idle glint, cracked below 66% and 33%, a hurt flash per stage with
+  `melon_hit`, the burst on death with a juice splash each side; the halves lie in their juice for 20 s and fade.
+- Loot lands on the burst's last frame (0.5 s): 1–3 slices always, then independent rolls of 35% / 25% / 6% / 1%
+  (the bundle's table, kept: the event is rare enough to carry it). Over 1000 melons: ~2000 slices, ~85 of each
+  common item, ~20 of each rare, ~10 golden honeydews.
+- 12 items with registry icons (`reg:` on the item; `Renderer.icon` draws the 8x8 at 2x through the usual outline
+  and fit): Melon Slicer (sword, a sip of lifesteal), Rindguard (heavy), Vinegrown Staff (seeking seeds),
+  Seedspitter (bow, five seeds in a wide spray), Rind Bulwark (seal: armor, a heal and a ring of seeds with an
+  aftershock), Ring of the Rind, Honeydew Scepter (wand, sticky slowing bolts), Dewveil Robe (regen when low),
+  Dewdrop Ring, Melon Baller (dagger, crits), The Golden Honeydew (ring: mends on kills and when low), and the
+  Watermelon Slice (40 Life now, 200 over 5 s).
+- `/melon` (admin) drops one beside you. `tools/check_melon.mjs` checks spawn lands, no attacks, the burst timing,
+  the halves, rotting, the slice's regen and the loot odds.
+- Tuned after looking: six juice splashes hid the burst frame; now one each side.
+
 ## Order of work (one commit each)
 2a performance infrastructure + after-numbers · 2b tiles, variants, transitions, lowlands wedge · 2c objects,
 clustering, landmarks · 2d enemies, packs, ow2 behaviours · 2e the Giant Watermelon · 2f the Kraken and the Treant.

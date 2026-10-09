@@ -159,6 +159,8 @@ for (const s of STATS) {
 export const POTION_ORDER = ['hp', 'mp', 'life', 'mana', 'att', 'def', 'spd', 'dex', 'vit', 'wis'];
 add({ id: 'pot_hp', type: 'potion', slot: 'consumable', tier: null, name: 'Draught of Embers', icon: 0, use: { heal: 120 }, desc: 'Restores 120 Life.' });
 add({ id: 'pot_mp', type: 'potion', slot: 'consumable', tier: null, name: 'Draught of Tides', icon: 1, use: { mana: 120 }, desc: 'Restores 120 Mana.' });
+add({ id: 'watermelon_slice', type: 'potion', slot: 'consumable', tier: null, name: 'Watermelon Slice', icon: 0, reg: 'mx_items/watermelon_slice',
+  use: { heal: 40, regen: { hp: 200, t: 5 } }, desc: 'Restores 40 Life at once, then 200 more over 5 seconds. Spit the seeds.' });
 const STATPOT = { hp: 'Heartstone Tincture', mp: 'Wellspring Tincture', att: 'Tincture of Wrath', def: 'Tincture of Iron', spd: 'Tincture of Gales', dex: 'Tincture of Hands', vit: 'Tincture of Marrow', wis: 'Tincture of Runes' };
 for (const s of STATS) {
   const icon = POTION_ORDER.indexOf(s === 'hp' ? 'life' : s === 'mp' ? 'mana' : s);
@@ -566,6 +568,41 @@ const SPECIAL = {
   crown_of_the_fallen: { passive: { crit: { p: 0.18, x: 2 }, execute: 0.35 } },
   shard_of_the_first_star: { passive: { crit: { p: 0.15, x: 2 }, killheal: 30, momentum: 0.1 } },
 };
+// ---- the Giant Watermelon's fruit (melon_event; icons from the registry, mx_items). Light and a little silly:
+// a lowlands event, so they sit around the middle tiers, each with one juicy twist.
+UT.push(
+  { id: 'melon_slicer', type: 'sword', slot: 'weapon', name: 'Melon Slicer', reg: 'mx_items/melon_slicer',
+    weapon: { dmg: [120, 180], range: 3.0, speed: 9, rate: 1.05, proj: 'blade', size: 0.5 }, desc: 'Sharp enough to part a rind in one stroke. It drips a little.' },
+  { id: 'rindguard', type: 'heavy', slot: 'armor', name: 'Rindguard', reg: 'mx_items/rindguard', bonus: { def: 14, hp: 60, vit: 4 },
+    desc: 'Plates of cured rind. Surprisingly tough, faintly sweet.' },
+  { id: 'vinegrown_staff', type: 'staff', slot: 'weapon', name: 'Vinegrown Staff', reg: 'mx_items/vinegrown_staff',
+    weapon: { dmg: [60, 92], count: 2, arc: 0.1, range: 6, speed: 14, rate: 1.0, proj: 'thornseed', size: 0.45 }, desc: 'Still growing. The seeds it throws go looking for something to land on.' },
+  { id: 'seedspitter_bow', type: 'bow', slot: 'weapon', name: 'Seedspitter', reg: 'mx_items/seedspitter_bow',
+    weapon: { dmg: [38, 62], count: 5, arc: 0.45, range: 5.2, speed: 15, rate: 1.0, proj: 'thornseed', size: 0.4 }, desc: 'Five seeds a pull, in a wide spray. Aim roughly.' },
+  { id: 'rind_bulwark', type: 'seal', slot: 'ability', name: 'Rind Bulwark', reg: 'mx_items/rind_bulwark',
+    ability: { cost: 70, armored: 4, heal: 100, burst: { count: 12, proj: 'thornseed', dmg: 120, range: 4 } }, desc: 'A shield of thick green rind. Slam it down and the seeds fly.' },
+  { id: 'ring_of_the_rind', type: 'ring', slot: 'ring', name: 'Ring of the Rind', reg: 'mx_items/ring_of_the_rind', bonus: { hp: 80, def: 4 },
+    desc: 'A green band with a stripe of red inside, like a slice held up to the light.' },
+  { id: 'honeydew_scepter', type: 'wand', slot: 'weapon', name: 'Honeydew Scepter', reg: 'mx_items/honeydew_scepter',
+    weapon: { dmg: [85, 135], range: 8, speed: 18, rate: 1.05, proj: 'nectar', size: 0.42 }, desc: 'Its bolts leave everything they touch sticky and slow.' },
+  { id: 'dewveil_robe', type: 'robe', slot: 'armor', name: 'Dewveil Robe', reg: 'mx_items/dewveil_robe', bonus: { def: 7, mp: 80, wis: 6 },
+    desc: 'Pale green and always cool, like the morning on a melon patch.' },
+  { id: 'dewdrop_ring', type: 'ring', slot: 'ring', name: 'Dewdrop Ring', reg: 'mx_items/dewdrop_ring', bonus: { mp: 60, wis: 6, vit: 3 },
+    desc: 'One bead of honeydew, set in silver and never quite dry.' },
+  { id: 'melon_baller', type: 'dagger', slot: 'weapon', name: 'Melon Baller', reg: 'mx_items/melon_baller',
+    weapon: { dmg: [80, 125], range: 3.4, speed: 13, rate: 1.45, proj: 'honeyglob', size: 0.42 }, desc: 'Scoops. Quickly. Now and then it scoops out something important.' },
+  { id: 'golden_honeydew', type: 'ring', slot: 'ring', name: 'The Golden Honeydew', reg: 'mx_items/golden_honeydew', bonus: { hp: 100, mp: 80, vit: 8, wis: 8 },
+    desc: 'One in a hundred melons grows one. It hums when you are hurt, and mends you when something dies.' },
+);
+Object.assign(SPECIAL, {
+  melon_slicer: { weapon: { lifesteal: 0.02 } },
+  vinegrown_staff: { weapon: { homing: 2 } },
+  honeydew_scepter: { weapon: { slow: { f: 0.25, t: 1 } } },
+  melon_baller: { weapon: { crit: { p: 0.12, x: 2 } } },
+  rind_bulwark: { mod: 'aftershock' },
+  dewveil_robe: { passive: { lowregen: 30 } },
+  golden_honeydew: { passive: { killheal: 30, lowregen: 30 } },
+});
 for (const u of UT) {
   const S = SPECIAL[u.id];
   if (!S) continue;
@@ -688,6 +725,7 @@ export function itemLabel(it) {
   return `${it.mythic ? 'Mythic' : it.ut ? 'Untiered' : 'T' + it.tier} ${TYPE_LABEL[it.type]}${who}`;
 }
 export function iconIndex(world, it) {
+  if (it.reg) return world.items.potion;          // drawn from the registry instead (Renderer.icon); this is a fallback
   const id = it.base || it.id;
   if (it.ut || world.items[id] !== undefined) return world.items[id];
   if (it.slot === 'consumable') return world.items.potion + it.icon;

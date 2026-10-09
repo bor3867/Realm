@@ -1303,6 +1303,9 @@ Object.assign(BIOME_SPAWNS, { lowlands: [['field_rat', 2, 4], ['hedge_goblin', 2
 PACKS.shore.push(['shore_crab', 16]); PACKS.runeholt.push(['stone_harpy', 8]); PACKS.godfall.push(['rift_wraith', 6]);
 Object.assign(PACKS, { lowlands: [['field_rat', 12], ['wild_boar', 6]] });
 Object.assign(CAMP_LOOT, { lowlands: [{ slot: 'weapon', tiers: [3, 5], p: 0.8 }, { slot: 'armor', tiers: [3, 5], p: 0.8 }, { slot: 'ring', tiers: [1, 2], p: 0.45 }, { stat: true, p: 0.4 }, { id: 'pot_hp', p: 1 }] });
+// the Giant Watermelon (src/melon.js): no attacks, no speech, no ordinary loot; it bursts instead
+ENEMIES.giant_watermelon = { name: 'Giant Watermelon', biome: 'event', melon: true, hp: 4000, def: 0, speed: 0, xp: 150, r: 1.3, ai: 'rooted', aggro: 0,
+  attacks: [], loot: [] };
 // the bands round the campfires: orcs and their archers in the Thornwood, goblins in the Greenmarch
 export const FIRECAMP_BANDS = { thornwood: ['orc_brute', 'orc_brute', 'bandit_archer', 'bandit_archer'], lowlands: ['hedge_goblin', 'hedge_goblin', 'hedge_goblin', 'field_rat'] };
 Object.assign(SPEECH, {

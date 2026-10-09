@@ -389,6 +389,11 @@ export class Renderer {
       let def = C.get(o.sprite);
       if (def === undefined) C.set(o.sprite, (def = (this.R && this.R.resolve(o.sprite)) || null));
       if (!def) return;
+      if (o.melonOpen) {                                     // the burst melon's halves, in their juice, fading at the end
+        if (this.lastT < o.born) return;
+        this.drawDef(def, def.anims.opened.frames[0], sx, sy + 4, { alpha: Math.max(0, Math.min(1, (o.until - this.lastT) / 3)) });
+        return;
+      }
       const A = Object.values(def.anims)[0], fr = A.frames.length > 1 ? A.frames[Math.floor(this.lastT * (A.fps || 4) + o.x * 0.7 + o.y * 0.3) % A.frames.length] : A.frames[0];
       if (o.solid) this.shadow(sx, sy + 7, def.size[1] > 8 ? 12 : 10);
       this.drawDef(def, fr, sx, sy + 8);
@@ -876,6 +881,7 @@ export class Renderer {
     if (e.hidden) return;                                   // the Puppeteer, offstage during his intermission
     if (e.rb) return this.realmBoss(g, e, sx, sy);
     if (e.D.reg) return this.regEnemy(g, e, sx, sy);
+    if (e.D.melon) return this.melon(g, e, sx, sy);
     if (e.D.sheet === 'champions') return this.champion(g, e, sx, sy);
     const S = this.A.sheets.enemies, meta = S.guide.enemies[e.id];
     if (e.under) return this.mound(g, e, sx, sy, 10);
@@ -924,6 +930,20 @@ export class Renderer {
     }
     if (!e.dead && e.hp < e.maxHp) this.hpBar(sx, sy + 3, e.hp / e.maxHp, 12);
     if (!e.dead && e.stunT > 0) this.stunStars(g, sx, sy, 18);
+  }
+  // the Giant Watermelon: idle (a glint sweeps, the leaf sways), cracked at 66% and 33%, a hurt flash per stage,
+  // the burst as it dies; its soft shadow is in the art
+  melon(g, e, sx, sy) {
+    const def = this.R && this.R.resolve('mx_giant_watermelon/giant_watermelon');
+    if (!def) return;
+    const A = def.anims, f = e.hp / e.maxHp, stage = f < 0.33 ? 'cracked2' : f < 0.66 ? 'cracked1' : 'idle';
+    let fr;
+    if (e.dead) { if (e.rotted) return; fr = A.burst.frames[Math.min(3, Math.floor(e.deadT * A.burst.fps))]; }
+    else if (e.melonHurt && g.t - e.melonHurt < 0.1) fr = A[stage === 'idle' ? 'hurt' : 'hurt_' + stage].frames[0];
+    else fr = A[stage].frames[Math.floor(g.t * A[stage].fps) % A[stage].frames.length];
+    const rise = e.born !== undefined && g.t - e.born < 0.6 && g.t > 1 ? (g.t - e.born) / 0.6 : 1;
+    this.drawDef(def, fr, sx, sy + 4, { alpha: rise });
+    if (!e.dead && e.hp < e.maxHp) this.hpBar(sx, sy + 7, f, 28);
   }
   // per-frame body language: integer pixel offsets only, so the art stays crisp
   alive(g, e, sx, sy, F, big = false) {
@@ -1259,6 +1279,14 @@ export class Renderer {
     const keep = [], c = this.W.fxCols || 8;
     for (const q of L) {
       q.t += dt;
+      if (q.name.includes('/')) {                            // a Realm Update effect (registry clip)
+        const def = q.def || (q.def = this.R && this.R.resolve(q.name)), clip = def && Object.values(def.anims)[0], k = Math.floor(q.t * q.fps);
+        if (!def || k >= clip.frames.length) continue;
+        const [qx, qy] = this.proj(q.x, q.y);
+        this.drawDef(def, clip.frames[k], Math.round(qx), Math.round(qy), { center: true });
+        keep.push(q);
+        continue;
+      }
       const D = F[q.name], fr = Math.floor(q.t * q.fps);
       if (!D || fr >= D.n) continue;
       const k = D.i + fr, [sx, sy] = this.proj(q.x, q.y);
@@ -1384,6 +1412,7 @@ export class Renderer {
       if (v.k === 'shake') { if (shakeOn) this.shake = Math.max(this.shake, v.amt); }
       else if (v.k === 'hurt') { if (shakeOn) this.shake = Math.max(this.shake, v.amt); this.hurtFlash = Math.max(this.hurtFlash, 0.05 + v.amt * 0.02); }
       else if (v.k === 'levelup') this.sprFx('level_up_ring', v.x, v.y, 7);
+      else if (v.k === 'regfx') this.sprFx(v.key, v.x, v.y, v.fps || 12);
       else if (v.k === 'hit') this.sprFx('hit_spark', v.x, v.y, 20), this.spray(v.x, v.y, v.crit ? 10 : 3, v.crit ? ['#ffd650', '#ffffff', '#ff8a1f'] : ['#ffffff', '#fff4c2'], v.crit ? 5 : 2.5, 0.22, v.crit ? 8 : 4);
       else if (v.k === 'boom') { this.spray(v.x, v.y, 18, ['#ffc94a', '#ff7a1a', '#ffffff', '#8c2a12'], 4 + v.r * 2, 0.45, 8); this.rings.push({ x: v.x, y: v.y, t: 0, max: v.r, color: '#ffc94a' }); }
       else if (v.k === 'zap') this.zaps.push({ ...v, t: 0 });
@@ -1408,6 +1437,8 @@ export class Renderer {
         if (e.rb) {
           const S = this.A.sheets[e.D.sheet || 'realm_bosses'], F = S.guide.frameWidth, row = S.guide.bosses[e.id].row;
           cols = this.colorsOf('rb:' + e.id, S.img, 0, row * F, F, F);
+        } else if (e.D.melon) {
+          cols = ['#e83a4a', '#3a8a3a', '#ffd0d8', '#ffffff', '#1a1a1a'];
         } else if (e.D.reg) {
           const def = this.R && this.R.resolve(e.D.reg), f = def && Object.values(def.frames)[0];
           cols = f ? this.colorsOf('g:' + e.D.reg, def.img, f.x, f.y, f.w, f.h) : ['#ffffff'];
@@ -1677,6 +1708,7 @@ export class Renderer {
       mark(s0.x, s0.y, s0.kind === 'warden' ? 'crown' : s0.kind === 'lever' ? 'diamond' : 'quest', s0.kind === 'warden' ? (pulse ? '#ff4a5a' : '#ffb0b8') : s0.kind === 'lever' ? (pulse ? '#ffd650' : '#fff6c8') : (pulse ? '#8af0ff' : '#ffffff'), '#05040a', true);
     }
     for (const e of g.activeMap === m ? g.notable : g.enemies) if (e.herald && !e.dead) mark(e.x, e.y, 'crown', '#f2c14e', '#ff4a5a', true);
+    for (const e of g.activeMap === m ? g.notable : g.enemies) if (e.D.melon && !e.dead) mark(e.x, e.y, 'star', blink ? '#5ae05a' : '#ff6a7a', '#ffffff', true);
     for (const ev of m.events || []) {                       // fallen stars and coin thieves
       if (ev.chest && ev.chest.opened) continue;
       if (ev.e && ev.e.dead) continue;
@@ -1704,7 +1736,10 @@ export class Renderer {
     const k = iconIndex(this.W, ITEMS[id]), c = this.W.itemsCols;
     const src = document.createElement('canvas'); src.width = src.height = 16;
     const sx = src.getContext('2d');
-    sx.drawImage(this.A.img.items, (k % c) * 16, Math.floor(k / c) * 16, 16, 16, 0, 0, 16, 16);
+    const rd = ITEMS[id] && ITEMS[id].reg && this.R && this.R.resolve(ITEMS[id].reg), rf = rd && rd.frames[Object.keys(rd.frames)[0]];
+    sx.imageSmoothingEnabled = false;
+    if (rf) sx.drawImage(rd.img, rf.x, rf.y, rf.w, rf.h, 0, 0, 16, 16);       // a Realm Update item: its 8x8 art at 2x
+    else sx.drawImage(this.A.img.items, (k % c) * 16, Math.floor(k / c) * 16, 16, 16, 0, 0, 16, 16);
     const px = sx.getImageData(0, 0, 16, 16).data, N = 8;
     const at = (x, y) => ((y * 2) * 16 + x * 2) * 4;
     const solid = (x, y) => x >= 0 && y >= 0 && x < N && y < N && px[at(x, y) + 3] > 0;

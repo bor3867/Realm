@@ -7,6 +7,7 @@ import { ENEMIES, PACKS, CAMP_LOOT, BIOME_SPAWNS, BOSS, REALM_BOSSES, PARENTS, H
 import { nexus, vaultRoom, realm, dungeon, isSolid, biomeAt, randomTileInBiome, BIOMES, BIOME_RING, BIOME_LABEL, TID } from './world/maps.js';
 import { writeSave } from './save.js';
 import { installD4 } from './dungeons4.js';
+import { installMelon } from './melon.js';
 import { installBX } from './bossx.js';
 import { BX, bxEnemyDef } from './bosses/index.js';
 import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUEST_HUNTS, FETCH_ITEMS } from './data/lore.js';
@@ -427,6 +428,7 @@ export class Game {
         else { this.toast('Inside: a relic!'); give([R.pick(Object.values(ITEMS).filter((x) => x.ut && !x.mythic && !x.admin && x.slot !== 'consumable').map((x) => x.id))]); }
       }
       if (it.use.heal) p.hp = Math.min(this.stat('hp'), p.hp + it.use.heal);
+      if (it.use.regen) { p.regenRate = it.use.regen.hp / it.use.regen.t; p.regenUntil = this.t + it.use.regen.t; this.vx({ k: 'hearts', x: p.x, y: p.y }); }
       if (it.use.mana) p.mp = Math.min(this.stat('mp'), p.mp + it.use.mana);
       if (it.use.stat) {
         const s = it.use.stat, cap = CLASSES[p.cls].max[s];
@@ -708,7 +710,7 @@ export class Game {
     this.updateTimeStop(dt);
     this.updateProjectiles(dt);
     this.updateWorld(dt);
-    if (this.map.kind === 'realm') { this.maintainRealm(dt); this.eventClock(dt); }
+    if (this.map.kind === 'realm') { this.maintainRealm(dt); this.eventClock(dt); this.melonTick(dt); }
     if (this.map.kind === 'dungeon') { this.updateDungeon(dt); this.updatePuzzles(dt); this.updateTraps(dt); this.updateD4(dt); }
     if (this.map.kind !== 'nexus') this.openChests();
     this.saveT = (this.saveT || 0) + dt;
@@ -770,6 +772,7 @@ export class Game {
       if (p.stepT <= 0) { p.stepT = 0.16; this.vx({ k: 'dust', x: p.x, y: p.y, splash: under === TID.shallows || under === TID.bog, ice: under === TID.ice }); }
     }
     if (bless === 'fen') p.hp = Math.min(this.stat('hp'), p.hp + 25 * dt);
+    if (p.regenUntil > this.t) p.hp = Math.min(this.stat('hp'), p.hp + p.regenRate * dt);          // a watermelon slice, mending slowly
     // facing (screen space): aim while shooting, movement otherwise
     const firing = I.fire || I.auto;
     let ax = mx, ay = my;
@@ -1394,7 +1397,7 @@ export class Game {
     for (const e of this.enemies) {
       if (e.dead) continue;
       if (Math.abs(e.x - p.x) < 30 && Math.abs(e.y - p.y) < 30) act.push(e);
-      if (e.rb || e.herald || e.warden) nb.push(e);
+      if (e.rb || e.herald || e.warden || e.D.melon) nb.push(e);
     }
     for (const e of this.enemies) {
       if (e.dead) { e.deadT += dt; continue; }
@@ -1492,10 +1495,10 @@ export class Game {
     const A = this.active;                          // gentle separation so crowds spread out
     for (let i = 0; i < A.length; i++) {
       const a = A[i];
-      if (a.rb) continue;
+      if (a.rb || a.D.speed === 0) continue;                 // rooted things (and the melon) don't get shoved about
       for (let j = i + 1; j < A.length; j++) {
         const b = A[j];
-        if (b.rb) continue;
+        if (b.rb || b.D.speed === 0) continue;
         const dx = b.x - a.x, dy = b.y - a.y, d2 = dx * dx + dy * dy, min = (a.D.r + b.D.r) * 0.75;
         if (d2 > 0.0001 && d2 < min * min) {
           const d = Math.sqrt(d2), push = (min - d) * 0.25 / d;
@@ -1765,6 +1768,7 @@ export class Game {
     }
     if (e.D && e.D.bx && !e.bxKill) d = this.bxClamp(e, d);
     e.hp -= d; e.hurtT = 0.12;
+    if (e.D && e.D.melon) { e.melonHurt = this.t; this.vx({ k: 'regfx', key: 'mx_effects/melon_hit', x, y: y - 0.2, fps: 14 }); }
     if (e.id === 'coin_imp' && R() < 0.35) { const g0 = 8 + Math.floor(R() * 20); this.save.gold = (this.save.gold || 0) + g0; this.float(e.x, e.y - 1.4, `+${g0}g`, '#ffd650'); this.sfx('coin'); }
     if (!quiet) { this.sfx('hit'); this.vx({ k: 'hit', x, y, crit }); }
     this.float(x, y - 0.8, crit ? `${d}!` : `${d}`, crit ? '#ffd650' : quiet ? '#ff9a5a' : '#ffffff');
@@ -1795,6 +1799,7 @@ export class Game {
       }
       if (e.thrallOf) e.thrallOf = null;
       this.vx({ k: 'death', e, big: !!e.rb });
+      if (e.D.melon) this.melonBurst(e);
       this.sfx(e.rb || e.herald ? 'bigkill' : 'kill');
       const gold = Math.max(1, Math.round(e.D.xp / 6));
       this.save.gold = (this.save.gold || 0) + gold;
@@ -3775,6 +3780,12 @@ export class Game {
         if (e) say(`${e.D.name} (${e.D.hp} life). Phases at 66% and 33%.`);
         break;
       }
+      case 'melon': {                                      // /melon: a Giant Watermelon right here
+        if (this.map.kind !== 'realm') { say('Melons only grow in the realm.'); break; }
+        const e = this.spawnMelon({ x: p.x + 3.5, y: p.y + 0.5 }, false);
+        say(e ? 'A Giant Watermelon plops down beside you.' : 'One is already growing somewhere.');
+        break;
+      }
       case 'killall': {
         let k = 0;
         for (const e of this.enemies) if (!e.dead && dist(e.x, e.y, p.x, p.y) < 15) { this.damageEnemy(e, 1e7, e.x, e.y); k++; }
@@ -3810,3 +3821,4 @@ export class Game {
 }
 installD4(Game);
 installBX(Game);
+installMelon(Game);
