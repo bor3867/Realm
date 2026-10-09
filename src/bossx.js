@@ -5,7 +5,7 @@
 // a recover pause after the clip's 'ended' event. Signature mechanics live in each boss's own file as 'specials'.
 import { Anim } from './anim.js';
 import { BX } from './bosses/index.js';
-import { isSolid } from './world/maps.js';
+import { isSolid, TID } from './world/maps.js';
 
 const TAU = Math.PI * 2, R = Math.random;
 const angleTo = (x0, y0, x1, y1) => Math.atan2(y1 - y0, x1 - x0);
@@ -243,7 +243,7 @@ export const BXF = {
       for (let x = A.x - 1; x <= A.x + A.w; x++) for (let y = A.y - 1; y <= A.y + A.h; y++) {
         if (x >= A.x && x < A.x + A.w && y >= A.y && y < A.y + A.h) continue;
         const i = y * m.w + x;
-        if (m.solid[i]) continue;
+        if (m.solid[i] || m.tiles[i] === TID.asvoid) continue;      // the doors are where a way comes in: not the open void
         const o = { sprite: 'seal_gate', x: x + 0.5, y: y + 0.5, solid: true, arenaLock: true };
         m.objects.push(o); m.solid[i] = 1; e.bx.locks.push(o);
         const p = this.player;

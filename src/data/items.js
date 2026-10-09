@@ -277,11 +277,11 @@ const UT = [
     desc: 'It lights itself. It does not care what it burns.' },
   { id: 'tallow_vestment', type: 'vestment', slot: 'armor', name: 'Tallow Vestment', bag: 'urn', bonus: { def: 16, mp: 100, wis: 6, vit: 4 },
     desc: 'Wax-stiff and warm. Do not stand too close to a fire.' },
-  { id: 'orrery_seal', type: 'seal', slot: 'ability', name: 'Seal of the Orrery', bag: 'urn',
+  { id: 'orrery_seal', type: 'seal', slot: 'ability', name: 'Seal of the Astrolabe', bag: 'urn',
     ability: { cost: 85, armored: 5, burst: { count: 30, proj: 'rune', dmg: 170, range: 5, pierce: true } },
     desc: 'A stopped ring of the winter engine. It still predicts the worst.' },
   { id: 'starless_band', type: 'ring', slot: 'ring', name: 'The Starless Band', bag: 'urn', bonus: { dex: 8, spd: 6 },
-    desc: 'The orbit of a star that the Orrery froze out of the sky.' },
+    desc: 'The orbit of a star that the Astrolabe froze out of the sky.' },
   { id: 'penitents_head', type: 'tongs', slot: 'weapon', name: 'The Penitent\'s Head', bag: 'urn',
     weapon: { dmg: [150, 210], count: 1, arc: 0, range: 6, speed: 10, rate: 0.65, proj: 'pj_head', size: 0.7, pierce: true },
     desc: 'Carry it in the tongs. Its eyes still fire at whatever you look at.' },
@@ -304,7 +304,7 @@ const UT = [
   { id: 'tallow_tongs', type: 'tongs', slot: 'weapon', name: 'The Tallow Tongs', bag: 'urn',
     weapon: { dmg: [120, 165], count: 1, arc: 0, range: 5, speed: 10, rate: 0.85, proj: 'pj_tallow', size: 0.55, pierce: true },
     desc: 'They hold a candle that has never once gone out.' },
-  { id: 'orrery_rod', type: 'sunrod', slot: 'weapon', name: 'The Orrery Rod', bag: 'urn',
+  { id: 'orrery_rod', type: 'sunrod', slot: 'weapon', name: 'The Astrolabe Rod', bag: 'urn',
     weapon: { dmg: [60, 90], count: 2, arc: 0.15, range: 8, speed: 14, rate: 1.1, proj: 'pj_orrery', size: 0.45, pierce: true },
     desc: 'An axle of the winter engine. It throws two stars at once.' },
   { id: 'kintsugi_band', type: 'ring', slot: 'ring', name: 'The Kintsugi Band', bag: 'urn', bonus: { att: 6, def: 6, hp: 40 },
@@ -640,7 +640,27 @@ UT.push(
   { id: 'glowcap_crown', type: 'ring', slot: 'ring', name: 'The Glowcap Crown', reg: 'ix_items/glowcap_crown', bonus: { hp: 80, wis: 6, vit: 6 }, legendary: true,
     desc: 'It glows faintly in the dark. Whatever dies near you feeds it, and it feeds you.' },
 );
+// ---- the Grand Orrery's (the Astral Observatory; icons from ix_items). Event Horizon drops only from a phase-3 kill.
+UT.push(
+  { id: 'starforged_katana', type: 'sword', slot: 'weapon', name: 'Starforged Katana', reg: 'ix_items/starforged_katana',
+    weapon: { dmg: [150, 220], range: 3.2, speed: 10, rate: 1.0, proj: 'starbeam', size: 0.5, pierce: true }, desc: 'Folded from the brass of a broken orbit. Its arc goes through whatever is in the way.' },
+  { id: 'comet_bow', type: 'bow', slot: 'weapon', name: 'Comet Bow', reg: 'ix_items/comet_bow',
+    weapon: { dmg: [62, 98], count: 3, arc: 0.16, range: 6.4, speed: 18, rate: 1.0, proj: 'lensbolt', size: 0.45, pierce: true }, desc: 'Each arrow drags a tail of light behind it, and sometimes something else.' },
+  { id: 'nebula_robe', type: 'robe', slot: 'armor', name: 'Nebula Robe', reg: 'ix_items/nebula_robe', bonus: { def: 11, mp: 100, wis: 9 },
+    desc: 'Woven from the dust between stars. Your gifts come cheaper in it.' },
+  { id: 'astral_signet', type: 'ring', slot: 'ring', name: 'Astral Signet', reg: 'ix_items/astral_signet', bonus: { dex: 7, wis: 7, mp: 40 },
+    desc: 'Its face is a tiny orrery. It is always correct about where the stars are.' },
+  { id: 'orrery_orb', type: 'halo', slot: 'ability', name: 'Orrery Orb', reg: 'ix_items/orrery_orb',
+    ability: { cost: 90, heal: 220, burst: { count: 20, proj: 'star', dmg: 170, range: 5.5, pierce: true } }, desc: 'A small brass sky that unfolds round you, all its stars at once.' },
+  { id: 'event_horizon', type: 'ring', slot: 'ring', name: 'Event Horizon', reg: 'ix_items/event_horizon', bonus: { att: 8, hp: 90 }, legendary: true,
+    desc: 'What is left of the machine\'s heart: a point nothing comes back from. Your shots lean toward what they hunt.' },
+);
 Object.assign(SPECIAL, {
+  starforged_katana: { weapon: { crit: { p: 0.12, x: 2 } } },
+  comet_bow: { weapon: { homing: 1.2 } },
+  nebula_robe: { passive: { manaonhit: 1 } },
+  orrery_orb: { mod: 'follow' },
+  event_horizon: { passive: { crit: { p: 0.12, x: 2.5 }, momentum: 0.1 } },
   bog_cleaver: { weapon: { burn: { dps: 60, t: 3 } } },
   sporecaller_wand: { weapon: { split: { n: 4, proj: 'gasbubble', f: 0.3 } } },
   mycelial_hide: { passive: { nopoison: true } },
@@ -713,6 +733,7 @@ for (const [d, name, desc, reg] of [
   ['dream', 'Key of Dreams', 'You are not sure you are holding it. You are not sure you are awake.'],
   ['frostveil', 'Frostveil Key', 'Cut from clear ice. It does not melt in your hand, which is worse.', 'ix_items/frostveil_key'],
   ['mirerot', 'Mirerot Key', 'Grown, not forged. It is slightly warm and very slightly alive.', 'ix_items/mirerot_key'],
+  ['astral', 'Astral Key', 'Brass and starlight. It ticks.', 'ix_items/astral_key'],
 ]) add({ id: `key_${d}`, type: 'key', slot: 'consumable', tier: null, name, use: { key: d }, reg: reg || undefined, desc: `${desc} Use it outside a dungeon to open a portal there.` });
 // ---- a vault chest: use it and your vault grows by 8 slots
 add({ id: 'vault_chest', type: 'chest', slot: 'consumable', tier: null, name: 'Vault Chest', use: { vault: 8 },

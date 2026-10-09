@@ -11,6 +11,7 @@ import { installMelon } from './melon.js';
 import { installRealmEvents } from './realmevents.js';
 import { installFrostveil } from './frostveil.js';
 import { installMirerot } from './mirerot.js';
+import { installAstral } from './astral.js';
 import { installBX } from './bossx.js';
 import { BX, bxEnemyDef } from './bosses/index.js';
 import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUEST_HUNTS, FETCH_ITEMS } from './data/lore.js';
@@ -28,7 +29,7 @@ const TILES_PER_GROUP = [1700, 1600, 1200, 560];
 const parentTarget = (m, b) => Math.round((m.area ? m.area[BIOMES.indexOf(b)] : 60000) / TILES_PER_GROUP[BIOME_RING[BIOMES.indexOf(b)]]);
 const MAX_REALM_BOSSES = 3;
 // things you walk up to and press F on
-const TALKY = new Set(['mask', 'maskstand', 'mirror', 'sigil', 'alarm', 'journal', 'petyard', 'shop', 'forge', 'board', 'talk', 'lore', 'wish', 'altar', 'dig', 'fish', 'cat', 'bard', 'fortune', 'waypoint', 'riddle', 'mystery']);
+const TALKY = new Set(['scope', 'mask', 'maskstand', 'mirror', 'sigil', 'alarm', 'journal', 'petyard', 'shop', 'forge', 'board', 'talk', 'lore', 'wish', 'altar', 'dig', 'fish', 'cat', 'bard', 'fortune', 'waypoint', 'riddle', 'mystery']);
 const VILLAGER_LINES = ['Lovely evening.', 'Did you hear the bells last night?', 'Mind the cat. She bites.', 'The Peddler overcharged me again.',
   'My cousin went into the realm. He came back a toad.', 'Is it always dusk here? Huh.', 'Watch out for the Golden Duck. It\'s a scam.',
   'Nice weather for adventuring!', 'I\'ve never seen the sun. Have you?', 'Hey, you\'re the one who pets the cat!'];
@@ -604,7 +605,7 @@ export class Game {
       this.boss = { x: br.cx + 0.5, y: br.cy + 0.5, hp: BOSS.hp, maxHp: BOSS.hp, state: 'sleep', st: 0, phase: 1,
         cycle: 0, room: br, deadT: 0, hurtT: 0, fireT: 0, spin: 0 };
     } else if (BX[def.boss]) {                         // a Realm Update boss: it waits at the far side of its arena
-      const b = this.spawnRealmBoss(def.boss, { x: br.cx + 0.5, y: br.y + 11 }, bxEnemyDef(def.boss));
+      const b = this.spawnRealmBoss(def.boss, { x: br.cx + 0.5, y: BX[def.boss].spawnCentre ? br.cy + 0.5 : br.y + 11 }, bxEnemyDef(def.boss));
       b.state = 'sleep'; b.room = br;
     } else {
       const b = this.spawnRealmBoss(def.boss, { x: br.cx + 0.5, y: br.cy - 1 }, DUNGEON_BOSSES[def.boss]);
@@ -725,7 +726,7 @@ export class Game {
     this.updateProjectiles(dt);
     this.updateWorld(dt);
     if (this.map.kind === 'realm') { this.maintainRealm(dt); this.eventClock(dt); this.melonTick(dt); this.eventBossTick(dt); }
-    if (this.map.kind === 'dungeon') { this.updateDungeon(dt); this.updatePuzzles(dt); this.updateTraps(dt); this.updateD4(dt); if (this.map.def && this.map.def.style === 'frostveil') this.updateFrostveil(dt); if (this.map.def && this.map.def.style === 'mirerot') this.updateMirerot(dt); }
+    if (this.map.kind === 'dungeon') { this.updateDungeon(dt); this.updatePuzzles(dt); this.updateTraps(dt); this.updateD4(dt); if (this.map.def && this.map.def.style === 'frostveil') this.updateFrostveil(dt); if (this.map.def && this.map.def.style === 'mirerot') this.updateMirerot(dt); if (this.map.def && this.map.def.style === 'astral') this.updateAstral(dt); }
     this.updateChill(dt); this.updatePoison(dt);
     if (this.map.kind !== 'nexus') this.openChests();
     this.saveT = (this.saveT || 0) + dt;
@@ -1273,8 +1274,9 @@ export class Game {
     return false;
   }
   moveCircle(o, dx, dy, r) {
-    const m = this.map;
-    const free = (x, y) => !isSolid(m, x - r, y - r) && !isSolid(m, x + r, y - r) && !isSolid(m, x - r, y + r) && !isSolid(m, x + r, y + r);
+    const m = this.map, nv = m.hasVoid && o !== this.player && !(o.D && o.D.fly) && !o.rb;      // walking monsters won't step into the void
+    const vd = (x, y) => nv && m.tiles[Math.floor(y) * m.w + Math.floor(x)] === TID.asvoid;
+    const free = (x, y) => !isSolid(m, x - r, y - r) && !isSolid(m, x + r, y - r) && !isSolid(m, x - r, y + r) && !isSolid(m, x + r, y + r) && !(nv && (vd(x - r, y - r) || vd(x + r, y - r) || vd(x - r, y + r) || vd(x + r, y + r)));
     if (free(o.x + dx, o.y)) o.x += dx;
     if (free(o.x, o.y + dy)) o.y += dy;
   }
@@ -1539,6 +1541,7 @@ export class Game {
   //   blink  - keeps its distance, teleports around you
   moveEnemy(e, dt, aggro, d) {
     const D = e.D, ai = D.ai, p = aggro ? this.foe(e) : this.player;
+    if (ai === 'satellite') return this.asSatellite(e, dt);          // orrery drones wheel round their acolyte
     if (e.fetch) {                                       // the crag dwarf runs to where his pick fell, and picks it up
       if (this.t < e.fetch.land) return;
       const dd = dist(e.x, e.y, e.fetch.x, e.fetch.y);
@@ -3289,6 +3292,7 @@ export class Game {
   // ------------------------------------------------------------- the things you can walk up to and use
   interact(o) {
     if (this.interactD4(o)) return;
+    if (this.interactAstral(o)) return;
     const p = this.player, say = (t, c) => this.bubble(o, t, c);
     switch (o.interact) {
       case 'journal': {                                    // a page of the dungeon's story
@@ -3859,3 +3863,4 @@ installMelon(Game);
 installRealmEvents(Game);
 installFrostveil(Game);
 installMirerot(Game);
+installAstral(Game);

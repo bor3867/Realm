@@ -37,7 +37,23 @@ def _mirerot(f):
     return c.done()
 
 
-PORTALS = {'frostveil': _frostveil, 'mirerot': _mirerot}
+def _astral(f):
+    """The Astral Observatory: a brass armillary ring round a violet swirl flecked with stars, tilted, turning"""
+    import math
+    c = _PT.Cv()
+    c.swirl(7.5, 8.0, 4.0, 4.6, ['Q', 'V', 'v', 'q'], f, arms=3)
+    for k in range(40):                                     # the ring: an ellipse of brass, its near side bright
+        a = k / 40 * math.tau + f * 0.2
+        x, y = 7.5 + math.cos(a) * 6.6, 8 + math.sin(a) * 3.4 - math.cos(a) * 1.6
+        c.p(round(x), round(y), 'G' if math.sin(a) > 0 else 'g')
+    for x, y in ((2, 2), (13, 3), (12, 13), (3, 12)):        # stars, twinkling in turn
+        c.p(x, y, 'Q' if (x + y + f) % 3 else 'C')
+    for x in range(5, 11):                                   # its brass foot
+        c.p(x, 15, 'g'); c.p(x, 14, 'G' if x in (5, 10) else c.g[14][x])
+    return c.done()
+
+
+PORTALS = {'frostveil': _frostveil, 'mirerot': _mirerot, 'astral': _astral}
 
 # ---- tiles the bundle didn't bring (8x8, the dungeons4 format: palette, [variants[frames[rows]]])
 _BOARD = ['bbbbcbbb', 'ccccbcec', 'aaaaaaaa', 'bbcbbbbb', 'cbcccccb', 'aaaaaaaa', 'bbbbbcbb', 'ccccccbc']

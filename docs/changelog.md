@@ -48,3 +48,9 @@
 - New dungeon (style `mirerot`), Mother Mycelia, spore pods and poison clouds, boardwalks over bog, its portal,
   plank tile, key and loot. Notes: dungeon_mirerot.md, boss_mother_mycelia.md.
 - Both dungeon checks now also test that every room is inside the map and none overlap.
+
+## Phase 3 — The Astral Observatory (dungeon 3 of 6)
+- New dungeon (style `astral`): walkable void, rune circles, clockwork bridges, the telescope dais and its star
+  bridge; the Grand Orrery. Notes: dungeon_astral.md, boss_grand_orrery.md.
+- Audit D4 done for the Orrery: the Runeholt boss is now the Rime Astrolabe (display names only; ids unchanged).
+- Framework: arena seals skip the void; a `drawTop` hook for boss layers over the bullets.

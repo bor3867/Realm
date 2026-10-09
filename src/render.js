@@ -16,7 +16,7 @@ const MINI = { 0: '#1e5078', 1: '#102c48', 2: '#d2b074', 3: '#3e6230', 4: '#4e41
   26: '#f0dcae', 27: '#b8dcd8', 28: '#2e3a22', 29: '#121c0e', 30: '#b89a48', 31: '#8a7aa8',
   32: '#3a4a5c', 33: '#7486a0', 34: '#2a6c9c', 35: '#3c2a28', 36: '#6c524a', 37: '#ff8c1e', 38: '#8e1e30',
   39: '#a86e26', 40: '#e8c878', 41: '#ffc040', 42: '#7a4e28', 43: '#6a1224', 44: '#2e2e56', 45: '#8a6ad0', 46: '#8878bc', 47: '#d8d0f4', 48: '#0a0618', 49: '#d8a8e8', 50: '#98c0f0', 51: '#1a1236',
-  52: '#5a5866', 53: '#c02a8a', 54: '#dceaf4', 55: '#9ad4f0', 56: '#2a6c9c', 57: '#4a5e86', 58: '#5a4a2e', 59: '#3e6a2a', 60: '#8a7a52', 61: '#2e3a22' };   // cliff, rift, Frostveil snow, ice, frigid water, wall
+  52: '#5a5866', 53: '#c02a8a', 54: '#dceaf4', 55: '#9ad4f0', 56: '#2a6c9c', 57: '#4a5e86', 58: '#5a4a2e', 59: '#3e6a2a', 60: '#8a7a52', 61: '#2e3a22', 62: '#c8c0dc', 63: '#a87a3a', 64: '#0a0618', 65: '#4a3a7a' };   // cliff, rift, Frostveil snow, ice, frigid water, wall
 const DIRS = [[0, -1], [1, 0], [0, 1], [-1, 0]];          // N E S W (matches edge sheet order)
 const WEATHER = {
   shore: { n: 36, color: ['#e8f6ff', '#a8d8f0'], vx: 9, vy: 2, size: 1, blink: false },
@@ -32,6 +32,7 @@ const WEATHER = {
   lowlands: { n: 22, color: ['#fff6c8', '#d8f0a0', '#ffffff'], vx: 6, vy: 1, size: 1, blink: false },        // thistledown on the breeze
   frostveil: { n: 48, color: ['#ffffff', '#cfffff', '#e8f6ff'], vx: 3, vy: 9, size: 1, blink: false },       // snow sifting down through the ice
   mirerot: { n: 30, color: ['#c8ff8a', '#8aff6a', '#e8ffd0'], vx: 1, vy: -2, size: 1, blink: true },        // spores drifting up in the dark
+  astral: { n: 40, color: ['#ffffff', '#ffd690', '#c8a0ff'], vx: 0.5, vy: 0.4, size: 1, blink: true },         // stars, near and far
 };
 
 // minimap markers: o outline, 1 main colour, 2 accent
@@ -166,6 +167,7 @@ export class Renderer {
     for (const f of g.fx) if (f.kind === 'cloud' || f.kind === 'zone') this.groundFx(f, g);
     if (g.activeMap === m) for (const e of g.notable) if (e.bx && e.bx.B.drawGround && !e.dead) e.bx.B.drawGround(this, g, e);   // a boss's hazards on the ground
     if (m.mrClouds || m.mrPuddles) this.mireFx(g, m);
+    if (m.asClocks || m.asDais) this.astralFx(g, m);
     list.sort((a, c) => a.sy - c.sy);
     for (const d of list) d.f();
     if (g.player.hook) this.hookFx(g, g.player.hook);
@@ -189,6 +191,7 @@ export class Renderer {
     if (darkFirst) { b.save(); b.setTransform(this.scale, 0, 0, this.scale, 0, 0); this.dusk(g); b.restore(); }   // the screen's own scale, without the shake
     if (g.map.kind === 'dungeon') this.d4Fx(g);                  // the newer dungeons' lights, beams and strings (over the dark)
     this.drawProjectiles(g, dt);
+    if (g.activeMap === m) for (const e of g.notable) if (e.bx && e.bx.B.drawTop && !e.dead) e.bx.B.drawTop(this, g, e);   // a boss's layer over the bullets (the Orrery's umbra)
     this.drawZaps(dt);
     this.drawParticles(dt);
     this.drawSprFx(dt);
@@ -1338,6 +1341,28 @@ export class Renderer {
     }
     this.sfxList = keep.length > 60 ? keep.slice(-60) : keep;
   }
+  // the Astral Observatory: clockwork arms flash before they turn; each telescope's dotted line of sight; a rune
+  // circle swirls under you as it folds you away
+  astralFx(g, m) {
+    const b = this.b;
+    for (const C of m.asClocks || []) if (C.warn && Math.floor(g.t * 10) % 2) {
+      b.globalAlpha = 0.45; b.fillStyle = '#ffd690';
+      for (const i of C.tiles) { const [x, y] = this.proj((i % m.w) + 0.5, Math.floor(i / m.w) + 0.5); b.fillRect(Math.round(x) - 6, Math.round(y) - 6, 12, 12); }
+      b.globalAlpha = 1;
+    }
+    for (const o of m.objects) {
+      if (o.interact !== 'scope' || Math.hypot(o.x - g.player.x, o.y - g.player.y) > 26) continue;
+      const a = o.dir * Math.PI / 4;
+      b.fillStyle = o.found ? '#fff6c8' : '#8af6ff'; b.globalAlpha = o.found ? 0.8 : 0.5;
+      for (let d = 1; d < 22; d += 0.6) { const [x, y] = this.proj(o.x + Math.cos(a) * d, o.y - 0.6 + Math.sin(a) * d); if ((Math.floor(d * 2) + Math.floor(g.t * 6)) % 3) b.fillRect(Math.round(x), Math.round(y), 1, 1); }
+      b.globalAlpha = 1;
+    }
+    const p = g.player;
+    if (p.asRune > 0 && p.asRuneAt) {
+      const [x, y] = this.proj(p.asRuneAt.x, p.asRuneAt.y), k = 1 - p.asRune / 0.6;
+      for (let j = 0; j < 12; j++) { const a = j / 12 * Math.PI * 2 + g.t * 8; b.fillStyle = j % 2 ? '#8af6ff' : '#ffffff'; b.fillRect(Math.round(x + Math.cos(a) * (10 - 6 * k)), Math.round(y + Math.sin(a) * (6 - 3 * k)), 2, 2); }
+    }
+  }
   // Mirerot: acid puddles on the ground; poison clouds as a drift of the bundle's poison_cloud puffs
   mireFx(g, m) {
     const b = this.b, C = this.R && this.R.resolve('ex_effects/poison_cloud');
@@ -1574,7 +1599,7 @@ export class Renderer {
     this.parts = keep;
   }
   drawWeather(g, dt) {
-    const dz = { chapel: 'shore', heart: 'godfall', crypt: 'crypt', ember: 'forge', frostveil: 'frostveil', mirerot: 'mirerot' };
+    const dz = { chapel: 'shore', heart: 'godfall', crypt: 'crypt', ember: 'forge', frostveil: 'frostveil', mirerot: 'mirerot', astral: 'astral' };
     const bi = g.map.kind === 'realm' ? BIOMES[biomeAt(g.map, g.player.x, g.player.y)] : g.map.kind === 'dungeon' ? (dz[g.map.def && Object.keys(g.map.def).length && g.map.def.portal] || 'forge') : 'nexus';
     const kind = WEATHER[bi] ? bi : null;
     const BW = this.buf.width, BH = this.buf.height, b = this.b;

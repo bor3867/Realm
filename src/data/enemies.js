@@ -1386,6 +1386,41 @@ ENEMIES.giant_watermelon = { name: 'Giant Watermelon', biome: 'event', melon: tr
   });
   Object.assign(SPEECH, { mother_mycelia: { see: ['...grow... with us...', '...you will make such good soil...'], die: ['...the spores... remember...'] } });
 }
+// ================================================================ THE ASTRAL OBSERVATORY (Realm Update, docs/design/dungeon_astral.md)
+{
+  const LA = L([7, 9], [7, 10], [3, 4], [3, 4], 0.05), ASE = (k) => 'ex_astral/' + k;
+  Object.assign(ENEMIES, {
+    void_acolyte: { name: 'Void Acolyte', biome: 'astral', reg: ASE('void_acolyte'), hp: 2200, def: 16, speed: 2.0, xp: 150, r: 0.5, ai: 'kite', keep: 6, aggro: 11,
+      attacks: [{ pattern: 'aimed', proj: 'starbeam', count: 3, arc: 0.4, dmg: 80, speed: 8, range: 8, cd: 2.0, tell: 350 }],
+      children: ['orrery_drone'], cap: 3, every: 8, loot: LA },
+    orrery_drone: { name: 'Orrery Drone', biome: 'astral', reg: ASE('orrery_drone'), hp: 900, def: 12, speed: 3, xp: 60, r: 0.4, ai: 'satellite', aggro: 11, fly: true, contact: 60,
+      attacks: [{ pattern: 'aimed', proj: 'lensbolt', count: 1, dmg: 70, speed: 9, range: 7, cd: 1.6, tell: 250 }], loot: LA },
+    star_eye: { name: 'Star Eye', biome: 'astral', reg: ASE('star_eye'), hp: 1600, def: 14, speed: 0, xp: 120, r: 0.5, ai: 'rooted', aggro: 14, fly: true,
+      attacks: [{ pattern: 'beam', range: 13, dmg: 110, cd: 3.2, tell: 300, tele: 0.9, col: '#c8a0ff' }], loot: LA },
+    constellation_stalker: { name: 'Constellation Stalker', biome: 'astral', reg: ASE('constellation_stalker'), hp: 1800, def: 14, speed: 2.6, xp: 140, r: 0.5, ai: 'blink', keep: 4, aggro: 12,
+      attacks: [{ pattern: 'radial', proj: 'star', count: 10, turn: 0.3, dmg: 85, speed: 5, range: 6, cd: 2.4, tell: 450 }], loot: LA },
+  });
+  const CHA = [{ slot: 'weapon', tiers: [7, 9], p: 0.8 }, { slot: 'armor', tiers: [7, 10], p: 0.8 }, { slot: 'ability', tiers: [3, 4], p: 0.6 }, { slot: 'ring', tiers: [3, 4], p: 0.6 },
+    { stat: true, p: 1 }, { id: 'pot_mp', p: 1 }];
+  DUNGEONS.astral = { name: 'The Astral Observatory', floor: 'asmarble', wall: 'aswall', hazard: null, rooms: 11, portal: 'astral', style: 'astral',
+    layout: { secrets: 0 }, seals: [], altar: false, chestLoot: CHA, mobs: ['void_acolyte', 'star_eye', 'constellation_stalker'], elites: [],
+    boss: 'grand_orrery', mobHp: 1.6, ambient: 'rgba(6,4,22,0.5)',
+    compose(rm, r, deep) {
+      if (rm.kind === 'cogplatform') return rm.few ? ['star_eye'] : ['constellation_stalker', 'star_eye'];
+      if (rm.kind === 'dais') return ['star_eye', 'star_eye'];
+      if (rm.kind === 'vault') return ['void_acolyte', 'constellation_stalker'];
+      if (deep < 0.4) return ['void_acolyte', 'star_eye'];
+      if (deep < 0.75) return ['void_acolyte', 'constellation_stalker', 'constellation_stalker', 'star_eye'];
+      return ['void_acolyte', 'void_acolyte', 'constellation_stalker', 'constellation_stalker', 'star_eye', 'star_eye'];
+    } };
+  PORTAL_EXTRA.unshift((D) => {
+    if ((D.biome === 'steppe' || D.biome === 'godfall') && Math.random() < 0.3) return ['astral', D.children ? 0.04 : 0.01];
+    return null;
+  });
+  Object.assign(SPEECH, { grand_orrery: { see: ['...ALIGNMENT IN PROGRESS.', '...YOU ARE NOT ON THE CHART.'], die: ['...the stars... unwind...'] } });
+  // audit D4: the Runeholt boss that shared the name is the Rime Astrolabe now (its id stays, so saves keep working)
+  REALM_BOSSES.orrery_of_winter.name = 'The Rime Astrolabe';
+}
 // the bands round the campfires: orcs and their archers in the Thornwood, goblins in the Greenmarch
 export const FIRECAMP_BANDS = { thornwood: ['orc_brute', 'orc_brute', 'bandit_archer', 'bandit_archer'], lowlands: ['hedge_goblin', 'hedge_goblin', 'hedge_goblin', 'field_rat'] };
 Object.assign(SPEECH, {

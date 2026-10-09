@@ -63,7 +63,7 @@ export const BOSS_SPEECH = {
   fallen_heart: ['BA-DUM.', 'I WAS A GOD.', 'YOU ARE SO SMALL.', 'FEEL IT BEAT.'],
   unstruck: ['THE FIRST BLOW IS MINE.', 'NEVER STRUCK. NEVER BROKEN.', 'THE ANVIL OPENS.'],
   emily_the_yapper: ['Oh! Hi! Okay so ANYWAY-', 'Did I tell you about my cousin?', 'Wait wait wait, I wasn\'t finished.',
-    'So then I said to the Orrery, I said-', 'You\'re a GREAT listener.', 'This one time? At the ice shelf?',
+    'So then I said to the Astrolabe, I said-', 'You\'re a GREAT listener.', 'This one time? At the ice shelf?',
     'Hold on, it gets better.', 'Sorry, where was I? Oh right. ME.', 'Fish fact! Fish are delicious.', 'Are you even listening?!',
     'Rude to leave mid-story!', 'Okay okay okay okay okay.', 'And THEN-', 'Don\'t interrupt! Ugh.', 'Snowball! Ha! Gotcha.',
     'My scarf? Knitted it myself.', 'Long story short- no wait, long story LONG.', 'Babies! Come say hi!', 'Wheeee!',
@@ -98,7 +98,7 @@ export const LORE = [
   'A god that is never finished cannot die. It can only be interrupted.',
   'The Brine Cathedral was a church once. Then the tide came to Mass.',
   'Mother Fennick says the Wick-Mother was a lovely girl. Mother Fennick is lying.',
-  'The Orrery predicted everything except the cold.',
+  'The Astrolabe predicted everything except the cold.',
   'The Colossus broke the god with its own hands, then wept until it turned to marble.',
   'Pilgrims say the sea is the god\'s tears. The sea says nothing. The sea is busy.',
   'There are four shrines in every land, and one god listening to none of them.',
@@ -134,4 +134,4 @@ export const QUEST_HUNTS = {
   godfall: ['hollow_thane', 'halo_eater', 'ash_harpy', 'gilded_lancer', 'reliquary_spider'],
 };
 export const FETCH_ITEMS = ['a waterlogged diary', 'a bag of very old teeth', 'the Peddler\'s spare hat', 'a jar of bottled lightning',
-  'a love letter to the Orrery', 'a map with nothing on it', 'a sock (just one)', 'the deed to the Nexus'];
+  'a love letter to the Astrolabe', 'a map with nothing on it', 'a sock (just one)', 'the deed to the Nexus'];

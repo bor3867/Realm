@@ -35,8 +35,8 @@ The death clip; the loot fountain; the doors open; a portal home.
 ## Loot
 Themed (boss tier): Bog Cleaver (sword, poisons), Sporecaller Wand (bolts that burst into small spores), Mycelial
 Hide (leather: Defense, Vitality; poison can't touch you), Ring of Rot (Attack, Life), Spore Bomb (bellows: a dash
-that leaves a poison cloud). Legendary (phase-3 kill, 2%): **Glowcap Crown** (ring: Life, Wisdom, Vitality; your
-kills sprout a healing glowcap). Plus T6–T8 gear.
+that leaves a poison cloud). Legendary (phase-3 kill, 2%): **Glowcap Crown** (ring: Life, Wisdom, Vitality; every kill
+mends you, and it mends you when you are low). Plus T6–T8 gear.
 
 ## Unique to it
 Clouds of spores that hang where they stop; needles that poison; acid that pools where it lands; a lunge that ends

@@ -6,10 +6,10 @@ export const TILE_NAMES = ['water', 'deep', 'sand', 'fen', 'mud', 'snow', 'runef
   'grass', 'cobble', 'dirt', 'hedge', 'shallows', 'bog', 'ice', 'dune', 'glassflat', 'loam', 'bramble', 'steppe', 'quartz',
   'cryptfloor', 'cryptwall', 'cryptwater', 'emberfloor', 'emberwall', 'emberlava', 'carpet',
   'combfloor', 'waxwall', 'honey', 'stageboards', 'velvetwall', 'prismfloor', 'crystalwall', 'dreamfloor', 'dreamwall', 'starvoid', 'dreambridge', 'fadebridge', 'fadegone',
-  'cliff', 'rift', 'fvsnow', 'fvice', 'fvwater', 'fvwall', 'mrmud', 'mrmoss', 'mrboard', 'mrwall'];
+  'cliff', 'rift', 'fvsnow', 'fvice', 'fvwater', 'fvwall', 'mrmud', 'mrmoss', 'mrboard', 'mrwall', 'asmarble', 'asgrate', 'asvoid', 'aswall'];
 export const TID = Object.fromEntries(TILE_NAMES.map((n, i) => [n, i]));
 const SOLID_TILES = new Set([TID.water, TID.deep, TID.forgewall, TID.void, TID.chapelwall, TID.ribwall, TID.hedge, TID.bramble, TID.cryptwall, TID.emberwall, TID.cryptwater,
-  TID.waxwall, TID.velvetwall, TID.crystalwall, TID.dreamwall, TID.starvoid, TID.fadegone, TID.cliff, TID.fvwall, TID.mrwall]);
+  TID.waxwall, TID.velvetwall, TID.crystalwall, TID.dreamwall, TID.starvoid, TID.fadegone, TID.cliff, TID.fvwall, TID.mrwall, TID.aswall]);
 export const BIOMES = ['shore', 'fen', 'runeholt', 'godfall', 'dunes', 'thornwood', 'steppe', 'lowlands'];
 // how deep in each land lies: 0 the coast ... 3 the god's fall. The three newer lands share a ring with an older one.
 export const BIOME_RING = [0, 1, 2, 3, 0, 1, 2, 1];
@@ -31,9 +31,11 @@ export const SKINS = [null,
   ['ex_tiles/frostveil_frigid_water', 'fvwater'], ['ex_tiles/frostveil_wall_top', 'fvwall'],
   // Mirerot Grotto: mud in patches, moss, the bog (the realm's bog tile, so it slows the same), the wall's top
   ['ex_tiles/mirerot_mud_a', 'mrmud'], ['ex_tiles/mirerot_mud_b', 'mrmud'], ['ex_tiles/mirerot_moss', 'mrmoss'],
-  ['ex_tiles/mirerot_bog', 'bog'], ['ex_tiles/mirerot_wall_top', 'mrwall']];
+  ['ex_tiles/mirerot_bog', 'bog'], ['ex_tiles/mirerot_wall_top', 'mrwall'],
+  // the Astral Observatory: marble, brass grate, the void (walkable: you fall), the wall's top
+  ['ex_tiles/astral_marble', 'asmarble'], ['ex_tiles/astral_brass_grate', 'asgrate'], ['ex_tiles/astral_void', 'asvoid'], ['ex_tiles/astral_wall_top', 'aswall']];
 // a wall skin's face: drawn under the wall, toward the camera, so walls stand up (RotMG-style)
-export const WALL_FACE = { fvwall: 'ex_tiles/frostveil_wall_side', mrwall: 'ex_tiles/mirerot_wall_side' };
+export const WALL_FACE = { fvwall: 'ex_tiles/frostveil_wall_side', mrwall: 'ex_tiles/mirerot_wall_side', aswall: 'ex_tiles/astral_wall_side' };
 export const SKIN_TID = SKINS.map((s) => (s ? TID[s[1]] : -1));
 export const SK = Object.fromEntries(SKINS.map((s, k) => [s ? s[0].split('/')[1].replace(/^(shore|lowlands|midlands|highlands|godlands)_/, '') + (s[1] === 'deep' || s[1] === 'steppe' ? '@' + s[1] : '') : '-', k]));
 // a fixed per-tile hash (0..1), so jitter and dithering never disturb the generator's random stream
@@ -630,6 +632,15 @@ export function shotBlocked(m, x, y) {
   const t = m.tiles[yi * m.w + xi];
   return !(t === TID.water || t === TID.deep);
 }
+// a clockwork bridge's two arms at step k (of eight): three-wide lines of grate out from the hub, opposite each other
+export function clockTiles(C, k) {
+  const out = new Set(), a = (k % 8) * Math.PI / 4, ca = Math.cos(a), sa = Math.sin(a);
+  for (const s of [1, -1]) for (let d = 2; d <= C.len; d += 0.5) for (let w = -1; w <= 1; w++) {
+    const x = Math.round(C.hx + s * ca * d - sa * w), y = Math.round(C.hy + s * sa * d + ca * w);
+    out.add(y * C.S + x);
+  }
+  return [...out];
+}
 export function biomeAt(m, x, y) {
   const xi = Math.floor(x), yi = Math.floor(y);
   if (xi < 0 || yi < 0 || xi >= m.w || yi >= m.h) return -1;
@@ -657,11 +668,11 @@ export function randomTileInBiome(m, b, r, avoid, minD = 14) {
 // Upper dungeons seal their boss behind a gate (def.seals: wardens, levers, a puzzle); the lower ones don't.
 export function dungeon(seed, def) {
   const r = rng(seed);
-  const S = { chapel: 200, crypt: 180, forge: 180, scriptorium: 214, heart: 196, throne: 196, hive: 200, theatre: 190, spire: 220, islands: 230, frostveil: 300, mirerot: 280 }[def.style] || 230;
+  const S = { chapel: 200, crypt: 180, forge: 180, scriptorium: 214, heart: 196, throne: 196, hive: 200, theatre: 190, spire: 220, islands: 230, frostveil: 300, mirerot: 280, astral: 340 }[def.style] || 230;
   const FLOOR = TID[def.floor], WALL = TID[def.wall], HAZ = def.hazard ? TID[def.hazard] : null;
   const WET = def.style === 'crypt' ? TID.cryptwater : TID.water, HOT = def.style === 'ember' ? TID.emberlava : TID.lava;
   const m = makeMap('dungeon', def.name, S, S, TID.void);
-  if (def.style === 'frostveil' || def.style === 'mirerot') m.skin = new Uint8Array(S * S);
+  if (def.style === 'frostveil' || def.style === 'mirerot' || def.style === 'astral') m.skin = new Uint8Array(S * S);
   const tile = (x, y) => m.tiles[idx(m, x, y)];
   const set = (x, y, t) => { if (x > 1 && y > 1 && x < S - 2 && y < S - 2) m.tiles[idx(m, x, y)] = t; };
   const carve = (x0, y0, x1, y1, t = FLOOR) => {
@@ -717,6 +728,64 @@ export function dungeon(seed, def) {
 
   // ================================================================ the layouts
   const LAYOUT = {
+    // ---- THE ASTRAL OBSERVATORY: platforms on a grid over the void, joined by straight grate bridges. Gallery,
+    // platforms, the Clockwork (two turning bridges), the Telescope Dais (its vault across a star bridge), the
+    // Antechamber, the Orrery Floor. Nothing is walled: the void is everywhere.
+    astral() {
+      const order = ['gallery', 'platform', 'platform', 'clockwork', 'platform', 'dais', 'platform', 'antechamber', 'orrery'];
+      const shape = { gallery: ['octa', 15, 15], platform: null, dais: ['round', 15, 15], antechamber: ['round', 13, 13], orrery: ['round', 36, 36] };
+      const grate = (x0, y0, x1, y1) => carve(x0, y0, x1, y1, TID.asgrate);
+      // a straight bridge (or an L of two) two wide, from one room's centre to the next
+      const bridge = (a, b) => {
+        if (Math.abs(a.cy - b.cy) <= 1) { grate(a.cx, a.cy, b.cx, a.cy + 1); return; }
+        if (Math.abs(a.cx - b.cx) <= 1) { grate(a.cx, a.cy, a.cx + 1, b.cy); return; }
+        grate(a.cx, a.cy, b.cx, a.cy + 1); grate(b.cx, a.cy, b.cx + 1, b.cy);
+      };
+      let gx = 16, gy = S >> 1, prev = null, start = null, floorRoom = null, heading = 0;
+      const nodes = [], clocks = [];
+      order.forEach((kind, k) => {
+        let sh = shape[kind] || [r.chance(0.5) ? 'octa' : 'rect', 17, 17];
+        if (kind === 'clockwork') {                                   // platform, hub, platform, hub (the next room is the far bank)
+          const w = 13;
+          const A = room(gx, gy - (w >> 1), w, w, { kind: 'cogplatform', dep: k, shape: 'rect' });
+          bridge(prev, A); link(prev, A);
+          const h1 = { hx: A.x + A.w + 8, hy: A.cy, k: 1, t: 0, len: 8, S };
+          const B = room(h1.hx + 9, gy - (w >> 1), w, w, { kind: 'cogplatform', dep: k, shape: 'rect' });
+          const h2 = { hx: B.x + B.w + 8, hy: B.cy, k: 3, t: 2, len: 8, S };
+          clocks.push(h1, h2); link(A, B);
+          A.clock = h1; B.clock = h2; A.role = 'fight'; B.role = 'fight'; A.few = true;
+          prev = B; nodes.push(A, B);
+          gx = h2.hx + 9; return;
+        }
+        const [shp, w, h] = sh;
+        const n = room(gx, gy - (h >> 1), w, h, { kind, dep: k, shape: shp });
+        if (kind === 'antechamber') n.role = 'rest';
+        if (prev) {
+          if (prev.clock && prev.clock !== clocks[0]) link(prev, n);   // across the second clockwork: joined by its arms
+          else { bridge(prev, n); link(prev, n); }
+        } else start = n;
+        nodes.push(n); prev = n; floorRoom = n;
+        // a precise grid: mostly east, now and then a right-angle turn north or south
+        const turn = kind !== 'dais' && kind !== 'orrery' && r.chance(0.35) && heading === 0;
+        heading = turn ? (gy < S / 2 ? 1 : -1) : 0;
+        if (heading) { gy += heading * (h / 2 + 22); } else gx = n.x + n.w + r.int(10, 13);
+        if (heading && kind !== 'antechamber') { gx = n.cx - 7; }
+      });
+      // the vault: across the void from the dais, reached only by the star bridge the telescopes reveal
+      const dais = nodes.find((n) => n.kind === 'dais'), vw = 11, vx = dais.cx - (vw >> 1);
+      const clash = (y) => rooms.some((o) => vx < o.x + o.w + 3 && o.x < vx + vw + 3 && y < o.y + o.h + 3 && o.y < y + vw + 3);
+      const up = !clash(dais.y - 8 - vw) || clash(dais.y + dais.h + 8);
+      const vault = room(vx, up ? dais.y - 8 - vw : dais.y + dais.h + 8, vw, vw, { kind: 'vault', dep: dais.dep, leaf: true, shape: 'rect', role: 'treasure' });
+      link(dais, vault);
+      const y0 = up ? vault.y + vault.h : dais.y + dais.h, y1 = up ? dais.y - 1 : vault.y - 1;
+      const span = []; for (let y = y0; y <= y1; y++) span.push(y);
+      m.asStar = [0, 1, 2].map((s) => { const ys = span.slice(Math.floor(s * span.length / 3), Math.floor((s + 1) * span.length / 3)); const out = []; for (const y of ys) for (let x = dais.cx - 1; x <= dais.cx + 1; x++) out.push(y * S + x); return out; });
+      m.asDais = { cx: dais.cx, cy: dais.cy, r: 7, up, globe: { x: vault.cx + 0.5, y: up ? vault.y + 1.5 : vault.y + vault.h - 1.5 } };
+      m.asClocks = clocks;
+      m.asRunePairs = [[start, nodes.find((n) => n.kind === 'antechamber')], [nodes.filter((n) => n.kind === 'platform')[0], nodes.filter((n) => n.kind === 'platform')[2]]].filter(([a, b]) => a && b);
+      m.asVoidBox = rooms.reduce((B, n) => ({ x0: Math.min(B.x0, n.x - 14), y0: Math.min(B.y0, n.y - 14), x1: Math.max(B.x1, n.x + n.w + 14), y1: Math.max(B.y1, n.y + n.h + 14) }), { x0: S, y0: S, x1: 0, y1: 0 });
+      return { start, boss: floorRoom };
+    },
     // ---- MIREROT GROTTO: round hollows strung along a meandering way, joined by boardwalks over the bog.
     // Glade, hollows, the Spore Garden, the Mushroom Cathedral, more hollows, the Threshold, the Mire; a cache off it.
     mirerot() {
@@ -1152,6 +1221,10 @@ export function dungeon(seed, def) {
 
   const { start, boss } = (LAYOUT[def.style] || graph)();
   boss.isBoss = true;
+  if (m.asVoidBox) {                                                  // Astral: the void fills the whole observatory; rooms and bridges float in it
+    const B = m.asVoidBox;
+    for (let y = Math.max(2, B.y0); y <= Math.min(S - 3, B.y1); y++) for (let x = Math.max(2, B.x0); x <= Math.min(S - 3, B.x1); x++) if (tile(x, y) === TID.void) set(x, y, TID.asvoid);
+  }
   // carve every room (the layouts carve their own halls and corridors)
   for (const n of rooms) carveRoom(n);
 
@@ -1184,7 +1257,24 @@ export function dungeon(seed, def) {
   const fvBrazier = (x, y, extra = {}) => { if (isF(x, y) && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) put(m, FV('frost_brazier'), x, y, true, { fvBrazier: true, lit: true, ...extra }); };
   const MR = (k) => 'ex_decor/mirerot_' + k;
   const pod = (x, y) => { if (isF(x, y) && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) put(m, MR('spore_pod'), x, y, false, { mrPod: true }); };
+  const AS = (k) => 'ex_decor/astral_' + k;
   const DRESS = {
+    astral(n) {
+      const inRoom = (x, y) => isF(x, y) && x >= n.x && y >= n.y && x < n.x + n.w && y < n.y + n.h;
+      const corners = (inset, sprite, solid = true) => { for (const [x, y] of [[n.x + inset, n.y + inset], [n.x + n.w - 1 - inset, n.y + inset], [n.x + inset, n.y + n.h - 1 - inset], [n.x + n.w - 1 - inset, n.y + n.h - 1 - inset]]) if (inRoom(x, y)) put2(null, x, y, sprite, solid); };
+      if (n.kind === 'gallery') { corners(3, AS('brass_pillar')); put2(null, n.cx, n.cy - 3, AS('star_globe')); }
+      else if (n.kind === 'platform') { corners(2, AS('brass_pillar')); for (let k = 0; k < 2; k++) put2(n, n.x + 3 + r.int(0, n.w - 7), n.y + 3 + r.int(0, n.h - 7), AS('floating_crystal')); }
+      else if (n.kind === 'cogplatform') { corners(1, AS('brass_pillar')); }
+      else if (n.kind === 'dais') {                                 // the telescopes, on the side that faces the vault
+        const up = m.asDais ? m.asDais.up : n.cy > S / 2, dy = up ? -3 : 3;
+        [-4, 0, 4].forEach((dx, j) => put2(null, n.cx + dx, n.cy + dy, AS('telescope'), true, { interact: 'scope', j, dir: (j * 3 + 1) % 8, label: 'Turn the telescope' }));
+        for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) if (inRoom(x, y) && Math.hypot(x - n.cx, y - n.cy) < 2.2) set(x, y, TID.asgrate);
+      } else if (n.kind === 'vault') { corners(1, AS('floating_crystal')); }
+      else if (n.kind === 'antechamber') { for (let k = 0; k < 4; k++) { const a = Math.PI / 4 + k * Math.PI / 2; put2(null, Math.round(n.cx + Math.cos(a) * 4.5), Math.round(n.cy + Math.sin(a) * 4.5), AS('brass_pillar')); } }
+      else if (n.kind === 'orrery') {                              // brass rings inlaid in the marble
+        for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) { if (!inRoom(x, y)) continue; const d = Math.hypot(x - n.cx, y - n.cy); if (Math.abs(d - 6) < 0.5 || Math.abs(d - 12) < 0.5) set(x, y, TID.asgrate); }
+      }
+    },
     mirerot(n) {
       const inRoom = (x, y) => isF(x, y) && Math.hypot((x - n.cx) / (n.w / 2), (y - n.cy) / (n.h / 2)) < 1;
       const ringAt = (k, f, sprite, solid = true, extra = {}, a0 = 0) => { for (let j = 0; j < k; j++) { const a = a0 + (j / k) * Math.PI * 2, x = Math.round(n.cx + Math.cos(a) * (n.w / 2) * f), y = Math.round(n.cy + Math.sin(a) * (n.h / 2) * f); if (inRoom(x, y)) put2(null, x, y, sprite, solid, extra); } };
@@ -1426,6 +1516,13 @@ export function dungeon(seed, def) {
     },
   };
   for (const n of rooms) (DRESS[def.style] || (() => {}))(n);
+  if (m.asClocks) for (const C of m.asClocks) {                     // Astral: each clockwork's hub, and its arms where they start
+    carve(C.hx - 1, C.hy - 1, C.hx + 1, C.hy + 1, TID.asgrate);
+    C.tiles = clockTiles(C, C.k); for (const i of C.tiles) m.tiles[i] = TID.asgrate;
+  }
+  if (m.asRunePairs) m.asRunePairs.forEach(([a, b], k) => {         // rune circles: each pair folds space between two rooms
+    for (const [n, other] of [[a, b], [b, a]]) { const x = n.cx + 2, y = n.cy + 2; if (isF(x, y) || tile(x, y) === TID.asgrate) put(m, AS('rune_circle'), x, y, false, { asRune: k, to: { x: other.cx + 2.5, y: other.cy + 3.7 } }); }
+  });
   if (m.mrRoads) for (const [ax, ay, bx, by] of m.mrRoads) {      // Mirerot: a plank down the middle of each way, reeds along its banks
     const L = Math.max(1, Math.hypot(bx - ax, by - ay));
     for (let i = 0; i <= L; i++) {
@@ -1561,7 +1658,7 @@ export function dungeon(seed, def) {
   const DEC = { chapel: ['shell', 'kelp', 'starfish', 'skullmoss'], forge: ['embervent', 'goldrubble', 'bonepile', 'brokenshield'], heart: ['bonepile', 'goldrubble', 'skullmoss', 'embervent'],
     scriptorium: ['icecrystal', 'runepebble', 'snowtuft', 'brokenshield'], crypt: ['bonepile', 'skullmoss', 'shell', 'kelp'],
     ember: ['embervent', 'goldrubble', 'bonepile'], throne: ['goldrubble', 'pillarstub', 'brokenshield'],
-    hive: ['goldrubble', 'shell', 'kelp'], theatre: ['brokenshield', 'goldrubble', 'runepebble'], spire: ['icecrystal', 'runepebble', 'icecrystal'], islands: ['snowtuft', 'runepebble', 'icecrystal'], frostveil: ['snowtuft', 'icecrystal', 'snowtuft', 'runepebble'], mirerot: ['shrooms', 'reeds', 'skullmoss', 'lily'] }[def.style] || ['bonepile', 'goldrubble'];
+    hive: ['goldrubble', 'shell', 'kelp'], theatre: ['brokenshield', 'goldrubble', 'runepebble'], spire: ['icecrystal', 'runepebble', 'icecrystal'], islands: ['snowtuft', 'runepebble', 'icecrystal'], frostveil: ['snowtuft', 'icecrystal', 'snowtuft', 'runepebble'], mirerot: ['shrooms', 'reeds', 'skullmoss', 'lily'], astral: ['runepebble', 'icecrystal'] }[def.style] || ['bonepile', 'goldrubble'];
   for (const n of [...rooms.filter((n) => n !== boss), ...secrets]) {
     for (let j = 0; j < Math.round(n.w * n.h * 0.04); j++) { const x = n.x + r.int(1, n.w - 2), y = n.y + r.int(1, n.h - 2); if (isF(x, y)) m.decor.push({ name: r.pick(DEC), x, y }); }
   }
@@ -1608,7 +1705,8 @@ export function dungeon(seed, def) {
     'ow_objects/midlands_campfire': [5, '#ff9a3a', 1], 'ow_objects/midlands_glow_mushrooms': [2.5, '#7affc8', 0], 'ow_objects/godlands_blood_fountain': [4, '#ff3a4a', 0],
     'ow_objects/godlands_rift_crystal': [2, '#ff5ad0', 0], 'ow_objects/godlands_corrupted_obelisk': [3, '#c03aff', 0],
     'ex_decor/frostveil_frost_brazier': [5, '#a8f0ff', 1], 'ex_decor/frostveil_ice_crystal': [2.2, '#8ad8ff', 0],
-    'ex_decor/mirerot_glowshroom_cluster': [4.2, '#8aff6a', 0], 'ex_decor/mirerot_spore_pod': [1.6, '#c8ff8a', 0] };
+    'ex_decor/mirerot_glowshroom_cluster': [4.2, '#8aff6a', 0], 'ex_decor/mirerot_spore_pod': [1.6, '#c8ff8a', 0],
+    'ex_decor/astral_floating_crystal': [3.6, '#c8a0ff', 0], 'ex_decor/astral_star_globe': [4, '#fff6c8', 0], 'ex_decor/astral_rune_circle': [2.6, '#8af6ff', 0], 'ex_decor/astral_brass_pillar': [2.4, '#ffd690', 0] };
   m.lights = m.objects.filter((o) => LIGHT[o.sprite] && !o.unlit).map((o) => { const L = LIGHT[o.sprite]; return (o.light = { x: o.x, y: o.y - 0.4, r: L[0] * 16, col: L[1], fire: !!L[2] }); });
   if (def.style === 'frostveil') {                                    // the ice: snow in slow patches, ice, frigid water, the wall tops
     const pv = noise2(seed ^ 0x51f15e);
@@ -1619,6 +1717,14 @@ export function dungeon(seed, def) {
       else if (t === TID.fvwater) m.skin[i] = SK.frostveil_frigid_water;
       else if (t === TID.fvwall) m.skin[i] = SK.frostveil_wall_top;
     }
+  }
+  if (def.style === 'astral') {                                       // marble, grate, the void, the wall tops (the hidden star bridge is void until revealed)
+    for (let i = 0; i < m.tiles.length; i++) {
+      const t = m.tiles[i];
+      if (t === TID.asmarble) m.skin[i] = SK.astral_marble; else if (t === TID.asgrate) m.skin[i] = SK.astral_brass_grate;
+      else if (t === TID.asvoid) m.skin[i] = SK.astral_void; else if (t === TID.aswall) m.skin[i] = SK.astral_wall_top;
+    }
+    m.hasVoid = true;
   }
   if (def.style === 'mirerot') {                                      // mud in slow patches, moss, the bog, the wall tops
     const pv = noise2(seed ^ 0x6d697265);
