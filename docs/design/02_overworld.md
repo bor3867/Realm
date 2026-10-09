@@ -180,6 +180,12 @@ The dunes and the fen keep their own look.
   the halves, rotting, the slice's regen and the loot odds.
 - Tuned after looking: six juice splashes hid the burst frame; now one each side.
 
+### Result (2f, built): the realm event bosses
+- The Abyssal Kraken and the Thornheart Treant, each with its own note (`boss_abyssal_kraken.md`,
+  `boss_thornheart_treant.md`). Each rolls on its own clock (first after 5 minutes, then every 15–25), raises
+  its arena the first time and reuses it after, sleeps until you step in, and is announced and marked.
+- Their six items (two themed and a legendary each) are in the item list with registry icons from `ix_items`.
+
 ## Order of work (one commit each)
 2a performance infrastructure + after-numbers · 2b tiles, variants, transitions, lowlands wedge · 2c objects,
 clustering, landmarks · 2d enemies, packs, ow2 behaviours · 2e the Giant Watermelon · 2f the Kraken and the Treant.

@@ -594,7 +594,28 @@ UT.push(
   { id: 'golden_honeydew', type: 'ring', slot: 'ring', name: 'The Golden Honeydew', reg: 'mx_items/golden_honeydew', bonus: { hp: 100, mp: 80, vit: 8, wis: 8 },
     desc: 'One in a hundred melons grows one. It hums when you are hurt, and mends you when something dies.' },
 );
+// ---- the realm event bosses' fruit (Phase 2f; icons from the registry, ix_items). The legendaries drop only from a
+// phase-3 kill, which every kill is.
+UT.push(
+  { id: 'tidebreaker_trident', type: 'staff', slot: 'weapon', name: 'Tidebreaker Trident', reg: 'ix_items/tidebreaker_trident',
+    weapon: { dmg: [70, 105], count: 3, arc: 0.12, range: 6.4, speed: 16, rate: 1.0, proj: 'tidebolt', size: 0.45, pierce: true }, desc: 'Three tines, three bolts, straight through whatever stands in the surf.' },
+  { id: 'abyssal_pearl', type: 'ring', slot: 'ring', name: 'Abyssal Pearl', reg: 'ix_items/abyssal_pearl', bonus: { hp: 80, mp: 80, wis: 6 },
+    desc: 'Black as the water it came up from. It is warm, which is wrong.' },
+  { id: 'leviathan_eye', type: 'ring', slot: 'ring', name: 'The Leviathan Eye', reg: 'ix_items/leviathan_eye', bonus: { att: 6, dex: 6, hp: 60 }, legendary: true,
+    desc: 'It still looks. Whatever it looks at, your shots find the soft part of.' },
+  { id: 'heartwood_bow', type: 'bow', slot: 'weapon', name: 'Heartwood Bow', reg: 'ix_items/heartwood_bow',
+    weapon: { dmg: [48, 78], count: 3, arc: 0.16, range: 6, speed: 17, rate: 1.0, proj: 'splinter', size: 0.45, pierce: true }, desc: 'Cut from the Treant\'s heart, and it still leans toward the living.' },
+  { id: 'seed_of_renewal', type: 'ring', slot: 'ring', name: 'Seed of Renewal', reg: 'ix_items/seed_of_renewal', bonus: { hp: 100, vit: 8 },
+    desc: 'Plant it in yourself. When you are cut down low, it grows.' },
+  { id: 'blight_heart', type: 'ring', slot: 'ring', name: 'The Blight Heart', reg: 'ix_items/blight_heart', bonus: { att: 7, dex: 5 }, legendary: true,
+    desc: 'The rot at the middle of the oldest tree. Everything you kill bursts into thorns.' },
+);
 Object.assign(SPECIAL, {
+  tidebreaker_trident: { weapon: { slow: { f: 0.15, t: 0.6 } } },
+  leviathan_eye: { passive: { crit: { p: 0.15, x: 2 }, manaonhit: 1 } },
+  heartwood_bow: { weapon: { homing: 1.5 } },
+  seed_of_renewal: { passive: { lowregen: 40 } },
+  blight_heart: { passive: { killburst: 0.5 } },
   melon_slicer: { weapon: { lifesteal: 0.02 } },
   vinegrown_staff: { weapon: { homing: 2 } },
   honeydew_scepter: { weapon: { slow: { f: 0.25, t: 1 } } },

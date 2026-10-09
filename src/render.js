@@ -160,6 +160,7 @@ export class Renderer {
     if (g.arena) this.arenaFx(g, g.arena);
     if (g.timeStop) this.timeDial(g, g.timeStop);
     for (const f of g.fx) if (f.kind === 'cloud' || f.kind === 'zone') this.groundFx(f, g);
+    if (g.activeMap === m) for (const e of g.notable) if (e.bx && e.bx.B.drawGround && !e.dead) e.bx.B.drawGround(this, g, e);   // a boss's hazards on the ground
     list.sort((a, c) => a.sy - c.sy);
     for (const d of list) d.f();
     if (g.player.hook) this.hookFx(g, g.player.hook);
@@ -187,6 +188,7 @@ export class Renderer {
     this.drawParticles(dt);
     this.drawSprFx(dt);
     if (g.darkUntil > g.t && g.darkBy && !g.darkBy.dead) this.darkFx(g);
+    if (g.inkUntil > g.t) this.inkFx(g);
     b.restore();
     if (g.map.lights && !darkFirst) this.dusk(g);
     if (!this.settings || this.settings.weather) this.drawWeather(g, dt);
@@ -1055,7 +1057,7 @@ export class Renderer {
     const S = e.bx;
     if (!S || !S.def || !S.anim) return;
     const def = S.def, W = def.size[0] * 2, fr = e.dead ? def.anims[def.death].frames.slice(-1)[0] : S.anim.frame;
-    if (!e.dead) this.shadow(sx, sy, Math.min(48, W * 0.55));
+    if (!e.dead && !S.B.noShadow) this.shadow(sx, sy, Math.min(48, W * 0.55));
     const hy = this.R ? hoverY(this.R, def, g.t, S.phase0, S.phase) : 0;
     if (e.dead) this.b.globalAlpha = Math.max(0, 1 - e.deadT / 1.4);
     this.drawDef(def, fr, sx, sy + hy, { flip: !!e.face, flash: S.flashT > 0 && S.state !== 'death' });
@@ -1295,6 +1297,20 @@ export class Renderer {
     }
     this.sfxList = keep.length > 60 ? keep.slice(-60) : keep;
   }
+  // the Kraken's ink: dark blots splashed across your view, fading; you can still make out the shots between them
+  inkFx(g) {
+    const b = this.b, BW = this.buf.width, BH = this.buf.height, f = Math.min(1, (g.inkUntil - g.t) / 0.5, (1.6 - (g.inkUntil - g.t)) / 0.12);
+    let s = Math.floor((g.inkSeed || 0.5) * 1e6);
+    const rnd = () => ((s = (s * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
+    b.save(); b.setTransform(1, 0, 0, 1, 0, 0); b.scale(this.hi.width / BW, this.hi.height / BH);   // screen space, like the darkness
+    for (let k = 0; k < 7; k++) {
+      const x = rnd() * BW, y = rnd() * BH, r = 24 + rnd() * 46;
+      b.globalAlpha = 0.78 * f; b.fillStyle = k % 2 ? '#0a0a18' : '#141430';
+      b.beginPath(); b.arc(x, y, r, 0, Math.PI * 2); b.fill();
+      for (let j = 0; j < 5; j++) { const a = rnd() * Math.PI * 2, d = r * (0.8 + rnd() * 0.5); b.beginPath(); b.arc(x + Math.cos(a) * d, y + Math.sin(a) * d, 3 + rnd() * 7, 0, Math.PI * 2); b.fill(); }
+    }
+    b.restore(); b.globalAlpha = 1;
+  }
   // the Lich's darkness: everything but a small circle around you goes black
   darkFx(g) {
     const b = this.b, [sx, sy] = this.proj(g.player.x, g.player.y - 0.5), r = (g.darkR || 3) * TS;
@@ -1368,8 +1384,15 @@ export class Renderer {
       if (pr.sprite.includes('/') && this.R) {                       // a Realm Update shot (registry)
         const def = pr.def || (pr.def = this.R.resolve(pr.sprite));
         if (def) {
-          const [qx, qy] = this.proj(pr.x, pr.y), A = Object.values(def.anims)[0], fr = A.frames[Math.floor(g.t * (A.fps || 8) + (pr.x + pr.y)) % A.frames.length];
-          if (qx > -20 && qy > -20 && qx < BW + 20 && qy < BH + 20) this.drawDef(def, fr, Math.round(qx), Math.round(qy), { rot: pr.a + this.th, alpha: pr.frozen ? 0.55 : pr.ghost ? 0.25 : 1 });
+          let [qx, qy] = this.proj(pr.x, pr.y);
+          const A = Object.values(def.anims)[0], fr = A.frames[Math.floor(g.t * (A.fps || 8) + (pr.x + pr.y)) % A.frames.length];
+          if (pr.lob) {                                     // lobbed: a mark where it will land, the shot arcing over
+            const L = pr.lob, kk = Math.min(1, L.t / L.T), [mx, my] = this.proj(L.x1, L.y1), rr = Math.round(L.r * TS * (0.4 + 0.6 * kk));
+            b.fillStyle = Math.floor(g.t * 10) % 2 ? '#ff4a5a' : '#ffc94a';
+            for (let a = 0; a < 16; a += 2) { const t = (a / 16) * Math.PI * 2; b.fillRect(Math.round(mx + Math.cos(t) * rr), Math.round(my + Math.sin(t) * rr * 0.7), 1, 1); }
+            qy -= Math.sin(Math.PI * kk) * L.h;
+          }
+          if (qx > -20 && qy > -20 && qx < BW + 20 && qy < BH + 20) this.drawDef(def, fr, Math.round(qx), Math.round(qy), { rot: pr.lob ? g.t * 6 : pr.a + this.th, alpha: pr.frozen ? 0.55 : pr.ghost ? 0.25 : 1 });
           continue;
         }
       }

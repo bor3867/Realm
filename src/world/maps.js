@@ -27,7 +27,7 @@ export const SKINS = [null,
   ['ow_tiles/highlands_cliff_top', 'cliff'], ['ow_tiles/highlands_snowcap', 'snow'], ['ow_tiles/highlands_gravel', 'steppe'],
   ['ow_tiles/godlands_ash_ground', 'ash'], ['ow_tiles/godlands_blood_rock', 'obsidian'], ['ow_tiles/godlands_rift', 'rift']];
 export const SKIN_TID = SKINS.map((s) => (s ? TID[s[1]] : -1));
-const SK = Object.fromEntries(SKINS.map((s, k) => [s ? s[0].split('/')[1].replace(/^(shore|lowlands|midlands|highlands|godlands)_/, '') + (s[1] === 'deep' || s[1] === 'steppe' ? '@' + s[1] : '') : '-', k]));
+export const SK = Object.fromEntries(SKINS.map((s, k) => [s ? s[0].split('/')[1].replace(/^(shore|lowlands|midlands|highlands|godlands)_/, '') + (s[1] === 'deep' || s[1] === 'steppe' ? '@' + s[1] : '') : '-', k]));
 // a fixed per-tile hash (0..1), so jitter and dithering never disturb the generator's random stream
 const hash01 = (x, y) => { let h = Math.imul(x, 374761393) + Math.imul(y, 668265263); h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
 
@@ -613,6 +613,14 @@ export function objectsIn(m, x0, y0, x1, y1) {
     if (L) for (const o of L) out.push(o);
   }
   return out;
+}
+// shots fly over open water (the sea, the fen's pools): only walls, rock and solid things stop them
+export function shotBlocked(m, x, y) {
+  if (!isSolid(m, x, y)) return false;
+  const xi = Math.floor(x), yi = Math.floor(y);
+  if (xi < 0 || yi < 0 || xi >= m.w || yi >= m.h) return true;
+  const t = m.tiles[yi * m.w + xi];
+  return !(t === TID.water || t === TID.deep);
 }
 export function biomeAt(m, x, y) {
   const xi = Math.floor(x), yi = Math.floor(y);

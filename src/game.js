@@ -4,10 +4,11 @@ import { R, rng, clamp, dist, dist2, angleTo, TAU } from './util.js';
 import { CLASSES, START_KIT, STATS, MAX_LEVEL, FAME_XP, FAME_GOALS, xpToNext, moveSpeed, fireRate, dmgMult, hpRegen, mpRegen, mitigate } from './data/classes.js';
 import { ITEMS, SETS, rollLoot, bagFor, canEquip, TYPE_SLOT, BAG_ORDER, BAG_NAMES, WEAPON_TYPES, ARMOR_TYPES, ABILITY_TYPES, ADMIN_SET } from './data/items.js';
 import { ENEMIES, PACKS, CAMP_LOOT, BIOME_SPAWNS, BOSS, REALM_BOSSES, PARENTS, HERALDS, BIOME_BOSS, EVENTS_TO_BOSS, GROUPS, DUNGEONS, DUNGEON_BOSSES, FIRECAMP_BANDS, portalDrop2 as portalDrop } from './data/enemies.js';
-import { nexus, vaultRoom, realm, dungeon, isSolid, biomeAt, randomTileInBiome, BIOMES, BIOME_RING, BIOME_LABEL, TID } from './world/maps.js';
+import { nexus, vaultRoom, realm, dungeon, isSolid, shotBlocked, biomeAt, randomTileInBiome, BIOMES, BIOME_RING, BIOME_LABEL, TID } from './world/maps.js';
 import { writeSave } from './save.js';
 import { installD4 } from './dungeons4.js';
 import { installMelon } from './melon.js';
+import { installRealmEvents } from './realmevents.js';
 import { installBX } from './bossx.js';
 import { BX, bxEnemyDef } from './bosses/index.js';
 import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUEST_HUNTS, FETCH_ITEMS } from './data/lore.js';
@@ -710,7 +711,7 @@ export class Game {
     this.updateTimeStop(dt);
     this.updateProjectiles(dt);
     this.updateWorld(dt);
-    if (this.map.kind === 'realm') { this.maintainRealm(dt); this.eventClock(dt); this.melonTick(dt); }
+    if (this.map.kind === 'realm') { this.maintainRealm(dt); this.eventClock(dt); this.melonTick(dt); this.eventBossTick(dt); }
     if (this.map.kind === 'dungeon') { this.updateDungeon(dt); this.updatePuzzles(dt); this.updateTraps(dt); this.updateD4(dt); }
     if (this.map.kind !== 'nexus') this.openChests();
     this.saveT = (this.saveT || 0) + dt;
@@ -760,7 +761,7 @@ export class Game {
     const drag = under === TID.bog ? 0.6 : under === TID.shallows ? 0.8 : 1;
     const bless = p.status.bless > 0 ? p.blessKind : null;
     if (len) { mx /= len; my /= len; }
-    const sp = moveSpeed(this.stat('spd')) * drag * (bless === 'shore' ? 1.25 : 1) * (this.map.kind === 'dungeon' ? this.d4Speed() : 1);
+    const sp = moveSpeed(this.stat('spd')) * drag * (bless === 'shore' ? 1.25 : 1) * (this.map.kind === 'dungeon' ? this.d4Speed() : 1) * (p.dragUntil > this.t ? p.dragF : 1);
     // keys are screen directions: rotate them into the world
     const wx = len ? (mx * cs + my * sn) * sp : 0, wy = len ? (-mx * sn + my * cs) * sp : 0;
     p.vel = p.vel || { x: 0, y: 0 };
@@ -1919,7 +1920,8 @@ export class Game {
       this.hurtPlayer(b.dmg, b.by);
       (this.hitVols = this.hitVols || new Map()).set(`${this.frameN || 0}:${b.by}`, this.t);   // its shards are the same blow
     }
-    for (let k = 0; k < L.n; k++) this.shoot('e', L.x1, L.y1, (k / L.n) * TAU + L.t, L.ss, 3, Math.round(b.dmg * 0.5), b.sprite, 0.3, false, b.by);
+    if (L.onLand) { L.onLand(this, b); return; }
+    for (let k = 0; k < L.n; k++) { const s = this.shoot('e', L.x1, L.y1, (k / L.n) * TAU + L.t, L.ss, 3, Math.round(b.dmg * 0.5), L.sprite || b.sprite, 0.3, false, b.by); if (L.bxOf) s.bxOf = L.bxOf; }
     this.vx({ k: 'burst', x: L.x1, y: L.y1, n: 12, colors: ['#ffffff', '#c8c0b0', '#8d88a0'] });
   }
   // lobbed volley: aimed lobs land on and around you; radial lobs land in a ring around the thrower
@@ -3101,7 +3103,7 @@ export class Game {
       }
       if (!b.orb) { b.x += b.vx * dt; b.y += b.vy * dt; }
       b.life -= dt;
-      if (b.life <= 0 || (!b.back && !b.orb && isSolid(m, b.x, b.y + 0.3))) {
+      if (b.life <= 0 || (!b.back && !b.orb && shotBlocked(m, b.x, b.y + 0.3))) {
         if (b.from === 'p' && b.life > 0 && m.kind !== 'nexus') this.hitObject(b.x, b.y + 0.3, b.dmg);
         if (sp && sp.split && sp.split.onEnd && !b.child && b.from === 'p') this.splitShot(b, sp.split);
         continue;
@@ -3780,6 +3782,14 @@ export class Game {
         if (e) say(`${e.D.name} (${e.D.hp} life). Phases at 66% and 33%.`);
         break;
       }
+      case 'kraken': case 'treant': {                       // /kraken, /treant: the realm event now, and you at its edge
+        if (this.map.kind !== 'realm') { say('Realm events only happen in the realm.'); break; }
+        const id = cmd === 'kraken' ? 'abyssal_kraken' : 'thornheart_treant', e = this.spawnEventBoss(id);
+        if (!e) { say('It is already here (or there is nowhere for it).'); break; }
+        p.x = e.home.x; p.y = e.home.y + 10.5; this.unstick(p);
+        say(`${e.D.name}: ${e.D.hp} life. Step in to wake it.`);
+        break;
+      }
       case 'melon': {                                      // /melon: a Giant Watermelon right here
         if (this.map.kind !== 'realm') { say('Melons only grow in the realm.'); break; }
         const e = this.spawnMelon({ x: p.x + 3.5, y: p.y + 0.5 }, false);
@@ -3822,3 +3832,4 @@ export class Game {
 installD4(Game);
 installBX(Game);
 installMelon(Game);
+installRealmEvents(Game);

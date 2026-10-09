@@ -32,3 +32,9 @@
 ## Phase 2e (the Giant Watermelon)
 - Rare realm event (src/melon.js), 12 melon items with registry icons, slice heal-over-time, `/melon`.
 - Spawn chance 0.006 tried first (median 0.64 h), set to the bundle's 0.004 (about 1 h). Splashes cut from 6 to 2.
+
+## Phase 2f (realm event bosses) — Phase 2 complete
+- The Abyssal Kraken (reef off the shore) and the Thornheart Treant (clearing in the Thornwood), on the boss
+  framework; `/kraken`, `/treant`; six items.
+- Rule change: shots fly over open water. Lob landing hooks, registry lob marks, whirlpool drag.
+- Tuning: causeway kept out of the pool; ink 0.78 opacity; seed marks made bold.
