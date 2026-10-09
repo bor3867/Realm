@@ -5,15 +5,31 @@ export const TILE_NAMES = ['water', 'deep', 'sand', 'fen', 'mud', 'snow', 'runef
   'ash', 'obsidian', 'marble', 'forge', 'forgewall', 'lava', 'void', 'chapelfloor', 'chapelwall', 'goldvein', 'ribwall',
   'grass', 'cobble', 'dirt', 'hedge', 'shallows', 'bog', 'ice', 'dune', 'glassflat', 'loam', 'bramble', 'steppe', 'quartz',
   'cryptfloor', 'cryptwall', 'cryptwater', 'emberfloor', 'emberwall', 'emberlava', 'carpet',
-  'combfloor', 'waxwall', 'honey', 'stageboards', 'velvetwall', 'prismfloor', 'crystalwall', 'dreamfloor', 'dreamwall', 'starvoid', 'dreambridge', 'fadebridge', 'fadegone'];
+  'combfloor', 'waxwall', 'honey', 'stageboards', 'velvetwall', 'prismfloor', 'crystalwall', 'dreamfloor', 'dreamwall', 'starvoid', 'dreambridge', 'fadebridge', 'fadegone',
+  'cliff', 'rift'];
 export const TID = Object.fromEntries(TILE_NAMES.map((n, i) => [n, i]));
 const SOLID_TILES = new Set([TID.water, TID.deep, TID.forgewall, TID.void, TID.chapelwall, TID.ribwall, TID.hedge, TID.bramble, TID.cryptwall, TID.emberwall, TID.cryptwater,
-  TID.waxwall, TID.velvetwall, TID.crystalwall, TID.dreamwall, TID.starvoid, TID.fadegone]);
-export const BIOMES = ['shore', 'fen', 'runeholt', 'godfall', 'dunes', 'thornwood', 'steppe'];
+  TID.waxwall, TID.velvetwall, TID.crystalwall, TID.dreamwall, TID.starvoid, TID.fadegone, TID.cliff]);
+export const BIOMES = ['shore', 'fen', 'runeholt', 'godfall', 'dunes', 'thornwood', 'steppe', 'lowlands'];
 // how deep in each land lies: 0 the coast ... 3 the god's fall. The three newer lands share a ring with an older one.
-export const BIOME_RING = [0, 1, 2, 3, 0, 1, 2];
+export const BIOME_RING = [0, 1, 2, 3, 0, 1, 2, 1];
 export const BIOME_LABEL = { shore: 'The Drowned Shore', fen: 'Ashfen', runeholt: 'Runeholt', godfall: 'Godfall',
-  dunes: 'The Saltglass Dunes', thornwood: 'The Thornwood', steppe: 'The Crystal Steppe' };
+  dunes: 'The Saltglass Dunes', thornwood: 'The Thornwood', steppe: 'The Crystal Steppe', lowlands: 'The Greenmarch' };
+// ground skins: the Realm Update's tiles (registry, art/bundle/overworld) drawn over a tile that keeps its own
+// meaning (sand is still sand to walk on). A skin only shows while the tile under it is still the tile it was laid
+// on, so anything that later rewrites a tile (a road, a site's floor) falls back to the old art by itself.
+export const SKINS = [null,
+  ['ow_tiles/shore_sand_a', 'sand'], ['ow_tiles/shore_sand_b', 'sand'], ['ow_tiles/shore_wet_sand', 'sand'],
+  ['ow_tiles/shore_shallows', 'shallows'], ['ow_tiles/shore_deep_water', 'water'], ['ow_tiles/shore_deep_water', 'deep'],
+  ['ow_tiles/lowlands_grass_a', 'grass'], ['ow_tiles/lowlands_grass_b', 'grass'], ['ow_tiles/lowlands_tall_grass', 'grass'], ['ow_tiles/lowlands_dirt_path', 'dirt'],
+  ['ow_tiles/midlands_forest_floor', 'loam'], ['ow_tiles/midlands_leaf_litter', 'loam'], ['ow_tiles/midlands_mossy_stone', 'loam'], ['ow_tiles/midlands_stream', 'shallows'],
+  ['ow_tiles/highlands_rock_floor', 'runefloor'], ['ow_tiles/highlands_gravel', 'runefloor'], ['ow_tiles/highlands_alpine_grass', 'runefloor'],
+  ['ow_tiles/highlands_cliff_top', 'cliff'], ['ow_tiles/highlands_snowcap', 'snow'], ['ow_tiles/highlands_gravel', 'steppe'],
+  ['ow_tiles/godlands_ash_ground', 'ash'], ['ow_tiles/godlands_blood_rock', 'obsidian'], ['ow_tiles/godlands_rift', 'rift']];
+export const SKIN_TID = SKINS.map((s) => (s ? TID[s[1]] : -1));
+const SK = Object.fromEntries(SKINS.map((s, k) => [s ? s[0].split('/')[1].replace(/^(shore|lowlands|midlands|highlands|godlands)_/, '') + (s[1] === 'deep' || s[1] === 'steppe' ? '@' + s[1] : '') : '-', k]));
+// a fixed per-tile hash (0..1), so jitter and dithering never disturb the generator's random stream
+const hash01 = (x, y) => { let h = Math.imul(x, 374761393) + Math.imul(y, 668265263); h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
 
 function makeMap(kind, name, w, h, fill) {
   return {
@@ -210,25 +226,27 @@ export const REALM_SIZE = 1280;
 const RK = REALM_SIZE / 480;                 // the realm grew: features and set pieces scale with it
 const DECOR_BIOME = [['shell', 'starfish', 'kelp', 'driftwood'], ['reeds', 'shrooms', 'lily', 'skullmoss'],
   ['snowtuft', 'runepebble', 'icecrystal', 'brokenshield'], ['embervent', 'goldrubble', 'bonepile', 'pillarstub'],
-  ['shell', 'driftwood', 'goldrubble', 'bonepile'], ['shrooms', 'skullmoss', 'reeds', 'bonepile'], ['icecrystal', 'runepebble', 'brokenshield', 'pillarstub']];
-const LANDMARK_BIOME = ['whale_skull', 'hollow_oak', 'monolith', 'god_hand', 'whale_skull', 'hollow_oak', 'monolith'];
+  ['shell', 'driftwood', 'goldrubble', 'bonepile'], ['shrooms', 'skullmoss', 'reeds', 'bonepile'], ['icecrystal', 'runepebble', 'brokenshield', 'pillarstub'],
+  ['reeds', 'shrooms', 'runepebble']];
+const LANDMARK_BIOME = ['whale_skull', 'hollow_oak', 'monolith', 'god_hand', 'whale_skull', 'hollow_oak', 'monolith', 'hollow_oak'];
 const OB = [['whale_rib', 0.006], ['dead_tree', 0.01], ['rune_pillar', 0.008], ['fallen_head', 0.006],
-  ['glass_spire', 0.008], ['thorn_tree', 0.03], ['crystal_spire', 0.01]];
-// the sectors the new lands take out of their ring: a direction and a half-width (radians)
-const SECTORS = { 4: [0, 0.95], 5: [Math.PI, 0.95], 6: [-Math.PI / 2, 1.15] };
+  ['glass_spire', 0.008], ['thorn_tree', 0.03], ['crystal_spire', 0.01], ['dead_tree', 0.004]];
+// the sectors the new lands take out of their ring: a direction and a half-width (radians). The Greenmarch faces the
+// landing beach, so the first country you walk into from the sea is the gentlest.
+const SECTORS = { 4: [0, 0.95], 5: [Math.PI, 0.95], 6: [-Math.PI / 2, 1.15], 7: [Math.PI / 2, 0.8] };
 // waypoint names, three per land
 export const WAYPOINT_NAMES = {
   shore: ['Landing Beach', 'Gull Point', 'The Drowned Pier'], fen: ['Lantern Crossing', 'Bellwater', 'The Peat Steps'],
   runeholt: ['Cairnfold', 'The Frozen Gate', 'Skald\'s Rest'], godfall: ['The Gilded Steps', 'Ashen Throne-Road', 'The Last Bell'],
   dunes: ['Glassreach', 'The Sphinx\'s Shadow', 'Mirage Well'], thornwood: ['Briarhollow', 'The Stag\'s Path', 'Witchlight Clearing'],
-  steppe: ['Skyglass Rise', 'The Humming Fields', 'Geode Hollow'],
+  steppe: ['Skyglass Rise', 'The Humming Fields', 'Geode Hollow'], lowlands: ['Millbrook', 'Haywain Cross', 'The Old Well'],
 };
 // set pieces: a name, the lands it appears in, and what it's built from
 const SITES = [
   { name: 'The Wrecked Galleon', in: [0], kind: 'wreck' }, { name: 'The Glass Oasis', in: [4], kind: 'oasis' },
   { name: 'The Sunken Bell Tower', in: [1], kind: 'tower' }, { name: 'The Witch\'s Circle', in: [5], kind: 'circle' },
   { name: 'The Standing Stones', in: [2], kind: 'stones' }, { name: 'The Shattered Observatory', in: [6], kind: 'observatory' },
-  { name: 'The Fallen Colossus', in: [3], kind: 'colossus' }, { name: 'The Old Waystation', in: [0, 1, 4, 5], kind: 'hamlet' },
+  { name: 'The Fallen Colossus', in: [3], kind: 'colossus' }, { name: 'The Old Waystation', in: [0, 1, 4, 5, 7], kind: 'hamlet' },
   { name: 'The Pilgrim Ruins', in: [1, 2, 5, 6], kind: 'hamlet' }, { name: 'The Glass Graveyard', in: [4], kind: 'graveyard' },
   { name: 'The Thorn Shrine', in: [5], kind: 'circle' }, { name: 'The Rune Gate', in: [2, 6], kind: 'stones' },
 ];
@@ -238,42 +256,90 @@ export function realm(seed) {
   const m = makeMap('realm', 'The Realm', S, S, TID.deep);
   const r = rng(seed), n = noise2(seed), n2 = noise2(seed ^ 0x5bd1e995), n3 = noise2(seed ^ 0x2545f491), n4 = noise2(seed ^ 0x68e31da4);
   const area = new Array(BIOMES.length).fill(0);
+  m.skin = new Uint8Array(S * S);
+  // slow noise picks a ground's a/b variants in patches (never salt-and-pepper)
+  const patch = (x, y, s = 7) => n3(x / s + 311.5, y / s + 97.25);
+  const R0 = C * 0.9;
   for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
     const i = idx(m, x, y);
-    const d = dist(x, y, C, C) / (C * 0.9) + (n(x / (26 * RK), y / (26 * RK)) - 0.5) * 0.32;
+    const d0 = dist(x, y, C, C) / R0 + (n(x / (26 * RK), y / (26 * RK)) - 0.5) * 0.32;
     const v = n2(x / (9 * Math.sqrt(RK)), y / (9 * Math.sqrt(RK)));
-    if (d > 1.06) { m.tiles[i] = TID.deep; continue; }
-    if (d > 1.0) { m.tiles[i] = TID.water; continue; }
-    let b, t;
+    if (d0 > 1.06) { m.tiles[i] = TID.deep; m.skin[i] = SK['deep_water@deep']; continue; }
+    if (d0 > 1.0) { m.tiles[i] = TID.water; m.skin[i] = SK.deep_water; continue; }
+    // where two lands meet, each tile takes its land from a point jittered by up to 3 tiles each way: a dithered
+    // band, like a hand-placed edge, rather than a ruled line (the coast itself is never jittered)
+    const xs = x + (hash01(x, y) - 0.5) * 6, ys = y + (hash01(y + 7919, x + 104729) - 0.5) * 6;
+    const d = dist(xs, ys, C, C) / R0 + (n(xs / (26 * RK), ys / (26 * RK)) - 0.5) * 0.32;
+    let b, t, sk = 0;
     if (d > 0.78) { b = 0; t = TID.sand; }
     else if (d > 0.52) { b = 1; t = v > 0.62 ? TID.mud : TID.fen; }
     else if (d > 0.27) { b = 2; t = v > 0.6 ? (r.chance(0.08) ? TID.runeglyph : TID.runefloor) : TID.snow; }
     else { b = 3; t = v > 0.6 ? TID.obsidian : TID.ash; }
     // the new lands take a wedge out of their ring (its edge wanders with the noise)
-    const ang = Math.atan2(y - C, x - C) + (n4(x / (40 * RK), y / (40 * RK)) - 0.5) * 1.1;
+    const ang = Math.atan2(ys - C, xs - C) + (n4(xs / (40 * RK), ys / (40 * RK)) - 0.5) * 1.1;
     for (const [nb, [a0, w]] of Object.entries(SECTORS)) {
       if (BIOME_RING[nb] !== b) continue;
       if (Math.abs(Math.atan2(Math.sin(ang - a0), Math.cos(ang - a0))) < w) b = +nb;
     }
+    const pv = patch(x, y);
     if (b === 4) t = v < 0.2 ? TID.glassflat : TID.dune;
-    if (b === 5) t = v > 0.68 ? TID.bramble : v < 0.16 ? TID.bog : TID.loam;
-    if (b === 6) t = v > 0.64 ? TID.quartz : v < 0.15 ? TID.shallows : TID.steppe;
+    if (b === 5) {                                                                   // the Thornwood: forest floor and leaf litter
+      t = v > 0.68 ? TID.bramble : v < 0.16 ? TID.bog : TID.loam;
+      if (t === TID.loam) sk = v > 0.64 ? SK.mossy_stone : pv > 0.55 ? SK.leaf_litter : SK.forest_floor;   // moss rims the briars
+      if (Math.abs(n4(x / (22 * RK) + 40, y / (22 * RK) - 40) - 0.5) < 0.006 && t !== TID.bog) { t = TID.shallows; sk = SK.stream; }   // brooks
+    }
+    if (b === 6) {
+      t = v > 0.64 ? TID.quartz : v < 0.15 ? TID.shallows : TID.steppe;
+      if (t === TID.steppe && patch(x, y, 11) > 0.66) sk = SK['gravel@steppe'];            // the highland rock reaches out over the steppe
+    }
+    if (b === 7) {                                                                   // the Greenmarch: rolling grass, meadows, ponds
+      t = TID.grass; sk = pv > 0.62 ? SK.grass_b : SK.grass_a;                       // the flowering meadows are the rarer patches
+      if (patch(x, y, 5) > 0.72) sk = SK.tall_grass;
+      if (v < 0.08) { t = TID.shallows; sk = SK.shallows; }
+    }
     // each land's own ground features
-    if ((b === 0 || b === 4) && d > 0.955) t = TID.shallows;                       // tidal flats: wade, slowly
-    if (b === 0 && v < 0.15) t = TID.shallows;
+    if ((b === 0 || b === 4) && d0 > 0.955) { t = TID.shallows; sk = SK.shallows; }    // tidal flats: wade, slowly
+    if (b === 0) {
+      if (v < 0.15) { t = TID.shallows; sk = SK.shallows; }
+      else if (t === TID.sand) sk = pv > 0.5 ? SK.sand_b : SK.sand_a;
+    }
     if (b === 1 && v < 0.28) t = v < 0.12 ? TID.water : TID.bog;                     // black pools ringed with bog
-    if (b === 2 && v < 0.26) t = TID.ice;                                            // frozen lakes: you slide
+    if (b === 2) {                                                                   // Runeholt: snowfields over bare rock, a fringe of gravel between
+      if (v <= 0.7) {                                                                //   (the old rune floors survive as the land's rarer patches)
+        const e = patch(x, y, 13);
+        if (e < 0.4) { t = TID.runefloor; sk = patch(x + 500, y, 5) > 0.82 ? SK.alpine_grass : SK.rock_floor; }
+        else if (e < 0.45) { t = TID.runefloor; sk = SK.gravel; }
+        else { t = TID.snow; sk = SK.snowcap; }
+      }
+      if (v < 0.26) { t = TID.ice; sk = 0; }                                         // frozen lakes: you slide
+      else if (v > 0.45 && v < 0.6 && n3(x / 9 - 200, y / 1.3 + 90) > 0.72 && m.tiles[idx(m, x, y - 1)] !== TID.cliff) { t = TID.cliff; sk = SK.cliff_top; }   // crags: long one-tile ledges you go round
+    }
     if (b === 3) {
-      if (v < 0.14) t = TID.lava; else if (v < 0.22) t = TID.obsidian;               // lava pools rimmed in glass
-      if (Math.abs(n3(x / (16 * RK), y / (16 * RK)) - 0.5) < 0.007) t = TID.lava;      // and fissures that cut the land
+      if (t === TID.obsidian && v <= 0.68) t = TID.ash;                             // ash plains, a few slabs of blood rock
+      if (t === TID.ash) sk = SK.ash_ground; else if (t === TID.obsidian) sk = SK.blood_rock;
+      if (v < 0.14) { t = TID.lava; sk = 0; } else if (v < 0.22) { t = TID.obsidian; sk = 0; }   // lava pools rimmed in glass
+      if (Math.abs(n3(x / (16 * RK), y / (16 * RK)) - 0.5) < 0.007) { t = TID.lava; sk = 0; }      // and fissures that cut the land
+      else if (Math.abs(n4(x / (12 * RK) - 70, y / (12 * RK) + 30) - 0.5) < 0.005) { t = TID.rift; sk = SK.rift; }   // and rifts that bite
     }
     m.tiles[i] = t;
+    m.skin[i] = SKIN_TID[sk] === t ? sk : 0;
     m.biome[i] = t === TID.water ? -1 : b;
     if (b >= 0) area[b]++;
   }
+  // wet sand: a dithered band where the beach meets the water
+  {
+    const wet = (x, y) => { const t = m.tiles[idx(m, x, y)]; return t === TID.shallows || t === TID.water || t === TID.deep; };
+    for (let y = 2; y < S - 2; y++) for (let x = 2; x < S - 2; x++) {
+      const i = idx(m, x, y), k = m.skin[i];
+      if (k !== SK.sand_a && k !== SK.sand_b) continue;
+      let near = 9;
+      for (let yy = -2; yy <= 2; yy++) for (let xx = -2; xx <= 2; xx++) if (wet(x + xx, y + yy)) near = Math.min(near, Math.max(Math.abs(xx), Math.abs(yy)));
+      if (near === 1 || (near === 2 && hash01(x + 31, y + 17) < 0.45)) m.skin[i] = SK.wet_sand;
+    }
+  }
   m.area = area;
   const per = (b, tilesEach) => Math.max(1, Math.round(area[b] / tilesEach));
-  const plain = (x, y) => { const t = m.tiles[idx(m, x, y)]; return t !== TID.shallows && t !== TID.bog && t !== TID.ice && t !== TID.lava && t !== TID.water && t !== TID.bramble && t !== TID.deep; };
+  const plain = (x, y) => { const t = m.tiles[idx(m, x, y)]; return t !== TID.shallows && t !== TID.bog && t !== TID.ice && t !== TID.lava && t !== TID.water && t !== TID.bramble && t !== TID.deep && t !== TID.cliff && t !== TID.rift; };
   const spotIn = (b, tries = 30) => { for (let j = 0; j < tries; j++) { const at = randomTileInBiome(m, b, r, null); if (at && plain(Math.floor(at.x), Math.floor(at.y))) return [Math.floor(at.x), Math.floor(at.y)]; } return null; };
   // ---- spawn on the southern shore
   for (let k = 0; k < 400; k++) {
@@ -310,6 +376,7 @@ export function realm(seed) {
         const inner = b >= 0 && BIOME_RING[b] >= 2;
         m.tiles[i] = t === TID.lava ? TID.obsidian : (t === TID.water || t === TID.bog || t === TID.bramble || inner) ? TID.cobble : TID.dirt;
         if (m.biome[i] < 0) m.biome[i] = biomeAt(m, x + 2, y) >= 0 ? biomeAt(m, x + 2, y) : 0;
+        m.skin[i] = m.tiles[i] === TID.dirt && m.biome[i] === 7 ? SK.dirt_path : 0;
       }
     }
   };
@@ -378,7 +445,7 @@ export function realm(seed) {
         if (x - rx !== door && x - rx !== door + 1 && r.chance(0.8)) put(m, x % 2 ? 'ruin_wall2' : 'ruin_wall', x, ry + H);
       }
       for (let y = ry + 1; y < ry + H; y++) { if (r.chance(0.75)) put(m, 'ruin_wall', rx, y); if (r.chance(0.75)) put(m, 'ruin_wall2', rx + W - 1, y); }
-      for (let y = ry + 1; y < ry + H; y++) for (let x = rx + 1; x < rx + W - 1; x++) m.tiles[idx(m, x, y)] = BIOME_RING[b] === 3 ? TID.obsidian : TID.runefloor;
+      for (let y = ry + 1; y < ry + H; y++) for (let x = rx + 1; x < rx + W - 1; x++) { m.tiles[idx(m, x, y)] = BIOME_RING[b] === 3 ? TID.obsidian : TID.runefloor; m.skin[idx(m, x, y)] = 0; }
       put(m, 'chest', rx + Math.floor(W / 2), ry + Math.floor(H / 2), true, { interact: 'chest', loot: BIOMES[b] });
       put(m, 'brazier', rx + 1, ry + 1);
     }
@@ -397,7 +464,7 @@ export function realm(seed) {
   };
   const wipe = (cx, cy, R) => { m.objects = m.objects.filter((o) => Math.abs(o.x - cx) > R + 1 || Math.abs(o.y - cy) > R + 1); m.decor = m.decor.filter((d) => Math.abs(d.x - cx) > R || Math.abs(d.y - cy) > R); };
   const ring = (cx, cy, R, n, sprite, a0 = 0) => { for (let j = 0; j < n; j++) { const a = a0 + (j / n) * Math.PI * 2; put(m, sprite, Math.round(cx + Math.cos(a) * R), Math.round(cy + Math.sin(a) * R)); } };
-  const floor = (cx, cy, R, t, round = true) => { for (let y = cy - R; y <= cy + R; y++) for (let x = cx - R; x <= cx + R; x++) if (!round || (x - cx) ** 2 + (y - cy) ** 2 <= R * R) m.tiles[idx(m, x, y)] = t; };
+  const floor = (cx, cy, R, t, round = true) => { for (let y = cy - R; y <= cy + R; y++) for (let x = cx - R; x <= cx + R; x++) if (!round || (x - cx) ** 2 + (y - cy) ** 2 <= R * R) { m.tiles[idx(m, x, y)] = t; m.skin[idx(m, x, y)] = 0; } };
   const BUILD = {
     wreck: (x, y) => { put(m, 'whale_rib', x - 3, y); put(m, 'whale_rib', x - 1, y - 1); put(m, 'whale_rib', x + 1, y - 1); put(m, 'whale_rib', x + 3, y);
       put(m, 'crate', x - 2, y + 2); put(m, 'barrel', x + 2, y + 2); put(m, 'barrel', x + 3, y + 3); put(m, 'chest', x, y + 1, true, { interact: 'chest', loot: 'shore' }); },
@@ -431,7 +498,7 @@ export function realm(seed) {
   {
     const sx = Math.floor(m.spawn.x), sy = Math.floor(m.spawn.y);
     m.objects = m.objects.filter((o) => o.interact === 'waypoint' || Math.abs(Math.floor(o.x) - sx) > 2 || Math.abs(Math.floor(o.y) - sy) > 2 || (o.big && Math.abs(o.x - sx) > 3));
-    for (let y = sy - 2; y <= sy + 2; y++) for (let x = sx - 2; x <= sx + 2; x++) if (!plain(x, y)) m.tiles[idx(m, x, y)] = TID.sand;
+    for (let y = sy - 2; y <= sy + 2; y++) for (let x = sx - 2; x <= sx + 2; x++) if (!plain(x, y)) { m.tiles[idx(m, x, y)] = TID.sand; m.skin[idx(m, x, y)] = SK.wet_sand; }
     m.decor = m.decor.filter((d) => Math.abs(d.x - sx) > 1 || Math.abs(d.y - sy) > 1);
   }
   finalize(m);

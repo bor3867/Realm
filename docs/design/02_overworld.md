@@ -71,6 +71,29 @@ The dunes and the fen keep their own look.
 - Walkability: deep water solid; shallows and the midlands stream walkable but slow; cliff tops solid; rift
   walkable but it bites (a small Life drain), so the godlands' ground itself is unfriendly.
 
+### Result (2b, built)
+- **Skins, not new tiles.** `m.skin` (one byte per tile) picks a bundle tile from `SKINS` in maps.js; the tile
+  underneath keeps its meaning (sand, shallows, grass, loam...), so walking, slowing, sliding and spawning rules are
+  unchanged. A skin shows only while its tile is still the tile it was laid on, so roads, ruins, site floors and the
+  landing beach fall back cleanly. Old edge overlays are skipped next to a skinned neighbour.
+- **New tiles:** `cliff` (solid; ledge runs in Runeholt, never stacked, from a horizontally stretched noise) and
+  `rift` (walkable; 6 Life every 0.5 s, ignoring Defense; thin seams through Godfall).
+- **The Greenmarch** (`lowlands`, biome 7, ring 1): a wedge facing the landing beach (starts ~50–90 tiles inland).
+  Grass a/b in patches (the flowering one is the rarer), tall-grass clumps, small ponds, dirt-path roads, its own
+  waypoints (Millbrook, Haywain Cross, The Old Well), weather (thistledown), speech and minimap colour. Until 2d it
+  borrows the shore's monsters and camp loot.
+- **Per land:** shore sand a/b + a dithered wet-sand rim + shallows + animated deep water; Thornwood forest floor,
+  leaf litter, moss rimming the briars, and brooks; Runeholt snowfields over bare rock with a gravel fringe, rare
+  alpine grass, rune-floor patches kept as its identity, ice lakes, ledges; steppe gets patches of highland gravel;
+  Godfall ash plains with a few blood-rock slabs, lava pools and fissures kept, rifts added. Fen and dunes unchanged.
+- **Transitions:** every tile samples its land from a point jittered up to 3 tiles each way (the coast is never
+  jittered). The first try jittered the distance value instead; the border noise made that collapse to ~1 tile.
+- Variants use slow noise patches (`patch()`), never per-tile random. Jitter uses a fixed hash, so the generator's
+  random stream is untouched.
+- Cost: generation 0.77 → 1.1 s (once per realm); ground draw 1.65 ms; total draw 3.6 ms.
+- Tuned after looking: alpine grass was turning Runeholt into a meadow (now rare accents); mossy stone made plazas
+  (now a rim); stacked cliffs looked like shelves (now single-height runs); blood rock was too loud (now slabs).
+
 ## Objects, clustering, landmarks
 - Bundle objects draw from the registry (8×16 ones stand on their base tile). Each gets a collision rule:
   **block movement and shots:** trees, boulders, rock spires, obelisks, pillars, wells, cairns, the rowboat.

@@ -49,6 +49,7 @@ export const BIOME_SPEECH = {
   dunes: { see: ['Sand in your eyes!', 'The glass is hungry.'], die: ['...dust...'] },
   thornwood: { see: ['Lost? Good.', 'The wood takes you.'], die: ['...roots...'] },
   steppe: { see: ['Shatter!', 'Hear the hum?'], die: ['...cracking...'] },
+  lowlands: { see: ['Off my field!', 'Trespasser!'], die: ['...the harvest...'] },
   forge: { see: ['STRIKE.', 'The fire is hungry.'], die: ['...cooling...'] },
   chapel: { see: ['Pray!', 'Mass is beginning.'], die: ['...amen...'] },
   heart: { see: ['The heart beats for you.', 'Ba-dum.'], die: ['...ba... dum...'] },

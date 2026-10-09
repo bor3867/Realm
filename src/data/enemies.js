@@ -1215,6 +1215,9 @@ Object.assign(BIOME_SPAWNS, { dunes: [['glass_scarab', 2, 4], ['salt_mummy', 1, 
 for (const list of Object.values(PACKS)) for (const p of list) p[1] = Math.round(p[1] * 1.4);       // the older lands grew with the realm
 Object.assign(PACKS, { dunes: [['sand_skimmer', 14]], thornwood: [['briar_bee', 12]], steppe: [['quartz_jackal', 8]] });
 Object.assign(CAMP_LOOT, { dunes: CAMP_LOOT.shore, thornwood: CAMP_LOOT.fen, steppe: CAMP_LOOT.runeholt });
+// the Greenmarch (Realm Update lowlands): until its own monsters arrive (Phase 2d) it borrows the shore's
+Object.assign(GROUPS, { lowlands: GROUPS.shore }); Object.assign(PARENTS, { lowlands: PARENTS.shore });
+Object.assign(BIOME_SPAWNS, { lowlands: BIOME_SPAWNS.shore }); Object.assign(PACKS, { lowlands: [] }); Object.assign(CAMP_LOOT, { lowlands: CAMP_LOOT.shore });
 Object.assign(SPEECH, {
   glass_sphinx: { see: ['Answer me this...', 'No. Wrong.'], die: ['...the riddle... was...'] },
   witch_of_briars: { see: ['Lost, dearie?', 'The thorns are hungry.'], die: ['...plant me... deep...'] },

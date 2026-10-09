@@ -779,6 +779,7 @@ export class Game {
     // lava
     const ti = this.map.tiles[Math.floor(p.y) * this.map.w + Math.floor(p.x)];
     if (ti === TID.lava || ti === TID.emberlava) { p.lavaT -= dt; if (p.lavaT <= 0) { p.lavaT = 0.25; this.hurtPlayer(14, 'molten floor', true); } }
+    else if (ti === TID.rift) { p.lavaT -= dt; if (p.lavaT <= 0) { p.lavaT = 0.5; this.hurtPlayer(6, 'a godland rift', true); } }   // the godlands' ground itself bites
     // shooting
     p.fireCd -= dt;
     const W = this.weapon();

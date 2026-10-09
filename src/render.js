@@ -3,7 +3,7 @@
 // an integer factor, so every pixel stays crisp. The camera can rotate: the
 // GROUND layer (tiles, biome edges, foam, decor) rotates as one image, while
 // every sprite stays upright at its rotated position, like classic tiny-MMO cameras.
-import { TILE_NAMES, BIOMES, biomeAt, objectsIn } from './world/maps.js';
+import { TILE_NAMES, BIOMES, biomeAt, objectsIn, SKINS, SKIN_TID, TID } from './world/maps.js';
 import { hoverY } from './registry.js';
 import { CLASSES } from './data/classes.js';
 import { ITEMS, iconIndex } from './data/items.js';
@@ -28,6 +28,7 @@ const WEATHER = {
   dunes: { n: 60, color: ['#fff0cc', '#e8cf96', '#cfffff'], vx: 22, vy: 3, size: 1, blink: false },       // blowing sand, a glint of glass
   thornwood: { n: 30, color: ['#6ab04a', '#c83a4a', '#3a7a2a'], vx: 2, vy: 6, size: 1, blink: false },     // drifting leaves and berries
   steppe: { n: 34, color: ['#ffd0ff', '#e880e8', '#ffffff'], vx: 4, vy: -3, size: 1, blink: true },         // crystal motes catching the light
+  lowlands: { n: 22, color: ['#fff6c8', '#d8f0a0', '#ffffff'], vx: 6, vy: 1, size: 1, blink: false },        // thistledown on the breeze
 };
 
 // minimap markers: o outline, 1 main colour, 2 accent
@@ -211,6 +212,9 @@ export class Renderer {
     const name = (x, y) => (x < 0 || y < 0 || x >= m.w || y >= m.h ? 'void' : TILE_NAMES[m.tiles[y * m.w + x]]);
     const anim = Math.floor(g.t * 2.2);
     if (!m.decorAt && m.decor) { m.decorAt = new Map(); for (const d of m.decor) m.decorAt.set(d.y * m.w + d.x, d.name); }
+    // Realm Update ground skins (see SKINS in maps.js): native 8x8 art drawn at 2x, animated like the old tiles
+    const SA = m.skin ? this.skinArt() : null, sk = m.skin;
+    const skinned = (x, y) => { if (!sk || x < 0 || y < 0 || x >= m.w || y >= m.h) return false; const j = y * m.w + x, k = sk[j]; return k > 0 && SKIN_TID[k] === m.tiles[j]; };
     for (let ty = ty0; ty < ty0 + n; ty++) {
       for (let tx = tx0; tx < tx0 + n; tx++) {
         const nm = name(tx, ty), T = W.tiles[nm];
@@ -218,15 +222,20 @@ export class Renderer {
         const unseen = (x, y) => m.seen && (x < 0 || y < 0 || x >= m.w || y >= m.h || !m.seen[y * m.w + x]);
         if (unseen(tx, ty)) { gc.fillStyle = '#000'; gc.fillRect(dx, dy, TS, TS); continue; }
         const h = ((tx * 73856093) ^ (ty * 19349663)) >>> 0;
-        const v = T.variants > 1 ? ((h >>> 4) ^ (h >>> 13)) % T.variants : 0;            // RotMG-style: variants scattered at random
-        cell(T.i + v * T.frames + (T.frames > 1 ? (anim + ((tx * 7 + ty * 3) >> 2)) % T.frames : 0), dx, dy);
+        if (SA && skinned(tx, ty)) {
+          const A = SA[sk[ty * m.w + tx]], f = A.fr[A.fr.length > 1 ? (anim + ((tx * 7 + ty * 3) >> 2)) % A.fr.length : 0];
+          if (A.img) gc.drawImage(A.img, f.x, f.y, f.w, f.h, dx, dy, TS, TS);
+        } else if (T) {
+          const v = T.variants > 1 ? ((h >>> 4) ^ (h >>> 13)) % T.variants : 0;            // RotMG-style: variants scattered at random
+          cell(T.i + v * T.frames + (T.frames > 1 ? (anim + ((tx * 7 + ty * 3) >> 2)) % T.frames : 0), dx, dy);
+        }
         const pm = prio[nm];
         const water = nm === 'water' || nm === 'deep';
         for (let d = 0; d < 4; d++) {
           const nn = name(tx + DIRS[d][0], ty + DIRS[d][1]);
           if (water) {
             if (prio[nn] !== undefined) cell(edges.foam + (anim % 3) * 4 + d, dx, dy);   // shoreline foam
-          } else if (pm !== undefined && prio[nn] > pm) cell(edges[nn] + d, dx, dy);       // dithered biome blend
+          } else if (pm !== undefined && prio[nn] > pm && !skinned(tx + DIRS[d][0], ty + DIRS[d][1])) cell(edges[nn] + d, dx, dy);   // dithered biome blend (a skinned neighbour blends by its tiles instead)
         }
         if (m.decorAt) {
           const dn = m.decorAt.get(ty * m.w + tx);
@@ -257,6 +266,16 @@ export class Renderer {
         if (k) { gc.fillStyle = `rgba(0,0,0,${[0, 0.25, 0.5, 0.72][k]})`; gc.fillRect(tx * TS - ox, ty * TS - oy, TS, TS); }
       }
     }
+  }
+  // each ground skin's image and frames, looked up once
+  skinArt() {
+    if (this.skinA) return this.skinA;
+    return (this.skinA = SKINS.map((s) => {
+      const def = s && this.R && this.R.resolve(s[0]);
+      if (!def) return { img: null, fr: [{ x: 0, y: 0, w: 1, h: 1 }] };
+      const clip = Object.values(def.anims)[0];
+      return { img: def.img, fr: clip.frames.map((f) => def.frames[f]) };
+    }));
   }
   // one pixel per tile: soft pools of shadow and warm light, padded by 2 so the edges sample cleanly
   lightFor(m) {
@@ -1330,7 +1349,7 @@ export class Renderer {
         const bi = biomeAt(g.map, v.x, v.y);
         if (v.splash) { this.spray(v.x, v.y, 4, ['#c8eeff', '#7ec0e4', '#ffffff'], 2.2, 0.35, 6); continue; }
         if (v.ice) { this.spray(v.x, v.y, 2, ['#ffffff', '#d4e8f6'], 1.8, 0.3, 2, true); continue; }
-        const col = ['#e8cf96', '#5c8a3a', '#e8f0f8', '#554c52', '#fff0cc', '#44542e', '#d8bc66'][bi] || '#8d88a0';
+        const col = ['#e8cf96', '#5c8a3a', '#e8f0f8', '#554c52', '#fff0cc', '#44542e', '#d8bc66', '#8ab85a'][bi] || '#8d88a0';
         this.spray(v.x, v.y, 2, [col], 1.2, 0.35, 3, true);
       } else if (v.k === 'death') {
         const e = v.e;
@@ -1514,7 +1533,8 @@ export class Renderer {
       const realmFlat = m.kind === 'realm';
       for (let i = 0; i < m.tiles.length; i++) {
         const t = m.tiles[i], b = realmFlat ? m.biome[i] : -2;
-        const hex = !realmFlat ? MINI[t] || '#555060' : t === 1 ? '#0e2236' : t === 0 ? '#1d4466' : (['#b89a68', '#4a6a38', '#a8b4c4', '#544a50', '#e0c898', '#26341c', '#b8a050'][b] || MINI[t]);
+        const hex = !realmFlat ? MINI[t] || '#555060' : t === 1 ? '#0e2236' : t === 0 ? '#1d4466' : t === TID.cliff ? '#5a5866' : t === TID.rift ? '#c02a8a'
+          : (['#b89a68', '#4a6a38', '#a8b4c4', '#544a50', '#e0c898', '#26341c', '#b8a050', '#6e9a40'][b] || MINI[t]);
         img.data[i * 4] = parseInt(hex.slice(1, 3), 16); img.data[i * 4 + 1] = parseInt(hex.slice(3, 5), 16);
         img.data[i * 4 + 2] = parseInt(hex.slice(5, 7), 16); img.data[i * 4 + 3] = 255;
       }

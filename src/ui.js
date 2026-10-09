@@ -150,7 +150,7 @@ export class UI {
     const g = this.g, p = g.player, m = g.map, known = p.waypoints || [];
     const lands = {};
     for (const w of m.waypoints || []) (lands[w.biome] = lands[w.biome] || []).push(w);
-    const LABEL = { shore: 'The Drowned Shore', fen: 'Ashfen', runeholt: 'Runeholt', godfall: 'Godfall', dunes: 'The Saltglass Dunes', thornwood: 'The Thornwood', steppe: 'The Crystal Steppe' };
+    const LABEL = { shore: 'The Drowned Shore', fen: 'Ashfen', runeholt: 'Runeholt', godfall: 'Godfall', dunes: 'The Saltglass Dunes', thornwood: 'The Thornwood', steppe: 'The Crystal Steppe', lowlands: 'The Greenmarch' };
     const total = (m.waypoints || []).length, found = (m.waypoints || []).filter((w) => known.includes(w.name)).length;
     const sec = Object.entries(lands).map(([b, list]) => `<section><h3>${LABEL[b] || b}</h3>${list.map((w) => {
       const has = known.includes(w.name), cur = w.name === here;

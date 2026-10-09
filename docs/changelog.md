@@ -13,3 +13,8 @@
 - Draw 13.7 → 3.7 ms/frame in the realm; minimap 6.9 → 0.09 ms. Details and before/after table in
   `docs/design/02_overworld.md`.
 - Skipped on the numbers: enemy spatial grid and bullet pooling (neither was the cost).
+
+## Phase 2b (ground, transitions, the Greenmarch)
+- Bundle tiles drawn as skins over tiles that keep their meaning; new `cliff` and `rift` tiles.
+- New land: the Greenmarch (lowlands) in ring 1, facing the landing beach; borrows shore monsters until 2d.
+- Dithered borders by jittered sampling (±3 tiles); variants by slow noise. Tuning notes in 02_overworld.md.
