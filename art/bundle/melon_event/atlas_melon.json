@@ -1,0 +1,1513 @@
+{
+ "meta": {
+  "name": "Realm Melon Event",
+  "version": 1,
+  "x5_scale": 5,
+  "notes": "A very rare realm object (the Giant Watermelon) that players break open for a chance at melon items. Sheets are prefixed mx_. Same conventions as earlier packs: x5 frames are 5x nearest-neighbour with a 1px outline (+1px padding per side). The melon's soft ground shadow is semi-transparent on purpose. The melon is 28x20 px native and covers about 3x2 tiles; anchor it by 'anchor' (the centre of its base).",
+  "loot_table": {
+   "always": {
+    "watermelon_slice": [
+     1,
+     3
+    ]
+   },
+   "rolls": [
+    {
+     "chance": 0.35,
+     "pick_one": [
+      "melon_slicer",
+      "rindguard",
+      "vinegrown_staff",
+      "ring_of_the_rind"
+     ]
+    },
+    {
+     "chance": 0.25,
+     "pick_one": [
+      "honeydew_scepter",
+      "dewveil_robe",
+      "melon_baller"
+     ]
+    },
+    {
+     "chance": 0.06,
+     "pick_one": [
+      "seedspitter_bow",
+      "rind_bulwark",
+      "dewdrop_ring"
+     ]
+    },
+    {
+     "chance": 0.01,
+     "pick_one": [
+      "golden_honeydew"
+     ]
+    }
+   ],
+   "note": "A proposal: tune to the game's economy. Rolls are independent; loot goes to everyone who damaged it."
+  },
+  "spawn": {
+   "biomes": [
+    "lowlands",
+    "midlands"
+   ],
+   "max_alive": 1,
+   "chance_per_spawn_check": 0.004,
+   "despawn_seconds": 600,
+   "hp_note": "Tough object: about as much HP as an elite. No attacks.",
+   "announce": "A Giant Watermelon has ripened somewhere in the realm!"
+  }
+ },
+ "sheets": {
+  "mx_giant_watermelon": {
+   "native": {
+    "image": "native/mx_giant_watermelon.png",
+    "size": [
+     117,
+     127
+    ],
+    "sprites": {
+     "idle": {
+      "idle_0": {
+       "x": 1,
+       "y": 1,
+       "w": 28,
+       "h": 20
+      },
+      "idle_1": {
+       "x": 30,
+       "y": 1,
+       "w": 28,
+       "h": 20
+      },
+      "idle_2": {
+       "x": 59,
+       "y": 1,
+       "w": 28,
+       "h": 20
+      },
+      "idle_3": {
+       "x": 88,
+       "y": 1,
+       "w": 28,
+       "h": 20
+      }
+     },
+     "cracked1": {
+      "cracked1_0": {
+       "x": 1,
+       "y": 22,
+       "w": 28,
+       "h": 20
+      }
+     },
+     "cracked2": {
+      "cracked2_0": {
+       "x": 1,
+       "y": 43,
+       "w": 28,
+       "h": 20
+      }
+     },
+     "burst": {
+      "burst_0": {
+       "x": 1,
+       "y": 64,
+       "w": 28,
+       "h": 20
+      },
+      "burst_1": {
+       "x": 30,
+       "y": 64,
+       "w": 28,
+       "h": 20
+      },
+      "burst_2": {
+       "x": 59,
+       "y": 64,
+       "w": 28,
+       "h": 20
+      },
+      "burst_3": {
+       "x": 88,
+       "y": 64,
+       "w": 28,
+       "h": 20
+      }
+     },
+     "opened": {
+      "opened_0": {
+       "x": 1,
+       "y": 85,
+       "w": 28,
+       "h": 20
+      }
+     },
+     "hurt": {
+      "hurt_0": {
+       "x": 1,
+       "y": 106,
+       "w": 28,
+       "h": 20
+      },
+      "hurt_1": {
+       "x": 30,
+       "y": 106,
+       "w": 28,
+       "h": 20
+      },
+      "hurt_2": {
+       "x": 59,
+       "y": 106,
+       "w": 28,
+       "h": 20
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/mx_giant_watermelon.png",
+    "size": [
+     578,
+     626
+    ],
+    "sprites": {
+     "idle": {
+      "idle_0": {
+       "x": 2,
+       "y": 2,
+       "w": 142,
+       "h": 102
+      },
+      "idle_1": {
+       "x": 146,
+       "y": 2,
+       "w": 142,
+       "h": 102
+      },
+      "idle_2": {
+       "x": 290,
+       "y": 2,
+       "w": 142,
+       "h": 102
+      },
+      "idle_3": {
+       "x": 434,
+       "y": 2,
+       "w": 142,
+       "h": 102
+      }
+     },
+     "cracked1": {
+      "cracked1_0": {
+       "x": 2,
+       "y": 106,
+       "w": 142,
+       "h": 102
+      }
+     },
+     "cracked2": {
+      "cracked2_0": {
+       "x": 2,
+       "y": 210,
+       "w": 142,
+       "h": 102
+      }
+     },
+     "burst": {
+      "burst_0": {
+       "x": 2,
+       "y": 314,
+       "w": 142,
+       "h": 102
+      },
+      "burst_1": {
+       "x": 146,
+       "y": 314,
+       "w": 142,
+       "h": 102
+      },
+      "burst_2": {
+       "x": 290,
+       "y": 314,
+       "w": 142,
+       "h": 102
+      },
+      "burst_3": {
+       "x": 434,
+       "y": 314,
+       "w": 142,
+       "h": 102
+      }
+     },
+     "opened": {
+      "opened_0": {
+       "x": 2,
+       "y": 418,
+       "w": 142,
+       "h": 102
+      }
+     },
+     "hurt": {
+      "hurt_0": {
+       "x": 2,
+       "y": 522,
+       "w": 142,
+       "h": 102
+      },
+      "hurt_1": {
+       "x": 146,
+       "y": 522,
+       "w": 142,
+       "h": 102
+      },
+      "hurt_2": {
+       "x": 290,
+       "y": 522,
+       "w": 142,
+       "h": 102
+      }
+     }
+    }
+   },
+   "animations": {
+    "idle": {
+     "frames": [
+      "idle_0",
+      "idle_1",
+      "idle_2",
+      "idle_3"
+     ],
+     "fps": 4,
+     "loop": true
+    },
+    "cracked1": {
+     "frames": [
+      "cracked1_0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "cracked2": {
+     "frames": [
+      "cracked2_0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "hurt": {
+     "frames": [
+      "hurt_0",
+      "idle_0"
+     ],
+     "fps": 12,
+     "loop": false
+    },
+    "hurt_cracked1": {
+     "frames": [
+      "hurt_1",
+      "cracked1_0"
+     ],
+     "fps": 12,
+     "loop": false
+    },
+    "hurt_cracked2": {
+     "frames": [
+      "hurt_2",
+      "cracked2_0"
+     ],
+     "fps": 12,
+     "loop": false
+    },
+    "burst": {
+     "frames": [
+      "burst_0",
+      "burst_1",
+      "burst_2",
+      "burst_3"
+     ],
+     "fps": 8,
+     "loop": false
+    },
+    "opened": {
+     "frames": [
+      "opened_0"
+     ],
+     "fps": 1,
+     "loop": true
+    }
+   },
+   "frame_size": [
+    28,
+    20
+   ],
+   "anchor": [
+    14,
+    18
+   ],
+   "footprint_tiles": [
+    3,
+    2
+   ],
+   "states": "idle -> cracked1 (below 66% HP) -> cracked2 (below 33%) -> burst (on break, spawn loot on its last frame) -> opened (remains, fade out after ~20 s). Play the matching hurt clip on each hit and melon_hit/juice_splash effects."
+  },
+  "mx_items": {
+   "native": {
+    "image": "native/mx_items.png",
+    "size": [
+     73,
+     109
+    ],
+    "sprites": {
+     "melon_slicer": {
+      "0": {
+       "x": 1,
+       "y": 1,
+       "w": 8,
+       "h": 8
+      },
+      "shine1": {
+       "x": 10,
+       "y": 1,
+       "w": 8,
+       "h": 8
+      },
+      "shine2": {
+       "x": 19,
+       "y": 1,
+       "w": 8,
+       "h": 8
+      },
+      "shine3": {
+       "x": 28,
+       "y": 1,
+       "w": 8,
+       "h": 8
+      }
+     },
+     "rindguard": {
+      "0": {
+       "x": 1,
+       "y": 10,
+       "w": 8,
+       "h": 8
+      },
+      "shine1": {
+       "x": 10,
+       "y": 10,
+       "w": 8,
+       "h": 8
+      },
+      "shine2": {
+       "x": 19,
+       "y": 10,
+       "w": 8,
+       "h": 8
+      },
+      "shine3": {
+       "x": 28,
+       "y": 10,
+       "w": 8,
+       "h": 8
+      }
+     },
+     "vinegrown_staff": {
+      "0": {
+       "x": 1,
+       "y": 19,
+       "w": 8,
+       "h": 8
+      },
+      "shine1": {
+       "x": 10,
+       "y": 19,
+       "w": 8,
+       "h": 8
+      },
+      "shine2": {
+       "x": 19,
+       "y": 19,
+       "w": 8,
+       "h": 8
+      },
+      "shine3": {
+       "x": 28,
+       "y": 19,
+       "w": 8,
+       "h": 8
+      }
+     },
+     "seedspitter_bow": {
+      "0": {
+       "x": 1,
+       "y": 28,
+       "w": 8,
+       "h": 8
+      },
+      "shine1": {
+       "x": 10,
+       "y": 28,
+       "w": 8,
+       "h": 8
+      },
+      "shine2": {
+       "x": 19,
+       "y": 28,
+       "w": 8,
+       "h": 8
+      },
+      "shine3": {
+       "x": 28,
+       "y": 28,
+       "w": 8,
+       "h": 8
+      }
+     },
+     "rind_bulwark": {
+      "0": {
+       "x": 1,
+       "y": 37,
+       "w": 8,
+       "h": 8
+      },
+      "shine1": {
+       "x": 10,
+       "y": 37,
+       "w": 8,
+       "h": 8
+      },
+      "shine2": {
+       "x": 19,
+       "y": 37,
+       "w": 8,
+       "h": 8
+      },
+      "shine3": {
+       "x": 28,
+       "y": 37,
+       "w": 8,
+       "h": 8
+      }
+     },
+     "ring_of_the_rind": {
+      "0": {
+       "x": 1,
+       "y": 46,
+       "w": 8,
+       "h": 8
+      },
+      "shine1": {
+       "x": 10,
+       "y": 46,
+       "w": 8,
+       "h": 8
+      },
+      "shine2": {
+       "x": 19,
+       "y": 46,
+       "w": 8,
+       "h": 8
+      },
+      "shine3": {
+       "x": 28,
+       "y": 46,
+       "w": 8,
+       "h": 8
+      }
+     },
+     "watermelon_slice": {
+      "0": {
+       "x": 1,
+       "y": 55,
+       "w": 8,
+       "h": 8
+      },
+      "shine1": {
+       "x": 10,
+       "y": 55,
+       "w": 8,
+       "h": 8
+      },
+      "shine2": {
+       "x": 19,
+       "y": 55,
+       "w": 8,
+       "h": 8
+      },
+      "shine3": {
+       "x": 28,
+       "y": 55,
+       "w": 8,
+       "h": 8
+      }
+     },
+     "honeydew_scepter": {
+      "0": {
+       "x": 1,
+       "y": 64,
+       "w": 8,
+       "h": 8
+      },
+      "shine1": {
+       "x": 10,
+       "y": 64,
+       "w": 8,
+       "h": 8
+      },
+      "shine2": {
+       "x": 19,
+       "y": 64,
+       "w": 8,
+       "h": 8
+      },
+      "shine3": {
+       "x": 28,
+       "y": 64,
+       "w": 8,
+       "h": 8
+      }
+     },
+     "dewveil_robe": {
+      "0": {
+       "x": 1,
+       "y": 73,
+       "w": 8,
+       "h": 8
+      },
+      "shine1": {
+       "x": 10,
+       "y": 73,
+       "w": 8,
+       "h": 8
+      },
+      "shine2": {
+       "x": 19,
+       "y": 73,
+       "w": 8,
+       "h": 8
+      },
+      "shine3": {
+       "x": 28,
+       "y": 73,
+       "w": 8,
+       "h": 8
+      }
+     },
+     "dewdrop_ring": {
+      "0": {
+       "x": 1,
+       "y": 82,
+       "w": 8,
+       "h": 8
+      },
+      "shine1": {
+       "x": 10,
+       "y": 82,
+       "w": 8,
+       "h": 8
+      },
+      "shine2": {
+       "x": 19,
+       "y": 82,
+       "w": 8,
+       "h": 8
+      },
+      "shine3": {
+       "x": 28,
+       "y": 82,
+       "w": 8,
+       "h": 8
+      }
+     },
+     "melon_baller": {
+      "0": {
+       "x": 1,
+       "y": 91,
+       "w": 8,
+       "h": 8
+      },
+      "shine1": {
+       "x": 10,
+       "y": 91,
+       "w": 8,
+       "h": 8
+      },
+      "shine2": {
+       "x": 19,
+       "y": 91,
+       "w": 8,
+       "h": 8
+      },
+      "shine3": {
+       "x": 28,
+       "y": 91,
+       "w": 8,
+       "h": 8
+      }
+     },
+     "golden_honeydew": {
+      "0": {
+       "x": 1,
+       "y": 100,
+       "w": 8,
+       "h": 8
+      },
+      "shine1": {
+       "x": 10,
+       "y": 100,
+       "w": 8,
+       "h": 8
+      },
+      "shine2": {
+       "x": 19,
+       "y": 100,
+       "w": 8,
+       "h": 8
+      },
+      "shine3": {
+       "x": 28,
+       "y": 100,
+       "w": 8,
+       "h": 8
+      },
+      "twinkle0": {
+       "x": 37,
+       "y": 100,
+       "w": 8,
+       "h": 8
+      },
+      "twinkle1": {
+       "x": 46,
+       "y": 100,
+       "w": 8,
+       "h": 8
+      },
+      "twinkle2": {
+       "x": 55,
+       "y": 100,
+       "w": 8,
+       "h": 8
+      },
+      "twinkle3": {
+       "x": 64,
+       "y": 100,
+       "w": 8,
+       "h": 8
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/mx_items.png",
+    "size": [
+     354,
+     530
+    ],
+    "sprites": {
+     "melon_slicer": {
+      "0": {
+       "x": 2,
+       "y": 2,
+       "w": 42,
+       "h": 42
+      },
+      "shine1": {
+       "x": 46,
+       "y": 2,
+       "w": 42,
+       "h": 42
+      },
+      "shine2": {
+       "x": 90,
+       "y": 2,
+       "w": 42,
+       "h": 42
+      },
+      "shine3": {
+       "x": 134,
+       "y": 2,
+       "w": 42,
+       "h": 42
+      }
+     },
+     "rindguard": {
+      "0": {
+       "x": 2,
+       "y": 46,
+       "w": 42,
+       "h": 42
+      },
+      "shine1": {
+       "x": 46,
+       "y": 46,
+       "w": 42,
+       "h": 42
+      },
+      "shine2": {
+       "x": 90,
+       "y": 46,
+       "w": 42,
+       "h": 42
+      },
+      "shine3": {
+       "x": 134,
+       "y": 46,
+       "w": 42,
+       "h": 42
+      }
+     },
+     "vinegrown_staff": {
+      "0": {
+       "x": 2,
+       "y": 90,
+       "w": 42,
+       "h": 42
+      },
+      "shine1": {
+       "x": 46,
+       "y": 90,
+       "w": 42,
+       "h": 42
+      },
+      "shine2": {
+       "x": 90,
+       "y": 90,
+       "w": 42,
+       "h": 42
+      },
+      "shine3": {
+       "x": 134,
+       "y": 90,
+       "w": 42,
+       "h": 42
+      }
+     },
+     "seedspitter_bow": {
+      "0": {
+       "x": 2,
+       "y": 134,
+       "w": 42,
+       "h": 42
+      },
+      "shine1": {
+       "x": 46,
+       "y": 134,
+       "w": 42,
+       "h": 42
+      },
+      "shine2": {
+       "x": 90,
+       "y": 134,
+       "w": 42,
+       "h": 42
+      },
+      "shine3": {
+       "x": 134,
+       "y": 134,
+       "w": 42,
+       "h": 42
+      }
+     },
+     "rind_bulwark": {
+      "0": {
+       "x": 2,
+       "y": 178,
+       "w": 42,
+       "h": 42
+      },
+      "shine1": {
+       "x": 46,
+       "y": 178,
+       "w": 42,
+       "h": 42
+      },
+      "shine2": {
+       "x": 90,
+       "y": 178,
+       "w": 42,
+       "h": 42
+      },
+      "shine3": {
+       "x": 134,
+       "y": 178,
+       "w": 42,
+       "h": 42
+      }
+     },
+     "ring_of_the_rind": {
+      "0": {
+       "x": 2,
+       "y": 222,
+       "w": 42,
+       "h": 42
+      },
+      "shine1": {
+       "x": 46,
+       "y": 222,
+       "w": 42,
+       "h": 42
+      },
+      "shine2": {
+       "x": 90,
+       "y": 222,
+       "w": 42,
+       "h": 42
+      },
+      "shine3": {
+       "x": 134,
+       "y": 222,
+       "w": 42,
+       "h": 42
+      }
+     },
+     "watermelon_slice": {
+      "0": {
+       "x": 2,
+       "y": 266,
+       "w": 42,
+       "h": 42
+      },
+      "shine1": {
+       "x": 46,
+       "y": 266,
+       "w": 42,
+       "h": 42
+      },
+      "shine2": {
+       "x": 90,
+       "y": 266,
+       "w": 42,
+       "h": 42
+      },
+      "shine3": {
+       "x": 134,
+       "y": 266,
+       "w": 42,
+       "h": 42
+      }
+     },
+     "honeydew_scepter": {
+      "0": {
+       "x": 2,
+       "y": 310,
+       "w": 42,
+       "h": 42
+      },
+      "shine1": {
+       "x": 46,
+       "y": 310,
+       "w": 42,
+       "h": 42
+      },
+      "shine2": {
+       "x": 90,
+       "y": 310,
+       "w": 42,
+       "h": 42
+      },
+      "shine3": {
+       "x": 134,
+       "y": 310,
+       "w": 42,
+       "h": 42
+      }
+     },
+     "dewveil_robe": {
+      "0": {
+       "x": 2,
+       "y": 354,
+       "w": 42,
+       "h": 42
+      },
+      "shine1": {
+       "x": 46,
+       "y": 354,
+       "w": 42,
+       "h": 42
+      },
+      "shine2": {
+       "x": 90,
+       "y": 354,
+       "w": 42,
+       "h": 42
+      },
+      "shine3": {
+       "x": 134,
+       "y": 354,
+       "w": 42,
+       "h": 42
+      }
+     },
+     "dewdrop_ring": {
+      "0": {
+       "x": 2,
+       "y": 398,
+       "w": 42,
+       "h": 42
+      },
+      "shine1": {
+       "x": 46,
+       "y": 398,
+       "w": 42,
+       "h": 42
+      },
+      "shine2": {
+       "x": 90,
+       "y": 398,
+       "w": 42,
+       "h": 42
+      },
+      "shine3": {
+       "x": 134,
+       "y": 398,
+       "w": 42,
+       "h": 42
+      }
+     },
+     "melon_baller": {
+      "0": {
+       "x": 2,
+       "y": 442,
+       "w": 42,
+       "h": 42
+      },
+      "shine1": {
+       "x": 46,
+       "y": 442,
+       "w": 42,
+       "h": 42
+      },
+      "shine2": {
+       "x": 90,
+       "y": 442,
+       "w": 42,
+       "h": 42
+      },
+      "shine3": {
+       "x": 134,
+       "y": 442,
+       "w": 42,
+       "h": 42
+      }
+     },
+     "golden_honeydew": {
+      "0": {
+       "x": 2,
+       "y": 486,
+       "w": 42,
+       "h": 42
+      },
+      "shine1": {
+       "x": 46,
+       "y": 486,
+       "w": 42,
+       "h": 42
+      },
+      "shine2": {
+       "x": 90,
+       "y": 486,
+       "w": 42,
+       "h": 42
+      },
+      "shine3": {
+       "x": 134,
+       "y": 486,
+       "w": 42,
+       "h": 42
+      },
+      "twinkle0": {
+       "x": 178,
+       "y": 486,
+       "w": 42,
+       "h": 42
+      },
+      "twinkle1": {
+       "x": 222,
+       "y": 486,
+       "w": 42,
+       "h": 42
+      },
+      "twinkle2": {
+       "x": 266,
+       "y": 486,
+       "w": 42,
+       "h": 42
+      },
+      "twinkle3": {
+       "x": 310,
+       "y": 486,
+       "w": 42,
+       "h": 42
+      }
+     }
+    }
+   },
+   "animations": {
+    "melon_slicer": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "rindguard": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "vinegrown_staff": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "seedspitter_bow": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "rind_bulwark": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "ring_of_the_rind": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "watermelon_slice": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "honeydew_scepter": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "dewveil_robe": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "dewdrop_ring": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "melon_baller": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "golden_honeydew": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     },
+     "twinkle": {
+      "frames": [
+       "twinkle0",
+       "0",
+       "twinkle1",
+       "0",
+       "twinkle2",
+       "0",
+       "twinkle3",
+       "0"
+      ],
+      "fps": 8,
+      "loop": true
+     }
+    }
+   },
+   "info": {
+    "melon_slicer": {
+     "tier": "rare",
+     "melon": "watermelon"
+    },
+    "rindguard": {
+     "tier": "rare",
+     "melon": "watermelon"
+    },
+    "vinegrown_staff": {
+     "tier": "rare",
+     "melon": "watermelon"
+    },
+    "seedspitter_bow": {
+     "tier": "boss",
+     "melon": "watermelon"
+    },
+    "rind_bulwark": {
+     "tier": "boss",
+     "melon": "watermelon"
+    },
+    "ring_of_the_rind": {
+     "tier": "rare",
+     "melon": "watermelon"
+    },
+    "watermelon_slice": {
+     "tier": "rare",
+     "melon": "watermelon"
+    },
+    "honeydew_scepter": {
+     "tier": "rare",
+     "melon": "watermelon"
+    },
+    "dewveil_robe": {
+     "tier": "rare",
+     "melon": "honeydew"
+    },
+    "dewdrop_ring": {
+     "tier": "boss",
+     "melon": "honeydew"
+    },
+    "melon_baller": {
+     "tier": "rare",
+     "melon": "honeydew"
+    },
+    "golden_honeydew": {
+     "tier": "legendary",
+     "melon": "honeydew"
+    }
+   }
+  },
+  "mx_effects": {
+   "native": {
+    "image": "native/mx_effects.png",
+    "size": [
+     37,
+     19
+    ],
+    "sprites": {
+     "melon_hit": {
+      "0": {
+       "x": 1,
+       "y": 1,
+       "w": 8,
+       "h": 8
+      },
+      "1": {
+       "x": 10,
+       "y": 1,
+       "w": 8,
+       "h": 8
+      }
+     },
+     "juice_splash": {
+      "0": {
+       "x": 1,
+       "y": 10,
+       "w": 8,
+       "h": 8
+      },
+      "1": {
+       "x": 10,
+       "y": 10,
+       "w": 8,
+       "h": 8
+      },
+      "2": {
+       "x": 19,
+       "y": 10,
+       "w": 8,
+       "h": 8
+      },
+      "3": {
+       "x": 28,
+       "y": 10,
+       "w": 8,
+       "h": 8
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/mx_effects.png",
+    "size": [
+     178,
+     90
+    ],
+    "sprites": {
+     "melon_hit": {
+      "0": {
+       "x": 2,
+       "y": 2,
+       "w": 42,
+       "h": 42
+      },
+      "1": {
+       "x": 46,
+       "y": 2,
+       "w": 42,
+       "h": 42
+      }
+     },
+     "juice_splash": {
+      "0": {
+       "x": 2,
+       "y": 46,
+       "w": 42,
+       "h": 42
+      },
+      "1": {
+       "x": 46,
+       "y": 46,
+       "w": 42,
+       "h": 42
+      },
+      "2": {
+       "x": 90,
+       "y": 46,
+       "w": 42,
+       "h": 42
+      },
+      "3": {
+       "x": 134,
+       "y": 46,
+       "w": 42,
+       "h": 42
+      }
+     }
+    }
+   },
+   "animations": {
+    "melon_hit": {
+     "play": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "juice_splash": {
+     "play": {
+      "frames": [
+       "0",
+       "1",
+       "2",
+       "3"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    }
+   }
+  }
+ }
+}

@@ -58,7 +58,7 @@ export class Renderer {
   constructor(canvas, mini, assets) {
     this.c = canvas; this.ctx = canvas.getContext('2d');
     this.mini = mini; this.mctx = mini.getContext('2d');
-    this.A = assets; this.W = assets.world;
+    this.A = assets; this.W = assets.world; this.R = assets.reg;   // R: the Realm Update sprite registry
     this.buf = document.createElement('canvas');                 // logical size only (art-buffer pixels)
     this.hi = document.createElement('canvas'); this.b = this.hi.getContext('2d');   // the world is drawn here, at screen resolution
     this.ground = document.createElement('canvas'); this.gctx = this.ground.getContext('2d');
@@ -297,6 +297,29 @@ export class Renderer {
     const U = this.U || 1, I = outlinedFrame(img, sx, sy, w, h, U), P = I.pad / U * k, W = I.width / U * k, H = I.height / U * k;
     if (!flip) b.drawImage(I, dx - P, dy - P, W, H);
     else { b.save(); b.translate(dx - P + W, dy - P); b.scale(-1, 1); b.drawImage(I, 0, 0, W, H); b.restore(); }
+  }
+  // ---- a registry sprite (the Realm Update bundle, src/registry.js): native art at 2 buffer px per art px,
+  // anchored at its foot (or centred), outlined like every other sprite. o: { flip, flash, alpha, rot, scale, center }
+  drawDef(def, frame, x, y, o = {}) {
+    const f = def.frames[frame] || def.frames[Object.keys(def.frames)[0]];
+    if (!f) return;
+    const b = this.b, K = 2 * (o.scale || 1), U = this.U || 1;
+    const ax = o.center || o.rot !== undefined ? f.w / 2 : def.foot[0], ay = o.center || o.rot !== undefined ? f.h / 2 : def.foot[1];
+    let I, pad = 0;
+    if (o.flash) I = this.white(def.img, f.x, f.y, f.w, f.h);
+    else if (def.outline) { I = outlinedFrame(def.img, f.x, f.y, f.w, f.h, U * K); pad = I.pad / U; }
+    else I = null;
+    const W = f.w * K, H = f.h * K, ga = b.globalAlpha;
+    if (o.alpha !== undefined) b.globalAlpha = ga * o.alpha;
+    const put = (dx, dy) => (I ? b.drawImage(I, dx - pad, dy - pad, W + 2 * pad, H + 2 * pad) : b.drawImage(def.img, f.x, f.y, f.w, f.h, dx, dy, W, H));
+    if (o.rot !== undefined || o.flip) {
+      b.save(); b.translate(Math.round(x), Math.round(y));
+      if (o.rot !== undefined) b.rotate(o.rot);
+      if (o.flip) b.scale(-1, 1);
+      put(-Math.round(ax * K), -Math.round(ay * K));
+      b.restore();
+    } else put(Math.round(x - ax * K), Math.round(y - ay * K));
+    b.globalAlpha = ga;
   }
   white(img, sx, sy, w, h) {                                // cached pure-white silhouette for hit flashes
     const key = `${img.src}|${sx}|${sy}|${w}|${h}`;

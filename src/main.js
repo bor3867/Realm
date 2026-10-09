@@ -11,6 +11,7 @@ const canvas = document.getElementById('game');
 const stage = document.getElementById('stage');
 
 async function boot() {
+  if (new URLSearchParams(location.search).has('sprites')) { (await import('./spritebrowser.js')).run(); return; }   // dev: the sprite browser
   let assets;
   try {
     assets = await loadAssets();

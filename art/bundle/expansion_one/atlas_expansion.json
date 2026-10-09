@@ -1,0 +1,9867 @@
+{
+ "meta": {
+  "name": "Realm Sprite Pack - Expansion 1",
+  "version": 1,
+  "cell": 8,
+  "boss_cell": 16,
+  "x5_scale": 5,
+  "notes": "Separate from pack 1: every sheet is prefixed ex_ and this file is atlas_expansion.json. x5 sheets are 5x nearest-neighbour with a 1px outline at scaled resolution (+1px padding per side); tiles, floor decals and ground_shadow are not outlined. 'pivot' = top-left of the sprite's 8x8 base cell inside the frame (tall 8x16 decorations have pivot y = 8 cells down, so anchor them by their base)."
+ },
+ "sheets": {
+  "ex_frostveil": {
+   "native": {
+    "image": "native/ex_frostveil.png",
+    "size": [
+     86,
+     54
+    ],
+    "sprites": {
+     "frost_sprite": {
+      "spin1": {
+       "x": 1,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "spin2": {
+       "x": 10,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "rime_wolf": {
+      "run1": {
+       "x": 1,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "run2": {
+       "x": 10,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "glacial_sentinel": {
+      "walk1": {
+       "x": 1,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "walk2": {
+       "x": 10,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "shardling": {
+      "scuttle1": {
+       "x": 1,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "scuttle2": {
+       "x": 10,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "glacius_frozen_wyrm": {
+      "idle1": {
+       "x": 1,
+       "y": 37,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "idle2": {
+       "x": 18,
+       "y": 37,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack1": {
+       "x": 35,
+       "y": 37,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack2": {
+       "x": 52,
+       "y": 37,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 69,
+       "y": 37,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/ex_frostveil.png",
+    "size": [
+     422,
+     262
+    ],
+    "sprites": {
+     "frost_sprite": {
+      "spin1": {
+       "x": 2,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "spin2": {
+       "x": 46,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "rime_wolf": {
+      "run1": {
+       "x": 2,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "run2": {
+       "x": 46,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "glacial_sentinel": {
+      "walk1": {
+       "x": 2,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "walk2": {
+       "x": 46,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "shardling": {
+      "scuttle1": {
+       "x": 2,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "scuttle2": {
+       "x": 46,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "glacius_frozen_wyrm": {
+      "idle1": {
+       "x": 2,
+       "y": 178,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "idle2": {
+       "x": 86,
+       "y": 178,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack1": {
+       "x": 170,
+       "y": 178,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack2": {
+       "x": 254,
+       "y": 178,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 338,
+       "y": 178,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     }
+    }
+   },
+   "animations": {
+    "frost_sprite": {
+     "move": {
+      "frames": [
+       "spin1",
+       "spin2"
+      ],
+      "fps": 6,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "spin1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "spin1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "rime_wolf": {
+     "move": {
+      "frames": [
+       "run1",
+       "run2"
+      ],
+      "fps": 8,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "run1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "run1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "glacial_sentinel": {
+     "move": {
+      "frames": [
+       "walk1",
+       "walk2"
+      ],
+      "fps": 3,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "walk1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "walk1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "shardling": {
+     "move": {
+      "frames": [
+       "scuttle1",
+       "scuttle2"
+      ],
+      "fps": 6,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "scuttle1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "scuttle1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "glacius_frozen_wyrm": {
+     "idle": {
+      "frames": [
+       "idle1",
+       "idle2"
+      ],
+      "fps": 2,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "attack1",
+       "attack2"
+      ],
+      "fps": 4,
+      "loop": true
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "idle1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    }
+   }
+  },
+  "ex_mirerot": {
+   "native": {
+    "image": "native/ex_mirerot.png",
+    "size": [
+     86,
+     54
+    ],
+    "sprites": {
+     "sporeling": {
+      "walk1": {
+       "x": 1,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "walk2": {
+       "x": 10,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "bog_toad": {
+      "sit1": {
+       "x": 1,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "sit2": {
+       "x": 10,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "rot_hornet": {
+      "fly1": {
+       "x": 1,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "fly2": {
+       "x": 10,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "vine_lasher": {
+      "sway1": {
+       "x": 1,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "sway2": {
+       "x": 10,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "mother_mycelia": {
+      "idle1": {
+       "x": 1,
+       "y": 37,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "idle2": {
+       "x": 18,
+       "y": 37,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack1": {
+       "x": 35,
+       "y": 37,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack2": {
+       "x": 52,
+       "y": 37,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 69,
+       "y": 37,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/ex_mirerot.png",
+    "size": [
+     422,
+     262
+    ],
+    "sprites": {
+     "sporeling": {
+      "walk1": {
+       "x": 2,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "walk2": {
+       "x": 46,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "bog_toad": {
+      "sit1": {
+       "x": 2,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "sit2": {
+       "x": 46,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "rot_hornet": {
+      "fly1": {
+       "x": 2,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "fly2": {
+       "x": 46,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "vine_lasher": {
+      "sway1": {
+       "x": 2,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "sway2": {
+       "x": 46,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "mother_mycelia": {
+      "idle1": {
+       "x": 2,
+       "y": 178,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "idle2": {
+       "x": 86,
+       "y": 178,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack1": {
+       "x": 170,
+       "y": 178,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack2": {
+       "x": 254,
+       "y": 178,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 338,
+       "y": 178,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     }
+    }
+   },
+   "animations": {
+    "sporeling": {
+     "move": {
+      "frames": [
+       "walk1",
+       "walk2"
+      ],
+      "fps": 4,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "walk1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "walk1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "bog_toad": {
+     "move": {
+      "frames": [
+       "sit1",
+       "sit2"
+      ],
+      "fps": 2,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "sit1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "sit1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "rot_hornet": {
+     "move": {
+      "frames": [
+       "fly1",
+       "fly2"
+      ],
+      "fps": 12,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "fly1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "fly1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "vine_lasher": {
+     "move": {
+      "frames": [
+       "sway1",
+       "sway2"
+      ],
+      "fps": 2,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "sway1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "sway1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "mother_mycelia": {
+     "idle": {
+      "frames": [
+       "idle1",
+       "idle2"
+      ],
+      "fps": 2,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "attack1",
+       "attack2"
+      ],
+      "fps": 4,
+      "loop": true
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "idle1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    }
+   }
+  },
+  "ex_astral": {
+   "native": {
+    "image": "native/ex_astral.png",
+    "size": [
+     120,
+     54
+    ],
+    "sprites": {
+     "star_eye": {
+      "float1": {
+       "x": 1,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "float2": {
+       "x": 10,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "void_acolyte": {
+      "walk1": {
+       "x": 1,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "walk2": {
+       "x": 10,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "orrery_drone": {
+      "hover1": {
+       "x": 1,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hover2": {
+       "x": 10,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "constellation_stalker": {
+      "prowl1": {
+       "x": 1,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "prowl2": {
+       "x": 10,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "grand_orrery": {
+      "idle1": {
+       "x": 1,
+       "y": 37,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "idle2": {
+       "x": 18,
+       "y": 37,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "idle3": {
+       "x": 35,
+       "y": 37,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "idle4": {
+       "x": 52,
+       "y": 37,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack1": {
+       "x": 69,
+       "y": 37,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack2": {
+       "x": 86,
+       "y": 37,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 103,
+       "y": 37,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/ex_astral.png",
+    "size": [
+     590,
+     262
+    ],
+    "sprites": {
+     "star_eye": {
+      "float1": {
+       "x": 2,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "float2": {
+       "x": 46,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "void_acolyte": {
+      "walk1": {
+       "x": 2,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "walk2": {
+       "x": 46,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "orrery_drone": {
+      "hover1": {
+       "x": 2,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hover2": {
+       "x": 46,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "constellation_stalker": {
+      "prowl1": {
+       "x": 2,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "prowl2": {
+       "x": 46,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "grand_orrery": {
+      "idle1": {
+       "x": 2,
+       "y": 178,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "idle2": {
+       "x": 86,
+       "y": 178,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "idle3": {
+       "x": 170,
+       "y": 178,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "idle4": {
+       "x": 254,
+       "y": 178,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack1": {
+       "x": 338,
+       "y": 178,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack2": {
+       "x": 422,
+       "y": 178,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 506,
+       "y": 178,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     }
+    }
+   },
+   "animations": {
+    "star_eye": {
+     "move": {
+      "frames": [
+       "float1",
+       "float2"
+      ],
+      "fps": 3,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "float1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "float1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "void_acolyte": {
+     "move": {
+      "frames": [
+       "walk1",
+       "walk2"
+      ],
+      "fps": 3,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "walk1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "walk1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "orrery_drone": {
+     "move": {
+      "frames": [
+       "hover1",
+       "hover2"
+      ],
+      "fps": 6,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "hover1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "hover1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "constellation_stalker": {
+     "move": {
+      "frames": [
+       "prowl1",
+       "prowl2"
+      ],
+      "fps": 6,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "prowl1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "prowl1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "grand_orrery": {
+     "idle": {
+      "frames": [
+       "idle1",
+       "idle2",
+       "idle3",
+       "idle4"
+      ],
+      "fps": 4,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "attack1",
+       "attack2"
+      ],
+      "fps": 4,
+      "loop": true
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "idle1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    }
+   }
+  },
+  "ex_sandscour": {
+   "native": {
+    "image": "native/ex_sandscour.png",
+    "size": [
+     86,
+     54
+    ],
+    "sprites": {
+     "tomb_scarab": {
+      "scuttle1": {
+       "x": 1,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "scuttle2": {
+       "x": 10,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sand_mummy": {
+      "shamble1": {
+       "x": 1,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shamble2": {
+       "x": 10,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "dune_serpent": {
+      "coil1": {
+       "x": 1,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "coil2": {
+       "x": 10,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "jackal_warden": {
+      "walk1": {
+       "x": 1,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "walk2": {
+       "x": 10,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "gilded_sphinx": {
+      "idle1": {
+       "x": 1,
+       "y": 37,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "idle2": {
+       "x": 18,
+       "y": 37,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack1": {
+       "x": 35,
+       "y": 37,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack2": {
+       "x": 52,
+       "y": 37,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 69,
+       "y": 37,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/ex_sandscour.png",
+    "size": [
+     422,
+     262
+    ],
+    "sprites": {
+     "tomb_scarab": {
+      "scuttle1": {
+       "x": 2,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "scuttle2": {
+       "x": 46,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "sand_mummy": {
+      "shamble1": {
+       "x": 2,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shamble2": {
+       "x": 46,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "dune_serpent": {
+      "coil1": {
+       "x": 2,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "coil2": {
+       "x": 46,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "jackal_warden": {
+      "walk1": {
+       "x": 2,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "walk2": {
+       "x": 46,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "gilded_sphinx": {
+      "idle1": {
+       "x": 2,
+       "y": 178,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "idle2": {
+       "x": 86,
+       "y": 178,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack1": {
+       "x": 170,
+       "y": 178,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack2": {
+       "x": 254,
+       "y": 178,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 338,
+       "y": 178,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     }
+    }
+   },
+   "animations": {
+    "tomb_scarab": {
+     "move": {
+      "frames": [
+       "scuttle1",
+       "scuttle2"
+      ],
+      "fps": 8,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "scuttle1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "scuttle1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "sand_mummy": {
+     "move": {
+      "frames": [
+       "shamble1",
+       "shamble2"
+      ],
+      "fps": 3,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "shamble1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "shamble1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "dune_serpent": {
+     "move": {
+      "frames": [
+       "coil1",
+       "coil2"
+      ],
+      "fps": 3,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "coil1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "coil1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "jackal_warden": {
+     "move": {
+      "frames": [
+       "walk1",
+       "walk2"
+      ],
+      "fps": 4,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "walk1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "walk1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "gilded_sphinx": {
+     "idle": {
+      "frames": [
+       "idle1",
+       "idle2"
+      ],
+      "fps": 2,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "attack1",
+       "attack2"
+      ],
+      "fps": 4,
+      "loop": true
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "idle1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    }
+   }
+  },
+  "ex_event_bosses": {
+   "native": {
+    "image": "native/ex_event_bosses.png",
+    "size": [
+     120,
+     35
+    ],
+    "sprites": {
+     "abyssal_kraken": {
+      "idle1": {
+       "x": 1,
+       "y": 1,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "idle2": {
+       "x": 18,
+       "y": 1,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "idle3": {
+       "x": 35,
+       "y": 1,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "idle4": {
+       "x": 52,
+       "y": 1,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack1": {
+       "x": 69,
+       "y": 1,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack2": {
+       "x": 86,
+       "y": 1,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 103,
+       "y": 1,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "thornheart_treant": {
+      "idle1": {
+       "x": 1,
+       "y": 18,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "idle2": {
+       "x": 18,
+       "y": 18,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack1": {
+       "x": 35,
+       "y": 18,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack2": {
+       "x": 52,
+       "y": 18,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 69,
+       "y": 18,
+       "w": 16,
+       "h": 16,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/ex_event_bosses.png",
+    "size": [
+     590,
+     170
+    ],
+    "sprites": {
+     "abyssal_kraken": {
+      "idle1": {
+       "x": 2,
+       "y": 2,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "idle2": {
+       "x": 86,
+       "y": 2,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "idle3": {
+       "x": 170,
+       "y": 2,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "idle4": {
+       "x": 254,
+       "y": 2,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack1": {
+       "x": 338,
+       "y": 2,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack2": {
+       "x": 422,
+       "y": 2,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 506,
+       "y": 2,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "thornheart_treant": {
+      "idle1": {
+       "x": 2,
+       "y": 86,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "idle2": {
+       "x": 86,
+       "y": 86,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack1": {
+       "x": 170,
+       "y": 86,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack2": {
+       "x": 254,
+       "y": 86,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 338,
+       "y": 86,
+       "w": 82,
+       "h": 82,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     }
+    }
+   },
+   "animations": {
+    "abyssal_kraken": {
+     "idle": {
+      "frames": [
+       "idle1",
+       "idle2",
+       "idle3",
+       "idle4"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "attack1",
+       "attack2"
+      ],
+      "fps": 4,
+      "loop": true
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "idle1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "thornheart_treant": {
+     "idle": {
+      "frames": [
+       "idle1",
+       "idle2"
+      ],
+      "fps": 2,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "attack1",
+       "attack2"
+      ],
+      "fps": 4,
+      "loop": true
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "idle1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    }
+   }
+  },
+  "ex_tiles": {
+   "native": {
+    "image": "native/ex_tiles.png",
+    "size": [
+     28,
+     208
+    ],
+    "sprites": {
+     "frostveil_snow_a": {
+      "0": {
+       "x": 1,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "frostveil_snow_b": {
+      "0": {
+       "x": 1,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "frostveil_ice": {
+      "ice1": {
+       "x": 1,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "ice2": {
+       "x": 10,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "ice3": {
+       "x": 19,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "frostveil_wall_top": {
+      "0": {
+       "x": 1,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "frostveil_wall_side": {
+      "0": {
+       "x": 1,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "frostveil_frigid_water": {
+      "frigid_water1": {
+       "x": 1,
+       "y": 46,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "frigid_water2": {
+       "x": 10,
+       "y": 46,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "frigid_water3": {
+       "x": 19,
+       "y": 46,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "mirerot_mud_a": {
+      "0": {
+       "x": 1,
+       "y": 55,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "mirerot_mud_b": {
+      "0": {
+       "x": 1,
+       "y": 64,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "mirerot_moss": {
+      "0": {
+       "x": 1,
+       "y": 73,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "mirerot_wall_top": {
+      "0": {
+       "x": 1,
+       "y": 82,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "mirerot_wall_side": {
+      "0": {
+       "x": 1,
+       "y": 91,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "mirerot_bog": {
+      "bog1": {
+       "x": 1,
+       "y": 100,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "bog2": {
+       "x": 10,
+       "y": 100,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "bog3": {
+       "x": 19,
+       "y": 100,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "astral_void": {
+      "void1": {
+       "x": 1,
+       "y": 109,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "void2": {
+       "x": 10,
+       "y": 109,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "void3": {
+       "x": 19,
+       "y": 109,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "astral_marble": {
+      "0": {
+       "x": 1,
+       "y": 118,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "astral_brass_grate": {
+      "0": {
+       "x": 1,
+       "y": 127,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "astral_wall_top": {
+      "0": {
+       "x": 1,
+       "y": 136,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "astral_wall_side": {
+      "0": {
+       "x": 1,
+       "y": 145,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sandscour_sand_a": {
+      "0": {
+       "x": 1,
+       "y": 154,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sandscour_sand_b": {
+      "0": {
+       "x": 1,
+       "y": 163,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sandscour_tomb_floor": {
+      "0": {
+       "x": 1,
+       "y": 172,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sandscour_wall_top": {
+      "0": {
+       "x": 1,
+       "y": 181,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sandscour_wall_side": {
+      "0": {
+       "x": 1,
+       "y": 190,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sandscour_quicksand": {
+      "quicksand1": {
+       "x": 1,
+       "y": 199,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "quicksand2": {
+       "x": 10,
+       "y": 199,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "quicksand3": {
+       "x": 19,
+       "y": 199,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/ex_tiles.png",
+    "size": [
+     128,
+     968
+    ],
+    "sprites": {
+     "frostveil_snow_a": {
+      "0": {
+       "x": 2,
+       "y": 2,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "frostveil_snow_b": {
+      "0": {
+       "x": 2,
+       "y": 44,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "frostveil_ice": {
+      "ice1": {
+       "x": 2,
+       "y": 86,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "ice2": {
+       "x": 44,
+       "y": 86,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "ice3": {
+       "x": 86,
+       "y": 86,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "frostveil_wall_top": {
+      "0": {
+       "x": 2,
+       "y": 128,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "frostveil_wall_side": {
+      "0": {
+       "x": 2,
+       "y": 170,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "frostveil_frigid_water": {
+      "frigid_water1": {
+       "x": 2,
+       "y": 212,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "frigid_water2": {
+       "x": 44,
+       "y": 212,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "frigid_water3": {
+       "x": 86,
+       "y": 212,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "mirerot_mud_a": {
+      "0": {
+       "x": 2,
+       "y": 254,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "mirerot_mud_b": {
+      "0": {
+       "x": 2,
+       "y": 296,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "mirerot_moss": {
+      "0": {
+       "x": 2,
+       "y": 338,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "mirerot_wall_top": {
+      "0": {
+       "x": 2,
+       "y": 380,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "mirerot_wall_side": {
+      "0": {
+       "x": 2,
+       "y": 422,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "mirerot_bog": {
+      "bog1": {
+       "x": 2,
+       "y": 464,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "bog2": {
+       "x": 44,
+       "y": 464,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "bog3": {
+       "x": 86,
+       "y": 464,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "astral_void": {
+      "void1": {
+       "x": 2,
+       "y": 506,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "void2": {
+       "x": 44,
+       "y": 506,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "void3": {
+       "x": 86,
+       "y": 506,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "astral_marble": {
+      "0": {
+       "x": 2,
+       "y": 548,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "astral_brass_grate": {
+      "0": {
+       "x": 2,
+       "y": 590,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "astral_wall_top": {
+      "0": {
+       "x": 2,
+       "y": 632,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "astral_wall_side": {
+      "0": {
+       "x": 2,
+       "y": 674,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sandscour_sand_a": {
+      "0": {
+       "x": 2,
+       "y": 716,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sandscour_sand_b": {
+      "0": {
+       "x": 2,
+       "y": 758,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sandscour_tomb_floor": {
+      "0": {
+       "x": 2,
+       "y": 800,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sandscour_wall_top": {
+      "0": {
+       "x": 2,
+       "y": 842,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sandscour_wall_side": {
+      "0": {
+       "x": 2,
+       "y": 884,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sandscour_quicksand": {
+      "quicksand1": {
+       "x": 2,
+       "y": 926,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "quicksand2": {
+       "x": 44,
+       "y": 926,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "quicksand3": {
+       "x": 86,
+       "y": 926,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "animations": {
+    "frostveil_snow_a": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "frostveil_snow_b": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "frostveil_ice": {
+     "loop": {
+      "frames": [
+       "ice1",
+       "ice2",
+       "ice3"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "frostveil_wall_top": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "frostveil_wall_side": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "frostveil_frigid_water": {
+     "loop": {
+      "frames": [
+       "frigid_water1",
+       "frigid_water2",
+       "frigid_water3"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "mirerot_mud_a": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "mirerot_mud_b": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "mirerot_moss": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "mirerot_wall_top": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "mirerot_wall_side": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "mirerot_bog": {
+     "loop": {
+      "frames": [
+       "bog1",
+       "bog2",
+       "bog3"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "astral_void": {
+     "loop": {
+      "frames": [
+       "void1",
+       "void2",
+       "void3"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "astral_marble": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "astral_brass_grate": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "astral_wall_top": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "astral_wall_side": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "sandscour_sand_a": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "sandscour_sand_b": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "sandscour_tomb_floor": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "sandscour_wall_top": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "sandscour_wall_side": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "sandscour_quicksand": {
+     "loop": {
+      "frames": [
+       "quicksand1",
+       "quicksand2",
+       "quicksand3"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    }
+   }
+  },
+  "ex_decor": {
+   "native": {
+    "image": "native/ex_decor.png",
+    "size": [
+     37,
+     254
+    ],
+    "sprites": {
+     "frostveil_snowy_pine": {
+      "0": {
+       "x": 1,
+       "y": 1,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      }
+     },
+     "frostveil_frozen_statue": {
+      "0": {
+       "x": 1,
+       "y": 18,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 18,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      },
+      "2": {
+       "x": 19,
+       "y": 18,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      },
+      "3": {
+       "x": 28,
+       "y": 18,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      }
+     },
+     "frostveil_ice_crystal": {
+      "0": {
+       "x": 1,
+       "y": 35,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 35,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "2": {
+       "x": 19,
+       "y": 35,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "3": {
+       "x": 28,
+       "y": 35,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "frostveil_snow_rock": {
+      "0": {
+       "x": 1,
+       "y": 44,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "frostveil_frost_brazier": {
+      "0": {
+       "x": 1,
+       "y": 53,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 53,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "2": {
+       "x": 19,
+       "y": 53,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "mirerot_giant_mushroom": {
+      "0": {
+       "x": 1,
+       "y": 62,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      }
+     },
+     "mirerot_glowshroom_cluster": {
+      "0": {
+       "x": 1,
+       "y": 79,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 79,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "mirerot_reeds": {
+      "0": {
+       "x": 1,
+       "y": 88,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 88,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "mirerot_rotting_log": {
+      "0": {
+       "x": 1,
+       "y": 97,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "mirerot_spore_pod": {
+      "0": {
+       "x": 1,
+       "y": 106,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 106,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "2": {
+       "x": 19,
+       "y": 106,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "astral_telescope": {
+      "0": {
+       "x": 1,
+       "y": 115,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      }
+     },
+     "astral_brass_pillar": {
+      "0": {
+       "x": 1,
+       "y": 132,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 132,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      },
+      "2": {
+       "x": 19,
+       "y": 132,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      },
+      "3": {
+       "x": 28,
+       "y": 132,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      }
+     },
+     "astral_star_globe": {
+      "0": {
+       "x": 1,
+       "y": 149,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 149,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "2": {
+       "x": 19,
+       "y": 149,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "astral_floating_crystal": {
+      "0": {
+       "x": 1,
+       "y": 158,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 158,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "astral_rune_circle": {
+      "0": {
+       "x": 1,
+       "y": 167,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 167,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sandscour_obelisk": {
+      "0": {
+       "x": 1,
+       "y": 176,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 176,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      },
+      "2": {
+       "x": 19,
+       "y": 176,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      },
+      "3": {
+       "x": 28,
+       "y": 176,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      }
+     },
+     "sandscour_saguaro": {
+      "0": {
+       "x": 1,
+       "y": 193,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      }
+     },
+     "sandscour_urn": {
+      "0": {
+       "x": 1,
+       "y": 210,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 210,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sandscour_skull_pile": {
+      "0": {
+       "x": 1,
+       "y": 219,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sandscour_treasure_chest": {
+      "0": {
+       "x": 1,
+       "y": 228,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 228,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "2": {
+       "x": 19,
+       "y": 228,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sandscour_sarcophagus": {
+      "0": {
+       "x": 1,
+       "y": 237,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 237,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      },
+      "2": {
+       "x": 19,
+       "y": 237,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      },
+      "3": {
+       "x": 28,
+       "y": 237,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/ex_decor.png",
+    "size": [
+     178,
+     1244
+    ],
+    "sprites": {
+     "frostveil_snowy_pine": {
+      "0": {
+       "x": 2,
+       "y": 2,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      }
+     },
+     "frostveil_frozen_statue": {
+      "0": {
+       "x": 2,
+       "y": 86,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 86,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      },
+      "2": {
+       "x": 90,
+       "y": 86,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      },
+      "3": {
+       "x": 134,
+       "y": 86,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      }
+     },
+     "frostveil_ice_crystal": {
+      "0": {
+       "x": 2,
+       "y": 170,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 170,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "2": {
+       "x": 90,
+       "y": 170,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "3": {
+       "x": 134,
+       "y": 170,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "frostveil_snow_rock": {
+      "0": {
+       "x": 2,
+       "y": 214,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "frostveil_frost_brazier": {
+      "0": {
+       "x": 2,
+       "y": 258,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 258,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "2": {
+       "x": 90,
+       "y": 258,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "mirerot_giant_mushroom": {
+      "0": {
+       "x": 2,
+       "y": 302,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      }
+     },
+     "mirerot_glowshroom_cluster": {
+      "0": {
+       "x": 2,
+       "y": 386,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 386,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "mirerot_reeds": {
+      "0": {
+       "x": 2,
+       "y": 430,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 430,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "mirerot_rotting_log": {
+      "0": {
+       "x": 2,
+       "y": 474,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "mirerot_spore_pod": {
+      "0": {
+       "x": 2,
+       "y": 518,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 518,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "2": {
+       "x": 90,
+       "y": 518,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "astral_telescope": {
+      "0": {
+       "x": 2,
+       "y": 562,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      }
+     },
+     "astral_brass_pillar": {
+      "0": {
+       "x": 2,
+       "y": 646,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 646,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      },
+      "2": {
+       "x": 90,
+       "y": 646,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      },
+      "3": {
+       "x": 134,
+       "y": 646,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      }
+     },
+     "astral_star_globe": {
+      "0": {
+       "x": 2,
+       "y": 730,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 730,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "2": {
+       "x": 90,
+       "y": 730,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "astral_floating_crystal": {
+      "0": {
+       "x": 2,
+       "y": 774,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 774,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "astral_rune_circle": {
+      "0": {
+       "x": 2,
+       "y": 818,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 44,
+       "y": 818,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sandscour_obelisk": {
+      "0": {
+       "x": 2,
+       "y": 860,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 860,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      },
+      "2": {
+       "x": 90,
+       "y": 860,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      },
+      "3": {
+       "x": 134,
+       "y": 860,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      }
+     },
+     "sandscour_saguaro": {
+      "0": {
+       "x": 2,
+       "y": 944,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      }
+     },
+     "sandscour_urn": {
+      "0": {
+       "x": 2,
+       "y": 1028,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 1028,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "sandscour_skull_pile": {
+      "0": {
+       "x": 2,
+       "y": 1072,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "sandscour_treasure_chest": {
+      "0": {
+       "x": 2,
+       "y": 1116,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 1116,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "2": {
+       "x": 90,
+       "y": 1116,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "sandscour_sarcophagus": {
+      "0": {
+       "x": 2,
+       "y": 1160,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 1160,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      },
+      "2": {
+       "x": 90,
+       "y": 1160,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      },
+      "3": {
+       "x": 134,
+       "y": 1160,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      }
+     }
+    }
+   },
+   "animations": {
+    "frostveil_snowy_pine": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "frostveil_frozen_statue": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "loop": {
+      "frames": [
+       "0",
+       "0",
+       "0",
+       "1",
+       "2",
+       "3",
+       "0",
+       "0"
+      ],
+      "fps": 8,
+      "loop": true
+     }
+    },
+    "frostveil_ice_crystal": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "loop": {
+      "frames": [
+       "0",
+       "0",
+       "0",
+       "1",
+       "2",
+       "3",
+       "0",
+       "0"
+      ],
+      "fps": 8,
+      "loop": true
+     }
+    },
+    "frostveil_snow_rock": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "frostveil_frost_brazier": {
+     "loop": {
+      "frames": [
+       "0",
+       "1",
+       "2"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "mirerot_giant_mushroom": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "mirerot_glowshroom_cluster": {
+     "loop": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "mirerot_reeds": {
+     "loop": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "mirerot_rotting_log": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "mirerot_spore_pod": {
+     "loop": {
+      "frames": [
+       "0",
+       "1",
+       "2"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "astral_telescope": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "astral_brass_pillar": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "loop": {
+      "frames": [
+       "0",
+       "0",
+       "0",
+       "1",
+       "2",
+       "3",
+       "0",
+       "0"
+      ],
+      "fps": 8,
+      "loop": true
+     }
+    },
+    "astral_star_globe": {
+     "loop": {
+      "frames": [
+       "0",
+       "1",
+       "2"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "astral_floating_crystal": {
+     "loop": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "astral_rune_circle": {
+     "loop": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 3,
+      "loop": true
+     }
+    },
+    "sandscour_obelisk": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "loop": {
+      "frames": [
+       "0",
+       "0",
+       "0",
+       "1",
+       "2",
+       "3",
+       "0",
+       "0"
+      ],
+      "fps": 8,
+      "loop": true
+     }
+    },
+    "sandscour_saguaro": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "sandscour_urn": {
+     "intact": {
+      "frames": [
+       "0"
+      ],
+      "fps": 6,
+      "loop": true
+     },
+     "broken": {
+      "frames": [
+       "1"
+      ],
+      "fps": 6,
+      "loop": true
+     }
+    },
+    "sandscour_skull_pile": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "sandscour_treasure_chest": {
+     "closed": {
+      "frames": [
+       "0"
+      ],
+      "fps": 6,
+      "loop": true
+     },
+     "open": {
+      "frames": [
+       "1",
+       "2"
+      ],
+      "fps": 6,
+      "loop": true
+     }
+    },
+    "sandscour_sarcophagus": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "loop": {
+      "frames": [
+       "0",
+       "0",
+       "0",
+       "1",
+       "2",
+       "3",
+       "0",
+       "0"
+      ],
+      "fps": 8,
+      "loop": true
+     }
+    }
+   }
+  },
+  "ex_items": {
+   "native": {
+    "image": "native/ex_items.png",
+    "size": [
+     37,
+     334
+    ],
+    "sprites": {
+     "glacial_fang": {
+      "0": {
+       "x": 1,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "rimeheart_bow": {
+      "0": {
+       "x": 1,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "wand_of_hoarfrost": {
+      "0": {
+       "x": 1,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "frostweave_armor": {
+      "0": {
+       "x": 1,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "ring_of_the_wyrm": {
+      "0": {
+       "x": 1,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "bog_cleaver": {
+      "0": {
+       "x": 1,
+       "y": 46,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 46,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 46,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 46,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sporecaller_wand": {
+      "0": {
+       "x": 1,
+       "y": 55,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 55,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 55,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 55,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "mycelial_hide": {
+      "0": {
+       "x": 1,
+       "y": 64,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 64,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 64,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 64,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "spore_bomb": {
+      "0": {
+       "x": 1,
+       "y": 73,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 73,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 73,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 73,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "ring_of_rot": {
+      "0": {
+       "x": 1,
+       "y": 82,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 82,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 82,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 82,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "starforged_katana": {
+      "0": {
+       "x": 1,
+       "y": 91,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 91,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 91,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 91,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "comet_bow": {
+      "0": {
+       "x": 1,
+       "y": 100,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 100,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 100,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 100,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "nebula_robe": {
+      "0": {
+       "x": 1,
+       "y": 109,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 109,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 109,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 109,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "orrery_orb": {
+      "0": {
+       "x": 1,
+       "y": 118,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 118,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 118,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 118,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "astral_signet": {
+      "0": {
+       "x": 1,
+       "y": 127,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 127,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 127,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 127,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sunscorch_khopesh": {
+      "0": {
+       "x": 1,
+       "y": 136,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 136,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 136,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 136,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "gilded_scepter": {
+      "0": {
+       "x": 1,
+       "y": 145,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 145,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 145,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 145,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "embalmers_wraps": {
+      "0": {
+       "x": 1,
+       "y": 154,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 154,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 154,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 154,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sphinx_helm": {
+      "0": {
+       "x": 1,
+       "y": 163,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 163,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 163,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 163,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "scarab_ring": {
+      "0": {
+       "x": 1,
+       "y": 172,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 172,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 172,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 172,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "tidebreaker_trident": {
+      "0": {
+       "x": 1,
+       "y": 181,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 181,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 181,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 181,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "abyssal_pearl": {
+      "0": {
+       "x": 1,
+       "y": 190,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 190,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 190,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 190,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "heartwood_bow": {
+      "0": {
+       "x": 1,
+       "y": 199,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 199,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 199,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 199,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "seed_of_renewal": {
+      "0": {
+       "x": 1,
+       "y": 208,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 208,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 208,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 208,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "potion_of_attack": {
+      "0": {
+       "x": 1,
+       "y": 217,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 217,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 217,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 217,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "potion_of_defense": {
+      "0": {
+       "x": 1,
+       "y": 226,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 226,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 226,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 226,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "potion_of_speed": {
+      "0": {
+       "x": 1,
+       "y": 235,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 235,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 235,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 235,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "potion_of_dexterity": {
+      "0": {
+       "x": 1,
+       "y": 244,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 244,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 244,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 244,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "potion_of_vitality": {
+      "0": {
+       "x": 1,
+       "y": 253,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 253,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 253,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 253,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "potion_of_wisdom": {
+      "0": {
+       "x": 1,
+       "y": 262,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 262,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 262,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 262,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "frostveil_key": {
+      "0": {
+       "x": 1,
+       "y": 271,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 271,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 271,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 271,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "mirerot_key": {
+      "0": {
+       "x": 1,
+       "y": 280,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 280,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 280,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 280,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "astral_key": {
+      "0": {
+       "x": 1,
+       "y": 289,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 289,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 289,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 289,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sandscour_key": {
+      "0": {
+       "x": 1,
+       "y": 298,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 298,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 298,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 298,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "gold_coins": {
+      "0": {
+       "x": 1,
+       "y": 307,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 307,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 307,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 307,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "ancient_scroll": {
+      "0": {
+       "x": 1,
+       "y": 316,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 316,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 316,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 316,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "soul_gem": {
+      "0": {
+       "x": 1,
+       "y": 325,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 325,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 325,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 325,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/ex_items.png",
+    "size": [
+     178,
+     1630
+    ],
+    "sprites": {
+     "glacial_fang": {
+      "0": {
+       "x": 2,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "rimeheart_bow": {
+      "0": {
+       "x": 2,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "wand_of_hoarfrost": {
+      "0": {
+       "x": 2,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "frostweave_armor": {
+      "0": {
+       "x": 2,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "ring_of_the_wyrm": {
+      "0": {
+       "x": 2,
+       "y": 178,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 178,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 178,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 178,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "bog_cleaver": {
+      "0": {
+       "x": 2,
+       "y": 222,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 222,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 222,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 222,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "sporecaller_wand": {
+      "0": {
+       "x": 2,
+       "y": 266,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 266,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 266,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 266,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "mycelial_hide": {
+      "0": {
+       "x": 2,
+       "y": 310,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 310,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 310,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 310,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "spore_bomb": {
+      "0": {
+       "x": 2,
+       "y": 354,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 354,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 354,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 354,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "ring_of_rot": {
+      "0": {
+       "x": 2,
+       "y": 398,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 398,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 398,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 398,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "starforged_katana": {
+      "0": {
+       "x": 2,
+       "y": 442,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 442,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 442,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 442,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "comet_bow": {
+      "0": {
+       "x": 2,
+       "y": 486,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 486,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 486,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 486,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "nebula_robe": {
+      "0": {
+       "x": 2,
+       "y": 530,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 530,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 530,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 530,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "orrery_orb": {
+      "0": {
+       "x": 2,
+       "y": 574,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 574,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 574,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 574,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "astral_signet": {
+      "0": {
+       "x": 2,
+       "y": 618,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 618,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 618,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 618,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "sunscorch_khopesh": {
+      "0": {
+       "x": 2,
+       "y": 662,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 662,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 662,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 662,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "gilded_scepter": {
+      "0": {
+       "x": 2,
+       "y": 706,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 706,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 706,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 706,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "embalmers_wraps": {
+      "0": {
+       "x": 2,
+       "y": 750,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 750,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 750,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 750,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "sphinx_helm": {
+      "0": {
+       "x": 2,
+       "y": 794,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 794,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 794,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 794,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "scarab_ring": {
+      "0": {
+       "x": 2,
+       "y": 838,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 838,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 838,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 838,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "tidebreaker_trident": {
+      "0": {
+       "x": 2,
+       "y": 882,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 882,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 882,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 882,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "abyssal_pearl": {
+      "0": {
+       "x": 2,
+       "y": 926,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 926,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 926,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 926,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "heartwood_bow": {
+      "0": {
+       "x": 2,
+       "y": 970,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 970,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 970,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 970,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "seed_of_renewal": {
+      "0": {
+       "x": 2,
+       "y": 1014,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 1014,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 1014,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 1014,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "potion_of_attack": {
+      "0": {
+       "x": 2,
+       "y": 1058,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 1058,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 1058,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 1058,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "potion_of_defense": {
+      "0": {
+       "x": 2,
+       "y": 1102,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 1102,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 1102,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 1102,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "potion_of_speed": {
+      "0": {
+       "x": 2,
+       "y": 1146,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 1146,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 1146,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 1146,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "potion_of_dexterity": {
+      "0": {
+       "x": 2,
+       "y": 1190,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 1190,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 1190,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 1190,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "potion_of_vitality": {
+      "0": {
+       "x": 2,
+       "y": 1234,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 1234,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 1234,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 1234,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "potion_of_wisdom": {
+      "0": {
+       "x": 2,
+       "y": 1278,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 1278,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 1278,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 1278,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "frostveil_key": {
+      "0": {
+       "x": 2,
+       "y": 1322,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 1322,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 1322,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 1322,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "mirerot_key": {
+      "0": {
+       "x": 2,
+       "y": 1366,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 1366,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 1366,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 1366,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "astral_key": {
+      "0": {
+       "x": 2,
+       "y": 1410,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 1410,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 1410,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 1410,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "sandscour_key": {
+      "0": {
+       "x": 2,
+       "y": 1454,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 1454,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 1454,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 1454,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "gold_coins": {
+      "0": {
+       "x": 2,
+       "y": 1498,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 1498,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 1498,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 1498,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "ancient_scroll": {
+      "0": {
+       "x": 2,
+       "y": 1542,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 1542,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 1542,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 1542,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "soul_gem": {
+      "0": {
+       "x": 2,
+       "y": 1586,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 1586,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 1586,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 1586,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     }
+    }
+   },
+   "animations": {
+    "glacial_fang": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "rimeheart_bow": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "wand_of_hoarfrost": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "frostweave_armor": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "ring_of_the_wyrm": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "bog_cleaver": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "sporecaller_wand": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "mycelial_hide": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "spore_bomb": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "ring_of_rot": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "starforged_katana": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "comet_bow": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "nebula_robe": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "orrery_orb": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "astral_signet": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "sunscorch_khopesh": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "gilded_scepter": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "embalmers_wraps": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "sphinx_helm": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "scarab_ring": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "tidebreaker_trident": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "abyssal_pearl": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "heartwood_bow": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "seed_of_renewal": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "potion_of_attack": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "potion_of_defense": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "potion_of_speed": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "potion_of_dexterity": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "potion_of_vitality": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "potion_of_wisdom": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "frostveil_key": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "mirerot_key": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "astral_key": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "sandscour_key": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "gold_coins": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "ancient_scroll": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "soul_gem": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    }
+   }
+  },
+  "ex_projectiles": {
+   "native": {
+    "image": "native/ex_projectiles.png",
+    "size": [
+     19,
+     82
+    ],
+    "sprites": {
+     "frost_shard": {
+      "0": {
+       "x": 1,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "wyrm_breath": {
+      "0": {
+       "x": 1,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "spore_glob": {
+      "0": {
+       "x": 1,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hornet_stinger": {
+      "0": {
+       "x": 1,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "star_bolt": {
+      "0": {
+       "x": 1,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "void_beam": {
+      "0": {
+       "x": 1,
+       "y": 46,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 46,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sand_blade": {
+      "0": {
+       "x": 1,
+       "y": 55,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 55,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "ink_blob": {
+      "0": {
+       "x": 1,
+       "y": 64,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "thorn_seed": {
+      "0": {
+       "x": 1,
+       "y": 73,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/ex_projectiles.png",
+    "size": [
+     90,
+     398
+    ],
+    "sprites": {
+     "frost_shard": {
+      "0": {
+       "x": 2,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "wyrm_breath": {
+      "0": {
+       "x": 2,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "spore_glob": {
+      "0": {
+       "x": 2,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "hornet_stinger": {
+      "0": {
+       "x": 2,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "star_bolt": {
+      "0": {
+       "x": 2,
+       "y": 178,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 178,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "void_beam": {
+      "0": {
+       "x": 2,
+       "y": 222,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 222,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "sand_blade": {
+      "0": {
+       "x": 2,
+       "y": 266,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 266,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "ink_blob": {
+      "0": {
+       "x": 2,
+       "y": 310,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "thorn_seed": {
+      "0": {
+       "x": 2,
+       "y": 354,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     }
+    }
+   },
+   "animations": {
+    "frost_shard": {
+     "fly": {
+      "frames": [
+       "0"
+      ],
+      "fps": 12,
+      "loop": true
+     }
+    },
+    "wyrm_breath": {
+     "fly": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 12,
+      "loop": true
+     }
+    },
+    "spore_glob": {
+     "fly": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 12,
+      "loop": true
+     }
+    },
+    "hornet_stinger": {
+     "fly": {
+      "frames": [
+       "0"
+      ],
+      "fps": 12,
+      "loop": true
+     }
+    },
+    "star_bolt": {
+     "fly": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 12,
+      "loop": true
+     }
+    },
+    "void_beam": {
+     "fly": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 12,
+      "loop": true
+     }
+    },
+    "sand_blade": {
+     "fly": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 12,
+      "loop": true
+     }
+    },
+    "ink_blob": {
+     "fly": {
+      "frames": [
+       "0"
+      ],
+      "fps": 12,
+      "loop": true
+     }
+    },
+    "thorn_seed": {
+     "fly": {
+      "frames": [
+       "0"
+      ],
+      "fps": 12,
+      "loop": true
+     }
+    }
+   }
+  },
+  "ex_effects": {
+   "native": {
+    "image": "native/ex_effects.png",
+    "size": [
+     28,
+     46
+    ],
+    "sprites": {
+     "freeze_burst": {
+      "0": {
+       "x": 1,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "2": {
+       "x": 19,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "poison_cloud": {
+      "0": {
+       "x": 1,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "2": {
+       "x": 19,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "star_burst": {
+      "0": {
+       "x": 1,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "2": {
+       "x": 19,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sand_puff": {
+      "0": {
+       "x": 1,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "2": {
+       "x": 19,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "ground_shadow": {
+      "0": {
+       "x": 1,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/ex_effects.png",
+    "size": [
+     134,
+     220
+    ],
+    "sprites": {
+     "freeze_burst": {
+      "0": {
+       "x": 2,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "2": {
+       "x": 90,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "poison_cloud": {
+      "0": {
+       "x": 2,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "2": {
+       "x": 90,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "star_burst": {
+      "0": {
+       "x": 2,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "2": {
+       "x": 90,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "sand_puff": {
+      "0": {
+       "x": 2,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "2": {
+       "x": 90,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "ground_shadow": {
+      "0": {
+       "x": 2,
+       "y": 178,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "animations": {
+    "freeze_burst": {
+     "play": {
+      "frames": [
+       "0",
+       "1",
+       "2"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "poison_cloud": {
+     "play": {
+      "frames": [
+       "0",
+       "1",
+       "2"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "star_burst": {
+     "play": {
+      "frames": [
+       "0",
+       "1",
+       "2"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "sand_puff": {
+     "play": {
+      "frames": [
+       "0",
+       "1",
+       "2"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "ground_shadow": {
+     "play": {
+      "frames": [
+       "0"
+      ],
+      "fps": 12,
+      "loop": true
+     }
+    }
+   }
+  }
+ }
+}

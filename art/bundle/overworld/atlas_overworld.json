@@ -1,0 +1,4484 @@
+{
+ "meta": {
+  "name": "Realm Overworld",
+  "version": 1,
+  "x5_scale": 5,
+  "biomes": {
+   "shore": {
+    "enemies": [
+     "shore_crab",
+     "driftwood_bandit",
+     "tide_slime",
+     "gull"
+    ],
+    "tiles": [
+     "shore_sand_a",
+     "shore_sand_b",
+     "shore_wet_sand",
+     "shore_shallows",
+     "shore_deep_water"
+    ],
+    "objects": [
+     "shore_palm_tree",
+     "shore_seashells",
+     "shore_driftwood",
+     "shore_rowboat",
+     "shore_tide_pool"
+    ]
+   },
+   "lowlands": {
+    "enemies": [
+     "field_rat",
+     "hedge_goblin",
+     "wild_boar",
+     "scarecrow"
+    ],
+    "tiles": [
+     "lowlands_grass_a",
+     "lowlands_grass_b",
+     "lowlands_dirt_path",
+     "lowlands_tall_grass"
+    ],
+    "objects": [
+     "lowlands_oak_tree",
+     "lowlands_hay_bale",
+     "lowlands_flower_bed",
+     "lowlands_signpost",
+     "lowlands_well"
+    ]
+   },
+   "midlands": {
+    "enemies": [
+     "bark_spider",
+     "orc_brute",
+     "forest_druid",
+     "mossback_turtle"
+    ],
+    "tiles": [
+     "midlands_forest_floor",
+     "midlands_leaf_litter",
+     "midlands_mossy_stone",
+     "midlands_stream"
+    ],
+    "objects": [
+     "midlands_elder_tree",
+     "midlands_tree_stump",
+     "midlands_mossy_boulder",
+     "midlands_campfire",
+     "midlands_glow_mushrooms"
+    ]
+   },
+   "highlands": {
+    "enemies": [
+     "stone_harpy",
+     "mountain_ram",
+     "crag_ogre",
+     "cave_bat"
+    ],
+    "tiles": [
+     "highlands_rock_floor",
+     "highlands_gravel",
+     "highlands_alpine_grass",
+     "highlands_cliff_top",
+     "highlands_snowcap"
+    ],
+    "objects": [
+     "highlands_boulder",
+     "highlands_rock_spire",
+     "highlands_dead_tree",
+     "highlands_heather_bush",
+     "highlands_cairn"
+    ]
+   },
+   "godlands": {
+    "enemies": [
+     "rift_wraith",
+     "blood_maw",
+     "fallen_knight",
+     "gazer"
+    ],
+    "tiles": [
+     "godlands_ash_ground",
+     "godlands_blood_rock",
+     "godlands_rift"
+    ],
+    "objects": [
+     "godlands_corrupted_obelisk",
+     "godlands_bone_pile",
+     "godlands_rift_crystal",
+     "godlands_blood_fountain",
+     "godlands_broken_pillar"
+    ]
+   }
+  },
+  "notes": "Open-world biomes from the shore inward: shore, lowlands, midlands, highlands, godlands. Sheets are prefixed ow_; nothing clashes with earlier packs. Tiles are unoutlined. Objects taller than 8px have pivot = top-left of their base tile."
+ },
+ "sheets": {
+  "ow_enemies": {
+   "native": {
+    "image": "native/ow_enemies.png",
+    "size": [
+     37,
+     181
+    ],
+    "sprites": {
+     "shore_crab": {
+      "scuttle1": {
+       "x": 1,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "scuttle2": {
+       "x": 10,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "driftwood_bandit": {
+      "walk1": {
+       "x": 1,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "walk2": {
+       "x": 10,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "tide_slime": {
+      "bounce1": {
+       "x": 1,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "bounce2": {
+       "x": 10,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "gull": {
+      "flap1": {
+       "x": 1,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "flap2": {
+       "x": 10,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "field_rat": {
+      "run1": {
+       "x": 1,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "run2": {
+       "x": 10,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hedge_goblin": {
+      "walk1": {
+       "x": 1,
+       "y": 46,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "walk2": {
+       "x": 10,
+       "y": 46,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 46,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 46,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "wild_boar": {
+      "charge1": {
+       "x": 1,
+       "y": 55,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "charge2": {
+       "x": 10,
+       "y": 55,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 55,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 55,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "scarecrow": {
+      "sway1": {
+       "x": 1,
+       "y": 64,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "sway2": {
+       "x": 10,
+       "y": 64,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 64,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 64,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "bark_spider": {
+      "crawl1": {
+       "x": 1,
+       "y": 73,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "crawl2": {
+       "x": 10,
+       "y": 73,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 73,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 73,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "orc_brute": {
+      "walk1": {
+       "x": 1,
+       "y": 82,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "walk2": {
+       "x": 10,
+       "y": 82,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 82,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 82,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "forest_druid": {
+      "walk1": {
+       "x": 1,
+       "y": 91,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "walk2": {
+       "x": 10,
+       "y": 91,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 91,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 91,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "mossback_turtle": {
+      "plod1": {
+       "x": 1,
+       "y": 100,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "plod2": {
+       "x": 10,
+       "y": 100,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 100,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 100,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "stone_harpy": {
+      "flap1": {
+       "x": 1,
+       "y": 109,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "flap2": {
+       "x": 10,
+       "y": 109,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 109,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 109,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "mountain_ram": {
+      "trot1": {
+       "x": 1,
+       "y": 118,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "trot2": {
+       "x": 10,
+       "y": 118,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 118,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 118,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crag_ogre": {
+      "walk1": {
+       "x": 1,
+       "y": 127,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "walk2": {
+       "x": 10,
+       "y": 127,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 127,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 127,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "cave_bat": {
+      "flap1": {
+       "x": 1,
+       "y": 136,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "flap2": {
+       "x": 10,
+       "y": 136,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 136,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 136,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "rift_wraith": {
+      "drift1": {
+       "x": 1,
+       "y": 145,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "drift2": {
+       "x": 10,
+       "y": 145,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 145,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 145,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "blood_maw": {
+      "float1": {
+       "x": 1,
+       "y": 154,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "float2": {
+       "x": 10,
+       "y": 154,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 154,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 154,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "fallen_knight": {
+      "walk1": {
+       "x": 1,
+       "y": 163,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "walk2": {
+       "x": 10,
+       "y": 163,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 163,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 163,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "gazer": {
+      "hover1": {
+       "x": 1,
+       "y": 172,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hover2": {
+       "x": 10,
+       "y": 172,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 172,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 172,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/ow_enemies.png",
+    "size": [
+     178,
+     882
+    ],
+    "sprites": {
+     "shore_crab": {
+      "scuttle1": {
+       "x": 2,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "scuttle2": {
+       "x": 46,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "driftwood_bandit": {
+      "walk1": {
+       "x": 2,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "walk2": {
+       "x": 46,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "tide_slime": {
+      "bounce1": {
+       "x": 2,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "bounce2": {
+       "x": 46,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "gull": {
+      "flap1": {
+       "x": 2,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "flap2": {
+       "x": 46,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "field_rat": {
+      "run1": {
+       "x": 2,
+       "y": 178,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "run2": {
+       "x": 46,
+       "y": 178,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 178,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 178,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "hedge_goblin": {
+      "walk1": {
+       "x": 2,
+       "y": 222,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "walk2": {
+       "x": 46,
+       "y": 222,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 222,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 222,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "wild_boar": {
+      "charge1": {
+       "x": 2,
+       "y": 266,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "charge2": {
+       "x": 46,
+       "y": 266,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 266,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 266,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "scarecrow": {
+      "sway1": {
+       "x": 2,
+       "y": 310,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "sway2": {
+       "x": 46,
+       "y": 310,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 310,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 310,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "bark_spider": {
+      "crawl1": {
+       "x": 2,
+       "y": 354,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "crawl2": {
+       "x": 46,
+       "y": 354,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 354,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 354,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "orc_brute": {
+      "walk1": {
+       "x": 2,
+       "y": 398,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "walk2": {
+       "x": 46,
+       "y": 398,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 398,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 398,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "forest_druid": {
+      "walk1": {
+       "x": 2,
+       "y": 442,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "walk2": {
+       "x": 46,
+       "y": 442,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 442,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 442,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "mossback_turtle": {
+      "plod1": {
+       "x": 2,
+       "y": 486,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "plod2": {
+       "x": 46,
+       "y": 486,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 486,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 486,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "stone_harpy": {
+      "flap1": {
+       "x": 2,
+       "y": 530,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "flap2": {
+       "x": 46,
+       "y": 530,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 530,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 530,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "mountain_ram": {
+      "trot1": {
+       "x": 2,
+       "y": 574,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "trot2": {
+       "x": 46,
+       "y": 574,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 574,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 574,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "crag_ogre": {
+      "walk1": {
+       "x": 2,
+       "y": 618,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "walk2": {
+       "x": 46,
+       "y": 618,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 618,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 618,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "cave_bat": {
+      "flap1": {
+       "x": 2,
+       "y": 662,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "flap2": {
+       "x": 46,
+       "y": 662,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 662,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 662,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "rift_wraith": {
+      "drift1": {
+       "x": 2,
+       "y": 706,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "drift2": {
+       "x": 46,
+       "y": 706,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 706,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 706,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "blood_maw": {
+      "float1": {
+       "x": 2,
+       "y": 750,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "float2": {
+       "x": 46,
+       "y": 750,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 750,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 750,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "fallen_knight": {
+      "walk1": {
+       "x": 2,
+       "y": 794,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "walk2": {
+       "x": 46,
+       "y": 794,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 794,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 794,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "gazer": {
+      "hover1": {
+       "x": 2,
+       "y": 838,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hover2": {
+       "x": 46,
+       "y": 838,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 838,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 838,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     }
+    }
+   },
+   "animations": {
+    "shore_crab": {
+     "move": {
+      "frames": [
+       "scuttle1",
+       "scuttle2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "scuttle1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "scuttle1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "driftwood_bandit": {
+     "move": {
+      "frames": [
+       "walk1",
+       "walk2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "walk1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "walk1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "tide_slime": {
+     "move": {
+      "frames": [
+       "bounce1",
+       "bounce2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "bounce1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "bounce1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "gull": {
+     "move": {
+      "frames": [
+       "flap1",
+       "flap2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "flap1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "flap1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "field_rat": {
+     "move": {
+      "frames": [
+       "run1",
+       "run2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "run1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "run1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "hedge_goblin": {
+     "move": {
+      "frames": [
+       "walk1",
+       "walk2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "walk1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "walk1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "wild_boar": {
+     "move": {
+      "frames": [
+       "charge1",
+       "charge2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "charge1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "charge1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "scarecrow": {
+     "move": {
+      "frames": [
+       "sway1",
+       "sway2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "sway1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "sway1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "bark_spider": {
+     "move": {
+      "frames": [
+       "crawl1",
+       "crawl2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "crawl1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "crawl1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "orc_brute": {
+     "move": {
+      "frames": [
+       "walk1",
+       "walk2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "walk1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "walk1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "forest_druid": {
+     "move": {
+      "frames": [
+       "walk1",
+       "walk2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "walk1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "walk1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "mossback_turtle": {
+     "move": {
+      "frames": [
+       "plod1",
+       "plod2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "plod1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "plod1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "stone_harpy": {
+     "move": {
+      "frames": [
+       "flap1",
+       "flap2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "flap1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "flap1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "mountain_ram": {
+     "move": {
+      "frames": [
+       "trot1",
+       "trot2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "trot1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "trot1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "crag_ogre": {
+     "move": {
+      "frames": [
+       "walk1",
+       "walk2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "walk1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "walk1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "cave_bat": {
+     "move": {
+      "frames": [
+       "flap1",
+       "flap2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "flap1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "flap1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "rift_wraith": {
+     "move": {
+      "frames": [
+       "drift1",
+       "drift2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "drift1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "drift1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "blood_maw": {
+     "move": {
+      "frames": [
+       "float1",
+       "float2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "float1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "float1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "fallen_knight": {
+     "move": {
+      "frames": [
+       "walk1",
+       "walk2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "walk1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "walk1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "gazer": {
+     "move": {
+      "frames": [
+       "hover1",
+       "hover2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "hover1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "hover1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    }
+   },
+   "info": {
+    "shore_crab": {
+     "biome": "shore"
+    },
+    "driftwood_bandit": {
+     "biome": "shore"
+    },
+    "tide_slime": {
+     "biome": "shore"
+    },
+    "gull": {
+     "biome": "shore"
+    },
+    "field_rat": {
+     "biome": "lowlands"
+    },
+    "hedge_goblin": {
+     "biome": "lowlands"
+    },
+    "wild_boar": {
+     "biome": "lowlands"
+    },
+    "scarecrow": {
+     "biome": "lowlands"
+    },
+    "bark_spider": {
+     "biome": "midlands"
+    },
+    "orc_brute": {
+     "biome": "midlands"
+    },
+    "forest_druid": {
+     "biome": "midlands"
+    },
+    "mossback_turtle": {
+     "biome": "midlands"
+    },
+    "stone_harpy": {
+     "biome": "highlands"
+    },
+    "mountain_ram": {
+     "biome": "highlands"
+    },
+    "crag_ogre": {
+     "biome": "highlands"
+    },
+    "cave_bat": {
+     "biome": "highlands"
+    },
+    "rift_wraith": {
+     "biome": "godlands"
+    },
+    "blood_maw": {
+     "biome": "godlands"
+    },
+    "fallen_knight": {
+     "biome": "godlands"
+    },
+    "gazer": {
+     "biome": "godlands"
+    }
+   }
+  },
+  "ow_tiles": {
+   "native": {
+    "image": "native/ow_tiles.png",
+    "size": [
+     28,
+     190
+    ],
+    "sprites": {
+     "shore_sand_a": {
+      "0": {
+       "x": 1,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "shore_sand_b": {
+      "0": {
+       "x": 1,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "shore_wet_sand": {
+      "0": {
+       "x": 1,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "shore_shallows": {
+      "shallows1": {
+       "x": 1,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shallows2": {
+       "x": 10,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shallows3": {
+       "x": 19,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "shore_deep_water": {
+      "deep_water1": {
+       "x": 1,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "deep_water2": {
+       "x": 10,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "deep_water3": {
+       "x": 19,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "lowlands_grass_a": {
+      "0": {
+       "x": 1,
+       "y": 46,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "lowlands_grass_b": {
+      "0": {
+       "x": 1,
+       "y": 55,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "lowlands_dirt_path": {
+      "0": {
+       "x": 1,
+       "y": 64,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "lowlands_tall_grass": {
+      "tall_grass1": {
+       "x": 1,
+       "y": 73,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "tall_grass2": {
+       "x": 10,
+       "y": 73,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "midlands_forest_floor": {
+      "0": {
+       "x": 1,
+       "y": 82,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "midlands_leaf_litter": {
+      "0": {
+       "x": 1,
+       "y": 91,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "midlands_mossy_stone": {
+      "0": {
+       "x": 1,
+       "y": 100,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "midlands_stream": {
+      "stream1": {
+       "x": 1,
+       "y": 109,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "stream2": {
+       "x": 10,
+       "y": 109,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "stream3": {
+       "x": 19,
+       "y": 109,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "highlands_rock_floor": {
+      "0": {
+       "x": 1,
+       "y": 118,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "highlands_gravel": {
+      "0": {
+       "x": 1,
+       "y": 127,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "highlands_alpine_grass": {
+      "0": {
+       "x": 1,
+       "y": 136,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "highlands_cliff_top": {
+      "0": {
+       "x": 1,
+       "y": 145,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "highlands_snowcap": {
+      "0": {
+       "x": 1,
+       "y": 154,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "godlands_ash_ground": {
+      "0": {
+       "x": 1,
+       "y": 163,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "godlands_blood_rock": {
+      "0": {
+       "x": 1,
+       "y": 172,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "godlands_rift": {
+      "rift1": {
+       "x": 1,
+       "y": 181,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "rift2": {
+       "x": 10,
+       "y": 181,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "rift3": {
+       "x": 19,
+       "y": 181,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/ow_tiles.png",
+    "size": [
+     128,
+     884
+    ],
+    "sprites": {
+     "shore_sand_a": {
+      "0": {
+       "x": 2,
+       "y": 2,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "shore_sand_b": {
+      "0": {
+       "x": 2,
+       "y": 44,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "shore_wet_sand": {
+      "0": {
+       "x": 2,
+       "y": 86,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "shore_shallows": {
+      "shallows1": {
+       "x": 2,
+       "y": 128,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shallows2": {
+       "x": 44,
+       "y": 128,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shallows3": {
+       "x": 86,
+       "y": 128,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "shore_deep_water": {
+      "deep_water1": {
+       "x": 2,
+       "y": 170,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "deep_water2": {
+       "x": 44,
+       "y": 170,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "deep_water3": {
+       "x": 86,
+       "y": 170,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "lowlands_grass_a": {
+      "0": {
+       "x": 2,
+       "y": 212,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "lowlands_grass_b": {
+      "0": {
+       "x": 2,
+       "y": 254,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "lowlands_dirt_path": {
+      "0": {
+       "x": 2,
+       "y": 296,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "lowlands_tall_grass": {
+      "tall_grass1": {
+       "x": 2,
+       "y": 338,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "tall_grass2": {
+       "x": 44,
+       "y": 338,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "midlands_forest_floor": {
+      "0": {
+       "x": 2,
+       "y": 380,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "midlands_leaf_litter": {
+      "0": {
+       "x": 2,
+       "y": 422,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "midlands_mossy_stone": {
+      "0": {
+       "x": 2,
+       "y": 464,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "midlands_stream": {
+      "stream1": {
+       "x": 2,
+       "y": 506,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "stream2": {
+       "x": 44,
+       "y": 506,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "stream3": {
+       "x": 86,
+       "y": 506,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "highlands_rock_floor": {
+      "0": {
+       "x": 2,
+       "y": 548,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "highlands_gravel": {
+      "0": {
+       "x": 2,
+       "y": 590,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "highlands_alpine_grass": {
+      "0": {
+       "x": 2,
+       "y": 632,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "highlands_cliff_top": {
+      "0": {
+       "x": 2,
+       "y": 674,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "highlands_snowcap": {
+      "0": {
+       "x": 2,
+       "y": 716,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "godlands_ash_ground": {
+      "0": {
+       "x": 2,
+       "y": 758,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "godlands_blood_rock": {
+      "0": {
+       "x": 2,
+       "y": 800,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "godlands_rift": {
+      "rift1": {
+       "x": 2,
+       "y": 842,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "rift2": {
+       "x": 44,
+       "y": 842,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "rift3": {
+       "x": 86,
+       "y": 842,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "animations": {
+    "shore_sand_a": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "shore_sand_b": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "shore_wet_sand": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "shore_shallows": {
+     "loop": {
+      "frames": [
+       "shallows1",
+       "shallows2",
+       "shallows3"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "shore_deep_water": {
+     "loop": {
+      "frames": [
+       "deep_water1",
+       "deep_water2",
+       "deep_water3"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "lowlands_grass_a": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "lowlands_grass_b": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "lowlands_dirt_path": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "lowlands_tall_grass": {
+     "loop": {
+      "frames": [
+       "tall_grass1",
+       "tall_grass2"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "midlands_forest_floor": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "midlands_leaf_litter": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "midlands_mossy_stone": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "midlands_stream": {
+     "loop": {
+      "frames": [
+       "stream1",
+       "stream2",
+       "stream3"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "highlands_rock_floor": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "highlands_gravel": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "highlands_alpine_grass": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "highlands_cliff_top": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "highlands_snowcap": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "godlands_ash_ground": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "godlands_blood_rock": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "godlands_rift": {
+     "loop": {
+      "frames": [
+       "rift1",
+       "rift2",
+       "rift3"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    }
+   },
+   "info": {
+    "shore_sand_a": {
+     "biome": "shore"
+    },
+    "shore_sand_b": {
+     "biome": "shore"
+    },
+    "shore_wet_sand": {
+     "biome": "shore"
+    },
+    "shore_shallows": {
+     "biome": "shore"
+    },
+    "shore_deep_water": {
+     "biome": "shore"
+    },
+    "lowlands_grass_a": {
+     "biome": "lowlands"
+    },
+    "lowlands_grass_b": {
+     "biome": "lowlands"
+    },
+    "lowlands_dirt_path": {
+     "biome": "lowlands"
+    },
+    "lowlands_tall_grass": {
+     "biome": "lowlands"
+    },
+    "midlands_forest_floor": {
+     "biome": "midlands"
+    },
+    "midlands_leaf_litter": {
+     "biome": "midlands"
+    },
+    "midlands_mossy_stone": {
+     "biome": "midlands"
+    },
+    "midlands_stream": {
+     "biome": "midlands"
+    },
+    "highlands_rock_floor": {
+     "biome": "highlands"
+    },
+    "highlands_gravel": {
+     "biome": "highlands"
+    },
+    "highlands_alpine_grass": {
+     "biome": "highlands"
+    },
+    "highlands_cliff_top": {
+     "biome": "highlands"
+    },
+    "highlands_snowcap": {
+     "biome": "highlands"
+    },
+    "godlands_ash_ground": {
+     "biome": "godlands"
+    },
+    "godlands_blood_rock": {
+     "biome": "godlands"
+    },
+    "godlands_rift": {
+     "biome": "godlands"
+    }
+   }
+  },
+  "ow_objects": {
+   "native": {
+    "image": "native/ow_objects.png",
+    "size": [
+     28,
+     266
+    ],
+    "sprites": {
+     "shore_palm_tree": {
+      "0": {
+       "x": 1,
+       "y": 1,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 1,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      }
+     },
+     "shore_seashells": {
+      "0": {
+       "x": 1,
+       "y": 18,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "shore_driftwood": {
+      "0": {
+       "x": 1,
+       "y": 27,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "shore_rowboat": {
+      "0": {
+       "x": 1,
+       "y": 36,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "shore_tide_pool": {
+      "0": {
+       "x": 1,
+       "y": 45,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 45,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "lowlands_oak_tree": {
+      "0": {
+       "x": 1,
+       "y": 54,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      }
+     },
+     "lowlands_hay_bale": {
+      "0": {
+       "x": 1,
+       "y": 71,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "lowlands_flower_bed": {
+      "0": {
+       "x": 1,
+       "y": 80,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 80,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "lowlands_signpost": {
+      "0": {
+       "x": 1,
+       "y": 89,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "lowlands_well": {
+      "0": {
+       "x": 1,
+       "y": 98,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "midlands_elder_tree": {
+      "0": {
+       "x": 1,
+       "y": 107,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      }
+     },
+     "midlands_tree_stump": {
+      "0": {
+       "x": 1,
+       "y": 124,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "midlands_mossy_boulder": {
+      "0": {
+       "x": 1,
+       "y": 133,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "midlands_campfire": {
+      "0": {
+       "x": 1,
+       "y": 142,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 142,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "2": {
+       "x": 19,
+       "y": 142,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "midlands_glow_mushrooms": {
+      "0": {
+       "x": 1,
+       "y": 151,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "highlands_boulder": {
+      "0": {
+       "x": 1,
+       "y": 160,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "highlands_rock_spire": {
+      "0": {
+       "x": 1,
+       "y": 169,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      }
+     },
+     "highlands_dead_tree": {
+      "0": {
+       "x": 1,
+       "y": 186,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "highlands_heather_bush": {
+      "0": {
+       "x": 1,
+       "y": 195,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 195,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "highlands_cairn": {
+      "0": {
+       "x": 1,
+       "y": 204,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "godlands_corrupted_obelisk": {
+      "0": {
+       "x": 1,
+       "y": 213,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 213,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      }
+     },
+     "godlands_bone_pile": {
+      "0": {
+       "x": 1,
+       "y": 230,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "godlands_rift_crystal": {
+      "0": {
+       "x": 1,
+       "y": 239,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 239,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "godlands_blood_fountain": {
+      "0": {
+       "x": 1,
+       "y": 248,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 248,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "godlands_broken_pillar": {
+      "0": {
+       "x": 1,
+       "y": 257,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/ow_objects.png",
+    "size": [
+     134,
+     1302
+    ],
+    "sprites": {
+     "shore_palm_tree": {
+      "0": {
+       "x": 2,
+       "y": 2,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 2,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      }
+     },
+     "shore_seashells": {
+      "0": {
+       "x": 2,
+       "y": 86,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "shore_driftwood": {
+      "0": {
+       "x": 2,
+       "y": 130,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "shore_rowboat": {
+      "0": {
+       "x": 2,
+       "y": 174,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "shore_tide_pool": {
+      "0": {
+       "x": 2,
+       "y": 218,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 218,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "lowlands_oak_tree": {
+      "0": {
+       "x": 2,
+       "y": 262,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      }
+     },
+     "lowlands_hay_bale": {
+      "0": {
+       "x": 2,
+       "y": 346,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "lowlands_flower_bed": {
+      "0": {
+       "x": 2,
+       "y": 390,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 390,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "lowlands_signpost": {
+      "0": {
+       "x": 2,
+       "y": 434,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "lowlands_well": {
+      "0": {
+       "x": 2,
+       "y": 478,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "midlands_elder_tree": {
+      "0": {
+       "x": 2,
+       "y": 522,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      }
+     },
+     "midlands_tree_stump": {
+      "0": {
+       "x": 2,
+       "y": 606,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "midlands_mossy_boulder": {
+      "0": {
+       "x": 2,
+       "y": 650,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "midlands_campfire": {
+      "0": {
+       "x": 2,
+       "y": 694,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 694,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "2": {
+       "x": 90,
+       "y": 694,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "midlands_glow_mushrooms": {
+      "0": {
+       "x": 2,
+       "y": 738,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "highlands_boulder": {
+      "0": {
+       "x": 2,
+       "y": 782,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "highlands_rock_spire": {
+      "0": {
+       "x": 2,
+       "y": 826,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      }
+     },
+     "highlands_dead_tree": {
+      "0": {
+       "x": 2,
+       "y": 910,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "highlands_heather_bush": {
+      "0": {
+       "x": 2,
+       "y": 954,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 954,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "highlands_cairn": {
+      "0": {
+       "x": 2,
+       "y": 998,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "godlands_corrupted_obelisk": {
+      "0": {
+       "x": 2,
+       "y": 1042,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 1042,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      }
+     },
+     "godlands_bone_pile": {
+      "0": {
+       "x": 2,
+       "y": 1126,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "godlands_rift_crystal": {
+      "0": {
+       "x": 2,
+       "y": 1170,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 1170,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "godlands_blood_fountain": {
+      "0": {
+       "x": 2,
+       "y": 1214,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 1214,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "godlands_broken_pillar": {
+      "0": {
+       "x": 2,
+       "y": 1258,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     }
+    }
+   },
+   "animations": {
+    "shore_palm_tree": {
+     "loop": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "shore_seashells": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "shore_driftwood": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "shore_rowboat": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "shore_tide_pool": {
+     "loop": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "lowlands_oak_tree": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "lowlands_hay_bale": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "lowlands_flower_bed": {
+     "loop": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "lowlands_signpost": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "lowlands_well": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "midlands_elder_tree": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "midlands_tree_stump": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "midlands_mossy_boulder": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "midlands_campfire": {
+     "loop": {
+      "frames": [
+       "0",
+       "1",
+       "2"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "midlands_glow_mushrooms": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "highlands_boulder": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "highlands_rock_spire": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "highlands_dead_tree": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "highlands_heather_bush": {
+     "loop": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "highlands_cairn": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "godlands_corrupted_obelisk": {
+     "loop": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "godlands_bone_pile": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "godlands_rift_crystal": {
+     "loop": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "godlands_blood_fountain": {
+     "loop": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "godlands_broken_pillar": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    }
+   },
+   "info": {
+    "shore_palm_tree": {
+     "biome": "shore"
+    },
+    "shore_seashells": {
+     "biome": "shore"
+    },
+    "shore_driftwood": {
+     "biome": "shore"
+    },
+    "shore_rowboat": {
+     "biome": "shore"
+    },
+    "shore_tide_pool": {
+     "biome": "shore"
+    },
+    "lowlands_oak_tree": {
+     "biome": "lowlands"
+    },
+    "lowlands_hay_bale": {
+     "biome": "lowlands"
+    },
+    "lowlands_flower_bed": {
+     "biome": "lowlands"
+    },
+    "lowlands_signpost": {
+     "biome": "lowlands"
+    },
+    "lowlands_well": {
+     "biome": "lowlands"
+    },
+    "midlands_elder_tree": {
+     "biome": "midlands"
+    },
+    "midlands_tree_stump": {
+     "biome": "midlands"
+    },
+    "midlands_mossy_boulder": {
+     "biome": "midlands"
+    },
+    "midlands_campfire": {
+     "biome": "midlands"
+    },
+    "midlands_glow_mushrooms": {
+     "biome": "midlands"
+    },
+    "highlands_boulder": {
+     "biome": "highlands"
+    },
+    "highlands_rock_spire": {
+     "biome": "highlands"
+    },
+    "highlands_dead_tree": {
+     "biome": "highlands"
+    },
+    "highlands_heather_bush": {
+     "biome": "highlands"
+    },
+    "highlands_cairn": {
+     "biome": "highlands"
+    },
+    "godlands_corrupted_obelisk": {
+     "biome": "godlands"
+    },
+    "godlands_bone_pile": {
+     "biome": "godlands"
+    },
+    "godlands_rift_crystal": {
+     "biome": "godlands"
+    },
+    "godlands_blood_fountain": {
+     "biome": "godlands"
+    },
+    "godlands_broken_pillar": {
+     "biome": "godlands"
+    }
+   }
+  }
+ }
+}

@@ -1,4 +1,5 @@
-// Loads every PNG sheet + its JSON frame guide produced by tools/*.py.
+// Loads every PNG sheet + its JSON frame guide produced by tools/*.py, then the Realm Update sprite registry.
+import { loadRegistry } from './registry.js';
 const SHEETS = {
   brawler: 'art/sprites/player/brawler/forgefist_sheet',
   forge_knight: 'art/sprites/player/forge_knight/anvilheart_sheet',
@@ -40,6 +41,7 @@ export async function loadAssets() {
     }),
     ...IMAGES.map(async (k) => { A.img[k] = await loadImg(`art/world/${k}.png`); }),
     loadJSON('art/world/world.json').then((w) => { A.world = w; }),
+    loadRegistry().then((R) => { A.reg = R; }),
   ]);
   return A;
 }

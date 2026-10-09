@@ -1,0 +1,170 @@
+{
+  "name": "Realm Update",
+  "base": "pack 1 (realm_sprites atlas.json) already in game",
+  "packs": {
+    "expansion_one": {
+      "atlas": "packs/expansion_one/atlas_expansion.json",
+      "prefix": "ex_",
+      "description": "4 dungeons (Frostveil, Mirerot, Astral, Sandscour): enemies, tiles, decor, projectiles, effects, stat potions",
+      "sheets": [
+        "ex_astral",
+        "ex_decor",
+        "ex_effects",
+        "ex_event_bosses",
+        "ex_frostveil",
+        "ex_items",
+        "ex_mirerot",
+        "ex_projectiles",
+        "ex_sandscour",
+        "ex_tiles"
+      ]
+    },
+    "boss_overhaul": {
+      "atlas": "packs/boss_overhaul/atlas_bosses.json",
+      "prefix": "bx_",
+      "description": "8 large three-phase bosses with morphs, plus bx_shots",
+      "sheets": [
+        "bx_abyssal_kraken",
+        "bx_forgeheart_colossus",
+        "bx_gilded_sphinx",
+        "bx_glacius_frozen_wyrm",
+        "bx_grand_orrery",
+        "bx_mother_mycelia",
+        "bx_shots",
+        "bx_thornheart_treant",
+        "bx_tidebound_lich"
+      ]
+    },
+    "item_overhaul": {
+      "atlas": "packs/item_overhaul/atlas_items.json",
+      "prefix": "ix_",
+      "description": "51 redrawn 8x8 items incl. 8 legendaries",
+      "sheets": [
+        "ix_items"
+      ]
+    },
+    "overworld": {
+      "atlas": "packs/overworld/atlas_overworld.json",
+      "prefix": "ow_",
+      "description": "Overworld enemies, tiles, objects for 5 biomes",
+      "sheets": [
+        "ow_enemies",
+        "ow_objects",
+        "ow_tiles"
+      ]
+    },
+    "elites": {
+      "atlas": "packs/elites/atlas_elites.json",
+      "prefix": "el_",
+      "description": "10 mid-tier elites with abilities, 20 shots",
+      "sheets": [
+        "el_elites",
+        "el_shots"
+      ]
+    },
+    "pets_v2": {
+      "atlas": "packs/pets_v2/atlas_pets_v2.json",
+      "prefix": "pt2_",
+      "description": "20 pet lines x 3 stages, 50 eggs",
+      "sheets": [
+        "pt2_eggs",
+        "pt2_pets"
+      ]
+    },
+    "dungeons_two": {
+      "atlas": [
+        "packs/dungeons_two/atlas_dungeons_two.json",
+        "packs/dungeons_two/atlas_bosses_two.json"
+      ],
+      "prefix": "d2_, ow2_, bx_ (2 new bosses), bx2_shots",
+      "description": "Crimson Keep and Hollowmoon Carnival (enemies, tiles, decor, shots, effects, 16 items), bosses Count Vesper and the Grinning Ringmaster (3 phases each), 5 new realm enemies with shots",
+      "sheets": [
+        "bx2_shots",
+        "bx_count_vesper",
+        "bx_grinning_ringmaster",
+        "d2_crimson_keep",
+        "d2_decor",
+        "d2_effects",
+        "d2_hollowmoon",
+        "d2_items",
+        "d2_projectiles",
+        "d2_tiles",
+        "ow2_enemies",
+        "ow2_shots"
+      ]
+    },
+    "melon_event": {
+      "atlas": "packs/melon_event/atlas_melon.json",
+      "prefix": "mx_",
+      "description": "The Giant Watermelon: a very rare breakable realm object, 12 watermelon/honeydew items (incl. a shield), 2 effects, a proposed loot table and spawn rules",
+      "sheets": [
+        "mx_effects",
+        "mx_giant_watermelon",
+        "mx_items"
+      ]
+    }
+  },
+  "supersedes": [
+    {
+      "old": "items (pack 1)",
+      "new": "ix_items",
+      "keep": [
+        "health_potion",
+        "mana_potion",
+        "potion_of_might",
+        "loot_bag_brown",
+        "loot_bag_purple",
+        "loot_bag_white"
+      ]
+    },
+    {
+      "old": "crypt/tidebound_lich (pack 1)",
+      "new": "bx_tidebound_lich"
+    },
+    {
+      "old": "ember/forgeheart_colossus (pack 1)",
+      "new": "bx_forgeheart_colossus"
+    },
+    {
+      "old": "ex_frostveil/glacius_frozen_wyrm",
+      "new": "bx_glacius_frozen_wyrm"
+    },
+    {
+      "old": "ex_mirerot/mother_mycelia",
+      "new": "bx_mother_mycelia"
+    },
+    {
+      "old": "ex_astral/grand_orrery",
+      "new": "bx_grand_orrery"
+    },
+    {
+      "old": "ex_sandscour/gilded_sphinx",
+      "new": "bx_gilded_sphinx"
+    },
+    {
+      "old": "ex_event_bosses/abyssal_kraken",
+      "new": "bx_abyssal_kraken"
+    },
+    {
+      "old": "ex_event_bosses/thornheart_treant",
+      "new": "bx_thornheart_treant"
+    },
+    {
+      "old": "ex_items",
+      "new": "ix_items",
+      "keep": [
+        "potion_of_attack",
+        "potion_of_defense",
+        "potion_of_dexterity",
+        "potion_of_speed",
+        "potion_of_vitality",
+        "potion_of_wisdom"
+      ]
+    },
+    {
+      "old": "pt_* (pets v1)",
+      "new": "pt2_*"
+    }
+  ],
+  "hover": "HOVER.json lists every flying/floating enemy, boss phase and pet with a slow renderer-side bob"
+}

@@ -1,0 +1,95 @@
+{
+  "notes": "Slow hover for things that fly or float. Apply it in the renderer, not in the art: y_offset = round(sin(2*pi*t/period + phase) * amplitude * scale), with amplitude in native art pixels and the result snapped to whole screen pixels (at the x5 scale, 1 art pixel = 5 smooth screen-pixel steps). Give each instance a random phase so groups don't bob in sync. Leave the ground shadow (ex_effects/ground_shadow) on the ground and shrink it to ~90% at the top of the bob, which sells the float. Collision and hitboxes stay at the un-bobbed position. Pause the hover during death, and during boss morphs (or keep it, your call, it's subtle).",
+  "styles": {
+    "float": {
+      "amplitude": 1.0,
+      "period_s": 3.0,
+      "use": "ghosts, wisps, eyes, drifting magic things"
+    },
+    "flutter": {
+      "amplitude": 1.0,
+      "period_s": 1.6,
+      "use": "small winged fliers: bats, hornets, gulls, imps"
+    },
+    "glide": {
+      "amplitude": 1.0,
+      "period_s": 2.4,
+      "use": "big winged fliers: harpies, gryphons"
+    },
+    "boss": {
+      "amplitude": 1.5,
+      "period_s": 3.6,
+      "use": "floating bosses, slow and heavy"
+    },
+    "pet": {
+      "amplitude": 0.8,
+      "period_s": 2.8,
+      "use": "floating or flying pets, gentle"
+    }
+  },
+  "sprites": {
+    "crypt/bone_wisp": "float",
+    "crypt/brine_jelly": "float",
+    "ember/magma_imp": "flutter",
+    "ex_frostveil/frost_sprite": "float",
+    "ex_frostveil/shardling": "float",
+    "ex_mirerot/rot_hornet": "flutter",
+    "ex_astral/star_eye": "float",
+    "ex_astral/void_acolyte": "float",
+    "ex_astral/orrery_drone": "float",
+    "ow_enemies/gull": "flutter",
+    "ow_enemies/cave_bat": "flutter",
+    "ow_enemies/stone_harpy": "glide",
+    "ow_enemies/rift_wraith": "float",
+    "ow_enemies/gazer": "float",
+    "ow_enemies/blood_maw": "float",
+    "el_elites/void_seer": "float",
+    "el_elites/storm_gryphon": "glide",
+    "d2_crimson_keep/blood_bat": "flutter",
+    "d2_hollowmoon/balloon_ghoul": "float",
+    "pt2_pets/wisp_ghost": "pet",
+    "pt2_pets/phantom": "pet",
+    "pt2_pets/grand_wraith": "pet",
+    "pt2_pets/lantern_bat": "pet",
+    "pt2_pets/lantern_wing": "pet",
+    "pt2_pets/moonwing": "pet",
+    "pt2_pets/moth_sprite": "pet",
+    "pt2_pets/luna_moth": "pet",
+    "pt2_pets/solar_moth": "pet",
+    "pt2_pets/bubblefin": "pet",
+    "pt2_pets/spinefin": "pet",
+    "pt2_pets/sovereign_puffer": "pet",
+    "pt2_pets/coral_seahorse": "pet",
+    "pt2_pets/reef_seahorse": "pet",
+    "pt2_pets/tidecrown_seahorse": "pet",
+    "pt2_pets/firebird": "pet",
+    "pt2_pets/phoenix": "pet",
+    "pt2_pets/jade_dragon": "pet",
+    "pt2_pets/elder_drake": "pet"
+  },
+  "bosses": {
+    "grand_orrery": {
+      "style": "boss",
+      "phases": [
+        1,
+        2,
+        3
+      ]
+    },
+    "tidebound_lich": {
+      "style": "boss",
+      "phases": [
+        1,
+        2,
+        3
+      ]
+    },
+    "count_vesper": {
+      "style": "boss",
+      "phases": [
+        2
+      ]
+    }
+  },
+  "not_hovering": "Walkers, swimmers in a baked water band (the Kraken), the Sphinx's sandstorm (it touches the ground; its mask already bobs), the Treant, Mycelia, Colossus, Glacius, and everything on legs. The Ringmaster's Puppeteer phase has its own small bob baked in, because his drum is part of the sprite and must stay on the floor."
+}

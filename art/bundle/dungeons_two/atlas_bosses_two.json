@@ -1,0 +1,1688 @@
+{
+ "meta": {
+  "name": "Realm Bosses Two",
+  "version": 1,
+  "x5_scale": 5,
+  "notes": "Same format as atlas_bosses.json: per-boss sheet bx_<key>, every frame of a boss the same size (draw centred on the boss), phases list idle/attack loops, the morph that enters the phase, the hurt flash and the shots. Shots live in bx2_shots and point right. Some pixels are semi-transparent on purpose (the Puppeteer's marionette strings)."
+ },
+ "bosses": {
+  "count_vesper": {
+   "title": "Count Vesper, the Crimson Count",
+   "dungeon": "Crimson Keep",
+   "frame_size": [
+    40,
+    40
+   ],
+   "base_offset": [
+    0,
+    4
+   ],
+   "native": {
+    "image": "native/bx_count_vesper.png",
+    "size": [
+     165,
+     411
+    ],
+    "frames": {
+     "p1_idle_0": {
+      "x": 1,
+      "y": 1,
+      "w": 40,
+      "h": 40
+     },
+     "p1_idle_1": {
+      "x": 42,
+      "y": 1,
+      "w": 40,
+      "h": 40
+     },
+     "p1_idle_2": {
+      "x": 83,
+      "y": 1,
+      "w": 40,
+      "h": 40
+     },
+     "p1_idle_3": {
+      "x": 124,
+      "y": 1,
+      "w": 40,
+      "h": 40
+     },
+     "p1_attack_0": {
+      "x": 1,
+      "y": 42,
+      "w": 40,
+      "h": 40
+     },
+     "p1_attack_1": {
+      "x": 42,
+      "y": 42,
+      "w": 40,
+      "h": 40
+     },
+     "p1_attack_2": {
+      "x": 83,
+      "y": 42,
+      "w": 40,
+      "h": 40
+     },
+     "p1_to_p2_0": {
+      "x": 1,
+      "y": 83,
+      "w": 40,
+      "h": 40
+     },
+     "p1_to_p2_1": {
+      "x": 42,
+      "y": 83,
+      "w": 40,
+      "h": 40
+     },
+     "p1_to_p2_2": {
+      "x": 83,
+      "y": 83,
+      "w": 40,
+      "h": 40
+     },
+     "p1_to_p2_3": {
+      "x": 124,
+      "y": 83,
+      "w": 40,
+      "h": 40
+     },
+     "p2_idle_0": {
+      "x": 1,
+      "y": 124,
+      "w": 40,
+      "h": 40
+     },
+     "p2_idle_1": {
+      "x": 42,
+      "y": 124,
+      "w": 40,
+      "h": 40
+     },
+     "p2_idle_2": {
+      "x": 83,
+      "y": 124,
+      "w": 40,
+      "h": 40
+     },
+     "p2_idle_3": {
+      "x": 124,
+      "y": 124,
+      "w": 40,
+      "h": 40
+     },
+     "p2_attack_0": {
+      "x": 1,
+      "y": 165,
+      "w": 40,
+      "h": 40
+     },
+     "p2_attack_1": {
+      "x": 42,
+      "y": 165,
+      "w": 40,
+      "h": 40
+     },
+     "p2_attack_2": {
+      "x": 83,
+      "y": 165,
+      "w": 40,
+      "h": 40
+     },
+     "p2_to_p3_0": {
+      "x": 1,
+      "y": 206,
+      "w": 40,
+      "h": 40
+     },
+     "p2_to_p3_1": {
+      "x": 42,
+      "y": 206,
+      "w": 40,
+      "h": 40
+     },
+     "p2_to_p3_2": {
+      "x": 83,
+      "y": 206,
+      "w": 40,
+      "h": 40
+     },
+     "p2_to_p3_3": {
+      "x": 124,
+      "y": 206,
+      "w": 40,
+      "h": 40
+     },
+     "p3_idle_0": {
+      "x": 1,
+      "y": 247,
+      "w": 40,
+      "h": 40
+     },
+     "p3_idle_1": {
+      "x": 42,
+      "y": 247,
+      "w": 40,
+      "h": 40
+     },
+     "p3_idle_2": {
+      "x": 83,
+      "y": 247,
+      "w": 40,
+      "h": 40
+     },
+     "p3_idle_3": {
+      "x": 124,
+      "y": 247,
+      "w": 40,
+      "h": 40
+     },
+     "p3_attack_0": {
+      "x": 1,
+      "y": 288,
+      "w": 40,
+      "h": 40
+     },
+     "p3_attack_1": {
+      "x": 42,
+      "y": 288,
+      "w": 40,
+      "h": 40
+     },
+     "p3_attack_2": {
+      "x": 83,
+      "y": 288,
+      "w": 40,
+      "h": 40
+     },
+     "death_0": {
+      "x": 1,
+      "y": 329,
+      "w": 40,
+      "h": 40
+     },
+     "death_1": {
+      "x": 42,
+      "y": 329,
+      "w": 40,
+      "h": 40
+     },
+     "death_2": {
+      "x": 83,
+      "y": 329,
+      "w": 40,
+      "h": 40
+     },
+     "death_3": {
+      "x": 124,
+      "y": 329,
+      "w": 40,
+      "h": 40
+     },
+     "p1_hurt_0": {
+      "x": 1,
+      "y": 370,
+      "w": 40,
+      "h": 40
+     },
+     "p2_hurt_0": {
+      "x": 42,
+      "y": 370,
+      "w": 40,
+      "h": 40
+     },
+     "p3_hurt_0": {
+      "x": 83,
+      "y": 370,
+      "w": 40,
+      "h": 40
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/bx_count_vesper.png",
+    "size": [
+     818,
+     2042
+    ],
+    "frames": {
+     "p1_idle_0": {
+      "x": 2,
+      "y": 2,
+      "w": 202,
+      "h": 202
+     },
+     "p1_idle_1": {
+      "x": 206,
+      "y": 2,
+      "w": 202,
+      "h": 202
+     },
+     "p1_idle_2": {
+      "x": 410,
+      "y": 2,
+      "w": 202,
+      "h": 202
+     },
+     "p1_idle_3": {
+      "x": 614,
+      "y": 2,
+      "w": 202,
+      "h": 202
+     },
+     "p1_attack_0": {
+      "x": 2,
+      "y": 206,
+      "w": 202,
+      "h": 202
+     },
+     "p1_attack_1": {
+      "x": 206,
+      "y": 206,
+      "w": 202,
+      "h": 202
+     },
+     "p1_attack_2": {
+      "x": 410,
+      "y": 206,
+      "w": 202,
+      "h": 202
+     },
+     "p1_to_p2_0": {
+      "x": 2,
+      "y": 410,
+      "w": 202,
+      "h": 202
+     },
+     "p1_to_p2_1": {
+      "x": 206,
+      "y": 410,
+      "w": 202,
+      "h": 202
+     },
+     "p1_to_p2_2": {
+      "x": 410,
+      "y": 410,
+      "w": 202,
+      "h": 202
+     },
+     "p1_to_p2_3": {
+      "x": 614,
+      "y": 410,
+      "w": 202,
+      "h": 202
+     },
+     "p2_idle_0": {
+      "x": 2,
+      "y": 614,
+      "w": 202,
+      "h": 202
+     },
+     "p2_idle_1": {
+      "x": 206,
+      "y": 614,
+      "w": 202,
+      "h": 202
+     },
+     "p2_idle_2": {
+      "x": 410,
+      "y": 614,
+      "w": 202,
+      "h": 202
+     },
+     "p2_idle_3": {
+      "x": 614,
+      "y": 614,
+      "w": 202,
+      "h": 202
+     },
+     "p2_attack_0": {
+      "x": 2,
+      "y": 818,
+      "w": 202,
+      "h": 202
+     },
+     "p2_attack_1": {
+      "x": 206,
+      "y": 818,
+      "w": 202,
+      "h": 202
+     },
+     "p2_attack_2": {
+      "x": 410,
+      "y": 818,
+      "w": 202,
+      "h": 202
+     },
+     "p2_to_p3_0": {
+      "x": 2,
+      "y": 1022,
+      "w": 202,
+      "h": 202
+     },
+     "p2_to_p3_1": {
+      "x": 206,
+      "y": 1022,
+      "w": 202,
+      "h": 202
+     },
+     "p2_to_p3_2": {
+      "x": 410,
+      "y": 1022,
+      "w": 202,
+      "h": 202
+     },
+     "p2_to_p3_3": {
+      "x": 614,
+      "y": 1022,
+      "w": 202,
+      "h": 202
+     },
+     "p3_idle_0": {
+      "x": 2,
+      "y": 1226,
+      "w": 202,
+      "h": 202
+     },
+     "p3_idle_1": {
+      "x": 206,
+      "y": 1226,
+      "w": 202,
+      "h": 202
+     },
+     "p3_idle_2": {
+      "x": 410,
+      "y": 1226,
+      "w": 202,
+      "h": 202
+     },
+     "p3_idle_3": {
+      "x": 614,
+      "y": 1226,
+      "w": 202,
+      "h": 202
+     },
+     "p3_attack_0": {
+      "x": 2,
+      "y": 1430,
+      "w": 202,
+      "h": 202
+     },
+     "p3_attack_1": {
+      "x": 206,
+      "y": 1430,
+      "w": 202,
+      "h": 202
+     },
+     "p3_attack_2": {
+      "x": 410,
+      "y": 1430,
+      "w": 202,
+      "h": 202
+     },
+     "death_0": {
+      "x": 2,
+      "y": 1634,
+      "w": 202,
+      "h": 202
+     },
+     "death_1": {
+      "x": 206,
+      "y": 1634,
+      "w": 202,
+      "h": 202
+     },
+     "death_2": {
+      "x": 410,
+      "y": 1634,
+      "w": 202,
+      "h": 202
+     },
+     "death_3": {
+      "x": 614,
+      "y": 1634,
+      "w": 202,
+      "h": 202
+     },
+     "p1_hurt_0": {
+      "x": 2,
+      "y": 1838,
+      "w": 202,
+      "h": 202
+     },
+     "p2_hurt_0": {
+      "x": 206,
+      "y": 1838,
+      "w": 202,
+      "h": 202
+     },
+     "p3_hurt_0": {
+      "x": 410,
+      "y": 1838,
+      "w": 202,
+      "h": 202
+     }
+    }
+   },
+   "animations": {
+    "p1_idle": {
+     "frames": [
+      "p1_idle_0",
+      "p1_idle_1",
+      "p1_idle_2",
+      "p1_idle_3"
+     ],
+     "fps": 5,
+     "loop": true
+    },
+    "p1_attack": {
+     "frames": [
+      "p1_attack_0",
+      "p1_attack_1",
+      "p1_attack_2"
+     ],
+     "fps": 8,
+     "loop": false
+    },
+    "p1_to_p2": {
+     "frames": [
+      "p1_to_p2_0",
+      "p1_to_p2_1",
+      "p1_to_p2_2",
+      "p1_to_p2_3"
+     ],
+     "fps": 6,
+     "loop": false
+    },
+    "p2_idle": {
+     "frames": [
+      "p2_idle_0",
+      "p2_idle_1",
+      "p2_idle_2",
+      "p2_idle_3"
+     ],
+     "fps": 5,
+     "loop": true
+    },
+    "p2_attack": {
+     "frames": [
+      "p2_attack_0",
+      "p2_attack_1",
+      "p2_attack_2"
+     ],
+     "fps": 8,
+     "loop": false
+    },
+    "p2_to_p3": {
+     "frames": [
+      "p2_to_p3_0",
+      "p2_to_p3_1",
+      "p2_to_p3_2",
+      "p2_to_p3_3"
+     ],
+     "fps": 6,
+     "loop": false
+    },
+    "p3_idle": {
+     "frames": [
+      "p3_idle_0",
+      "p3_idle_1",
+      "p3_idle_2",
+      "p3_idle_3"
+     ],
+     "fps": 5,
+     "loop": true
+    },
+    "p3_attack": {
+     "frames": [
+      "p3_attack_0",
+      "p3_attack_1",
+      "p3_attack_2"
+     ],
+     "fps": 8,
+     "loop": false
+    },
+    "death": {
+     "frames": [
+      "death_0",
+      "death_1",
+      "death_2",
+      "death_3"
+     ],
+     "fps": 5,
+     "loop": false
+    },
+    "p1_hurt": {
+     "frames": [
+      "p1_hurt_0",
+      "p1_idle_0"
+     ],
+     "fps": 12,
+     "loop": false
+    },
+    "p2_hurt": {
+     "frames": [
+      "p2_hurt_0",
+      "p2_idle_0"
+     ],
+     "fps": 12,
+     "loop": false
+    },
+    "p3_hurt": {
+     "frames": [
+      "p3_hurt_0",
+      "p3_idle_0"
+     ],
+     "fps": 12,
+     "loop": false
+    }
+   },
+   "phases": {
+    "1": {
+     "name": "Nobleman",
+     "idle": "p1_idle",
+     "attack": "p1_attack",
+     "enter": null,
+     "hurt": "p1_hurt",
+     "shots": [
+      "count_vesper.blood_bolt",
+      "count_vesper.rose_thorn"
+     ]
+    },
+    "2": {
+     "name": "Batstorm",
+     "idle": "p2_idle",
+     "attack": "p2_attack",
+     "enter": "p1_to_p2",
+     "hurt": "p2_hurt",
+     "shots": [
+      "count_vesper.bat_swarm",
+      "count_vesper.blood_scythe"
+     ]
+    },
+    "3": {
+     "name": "Blood Beast",
+     "idle": "p3_idle",
+     "attack": "p3_attack",
+     "enter": "p2_to_p3",
+     "hurt": "p3_hurt",
+     "shots": [
+      "count_vesper.blood_rain",
+      "count_vesper.sanguine_nova"
+     ]
+    }
+   },
+   "death": "death",
+   "drops": [
+    "crimson_rapier",
+    "bloodthorn_staff",
+    "batwing_bow",
+    "sanguine_cloak",
+    "signet_of_the_count",
+    "crimson_chalice",
+    "nightfall_scythe"
+   ]
+  },
+  "grinning_ringmaster": {
+   "title": "The Grinning Ringmaster",
+   "dungeon": "Hollowmoon Carnival",
+   "frame_size": [
+    36,
+    44
+   ],
+   "base_offset": [
+    0,
+    3
+   ],
+   "native": {
+    "image": "native/bx_grinning_ringmaster.png",
+    "size": [
+     149,
+     451
+    ],
+    "frames": {
+     "p1_idle_0": {
+      "x": 1,
+      "y": 1,
+      "w": 36,
+      "h": 44
+     },
+     "p1_idle_1": {
+      "x": 38,
+      "y": 1,
+      "w": 36,
+      "h": 44
+     },
+     "p1_idle_2": {
+      "x": 75,
+      "y": 1,
+      "w": 36,
+      "h": 44
+     },
+     "p1_idle_3": {
+      "x": 112,
+      "y": 1,
+      "w": 36,
+      "h": 44
+     },
+     "p1_attack_0": {
+      "x": 1,
+      "y": 46,
+      "w": 36,
+      "h": 44
+     },
+     "p1_attack_1": {
+      "x": 38,
+      "y": 46,
+      "w": 36,
+      "h": 44
+     },
+     "p1_attack_2": {
+      "x": 75,
+      "y": 46,
+      "w": 36,
+      "h": 44
+     },
+     "p1_to_p2_0": {
+      "x": 1,
+      "y": 91,
+      "w": 36,
+      "h": 44
+     },
+     "p1_to_p2_1": {
+      "x": 38,
+      "y": 91,
+      "w": 36,
+      "h": 44
+     },
+     "p1_to_p2_2": {
+      "x": 75,
+      "y": 91,
+      "w": 36,
+      "h": 44
+     },
+     "p1_to_p2_3": {
+      "x": 112,
+      "y": 91,
+      "w": 36,
+      "h": 44
+     },
+     "p2_idle_0": {
+      "x": 1,
+      "y": 136,
+      "w": 36,
+      "h": 44
+     },
+     "p2_idle_1": {
+      "x": 38,
+      "y": 136,
+      "w": 36,
+      "h": 44
+     },
+     "p2_idle_2": {
+      "x": 75,
+      "y": 136,
+      "w": 36,
+      "h": 44
+     },
+     "p2_idle_3": {
+      "x": 112,
+      "y": 136,
+      "w": 36,
+      "h": 44
+     },
+     "p2_attack_0": {
+      "x": 1,
+      "y": 181,
+      "w": 36,
+      "h": 44
+     },
+     "p2_attack_1": {
+      "x": 38,
+      "y": 181,
+      "w": 36,
+      "h": 44
+     },
+     "p2_attack_2": {
+      "x": 75,
+      "y": 181,
+      "w": 36,
+      "h": 44
+     },
+     "p2_to_p3_0": {
+      "x": 1,
+      "y": 226,
+      "w": 36,
+      "h": 44
+     },
+     "p2_to_p3_1": {
+      "x": 38,
+      "y": 226,
+      "w": 36,
+      "h": 44
+     },
+     "p2_to_p3_2": {
+      "x": 75,
+      "y": 226,
+      "w": 36,
+      "h": 44
+     },
+     "p2_to_p3_3": {
+      "x": 112,
+      "y": 226,
+      "w": 36,
+      "h": 44
+     },
+     "p3_idle_0": {
+      "x": 1,
+      "y": 271,
+      "w": 36,
+      "h": 44
+     },
+     "p3_idle_1": {
+      "x": 38,
+      "y": 271,
+      "w": 36,
+      "h": 44
+     },
+     "p3_idle_2": {
+      "x": 75,
+      "y": 271,
+      "w": 36,
+      "h": 44
+     },
+     "p3_idle_3": {
+      "x": 112,
+      "y": 271,
+      "w": 36,
+      "h": 44
+     },
+     "p3_attack_0": {
+      "x": 1,
+      "y": 316,
+      "w": 36,
+      "h": 44
+     },
+     "p3_attack_1": {
+      "x": 38,
+      "y": 316,
+      "w": 36,
+      "h": 44
+     },
+     "p3_attack_2": {
+      "x": 75,
+      "y": 316,
+      "w": 36,
+      "h": 44
+     },
+     "death_0": {
+      "x": 1,
+      "y": 361,
+      "w": 36,
+      "h": 44
+     },
+     "death_1": {
+      "x": 38,
+      "y": 361,
+      "w": 36,
+      "h": 44
+     },
+     "death_2": {
+      "x": 75,
+      "y": 361,
+      "w": 36,
+      "h": 44
+     },
+     "death_3": {
+      "x": 112,
+      "y": 361,
+      "w": 36,
+      "h": 44
+     },
+     "p1_hurt_0": {
+      "x": 1,
+      "y": 406,
+      "w": 36,
+      "h": 44
+     },
+     "p2_hurt_0": {
+      "x": 38,
+      "y": 406,
+      "w": 36,
+      "h": 44
+     },
+     "p3_hurt_0": {
+      "x": 75,
+      "y": 406,
+      "w": 36,
+      "h": 44
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/bx_grinning_ringmaster.png",
+    "size": [
+     738,
+     2242
+    ],
+    "frames": {
+     "p1_idle_0": {
+      "x": 2,
+      "y": 2,
+      "w": 182,
+      "h": 222
+     },
+     "p1_idle_1": {
+      "x": 186,
+      "y": 2,
+      "w": 182,
+      "h": 222
+     },
+     "p1_idle_2": {
+      "x": 370,
+      "y": 2,
+      "w": 182,
+      "h": 222
+     },
+     "p1_idle_3": {
+      "x": 554,
+      "y": 2,
+      "w": 182,
+      "h": 222
+     },
+     "p1_attack_0": {
+      "x": 2,
+      "y": 226,
+      "w": 182,
+      "h": 222
+     },
+     "p1_attack_1": {
+      "x": 186,
+      "y": 226,
+      "w": 182,
+      "h": 222
+     },
+     "p1_attack_2": {
+      "x": 370,
+      "y": 226,
+      "w": 182,
+      "h": 222
+     },
+     "p1_to_p2_0": {
+      "x": 2,
+      "y": 450,
+      "w": 182,
+      "h": 222
+     },
+     "p1_to_p2_1": {
+      "x": 186,
+      "y": 450,
+      "w": 182,
+      "h": 222
+     },
+     "p1_to_p2_2": {
+      "x": 370,
+      "y": 450,
+      "w": 182,
+      "h": 222
+     },
+     "p1_to_p2_3": {
+      "x": 554,
+      "y": 450,
+      "w": 182,
+      "h": 222
+     },
+     "p2_idle_0": {
+      "x": 2,
+      "y": 674,
+      "w": 182,
+      "h": 222
+     },
+     "p2_idle_1": {
+      "x": 186,
+      "y": 674,
+      "w": 182,
+      "h": 222
+     },
+     "p2_idle_2": {
+      "x": 370,
+      "y": 674,
+      "w": 182,
+      "h": 222
+     },
+     "p2_idle_3": {
+      "x": 554,
+      "y": 674,
+      "w": 182,
+      "h": 222
+     },
+     "p2_attack_0": {
+      "x": 2,
+      "y": 898,
+      "w": 182,
+      "h": 222
+     },
+     "p2_attack_1": {
+      "x": 186,
+      "y": 898,
+      "w": 182,
+      "h": 222
+     },
+     "p2_attack_2": {
+      "x": 370,
+      "y": 898,
+      "w": 182,
+      "h": 222
+     },
+     "p2_to_p3_0": {
+      "x": 2,
+      "y": 1122,
+      "w": 182,
+      "h": 222
+     },
+     "p2_to_p3_1": {
+      "x": 186,
+      "y": 1122,
+      "w": 182,
+      "h": 222
+     },
+     "p2_to_p3_2": {
+      "x": 370,
+      "y": 1122,
+      "w": 182,
+      "h": 222
+     },
+     "p2_to_p3_3": {
+      "x": 554,
+      "y": 1122,
+      "w": 182,
+      "h": 222
+     },
+     "p3_idle_0": {
+      "x": 2,
+      "y": 1346,
+      "w": 182,
+      "h": 222
+     },
+     "p3_idle_1": {
+      "x": 186,
+      "y": 1346,
+      "w": 182,
+      "h": 222
+     },
+     "p3_idle_2": {
+      "x": 370,
+      "y": 1346,
+      "w": 182,
+      "h": 222
+     },
+     "p3_idle_3": {
+      "x": 554,
+      "y": 1346,
+      "w": 182,
+      "h": 222
+     },
+     "p3_attack_0": {
+      "x": 2,
+      "y": 1570,
+      "w": 182,
+      "h": 222
+     },
+     "p3_attack_1": {
+      "x": 186,
+      "y": 1570,
+      "w": 182,
+      "h": 222
+     },
+     "p3_attack_2": {
+      "x": 370,
+      "y": 1570,
+      "w": 182,
+      "h": 222
+     },
+     "death_0": {
+      "x": 2,
+      "y": 1794,
+      "w": 182,
+      "h": 222
+     },
+     "death_1": {
+      "x": 186,
+      "y": 1794,
+      "w": 182,
+      "h": 222
+     },
+     "death_2": {
+      "x": 370,
+      "y": 1794,
+      "w": 182,
+      "h": 222
+     },
+     "death_3": {
+      "x": 554,
+      "y": 1794,
+      "w": 182,
+      "h": 222
+     },
+     "p1_hurt_0": {
+      "x": 2,
+      "y": 2018,
+      "w": 182,
+      "h": 222
+     },
+     "p2_hurt_0": {
+      "x": 186,
+      "y": 2018,
+      "w": 182,
+      "h": 222
+     },
+     "p3_hurt_0": {
+      "x": 370,
+      "y": 2018,
+      "w": 182,
+      "h": 222
+     }
+    }
+   },
+   "animations": {
+    "p1_idle": {
+     "frames": [
+      "p1_idle_0",
+      "p1_idle_1",
+      "p1_idle_2",
+      "p1_idle_3"
+     ],
+     "fps": 5,
+     "loop": true
+    },
+    "p1_attack": {
+     "frames": [
+      "p1_attack_0",
+      "p1_attack_1",
+      "p1_attack_2"
+     ],
+     "fps": 8,
+     "loop": false
+    },
+    "p1_to_p2": {
+     "frames": [
+      "p1_to_p2_0",
+      "p1_to_p2_1",
+      "p1_to_p2_2",
+      "p1_to_p2_3"
+     ],
+     "fps": 6,
+     "loop": false
+    },
+    "p2_idle": {
+     "frames": [
+      "p2_idle_0",
+      "p2_idle_1",
+      "p2_idle_2",
+      "p2_idle_3"
+     ],
+     "fps": 5,
+     "loop": true
+    },
+    "p2_attack": {
+     "frames": [
+      "p2_attack_0",
+      "p2_attack_1",
+      "p2_attack_2"
+     ],
+     "fps": 8,
+     "loop": false
+    },
+    "p2_to_p3": {
+     "frames": [
+      "p2_to_p3_0",
+      "p2_to_p3_1",
+      "p2_to_p3_2",
+      "p2_to_p3_3"
+     ],
+     "fps": 6,
+     "loop": false
+    },
+    "p3_idle": {
+     "frames": [
+      "p3_idle_0",
+      "p3_idle_1",
+      "p3_idle_2",
+      "p3_idle_3"
+     ],
+     "fps": 5,
+     "loop": true
+    },
+    "p3_attack": {
+     "frames": [
+      "p3_attack_0",
+      "p3_attack_1",
+      "p3_attack_2"
+     ],
+     "fps": 8,
+     "loop": false
+    },
+    "death": {
+     "frames": [
+      "death_0",
+      "death_1",
+      "death_2",
+      "death_3"
+     ],
+     "fps": 5,
+     "loop": false
+    },
+    "p1_hurt": {
+     "frames": [
+      "p1_hurt_0",
+      "p1_idle_0"
+     ],
+     "fps": 12,
+     "loop": false
+    },
+    "p2_hurt": {
+     "frames": [
+      "p2_hurt_0",
+      "p2_idle_0"
+     ],
+     "fps": 12,
+     "loop": false
+    },
+    "p3_hurt": {
+     "frames": [
+      "p3_hurt_0",
+      "p3_idle_0"
+     ],
+     "fps": 12,
+     "loop": false
+    }
+   },
+   "phases": {
+    "1": {
+     "name": "Showman",
+     "idle": "p1_idle",
+     "attack": "p1_attack",
+     "enter": null,
+     "hurt": "p1_hurt",
+     "shots": [
+      "grinning_ringmaster.playing_card",
+      "grinning_ringmaster.cane_star"
+     ]
+    },
+    "2": {
+     "name": "Puppeteer",
+     "idle": "p2_idle",
+     "attack": "p2_attack",
+     "enter": "p1_to_p2",
+     "hurt": "p2_hurt",
+     "shots": [
+      "grinning_ringmaster.juggling_pin",
+      "grinning_ringmaster.string_needle"
+     ]
+    },
+    "3": {
+     "name": "Big Top",
+     "idle": "p3_idle",
+     "attack": "p3_attack",
+     "enter": "p2_to_p3",
+     "hurt": "p3_hurt",
+     "shots": [
+      "grinning_ringmaster.confetti_bomb",
+      "grinning_ringmaster.pennant_dart"
+     ]
+    }
+   },
+   "death": "death",
+   "drops": [
+    "ringmaster_cane",
+    "jugglers_dagger",
+    "carousel_bow",
+    "harlequin_garb",
+    "ring_of_the_jester",
+    "trick_deck",
+    "grinning_mask"
+   ]
+  }
+ },
+ "shots": {
+  "count_vesper.blood_bolt": {
+   "frames": [
+    "count_vesper.blood_bolt_0",
+    "count_vesper.blood_bolt_1"
+   ],
+   "fps": 10,
+   "loop": true,
+   "native": {
+    "count_vesper.blood_bolt_0": {
+     "x": 1,
+     "y": 1,
+     "w": 11,
+     "h": 7
+    },
+    "count_vesper.blood_bolt_1": {
+     "x": 13,
+     "y": 1,
+     "w": 11,
+     "h": 7
+    }
+   },
+   "x5": {
+    "count_vesper.blood_bolt_0": {
+     "x": 2,
+     "y": 2,
+     "w": 57,
+     "h": 37
+    },
+    "count_vesper.blood_bolt_1": {
+     "x": 61,
+     "y": 2,
+     "w": 57,
+     "h": 37
+    }
+   }
+  },
+  "count_vesper.rose_thorn": {
+   "frames": [
+    "count_vesper.rose_thorn_0",
+    "count_vesper.rose_thorn_1"
+   ],
+   "fps": 10,
+   "loop": true,
+   "native": {
+    "count_vesper.rose_thorn_0": {
+     "x": 1,
+     "y": 9,
+     "w": 11,
+     "h": 7
+    },
+    "count_vesper.rose_thorn_1": {
+     "x": 13,
+     "y": 9,
+     "w": 11,
+     "h": 7
+    }
+   },
+   "x5": {
+    "count_vesper.rose_thorn_0": {
+     "x": 2,
+     "y": 41,
+     "w": 57,
+     "h": 37
+    },
+    "count_vesper.rose_thorn_1": {
+     "x": 61,
+     "y": 41,
+     "w": 57,
+     "h": 37
+    }
+   }
+  },
+  "count_vesper.bat_swarm": {
+   "frames": [
+    "count_vesper.bat_swarm_0",
+    "count_vesper.bat_swarm_1"
+   ],
+   "fps": 10,
+   "loop": true,
+   "native": {
+    "count_vesper.bat_swarm_0": {
+     "x": 1,
+     "y": 17,
+     "w": 12,
+     "h": 10
+    },
+    "count_vesper.bat_swarm_1": {
+     "x": 14,
+     "y": 17,
+     "w": 12,
+     "h": 10
+    }
+   },
+   "x5": {
+    "count_vesper.bat_swarm_0": {
+     "x": 2,
+     "y": 80,
+     "w": 62,
+     "h": 52
+    },
+    "count_vesper.bat_swarm_1": {
+     "x": 66,
+     "y": 80,
+     "w": 62,
+     "h": 52
+    }
+   }
+  },
+  "count_vesper.blood_scythe": {
+   "frames": [
+    "count_vesper.blood_scythe_0",
+    "count_vesper.blood_scythe_1"
+   ],
+   "fps": 10,
+   "loop": true,
+   "native": {
+    "count_vesper.blood_scythe_0": {
+     "x": 1,
+     "y": 28,
+     "w": 12,
+     "h": 14
+    },
+    "count_vesper.blood_scythe_1": {
+     "x": 14,
+     "y": 28,
+     "w": 12,
+     "h": 14
+    }
+   },
+   "x5": {
+    "count_vesper.blood_scythe_0": {
+     "x": 2,
+     "y": 134,
+     "w": 62,
+     "h": 72
+    },
+    "count_vesper.blood_scythe_1": {
+     "x": 66,
+     "y": 134,
+     "w": 62,
+     "h": 72
+    }
+   }
+  },
+  "count_vesper.blood_rain": {
+   "frames": [
+    "count_vesper.blood_rain_0",
+    "count_vesper.blood_rain_1"
+   ],
+   "fps": 10,
+   "loop": true,
+   "native": {
+    "count_vesper.blood_rain_0": {
+     "x": 1,
+     "y": 43,
+     "w": 11,
+     "h": 11
+    },
+    "count_vesper.blood_rain_1": {
+     "x": 13,
+     "y": 43,
+     "w": 11,
+     "h": 11
+    }
+   },
+   "x5": {
+    "count_vesper.blood_rain_0": {
+     "x": 2,
+     "y": 208,
+     "w": 57,
+     "h": 57
+    },
+    "count_vesper.blood_rain_1": {
+     "x": 61,
+     "y": 208,
+     "w": 57,
+     "h": 57
+    }
+   }
+  },
+  "count_vesper.sanguine_nova": {
+   "frames": [
+    "count_vesper.sanguine_nova_0",
+    "count_vesper.sanguine_nova_1"
+   ],
+   "fps": 10,
+   "loop": true,
+   "native": {
+    "count_vesper.sanguine_nova_0": {
+     "x": 1,
+     "y": 55,
+     "w": 13,
+     "h": 13
+    },
+    "count_vesper.sanguine_nova_1": {
+     "x": 15,
+     "y": 55,
+     "w": 13,
+     "h": 13
+    }
+   },
+   "x5": {
+    "count_vesper.sanguine_nova_0": {
+     "x": 2,
+     "y": 267,
+     "w": 67,
+     "h": 67
+    },
+    "count_vesper.sanguine_nova_1": {
+     "x": 71,
+     "y": 267,
+     "w": 67,
+     "h": 67
+    }
+   }
+  },
+  "grinning_ringmaster.playing_card": {
+   "frames": [
+    "grinning_ringmaster.playing_card_0",
+    "grinning_ringmaster.playing_card_1"
+   ],
+   "fps": 10,
+   "loop": true,
+   "native": {
+    "grinning_ringmaster.playing_card_0": {
+     "x": 1,
+     "y": 69,
+     "w": 9,
+     "h": 9
+    },
+    "grinning_ringmaster.playing_card_1": {
+     "x": 11,
+     "y": 69,
+     "w": 9,
+     "h": 9
+    }
+   },
+   "x5": {
+    "grinning_ringmaster.playing_card_0": {
+     "x": 2,
+     "y": 336,
+     "w": 47,
+     "h": 47
+    },
+    "grinning_ringmaster.playing_card_1": {
+     "x": 51,
+     "y": 336,
+     "w": 47,
+     "h": 47
+    }
+   }
+  },
+  "grinning_ringmaster.cane_star": {
+   "frames": [
+    "grinning_ringmaster.cane_star_0",
+    "grinning_ringmaster.cane_star_1"
+   ],
+   "fps": 10,
+   "loop": true,
+   "native": {
+    "grinning_ringmaster.cane_star_0": {
+     "x": 1,
+     "y": 79,
+     "w": 11,
+     "h": 9
+    },
+    "grinning_ringmaster.cane_star_1": {
+     "x": 13,
+     "y": 79,
+     "w": 11,
+     "h": 9
+    }
+   },
+   "x5": {
+    "grinning_ringmaster.cane_star_0": {
+     "x": 2,
+     "y": 385,
+     "w": 57,
+     "h": 47
+    },
+    "grinning_ringmaster.cane_star_1": {
+     "x": 61,
+     "y": 385,
+     "w": 57,
+     "h": 47
+    }
+   }
+  },
+  "grinning_ringmaster.juggling_pin": {
+   "frames": [
+    "grinning_ringmaster.juggling_pin_0",
+    "grinning_ringmaster.juggling_pin_1"
+   ],
+   "fps": 10,
+   "loop": true,
+   "native": {
+    "grinning_ringmaster.juggling_pin_0": {
+     "x": 1,
+     "y": 89,
+     "w": 11,
+     "h": 9
+    },
+    "grinning_ringmaster.juggling_pin_1": {
+     "x": 13,
+     "y": 89,
+     "w": 11,
+     "h": 9
+    }
+   },
+   "x5": {
+    "grinning_ringmaster.juggling_pin_0": {
+     "x": 2,
+     "y": 434,
+     "w": 57,
+     "h": 47
+    },
+    "grinning_ringmaster.juggling_pin_1": {
+     "x": 61,
+     "y": 434,
+     "w": 57,
+     "h": 47
+    }
+   }
+  },
+  "grinning_ringmaster.string_needle": {
+   "frames": [
+    "grinning_ringmaster.string_needle_0",
+    "grinning_ringmaster.string_needle_1"
+   ],
+   "fps": 10,
+   "loop": true,
+   "native": {
+    "grinning_ringmaster.string_needle_0": {
+     "x": 1,
+     "y": 99,
+     "w": 12,
+     "h": 7
+    },
+    "grinning_ringmaster.string_needle_1": {
+     "x": 14,
+     "y": 99,
+     "w": 12,
+     "h": 7
+    }
+   },
+   "x5": {
+    "grinning_ringmaster.string_needle_0": {
+     "x": 2,
+     "y": 483,
+     "w": 62,
+     "h": 37
+    },
+    "grinning_ringmaster.string_needle_1": {
+     "x": 66,
+     "y": 483,
+     "w": 62,
+     "h": 37
+    }
+   }
+  },
+  "grinning_ringmaster.confetti_bomb": {
+   "frames": [
+    "grinning_ringmaster.confetti_bomb_0",
+    "grinning_ringmaster.confetti_bomb_1"
+   ],
+   "fps": 10,
+   "loop": true,
+   "native": {
+    "grinning_ringmaster.confetti_bomb_0": {
+     "x": 1,
+     "y": 107,
+     "w": 11,
+     "h": 11
+    },
+    "grinning_ringmaster.confetti_bomb_1": {
+     "x": 13,
+     "y": 107,
+     "w": 11,
+     "h": 11
+    }
+   },
+   "x5": {
+    "grinning_ringmaster.confetti_bomb_0": {
+     "x": 2,
+     "y": 522,
+     "w": 57,
+     "h": 57
+    },
+    "grinning_ringmaster.confetti_bomb_1": {
+     "x": 61,
+     "y": 522,
+     "w": 57,
+     "h": 57
+    }
+   }
+  },
+  "grinning_ringmaster.pennant_dart": {
+   "frames": [
+    "grinning_ringmaster.pennant_dart_0",
+    "grinning_ringmaster.pennant_dart_1"
+   ],
+   "fps": 10,
+   "loop": true,
+   "native": {
+    "grinning_ringmaster.pennant_dart_0": {
+     "x": 1,
+     "y": 119,
+     "w": 12,
+     "h": 7
+    },
+    "grinning_ringmaster.pennant_dart_1": {
+     "x": 14,
+     "y": 119,
+     "w": 12,
+     "h": 7
+    }
+   },
+   "x5": {
+    "grinning_ringmaster.pennant_dart_0": {
+     "x": 2,
+     "y": 581,
+     "w": 62,
+     "h": 37
+    },
+    "grinning_ringmaster.pennant_dart_1": {
+     "x": 66,
+     "y": 581,
+     "w": 62,
+     "h": 37
+    }
+   }
+  }
+ },
+ "shots_sheet": {
+  "native": "native/bx2_shots.png",
+  "x5": "x5/bx2_shots.png"
+ }
+}

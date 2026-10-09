@@ -1,0 +1,15 @@
+{
+ "atlases": [
+  "boss_overhaul/atlas_bosses.json",
+  "dungeons_two/atlas_bosses_two.json",
+  "dungeons_two/atlas_dungeons_two.json",
+  "elites/atlas_elites.json",
+  "expansion_one/atlas_expansion.json",
+  "item_overhaul/atlas_items.json",
+  "melon_event/atlas_melon.json",
+  "overworld/atlas_overworld.json",
+  "pets_v2/atlas_pets_v2.json"
+ ],
+ "hover": "HOVER.json",
+ "manifest": "MANIFEST.json"
+}

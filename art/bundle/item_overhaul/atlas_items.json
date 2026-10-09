@@ -1,0 +1,4548 @@
+{
+ "meta": {
+  "name": "Realm Item Overhaul",
+  "version": 1,
+  "cell": 8,
+  "x5_scale": 5,
+  "notes": "Redrawn 8x8 items. Sheet ix_items and this atlas_items.json are new files: they replace the item art in pack 1 (items sheet) and Expansion One (ex_items) without overwriting them. Sprite names match the old ones, so swapping is a lookup change. Potions and loot bags are unchanged and stay in the old sheets. 8 new legendary items drop from the Boss Overhaul's phase-3 forms. x5 frames carry a 1px outline (+1px padding per side)."
+ },
+ "sheet": {
+  "native": "native/ix_items.png",
+  "x5": "x5/ix_items.png",
+  "native_size": [
+   73,
+   460
+  ],
+  "x5_size": [
+   354,
+   2246
+  ]
+ },
+ "items": {
+  "tidecaller_blade": {
+   "group": "Weapons",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 1,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 1,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 1,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 1,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 2,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 2,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 2,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 2,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "emberbrand_greatsword": {
+   "group": "Weapons",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 10,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 10,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 10,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 10,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 46,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 46,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 46,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 46,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "glacial_fang": {
+   "group": "Weapons",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 19,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 19,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 19,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 19,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 90,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 90,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 90,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 90,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "bog_cleaver": {
+   "group": "Weapons",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 28,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 28,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 28,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 28,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 134,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 134,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 134,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 134,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "starforged_katana": {
+   "group": "Weapons",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 37,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 37,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 37,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 37,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 178,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 178,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 178,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 178,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "sunscorch_khopesh": {
+   "group": "Weapons",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 46,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 46,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 46,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 46,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 222,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 222,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 222,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 222,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "tidebreaker_trident": {
+   "group": "Weapons",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 55,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 55,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 55,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 55,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 266,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 266,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 266,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 266,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "staff_of_drowned_stars": {
+   "group": "Weapons",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 64,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 64,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 64,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 64,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 310,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 310,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 310,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 310,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "cinderwood_staff": {
+   "group": "Weapons",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 73,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 73,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 73,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 73,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 354,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 354,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 354,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 354,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "wand_of_hoarfrost": {
+   "group": "Weapons",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 82,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 82,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 82,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 82,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 398,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 398,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 398,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 398,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "sporecaller_wand": {
+   "group": "Weapons",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 91,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 91,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 91,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 91,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 442,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 442,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 442,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 442,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "gilded_scepter": {
+   "group": "Weapons",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 100,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 100,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 100,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 100,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 486,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 486,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 486,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 486,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "rimeheart_bow": {
+   "group": "Weapons",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 109,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 109,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 109,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 109,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 530,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 530,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 530,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 530,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "comet_bow": {
+   "group": "Weapons",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 118,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 118,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 118,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 118,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 574,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 574,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 574,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 574,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "heartwood_bow": {
+   "group": "Weapons",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 127,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 127,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 127,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 127,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 618,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 618,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 618,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 618,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "runeplate_armor": {
+   "group": "Armour, abilities and rings",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 136,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 136,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 136,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 136,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 662,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 662,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 662,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 662,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "hexsilk_robe": {
+   "group": "Armour, abilities and rings",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 145,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 145,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 145,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 145,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 706,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 706,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 706,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 706,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "frostweave_armor": {
+   "group": "Armour, abilities and rings",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 154,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 154,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 154,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 154,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 750,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 750,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 750,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 750,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "mycelial_hide": {
+   "group": "Armour, abilities and rings",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 163,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 163,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 163,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 163,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 794,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 794,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 794,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 794,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "nebula_robe": {
+   "group": "Armour, abilities and rings",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 172,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 172,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 172,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 172,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 838,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 838,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 838,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 838,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "embalmers_wraps": {
+   "group": "Armour, abilities and rings",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 181,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 181,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 181,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 181,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 882,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 882,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 882,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 882,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "runic_aegis": {
+   "group": "Armour, abilities and rings",
+   "tier": "boss",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 190,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 190,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 190,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 190,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 926,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 926,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 926,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 926,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "grimoire_of_ash": {
+   "group": "Armour, abilities and rings",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 199,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 199,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 199,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 199,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 970,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 970,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 970,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 970,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "soul_lantern": {
+   "group": "Armour, abilities and rings",
+   "tier": "boss",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 208,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 208,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 208,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 208,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 1014,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 1014,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 1014,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 1014,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "colossus_core": {
+   "group": "Armour, abilities and rings",
+   "tier": "boss",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 217,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 217,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 217,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 217,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 1058,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 1058,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 1058,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 1058,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "spore_bomb": {
+   "group": "Armour, abilities and rings",
+   "tier": "boss",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 226,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 226,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 226,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 226,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 1102,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 1102,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 1102,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 1102,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "orrery_orb": {
+   "group": "Armour, abilities and rings",
+   "tier": "boss",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 235,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 235,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 235,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 235,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 1146,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 1146,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 1146,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 1146,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "sphinx_helm": {
+   "group": "Armour, abilities and rings",
+   "tier": "boss",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 244,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 244,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 244,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 244,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 1190,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 1190,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 1190,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 1190,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "seed_of_renewal": {
+   "group": "Armour, abilities and rings",
+   "tier": "boss",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 253,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 253,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 253,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 253,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 1234,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 1234,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 1234,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 1234,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "ring_of_tides": {
+   "group": "Armour, abilities and rings",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 262,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 262,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 262,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 262,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 1278,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 1278,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 1278,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 1278,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "emberheart_ring": {
+   "group": "Armour, abilities and rings",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 271,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 271,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 271,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 271,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 1322,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 1322,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 1322,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 1322,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "ring_of_the_wyrm": {
+   "group": "Armour, abilities and rings",
+   "tier": "boss",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 280,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 280,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 280,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 280,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 1366,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 1366,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 1366,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 1366,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "ring_of_rot": {
+   "group": "Armour, abilities and rings",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 289,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 289,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 289,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 289,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 1410,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 1410,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 1410,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 1410,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "astral_signet": {
+   "group": "Armour, abilities and rings",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 298,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 298,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 298,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 298,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 1454,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 1454,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 1454,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 1454,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "scarab_ring": {
+   "group": "Armour, abilities and rings",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 307,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 307,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 307,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 307,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 1498,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 1498,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 1498,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 1498,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "abyssal_pearl": {
+   "group": "Armour, abilities and rings",
+   "tier": "boss",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 316,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 316,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 316,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 316,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 1542,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 1542,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 1542,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 1542,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "pharaohs_deathmask": {
+   "group": "Armour, abilities and rings",
+   "tier": "legendary",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 325,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 325,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 325,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 325,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle0": {
+     "x": 37,
+     "y": 325,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle1": {
+     "x": 46,
+     "y": 325,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle2": {
+     "x": 55,
+     "y": 325,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle3": {
+     "x": 64,
+     "y": 325,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 1586,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 1586,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 1586,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 1586,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle0": {
+     "x": 178,
+     "y": 1586,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle1": {
+     "x": 222,
+     "y": 1586,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle2": {
+     "x": 266,
+     "y": 1586,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle3": {
+     "x": 310,
+     "y": 1586,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    },
+    "twinkle": {
+     "frames": [
+      "twinkle0",
+      "0",
+      "twinkle1",
+      "0",
+      "twinkle2",
+      "0",
+      "twinkle3",
+      "0"
+     ],
+     "fps": 6,
+     "loop": true
+    }
+   }
+  },
+  "aurora_heart": {
+   "group": "Armour, abilities and rings",
+   "tier": "legendary",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 334,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 334,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 334,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 334,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle0": {
+     "x": 37,
+     "y": 334,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle1": {
+     "x": 46,
+     "y": 334,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle2": {
+     "x": 55,
+     "y": 334,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle3": {
+     "x": 64,
+     "y": 334,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 1630,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 1630,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 1630,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 1630,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle0": {
+     "x": 178,
+     "y": 1630,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle1": {
+     "x": 222,
+     "y": 1630,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle2": {
+     "x": 266,
+     "y": 1630,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle3": {
+     "x": 310,
+     "y": 1630,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    },
+    "twinkle": {
+     "frames": [
+      "twinkle0",
+      "0",
+      "twinkle1",
+      "0",
+      "twinkle2",
+      "0",
+      "twinkle3",
+      "0"
+     ],
+     "fps": 6,
+     "loop": true
+    }
+   }
+  },
+  "glowcap_crown": {
+   "group": "Armour, abilities and rings",
+   "tier": "legendary",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 343,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 343,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 343,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 343,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle0": {
+     "x": 37,
+     "y": 343,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle1": {
+     "x": 46,
+     "y": 343,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle2": {
+     "x": 55,
+     "y": 343,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle3": {
+     "x": 64,
+     "y": 343,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 1674,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 1674,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 1674,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 1674,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle0": {
+     "x": 178,
+     "y": 1674,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle1": {
+     "x": 222,
+     "y": 1674,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle2": {
+     "x": 266,
+     "y": 1674,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle3": {
+     "x": 310,
+     "y": 1674,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    },
+    "twinkle": {
+     "frames": [
+      "twinkle0",
+      "0",
+      "twinkle1",
+      "0",
+      "twinkle2",
+      "0",
+      "twinkle3",
+      "0"
+     ],
+     "fps": 6,
+     "loop": true
+    }
+   }
+  },
+  "event_horizon": {
+   "group": "Armour, abilities and rings",
+   "tier": "legendary",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 352,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 352,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 352,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 352,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle0": {
+     "x": 37,
+     "y": 352,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle1": {
+     "x": 46,
+     "y": 352,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle2": {
+     "x": 55,
+     "y": 352,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle3": {
+     "x": 64,
+     "y": 352,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 1718,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 1718,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 1718,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 1718,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle0": {
+     "x": 178,
+     "y": 1718,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle1": {
+     "x": 222,
+     "y": 1718,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle2": {
+     "x": 266,
+     "y": 1718,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle3": {
+     "x": 310,
+     "y": 1718,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    },
+    "twinkle": {
+     "frames": [
+      "twinkle0",
+      "0",
+      "twinkle1",
+      "0",
+      "twinkle2",
+      "0",
+      "twinkle3",
+      "0"
+     ],
+     "fps": 6,
+     "loop": true
+    }
+   }
+  },
+  "leviathan_eye": {
+   "group": "Armour, abilities and rings",
+   "tier": "legendary",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 361,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 361,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 361,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 361,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle0": {
+     "x": 37,
+     "y": 361,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle1": {
+     "x": 46,
+     "y": 361,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle2": {
+     "x": 55,
+     "y": 361,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle3": {
+     "x": 64,
+     "y": 361,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 1762,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 1762,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 1762,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 1762,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle0": {
+     "x": 178,
+     "y": 1762,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle1": {
+     "x": 222,
+     "y": 1762,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle2": {
+     "x": 266,
+     "y": 1762,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle3": {
+     "x": 310,
+     "y": 1762,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    },
+    "twinkle": {
+     "frames": [
+      "twinkle0",
+      "0",
+      "twinkle1",
+      "0",
+      "twinkle2",
+      "0",
+      "twinkle3",
+      "0"
+     ],
+     "fps": 6,
+     "loop": true
+    }
+   }
+  },
+  "blight_heart": {
+   "group": "Armour, abilities and rings",
+   "tier": "legendary",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 370,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 370,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 370,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 370,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle0": {
+     "x": 37,
+     "y": 370,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle1": {
+     "x": 46,
+     "y": 370,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle2": {
+     "x": 55,
+     "y": 370,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle3": {
+     "x": 64,
+     "y": 370,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 1806,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 1806,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 1806,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 1806,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle0": {
+     "x": 178,
+     "y": 1806,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle1": {
+     "x": 222,
+     "y": 1806,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle2": {
+     "x": 266,
+     "y": 1806,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle3": {
+     "x": 310,
+     "y": 1806,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    },
+    "twinkle": {
+     "frames": [
+      "twinkle0",
+      "0",
+      "twinkle1",
+      "0",
+      "twinkle2",
+      "0",
+      "twinkle3",
+      "0"
+     ],
+     "fps": 6,
+     "loop": true
+    }
+   }
+  },
+  "tidewraith_staff": {
+   "group": "Armour, abilities and rings",
+   "tier": "legendary",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 379,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 379,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 379,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 379,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle0": {
+     "x": 37,
+     "y": 379,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle1": {
+     "x": 46,
+     "y": 379,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle2": {
+     "x": 55,
+     "y": 379,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle3": {
+     "x": 64,
+     "y": 379,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 1850,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 1850,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 1850,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 1850,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle0": {
+     "x": 178,
+     "y": 1850,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle1": {
+     "x": 222,
+     "y": 1850,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle2": {
+     "x": 266,
+     "y": 1850,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle3": {
+     "x": 310,
+     "y": 1850,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    },
+    "twinkle": {
+     "frames": [
+      "twinkle0",
+      "0",
+      "twinkle1",
+      "0",
+      "twinkle2",
+      "0",
+      "twinkle3",
+      "0"
+     ],
+     "fps": 6,
+     "loop": true
+    }
+   }
+  },
+  "forgeheart_maul": {
+   "group": "Armour, abilities and rings",
+   "tier": "legendary",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 388,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 388,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 388,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 388,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle0": {
+     "x": 37,
+     "y": 388,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle1": {
+     "x": 46,
+     "y": 388,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle2": {
+     "x": 55,
+     "y": 388,
+     "w": 8,
+     "h": 8
+    },
+    "twinkle3": {
+     "x": 64,
+     "y": 388,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 1894,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 1894,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 1894,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 1894,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle0": {
+     "x": 178,
+     "y": 1894,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle1": {
+     "x": 222,
+     "y": 1894,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle2": {
+     "x": 266,
+     "y": 1894,
+     "w": 42,
+     "h": 42
+    },
+    "twinkle3": {
+     "x": 310,
+     "y": 1894,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    },
+    "twinkle": {
+     "frames": [
+      "twinkle0",
+      "0",
+      "twinkle1",
+      "0",
+      "twinkle2",
+      "0",
+      "twinkle3",
+      "0"
+     ],
+     "fps": 6,
+     "loop": true
+    }
+   }
+  },
+  "frostveil_key": {
+   "group": "Keys and trade goods",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 397,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 397,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 397,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 397,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 1938,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 1938,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 1938,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 1938,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "mirerot_key": {
+   "group": "Keys and trade goods",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 406,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 406,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 406,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 406,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 1982,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 1982,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 1982,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 1982,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "astral_key": {
+   "group": "Keys and trade goods",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 415,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 415,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 415,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 415,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 2026,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 2026,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 2026,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 2026,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "sandscour_key": {
+   "group": "Keys and trade goods",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 424,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 424,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 424,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 424,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 2070,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 2070,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 2070,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 2070,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "gold_coins": {
+   "group": "Keys and trade goods",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 433,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 433,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 433,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 433,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 2114,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 2114,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 2114,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 2114,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "ancient_scroll": {
+   "group": "Keys and trade goods",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 442,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 442,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 442,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 442,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 2158,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 2158,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 2158,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 2158,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  },
+  "soul_gem": {
+   "group": "Keys and trade goods",
+   "tier": "rare",
+   "native": {
+    "0": {
+     "x": 1,
+     "y": 451,
+     "w": 8,
+     "h": 8
+    },
+    "shine1": {
+     "x": 10,
+     "y": 451,
+     "w": 8,
+     "h": 8
+    },
+    "shine2": {
+     "x": 19,
+     "y": 451,
+     "w": 8,
+     "h": 8
+    },
+    "shine3": {
+     "x": 28,
+     "y": 451,
+     "w": 8,
+     "h": 8
+    }
+   },
+   "x5": {
+    "0": {
+     "x": 2,
+     "y": 2202,
+     "w": 42,
+     "h": 42
+    },
+    "shine1": {
+     "x": 46,
+     "y": 2202,
+     "w": 42,
+     "h": 42
+    },
+    "shine2": {
+     "x": 90,
+     "y": 2202,
+     "w": 42,
+     "h": 42
+    },
+    "shine3": {
+     "x": 134,
+     "y": 2202,
+     "w": 42,
+     "h": 42
+    }
+   },
+   "animations": {
+    "static": {
+     "frames": [
+      "0"
+     ],
+     "fps": 1,
+     "loop": true
+    },
+    "shine": {
+     "frames": [
+      "0",
+      "0",
+      "shine1",
+      "shine2",
+      "shine3",
+      "0",
+      "0",
+      "0"
+     ],
+     "fps": 10,
+     "loop": true
+    }
+   }
+  }
+ }
+}

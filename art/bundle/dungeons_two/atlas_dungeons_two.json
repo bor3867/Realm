@@ -1,0 +1,6058 @@
+{
+ "meta": {
+  "name": "Realm Dungeons Two",
+  "version": 1,
+  "cell": 8,
+  "x5_scale": 5,
+  "dungeons": {
+   "crimson_keep": {
+    "title": "Crimson Keep",
+    "theme": "A vampire count's castle: violet stone, red carpets, candlelight, blood pools.",
+    "hazard": "blood_pool: slows and drains HP over time; sprinkle near coffins and the throne.",
+    "boss": "count_vesper",
+    "key": "crimson_key",
+    "enemies": [
+     "blood_bat",
+     "gargoyle",
+     "haunted_armor",
+     "blood_thrall"
+    ],
+    "enemy_sheet": "d2_crimson_keep",
+    "tiles": [
+     "crimson_keep_blood_pool",
+     "crimson_keep_carpet",
+     "crimson_keep_marble_checker",
+     "crimson_keep_stone_floor_a",
+     "crimson_keep_stone_floor_b",
+     "crimson_keep_wall_side",
+     "crimson_keep_wall_top",
+     "crimson_keep_wall_window"
+    ],
+    "decor": [
+     "crimson_keep_candelabra",
+     "crimson_keep_coffin",
+     "crimson_keep_rose_bush",
+     "crimson_keep_gargoyle_statue",
+     "crimson_keep_armor_stand",
+     "crimson_keep_gothic_pillar"
+    ],
+    "projectiles": [
+     "crimson_keep.bat_screech",
+     "crimson_keep.stone_chip",
+     "crimson_keep.crimson_slash",
+     "crimson_keep.blood_spit"
+    ],
+    "effects": [
+     "crimson_keep.blood_splash",
+     "crimson_keep.bat_scatter"
+    ],
+    "items": [
+     "crimson_rapier",
+     "bloodthorn_staff",
+     "batwing_bow",
+     "sanguine_cloak",
+     "signet_of_the_count",
+     "crimson_chalice",
+     "nightfall_scythe"
+    ]
+   },
+   "hollowmoon": {
+    "title": "Hollowmoon Carnival",
+    "theme": "A haunted night fair: striped big-top walls, sawdust rings, boardwalk midways, lanterns.",
+    "hazard": "spin_tile: spins the player's movement direction while standing on it.",
+    "boss": "grinning_ringmaster",
+    "key": "hollowmoon_key",
+    "enemies": [
+     "jack_in_the_box",
+     "carousel_horse",
+     "balloon_ghoul",
+     "knife_juggler"
+    ],
+    "enemy_sheet": "d2_hollowmoon",
+    "tiles": [
+     "hollowmoon_boards",
+     "hollowmoon_funhouse_checker",
+     "hollowmoon_sawdust_a",
+     "hollowmoon_sawdust_b",
+     "hollowmoon_spin_tile",
+     "hollowmoon_wall_side",
+     "hollowmoon_wall_top"
+    ],
+    "decor": [
+     "hollowmoon_lamp_post",
+     "hollowmoon_circus_cannon",
+     "hollowmoon_high_striker",
+     "hollowmoon_balloon_bundle",
+     "hollowmoon_popcorn_cart",
+     "hollowmoon_star_drum"
+    ],
+    "projectiles": [
+     "hollowmoon.thrown_knife",
+     "hollowmoon.boxing_glove",
+     "hollowmoon.horseshoe",
+     "hollowmoon.grin_bubble"
+    ],
+    "effects": [
+     "hollowmoon.confetti_pop",
+     "hollowmoon.smoke_puff"
+    ],
+    "items": [
+     "ringmaster_cane",
+     "jugglers_dagger",
+     "carousel_bow",
+     "harlequin_garb",
+     "ring_of_the_jester",
+     "trick_deck",
+     "grinning_mask"
+    ]
+   }
+  },
+  "realm_enemies": {
+   "conch_hermit": {
+    "biome": "shore",
+    "ability": "Retreats into its shell (blocks shots) when hit three times quickly, then pops out squirting."
+   },
+   "burrow_mole": {
+    "biome": "lowlands",
+    "ability": "Burrows under the field and surfaces next to a player, flinging dirt."
+   },
+   "bandit_archer": {
+    "biome": "midlands",
+    "ability": "Keeps its distance from players and looses volleys of three arrows."
+   },
+   "crag_dwarf": {
+    "biome": "highlands",
+    "ability": "A lamp-lit miner; throws his pick, then charges to pick it back up."
+   },
+   "obsidian_scorpion": {
+    "biome": "godlands",
+    "ability": "Its cracked glass shell glows hotter as it is damaged; at low health its stinger shots split."
+   }
+  },
+  "notes": "Two new dungeons (Crimson Keep, Hollowmoon Carnival) and five new realm enemies. Sheets are prefixed d2_ and ow2_; nothing clashes with earlier packs. Same conventions as before: x5 frames are 5x nearest-neighbour with a 1px outline (+1px padding per side); tiles are not outlined; tall decor pivots at its base tile; creatures face right; shots point right. Bosses are in atlas_bosses_two.json."
+ },
+ "sheets": {
+  "d2_crimson_keep": {
+   "native": {
+    "image": "native/d2_crimson_keep.png",
+    "size": [
+     46,
+     37
+    ],
+    "sprites": {
+     "blood_bat": {
+      "flap1": {
+       "x": 1,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "flap2": {
+       "x": 10,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "flap3": {
+       "x": 19,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 28,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 37,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "gargoyle": {
+      "walk1": {
+       "x": 1,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "walk2": {
+       "x": 10,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "haunted_armor": {
+      "walk1": {
+       "x": 1,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "walk2": {
+       "x": 10,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "blood_thrall": {
+      "walk1": {
+       "x": 1,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "walk2": {
+       "x": 10,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/d2_crimson_keep.png",
+    "size": [
+     222,
+     178
+    ],
+    "sprites": {
+     "blood_bat": {
+      "flap1": {
+       "x": 2,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "flap2": {
+       "x": 46,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "flap3": {
+       "x": 90,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 134,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 178,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "gargoyle": {
+      "walk1": {
+       "x": 2,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "walk2": {
+       "x": 46,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "haunted_armor": {
+      "walk1": {
+       "x": 2,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "walk2": {
+       "x": 46,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "blood_thrall": {
+      "walk1": {
+       "x": 2,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "walk2": {
+       "x": 46,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     }
+    }
+   },
+   "animations": {
+    "blood_bat": {
+     "move": {
+      "frames": [
+       "flap1",
+       "flap2",
+       "flap3"
+      ],
+      "fps": 10,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "flap1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "flap1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "gargoyle": {
+     "move": {
+      "frames": [
+       "walk1",
+       "walk2"
+      ],
+      "fps": 4,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "walk1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "walk1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "haunted_armor": {
+     "move": {
+      "frames": [
+       "walk1",
+       "walk2"
+      ],
+      "fps": 3,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "walk1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "walk1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "blood_thrall": {
+     "move": {
+      "frames": [
+       "walk1",
+       "walk2"
+      ],
+      "fps": 4,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "walk1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "walk1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    }
+   },
+   "info": {
+    "blood_bat": {
+     "dungeon": "Crimson Keep",
+     "note": "Fast, erratic swarmer; fires bat_screech rings."
+    },
+    "gargoyle": {
+     "dungeon": "Crimson Keep",
+     "note": "Waits disguised as gargoyle_statue decor, wakes when a player comes near; throws stone_chip."
+    },
+    "haunted_armor": {
+     "dungeon": "Crimson Keep",
+     "note": "Slow, tanky; stands as armor_stand decor until it wakes; swings crimson_slash."
+    },
+    "blood_thrall": {
+     "dungeon": "Crimson Keep",
+     "note": "Shambling servant that rises from coffins; spits blood_spit, heals the Count in phase 1."
+    }
+   }
+  },
+  "d2_tiles": {
+   "native": {
+    "image": "native/d2_tiles.png",
+    "size": [
+     28,
+     136
+    ],
+    "sprites": {
+     "crimson_keep_stone_floor_a": {
+      "0": {
+       "x": 1,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crimson_keep_stone_floor_b": {
+      "0": {
+       "x": 1,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crimson_keep_carpet": {
+      "0": {
+       "x": 1,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crimson_keep_marble_checker": {
+      "0": {
+       "x": 1,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crimson_keep_blood_pool": {
+      "blood_pool1": {
+       "x": 1,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "blood_pool2": {
+       "x": 10,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "blood_pool3": {
+       "x": 19,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crimson_keep_wall_top": {
+      "0": {
+       "x": 1,
+       "y": 46,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crimson_keep_wall_side": {
+      "0": {
+       "x": 1,
+       "y": 55,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crimson_keep_wall_window": {
+      "0": {
+       "x": 1,
+       "y": 64,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hollowmoon_sawdust_a": {
+      "0": {
+       "x": 1,
+       "y": 73,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hollowmoon_sawdust_b": {
+      "0": {
+       "x": 1,
+       "y": 82,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hollowmoon_boards": {
+      "0": {
+       "x": 1,
+       "y": 91,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hollowmoon_funhouse_checker": {
+      "0": {
+       "x": 1,
+       "y": 100,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hollowmoon_spin_tile": {
+      "spin_tile1": {
+       "x": 1,
+       "y": 109,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "spin_tile2": {
+       "x": 10,
+       "y": 109,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "spin_tile3": {
+       "x": 19,
+       "y": 109,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hollowmoon_wall_top": {
+      "0": {
+       "x": 1,
+       "y": 118,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hollowmoon_wall_side": {
+      "0": {
+       "x": 1,
+       "y": 127,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/d2_tiles.png",
+    "size": [
+     128,
+     632
+    ],
+    "sprites": {
+     "crimson_keep_stone_floor_a": {
+      "0": {
+       "x": 2,
+       "y": 2,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crimson_keep_stone_floor_b": {
+      "0": {
+       "x": 2,
+       "y": 44,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crimson_keep_carpet": {
+      "0": {
+       "x": 2,
+       "y": 86,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crimson_keep_marble_checker": {
+      "0": {
+       "x": 2,
+       "y": 128,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crimson_keep_blood_pool": {
+      "blood_pool1": {
+       "x": 2,
+       "y": 170,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "blood_pool2": {
+       "x": 44,
+       "y": 170,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "blood_pool3": {
+       "x": 86,
+       "y": 170,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crimson_keep_wall_top": {
+      "0": {
+       "x": 2,
+       "y": 212,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crimson_keep_wall_side": {
+      "0": {
+       "x": 2,
+       "y": 254,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crimson_keep_wall_window": {
+      "0": {
+       "x": 2,
+       "y": 296,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hollowmoon_sawdust_a": {
+      "0": {
+       "x": 2,
+       "y": 338,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hollowmoon_sawdust_b": {
+      "0": {
+       "x": 2,
+       "y": 380,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hollowmoon_boards": {
+      "0": {
+       "x": 2,
+       "y": 422,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hollowmoon_funhouse_checker": {
+      "0": {
+       "x": 2,
+       "y": 464,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hollowmoon_spin_tile": {
+      "spin_tile1": {
+       "x": 2,
+       "y": 506,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "spin_tile2": {
+       "x": 44,
+       "y": 506,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "spin_tile3": {
+       "x": 86,
+       "y": 506,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hollowmoon_wall_top": {
+      "0": {
+       "x": 2,
+       "y": 548,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hollowmoon_wall_side": {
+      "0": {
+       "x": 2,
+       "y": 590,
+       "w": 40,
+       "h": 40,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "animations": {
+    "crimson_keep_stone_floor_a": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "crimson_keep_stone_floor_b": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "crimson_keep_carpet": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "crimson_keep_marble_checker": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "crimson_keep_blood_pool": {
+     "loop": {
+      "frames": [
+       "blood_pool1",
+       "blood_pool2",
+       "blood_pool3"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "crimson_keep_wall_top": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "crimson_keep_wall_side": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "crimson_keep_wall_window": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "hollowmoon_sawdust_a": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "hollowmoon_sawdust_b": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "hollowmoon_boards": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "hollowmoon_funhouse_checker": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "hollowmoon_spin_tile": {
+     "loop": {
+      "frames": [
+       "spin_tile1",
+       "spin_tile2",
+       "spin_tile3"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "hollowmoon_wall_top": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "hollowmoon_wall_side": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    }
+   }
+  },
+  "d2_decor": {
+   "native": {
+    "image": "native/d2_decor.png",
+    "size": [
+     28,
+     157
+    ],
+    "sprites": {
+     "crimson_keep_candelabra": {
+      "0": {
+       "x": 1,
+       "y": 1,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 1,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      },
+      "2": {
+       "x": 19,
+       "y": 1,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      }
+     },
+     "crimson_keep_coffin": {
+      "0": {
+       "x": 1,
+       "y": 18,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 18,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      }
+     },
+     "crimson_keep_rose_bush": {
+      "0": {
+       "x": 1,
+       "y": 35,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crimson_keep_gargoyle_statue": {
+      "0": {
+       "x": 1,
+       "y": 44,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crimson_keep_armor_stand": {
+      "0": {
+       "x": 1,
+       "y": 53,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crimson_keep_gothic_pillar": {
+      "0": {
+       "x": 1,
+       "y": 62,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      }
+     },
+     "hollowmoon_lamp_post": {
+      "0": {
+       "x": 1,
+       "y": 79,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 79,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      }
+     },
+     "hollowmoon_circus_cannon": {
+      "0": {
+       "x": 1,
+       "y": 96,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hollowmoon_high_striker": {
+      "0": {
+       "x": 1,
+       "y": 105,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 105,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      },
+      "2": {
+       "x": 19,
+       "y": 105,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      }
+     },
+     "hollowmoon_balloon_bundle": {
+      "0": {
+       "x": 1,
+       "y": 122,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 122,
+       "w": 8,
+       "h": 16,
+       "pivot": [
+        0,
+        8
+       ]
+      }
+     },
+     "hollowmoon_popcorn_cart": {
+      "0": {
+       "x": 1,
+       "y": 139,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hollowmoon_star_drum": {
+      "0": {
+       "x": 1,
+       "y": 148,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/d2_decor.png",
+    "size": [
+     134,
+     770
+    ],
+    "sprites": {
+     "crimson_keep_candelabra": {
+      "0": {
+       "x": 2,
+       "y": 2,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 2,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      },
+      "2": {
+       "x": 90,
+       "y": 2,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      }
+     },
+     "crimson_keep_coffin": {
+      "0": {
+       "x": 2,
+       "y": 86,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 86,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      }
+     },
+     "crimson_keep_rose_bush": {
+      "0": {
+       "x": 2,
+       "y": 170,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "crimson_keep_gargoyle_statue": {
+      "0": {
+       "x": 2,
+       "y": 214,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "crimson_keep_armor_stand": {
+      "0": {
+       "x": 2,
+       "y": 258,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "crimson_keep_gothic_pillar": {
+      "0": {
+       "x": 2,
+       "y": 302,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      }
+     },
+     "hollowmoon_lamp_post": {
+      "0": {
+       "x": 2,
+       "y": 386,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 386,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      }
+     },
+     "hollowmoon_circus_cannon": {
+      "0": {
+       "x": 2,
+       "y": 470,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "hollowmoon_high_striker": {
+      "0": {
+       "x": 2,
+       "y": 514,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 514,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      },
+      "2": {
+       "x": 90,
+       "y": 514,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      }
+     },
+     "hollowmoon_balloon_bundle": {
+      "0": {
+       "x": 2,
+       "y": 598,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 598,
+       "w": 42,
+       "h": 82,
+       "pivot": [
+        1,
+        41
+       ]
+      }
+     },
+     "hollowmoon_popcorn_cart": {
+      "0": {
+       "x": 2,
+       "y": 682,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "hollowmoon_star_drum": {
+      "0": {
+       "x": 2,
+       "y": 726,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     }
+    }
+   },
+   "animations": {
+    "crimson_keep_candelabra": {
+     "loop": {
+      "frames": [
+       "0",
+       "1",
+       "2"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "crimson_keep_coffin": {
+     "closed": {
+      "frames": [
+       "0"
+      ],
+      "fps": 6,
+      "loop": true
+     },
+     "open": {
+      "frames": [
+       "1"
+      ],
+      "fps": 6,
+      "loop": false
+     }
+    },
+    "crimson_keep_rose_bush": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "crimson_keep_gargoyle_statue": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "crimson_keep_armor_stand": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "crimson_keep_gothic_pillar": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "hollowmoon_lamp_post": {
+     "loop": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "hollowmoon_circus_cannon": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "hollowmoon_high_striker": {
+     "idle": {
+      "frames": [
+       "0"
+      ],
+      "fps": 6,
+      "loop": true
+     },
+     "ring": {
+      "frames": [
+       "0",
+       "1",
+       "2",
+       "2",
+       "1"
+      ],
+      "fps": 6,
+      "loop": true
+     }
+    },
+    "hollowmoon_balloon_bundle": {
+     "loop": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 4,
+      "loop": true
+     }
+    },
+    "hollowmoon_popcorn_cart": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    },
+    "hollowmoon_star_drum": {
+     "loop": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     }
+    }
+   }
+  },
+  "d2_projectiles": {
+   "native": {
+    "image": "native/d2_projectiles.png",
+    "size": [
+     19,
+     73
+    ],
+    "sprites": {
+     "crimson_keep.bat_screech": {
+      "0": {
+       "x": 1,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crimson_keep.stone_chip": {
+      "0": {
+       "x": 1,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crimson_keep.crimson_slash": {
+      "0": {
+       "x": 1,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crimson_keep.blood_spit": {
+      "0": {
+       "x": 1,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hollowmoon.thrown_knife": {
+      "0": {
+       "x": 1,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hollowmoon.boxing_glove": {
+      "0": {
+       "x": 1,
+       "y": 46,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 46,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hollowmoon.horseshoe": {
+      "0": {
+       "x": 1,
+       "y": 55,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 55,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hollowmoon.grin_bubble": {
+      "0": {
+       "x": 1,
+       "y": 64,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 64,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/d2_projectiles.png",
+    "size": [
+     90,
+     354
+    ],
+    "sprites": {
+     "crimson_keep.bat_screech": {
+      "0": {
+       "x": 2,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "crimson_keep.stone_chip": {
+      "0": {
+       "x": 2,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "crimson_keep.crimson_slash": {
+      "0": {
+       "x": 2,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "crimson_keep.blood_spit": {
+      "0": {
+       "x": 2,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "hollowmoon.thrown_knife": {
+      "0": {
+       "x": 2,
+       "y": 178,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 178,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "hollowmoon.boxing_glove": {
+      "0": {
+       "x": 2,
+       "y": 222,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 222,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "hollowmoon.horseshoe": {
+      "0": {
+       "x": 2,
+       "y": 266,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 266,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "hollowmoon.grin_bubble": {
+      "0": {
+       "x": 2,
+       "y": 310,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 310,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     }
+    }
+   },
+   "animations": {
+    "crimson_keep.bat_screech": {
+     "fly": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 12,
+      "loop": true
+     }
+    },
+    "crimson_keep.stone_chip": {
+     "fly": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 12,
+      "loop": true
+     }
+    },
+    "crimson_keep.crimson_slash": {
+     "fly": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 12,
+      "loop": true
+     }
+    },
+    "crimson_keep.blood_spit": {
+     "fly": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 12,
+      "loop": true
+     }
+    },
+    "hollowmoon.thrown_knife": {
+     "fly": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 12,
+      "loop": true
+     }
+    },
+    "hollowmoon.boxing_glove": {
+     "fly": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 12,
+      "loop": true
+     }
+    },
+    "hollowmoon.horseshoe": {
+     "fly": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 12,
+      "loop": true
+     }
+    },
+    "hollowmoon.grin_bubble": {
+     "fly": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 12,
+      "loop": true
+     }
+    }
+   }
+  },
+  "d2_effects": {
+   "native": {
+    "image": "native/d2_effects.png",
+    "size": [
+     37,
+     37
+    ],
+    "sprites": {
+     "crimson_keep.blood_splash": {
+      "0": {
+       "x": 1,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "2": {
+       "x": 19,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "3": {
+       "x": 28,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crimson_keep.bat_scatter": {
+      "0": {
+       "x": 1,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "2": {
+       "x": 19,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "3": {
+       "x": 28,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hollowmoon.confetti_pop": {
+      "0": {
+       "x": 1,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "2": {
+       "x": 19,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "3": {
+       "x": 28,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hollowmoon.smoke_puff": {
+      "0": {
+       "x": 1,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "2": {
+       "x": 19,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "3": {
+       "x": 28,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/d2_effects.png",
+    "size": [
+     178,
+     178
+    ],
+    "sprites": {
+     "crimson_keep.blood_splash": {
+      "0": {
+       "x": 2,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "2": {
+       "x": 90,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "3": {
+       "x": 134,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "crimson_keep.bat_scatter": {
+      "0": {
+       "x": 2,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "2": {
+       "x": 90,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "3": {
+       "x": 134,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "hollowmoon.confetti_pop": {
+      "0": {
+       "x": 2,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "2": {
+       "x": 90,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "3": {
+       "x": 134,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "hollowmoon.smoke_puff": {
+      "0": {
+       "x": 2,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "2": {
+       "x": 90,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "3": {
+       "x": 134,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     }
+    }
+   },
+   "animations": {
+    "crimson_keep.blood_splash": {
+     "play": {
+      "frames": [
+       "0",
+       "1",
+       "2",
+       "3"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "crimson_keep.bat_scatter": {
+     "play": {
+      "frames": [
+       "0",
+       "1",
+       "2",
+       "3"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "hollowmoon.confetti_pop": {
+     "play": {
+      "frames": [
+       "0",
+       "1",
+       "2",
+       "3"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "hollowmoon.smoke_puff": {
+     "play": {
+      "frames": [
+       "0",
+       "1",
+       "2",
+       "3"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    }
+   }
+  },
+  "d2_hollowmoon": {
+   "native": {
+    "image": "native/d2_hollowmoon.png",
+    "size": [
+     46,
+     37
+    ],
+    "sprites": {
+     "jack_in_the_box": {
+      "hop1": {
+       "x": 1,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hop2": {
+       "x": 10,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "carousel_horse": {
+      "gallop1": {
+       "x": 1,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "gallop2": {
+       "x": 10,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "gallop3": {
+       "x": 19,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 28,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 37,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "balloon_ghoul": {
+      "float1": {
+       "x": 1,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "float2": {
+       "x": 10,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "knife_juggler": {
+      "juggle1": {
+       "x": 1,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "juggle2": {
+       "x": 10,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/d2_hollowmoon.png",
+    "size": [
+     222,
+     178
+    ],
+    "sprites": {
+     "jack_in_the_box": {
+      "hop1": {
+       "x": 2,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hop2": {
+       "x": 46,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "carousel_horse": {
+      "gallop1": {
+       "x": 2,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "gallop2": {
+       "x": 46,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "gallop3": {
+       "x": 90,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 134,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 178,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "balloon_ghoul": {
+      "float1": {
+       "x": 2,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "float2": {
+       "x": 46,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "knife_juggler": {
+      "juggle1": {
+       "x": 2,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "juggle2": {
+       "x": 46,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     }
+    }
+   },
+   "animations": {
+    "jack_in_the_box": {
+     "move": {
+      "frames": [
+       "hop1",
+       "hop2"
+      ],
+      "fps": 4,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "hop1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "hop1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "carousel_horse": {
+     "move": {
+      "frames": [
+       "gallop1",
+       "gallop2",
+       "gallop3"
+      ],
+      "fps": 8,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "gallop1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "gallop1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "balloon_ghoul": {
+     "move": {
+      "frames": [
+       "float1",
+       "float2"
+      ],
+      "fps": 3,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "float1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "float1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "knife_juggler": {
+     "move": {
+      "frames": [
+       "juggle1",
+       "juggle2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "juggle1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "juggle1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    }
+   },
+   "info": {
+    "jack_in_the_box": {
+     "dungeon": "Hollowmoon Carnival",
+     "note": "Hops toward players, pops open to throw boxing_glove punches."
+    },
+    "carousel_horse": {
+     "dungeon": "Hollowmoon Carnival",
+     "note": "Charges in straight lines; drops horseshoe shots as it gallops."
+    },
+    "balloon_ghoul": {
+     "dungeon": "Hollowmoon Carnival",
+     "note": "Drifts slowly, fires grin_bubble; pops into confetti_pop on death."
+    },
+    "knife_juggler": {
+     "dungeon": "Hollowmoon Carnival",
+     "note": "Keeps knives in the air and throws them in fans of thrown_knife."
+    }
+   }
+  },
+  "d2_items": {
+   "native": {
+    "image": "native/d2_items.png",
+    "size": [
+     73,
+     145
+    ],
+    "sprites": {
+     "crimson_rapier": {
+      "0": {
+       "x": 1,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "bloodthorn_staff": {
+      "0": {
+       "x": 1,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "batwing_bow": {
+      "0": {
+       "x": 1,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "sanguine_cloak": {
+      "0": {
+       "x": 1,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "signet_of_the_count": {
+      "0": {
+       "x": 1,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crimson_chalice": {
+      "0": {
+       "x": 1,
+       "y": 46,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 46,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 46,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 46,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crimson_key": {
+      "0": {
+       "x": 1,
+       "y": 55,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 55,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 55,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 55,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "nightfall_scythe": {
+      "0": {
+       "x": 1,
+       "y": 64,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 64,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 64,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 64,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "twinkle0": {
+       "x": 37,
+       "y": 64,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "twinkle1": {
+       "x": 46,
+       "y": 64,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "twinkle2": {
+       "x": 55,
+       "y": 64,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "twinkle3": {
+       "x": 64,
+       "y": 64,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "ringmaster_cane": {
+      "0": {
+       "x": 1,
+       "y": 73,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 73,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 73,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 73,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "jugglers_dagger": {
+      "0": {
+       "x": 1,
+       "y": 82,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 82,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 82,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 82,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "carousel_bow": {
+      "0": {
+       "x": 1,
+       "y": 91,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 91,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 91,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 91,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "harlequin_garb": {
+      "0": {
+       "x": 1,
+       "y": 100,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 100,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 100,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 100,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "ring_of_the_jester": {
+      "0": {
+       "x": 1,
+       "y": 109,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 109,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 109,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 109,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "trick_deck": {
+      "0": {
+       "x": 1,
+       "y": 118,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 118,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 118,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 118,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "hollowmoon_key": {
+      "0": {
+       "x": 1,
+       "y": 127,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 127,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 127,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 127,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "grinning_mask": {
+      "0": {
+       "x": 1,
+       "y": 136,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine1": {
+       "x": 10,
+       "y": 136,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine2": {
+       "x": 19,
+       "y": 136,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "shine3": {
+       "x": 28,
+       "y": 136,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "twinkle0": {
+       "x": 37,
+       "y": 136,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "twinkle1": {
+       "x": 46,
+       "y": 136,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "twinkle2": {
+       "x": 55,
+       "y": 136,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "twinkle3": {
+       "x": 64,
+       "y": 136,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/d2_items.png",
+    "size": [
+     354,
+     706
+    ],
+    "sprites": {
+     "crimson_rapier": {
+      "0": {
+       "x": 2,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "bloodthorn_staff": {
+      "0": {
+       "x": 2,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "batwing_bow": {
+      "0": {
+       "x": 2,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "sanguine_cloak": {
+      "0": {
+       "x": 2,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "signet_of_the_count": {
+      "0": {
+       "x": 2,
+       "y": 178,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 178,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 178,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 178,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "crimson_chalice": {
+      "0": {
+       "x": 2,
+       "y": 222,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 222,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 222,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 222,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "crimson_key": {
+      "0": {
+       "x": 2,
+       "y": 266,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 266,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 266,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 266,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "nightfall_scythe": {
+      "0": {
+       "x": 2,
+       "y": 310,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 310,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 310,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 310,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "twinkle0": {
+       "x": 178,
+       "y": 310,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "twinkle1": {
+       "x": 222,
+       "y": 310,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "twinkle2": {
+       "x": 266,
+       "y": 310,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "twinkle3": {
+       "x": 310,
+       "y": 310,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "ringmaster_cane": {
+      "0": {
+       "x": 2,
+       "y": 354,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 354,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 354,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 354,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "jugglers_dagger": {
+      "0": {
+       "x": 2,
+       "y": 398,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 398,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 398,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 398,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "carousel_bow": {
+      "0": {
+       "x": 2,
+       "y": 442,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 442,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 442,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 442,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "harlequin_garb": {
+      "0": {
+       "x": 2,
+       "y": 486,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 486,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 486,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 486,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "ring_of_the_jester": {
+      "0": {
+       "x": 2,
+       "y": 530,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 530,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 530,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 530,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "trick_deck": {
+      "0": {
+       "x": 2,
+       "y": 574,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 574,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 574,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 574,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "hollowmoon_key": {
+      "0": {
+       "x": 2,
+       "y": 618,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 618,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 618,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 618,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "grinning_mask": {
+      "0": {
+       "x": 2,
+       "y": 662,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine1": {
+       "x": 46,
+       "y": 662,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine2": {
+       "x": 90,
+       "y": 662,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "shine3": {
+       "x": 134,
+       "y": 662,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "twinkle0": {
+       "x": 178,
+       "y": 662,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "twinkle1": {
+       "x": 222,
+       "y": 662,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "twinkle2": {
+       "x": 266,
+       "y": 662,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "twinkle3": {
+       "x": 310,
+       "y": 662,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     }
+    }
+   },
+   "animations": {
+    "crimson_rapier": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "bloodthorn_staff": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "batwing_bow": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "sanguine_cloak": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "signet_of_the_count": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "crimson_chalice": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "crimson_key": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "nightfall_scythe": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     },
+     "twinkle": {
+      "frames": [
+       "twinkle0",
+       "0",
+       "twinkle1",
+       "0",
+       "twinkle2",
+       "0",
+       "twinkle3",
+       "0"
+      ],
+      "fps": 8,
+      "loop": true
+     }
+    },
+    "ringmaster_cane": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "jugglers_dagger": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "carousel_bow": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "harlequin_garb": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "ring_of_the_jester": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "trick_deck": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "hollowmoon_key": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "grinning_mask": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     },
+     "twinkle": {
+      "frames": [
+       "twinkle0",
+       "0",
+       "twinkle1",
+       "0",
+       "twinkle2",
+       "0",
+       "twinkle3",
+       "0"
+      ],
+      "fps": 8,
+      "loop": true
+     }
+    }
+   },
+   "info": {
+    "crimson_rapier": {
+     "tier": "rare",
+     "dungeon": "Crimson Keep"
+    },
+    "bloodthorn_staff": {
+     "tier": "rare",
+     "dungeon": "Crimson Keep"
+    },
+    "batwing_bow": {
+     "tier": "rare",
+     "dungeon": "Crimson Keep"
+    },
+    "sanguine_cloak": {
+     "tier": "rare",
+     "dungeon": "Crimson Keep"
+    },
+    "signet_of_the_count": {
+     "tier": "boss",
+     "dungeon": "Crimson Keep"
+    },
+    "crimson_chalice": {
+     "tier": "boss",
+     "dungeon": "Crimson Keep"
+    },
+    "crimson_key": {
+     "tier": "rare",
+     "dungeon": "Crimson Keep"
+    },
+    "nightfall_scythe": {
+     "tier": "legendary",
+     "dungeon": "Crimson Keep"
+    },
+    "ringmaster_cane": {
+     "tier": "rare",
+     "dungeon": "Hollowmoon Carnival"
+    },
+    "jugglers_dagger": {
+     "tier": "rare",
+     "dungeon": "Hollowmoon Carnival"
+    },
+    "carousel_bow": {
+     "tier": "rare",
+     "dungeon": "Hollowmoon Carnival"
+    },
+    "harlequin_garb": {
+     "tier": "rare",
+     "dungeon": "Hollowmoon Carnival"
+    },
+    "ring_of_the_jester": {
+     "tier": "rare",
+     "dungeon": "Hollowmoon Carnival"
+    },
+    "trick_deck": {
+     "tier": "boss",
+     "dungeon": "Hollowmoon Carnival"
+    },
+    "hollowmoon_key": {
+     "tier": "rare",
+     "dungeon": "Hollowmoon Carnival"
+    },
+    "grinning_mask": {
+     "tier": "legendary",
+     "dungeon": "Hollowmoon Carnival"
+    }
+   }
+  },
+  "ow2_enemies": {
+   "native": {
+    "image": "native/ow2_enemies.png",
+    "size": [
+     37,
+     46
+    ],
+    "sprites": {
+     "conch_hermit": {
+      "scuttle1": {
+       "x": 1,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "scuttle2": {
+       "x": 10,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "burrow_mole": {
+      "dig1": {
+       "x": 1,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "dig2": {
+       "x": 10,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "bandit_archer": {
+      "walk1": {
+       "x": 1,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "walk2": {
+       "x": 10,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crag_dwarf": {
+      "walk1": {
+       "x": 1,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "walk2": {
+       "x": 10,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "obsidian_scorpion": {
+      "scuttle1": {
+       "x": 1,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "scuttle2": {
+       "x": 10,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "attack": {
+       "x": 19,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "hurt": {
+       "x": 28,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/ow2_enemies.png",
+    "size": [
+     178,
+     222
+    ],
+    "sprites": {
+     "conch_hermit": {
+      "scuttle1": {
+       "x": 2,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "scuttle2": {
+       "x": 46,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "burrow_mole": {
+      "dig1": {
+       "x": 2,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "dig2": {
+       "x": 46,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "bandit_archer": {
+      "walk1": {
+       "x": 2,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "walk2": {
+       "x": 46,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "crag_dwarf": {
+      "walk1": {
+       "x": 2,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "walk2": {
+       "x": 46,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "obsidian_scorpion": {
+      "scuttle1": {
+       "x": 2,
+       "y": 178,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "scuttle2": {
+       "x": 46,
+       "y": 178,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "attack": {
+       "x": 90,
+       "y": 178,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "hurt": {
+       "x": 134,
+       "y": 178,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     }
+    }
+   },
+   "animations": {
+    "conch_hermit": {
+     "move": {
+      "frames": [
+       "scuttle1",
+       "scuttle2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "scuttle1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "scuttle1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "burrow_mole": {
+     "move": {
+      "frames": [
+       "dig1",
+       "dig2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "dig1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "dig1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "bandit_archer": {
+     "move": {
+      "frames": [
+       "walk1",
+       "walk2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "walk1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "walk1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "crag_dwarf": {
+     "move": {
+      "frames": [
+       "walk1",
+       "walk2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "walk1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "walk1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    },
+    "obsidian_scorpion": {
+     "move": {
+      "frames": [
+       "scuttle1",
+       "scuttle2"
+      ],
+      "fps": 5,
+      "loop": true
+     },
+     "attack": {
+      "frames": [
+       "scuttle1",
+       "attack"
+      ],
+      "fps": 6,
+      "loop": false
+     },
+     "hurt": {
+      "frames": [
+       "hurt",
+       "scuttle1"
+      ],
+      "fps": 12,
+      "loop": false
+     }
+    }
+   },
+   "info": {
+    "conch_hermit": {
+     "biome": "shore",
+     "ability": "Retreats into its shell (blocks shots) when hit three times quickly, then pops out squirting.",
+     "shot": "conch_hermit.water_squirt"
+    },
+    "burrow_mole": {
+     "biome": "lowlands",
+     "ability": "Burrows under the field and surfaces next to a player, flinging dirt.",
+     "shot": "burrow_mole.dirt_clod"
+    },
+    "bandit_archer": {
+     "biome": "midlands",
+     "ability": "Keeps its distance from players and looses volleys of three arrows.",
+     "shot": "bandit_archer.bandit_arrow"
+    },
+    "crag_dwarf": {
+     "biome": "highlands",
+     "ability": "A lamp-lit miner; throws his pick, then charges to pick it back up.",
+     "shot": "crag_dwarf.spinning_pick"
+    },
+    "obsidian_scorpion": {
+     "biome": "godlands",
+     "ability": "Its cracked glass shell glows hotter as it is damaged; at low health its stinger shots split.",
+     "shot": "obsidian_scorpion.magma_stinger"
+    }
+   }
+  },
+  "ow2_shots": {
+   "native": {
+    "image": "native/ow2_shots.png",
+    "size": [
+     19,
+     46
+    ],
+    "sprites": {
+     "conch_hermit.water_squirt": {
+      "0": {
+       "x": 1,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 1,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "burrow_mole.dirt_clod": {
+      "0": {
+       "x": 1,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 10,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "bandit_archer.bandit_arrow": {
+      "0": {
+       "x": 1,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 19,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "crag_dwarf.spinning_pick": {
+      "0": {
+       "x": 1,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 28,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     },
+     "obsidian_scorpion.magma_stinger": {
+      "0": {
+       "x": 1,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      },
+      "1": {
+       "x": 10,
+       "y": 37,
+       "w": 8,
+       "h": 8,
+       "pivot": [
+        0,
+        0
+       ]
+      }
+     }
+    }
+   },
+   "x5": {
+    "image": "x5/ow2_shots.png",
+    "size": [
+     90,
+     222
+    ],
+    "sprites": {
+     "conch_hermit.water_squirt": {
+      "0": {
+       "x": 2,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 2,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "burrow_mole.dirt_clod": {
+      "0": {
+       "x": 2,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 46,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "bandit_archer.bandit_arrow": {
+      "0": {
+       "x": 2,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 90,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "crag_dwarf.spinning_pick": {
+      "0": {
+       "x": 2,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 134,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     },
+     "obsidian_scorpion.magma_stinger": {
+      "0": {
+       "x": 2,
+       "y": 178,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      },
+      "1": {
+       "x": 46,
+       "y": 178,
+       "w": 42,
+       "h": 42,
+       "pivot": [
+        1,
+        1
+       ]
+      }
+     }
+    }
+   },
+   "animations": {
+    "conch_hermit.water_squirt": {
+     "fly": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "burrow_mole.dirt_clod": {
+     "fly": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "bandit_archer.bandit_arrow": {
+     "fly": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "crag_dwarf.spinning_pick": {
+     "fly": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    },
+    "obsidian_scorpion.magma_stinger": {
+     "fly": {
+      "frames": [
+       "0",
+       "1"
+      ],
+      "fps": 10,
+      "loop": true
+     }
+    }
+   }
+  }
+ }
+}

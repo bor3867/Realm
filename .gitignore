@@ -5,3 +5,4 @@ realm_update.zip
 __pycache__/
 *.pyc
 .claude/
+.devshots/
