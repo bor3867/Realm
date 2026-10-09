@@ -53,7 +53,24 @@ def _astral(f):
     return c.done()
 
 
-PORTALS = {'frostveil': _frostveil, 'mirerot': _mirerot, 'astral': _astral}
+def _sandscour(f):
+    """Sandscour Tomb: a pyramid's doorway of sandstone round a golden swirl, a scarab over the lintel"""
+    c = _PT.Cv()
+    for y in range(1, 16):                                  # the pyramid: a triangle of sandstone, lit on its left face
+        half = (y - 1) * 0.5 + 0.6
+        for x in range(16):
+            if abs(x - 7.5) <= half:
+                c.p(x, y, 'B' if x < 7.5 - half + 2 else 'b' if x < 7.5 else 'g')
+    c.swirl(7.5, 11.2, 2.8, 3.9, ['W', 'Y', 'G', 'g'], f, arms=2)
+    for x in range(4, 12):                                  # the lintel and the doorway's frame
+        c.p(x, 7, 'k')
+    c.p(7, 5, 'G'); c.p(8, 5, 'G'); c.p(6, 6, 'g' if f % 2 else 'Y'); c.p(9, 6, 'Y' if f % 2 else 'g')   # a scarab, its legs twitching
+    for x in range(0, 16):
+        c.p(x, 15, 'B' if (x + f) % 3 else 'b')
+    return c.done()
+
+
+PORTALS = {'frostveil': _frostveil, 'mirerot': _mirerot, 'astral': _astral, 'sandscour': _sandscour}
 
 # ---- tiles the bundle didn't bring (8x8, the dungeons4 format: palette, [variants[frames[rows]]])
 _BOARD = ['bbbbcbbb', 'ccccbcec', 'aaaaaaaa', 'bbcbbbbb', 'cbcccccb', 'aaaaaaaa', 'bbbbbcbb', 'ccccccbc']

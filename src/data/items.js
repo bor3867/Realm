@@ -655,7 +655,25 @@ UT.push(
   { id: 'event_horizon', type: 'ring', slot: 'ring', name: 'Event Horizon', reg: 'ix_items/event_horizon', bonus: { att: 8, hp: 90 }, legendary: true,
     desc: 'What is left of the machine\'s heart: a point nothing comes back from. Your shots lean toward what they hunt.' },
 );
+// ---- the Gilded Sphinx's (Sandscour Tomb; icons from ix_items). The Deathmask drops only from a phase-3 kill.
+UT.push(
+  { id: 'sunscorch_khopesh', type: 'sword', slot: 'weapon', name: 'Sunscorch Khopesh', reg: 'ix_items/sunscorch_khopesh',
+    weapon: { dmg: [95, 145], range: 3.0, speed: 9, rate: 1.05, proj: 'ember', size: 0.5 }, desc: 'Its hook still holds the heat of a sun that set a thousand years ago.' },
+  { id: 'gilded_scepter', type: 'wand', slot: 'weapon', name: 'Gilded Scepter', reg: 'ix_items/gilded_scepter',
+    weapon: { dmg: [75, 120], range: 8.2, speed: 19, rate: 1.05, proj: 'goldshard', size: 0.42, pierce: true }, desc: 'Gold all the way through. Its bolts go through things too.' },
+  { id: 'embalmers_wraps', type: 'robe', slot: 'armor', name: 'Embalmer\'s Wraps', reg: 'ix_items/embalmers_wraps', bonus: { def: 8, wis: 6, hp: 40 },
+    desc: 'Linen soaked in resin and old prayers. It does not breathe, and neither do you, quite.' },
+  { id: 'scarab_ring', type: 'ring', slot: 'ring', name: 'Scarab Ring', reg: 'ix_items/scarab_ring', bonus: { dex: 5, spd: 5 },
+    desc: 'A beetle of blue faience. It turns on your finger to face the sun.' },
+  { id: 'sphinx_helm', type: 'seal', slot: 'ability', name: 'The Sphinx\'s Crown', reg: 'ix_items/sphinx_helm',
+    ability: { cost: 70, armored: 4, burst: { count: 14, proj: 'ember', dmg: 130, range: 4.5 } }, desc: 'Wear the riddle. It crowns you in gold and throws the sand back at them.' },
+  { id: 'pharaohs_deathmask', type: 'ring', slot: 'ring', name: 'The Pharaoh\'s Deathmask', reg: 'ix_items/pharaohs_deathmask', bonus: { hp: 20, mp: 20, att: 2, def: 2, spd: 2, dex: 2, vit: 2, wis: 2 }, legendary: true,
+    desc: 'A face of gold for a king nobody remembers. Every death you cause, it drinks, and shares.' },
+);
 Object.assign(SPECIAL, {
+  sunscorch_khopesh: { weapon: { burn: { dps: 50, t: 3 } } },
+  pharaohs_deathmask: { passive: { killheal: 35 } },
+  sphinx_helm: { mod: 'aftershock' },
   starforged_katana: { weapon: { crit: { p: 0.12, x: 2 } } },
   comet_bow: { weapon: { homing: 1.2 } },
   nebula_robe: { passive: { manaonhit: 1 } },
@@ -734,6 +752,7 @@ for (const [d, name, desc, reg] of [
   ['frostveil', 'Frostveil Key', 'Cut from clear ice. It does not melt in your hand, which is worse.', 'ix_items/frostveil_key'],
   ['mirerot', 'Mirerot Key', 'Grown, not forged. It is slightly warm and very slightly alive.', 'ix_items/mirerot_key'],
   ['astral', 'Astral Key', 'Brass and starlight. It ticks.', 'ix_items/astral_key'],
+  ['sandscour', 'Sandscour Key', 'A scarab of beaten gold. Its legs twitch when you aren\'t looking.', 'ix_items/sandscour_key'],
 ]) add({ id: `key_${d}`, type: 'key', slot: 'consumable', tier: null, name, use: { key: d }, reg: reg || undefined, desc: `${desc} Use it outside a dungeon to open a portal there.` });
 // ---- a vault chest: use it and your vault grows by 8 slots
 add({ id: 'vault_chest', type: 'chest', slot: 'consumable', tier: null, name: 'Vault Chest', use: { vault: 8 },

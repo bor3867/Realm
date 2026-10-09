@@ -54,3 +54,9 @@
   bridge; the Grand Orrery. Notes: dungeon_astral.md, boss_grand_orrery.md.
 - Audit D4 done for the Orrery: the Runeholt boss is now the Rime Astrolabe (display names only; ids unchanged).
 - Framework: arena seals skip the void; a `drawTop` hook for boss layers over the bullets.
+
+## Phase 3 — Sandscour Tomb (dungeon 4 of 6)
+- New dungeon (style `sandscour`): dunes outdoors, the tomb's long hall, urns, waking sarcophagi, the sealed vault,
+  quicksand; the Gilded Sphinx. Notes: dungeon_sandscour.md, boss_gilded_sphinx.md.
+- Engine: an enemy `leash`; shots break urns through `hitObject`.
+- Tuning: burial sarcophagi 24 → 12, wake reach 3 → 4.5; sanctum floor to sand; dust devils drawn once, upright.

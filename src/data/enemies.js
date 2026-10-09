@@ -1421,6 +1421,43 @@ ENEMIES.giant_watermelon = { name: 'Giant Watermelon', biome: 'event', melon: tr
   // audit D4: the Runeholt boss that shared the name is the Rime Astrolabe now (its id stays, so saves keep working)
   REALM_BOSSES.orrery_of_winter.name = 'The Rime Astrolabe';
 }
+// ================================================================ SANDSCOUR TOMB (Realm Update, docs/design/dungeon_sandscour.md)
+{
+  const LSD = L([3, 6], [3, 6], [1, 3], [1, 2], 0.02), SDE = (k) => 'ex_sandscour/' + k;
+  Object.assign(ENEMIES, {
+    dune_serpent: { name: 'Dune Serpent', biome: 'sandscour', reg: SDE('dune_serpent'), hp: 700, def: 4, speed: 2.8, xp: 40, r: 0.45, ai: 'burrow', aggro: 10, surfaceFling: true,
+      attacks: [{ pattern: 'radial', proj: 'saltcrystal', count: 8, dmg: 34, speed: 4.5, range: 5, cd: 2.2, tell: 400 }], loot: LSD },
+    jackal_warden: { name: 'Jackal Warden', biome: 'sandscour', reg: SDE('jackal_warden'), scale: 1.25, hp: 1100, def: 8, speed: 2.6, xp: 55, r: 0.5, ai: 'flank', aggro: 10, leash: 5, contact: 40,
+      attacks: [{ pattern: 'aimed', proj: 'goldshard', count: 3, arc: 0.4, dmg: 40, speed: 7, range: 7, cd: 1.8, tell: 300 }], loot: LSD },
+    sand_mummy: { name: 'Sand Mummy', biome: 'sandscour', reg: SDE('sand_mummy'), hp: 1500, def: 14, speed: 1.1, xp: 60, r: 0.5, ai: 'shamble', aggro: 10, contact: 45,
+      attacks: [{ pattern: 'radial', proj: 'salt', count: 8, turn: 0.2, dmg: 38, speed: 4, range: 6, cd: 2.6, tell: 550 },
+        { pattern: 'aimed', proj: 'salt', count: 1, dmg: 44, speed: 7, range: 7, cd: 1.6, tell: 300 }], loot: LSD },
+    tomb_scarab: { name: 'Tomb Scarab', biome: 'sandscour', reg: SDE('tomb_scarab'), hp: 260, def: 2, speed: 4.4, xp: 14, r: 0.36, ai: 'skitter', aggro: 11, contact: 26,
+      attacks: [{ pattern: 'aimed', proj: 'glyphbolt', count: 1, dmg: 26, speed: 8, range: 4, cd: 1.8, tell: 200 }], loot: LSD },
+  });
+  const CHS = [{ slot: 'weapon', tiers: [3, 6], p: 0.8 }, { slot: 'armor', tiers: [3, 6], p: 0.8 }, { slot: 'ability', tiers: [2, 3], p: 0.5 }, { slot: 'ring', tiers: [1, 3], p: 0.4 },
+    { stat: true, p: 0.6 }, { id: 'pot_hp', p: 1 }];
+  DUNGEONS.sandscour = { name: 'Sandscour Tomb', floor: 'sdtomb', wall: 'sdwall', hazard: null, rooms: 13, portal: 'sandscour', style: 'sandscour',
+    layout: { secrets: 1 }, seals: [], altar: false, chestLoot: CHS, mobs: ['dune_serpent', 'jackal_warden', 'sand_mummy', 'tomb_scarab'], elites: [],
+    boss: 'gilded_sphinx', mobHp: 1.1, ambient: 'rgba(30,18,6,0.4)',
+    compose(rm, r, deep) {
+      if (rm.kind === 'oasis') return [];
+      if (rm.kind === 'dunes') return ['dune_serpent', 'dune_serpent', 'dune_serpent', 'dune_serpent'];
+      if (rm.kind === 'hall') return ['tomb_scarab', 'tomb_scarab'];
+      if (rm.kind === 'burial') return ['tomb_scarab', 'tomb_scarab', 'tomb_scarab'];
+      if (rm.kind === 'vault') return ['sand_mummy'];
+      if (rm.kind === 'gate') return ['tomb_scarab', 'tomb_scarab', 'tomb_scarab'];
+      return deep < 0.6 ? ['tomb_scarab', 'tomb_scarab', 'tomb_scarab', 'sand_mummy'] : ['sand_mummy', 'sand_mummy', 'tomb_scarab', 'tomb_scarab', 'tomb_scarab', 'tomb_scarab'];
+    },
+    // the jackals: one holds every doorway
+    extraSpawns: (m) => (m.sdDoors || []).map(([x, y]) => ['jackal_warden', x, y]) };
+  PORTAL_EXTRA.unshift((D) => {
+    if (D.biome === 'dunes' && Math.random() < 0.45) return ['sandscour', D.children ? 0.05 : 0.015];
+    if (D.biome === 'shore' && D.children && Math.random() < 0.25) return ['sandscour', 0.04];
+    return null;
+  });
+  Object.assign(SPEECH, { gilded_sphinx: { see: ['What walks on four legs, then two, then none?', 'Answer, or be buried with the rest.'], die: ['...the riddle... was you...'] } });
+}
 // the bands round the campfires: orcs and their archers in the Thornwood, goblins in the Greenmarch
 export const FIRECAMP_BANDS = { thornwood: ['orc_brute', 'orc_brute', 'bandit_archer', 'bandit_archer'], lowlands: ['hedge_goblin', 'hedge_goblin', 'hedge_goblin', 'field_rat'] };
 Object.assign(SPEECH, {

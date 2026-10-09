@@ -6,10 +6,10 @@ export const TILE_NAMES = ['water', 'deep', 'sand', 'fen', 'mud', 'snow', 'runef
   'grass', 'cobble', 'dirt', 'hedge', 'shallows', 'bog', 'ice', 'dune', 'glassflat', 'loam', 'bramble', 'steppe', 'quartz',
   'cryptfloor', 'cryptwall', 'cryptwater', 'emberfloor', 'emberwall', 'emberlava', 'carpet',
   'combfloor', 'waxwall', 'honey', 'stageboards', 'velvetwall', 'prismfloor', 'crystalwall', 'dreamfloor', 'dreamwall', 'starvoid', 'dreambridge', 'fadebridge', 'fadegone',
-  'cliff', 'rift', 'fvsnow', 'fvice', 'fvwater', 'fvwall', 'mrmud', 'mrmoss', 'mrboard', 'mrwall', 'asmarble', 'asgrate', 'asvoid', 'aswall'];
+  'cliff', 'rift', 'fvsnow', 'fvice', 'fvwater', 'fvwall', 'mrmud', 'mrmoss', 'mrboard', 'mrwall', 'asmarble', 'asgrate', 'asvoid', 'aswall', 'sdsand', 'sdtomb', 'quicksand', 'sdwall'];
 export const TID = Object.fromEntries(TILE_NAMES.map((n, i) => [n, i]));
 const SOLID_TILES = new Set([TID.water, TID.deep, TID.forgewall, TID.void, TID.chapelwall, TID.ribwall, TID.hedge, TID.bramble, TID.cryptwall, TID.emberwall, TID.cryptwater,
-  TID.waxwall, TID.velvetwall, TID.crystalwall, TID.dreamwall, TID.starvoid, TID.fadegone, TID.cliff, TID.fvwall, TID.mrwall, TID.aswall]);
+  TID.waxwall, TID.velvetwall, TID.crystalwall, TID.dreamwall, TID.starvoid, TID.fadegone, TID.cliff, TID.fvwall, TID.mrwall, TID.aswall, TID.sdwall]);
 export const BIOMES = ['shore', 'fen', 'runeholt', 'godfall', 'dunes', 'thornwood', 'steppe', 'lowlands'];
 // how deep in each land lies: 0 the coast ... 3 the god's fall. The three newer lands share a ring with an older one.
 export const BIOME_RING = [0, 1, 2, 3, 0, 1, 2, 1];
@@ -33,9 +33,12 @@ export const SKINS = [null,
   ['ex_tiles/mirerot_mud_a', 'mrmud'], ['ex_tiles/mirerot_mud_b', 'mrmud'], ['ex_tiles/mirerot_moss', 'mrmoss'],
   ['ex_tiles/mirerot_bog', 'bog'], ['ex_tiles/mirerot_wall_top', 'mrwall'],
   // the Astral Observatory: marble, brass grate, the void (walkable: you fall), the wall's top
-  ['ex_tiles/astral_marble', 'asmarble'], ['ex_tiles/astral_brass_grate', 'asgrate'], ['ex_tiles/astral_void', 'asvoid'], ['ex_tiles/astral_wall_top', 'aswall']];
+  ['ex_tiles/astral_marble', 'asmarble'], ['ex_tiles/astral_brass_grate', 'asgrate'], ['ex_tiles/astral_void', 'asvoid'], ['ex_tiles/astral_wall_top', 'aswall'],
+  // Sandscour Tomb: sand outside, the tomb floor inside, quicksand, the wall's top
+  ['ex_tiles/sandscour_sand_a', 'sdsand'], ['ex_tiles/sandscour_sand_b', 'sdsand'], ['ex_tiles/sandscour_tomb_floor', 'sdtomb'],
+  ['ex_tiles/sandscour_quicksand', 'quicksand'], ['ex_tiles/sandscour_wall_top', 'sdwall']];
 // a wall skin's face: drawn under the wall, toward the camera, so walls stand up (RotMG-style)
-export const WALL_FACE = { fvwall: 'ex_tiles/frostveil_wall_side', mrwall: 'ex_tiles/mirerot_wall_side', aswall: 'ex_tiles/astral_wall_side' };
+export const WALL_FACE = { fvwall: 'ex_tiles/frostveil_wall_side', mrwall: 'ex_tiles/mirerot_wall_side', aswall: 'ex_tiles/astral_wall_side', sdwall: 'ex_tiles/sandscour_wall_side' };
 export const SKIN_TID = SKINS.map((s) => (s ? TID[s[1]] : -1));
 export const SK = Object.fromEntries(SKINS.map((s, k) => [s ? s[0].split('/')[1].replace(/^(shore|lowlands|midlands|highlands|godlands)_/, '') + (s[1] === 'deep' || s[1] === 'steppe' ? '@' + s[1] : '') : '-', k]));
 // a fixed per-tile hash (0..1), so jitter and dithering never disturb the generator's random stream
@@ -668,11 +671,11 @@ export function randomTileInBiome(m, b, r, avoid, minD = 14) {
 // Upper dungeons seal their boss behind a gate (def.seals: wardens, levers, a puzzle); the lower ones don't.
 export function dungeon(seed, def) {
   const r = rng(seed);
-  const S = { chapel: 200, crypt: 180, forge: 180, scriptorium: 214, heart: 196, throne: 196, hive: 200, theatre: 190, spire: 220, islands: 230, frostveil: 300, mirerot: 280, astral: 340 }[def.style] || 230;
+  const S = { chapel: 200, crypt: 180, forge: 180, scriptorium: 214, heart: 196, throne: 196, hive: 200, theatre: 190, spire: 220, islands: 230, frostveil: 300, mirerot: 280, astral: 340, sandscour: 320 }[def.style] || 230;
   const FLOOR = TID[def.floor], WALL = TID[def.wall], HAZ = def.hazard ? TID[def.hazard] : null;
   const WET = def.style === 'crypt' ? TID.cryptwater : TID.water, HOT = def.style === 'ember' ? TID.emberlava : TID.lava;
   const m = makeMap('dungeon', def.name, S, S, TID.void);
-  if (def.style === 'frostveil' || def.style === 'mirerot' || def.style === 'astral') m.skin = new Uint8Array(S * S);
+  if (['frostveil', 'mirerot', 'astral', 'sandscour'].includes(def.style)) m.skin = new Uint8Array(S * S);
   const tile = (x, y) => m.tiles[idx(m, x, y)];
   const set = (x, y, t) => { if (x > 1 && y > 1 && x < S - 2 && y < S - 2) m.tiles[idx(m, x, y)] = t; };
   const carve = (x0, y0, x1, y1, t = FLOOR) => {
@@ -728,6 +731,46 @@ export function dungeon(seed, def) {
 
   // ================================================================ the layouts
   const LAYOUT = {
+    // ---- SANDSCOUR TOMB: the oasis and the dunes outdoors, the gate, the Long Hall with chambers off it, the
+    // Burial Chamber and its sealed vault, the antechamber, the Sanctum
+    sandscour() {
+      const cy0 = S >> 1, sand = (x0, y0, x1, y1) => carve(x0, y0, x1, y1, TID.sdsand);
+      const fits = (x, y, w, h) => x > 6 && y > 6 && x + w < S - 6 && y + h < S - 6 && !rooms.some((o) => x < o.x + o.w + 3 && o.x < x + w + 3 && y < o.y + o.h + 3 && o.y < y + h + 3);
+      const oasis = room(14, cy0 - 9, 19, 19, { kind: 'oasis', dep: 0, shape: 'blob', rad: 8, seed: r(), calm: true });
+      const dunes = room(oasis.x + oasis.w + 8, cy0 - 16, 33, 33, { kind: 'dunes', dep: 1, shape: 'blob', rad: 15, seed: r() });
+      tube(oasis.cx, oasis.cy, dunes.cx, dunes.cy, 2, TID.sdsand); link(oasis, dunes);
+      const gate = room(dunes.x + dunes.w + 8, cy0 - 7, 15, 13, { kind: 'gate', dep: 2 });
+      tube(dunes.cx, dunes.cy, gate.cx, gate.cy, 2, TID.sdsand); link(dunes, gate);
+      // the Long Hall: east from the gate, one right-angle jog, chambers off it to either side
+      const jog = gate.cy < S / 2 ? 1 : -1, hy1 = gate.cy - 1, L1 = r.int(50, 62), L2 = r.int(56, 66), jx = gate.x + gate.w + L1, hy2 = hy1 + jog * r.int(18, 24);
+      const hall1 = room(gate.x + gate.w, hy1, L1, 3, { kind: 'hall', dep: 3, few: true });
+      const jogR = room(jx, Math.min(hy1, hy2), 3, Math.abs(hy2 - hy1) + 3, { kind: 'hall', dep: 4, few: true });
+      const hall2 = room(jx, hy2, L2, 3, { kind: 'hall', dep: 5, few: true });
+      link(gate, hall1); link(hall1, jogR); link(jogR, hall2);
+      m.sdDoors = [[gate.x + gate.w - 1.5, gate.cy + 0.5]];
+      let side = r.chance(0.5) ? 1 : -1, made = 0;
+      for (const [H, k0] of [[hall1, 4], [hall2, 6]]) for (let x = H.x + 8; x < H.x + H.w - 16 && made < 4; x += r.int(17, 22)) {
+        const w = 15, h = 13, neck = 4, y = side < 0 ? H.y - neck - h : H.y + H.h + neck;
+        if (!fits(x, y, w, h)) { side = -side; continue; }
+        const c = room(x, y, w, h, { kind: 'chamber', dep: k0 + made * 0.5 });
+        carve(x + (w >> 1) - 1, side < 0 ? y + h : H.y + H.h, x + (w >> 1) + 1, side < 0 ? H.y - 1 : y - 1, TID.sdtomb);
+        link(H, c); m.sdDoors.push([x + (w >> 1) + 0.5, side < 0 ? y + h - 1.5 : y + 1.5]);
+        side = -side; made++;
+      }
+      // the Burial Chamber at the hall's end, its sealed vault beside it
+      const burial = room(hall2.x + hall2.w, hall2.cy - 8, 27, 17, { kind: 'burial', dep: 8 });
+      link(hall2, burial);
+      const vw = 11, vh = 9, vx = burial.cx - (vw >> 1), vUp = fits(vx, burial.y - 4 - vh, vw, vh), vy = vUp ? burial.y - 4 - vh : burial.y + burial.h + 4;
+      const vault = room(vx, vy, vw, vh, { kind: 'vault', dep: 8, leaf: true, role: 'treasure' });
+      link(burial, vault);
+      const ny0 = vUp ? vault.y + vault.h : burial.y + burial.h, ny1 = vUp ? burial.y - 1 : vault.y - 1;
+      m.sdSeal = []; for (let y = ny0; y <= ny1; y++) for (let x = burial.cx - 1; x <= burial.cx + 1; x++) m.sdSeal.push(y * S + x);
+      const ante = room(burial.x + burial.w + 7, burial.cy - 6, 13, 13, { kind: 'antechamber', dep: 9, role: 'rest' });
+      tube(burial.cx, burial.cy, ante.cx, ante.cy, 1, TID.sdtomb); link(burial, ante);
+      const sanctum = room(ante.x + ante.w + 7, ante.cy - 20, 40, 40, { kind: 'sanctum', dep: 10 });
+      tube(ante.cx, ante.cy, sanctum.cx, sanctum.cy, 1, TID.sdtomb); link(ante, sanctum);
+      return { start: oasis, boss: sanctum };
+    },
     // ---- THE ASTRAL OBSERVATORY: platforms on a grid over the void, joined by straight grate bridges. Gallery,
     // platforms, the Clockwork (two turning bridges), the Telescope Dais (its vault across a star bridge), the
     // Antechamber, the Orrery Floor. Nothing is walled: the void is everywhere.
@@ -1258,7 +1301,51 @@ export function dungeon(seed, def) {
   const MR = (k) => 'ex_decor/mirerot_' + k;
   const pod = (x, y) => { if (isF(x, y) && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) put(m, MR('spore_pod'), x, y, false, { mrPod: true }); };
   const AS = (k) => 'ex_decor/astral_' + k;
+  const SD = (k) => 'ex_decor/sandscour_' + k;
+  const urn = (x, y) => { if (isF(x, y) && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) put(m, SD('urn'), x, y, true, { sdUrn: true, hp: 3 }); };
+  const sarc = (x, y, extra = {}) => { if (isF(x, y) && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) put(m, SD('sarcophagus'), x, y, true, { sdSarc: true, ...extra }); };
   const DRESS = {
+    sandscour(n) {
+      const inRoom = (x, y) => isF(x, y) && x >= n.x && y >= n.y && x < n.x + n.w && y < n.y + n.h;
+      const toSand = () => { for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) if (inRoom(x, y)) set(x, y, TID.sdsand); };   // after the objects: they stand on floor
+      const pit = (px, py, rad) => { for (let y = py - rad; y <= py + rad; y++) for (let x = px - rad; x <= px + rad; x++) if (inRoom(x, y) && Math.hypot(x - px, y - py) <= rad + 0.3) set(x, y, TID.quicksand); (m.sdPits = m.sdPits || []).push([px + 0.5, py + 0.5]); };
+      if (n.kind === 'oasis') {
+        for (let k = 0; k < 5; k++) { const a = r() * Math.PI * 2, d = n.rad * (0.55 + r() * 0.3); put2(n, Math.round(n.cx + Math.cos(a) * d), Math.round(n.cy + Math.sin(a) * d), SD('saguaro')); }
+        put2(null, n.x + n.w - 4, n.cy - 3, SD('obelisk')); put2(null, n.x + n.w - 4, n.cy + 3, SD('obelisk')); put2(null, n.cx - 3, n.cy + 3, SD('skull_pile'), false);
+        toSand();
+      } else if (n.kind === 'dunes') {
+        for (let k = 0; k < 3; k++) { const a = (k / 3) * Math.PI * 2 + r() * 1.5, d = n.rad * 0.5; pit(Math.round(n.cx + Math.cos(a) * d), Math.round(n.cy + Math.sin(a) * d), 2); }
+        for (let k = 0; k < 9; k++) { const a = r() * Math.PI * 2, d = n.rad * (0.3 + r() * 0.55); put2(n, Math.round(n.cx + Math.cos(a) * d), Math.round(n.cy + Math.sin(a) * d), SD('saguaro')); }
+        for (let k = 0; k < 3; k++) { const a = r() * Math.PI * 2, d = n.rad * (0.3 + r() * 0.5); put2(n, Math.round(n.cx + Math.cos(a) * d), Math.round(n.cy + Math.sin(a) * d), SD('skull_pile'), false); }
+        toSand();
+      } else if (n.kind === 'gate') {
+        put2(null, n.cx - 3, n.y + 2, SD('obelisk')); put2(null, n.cx + 3, n.y + 2, SD('obelisk')); put2(null, n.cx - 3, n.y + n.h - 3, SD('obelisk')); put2(null, n.cx + 3, n.y + n.h - 3, SD('obelisk'));
+        for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + (n.w >> 1); x++) if (inRoom(x, y) && r.chance(0.5 - (x - n.x) * 0.08)) set(x, y, TID.sdsand);   // the sand blows in at the door
+      } else if (n.kind === 'hall') {
+        if (n.w > n.h) for (let x = n.x + 3; x < n.x + n.w - 3; x += r.int(5, 9)) if (r.chance(0.5)) urn(x, r.chance(0.5) ? n.y : n.y + n.h - 1);
+      } else if (n.kind === 'chamber') {
+        for (const [x, y] of [[n.x + 1, n.y + 1], [n.x + n.w - 2, n.y + 1], [n.x + 1, n.y + n.h - 2], [n.x + n.w - 2, n.y + n.h - 2]]) if (r.chance(0.7)) urn(x, y);
+        if (r.chance(0.6)) { sarc(n.x + 3, n.cy); if (r.chance(0.5)) sarc(n.x + n.w - 4, n.cy); }
+        put2(n, n.cx, n.cy, SD('skull_pile'), false);
+      } else if (n.kind === 'burial') {                              // sarcophagi down both long walls, a quicksand moat between, stone crossings
+        for (let x = n.x + 2; x < n.x + n.w - 2; x += 4) { sarc(x, n.y + 1, { burial: true }); sarc(x, n.y + n.h - 3, { burial: true }); }
+        for (let x = n.x + 1; x < n.x + n.w - 1; x++) for (let y = n.cy - 1; y <= n.cy + 1; y++) if ((x - n.x) % 7 > 1) set(x, y, TID.quicksand);
+        for (let x = n.x + 3; x < n.x + n.w - 2; x += 3) (m.sdPits = m.sdPits || []).push([x + 0.5, n.cy + 0.5]);
+        m.sdBurial = { x: n.x, y: n.y, w: n.w, h: n.h };
+      } else if (n.kind === 'vault') {
+        put2(null, n.cx - 2, n.cy, SD('treasure_chest')); put2(null, n.cx + 2, n.cy, SD('treasure_chest'));
+        for (const [x, y] of [[n.x + 1, n.y + 1], [n.x + n.w - 2, n.y + 1]]) urn(x, y);
+      } else if (n.kind === 'antechamber') {
+        put2(null, n.x + 2, n.y + 2, SD('obelisk')); put2(null, n.x + n.w - 3, n.y + 2, SD('obelisk')); put2(null, n.cx, n.cy + 3, SD('skull_pile'), false);
+      } else if (n.kind === 'sanctum') {                             // the dais, its four obelisks, sand drifted along the walls
+        for (const [dx, dy] of [[-9, -9], [9, -9], [-9, 9], [9, 9]]) put2(null, n.cx + dx, n.cy + dy, SD('obelisk'));
+        for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) {
+          if (!inRoom(x, y)) continue;
+          const d = Math.max(Math.abs(x - n.cx), Math.abs(y - n.cy));
+          if (d > 8) set(x, y, TID.sdsand);                           // sand to the walls; the dais is the only stone (bullets read on sand)
+        }
+      }
+    },
     astral(n) {
       const inRoom = (x, y) => isF(x, y) && x >= n.x && y >= n.y && x < n.x + n.w && y < n.y + n.h;
       const corners = (inset, sprite, solid = true) => { for (const [x, y] of [[n.x + inset, n.y + inset], [n.x + n.w - 1 - inset, n.y + inset], [n.x + inset, n.y + n.h - 1 - inset], [n.x + n.w - 1 - inset, n.y + n.h - 1 - inset]]) if (inRoom(x, y)) put2(null, x, y, sprite, solid); };
@@ -1531,7 +1618,7 @@ export function dungeon(seed, def) {
       if (i % 3 === 0) for (const s of [-2, 2]) { const qx = Math.round(x - ((by - ay) / L) * s), qy = Math.round(y + ((bx - ax) / L) * s); if (tile(qx, qy) === TID.bog && !m.objects.some((o) => Math.floor(o.x) === qx && Math.floor(o.y) === qy)) put(m, 'ex_decor/mirerot_reeds', qx, qy, false); }
     }
   }
-  if (boss.shape === 'rect' && !['throne', 'crypt', 'forge', 'theatre'].includes(def.style)) {   // a plain boss hall gets pillars and hazards
+  if (boss.shape === 'rect' && !['throne', 'crypt', 'forge', 'theatre', 'sandscour'].includes(def.style)) {   // a plain boss hall gets pillars and hazards
     if (HAZ !== null) for (const [dx, dy] of [[3, 3], [boss.w - 5, 3], [3, boss.h - 5], [boss.w - 5, boss.h - 5]]) carve(boss.x + dx, boss.y + dy, boss.x + dx + 1, boss.y + dy + 1, HAZ);
     for (const [dx, dy] of [[7, 6], [boss.w - 8, 6], [7, boss.h - 7], [boss.w - 8, boss.h - 7]]) set(boss.x + dx, boss.y + dy, WALL);
   }
@@ -1565,6 +1652,7 @@ export function dungeon(seed, def) {
     }
   }
   for (const s of secrets) { m.tiles[idx(m, s.plug.x, s.plug.y)] = WALL; put(m, 'weak_wall', s.plug.x, s.plug.y, true, { interact: 'weak', hp: 4 }); }
+  if (m.sdSeal) for (const i of m.sdSeal) m.tiles[i] = TID.sdwall;     // Sandscour: a wall of sand across the vault's door, until the burial chamber is quiet
   if (def.style === 'islands') for (let i = 0; i < m.tiles.length; i++) if (m.tiles[i] === TID.void) m.tiles[i] = TID.starvoid;
 
   // ---- the sealed gate: every way into the boss's hall is barred until the seals break
@@ -1658,7 +1746,7 @@ export function dungeon(seed, def) {
   const DEC = { chapel: ['shell', 'kelp', 'starfish', 'skullmoss'], forge: ['embervent', 'goldrubble', 'bonepile', 'brokenshield'], heart: ['bonepile', 'goldrubble', 'skullmoss', 'embervent'],
     scriptorium: ['icecrystal', 'runepebble', 'snowtuft', 'brokenshield'], crypt: ['bonepile', 'skullmoss', 'shell', 'kelp'],
     ember: ['embervent', 'goldrubble', 'bonepile'], throne: ['goldrubble', 'pillarstub', 'brokenshield'],
-    hive: ['goldrubble', 'shell', 'kelp'], theatre: ['brokenshield', 'goldrubble', 'runepebble'], spire: ['icecrystal', 'runepebble', 'icecrystal'], islands: ['snowtuft', 'runepebble', 'icecrystal'], frostveil: ['snowtuft', 'icecrystal', 'snowtuft', 'runepebble'], mirerot: ['shrooms', 'reeds', 'skullmoss', 'lily'], astral: ['runepebble', 'icecrystal'] }[def.style] || ['bonepile', 'goldrubble'];
+    hive: ['goldrubble', 'shell', 'kelp'], theatre: ['brokenshield', 'goldrubble', 'runepebble'], spire: ['icecrystal', 'runepebble', 'icecrystal'], islands: ['snowtuft', 'runepebble', 'icecrystal'], frostveil: ['snowtuft', 'icecrystal', 'snowtuft', 'runepebble'], mirerot: ['shrooms', 'reeds', 'skullmoss', 'lily'], astral: ['runepebble', 'icecrystal'], sandscour: ['bonepile', 'goldrubble', 'shell'] }[def.style] || ['bonepile', 'goldrubble'];
   for (const n of [...rooms.filter((n) => n !== boss), ...secrets]) {
     for (let j = 0; j < Math.round(n.w * n.h * 0.04); j++) { const x = n.x + r.int(1, n.w - 2), y = n.y + r.int(1, n.h - 2); if (isF(x, y)) m.decor.push({ name: r.pick(DEC), x, y }); }
   }
@@ -1716,6 +1804,15 @@ export function dungeon(seed, def) {
       else if (t === TID.fvice) m.skin[i] = SK.frostveil_ice;
       else if (t === TID.fvwater) m.skin[i] = SK.frostveil_frigid_water;
       else if (t === TID.fvwall) m.skin[i] = SK.frostveil_wall_top;
+    }
+  }
+  if (def.style === 'sandscour') {                                    // sand in slow patches, the tomb floor, quicksand, the wall tops
+    const pv = noise2(seed ^ 0x73616e64);
+    for (let i = 0; i < m.tiles.length; i++) {
+      const t = m.tiles[i];
+      if (t === TID.sdsand) m.skin[i] = pv((i % S) / 6, Math.floor(i / S) / 6) > 0.5 ? SK.sandscour_sand_b : SK.sandscour_sand_a;
+      else if (t === TID.sdtomb) m.skin[i] = SK.sandscour_tomb_floor; else if (t === TID.quicksand) m.skin[i] = SK.sandscour_quicksand;
+      else if (t === TID.sdwall) m.skin[i] = SK.sandscour_wall_top;
     }
   }
   if (def.style === 'astral') {                                       // marble, grate, the void, the wall tops (the hidden star bridge is void until revealed)

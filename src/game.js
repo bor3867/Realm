@@ -12,6 +12,7 @@ import { installRealmEvents } from './realmevents.js';
 import { installFrostveil } from './frostveil.js';
 import { installMirerot } from './mirerot.js';
 import { installAstral } from './astral.js';
+import { installSandscour } from './sandscour.js';
 import { installBX } from './bossx.js';
 import { BX, bxEnemyDef } from './bosses/index.js';
 import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUEST_HUNTS, FETCH_ITEMS } from './data/lore.js';
@@ -726,7 +727,7 @@ export class Game {
     this.updateProjectiles(dt);
     this.updateWorld(dt);
     if (this.map.kind === 'realm') { this.maintainRealm(dt); this.eventClock(dt); this.melonTick(dt); this.eventBossTick(dt); }
-    if (this.map.kind === 'dungeon') { this.updateDungeon(dt); this.updatePuzzles(dt); this.updateTraps(dt); this.updateD4(dt); if (this.map.def && this.map.def.style === 'frostveil') this.updateFrostveil(dt); if (this.map.def && this.map.def.style === 'mirerot') this.updateMirerot(dt); if (this.map.def && this.map.def.style === 'astral') this.updateAstral(dt); }
+    if (this.map.kind === 'dungeon') { this.updateDungeon(dt); this.updatePuzzles(dt); this.updateTraps(dt); this.updateD4(dt); if (this.map.def && this.map.def.style === 'frostveil') this.updateFrostveil(dt); if (this.map.def && this.map.def.style === 'mirerot') this.updateMirerot(dt); if (this.map.def && this.map.def.style === 'astral') this.updateAstral(dt); if (this.map.def && this.map.def.style === 'sandscour') this.updateSandscour(dt); }
     this.updateChill(dt); this.updatePoison(dt);
     if (this.map.kind !== 'nexus') this.openChests();
     this.saveT = (this.saveT || 0) + dt;
@@ -774,7 +775,7 @@ export class Game {
     const cs = Math.cos(this.camAngle), sn = Math.sin(this.camAngle);
     // terrain underfoot: shallows and bog drag at you, ice keeps you sliding
     const under = this.map.tiles[Math.floor(p.y) * this.map.w + Math.floor(p.x)];
-    const drag = under === TID.bog || under === TID.fvwater ? 0.6 : under === TID.shallows ? 0.8 : 1;
+    const drag = under === TID.bog || under === TID.fvwater ? 0.6 : under === TID.quicksand ? 0.55 : under === TID.shallows ? 0.8 : 1;
     const bless = p.status.bless > 0 ? p.blessKind : null;
     if (len) { mx /= len; my /= len; }
     const sp = moveSpeed(this.stat('spd')) * drag * (bless === 'shore' ? 1.25 : 1) * (this.map.kind === 'dungeon' ? this.d4Speed() : 1) * (p.dragUntil > this.t ? p.dragF : 1) * this.chillSlow();
@@ -1641,6 +1642,7 @@ export class Game {
       if (ai === 'rooted') sp = 0;
     }
     if (aggro && e.parent && !e.parent.dead && dist(e.x, e.y, e.parent.x, e.parent.y) > 13) { tx = e.parent.x; ty = e.parent.y; }
+    if (D.leash) { const lh = dist(tx, ty, e.hx, e.hy); if (lh > D.leash) { tx = e.hx + ((tx - e.hx) / lh) * D.leash; ty = e.hy + ((ty - e.hy) / lh) * D.leash; } }   // a doorway's guard keeps to its door
     sp *= (1 - (e.slowF || 0)) * (e.enraged ? 1.5 : 1);
     if (ai === 'hop') return this.hopToward(e, tx, ty, sp, dt);
     if (ai === 'skitter') return this.skitterToward(e, tx, ty, sp, dt);
@@ -2883,8 +2885,9 @@ export class Game {
   }
   hitObject(x, y, dmg) {
     const m = this.map, xi = Math.floor(x), yi = Math.floor(y);
-    const o = m.objects.find((q) => (q.interact === 'weak' || (q.interact === 'chest' && !q.opened)) && Math.floor(q.x) === xi && Math.floor(q.y) === yi);
+    const o = m.objects.find((q) => (q.interact === 'weak' || q.sdUrn || (q.interact === 'chest' && !q.opened)) && Math.floor(q.x) === xi && Math.floor(q.y) === yi);
     if (!o) return;
+    if (o.sdUrn) return this.hitUrn(o);
     if (o.interact === 'weak') return this.hitWeak(o);
     if (o.guards && o.guards.some((g) => !g.dead)) { this.float(o.x, o.y - 1, 'GUARDED', '#8d88a0'); return; }
     if (!o.maxHp) o.hp = o.maxHp = this.chestHp(o);
@@ -3864,3 +3867,4 @@ installRealmEvents(Game);
 installFrostveil(Game);
 installMirerot(Game);
 installAstral(Game);
+installSandscour(Game);
