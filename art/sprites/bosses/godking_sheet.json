@@ -1,0 +1,16 @@
+{
+  "image": "godking_sheet.png",
+  "frameWidth": 64,
+  "frameHeight": 64,
+  "columns": 10,
+  "rows": 1,
+  "pivot": {
+    "x": 32,
+    "y": 61
+  },
+  "bosses": {
+    "the_unstruck_god": {
+      "row": 0
+    }
+  }
+}

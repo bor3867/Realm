@@ -1,0 +1,64 @@
+{
+  "image": "pack_bosses_sheet.png",
+  "frameWidth": 48,
+  "frameHeight": 48,
+  "columns": 10,
+  "rows": 6,
+  "pivot": {
+    "x": 24,
+    "y": 47
+  },
+  "animations": {
+    "idle": {
+      "col": 0,
+      "frames": 4,
+      "fps": 5,
+      "loop": true
+    },
+    "tell": {
+      "col": 4,
+      "frames": 1
+    },
+    "attack": {
+      "col": 5,
+      "frames": 1
+    },
+    "special": {
+      "col": 6,
+      "frames": 1
+    },
+    "death": {
+      "col": 7,
+      "frames": 3,
+      "fps": 4,
+      "loop": false,
+      "holdLastFrame": true
+    }
+  },
+  "bosses": {
+    "tidebound_lich": {
+      "row": 0,
+      "dungeon": true
+    },
+    "forgeheart_colossus": {
+      "row": 1,
+      "dungeon": true
+    },
+    "honey_queen": {
+      "row": 2,
+      "dungeon": true
+    },
+    "the_puppeteer": {
+      "row": 3,
+      "dungeon": true
+    },
+    "prism_wyrm": {
+      "row": 4,
+      "dungeon": true
+    },
+    "the_sleeper": {
+      "row": 5,
+      "dungeon": true
+    }
+  }
+}

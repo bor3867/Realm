@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Realm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="app">
+  <main id="stage">
+    <canvas id="game"></canvas>
+    <div id="banner" class="hidden"></div>
+    <div id="fade"></div>
+    <div id="seals" class="hidden"></div>
+    <div id="hud"><span class="h-fame" title="Account fame">✦ <b id="hfame">0</b></span><span class="h-gold" title="Gold">● <b id="hgold">0</b></span><span class="h-ess" title="Essence">◆ <b id="hess">0</b></span></div>
+    <div id="chat"><div id="chatlog" aria-live="polite"></div><input id="chatin" class="hidden" maxlength="160" autocomplete="off" spellcheck="false" placeholder="Say something, or /help for commands"></div>
+  </main>
+  <aside id="panel">
+    <div id="miniwrap">
+      <canvas id="minimap" width="360" height="360"></canvas>
+      <div id="minibtns"><button id="miniIn" title="Zoom in (+)">+</button><span id="minilabel"></span><button id="miniOut" title="Zoom out (−)">−</button></div>
+    </div>
+    <div id="who"><canvas id="portrait" width="44" height="44"></canvas><div class="wn"><span id="cname"></span><small id="clevel"></small></div><button id="gear" title="Settings (Esc)" aria-label="Settings">⚙</button></div>
+    <div class="bar xp"><i id="xpfill"></i><b id="xptext"></b></div>
+    <div class="bar hp"><i id="hpfill"></i><b id="hptext"></b></div>
+    <div class="bar mp"><i id="mpfill"></i><b id="mptext"></b></div>
+    <div id="stattabs"><button data-t="stats" class="on">Stats</button><button data-t="pet">Pet</button></div>
+    <div id="stats"></div>
+    <div class="label">Equipment</div>
+    <div id="equip" class="slots"></div>
+    <div class="label">Backpack <small id="invcount">(1–8 to use)</small></div>
+    <div id="inv" class="slots"></div>
+    <div class="potrow"><div class="label">Potions <small id="potkeys">C / V · 10 each</small></div><div id="pots" class="slots pots"></div></div>
+    <div id="interact">
+      <div id="groundwrap" class="off">
+        <div class="label"><span id="groundlabel">Bag</span><button id="bagportal" class="btn sm off">Enter portal</button></div>
+        <div id="ground" class="slots"></div>
+      </div>
+      <div id="portalwrap" class="off">
+        <div class="label" id="portalkind">Portal</div>
+        <div class="portalcard"><div class="pi"><b id="portalname"></b><small id="portalsub"></small></div><button id="portalgo" class="btn">Enter</button></div>
+      </div>
+    </div>
+    <div id="quests" class="hidden"></div>
+    <div id="where"></div>
+    <div id="keys">F portal / talk · G loot · R nexus · Space ability · Enter chat · Esc settings</div>
+  </aside>
+</div>
+<div id="tooltip" class="hidden"></div>
+<div id="overlay" class="hidden"></div>
+<script type="module" src="src/main.js"></script>
+</body>
+</html>

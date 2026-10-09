@@ -1,0 +1,31 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Heliarch Animations</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--bg:#1d1b24;--fg:#e9e4f2;--mut:#8d88a0;--tile:#2a2833;--grass:#355236}
+body{margin:0;padding:16px;background:var(--bg);color:var(--fg);font:13px/1.4 system-ui,sans-serif}
+h1{font-size:16px;margin:0 0 12px}.g{display:flex;flex-wrap:wrap;gap:12px}
+.c{background:var(--tile);padding:8px;border-radius:6px;text-align:center}
+.c.grass{background:var(--grass)}canvas{image-rendering:pixelated;display:block}
+.l{color:var(--mut);margin-top:4px}label{margin-right:12px}
+</style></head><body>
+<h1>Heliarch: animation check</h1>
+<p><label><input type="checkbox" id="grass"> grass terrain</label>
+<label>scale <input type="range" id="sc" min="2" max="10" value="6"></label></p>
+<div class="g" id="g"></div>
+<script>
+const G={"image": "heliarch_sheet.png", "frameWidth": 16, "frameHeight": 16, "columns": 6, "rows": 6, "frameCount": 31, "pivot": {"x": 8, "y": 15, "note": "bottom-centre, same pixel in every frame"}, "animations": {"front_idle": {"row": 0, "col": 0, "frames": 2, "fps": 3, "loop": true}, "front_walk": {"row": 0, "col": 2, "frames": 4, "fps": 8, "loop": true}, "side_idle": {"row": 1, "col": 0, "frames": 2, "fps": 3, "loop": true, "note": "faces RIGHT; flip horizontally for LEFT"}, "side_walk": {"row": 1, "col": 2, "frames": 4, "fps": 8, "loop": true, "note": "faces RIGHT; flip horizontally for LEFT"}, "back_idle": {"row": 2, "col": 0, "frames": 2, "fps": 3, "loop": true}, "back_walk": {"row": 2, "col": 2, "frames": 4, "fps": 8, "loop": true}, "attack": {"row": 3, "col": 0, "frames": 3, "fps": 12, "loop": false, "eventFrame": 1}, "hit": {"row": 3, "col": 3, "frames": 1, "fps": 1, "loop": false, "holdMs": 150}, "ability": {"row": 4, "col": 0, "frames": 5, "fps": 10, "loop": false, "eventFrame": 3}, "death": {"row": 5, "col": 0, "frames": 4, "fps": 7, "loop": false, "holdLastFrame": true}}},img=new Image();img.src='data:image/png;base64,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';
+const cells=[];
+img.onload=()=>{for(const[k,a]of Object.entries(G.animations)){
+ const d=document.createElement('div');d.className='c';
+ const c=document.createElement('canvas');d.append(c);
+ const l=document.createElement('div');l.className='l';l.textContent=`${k} · ${a.frames}f @${a.fps}fps${a.loop?' loop':''}`;d.append(l);
+ document.getElementById('g').append(d);cells.push({k,a,c,d,t0:performance.now()});}
+ requestAnimationFrame(tick);};
+function tick(t){const s=+document.getElementById('sc').value,gr=document.getElementById('grass').checked;
+ for(const o of cells){const{a,c}=o;o.d.classList.toggle('grass',gr);
+  c.width=c.height=G.frameWidth*s;const x=c.getContext('2d');x.imageSmoothingEnabled=false;
+  const fps=o.k==='hit'?2:a.fps,n=Math.floor((t-o.t0)/1000*fps);
+  let f=a.loop?n%a.frames:n%(a.frames+(a.holdLastFrame?6:3));f=Math.min(f,a.frames-1);
+  x.drawImage(img,(a.col+f)*G.frameWidth,a.row*G.frameHeight,G.frameWidth,G.frameHeight,0,0,c.width,c.height);}
+ requestAnimationFrame(tick);}
+</script></body></html>

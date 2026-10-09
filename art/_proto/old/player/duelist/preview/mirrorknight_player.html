@@ -1,0 +1,31 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Mirrorknight Animations</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--bg:#1d1b24;--fg:#e9e4f2;--mut:#8d88a0;--tile:#2a2833;--grass:#355236}
+body{margin:0;padding:16px;background:var(--bg);color:var(--fg);font:13px/1.4 system-ui,sans-serif}
+h1{font-size:16px;margin:0 0 12px}.g{display:flex;flex-wrap:wrap;gap:12px}
+.c{background:var(--tile);padding:8px;border-radius:6px;text-align:center}
+.c.grass{background:var(--grass)}canvas{image-rendering:pixelated;display:block}
+.l{color:var(--mut);margin-top:4px}label{margin-right:12px}
+</style></head><body>
+<h1>Mirrorknight: animation check</h1>
+<p><label><input type="checkbox" id="grass"> grass terrain</label>
+<label>scale <input type="range" id="sc" min="2" max="10" value="6"></label></p>
+<div class="g" id="g"></div>
+<script>
+const G={"image": "mirrorknight_sheet.png", "frameWidth": 16, "frameHeight": 16, "columns": 6, "rows": 6, "frameCount": 31, "pivot": {"x": 8, "y": 15, "note": "bottom-centre, same pixel in every frame"}, "animations": {"front_idle": {"row": 0, "col": 0, "frames": 2, "fps": 3, "loop": true}, "front_walk": {"row": 0, "col": 2, "frames": 4, "fps": 8, "loop": true}, "side_idle": {"row": 1, "col": 0, "frames": 2, "fps": 3, "loop": true, "note": "faces RIGHT; flip horizontally for LEFT"}, "side_walk": {"row": 1, "col": 2, "frames": 4, "fps": 8, "loop": true, "note": "faces RIGHT; flip horizontally for LEFT"}, "back_idle": {"row": 2, "col": 0, "frames": 2, "fps": 3, "loop": true}, "back_walk": {"row": 2, "col": 2, "frames": 4, "fps": 8, "loop": true}, "attack": {"row": 3, "col": 0, "frames": 3, "fps": 12, "loop": false, "eventFrame": 1}, "hit": {"row": 3, "col": 3, "frames": 1, "fps": 1, "loop": false, "holdMs": 150}, "ability": {"row": 4, "col": 0, "frames": 5, "fps": 10, "loop": false, "eventFrame": 3}, "death": {"row": 5, "col": 0, "frames": 4, "fps": 7, "loop": false, "holdLastFrame": true}}},img=new Image();img.src='data:image/png;base64,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';
+const cells=[];
+img.onload=()=>{for(const[k,a]of Object.entries(G.animations)){
+ const d=document.createElement('div');d.className='c';
+ const c=document.createElement('canvas');d.append(c);
+ const l=document.createElement('div');l.className='l';l.textContent=`${k} · ${a.frames}f @${a.fps}fps${a.loop?' loop':''}`;d.append(l);
+ document.getElementById('g').append(d);cells.push({k,a,c,d,t0:performance.now()});}
+ requestAnimationFrame(tick);};
+function tick(t){const s=+document.getElementById('sc').value,gr=document.getElementById('grass').checked;
+ for(const o of cells){const{a,c}=o;o.d.classList.toggle('grass',gr);
+  c.width=c.height=G.frameWidth*s;const x=c.getContext('2d');x.imageSmoothingEnabled=false;
+  const fps=o.k==='hit'?2:a.fps,n=Math.floor((t-o.t0)/1000*fps);
+  let f=a.loop?n%a.frames:n%(a.frames+(a.holdLastFrame?6:3));f=Math.min(f,a.frames-1);
+  x.drawImage(img,(a.col+f)*G.frameWidth,a.row*G.frameHeight,G.frameWidth,G.frameHeight,0,0,c.width,c.height);}
+ requestAnimationFrame(tick);}
+</script></body></html>

@@ -1,0 +1,432 @@
+{
+  "image": "enemies_sheet.png",
+  "frameWidth": 16,
+  "frameHeight": 16,
+  "columns": 9,
+  "rows": 98,
+  "pivot": {
+    "x": 8,
+    "y": 15
+  },
+  "animations": {
+    "move": {
+      "col": 0,
+      "frames": 4,
+      "fps": 7,
+      "loop": true
+    },
+    "tell": {
+      "col": 4,
+      "frames": 1,
+      "holdMs": 350
+    },
+    "attack": {
+      "col": 5,
+      "frames": 1,
+      "holdMs": 120
+    },
+    "death": {
+      "col": 6,
+      "frames": 3,
+      "fps": 8,
+      "loop": false,
+      "holdLastFrame": true
+    }
+  },
+  "enemies": {
+    "brine_pilgrim": {
+      "row": 0,
+      "biome": "shore"
+    },
+    "lantern_jelly": {
+      "row": 1,
+      "biome": "shore"
+    },
+    "bell_taken": {
+      "row": 2,
+      "biome": "fen"
+    },
+    "peat_saint": {
+      "row": 3,
+      "biome": "fen"
+    },
+    "frozen_executioner": {
+      "row": 4,
+      "biome": "runeholt"
+    },
+    "cairn_crawler": {
+      "row": 5,
+      "biome": "runeholt"
+    },
+    "hollow_thane": {
+      "row": 6,
+      "biome": "godfall"
+    },
+    "censer_magistrate": {
+      "row": 7,
+      "biome": "godfall",
+      "elite": true
+    },
+    "bellows_bound": {
+      "row": 8,
+      "biome": "forge"
+    },
+    "mold_wrought": {
+      "row": 9,
+      "biome": "forge"
+    },
+    "salt_widow": {
+      "row": 10,
+      "biome": "shore"
+    },
+    "trap_hound": {
+      "row": 11,
+      "biome": "shore"
+    },
+    "mire_choir": {
+      "row": 12,
+      "biome": "fen"
+    },
+    "lantern_heron": {
+      "row": 13,
+      "biome": "fen"
+    },
+    "candle_mite": {
+      "row": 14,
+      "biome": "fen",
+      "minion": true
+    },
+    "prayer_monk": {
+      "row": 15,
+      "biome": "runeholt"
+    },
+    "antlered_hush": {
+      "row": 16,
+      "biome": "runeholt"
+    },
+    "halo_eater": {
+      "row": 17,
+      "biome": "godfall"
+    },
+    "choir_engine": {
+      "row": 18,
+      "biome": "godfall"
+    },
+    "reef_eel": {
+      "row": 19,
+      "biome": "shore"
+    },
+    "bog_toad": {
+      "row": 20,
+      "biome": "fen"
+    },
+    "frost_wraith": {
+      "row": 21,
+      "biome": "runeholt"
+    },
+    "ash_harpy": {
+      "row": 22,
+      "biome": "godfall"
+    },
+    "brine_slime": {
+      "row": 23,
+      "biome": "shore"
+    },
+    "brine_slimelet": {
+      "row": 24,
+      "biome": "shore"
+    },
+    "gas_bloat": {
+      "row": 25,
+      "biome": "fen"
+    },
+    "cairn_mender": {
+      "row": 26,
+      "biome": "runeholt"
+    },
+    "gilded_lancer": {
+      "row": 27,
+      "biome": "godfall"
+    },
+    "golden_duck": {
+      "row": 28,
+      "biome": "shore"
+    },
+    "drowned_acolyte": {
+      "row": 29,
+      "biome": "chapel"
+    },
+    "barnacle_knight": {
+      "row": 30,
+      "biome": "chapel"
+    },
+    "bell_wraith": {
+      "row": 31,
+      "biome": "chapel"
+    },
+    "pew_mimic": {
+      "row": 32,
+      "biome": "chapel"
+    },
+    "bell_totem": {
+      "row": 33,
+      "biome": "chapel"
+    },
+    "slag_imp": {
+      "row": 34,
+      "biome": "forge"
+    },
+    "anvil_golem": {
+      "row": 35,
+      "biome": "forge"
+    },
+    "quench_wraith": {
+      "row": 36,
+      "biome": "forge"
+    },
+    "vein_crawler": {
+      "row": 37,
+      "biome": "heart"
+    },
+    "gilded_cardinal": {
+      "row": 38,
+      "biome": "heart"
+    },
+    "reliquary_maw": {
+      "row": 39,
+      "biome": "heart"
+    },
+    "blood_seraph": {
+      "row": 40,
+      "biome": "heart"
+    },
+    "ink_wisp": {
+      "row": 41,
+      "biome": "scriptorium"
+    },
+    "frost_librarian": {
+      "row": 42,
+      "biome": "scriptorium"
+    },
+    "living_tome": {
+      "row": 43,
+      "biome": "scriptorium"
+    },
+    "ice_scribe": {
+      "row": 44,
+      "biome": "scriptorium"
+    },
+    "coin_imp": {
+      "row": 45,
+      "biome": "shore"
+    },
+    "anchor_bearer": {
+      "row": 46,
+      "biome": "shore"
+    },
+    "lens_moth": {
+      "row": 47,
+      "biome": "shore"
+    },
+    "mourning_willow": {
+      "row": 48,
+      "biome": "fen"
+    },
+    "grave_leech": {
+      "row": 49,
+      "biome": "fen"
+    },
+    "frost_skald": {
+      "row": 50,
+      "biome": "runeholt"
+    },
+    "wolf_shield": {
+      "row": 51,
+      "biome": "runeholt"
+    },
+    "cherub_husk": {
+      "row": 52,
+      "biome": "godfall"
+    },
+    "reliquary_spider": {
+      "row": 53,
+      "biome": "godfall"
+    },
+    "emily_chick": {
+      "row": 54,
+      "biome": "runeholt"
+    },
+    "glass_scarab": {
+      "row": 55,
+      "biome": "dunes"
+    },
+    "dune_lurker": {
+      "row": 56,
+      "biome": "dunes"
+    },
+    "salt_mummy": {
+      "row": 57,
+      "biome": "dunes"
+    },
+    "sand_skimmer": {
+      "row": 58,
+      "biome": "dunes"
+    },
+    "thorn_sprite": {
+      "row": 59,
+      "biome": "thornwood"
+    },
+    "bramble_wolf": {
+      "row": 60,
+      "biome": "thornwood"
+    },
+    "spore_puff": {
+      "row": 61,
+      "biome": "thornwood"
+    },
+    "briar_bee": {
+      "row": 62,
+      "biome": "thornwood"
+    },
+    "crystal_golem": {
+      "row": 63,
+      "biome": "steppe"
+    },
+    "prism_hawk": {
+      "row": 64,
+      "biome": "steppe"
+    },
+    "shard_crawler": {
+      "row": 65,
+      "biome": "steppe"
+    },
+    "quartz_jackal": {
+      "row": 66,
+      "biome": "steppe"
+    },
+    "bone_wisp": {
+      "row": 67,
+      "biome": "crypt"
+    },
+    "drowned_thrall": {
+      "row": 68,
+      "biome": "crypt"
+    },
+    "brine_jelly": {
+      "row": 69,
+      "biome": "crypt"
+    },
+    "magma_imp": {
+      "row": 70,
+      "biome": "ember"
+    },
+    "cinder_golem": {
+      "row": 71,
+      "biome": "ember"
+    },
+    "slag_crawler": {
+      "row": 72,
+      "biome": "ember"
+    },
+    "worker_bee": {
+      "row": 73,
+      "biome": "hive"
+    },
+    "wax_drone": {
+      "row": 74,
+      "biome": "hive"
+    },
+    "honey_grub": {
+      "row": 75,
+      "biome": "hive"
+    },
+    "comb_guard": {
+      "row": 76,
+      "biome": "hive"
+    },
+    "brood_cell": {
+      "row": 77,
+      "biome": "hive"
+    },
+    "marionette": {
+      "row": 78,
+      "biome": "theatre"
+    },
+    "masked_chorister": {
+      "row": 79,
+      "biome": "theatre"
+    },
+    "stagehand": {
+      "row": 80,
+      "biome": "theatre"
+    },
+    "prima_donna": {
+      "row": 81,
+      "biome": "theatre"
+    },
+    "hanging_marionette": {
+      "row": 82,
+      "biome": "theatre"
+    },
+    "understudy": {
+      "row": 83,
+      "biome": "theatre"
+    },
+    "mirror_puppet": {
+      "row": 84,
+      "biome": "theatre"
+    },
+    "refractor": {
+      "row": 85,
+      "biome": "prism"
+    },
+    "lumen_moth": {
+      "row": 86,
+      "biome": "prism"
+    },
+    "glass_knight": {
+      "row": 87,
+      "biome": "prism"
+    },
+    "prism_eye": {
+      "row": 88,
+      "biome": "prism"
+    },
+    "prism_image": {
+      "row": 89,
+      "biome": "prism"
+    },
+    "night_mare": {
+      "row": 90,
+      "biome": "dream"
+    },
+    "sleepwalker": {
+      "row": 91,
+      "biome": "dream"
+    },
+    "dream_eater": {
+      "row": 92,
+      "biome": "dream"
+    },
+    "lullaby_moth": {
+      "row": 93,
+      "biome": "dream"
+    },
+    "nightmare_knight": {
+      "row": 94,
+      "biome": "dream"
+    },
+    "sleepers_nightmare": {
+      "row": 95,
+      "biome": "dream"
+    },
+    "training_dummy": {
+      "row": 96,
+      "biome": "town"
+    },
+    "armored_dummy": {
+      "row": 97,
+      "biome": "town"
+    }
+  }
+}

@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Item preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../style.css">
+<style>
+  body { overflow: auto; padding: 16px; }
+  .grid { display: flex; flex-wrap: wrap; gap: 8px; max-width: 1200px; }
+  .grid .slot { width: 66px; height: 66px; }
+  .grid .slot .ico { width: 48px; height: 48px; background-size: 100% 100%; }
+</style>
+</head>
+<body>
+<!-- dev-only: every item icon as the game draws it (no save data touched) -->
+<h3>Items, as drawn in slots</h3>
+<div class="grid" id="g"></div>
+<script type="module">
+import { ITEMS } from '../src/data/items.js';
+import { rarityColor } from '../src/ui.js';
+import { Renderer } from '../src/render.js';
+const W = await (await fetch('../art/world/world.json')).json();
+const img = new Image(); img.src = '../art/world/items.png'; await img.decode();
+const fake = { W, A: { img: { items: img } } };
+const one = new URLSearchParams(location.search).has('types');
+const seen = new Set();
+const ids = Object.values(ITEMS).filter((it) => {
+  if (!one) return !/_t(0|2|4|6|8)$/.test(it.id);
+  const k = it.ut || it.slot === 'consumable' ? it.id : it.type;
+  if (seen.has(k) || (!it.ut && it.slot !== 'consumable' && it.tier !== 5)) return false;
+  seen.add(k); return true;
+}).map((it) => it.id).concat(one ? [] : ['gauntlet_t7~keen2.burning3', 'plate_t9~smoulder1', 'ring_att_t4~evasive2']);
+for (const id of ids) {
+  const it = ITEMS[id], el = document.createElement('div');
+  el.className = 'slot has' + (it.ut && !it.mythic ? ' ut' : '') + (it.mythic ? ' mythic' : '') + (it.enchants ? ' ench' : '');
+  el.style.setProperty('--rc', rarityColor ? rarityColor(it) : '#fff');
+  el.title = it.name;
+  el.innerHTML = `<div class="ico" style="background-image:url(${Renderer.prototype.icon.call(fake, id)})"></div>`;
+  if (one) { const w = document.createElement('figure'); w.style.cssText = 'margin:0;width:78px;text-align:center;font-size:11px;color:#c8c0d8'; w.append(el, Object.assign(document.createElement('div'), { textContent: it.name })); el.style.margin = '0 auto'; document.getElementById('g').appendChild(w); }
+  else document.getElementById('g').appendChild(el);
+}
+</script>
+</body>
+</html>

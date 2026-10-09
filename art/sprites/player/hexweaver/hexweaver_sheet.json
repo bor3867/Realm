@@ -1,0 +1,98 @@
+{
+  "image": "hexweaver_sheet.png",
+  "frameWidth": 16,
+  "frameHeight": 16,
+  "columns": 6,
+  "rows": 6,
+  "art": 8,
+  "pivot": {
+    "x": 8,
+    "y": 15
+  },
+  "animations": {
+    "front_idle": {
+      "row": 0,
+      "col": 0,
+      "frames": 2,
+      "fps": 3,
+      "loop": true
+    },
+    "front_walk": {
+      "row": 0,
+      "col": 2,
+      "frames": 4,
+      "fps": 8,
+      "loop": true
+    },
+    "side_idle": {
+      "row": 1,
+      "col": 0,
+      "frames": 2,
+      "fps": 3,
+      "loop": true
+    },
+    "side_walk": {
+      "row": 1,
+      "col": 2,
+      "frames": 4,
+      "fps": 8,
+      "loop": true
+    },
+    "back_idle": {
+      "row": 2,
+      "col": 0,
+      "frames": 2,
+      "fps": 3,
+      "loop": true
+    },
+    "back_walk": {
+      "row": 2,
+      "col": 2,
+      "frames": 4,
+      "fps": 8,
+      "loop": true
+    },
+    "front_attack": {
+      "row": 3,
+      "col": 0,
+      "frames": 2,
+      "fps": 10,
+      "loop": false
+    },
+    "side_attack": {
+      "row": 3,
+      "col": 2,
+      "frames": 2,
+      "fps": 10,
+      "loop": false
+    },
+    "back_attack": {
+      "row": 3,
+      "col": 4,
+      "frames": 2,
+      "fps": 10,
+      "loop": false
+    },
+    "ability": {
+      "row": 4,
+      "col": 0,
+      "frames": 3,
+      "fps": 8,
+      "loop": false
+    },
+    "hit": {
+      "row": 4,
+      "col": 3,
+      "frames": 1,
+      "fps": 1,
+      "loop": false
+    },
+    "death": {
+      "row": 5,
+      "col": 0,
+      "frames": 4,
+      "fps": 6,
+      "loop": false
+    }
+  }
+}

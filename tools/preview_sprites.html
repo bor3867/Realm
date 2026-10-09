@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Sprite preview</title>
+<style>
+  body { margin: 0; padding: 12px; background: #15121c; color: #c8c0d8; font: 600 13px system-ui, sans-serif; }
+  canvas { image-rendering: pixelated; display: block; margin: 6px 0 14px; }
+</style>
+</head>
+<body>
+<!-- dev-only: compare sprite sheets the way the game draws them (runtime outline + shadow), at game scale.
+     ?a=<sheet png>&b=<sheet png>&f=16&rows=0-12&cols=0-6&s=4&bg=grass -->
+<div id="out"></div>
+<script type="module">
+import { outlinedFrame } from '../src/outline.js';
+const q = new URLSearchParams(location.search);
+const F = +(q.get('f') || 16), S = +(q.get('s') || 4);
+const [r0, r1] = (q.get('rows') || '0-12').split('-').map(Number), [c0, c1] = (q.get('cols') || '0-6').split('-').map(Number);
+const BG = { grass: '#4a6a38', sand: '#b89a68', snow: '#a8b4c4', ash: '#544a50', dark: '#1a1620' }[q.get('bg') || 'grass'];
+const load = (src) => new Promise((ok) => { const i = new Image(); i.onload = () => ok(i); i.src = src; });
+for (const src of [...q.getAll('a'), ...q.getAll('b')]) {
+  const img = await load(src);
+  const cols = c1 - c0 + 1, rows = r1 - r0 + 1, cell = F + 6;
+  const buf = document.createElement('canvas'); buf.width = cols * cell; buf.height = rows * cell;
+  const b = buf.getContext('2d');
+  b.fillStyle = BG; b.fillRect(0, 0, buf.width, buf.height);
+  for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) {
+    const x = (c - c0) * cell + 3, y = (r - r0) * cell + 3;
+    b.fillStyle = 'rgba(0,0,0,0.38)'; b.fillRect(x + 3, y + F - 1, F - 6, 2);           // the ground shadow
+    const fr = outlinedFrame(img, c * F, r * F, F, F);
+    b.drawImage(fr, x - 1, y - 1);
+  }
+  const cv = document.createElement('canvas'); cv.width = buf.width * S; cv.height = buf.height * S;
+  const x = cv.getContext('2d'); x.imageSmoothingEnabled = false; x.drawImage(buf, 0, 0, cv.width, cv.height);
+  document.getElementById('out').append(Object.assign(document.createElement('div'), { textContent: src }), cv);
+}
+</script>
+</body>
+</html>

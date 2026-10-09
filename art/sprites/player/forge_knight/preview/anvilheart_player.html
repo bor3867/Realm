@@ -1,0 +1,31 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Anvilheart Animations</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--bg:#1d1b24;--fg:#e9e4f2;--mut:#8d88a0;--tile:#2a2833;--grass:#355236}
+body{margin:0;padding:16px;background:var(--bg);color:var(--fg);font:13px/1.4 system-ui,sans-serif}
+h1{font-size:16px;margin:0 0 12px}.g{display:flex;flex-wrap:wrap;gap:12px}
+.c{background:var(--tile);padding:8px;border-radius:6px;text-align:center}
+.c.grass{background:var(--grass)}canvas{image-rendering:pixelated;display:block}
+.l{color:var(--mut);margin-top:4px}label{margin-right:12px}
+</style></head><body>
+<h1>Anvilheart: animation check</h1>
+<p><label><input type="checkbox" id="grass"> grass terrain</label>
+<label>scale <input type="range" id="sc" min="2" max="10" value="6"></label></p>
+<div class="g" id="g"></div>
+<script>
+const G={"image": "anvilheart_sheet.png", "frameWidth": 16, "frameHeight": 16, "columns": 6, "rows": 6, "frameCount": 31, "pivot": {"x": 8, "y": 15, "note": "bottom-centre between the boots, same pixel in every frame"}, "animations": {"front_idle": {"row": 0, "col": 0, "frames": 2, "fps": 3, "loop": true}, "front_walk": {"row": 0, "col": 2, "frames": 4, "fps": 8, "loop": true}, "side_idle": {"row": 1, "col": 0, "frames": 2, "fps": 3, "loop": true, "note": "faces RIGHT; flip horizontally for LEFT (design is mirror-safe)"}, "side_walk": {"row": 1, "col": 2, "frames": 4, "fps": 8, "loop": true, "note": "faces RIGHT; flip horizontally for LEFT (design is mirror-safe)"}, "back_idle": {"row": 2, "col": 0, "frames": 2, "fps": 3, "loop": true}, "back_walk": {"row": 2, "col": 2, "frames": 4, "fps": 8, "loop": true}, "attack": {"row": 3, "col": 0, "frames": 3, "fps": 12, "loop": false, "eventFrame": 1}, "hit": {"row": 3, "col": 3, "frames": 1, "fps": 1, "loop": false, "holdMs": 150}, "ability": {"row": 4, "col": 0, "frames": 5, "fps": 10, "loop": false, "eventFrame": 3}, "death": {"row": 5, "col": 0, "frames": 4, "fps": 7, "loop": false, "holdLastFrame": true}}},img=new Image();img.src='data:image/png;base64,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';
+const cells=[];
+img.onload=()=>{for(const[k,a]of Object.entries(G.animations)){
+ const d=document.createElement('div');d.className='c';
+ const c=document.createElement('canvas');d.append(c);
+ const l=document.createElement('div');l.className='l';l.textContent=`${k} · ${a.frames}f @${a.fps}fps${a.loop?' loop':''}`;d.append(l);
+ document.getElementById('g').append(d);cells.push({k,a,c,d,t0:performance.now()});}
+ requestAnimationFrame(tick);};
+function tick(t){const s=+document.getElementById('sc').value,gr=document.getElementById('grass').checked;
+ for(const o of cells){const{a,c}=o;o.d.classList.toggle('grass',gr);
+  c.width=c.height=G.frameWidth*s;const x=c.getContext('2d');x.imageSmoothingEnabled=false;
+  const fps=o.k==='hit'?2:a.fps,n=Math.floor((t-o.t0)/1000*fps);
+  let f=a.loop?n%a.frames:n%(a.frames+(a.holdLastFrame?6:3));f=Math.min(f,a.frames-1);
+  x.drawImage(img,(a.col+f)*G.frameWidth,a.row*G.frameHeight,G.frameWidth,G.frameHeight,0,0,c.width,c.height);}
+ requestAnimationFrame(tick);}
+</script></body></html>

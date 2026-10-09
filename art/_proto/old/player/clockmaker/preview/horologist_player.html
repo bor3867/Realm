@@ -1,0 +1,31 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Horologist Animations</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--bg:#1d1b24;--fg:#e9e4f2;--mut:#8d88a0;--tile:#2a2833;--grass:#355236}
+body{margin:0;padding:16px;background:var(--bg);color:var(--fg);font:13px/1.4 system-ui,sans-serif}
+h1{font-size:16px;margin:0 0 12px}.g{display:flex;flex-wrap:wrap;gap:12px}
+.c{background:var(--tile);padding:8px;border-radius:6px;text-align:center}
+.c.grass{background:var(--grass)}canvas{image-rendering:pixelated;display:block}
+.l{color:var(--mut);margin-top:4px}label{margin-right:12px}
+</style></head><body>
+<h1>Horologist: animation check</h1>
+<p><label><input type="checkbox" id="grass"> grass terrain</label>
+<label>scale <input type="range" id="sc" min="2" max="10" value="6"></label></p>
+<div class="g" id="g"></div>
+<script>
+const G={"image": "horologist_sheet.png", "frameWidth": 16, "frameHeight": 16, "columns": 6, "rows": 6, "frameCount": 31, "pivot": {"x": 8, "y": 15, "note": "bottom-centre, same pixel in every frame"}, "animations": {"front_idle": {"row": 0, "col": 0, "frames": 2, "fps": 3, "loop": true}, "front_walk": {"row": 0, "col": 2, "frames": 4, "fps": 8, "loop": true}, "side_idle": {"row": 1, "col": 0, "frames": 2, "fps": 3, "loop": true, "note": "faces RIGHT; flip horizontally for LEFT"}, "side_walk": {"row": 1, "col": 2, "frames": 4, "fps": 8, "loop": true, "note": "faces RIGHT; flip horizontally for LEFT"}, "back_idle": {"row": 2, "col": 0, "frames": 2, "fps": 3, "loop": true}, "back_walk": {"row": 2, "col": 2, "frames": 4, "fps": 8, "loop": true}, "attack": {"row": 3, "col": 0, "frames": 3, "fps": 12, "loop": false, "eventFrame": 1}, "hit": {"row": 3, "col": 3, "frames": 1, "fps": 1, "loop": false, "holdMs": 150}, "ability": {"row": 4, "col": 0, "frames": 5, "fps": 10, "loop": false, "eventFrame": 3}, "death": {"row": 5, "col": 0, "frames": 4, "fps": 7, "loop": false, "holdLastFrame": true}}},img=new Image();img.src='data:image/png;base64,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';
+const cells=[];
+img.onload=()=>{for(const[k,a]of Object.entries(G.animations)){
+ const d=document.createElement('div');d.className='c';
+ const c=document.createElement('canvas');d.append(c);
+ const l=document.createElement('div');l.className='l';l.textContent=`${k} · ${a.frames}f @${a.fps}fps${a.loop?' loop':''}`;d.append(l);
+ document.getElementById('g').append(d);cells.push({k,a,c,d,t0:performance.now()});}
+ requestAnimationFrame(tick);};
+function tick(t){const s=+document.getElementById('sc').value,gr=document.getElementById('grass').checked;
+ for(const o of cells){const{a,c}=o;o.d.classList.toggle('grass',gr);
+  c.width=c.height=G.frameWidth*s;const x=c.getContext('2d');x.imageSmoothingEnabled=false;
+  const fps=o.k==='hit'?2:a.fps,n=Math.floor((t-o.t0)/1000*fps);
+  let f=a.loop?n%a.frames:n%(a.frames+(a.holdLastFrame?6:3));f=Math.min(f,a.frames-1);
+  x.drawImage(img,(a.col+f)*G.frameWidth,a.row*G.frameHeight,G.frameWidth,G.frameHeight,0,0,c.width,c.height);}
+ requestAnimationFrame(tick);}
+</script></body></html>

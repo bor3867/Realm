@@ -1,0 +1,31 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Wreckwhaler Animations</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{--bg:#1d1b24;--fg:#e9e4f2;--mut:#8d88a0;--tile:#2a2833;--grass:#355236}
+body{margin:0;padding:16px;background:var(--bg);color:var(--fg);font:13px/1.4 system-ui,sans-serif}
+h1{font-size:16px;margin:0 0 12px}.g{display:flex;flex-wrap:wrap;gap:12px}
+.c{background:var(--tile);padding:8px;border-radius:6px;text-align:center}
+.c.grass{background:var(--grass)}canvas{image-rendering:pixelated;display:block}
+.l{color:var(--mut);margin-top:4px}label{margin-right:12px}
+</style></head><body>
+<h1>Wreckwhaler: animation check</h1>
+<p><label><input type="checkbox" id="grass"> grass terrain</label>
+<label>scale <input type="range" id="sc" min="2" max="10" value="6"></label></p>
+<div class="g" id="g"></div>
+<script>
+const G={"image": "wreckwhaler_sheet.png", "frameWidth": 16, "frameHeight": 16, "columns": 6, "rows": 6, "frameCount": 31, "pivot": {"x": 8, "y": 15, "note": "bottom-centre, same pixel in every frame"}, "animations": {"front_idle": {"row": 0, "col": 0, "frames": 2, "fps": 3, "loop": true}, "front_walk": {"row": 0, "col": 2, "frames": 4, "fps": 8, "loop": true}, "side_idle": {"row": 1, "col": 0, "frames": 2, "fps": 3, "loop": true, "note": "faces RIGHT; flip horizontally for LEFT"}, "side_walk": {"row": 1, "col": 2, "frames": 4, "fps": 8, "loop": true, "note": "faces RIGHT; flip horizontally for LEFT"}, "back_idle": {"row": 2, "col": 0, "frames": 2, "fps": 3, "loop": true}, "back_walk": {"row": 2, "col": 2, "frames": 4, "fps": 8, "loop": true}, "attack": {"row": 3, "col": 0, "frames": 3, "fps": 12, "loop": false, "eventFrame": 1}, "hit": {"row": 3, "col": 3, "frames": 1, "fps": 1, "loop": false, "holdMs": 150}, "ability": {"row": 4, "col": 0, "frames": 5, "fps": 10, "loop": false, "eventFrame": 3}, "death": {"row": 5, "col": 0, "frames": 4, "fps": 7, "loop": false, "holdLastFrame": true}}},img=new Image();img.src='data:image/png;base64,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';
+const cells=[];
+img.onload=()=>{for(const[k,a]of Object.entries(G.animations)){
+ const d=document.createElement('div');d.className='c';
+ const c=document.createElement('canvas');d.append(c);
+ const l=document.createElement('div');l.className='l';l.textContent=`${k} · ${a.frames}f @${a.fps}fps${a.loop?' loop':''}`;d.append(l);
+ document.getElementById('g').append(d);cells.push({k,a,c,d,t0:performance.now()});}
+ requestAnimationFrame(tick);};
+function tick(t){const s=+document.getElementById('sc').value,gr=document.getElementById('grass').checked;
+ for(const o of cells){const{a,c}=o;o.d.classList.toggle('grass',gr);
+  c.width=c.height=G.frameWidth*s;const x=c.getContext('2d');x.imageSmoothingEnabled=false;
+  const fps=o.k==='hit'?2:a.fps,n=Math.floor((t-o.t0)/1000*fps);
+  let f=a.loop?n%a.frames:n%(a.frames+(a.holdLastFrame?6:3));f=Math.min(f,a.frames-1);
+  x.drawImage(img,(a.col+f)*G.frameWidth,a.row*G.frameHeight,G.frameWidth,G.frameHeight,0,0,c.width,c.height);}
+ requestAnimationFrame(tick);}
+</script></body></html>

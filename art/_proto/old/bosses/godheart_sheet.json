@@ -1,0 +1,16 @@
+{
+  "image": "godheart_sheet.png",
+  "frameWidth": 64,
+  "frameHeight": 64,
+  "columns": 10,
+  "rows": 1,
+  "pivot": {
+    "x": 32,
+    "y": 60
+  },
+  "bosses": {
+    "fallen_heart": {
+      "row": 0
+    }
+  }
+}

@@ -1,0 +1,204 @@
+{
+  "image": "champions_sheet.png",
+  "frameWidth": 24,
+  "frameHeight": 24,
+  "columns": 9,
+  "animations": {
+    "move": {
+      "col": 0,
+      "frames": 4,
+      "fps": 6
+    },
+    "tell": {
+      "col": 4
+    },
+    "attack": {
+      "col": 5
+    },
+    "death": {
+      "col": 6,
+      "frames": 3
+    }
+  },
+  "rows": 36,
+  "pivot": {
+    "x": 12,
+    "y": 23
+  },
+  "champions": {
+    "pilgrim_elder": {
+      "row": 0,
+      "biome": "shore",
+      "parent": true
+    },
+    "bog_abbess": {
+      "row": 1,
+      "biome": "fen",
+      "parent": true
+    },
+    "rune_warden": {
+      "row": 2,
+      "biome": "runeholt",
+      "parent": true
+    },
+    "fallen_choirmaster": {
+      "row": 3,
+      "biome": "godfall",
+      "parent": true
+    },
+    "tide_herald": {
+      "row": 4,
+      "biome": "shore",
+      "herald": true
+    },
+    "bog_bellringer": {
+      "row": 5,
+      "biome": "fen",
+      "herald": true
+    },
+    "rime_herald": {
+      "row": 6,
+      "biome": "runeholt",
+      "herald": true
+    },
+    "gilded_penitent": {
+      "row": 7,
+      "biome": "godfall",
+      "herald": true
+    },
+    "lighthouse_jelly": {
+      "row": 8,
+      "biome": "shore",
+      "of": "lantern_jelly"
+    },
+    "salt_matriarch": {
+      "row": 9,
+      "biome": "shore",
+      "of": "salt_widow"
+    },
+    "trap_hound_alpha": {
+      "row": 10,
+      "biome": "shore",
+      "of": "trap_hound"
+    },
+    "anchor_titan": {
+      "row": 11,
+      "biome": "shore",
+      "of": "anchor_bearer"
+    },
+    "moth_queen": {
+      "row": 12,
+      "biome": "shore",
+      "of": "lens_moth"
+    },
+    "great_bell": {
+      "row": 13,
+      "biome": "fen",
+      "of": "bell_taken"
+    },
+    "peat_martyr": {
+      "row": 14,
+      "biome": "fen",
+      "of": "peat_saint"
+    },
+    "mire_chorus": {
+      "row": 15,
+      "biome": "fen",
+      "of": "mire_choir"
+    },
+    "twin_lamp_heron": {
+      "row": 16,
+      "biome": "fen",
+      "of": "lantern_heron"
+    },
+    "tallow_matron": {
+      "row": 17,
+      "biome": "fen",
+      "of": "candle_mite"
+    },
+    "elder_willow": {
+      "row": 18,
+      "biome": "fen",
+      "of": "mourning_willow"
+    },
+    "leech_prime": {
+      "row": 19,
+      "biome": "fen",
+      "of": "grave_leech"
+    },
+    "glacier_headsman": {
+      "row": 20,
+      "biome": "runeholt",
+      "of": "frozen_executioner"
+    },
+    "wheel_abbot": {
+      "row": 21,
+      "biome": "runeholt",
+      "of": "prayer_monk"
+    },
+    "elder_hush": {
+      "row": 22,
+      "biome": "runeholt",
+      "of": "antlered_hush"
+    },
+    "saga_singer": {
+      "row": 23,
+      "biome": "runeholt",
+      "of": "frost_skald"
+    },
+    "shieldwall_pack": {
+      "row": 24,
+      "biome": "runeholt",
+      "of": "wolf_shield"
+    },
+    "hollow_jarl": {
+      "row": 25,
+      "biome": "godfall",
+      "of": "hollow_thane"
+    },
+    "halo_glutton": {
+      "row": 26,
+      "biome": "godfall",
+      "of": "halo_eater"
+    },
+    "cathedral_engine": {
+      "row": 27,
+      "biome": "godfall",
+      "of": "choir_engine"
+    },
+    "seraph_husk": {
+      "row": 28,
+      "biome": "godfall",
+      "of": "cherub_husk"
+    },
+    "broodmother": {
+      "row": 29,
+      "biome": "godfall",
+      "of": "reliquary_spider"
+    },
+    "glass_sphinx": {
+      "row": 30,
+      "biome": "dunes"
+    },
+    "mirage_caller": {
+      "row": 31,
+      "biome": "dunes"
+    },
+    "thornwood_stag": {
+      "row": 32,
+      "biome": "thornwood"
+    },
+    "witch_of_briars": {
+      "row": 33,
+      "biome": "thornwood"
+    },
+    "geode_titan": {
+      "row": 34,
+      "biome": "steppe"
+    },
+    "skyglass_seer": {
+      "row": 35,
+      "biome": "steppe"
+    }
+  }
+}

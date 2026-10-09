@@ -1,0 +1,91 @@
+{
+  "image": "kitehermit_sheet.png",
+  "frameWidth": 16,
+  "frameHeight": 16,
+  "columns": 6,
+  "rows": 6,
+  "frameCount": 31,
+  "pivot": {
+    "x": 8,
+    "y": 15,
+    "note": "bottom-centre, same pixel in every frame"
+  },
+  "animations": {
+    "front_idle": {
+      "row": 0,
+      "col": 0,
+      "frames": 2,
+      "fps": 3,
+      "loop": true
+    },
+    "front_walk": {
+      "row": 0,
+      "col": 2,
+      "frames": 4,
+      "fps": 8,
+      "loop": true
+    },
+    "side_idle": {
+      "row": 1,
+      "col": 0,
+      "frames": 2,
+      "fps": 3,
+      "loop": true,
+      "note": "faces RIGHT; flip horizontally for LEFT"
+    },
+    "side_walk": {
+      "row": 1,
+      "col": 2,
+      "frames": 4,
+      "fps": 8,
+      "loop": true,
+      "note": "faces RIGHT; flip horizontally for LEFT"
+    },
+    "back_idle": {
+      "row": 2,
+      "col": 0,
+      "frames": 2,
+      "fps": 3,
+      "loop": true
+    },
+    "back_walk": {
+      "row": 2,
+      "col": 2,
+      "frames": 4,
+      "fps": 8,
+      "loop": true
+    },
+    "attack": {
+      "row": 3,
+      "col": 0,
+      "frames": 3,
+      "fps": 12,
+      "loop": false,
+      "eventFrame": 1
+    },
+    "hit": {
+      "row": 3,
+      "col": 3,
+      "frames": 1,
+      "fps": 1,
+      "loop": false,
+      "holdMs": 150
+    },
+    "ability": {
+      "row": 4,
+      "col": 0,
+      "frames": 5,
+      "fps": 10,
+      "loop": false,
+      "eventFrame": 3
+    },
+    "death": {
+      "row": 5,
+      "col": 0,
+      "frames": 4,
+      "fps": 7,
+      "loop": false,
+      "holdLastFrame": true
+    }
+  }
+}

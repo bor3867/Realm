@@ -1,0 +1,128 @@
+{
+  "image": "forgefist_sheet.png",
+  "frameWidth": 16,
+  "frameHeight": 16,
+  "columns": 6,
+  "rows": 9,
+  "frameCount": 50,
+  "pivot": {
+    "x": 8,
+    "y": 15,
+    "note": "pixel coords inside each frame: bottom-centre between the boots"
+  },
+  "animations": {
+    "front_idle": {
+      "row": 0,
+      "col": 0,
+      "frames": 2,
+      "fps": 3,
+      "loop": true
+    },
+    "front_walk": {
+      "row": 0,
+      "col": 2,
+      "frames": 4,
+      "fps": 8,
+      "loop": true
+    },
+    "right_idle": {
+      "row": 1,
+      "col": 0,
+      "frames": 2,
+      "fps": 3,
+      "loop": true
+    },
+    "right_walk": {
+      "row": 1,
+      "col": 2,
+      "frames": 4,
+      "fps": 8,
+      "loop": true
+    },
+    "left_idle": {
+      "row": 2,
+      "col": 0,
+      "frames": 2,
+      "fps": 3,
+      "loop": true
+    },
+    "left_walk": {
+      "row": 2,
+      "col": 2,
+      "frames": 4,
+      "fps": 8,
+      "loop": true
+    },
+    "back_idle": {
+      "row": 3,
+      "col": 0,
+      "frames": 2,
+      "fps": 3,
+      "loop": true
+    },
+    "back_walk": {
+      "row": 3,
+      "col": 2,
+      "frames": 4,
+      "fps": 8,
+      "loop": true
+    },
+    "front_attack": {
+      "row": 4,
+      "col": 0,
+      "frames": 3,
+      "fps": 12,
+      "loop": false,
+      "eventFrame": 1
+    },
+    "right_attack": {
+      "row": 4,
+      "col": 3,
+      "frames": 3,
+      "fps": 12,
+      "loop": false,
+      "eventFrame": 1
+    },
+    "left_attack": {
+      "row": 5,
+      "col": 0,
+      "frames": 3,
+      "fps": 12,
+      "loop": false,
+      "eventFrame": 1
+    },
+    "back_attack": {
+      "row": 5,
+      "col": 3,
+      "frames": 3,
+      "fps": 12,
+      "loop": false,
+      "eventFrame": 1
+    },
+    "ability": {
+      "row": 6,
+      "col": 0,
+      "frames": 5,
+      "fps": 10,
+      "loop": false,
+      "eventFrame": 3
+    },
+    "hit": {
+      "row": 7,
+      "col": 0,
+      "frames": 4,
+      "fps": 1,
+      "loop": false,
+      "holdMs": 150,
+      "note": "one frame per facing: front, right, left, back"
+    },
+    "death": {
+      "row": 8,
+      "col": 0,
+      "frames": 5,
+      "fps": 8,
+      "loop": false,
+      "holdLastFrame": true
+    }
+  }
+}

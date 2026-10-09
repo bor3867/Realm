@@ -1,0 +1,7 @@
+# the update bundle as delivered (its native sheets and atlases are copied into art/bundle/ by Phase 1)
+realm_update/
+realm_update.zip
+# local tooling and caches
+__pycache__/
+*.pyc
+.claude/
