@@ -21,4 +21,28 @@ def _frostveil(f):
     return c.done()
 
 
-PORTALS = {'frostveil': _frostveil}
+def _mirerot(f):
+    """Mirerot Grotto: a ring of mushroom caps round a green-violet spore swirl, a spore drifting up"""
+    c = _PT.Cv()
+    c.swirl(7.5, 9.0, 4.6, 5.4, ['C', 'V', 'v', 'q'], f, arms=2)
+    for k, (x, y) in enumerate(((2, 6), (1, 10), (3, 13), (12, 13), (14, 10), (13, 6), (5, 3), (10, 3))):
+        cap = 'p' if k % 2 else 'R'
+        for dx in (-1, 0, 1):
+            c.p(x + dx, y, cap)
+        c.p(x, y + 1, 'B')
+        c.p(x, y - 1, cap if (k + f) % 3 else 'P')
+    c.p(7 + (f % 2), 1 - (f // 2), 'C')                        # a spore drifting up out of it
+    for x in range(1, 15):
+        c.p(x, 15, 't' if (x + f) % 3 else 'T')
+    return c.done()
+
+
+PORTALS = {'frostveil': _frostveil, 'mirerot': _mirerot}
+
+# ---- tiles the bundle didn't bring (8x8, the dungeons4 format: palette, [variants[frames[rows]]])
+_BOARD = ['bbbbcbbb', 'ccccbcec', 'aaaaaaaa', 'bbcbbbbb', 'cbcccccb', 'aaaaaaaa', 'bbbbbcbb', 'ccccccbc']
+TILES = {
+    # a boardwalk plank over the bog: weathered boards, dark gaps between them, moss creeping onto one
+    'mrboard': ({'a': '#2A1C0E', 'b': '#8A6E44', 'c': '#B0925C', 'd': '#5A8A3A', 'e': '#D8C08A'},
+                [[_BOARD], [[r.replace('b', 'd', 1) if i in (3, 6) else r for i, r in enumerate(_BOARD)]]]),
+}

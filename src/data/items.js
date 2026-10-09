@@ -625,7 +625,27 @@ UT.push(
   { id: 'aurora_heart', type: 'ring', slot: 'ring', name: 'The Aurora Heart', reg: 'ix_items/aurora_heart', bonus: { hp: 30, mp: 30, att: 3, def: 3, spd: 3, dex: 3, vit: 3, wis: 3 }, legendary: true,
     desc: 'The light that moved inside the wyrm\'s chest. Nothing can slow you while it is yours.' },
 );
+// ---- Mother Mycelia's (Mirerot Grotto; icons from ix_items). The Glowcap Crown drops only from a phase-3 kill.
+UT.push(
+  { id: 'bog_cleaver', type: 'sword', slot: 'weapon', name: 'Bog Cleaver', reg: 'ix_items/bog_cleaver',
+    weapon: { dmg: [115, 170], range: 3.0, speed: 9, rate: 1.0, proj: 'bogspit', size: 0.5 }, desc: 'Rust and rot down the whole edge. Whatever it cuts goes on hurting.' },
+  { id: 'sporecaller_wand', type: 'wand', slot: 'weapon', name: 'Sporecaller Wand', reg: 'ix_items/sporecaller_wand',
+    weapon: { dmg: [90, 140], range: 8, speed: 18, rate: 1.05, proj: 'gasbubble', size: 0.42 }, desc: 'Its bolt bursts into spores when it lands.' },
+  { id: 'mycelial_hide', type: 'leather', slot: 'armor', name: 'Mycelial Hide', reg: 'ix_items/mycelial_hide', bonus: { def: 12, vit: 6, hp: 40 },
+    desc: 'Grown over a frame of roots. Poison has nothing left to take from you.' },
+  { id: 'ring_of_rot', type: 'ring', slot: 'ring', name: 'Ring of Rot', reg: 'ix_items/ring_of_rot', bonus: { att: 5, hp: 70 },
+    desc: 'A band of soft black wood. It is always slightly damp.' },
+  { id: 'spore_bomb', type: 'bellows', slot: 'ability', name: 'Spore Bomb', reg: 'ix_items/spore_bomb',
+    ability: { cost: 70, berserk: 4, burst: { count: 16, proj: 'gasbubble', dmg: 120, range: 4.5 } }, desc: 'A bellows stuffed with spores. Charge, and leave a cloud behind you.' },
+  { id: 'glowcap_crown', type: 'ring', slot: 'ring', name: 'The Glowcap Crown', reg: 'ix_items/glowcap_crown', bonus: { hp: 80, wis: 6, vit: 6 }, legendary: true,
+    desc: 'It glows faintly in the dark. Whatever dies near you feeds it, and it feeds you.' },
+);
 Object.assign(SPECIAL, {
+  bog_cleaver: { weapon: { burn: { dps: 60, t: 3 } } },
+  sporecaller_wand: { weapon: { split: { n: 4, proj: 'gasbubble', f: 0.3 } } },
+  mycelial_hide: { passive: { nopoison: true } },
+  spore_bomb: { mod: 'cloud' },
+  glowcap_crown: { passive: { killheal: 40, lowregen: 30 } },
   glacial_fang: { weapon: { slow: { f: 0.25, t: 1 } } },
   rimeheart_bow: { weapon: { slow: { f: 0.15, t: 0.8 } } },
   wand_of_hoarfrost: { weapon: { slow: { f: 0.3, t: 1.2 } } },
@@ -692,6 +712,7 @@ for (const [d, name, desc, reg] of [
   ['spire', 'Lighthouse Key', 'Clear glass, and somehow it throws a rainbow on your palm.'],
   ['dream', 'Key of Dreams', 'You are not sure you are holding it. You are not sure you are awake.'],
   ['frostveil', 'Frostveil Key', 'Cut from clear ice. It does not melt in your hand, which is worse.', 'ix_items/frostveil_key'],
+  ['mirerot', 'Mirerot Key', 'Grown, not forged. It is slightly warm and very slightly alive.', 'ix_items/mirerot_key'],
 ]) add({ id: `key_${d}`, type: 'key', slot: 'consumable', tier: null, name, use: { key: d }, reg: reg || undefined, desc: `${desc} Use it outside a dungeon to open a portal there.` });
 // ---- a vault chest: use it and your vault grows by 8 slots
 add({ id: 'vault_chest', type: 'chest', slot: 'consumable', tier: null, name: 'Vault Chest', use: { vault: 8 },

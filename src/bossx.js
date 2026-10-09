@@ -104,6 +104,7 @@ export const BXF = {
     if (V.mv) b.mv = { ...V.mv };
     if (V.life) b.life = V.life;
     if (V.chill) b.chill = V.chill;
+    if (V.poison) b.poison = V.poison;
     b.bxOf = e;
     if (extra) Object.assign(b, extra);
     return b;

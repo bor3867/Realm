@@ -1345,6 +1345,47 @@ ENEMIES.giant_watermelon = { name: 'Giant Watermelon', biome: 'event', melon: tr
   });
   Object.assign(SPEECH, { glacius_frozen_wyrm: { see: ['...WARMTH. I SMELL IT ON YOU.', '...THE LAKE KEEPS WHAT FALLS THROUGH.'], die: ['...the ice... gives...'] } });
 }
+// ================================================================ MIREROT GROTTO (Realm Update, docs/design/dungeon_mirerot.md)
+{
+  const LM = L([3, 6], [3, 6], [1, 3], [1, 2], 0.02), MRE = (k) => 'ex_mirerot/' + k;
+  Object.assign(ENEMIES, {
+    bog_toad: { name: 'Bog Toad', biome: 'mirerot', reg: MRE('bog_toad'), hp: 650, def: 6, speed: 2.6, xp: 34, r: 0.45, ai: 'hop', aggro: 9, contact: 34,
+      attacks: [{ pattern: 'radial', proj: 'bogspit', count: 6, dmg: 32, speed: 4, range: 5, cd: 2.4, tell: 450 }], loot: LM },
+    rot_hornet: { name: 'Rot Hornet', biome: 'mirerot', reg: MRE('rot_hornet'), hp: 400, def: 3, speed: 4.6, xp: 26, r: 0.4, ai: 'swoop', aggro: 11, fly: true, contact: 30,
+      attacks: [{ pattern: 'aimed', proj: 'stinger', count: 2, arc: 0.25, dmg: 30, speed: 9, range: 6, cd: 1.6, tell: 200 }], loot: LM },
+    sporeling: { name: 'Sporeling', biome: 'mirerot', reg: MRE('sporeling'), hp: 420, def: 4, speed: 2.4, xp: 24, r: 0.42, ai: 'shamble', aggro: 10,
+      bomb: { r: 1.6, dmg: 70, fuse: 0.9 }, bombCloud: true, attacks: [], loot: LM },
+    sporeling_clump: { name: 'Sporeling Clump', biome: 'mirerot', reg: MRE('sporeling'), scale: 1.6, hp: 1500, def: 8, speed: 1.4, xp: 60, r: 0.6, ai: 'shamble', aggro: 9,
+      split: { id: 'sporeling', n: 3 }, attacks: [{ pattern: 'radial', proj: 'gasbubble', count: 8, dmg: 34, speed: 3.5, range: 5, cd: 2.6, tell: 500 }], loot: LM },
+    vine_lasher: { name: 'Vine Lasher', biome: 'mirerot', reg: MRE('vine_lasher'), scale: 1.3, hp: 1300, def: 12, speed: 0, xp: 70, r: 0.55, ai: 'rooted', aggro: 10,
+      attacks: [{ pattern: 'radial', proj: 'splinter', count: 10, dmg: 36, speed: 5, range: 3.5, cd: 2.2, tell: 450 },
+        { pattern: 'aimed', proj: 'thornseed', count: 3, arc: 0.4, dmg: 34, speed: 7, range: 7, cd: 1.8, tell: 300 }], loot: LM },
+    glowcap_sprout: { name: 'Glowcap Sprout', biome: 'mirerot', reg: 'bx_shots/mother_mycelia.glowcap_seed', scale: 1.8, hp: 600, def: 0, speed: 0, xp: 10, r: 0.45, ai: 'rooted', aggro: 0,
+      attacks: [], loot: [] },
+  });
+  const CHM = [{ slot: 'weapon', tiers: [3, 6], p: 0.8 }, { slot: 'armor', tiers: [3, 6], p: 0.8 }, { slot: 'ability', tiers: [1, 3], p: 0.5 }, { slot: 'ring', tiers: [1, 3], p: 0.4 },
+    { stat: true, p: 0.6 }, { id: 'pot_hp', p: 1 }];
+  DUNGEONS.mirerot = { name: 'Mirerot Grotto', floor: 'mrmud', wall: 'mrwall', hazard: null, rooms: 10, portal: 'mirerot', style: 'mirerot',
+    layout: { secrets: 1 }, seals: [], altar: false, chestLoot: CHM, mobs: ['bog_toad', 'rot_hornet', 'sporeling', 'vine_lasher'], elites: [],
+    boss: 'mother_mycelia', mobHp: 1.3, ambient: 'rgba(2,8,4,0.74)',
+    compose(rm, r, deep) {
+      if (rm.kind === 'sporegarden') return ['sporeling', 'sporeling', 'rot_hornet'];
+      if (rm.kind === 'cathedral') return ['rot_hornet', 'rot_hornet', 'rot_hornet', 'rot_hornet', 'rot_hornet', 'sporeling_clump', 'bog_toad'];
+      const out = [];
+      if (deep < 0.4) { rm.ambush = true; out.push('bog_toad', 'bog_toad', 'bog_toad', 'sporeling'); }      // the toads rise out of the bog as you come in
+      else if (deep < 0.75) out.push('rot_hornet', 'rot_hornet', 'rot_hornet', 'rot_hornet', 'sporeling', 'sporeling', 'bog_toad', 'bog_toad');
+      else out.push('rot_hornet', 'rot_hornet', 'rot_hornet', 'rot_hornet', 'rot_hornet', 'sporeling_clump', 'bog_toad', 'bog_toad', 'sporeling', 'sporeling');
+      if (rm.role === 'treasure') out.push('sporeling_clump');
+      return out;
+    },
+    // the vine lashers, rooted at the far end of the boardwalks
+    extraSpawns: (m) => (m.mrChokes || []).map(([x, y]) => ['vine_lasher', x, y]) };
+  PORTAL_EXTRA.unshift((D) => {
+    if ((D.biome === 'fen' || D.biome === 'thornwood') && Math.random() < 0.35) return ['mirerot', D.children ? 0.05 : 0.012];
+    return null;
+  });
+  Object.assign(SPEECH, { mother_mycelia: { see: ['...grow... with us...', '...you will make such good soil...'], die: ['...the spores... remember...'] } });
+}
 // the bands round the campfires: orcs and their archers in the Thornwood, goblins in the Greenmarch
 export const FIRECAMP_BANDS = { thornwood: ['orc_brute', 'orc_brute', 'bandit_archer', 'bandit_archer'], lowlands: ['hedge_goblin', 'hedge_goblin', 'hedge_goblin', 'field_rat'] };
 Object.assign(SPEECH, {

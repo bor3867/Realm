@@ -6,10 +6,10 @@ export const TILE_NAMES = ['water', 'deep', 'sand', 'fen', 'mud', 'snow', 'runef
   'grass', 'cobble', 'dirt', 'hedge', 'shallows', 'bog', 'ice', 'dune', 'glassflat', 'loam', 'bramble', 'steppe', 'quartz',
   'cryptfloor', 'cryptwall', 'cryptwater', 'emberfloor', 'emberwall', 'emberlava', 'carpet',
   'combfloor', 'waxwall', 'honey', 'stageboards', 'velvetwall', 'prismfloor', 'crystalwall', 'dreamfloor', 'dreamwall', 'starvoid', 'dreambridge', 'fadebridge', 'fadegone',
-  'cliff', 'rift', 'fvsnow', 'fvice', 'fvwater', 'fvwall'];
+  'cliff', 'rift', 'fvsnow', 'fvice', 'fvwater', 'fvwall', 'mrmud', 'mrmoss', 'mrboard', 'mrwall'];
 export const TID = Object.fromEntries(TILE_NAMES.map((n, i) => [n, i]));
 const SOLID_TILES = new Set([TID.water, TID.deep, TID.forgewall, TID.void, TID.chapelwall, TID.ribwall, TID.hedge, TID.bramble, TID.cryptwall, TID.emberwall, TID.cryptwater,
-  TID.waxwall, TID.velvetwall, TID.crystalwall, TID.dreamwall, TID.starvoid, TID.fadegone, TID.cliff, TID.fvwall]);
+  TID.waxwall, TID.velvetwall, TID.crystalwall, TID.dreamwall, TID.starvoid, TID.fadegone, TID.cliff, TID.fvwall, TID.mrwall]);
 export const BIOMES = ['shore', 'fen', 'runeholt', 'godfall', 'dunes', 'thornwood', 'steppe', 'lowlands'];
 // how deep in each land lies: 0 the coast ... 3 the god's fall. The three newer lands share a ring with an older one.
 export const BIOME_RING = [0, 1, 2, 3, 0, 1, 2, 1];
@@ -28,9 +28,12 @@ export const SKINS = [null,
   ['ow_tiles/godlands_ash_ground', 'ash'], ['ow_tiles/godlands_blood_rock', 'obsidian'], ['ow_tiles/godlands_rift', 'rift'],
   // Frostveil Hollows (expansion_one): snow in patches, ice, frigid water, and the wall's top (its face is drawn by the renderer)
   ['ex_tiles/frostveil_snow_a', 'fvsnow'], ['ex_tiles/frostveil_snow_b', 'fvsnow'], ['ex_tiles/frostveil_ice', 'fvice'],
-  ['ex_tiles/frostveil_frigid_water', 'fvwater'], ['ex_tiles/frostveil_wall_top', 'fvwall']];
+  ['ex_tiles/frostveil_frigid_water', 'fvwater'], ['ex_tiles/frostveil_wall_top', 'fvwall'],
+  // Mirerot Grotto: mud in patches, moss, the bog (the realm's bog tile, so it slows the same), the wall's top
+  ['ex_tiles/mirerot_mud_a', 'mrmud'], ['ex_tiles/mirerot_mud_b', 'mrmud'], ['ex_tiles/mirerot_moss', 'mrmoss'],
+  ['ex_tiles/mirerot_bog', 'bog'], ['ex_tiles/mirerot_wall_top', 'mrwall']];
 // a wall skin's face: drawn under the wall, toward the camera, so walls stand up (RotMG-style)
-export const WALL_FACE = { fvwall: 'ex_tiles/frostveil_wall_side' };
+export const WALL_FACE = { fvwall: 'ex_tiles/frostveil_wall_side', mrwall: 'ex_tiles/mirerot_wall_side' };
 export const SKIN_TID = SKINS.map((s) => (s ? TID[s[1]] : -1));
 export const SK = Object.fromEntries(SKINS.map((s, k) => [s ? s[0].split('/')[1].replace(/^(shore|lowlands|midlands|highlands|godlands)_/, '') + (s[1] === 'deep' || s[1] === 'steppe' ? '@' + s[1] : '') : '-', k]));
 // a fixed per-tile hash (0..1), so jitter and dithering never disturb the generator's random stream
@@ -654,11 +657,11 @@ export function randomTileInBiome(m, b, r, avoid, minD = 14) {
 // Upper dungeons seal their boss behind a gate (def.seals: wardens, levers, a puzzle); the lower ones don't.
 export function dungeon(seed, def) {
   const r = rng(seed);
-  const S = { chapel: 200, crypt: 180, forge: 180, scriptorium: 214, heart: 196, throne: 196, hive: 200, theatre: 190, spire: 220, islands: 230, frostveil: 300 }[def.style] || 230;
+  const S = { chapel: 200, crypt: 180, forge: 180, scriptorium: 214, heart: 196, throne: 196, hive: 200, theatre: 190, spire: 220, islands: 230, frostveil: 300, mirerot: 280 }[def.style] || 230;
   const FLOOR = TID[def.floor], WALL = TID[def.wall], HAZ = def.hazard ? TID[def.hazard] : null;
   const WET = def.style === 'crypt' ? TID.cryptwater : TID.water, HOT = def.style === 'ember' ? TID.emberlava : TID.lava;
   const m = makeMap('dungeon', def.name, S, S, TID.void);
-  if (def.style === 'frostveil') m.skin = new Uint8Array(S * S);
+  if (def.style === 'frostveil' || def.style === 'mirerot') m.skin = new Uint8Array(S * S);
   const tile = (x, y) => m.tiles[idx(m, x, y)];
   const set = (x, y, t) => { if (x > 1 && y > 1 && x < S - 2 && y < S - 2) m.tiles[idx(m, x, y)] = t; };
   const carve = (x0, y0, x1, y1, t = FLOOR) => {
@@ -714,6 +717,45 @@ export function dungeon(seed, def) {
 
   // ================================================================ the layouts
   const LAYOUT = {
+    // ---- MIREROT GROTTO: round hollows strung along a meandering way, joined by boardwalks over the bog.
+    // Glade, hollows, the Spore Garden, the Mushroom Cathedral, more hollows, the Threshold, the Mire; a cache off it.
+    mirerot() {
+      const order = ['glade', 'hollow', 'hollow', 'sporegarden', 'hollow', 'cathedral', 'hollow', 'threshold', 'mire'];
+      const SZ = { glade: 15, hollow: 0, sporegarden: 19, cathedral: 29, threshold: 13, mire: 34 };
+      let cx = 20, cy = S >> 1, dir = 0, prev = null, start = null, mire = null;
+      const nodes = [], ways = [];
+      const clash = (x, y, w, h) => rooms.some((o) => x < o.x + o.w + 4 && o.x < x + w + 4 && y < o.y + o.h + 4 && o.y < y + h + 4);   // rooms aren't carved yet: test their boxes
+      order.forEach((kind, k) => {
+        const d = kind === 'hollow' ? r.int(15, 19) : SZ[kind], w = d, h = kind === 'mire' ? 32 : kind === 'cathedral' ? 25 : d;
+        if (prev) {                                                    // the way bends up to 60 degrees from east at each step
+          dir = Math.max(-1.05, Math.min(1.05, dir + (r() - 0.5) * 1.3));
+          if (cy < 60) dir = Math.abs(dir); if (cy > S - 60) dir = -Math.abs(dir);
+          const L = (prev.w + w) / 2 + r.int(9, 13), fits = (a) => { const x = prev.cx + Math.cos(a) * L, y = prev.cy + Math.sin(a) * L; return x - w / 2 > 6 && x + w / 2 < S - 6 && y - h / 2 > 6 && y + h / 2 < S - 6 && !clash(x - w / 2, y - h / 2, w, h); };
+          for (let t = 0; t < 14 && !fits(dir); t++) dir += (t % 2 ? -1 : 1) * 0.45 * (t + 1);   // near an edge or an earlier room, the way swings aside
+          cx = Math.round(prev.cx + Math.cos(dir) * L); cy = Math.round(prev.cy + Math.sin(dir) * L);
+        }
+        const n = room(cx - (w >> 1), cy - (h >> 1), w, h, { kind, dep: k, shape: 'round' });
+        if (kind === 'threshold' || kind === 'glade') n.role = kind === 'glade' ? 'fight' : 'rest';
+        if (kind === 'sporegarden') n.few = true;
+        if (prev) { ways.push({ a: prev, b: n }); link(prev, n); } else start = n;
+        nodes.push(n); prev = n; mire = n;
+      });
+      // a cache off one of the hollows
+      for (let t = 0; t < 16; t++) {
+        const a = r.pick(nodes.filter((n) => n.kind === 'hollow')), ang = r() * Math.PI * 2, L = a.w / 2 + 20, w = 13;
+        const nx = Math.round(a.cx + Math.cos(ang) * L) - (w >> 1), ny = Math.round(a.cy + Math.sin(ang) * L) - (w >> 1);
+        if (nx < 6 || ny < 6 || nx + w > S - 6 || ny + w > S - 6 || clash(nx, ny, w, w)) continue;
+        const n = room(nx, ny, w, w, { kind: 'cache', dep: a.dep, leaf: true, shape: 'round', role: 'treasure' });
+        ways.push({ a, b: n }); link(a, n);
+        break;
+      }
+      // the ways: a band of bog five wide, a boardwalk down the middle of it (carved after the rooms, below)
+      for (const { a, b } of ways) { tube(a.cx, a.cy, b.cx, b.cy, 2, TID.bog); }
+      m.mrRoads = ways.map(({ a, b }) => [a.cx, a.cy, b.cx, b.cy]);
+      // the chokepoints: the far end of every boardwalk past the first, just short of the room it reaches
+      m.mrChokes = ways.slice(1).filter(({ b }) => b.kind !== 'cache').map(({ a, b }) => { const L = Math.hypot(b.cx - a.cx, b.cy - a.cy), k = (b.w / 2 + 2) / L; return [b.cx + (a.cx - b.cx) * k, b.cy + (a.cy - b.cy) * k]; });
+      return { start, boss: mire };
+    },
     // ---- FROSTVEIL HOLLOWS: a cavern that winds east under the ice. Mouth, caverns, an ice run, the Hall of the
     // Frozen, more caverns, the Wyrm's Stair, the Frozen Lake; a grotto and a second ice run hang off to the side.
     frostveil() {
@@ -1140,7 +1182,41 @@ export function dungeon(seed, def) {
   const quietRole = (n) => n.role === 'puzzle' || n.role === 'altar' || n.role === 'lever' || n.role === 'mirror' || n.role === 'trial';
   const FV = (k) => 'ex_decor/frostveil_' + k;
   const fvBrazier = (x, y, extra = {}) => { if (isF(x, y) && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) put(m, FV('frost_brazier'), x, y, true, { fvBrazier: true, lit: true, ...extra }); };
+  const MR = (k) => 'ex_decor/mirerot_' + k;
+  const pod = (x, y) => { if (isF(x, y) && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) put(m, MR('spore_pod'), x, y, false, { mrPod: true }); };
   const DRESS = {
+    mirerot(n) {
+      const inRoom = (x, y) => isF(x, y) && Math.hypot((x - n.cx) / (n.w / 2), (y - n.cy) / (n.h / 2)) < 1;
+      const ringAt = (k, f, sprite, solid = true, extra = {}, a0 = 0) => { for (let j = 0; j < k; j++) { const a = a0 + (j / k) * Math.PI * 2, x = Math.round(n.cx + Math.cos(a) * (n.w / 2) * f), y = Math.round(n.cy + Math.sin(a) * (n.h / 2) * f); if (inRoom(x, y)) put2(null, x, y, sprite, solid, extra); } };
+      const moss = (p) => { for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) if (inRoom(x, y) && noise2(seed ^ 0x6d6f7373)(x / 4, y / 4) > p) set(x, y, TID.mrmoss); };
+      const bogPool = (px, py, rad) => { for (let y = py - rad; y <= py + rad; y++) for (let x = px - rad; x <= px + rad; x++) if (inRoom(x, y) && Math.hypot(x - px, y - py) <= rad + 0.2) set(x, y, TID.bog); };
+      if (n.kind === 'glade') { moss(0.4); ringAt(7, 0.62, MR('glowshroom_cluster'), false); put2(null, n.cx + 3, n.cy - 2, MR('rotting_log'), false); ringAt(6, 0.85, MR('reeds'), false, {}, 0.3); }
+      else if (n.kind === 'hollow') {
+        moss(0.62); const a = r() * Math.PI * 2; bogPool(Math.round(n.cx + Math.cos(a) * n.w * 0.22), Math.round(n.cy + Math.sin(a) * n.h * 0.22), r.int(1, 2));
+        ringAt(3, 0.75, MR('glowshroom_cluster'), false, {}, r() * 6);
+        for (let k = 0; k < r.int(1, 2); k++) { const b = r() * Math.PI * 2; put2(n, Math.round(n.cx + Math.cos(b) * n.w * 0.3), Math.round(n.cy + Math.sin(b) * n.h * 0.3), MR('giant_mushroom')); }
+        for (let k = 0; k < 4; k++) { const b = r() * Math.PI * 2; pod(Math.round(n.cx + Math.cos(b) * n.w * 0.38), Math.round(n.cy + Math.sin(b) * n.h * 0.38)); }
+      } else if (n.kind === 'sporegarden') {                        // rows of pods with lanes between, a glowshroom at each corner
+        moss(0.5);
+        for (let y = n.y + 3; y < n.y + n.h - 2; y += 3) for (let x = n.x + 3; x < n.x + n.w - 2; x += 2) if (inRoom(x, y) && r.chance(0.55)) pod(x + (y % 2), y);
+        ringAt(4, 0.8, MR('glowshroom_cluster'), false, {}, Math.PI / 4);
+      } else if (n.kind === 'cathedral') {                          // two rings of giant mushrooms round a moss nave, a log altar at the head
+        for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) if (inRoom(x, y) && Math.abs(x - n.cx) <= 2) set(x, y, TID.mrmoss);
+        ringAt(14, 0.82, MR('giant_mushroom'), true, {}, 0.11); ringAt(10, 0.55, MR('giant_mushroom'), true, {}, 0.3);
+        for (let y = n.y + 4; y < n.y + n.h - 3; y += 4) { put2(null, n.cx - 3, y, MR('glowshroom_cluster'), false); put2(null, n.cx + 3, y, MR('glowshroom_cluster'), false); }
+        put2(null, n.cx, n.y + 3, MR('rotting_log')); put2(null, n.cx - 1, n.y + 3, MR('rotting_log'));
+      } else if (n.kind === 'cache') { ringAt(6, 0.6, MR('rotting_log'), true, {}, 0.5); put2(null, n.cx + 3, n.cy + 3, MR('glowshroom_cluster'), false); }
+      else if (n.kind === 'threshold') { moss(0.3); ringAt(4, 0.7, MR('glowshroom_cluster'), false, {}, Math.PI / 4); ringAt(8, 0.88, MR('reeds'), false, {}, 0.2); }
+      else if (n.kind === 'mire') {                                 // an island of mud in a ring of bog, pods round its edge
+        for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) {
+          if (!inRoom(x, y)) continue;
+          const d = Math.hypot((x - n.cx) / (n.w / 2), (y - n.cy) / (n.h / 2));
+          if (d > 0.8) set(x, y, TID.bog); else if (d < 0.35 && noise2(seed)(x / 3, y / 3) > 0.5) set(x, y, TID.mrmoss);
+        }
+        ringAt(8, 0.7, MR('spore_pod'), false, { mrPod: true }, 0.2);
+        ringAt(4, 0.74, MR('glowshroom_cluster'), false, {}, Math.PI / 4);
+      }
+    },
     frostveil(n) {
       const inRoom = (x, y) => x >= n.x && y >= n.y && x < n.x + n.w && y < n.y + n.h && isF(x, y);
       const edge = (x, y) => [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => tile(x + dx, y + dy) === TID.void);
@@ -1350,6 +1426,14 @@ export function dungeon(seed, def) {
     },
   };
   for (const n of rooms) (DRESS[def.style] || (() => {}))(n);
+  if (m.mrRoads) for (const [ax, ay, bx, by] of m.mrRoads) {      // Mirerot: a plank down the middle of each way, reeds along its banks
+    const L = Math.max(1, Math.hypot(bx - ax, by - ay));
+    for (let i = 0; i <= L; i++) {
+      const x = Math.round(ax + (bx - ax) * i / L), y = Math.round(ay + (by - ay) * i / L);
+      if (tile(x, y) === TID.bog) set(x, y, TID.mrboard);
+      if (i % 3 === 0) for (const s of [-2, 2]) { const qx = Math.round(x - ((by - ay) / L) * s), qy = Math.round(y + ((bx - ax) / L) * s); if (tile(qx, qy) === TID.bog && !m.objects.some((o) => Math.floor(o.x) === qx && Math.floor(o.y) === qy)) put(m, 'ex_decor/mirerot_reeds', qx, qy, false); }
+    }
+  }
   if (boss.shape === 'rect' && !['throne', 'crypt', 'forge', 'theatre'].includes(def.style)) {   // a plain boss hall gets pillars and hazards
     if (HAZ !== null) for (const [dx, dy] of [[3, 3], [boss.w - 5, 3], [3, boss.h - 5], [boss.w - 5, boss.h - 5]]) carve(boss.x + dx, boss.y + dy, boss.x + dx + 1, boss.y + dy + 1, HAZ);
     for (const [dx, dy] of [[7, 6], [boss.w - 8, 6], [7, boss.h - 7], [boss.w - 8, boss.h - 7]]) set(boss.x + dx, boss.y + dy, WALL);
@@ -1477,7 +1561,7 @@ export function dungeon(seed, def) {
   const DEC = { chapel: ['shell', 'kelp', 'starfish', 'skullmoss'], forge: ['embervent', 'goldrubble', 'bonepile', 'brokenshield'], heart: ['bonepile', 'goldrubble', 'skullmoss', 'embervent'],
     scriptorium: ['icecrystal', 'runepebble', 'snowtuft', 'brokenshield'], crypt: ['bonepile', 'skullmoss', 'shell', 'kelp'],
     ember: ['embervent', 'goldrubble', 'bonepile'], throne: ['goldrubble', 'pillarstub', 'brokenshield'],
-    hive: ['goldrubble', 'shell', 'kelp'], theatre: ['brokenshield', 'goldrubble', 'runepebble'], spire: ['icecrystal', 'runepebble', 'icecrystal'], islands: ['snowtuft', 'runepebble', 'icecrystal'], frostveil: ['snowtuft', 'icecrystal', 'snowtuft', 'runepebble'] }[def.style] || ['bonepile', 'goldrubble'];
+    hive: ['goldrubble', 'shell', 'kelp'], theatre: ['brokenshield', 'goldrubble', 'runepebble'], spire: ['icecrystal', 'runepebble', 'icecrystal'], islands: ['snowtuft', 'runepebble', 'icecrystal'], frostveil: ['snowtuft', 'icecrystal', 'snowtuft', 'runepebble'], mirerot: ['shrooms', 'reeds', 'skullmoss', 'lily'] }[def.style] || ['bonepile', 'goldrubble'];
   for (const n of [...rooms.filter((n) => n !== boss), ...secrets]) {
     for (let j = 0; j < Math.round(n.w * n.h * 0.04); j++) { const x = n.x + r.int(1, n.w - 2), y = n.y + r.int(1, n.h - 2); if (isF(x, y)) m.decor.push({ name: r.pick(DEC), x, y }); }
   }
@@ -1523,7 +1607,8 @@ export function dungeon(seed, def) {
     dream_lamp: [5.5, '#c8b0ff', 1], moon_shard: [3.5, '#bff0ff', 0], dream_sigil: [3.5, '#ff7ab8', 0],
     'ow_objects/midlands_campfire': [5, '#ff9a3a', 1], 'ow_objects/midlands_glow_mushrooms': [2.5, '#7affc8', 0], 'ow_objects/godlands_blood_fountain': [4, '#ff3a4a', 0],
     'ow_objects/godlands_rift_crystal': [2, '#ff5ad0', 0], 'ow_objects/godlands_corrupted_obelisk': [3, '#c03aff', 0],
-    'ex_decor/frostveil_frost_brazier': [5, '#a8f0ff', 1], 'ex_decor/frostveil_ice_crystal': [2.2, '#8ad8ff', 0] };
+    'ex_decor/frostveil_frost_brazier': [5, '#a8f0ff', 1], 'ex_decor/frostveil_ice_crystal': [2.2, '#8ad8ff', 0],
+    'ex_decor/mirerot_glowshroom_cluster': [4.2, '#8aff6a', 0], 'ex_decor/mirerot_spore_pod': [1.6, '#c8ff8a', 0] };
   m.lights = m.objects.filter((o) => LIGHT[o.sprite] && !o.unlit).map((o) => { const L = LIGHT[o.sprite]; return (o.light = { x: o.x, y: o.y - 0.4, r: L[0] * 16, col: L[1], fire: !!L[2] }); });
   if (def.style === 'frostveil') {                                    // the ice: snow in slow patches, ice, frigid water, the wall tops
     const pv = noise2(seed ^ 0x51f15e);
@@ -1533,6 +1618,16 @@ export function dungeon(seed, def) {
       else if (t === TID.fvice) m.skin[i] = SK.frostveil_ice;
       else if (t === TID.fvwater) m.skin[i] = SK.frostveil_frigid_water;
       else if (t === TID.fvwall) m.skin[i] = SK.frostveil_wall_top;
+    }
+  }
+  if (def.style === 'mirerot') {                                      // mud in slow patches, moss, the bog, the wall tops
+    const pv = noise2(seed ^ 0x6d697265);
+    for (let i = 0; i < m.tiles.length; i++) {
+      const t = m.tiles[i];
+      if (t === TID.mrmud) m.skin[i] = pv((i % S) / 5, Math.floor(i / S) / 5) > 0.5 ? SK.mirerot_mud_b : SK.mirerot_mud_a;
+      else if (t === TID.mrmoss) m.skin[i] = SK.mirerot_moss;
+      else if (t === TID.bog) m.skin[i] = SK.mirerot_bog;
+      else if (t === TID.mrwall) m.skin[i] = SK.mirerot_wall_top;
     }
   }
   for (let y = 2; y < S - 2; y += 4) for (let x = (y >> 2) % 2 * 2 + 2; x < S - 2; x += 4) {    // lava glows (sampled, so a lake is a few soft pools)

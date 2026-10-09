@@ -16,7 +16,7 @@ const MINI = { 0: '#1e5078', 1: '#102c48', 2: '#d2b074', 3: '#3e6230', 4: '#4e41
   26: '#f0dcae', 27: '#b8dcd8', 28: '#2e3a22', 29: '#121c0e', 30: '#b89a48', 31: '#8a7aa8',
   32: '#3a4a5c', 33: '#7486a0', 34: '#2a6c9c', 35: '#3c2a28', 36: '#6c524a', 37: '#ff8c1e', 38: '#8e1e30',
   39: '#a86e26', 40: '#e8c878', 41: '#ffc040', 42: '#7a4e28', 43: '#6a1224', 44: '#2e2e56', 45: '#8a6ad0', 46: '#8878bc', 47: '#d8d0f4', 48: '#0a0618', 49: '#d8a8e8', 50: '#98c0f0', 51: '#1a1236',
-  52: '#5a5866', 53: '#c02a8a', 54: '#dceaf4', 55: '#9ad4f0', 56: '#2a6c9c', 57: '#4a5e86' };   // cliff, rift, Frostveil snow, ice, frigid water, wall
+  52: '#5a5866', 53: '#c02a8a', 54: '#dceaf4', 55: '#9ad4f0', 56: '#2a6c9c', 57: '#4a5e86', 58: '#5a4a2e', 59: '#3e6a2a', 60: '#8a7a52', 61: '#2e3a22' };   // cliff, rift, Frostveil snow, ice, frigid water, wall
 const DIRS = [[0, -1], [1, 0], [0, 1], [-1, 0]];          // N E S W (matches edge sheet order)
 const WEATHER = {
   shore: { n: 36, color: ['#e8f6ff', '#a8d8f0'], vx: 9, vy: 2, size: 1, blink: false },
@@ -31,6 +31,7 @@ const WEATHER = {
   steppe: { n: 34, color: ['#ffd0ff', '#e880e8', '#ffffff'], vx: 4, vy: -3, size: 1, blink: true },         // crystal motes catching the light
   lowlands: { n: 22, color: ['#fff6c8', '#d8f0a0', '#ffffff'], vx: 6, vy: 1, size: 1, blink: false },        // thistledown on the breeze
   frostveil: { n: 48, color: ['#ffffff', '#cfffff', '#e8f6ff'], vx: 3, vy: 9, size: 1, blink: false },       // snow sifting down through the ice
+  mirerot: { n: 30, color: ['#c8ff8a', '#8aff6a', '#e8ffd0'], vx: 1, vy: -2, size: 1, blink: true },        // spores drifting up in the dark
 };
 
 // minimap markers: o outline, 1 main colour, 2 accent
@@ -164,6 +165,7 @@ export class Renderer {
     if (g.timeStop) this.timeDial(g, g.timeStop);
     for (const f of g.fx) if (f.kind === 'cloud' || f.kind === 'zone') this.groundFx(f, g);
     if (g.activeMap === m) for (const e of g.notable) if (e.bx && e.bx.B.drawGround && !e.dead) e.bx.B.drawGround(this, g, e);   // a boss's hazards on the ground
+    if (m.mrClouds || m.mrPuddles) this.mireFx(g, m);
     list.sort((a, c) => a.sy - c.sy);
     for (const d of list) d.f();
     if (g.player.hook) this.hookFx(g, g.player.hook);
@@ -424,6 +426,7 @@ export class Renderer {
       }
       const A = Object.values(def.anims)[0], fr = A.frames.length > 1 && !o.unlit ? A.frames[Math.floor(this.lastT * (A.fps || 4) + o.x * 0.7 + o.y * 0.3) % A.frames.length] : A.frames[0];
       if (o.solid) this.shadow(sx, sy + 7, def.size[1] > 8 ? 12 : 10);
+      if (o.fuse !== undefined) { this.drawDef(def, fr, sx, sy + 8, { scale: 1.3, flash: Math.floor(this.lastT * 20) % 2 === 0 }); return; }   // a spore pod about to burst
       this.drawDef(def, fr, sx, sy + 8, o.unlit ? { alpha: 0.45 } : undefined);   // a brazier gone out is dark and still
       if (o.sprite === 'ow_objects/midlands_campfire' && Math.random() < 0.35) {
         const ember = Math.random() < 0.6;
@@ -1335,6 +1338,25 @@ export class Renderer {
     }
     this.sfxList = keep.length > 60 ? keep.slice(-60) : keep;
   }
+  // Mirerot: acid puddles on the ground; poison clouds as a drift of the bundle's poison_cloud puffs
+  mireFx(g, m) {
+    const b = this.b, C = this.R && this.R.resolve('ex_effects/poison_cloud');
+    for (const q of m.mrPuddles || []) {
+      const [x, y] = this.proj(q.x, q.y), r = q.r * TS, fade = Math.min(1, (q.until - g.t) / 1);
+      b.globalAlpha = 0.5 * fade; b.fillStyle = '#7ac83a'; b.beginPath(); b.ellipse(Math.round(x), Math.round(y), r, r * 0.7, 0, 0, Math.PI * 2); b.fill();
+      b.globalAlpha = 0.8 * fade; b.fillStyle = '#c8ff3a'; for (let a = 0; a < 12; a++) b.fillRect(Math.round(x + Math.cos(a * 0.52 + g.t) * r * 0.6), Math.round(y + Math.sin(a * 0.52 + g.t) * r * 0.42), 1, 1);
+      b.globalAlpha = 1;
+    }
+    if (!C) return;
+    const F = Object.keys(C.frames);
+    for (const c of m.mrClouds || []) {
+      const fade = Math.min(1, (c.until - g.t) / 0.8, (g.t - c.born) / 0.3);
+      for (let k = 0; k < 7; k++) {
+        const a = k * 0.9 + c.born, d = k ? c.r * 0.55 : 0, [x, y] = this.proj(c.x + Math.cos(a + g.t * 0.3) * d, c.y + Math.sin(a + g.t * 0.3) * d * 0.8);
+        this.drawDef(C, F[Math.floor(g.t * 4 + k) % F.length], Math.round(x), Math.round(y), { center: true, scale: 1.6, alpha: 0.75 * fade });
+      }
+    }
+  }
   // the chill creeping in: frost at the edge of your view, thicker as it builds, pulsing white near freezing
   chillFx(g) {
     const b = this.b, BW = this.buf.width, BH = this.buf.height, c = g.player.chill / 100, pulse = c > 0.8 ? 0.5 + 0.5 * Math.sin(g.t * 10) : 0;
@@ -1552,7 +1574,7 @@ export class Renderer {
     this.parts = keep;
   }
   drawWeather(g, dt) {
-    const dz = { chapel: 'shore', heart: 'godfall', crypt: 'crypt', ember: 'forge', frostveil: 'frostveil' };
+    const dz = { chapel: 'shore', heart: 'godfall', crypt: 'crypt', ember: 'forge', frostveil: 'frostveil', mirerot: 'mirerot' };
     const bi = g.map.kind === 'realm' ? BIOMES[biomeAt(g.map, g.player.x, g.player.y)] : g.map.kind === 'dungeon' ? (dz[g.map.def && Object.keys(g.map.def).length && g.map.def.portal] || 'forge') : 'nexus';
     const kind = WEATHER[bi] ? bi : null;
     const BW = this.buf.width, BH = this.buf.height, b = this.b;

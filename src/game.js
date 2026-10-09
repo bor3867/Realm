@@ -10,6 +10,7 @@ import { installD4 } from './dungeons4.js';
 import { installMelon } from './melon.js';
 import { installRealmEvents } from './realmevents.js';
 import { installFrostveil } from './frostveil.js';
+import { installMirerot } from './mirerot.js';
 import { installBX } from './bossx.js';
 import { BX, bxEnemyDef } from './bosses/index.js';
 import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUEST_HUNTS, FETCH_ITEMS } from './data/lore.js';
@@ -127,7 +128,7 @@ export class Game {
   enter(where) {
     const p = this.player;
     p.carry = null; p.drowsy = 0; this.invertUntil = 0;                // nothing carried, dreamt or inverted crosses a portal
-    p.chill = 0; p.frozenUntil = 0; p.gust = null;                     // nor any cold
+    p.chill = 0; p.frozenUntil = 0; p.gust = null; p.poisonUntil = 0;   // nor any cold or poison
     // remember where you stepped into a dungeon, so its portals can send you back to that spot
     if (DUNGEONS[where] && this.map && this.map.kind === 'realm') this.realmReturn = { x: p.x, y: p.y };
     else if (where === 'nexus' || where === 'vault') this.realmReturn = null;
@@ -596,6 +597,7 @@ export class Game {
       if (rm.ambush) rm.pending = list;                   // ambush rooms wait for you
       else spawn(list);
     });
+    if (def.extraSpawns) spawn(def.extraSpawns(m));                   // things a dungeon places itself (Mirerot's lashers)
     this.spawnPending = spawn; this.dungeonFill = fill;
     const br = m.rooms[m.rooms.length - 1];
     if (def.boss === 'unstruck') {
@@ -723,8 +725,8 @@ export class Game {
     this.updateProjectiles(dt);
     this.updateWorld(dt);
     if (this.map.kind === 'realm') { this.maintainRealm(dt); this.eventClock(dt); this.melonTick(dt); this.eventBossTick(dt); }
-    if (this.map.kind === 'dungeon') { this.updateDungeon(dt); this.updatePuzzles(dt); this.updateTraps(dt); this.updateD4(dt); if (this.map.def && this.map.def.style === 'frostveil') this.updateFrostveil(dt); }
-    this.updateChill(dt);
+    if (this.map.kind === 'dungeon') { this.updateDungeon(dt); this.updatePuzzles(dt); this.updateTraps(dt); this.updateD4(dt); if (this.map.def && this.map.def.style === 'frostveil') this.updateFrostveil(dt); if (this.map.def && this.map.def.style === 'mirerot') this.updateMirerot(dt); }
+    this.updateChill(dt); this.updatePoison(dt);
     if (this.map.kind !== 'nexus') this.openChests();
     this.saveT = (this.saveT || 0) + dt;
     if (this.saveT > 15) { this.saveT = 0; this.persist(); }
@@ -1448,6 +1450,7 @@ export class Game {
           if (!p.dead && dist2(e.x, e.y, p.x, p.y) < D.bomb.r * D.bomb.r) this.hurtPlayer(D.bomb.dmg, D.name);
           for (let k = 0; k < 10; k++) this.shoot('e', e.x, e.y - 0.4, (k / 10) * TAU, 5, 3, Math.round(D.bomb.dmg * 0.4), 'gasbubble', 0.35, false, D.name);
           this.vx({ k: 'boom', x: e.x, y: e.y - 0.4, r: D.bomb.r }); this.vx({ k: 'shake', amt: 4 });
+          if (D.bombCloud) this.mrCloud(e.x, e.y);                   // a sporeling leaves its spores behind
           e.fuseT = undefined; this.damageEnemy(e, 1e9, e.x, e.y, true);
         }
         continue;
@@ -3159,6 +3162,7 @@ export class Game {
           if (seen === undefined) { this.hitVols.set(b.vol, this.t); this.hurtPlayer(b.dmg, this.killerName(b)); }
           if (b.drowsy) p.drowsy = Math.min(1, (p.drowsy || 0) + b.drowsy);
           if (b.chill) this.addChill(b.chill);
+          if (b.poison) this.poison(b.poison);
           if (this.hitVols.size > 300) for (const [k, v] of this.hitVols) if (this.t - v > 6) this.hitVols.delete(k);
         }
       }
@@ -3854,3 +3858,4 @@ installBX(Game);
 installMelon(Game);
 installRealmEvents(Game);
 installFrostveil(Game);
+installMirerot(Game);

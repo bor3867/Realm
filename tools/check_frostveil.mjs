@@ -19,6 +19,7 @@ for (let s = 1; s <= seeds; s++) {
   if (count('cavern') < 3 || count('hall') !== 1 || count('stair') !== 1 || count('icerun') < 1) problems.push('pacing ' + kinds.join(','));
   if (!m.rooms.some((n) => n.role === 'treasure')) problems.push('no treasure room');
   // walk from the mouth to the lake
+  for (const n of m.rooms) if (n.x < 3 || n.y < 3 || n.x + n.w > m.w - 3 || n.y + n.h > m.h - 3) problems.push(`${n.kind} runs off the map`);
   const seen = new Uint8Array(m.w * m.h), q = [[Math.floor(m.spawn.x), Math.floor(m.spawn.y)]];
   seen[q[0][1] * m.w + q[0][0]] = 1;
   while (q.length) { const [x, y] = q.pop(); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const X = x + dx, Y = y + dy, i = Y * m.w + X; if (!seen[i] && !m.solid[i]) { seen[i] = 1; q.push([X, Y]); } } }

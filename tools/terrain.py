@@ -57,10 +57,13 @@ TILES = [('water', 3), ('deep', 3), ('sand', 1), ('fen', 3), ('mud', 2), ('snow'
          ('cryptfloor', 1), ('cryptwall', 1), ('cryptwater', 3), ('emberfloor', 1), ('emberwall', 1), ('emberlava', 3), ('carpet', 1)]
 import dungeons4_art as _D4  # noqa: E402
 TILES += [(n, len(v[0])) for n, (p, v) in _D4.TILES.items()]
+import realmupdate_art as _RU  # noqa: E402
+TILES += [(n, len(v[0])) for n, (p, v) in _RU.TILES.items()]
 VARIANTS = {'chapelfloor': 3, 'goldvein': 3, 'sand': 6, 'fen': 6, 'mud': 4, 'snow': 6, 'runefloor': 4, 'ash': 6, 'obsidian': 4, 'marble': 2, 'forge': 3,
             'grass': 6, 'cobble': 3, 'dirt': 3, 'hedge': 2, 'shallows': 3, 'bog': 3, 'ice': 3,
             'dune': 6, 'glassflat': 3, 'loam': 6, 'bramble': 2, 'steppe': 6, 'quartz': 3, 'cryptfloor': 4, 'emberfloor': 4, 'carpet': 3}
 VARIANTS.update({n: len(v) for n, (p, v) in _D4.TILES.items() if len(v) > 1})
+VARIANTS.update({n: len(v) for n, (p, v) in _RU.TILES.items() if len(v) > 1})
 # land blending priority: higher bleeds onto lower
 PRIORITY = {'sand': 2, 'mud': 3, 'fen': 4, 'snow': 5, 'runefloor': 6, 'runeglyph': 6, 'ash': 7, 'obsidian': 8,
             'cobble': 0, 'dirt': 1, 'grass': 9, 'shallows': 1.5, 'bog': 2.5, 'ice': 4.5,
@@ -692,6 +695,7 @@ CARPET = [["rrrrdrrr",
 
 PACK_TILES = _pack_tiles()
 PACK_TILES.update(_D4.TILES)
+PACK_TILES.update(_RU.TILES)
 
 
 def paint8(name, frame=0, v=0):
