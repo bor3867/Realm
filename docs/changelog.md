@@ -8,3 +8,8 @@
 - Bundle data copied to `art/bundle/`; `realm_update/` untouched and git-ignored.
 - Boss feet: centred x, lowest opaque row (the bundle's `base_offset` lives only in its Python source).
 - Dev server: UTF-8 charset, GIF/WebP types, and a localhost-only capture endpoint for in-page screenshots.
+
+## Phase 2a (overworld performance)
+- Draw 13.7 → 3.7 ms/frame in the realm; minimap 6.9 → 0.09 ms. Details and before/after table in
+  `docs/design/02_overworld.md`.
+- Skipped on the numbers: enemy spatial grid and bullet pooling (neither was the cost).

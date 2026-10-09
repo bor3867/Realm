@@ -1385,7 +1385,12 @@ export class Game {
   // ------------------------------------------------------------- enemies
   updateEnemies(dt) {
     const p = this.player;
-    this.active = this.enemies.filter((e) => !e.dead && Math.abs(e.x - p.x) < 30 && Math.abs(e.y - p.y) < 30);
+    const act = (this.active = []), nb = (this.notable = []); this.activeMap = this.map;
+    for (const e of this.enemies) {
+      if (e.dead) continue;
+      if (Math.abs(e.x - p.x) < 30 && Math.abs(e.y - p.y) < 30) act.push(e);
+      if (e.rb || e.herald || e.warden) nb.push(e);
+    }
     for (const e of this.enemies) {
       if (e.dead) { e.deadT += dt; continue; }
       const d2 = dist2(e.x, e.y, p.x, p.y);
@@ -2735,7 +2740,7 @@ export class Game {
     const m = this.map, xi = Math.floor(o.x), yi = Math.floor(o.y);
     this.vx({ k: 'burst', x: o.x, y: o.y - 0.5, n: 4, colors: ['#9a96b0', '#5e5a72'] });   // dust: the only clue the wall is hollow
     if (--o.hp > 0) return;
-    m.objects.splice(m.objects.indexOf(o), 1);
+    m.objects.splice(m.objects.indexOf(o), 1); m.ogridDirty = true;
     m.solid[yi * m.w + xi] = 0;
     m.tiles[yi * m.w + xi] = TID[m.def.floor];
     this.vx({ k: 'burst', x: o.x, y: o.y - 0.5, n: 30, colors: ['#9a96b0', '#ffd650', '#ffffff'] });
@@ -3468,7 +3473,7 @@ export class Game {
     const b = BIOMES.indexOf('godfall'), at = randomTileInBiome(m, b, R, p, 0);
     if (!at) return;
     const x = Math.floor(at.x), y = Math.floor(at.y);
-    m.objects.push({ sprite: 'star_crater', x: x + 0.5, y: y + 0.5, solid: false });
+    m.objects.push({ sprite: 'star_crater', x: x + 0.5, y: y + 0.5, solid: false }); m.ogridDirty = true;
     const loot = [{ slot: 'weapon', tiers: [8, 10], p: 1 }, { slot: 'armor', tiers: [9, 11], p: 1 }, { slot: 'ring', tiers: [4, 5], p: 0.8 },
       { slot: 'ability', tiers: [4, 5], p: 0.8 }, { stat: true, p: 1 }, { stat: true, p: 1 }, { id: 'mystery_box', p: 1 }, { id: 'shard_of_the_first_star', p: 0.05 }];
     const chest = { sprite: 'chest', x: x + 0.5, y: y + 4.5, solid: true, interact: 'chest', starLoot: loot, guards: [] };

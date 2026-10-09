@@ -3,7 +3,7 @@
 // an integer factor, so every pixel stays crisp. The camera can rotate: the
 // GROUND layer (tiles, biome edges, foam, decor) rotates as one image, while
 // every sprite stays upright at its rotated position, like classic tiny-MMO cameras.
-import { TILE_NAMES, BIOMES, biomeAt } from './world/maps.js';
+import { TILE_NAMES, BIOMES, biomeAt, objectsIn } from './world/maps.js';
 import { hoverY } from './registry.js';
 import { CLASSES } from './data/classes.js';
 import { ITEMS, iconIndex } from './data/items.js';
@@ -132,7 +132,8 @@ export class Renderer {
         list.push({ sy, f: () => { b.save(); b.translate(sx - rx, sy - ry); f(rx, ry); b.restore(); } });
       }
     };
-    for (const o of m.objects) add(o.x, o.y, (sx, sy) => this.obj(o, sx, sy));
+    const VR = Math.hypot(BW, BH) / TS / 2 + 4;                     // the view's reach, in tiles, at any camera angle
+    for (const o of objectsIn(m, g.player.x - VR, g.player.y - VR, g.player.x + VR, g.player.y + VR)) add(o.x, o.y, (sx, sy) => this.obj(o, sx, sy));
     for (const pt of m.portals) add(pt.x, pt.y, (sx, sy) => this.portal(g, pt, sx, sy));
     for (const bag of g.bags) {                                // a bag on a portal is drawn in front of it, never hidden inside
       const onPortal = m.portals.some((pt) => Math.abs(pt.x - bag.x) < 1.8 && Math.abs(pt.y - bag.y) < 1.8);
@@ -140,7 +141,9 @@ export class Renderer {
       add(bag.x, bag.y, (sx, sy) => this.bag(g, bag, sx, sy));
       if (onPortal && list.length > n0) list[n0].sy += 40;
     }
-    for (const e of g.enemies) add(e.x, e.y, (sx, sy) => this.enemy(g, e, sx, sy));
+    const drawn = g.activeMap === m ? new Set(g.active) : null;
+    if (drawn) { for (const e of g.notable) drawn.add(e); for (const e of g.enemies) if (e.dead && e.deadT < 1.4) drawn.add(e); }
+    for (const e of drawn || g.enemies) add(e.x, e.y, (sx, sy) => this.enemy(g, e, sx, sy));
     if (g.boss) add(g.boss.x, g.boss.y, (sx, sy) => this.boss(g, g.boss, sx, sy));
     add(g.player.x, g.player.y, (sx, sy) => this.player(g, g.player, sx, sy));
     for (const a of g.allies || []) add(a.x, a.y, (sx, sy) => (a.kind === 'kite' ? this.kiteSpr(g, a, sx, sy) : this.ally(g, a, sx, sy)));
@@ -1245,9 +1248,24 @@ export class Renderer {
   }
 
   // ------------------------------------------------------------ projectiles (+ trails)
+  // the faint dark disc under an enemy shot, drawn once per radius
+  haloStamp(r) {
+    const C = this.halos || (this.halos = new Map()), k = Math.round(r * 4);
+    let c = C.get(k);
+    if (!c) {
+      const R = k / 4, S = Math.ceil(R) * 2 + 2;
+      c = document.createElement('canvas'); c.width = c.height = S;
+      const x = c.getContext('2d'); x.globalAlpha = 0.32; x.fillStyle = '#05040a'; x.beginPath(); x.arc(S / 2, S / 2, R, 0, Math.PI * 2); x.fill();
+      C.set(k, c);
+    }
+    return c;
+  }
   drawProjectiles(g, dt) {
     const b = this.b, PI = this.A.img.projectiles, pc = this.W.projCols, PS = this.W.proj, half = PS / 2;
     const BW = this.buf.width, BH = this.buf.height;
+    // trails thin out as the screen fills (a few hundred sparks a frame is plenty), and the enemy-shot halo is a
+    // cached stamp rather than a path per bullet
+    const trailP = Math.min(0.4, 240 / (g.projectiles.length + 1));
     for (const pr of g.projectiles) {
       if (pr.sprite.includes('/') && this.R) {                       // a Realm Update shot (registry)
         const def = pr.def || (pr.def = this.R.resolve(pr.sprite));
@@ -1271,7 +1289,7 @@ export class Renderer {
       }
       if (pr.frozen) { b.globalAlpha = 0.55; }
       if (sx < -12 || sy < -12 || sx > BW + 12 || sy > BH + 12) continue;
-      if (Math.random() < 0.4) {
+      if (Math.random() < trailP) {
         const cols = this.colorsOf('p:' + pr.sprite, PI, (k % pc) * PS, Math.floor(k / pc) * PS, PS, PS);
         this.parts.push({ x: pr.x, y: pr.y, z: 0, vx: 0, vy: 0, vz: 0, g: 0, life: 0.18, max: 0.18, color: cols[Math.floor(Math.random() * Math.min(2, cols.length))] });
       }
@@ -1279,7 +1297,7 @@ export class Renderer {
       // on the diagonal), stars and wheels spin, the big slow ones are drawn a size up. Enemy shots sit on a faint dark halo.
       const S = this.shotSets || (this.shotSets = { rot: new Set(this.W.projRot || []), diag: new Set(this.W.projDiag || []), spin: new Set(this.W.projSpin || []), big: new Set(this.W.projBig || []) });
       const Q = (pr.from === 'e' ? 1 : 0.875) * (S.big.has(pr.sprite) ? 1.3 : 1), QS = PS * Q, qh = half * Q;
-      if (pr.from === 'e') { const ga = b.globalAlpha; b.globalAlpha = ga * 0.32; b.fillStyle = '#05040a'; b.beginPath(); b.arc(sx, sy, qh * 0.66, 0, Math.PI * 2); b.fill(); b.globalAlpha = ga; }
+      if (pr.from === 'e') { const H = this.haloStamp(qh * 0.66); b.drawImage(H, sx - H.width / 2, sy - H.height / 2); }
       if (S.rot.has(pr.sprite) || S.spin.has(pr.sprite)) {
         const ang = S.spin.has(pr.sprite) ? g.t * 9 + (pr.x + pr.y) : pr.a + this.th + (S.diag.has(pr.sprite) ? Math.PI / 4 : 0);
         b.save(); b.translate(sx, sy); b.rotate(ang);
@@ -1483,6 +1501,10 @@ export class Renderer {
   }
   minimap(g) {
     const m = g.map, mc = this.mctx;
+    // ~12 redraws a second is plenty for a map; the marks blink at 3 Hz anyway
+    const now = performance.now();
+    if (this.miniDrawn && this.miniFor === m && !m.miniDirty && now - this.miniDrawn < 80) return;
+    this.miniDrawn = now;
     if (this.miniFor !== m || m.miniDirty) {
       m.miniDirty = false;
       this.miniFor = m;
@@ -1544,17 +1566,18 @@ export class Renderer {
     const blink = Math.floor(g.t * 3) % 2 === 0;
     // the realm only shows monsters close enough to matter; dungeons show every one on screen
     const R2 = MINI_ENEMY_RANGE * MINI_ENEMY_RANGE;
-    for (const e of g.enemies) {
+    for (const e of calm && g.activeMap === m ? g.active : g.enemies) {
       if (e.dead || e.rb || e.herald || e.D.dummy || e.under || !near(e)) continue;
       if (calm && (e.x - p.x) ** 2 + (e.y - p.y) ** 2 > R2) continue;
       mark(e.x, e.y, 'enemy', e.elite ? '#ffa030' : '#ff3c50', '#ffd0d8', false, 2);
     }
     if (calm) {
       for (const c of m.camps || []) {                                   // camps still holding their chest
-        const chest = m.objects.find((o) => o.interact === 'chest' && Math.abs(o.x - c.x) < 0.1 && Math.abs(o.y - c.y) < 0.1);
+        if (!near(c)) continue;
+        const chest = c.chest !== undefined ? c.chest : (c.chest = m.objects.find((o) => o.interact === 'chest' && Math.abs(o.x - c.x) < 0.1 && Math.abs(o.y - c.y) < 0.1) || null);
         if (chest && !chest.opened && near(c)) mark(c.x, c.y, 'camp', '#ff7a1a', '#ffd650');
       }
-      for (const o of m.objects) {
+      for (const o of objectsIn(m, x0 - 1, y0 - 1, x0 + V + 1, y0 + V + 1)) {
         if (!near(o)) continue;
         if (o.interact === 'shrine' && g.t >= (o.ready || 0)) mark(o.x, o.y, 'shrine', '#5ef0c8', '#e0fff6');
         else if (o.interact === 'talk') mark(o.x, o.y, 'talk', '#ffd650', '#1a1218');
@@ -1579,7 +1602,7 @@ export class Renderer {
       const pulse = Math.floor(g.t * 4) % 2 === 0;
       mark(s0.x, s0.y, s0.kind === 'warden' ? 'crown' : s0.kind === 'lever' ? 'diamond' : 'quest', s0.kind === 'warden' ? (pulse ? '#ff4a5a' : '#ffb0b8') : s0.kind === 'lever' ? (pulse ? '#ffd650' : '#fff6c8') : (pulse ? '#8af0ff' : '#ffffff'), '#05040a', true);
     }
-    for (const e of g.enemies) if (e.herald && !e.dead) mark(e.x, e.y, 'crown', '#f2c14e', '#ff4a5a', true);
+    for (const e of g.activeMap === m ? g.notable : g.enemies) if (e.herald && !e.dead) mark(e.x, e.y, 'crown', '#f2c14e', '#ff4a5a', true);
     for (const ev of m.events || []) {                       // fallen stars and coin thieves
       if (ev.chest && ev.chest.opened) continue;
       if (ev.e && ev.e.dead) continue;
@@ -1591,7 +1614,7 @@ export class Renderer {
       mark(q.x, q.y, 'quest', blink ? '#7aff9a' : '#c8ffd6', '#ffffff', true);
     }
     for (const bag of g.bags) if (bag.rare || !calm) mark(bag.x, bag.y, 'bag', bag.rare ? '#ffffff' : '#c98a22', bag.rare ? '#b06bff' : '#f2c14e', false, bag.rare ? 2 : 1);
-    for (const e of g.enemies) if (e.rb && !e.dead) mark(e.x, e.y, 'skull', blink ? '#ff2a2a' : '#ff8a8a', '#05040a', true);
+    for (const e of g.activeMap === m ? g.notable : g.enemies) if (e.rb && !e.dead) mark(e.x, e.y, 'skull', blink ? '#ff2a2a' : '#ff8a8a', '#05040a', true);
     if (g.boss && g.boss.state !== 'dead') mark(g.boss.x, g.boss.y, 'skull', blink ? '#ff2a2a' : '#ff8a8a', '#05040a', true);
     // player + a tick showing which way "up" on screen points
     const ux = -Math.sin(g.camAngle), uy = -Math.cos(g.camAngle);

@@ -446,6 +446,23 @@ export function realm(seed) {
   m.seed = seed;
   return m;
 }
+// the objects inside a box, through a 16x16-tile chunk index (built on first use; rebuilt when objects are added or
+// removed). Small maps skip the index: a dungeon's few hundred objects are cheaper to walk than to bucket.
+const CH = 16;
+export function objectsIn(m, x0, y0, x1, y1) {
+  const O = m.objects;
+  if (O.length < 2500) return O;
+  if (!m.ogrid || m.ogridOf !== O || m.ogridLen !== O.length || m.ogridDirty) {
+    m.ogrid = new Map(); m.ogridOf = O; m.ogridLen = O.length; m.ogridDirty = false;
+    for (const o of O) { const k = Math.floor(o.y / CH) * 4096 + Math.floor(o.x / CH); let L = m.ogrid.get(k); if (!L) m.ogrid.set(k, (L = [])); L.push(o); }
+  }
+  const out = [];
+  for (let cy = Math.floor(y0 / CH); cy <= Math.floor(y1 / CH); cy++) for (let cx = Math.floor(x0 / CH); cx <= Math.floor(x1 / CH); cx++) {
+    const L = m.ogrid.get(cy * 4096 + cx);
+    if (L) for (const o of L) out.push(o);
+  }
+  return out;
+}
 export function biomeAt(m, x, y) {
   const xi = Math.floor(x), yi = Math.floor(y);
   if (xi < 0 || yi < 0 || xi >= m.w || yi >= m.h) return -1;
