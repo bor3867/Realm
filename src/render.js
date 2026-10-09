@@ -762,16 +762,13 @@ export class Renderer {
       if (Pd.cool) { b.fillStyle = 'rgba(255,255,255,0.8)'; b.font = '6px monospace'; b.fillText(Math.ceil(Pd.cool), x - 2, y - 14); }
       if (Pd.beam) beam([[Pd.beam.x0, Pd.beam.y0 + 0.5], [Pd.beam.x1, Pd.beam.y1 + 0.5]], 3, '#ffffff', 'rgba(255,240,170,0.45)');
     }
-    // the Puppeteer's strings, from his hands up to each hanging marionette
-    for (const e of g.enemies) {
-      if (!e.strung || e.dead || e.hidden) continue;
-      const [ex, ey] = P(e.x, e.y - 2.6);
-      for (const a of e.strung) {
-        if (a.dead) continue;
-        const [ax, ay] = P(a.x, a.y - 1.2);
-        b.strokeStyle = 'rgba(255,240,200,0.75)'; b.lineWidth = 1;
-        b.beginPath(); b.moveTo(ex, ey); b.quadraticCurveTo((ex + ax) / 2, Math.min(ey, ay) - 18, ax, ay); b.stroke();
-      }
+    // the Puppeteer's trapdoors: wooden hatches in the boards; each flickers when its moment comes, the last burns gold
+    for (const H of S.hatches || []) {
+      const [x, y] = P(H.x, H.y), lit = g.t >= H.at, last = H === S.hatches[S.hatches.length - 1];
+      b.fillStyle = '#1a0e08'; b.fillRect(Math.round(x) - 8, Math.round(y) - 5, 16, 10);
+      b.fillStyle = lit ? (last ? (Math.floor(g.t * 12) % 2 ? '#ffd650' : '#ffffff') : '#c8962a') : '#5a3a22';
+      b.fillRect(Math.round(x) - 7, Math.round(y) - 4, 14, 8);
+      b.fillStyle = '#1a0e08'; b.fillRect(Math.round(x) - 7, Math.round(y), 14, 1); b.fillRect(Math.round(x), Math.round(y) - 4, 1, 8);
     }
     // the curtain: velvet drawing in from both wings
     if (S.curtain) {

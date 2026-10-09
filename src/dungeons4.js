@@ -1,6 +1,6 @@
 // The four newer dungeons' own mechanics, installed onto the Game (see the bottom of game.js).
 //   The Honeyed Hollow        honey that holds your boots; the Queen's brood, waggle-dance, honey rain and hex-stings
-//   The Marionette Theatre    three lost masks to carry home; roving spotlights; the Puppeteer's strings, curtain,
+//   The Marionette Theatre    three lost masks to carry home; roving spotlights; the Puppeteer's trapdoors, curtain,
 //                             mirror-puppet, scissors, jigs and ribbons, and his intermission
 //   The Prism Lighthouse      mirror chambers that bend a beam onto a crystal; lens sentries; the Wyrm who is only
 //                             real inside the lens light, her spectrum bolts, sunbeam, glass rain, helix and images
@@ -287,7 +287,6 @@ export const D4 = {
   // when the dreamer's nightmare-self is hurt, the dreamer is hurt
   d4Immune(e, x, y, quiet) {
     if (e.hidden) return true;
-    if (e.strung && e.strung.some((a) => !a.dead)) { if (!quiet) this.float(x, y - 0.8, 'STRUNG', '#ffd650'); return true; }
     if (e.D.prismatic && !(e.exposedUntil > this.t)) { if (!quiet) this.float(x, y - 0.8, 'GLASS', '#c8e8ff'); return true; }
     if (e.wakeLock) { if (!quiet) this.float(x, y - 0.8, 'ASLEEP', '#c8b0ff'); return true; }
     if (e.D.drowsy && this.map.d4 && this.map.d4.shift) { if (!quiet) this.float(x, y - 0.8, 'DREAMING', '#ff7ab8'); return true; }
@@ -326,6 +325,19 @@ export const D4 = {
       e.move = { ...M, special: true }; e.special = true; e.state = 'tell'; e.st = M.tell;
       return true;
     }
+    if (e.trap) {                                         // under the stage: the hatches flicker in turn; he comes up out of the last
+      e.invulnT = 0.5;
+      const T = e.trap;
+      if (this.t >= T.until) {
+        const H = T.hatches[T.hatches.length - 1];
+        e.x = H.x; e.y = H.y; e.hidden = false; e.trap = null; e.st = 0.8; e.state = 'idle';
+        const B = T.burst, [ox, oy] = this.up(e.x, e.y, 1.4), a0 = R() * TAU;
+        for (let k = 0; k < B.n; k++) { const b = this.shoot('e', ox, oy, a0 + k * TAU / B.n, B.speed, 11, B.dmg, B.proj, 0.36, false, e.D.name); b.mv = { d4: true, serp: 2.2 }; }
+        this.vx({ k: 'burst', x: e.x, y: e.y - 0.6, n: 20, colors: ['#ffd650', '#c83a5a', '#ffffff'] }); this.vx({ k: 'shake', amt: 4 });
+        (this.map.d4 = this.map.d4 || { timers: [], puddles: [] }).hatches = [];
+      }
+      return true;
+    }
     if (e.hidden) {
       e.invulnT = 0.5;
       const left = (e.understudies || []).filter((u) => !u.dead).length;
@@ -337,10 +349,6 @@ export const D4 = {
         this.vx({ k: 'shake', amt: 5 });
       }
       return true;
-    }
-    if (e.strung && !e.strung.some((a) => !a.dead) && !e.cutDone) {
-      e.cutDone = true; e.severedUntil = this.t + 6;
-      this.banner('The strings are cut! The Maestro drops: hit him now!', 2000); this.vx({ k: 'shake', amt: 5 });
     }
     return false;
   },
@@ -393,15 +401,18 @@ export const D4 = {
       }
     }
     // ---- the Puppeteer
-    if (M.strings) {                                      // four hanging marionettes hold his strings: while one hangs, he cannot be hurt
-      const St = M.strings, cx = box.x + box.w / 2, cy = box.y + box.h / 2;
-      for (const a of e.strung || []) if (!a.dead) { a.dead = true; a.deadT = 0; }
-      e.strung = []; e.cutDone = false;
-      for (let k = 0; k < St.n; k++) {
-        const a = (k + 0.5) * TAU / St.n, x = cx + Math.cos(a) * St.r * 1.5, y = cy + Math.sin(a) * St.r * 0.9;
-        const an = this.addEnemy('hanging_marionette', x, y); an.seen = true; this.unstick(an, 0.5); e.strung.push(an);
+    if (M.trapdoor) {                                     // down through a trapdoor: three hatches light in turn, and up he comes from the last, near you
+      const Tr = M.trapdoor, hatches = [];
+      for (let k = 0; k < Tr.n; k++) {
+        const near = k === Tr.n - 1, a = R() * TAU, d = near ? 3 + R() * 1.5 : 5 + R() * 5;
+        let x = near ? p.x + Math.cos(a) * d : box.x + 3 + R() * (box.w - 6), y = near ? p.y + Math.sin(a) * d : box.y + 3 + R() * (box.h - 6);
+        x = Math.max(box.x + 2, Math.min(box.x + box.w - 2, x)); y = Math.max(box.y + 2, Math.min(box.y + box.h - 2, y));
+        hatches.push({ x, y, at: this.t + (k + 1) * (Tr.hide / (Tr.n + 0.5)) });
       }
-      this.banner('He hangs his marionettes: cut every string!', 2000);
+      this.vx({ k: 'burst', x: e.x, y: e.y - 0.4, n: 16, colors: ['#5a3a22', '#2a1a10', '#ffd650'] });
+      e.hidden = true; e.trap = { until: this.t + Tr.hide, hatches, burst: Tr.burst };
+      (this.map.d4 = this.map.d4 || { timers: [], puddles: [] }).hatches = hatches;
+      this.banner('He drops through a trapdoor! Watch the hatches...', 1800);
     }
     if (M.jig) {                                          // a jig: rings of shots that stop and start like a puppet on a string
       const J = M.jig;

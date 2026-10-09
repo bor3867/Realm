@@ -60,3 +60,11 @@
   quicksand; the Gilded Sphinx. Notes: dungeon_sandscour.md, boss_gilded_sphinx.md.
 - Engine: an enemy `leash`; shots break urns through `hitObject`.
 - Tuning: burial sarcophagi 24 → 12, wake reach 3 → 4.5; sanctum floor to sand; dust devils drawn once, upright.
+
+## Audit D4 — the Marionette Theatre's boss
+- Maestro Vesper is now **Maestro Lucan, the Puppeteer** (Count Vesper is the Crimson Keep's).
+- His string-anchor mechanic (hanging marionettes that kept him immune) is gone: the Ringmaster owns puppets on
+  strings. In its place, **trapdoors**: he drops through the stage, three hatches light in turn, and he bursts up out
+  of the last (always near you) in a ring of ribbons. It opens his first and last phases and recurs in both.
+  The hanging marionette stays defined but no longer spawns. Checked headless: six drops in a fight, five of six
+  surfacing within 7 tiles of you, no marionettes, the fight ends.

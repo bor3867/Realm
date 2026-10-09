@@ -1784,7 +1784,7 @@ Object.assign(DUNGEONS.throne, { ambient: 'rgba(20,12,30,0.38)' });
     'Careful of the honey on the floor. It holds your boots like a lover. The Queen likes her guests to stay.',
   ] });
   Object.assign(DUNGEONS.theatre, { storyTitle: 'Programme for the Final Performance', story: [
-    'TONIGHT ONLY: Maestro Vesper presents THE MARIONETTES OF THE GILDED STAGE. No strings attached. (There are strings attached.)',
+    'TONIGHT ONLY: Maestro Lucan presents THE MARIONETTES OF THE GILDED STAGE. No strings attached. (There are strings attached.)',
     'Act I. The Maestro\'s puppets dance so well the audience forgets to breathe. Some of them never remember again.',
     'Act II. The Maestro lost his three masks: Comedy, Tragedy and Silence. Without them the stage stays shut. Return them to the stand.',
     'INTERMISSION. Refreshments are served in the foyer. The understudies will entertain you. Please do not feed the understudies.',
@@ -1823,14 +1823,15 @@ Object.assign(DUNGEONS.throne, { ambient: 'rgba(20,12,30,0.38)' });
       { stat: true, p: 0.8 }, { id: 'queens_stinger', p: 0.12 }, { id: 'honeyguard_band', p: 0.1 }, ...MYTHIC(0.005)],
   };
   DUNGEON_BOSSES.the_puppeteer = {
-    name: 'Maestro Vesper, the Puppeteer', biome: 'theatre', sheet: 'pack_bosses', hp: 140000, def: 22, xp: 9000, r: 1.5, speed: 1.2, keep: 7,
+    name: 'Maestro Lucan, the Puppeteer', biome: 'theatre', sheet: 'pack_bosses', hp: 140000, def: 22, xp: 9000, r: 1.5, speed: 1.2, keep: 7,
     phases: [
-      { at: 1, name: 'Places, everyone.', open: 'strings', cycle: ['jig', 'scissors', 'bow', 'jig', 'curtain'] },
+      { at: 1, name: 'Places, everyone.', open: 'trapdoor', cycle: ['jig', 'scissors', 'trapdoor', 'bow', 'jig', 'curtain'] },
       { at: 0.55, intermission: 22, name: 'INTERMISSION! The understudies take the stage.', cycle: ['mimic', 'scissors', 'jig', 'curtain', 'bow'] },
-      { at: 0.25, name: 'THE FINALE!', open: 'strings', cycle: ['mimic', 'scissors', 'curtain', 'jig', 'bow', 'scissors'] },
+      { at: 0.25, name: 'THE FINALE!', open: 'trapdoor', cycle: ['mimic', 'trapdoor', 'scissors', 'curtain', 'jig', 'bow', 'trapdoor'] },
     ],
     moves: {
-      strings: { special: true, tell: 0.9, strings: { n: 4, r: 7 }, recover: 0.6 },
+      // the trapdoors: he drops through the stage, three hatches flicker, and he bursts up out of the last to light, in a ring of ribbons
+      trapdoor: { special: true, tell: 0.7, trapdoor: { n: 3, hide: 2.6, burst: { n: 16, speed: 5, dmg: 76, proj: 'ribbon' } }, recover: 0.7 },
       jig: { tell: 0.5, jig: { arms: 9, waves: 3, gap: 0.4, step: 0.22, speed: 5.5, dmg: 72, proj: 'puppet_string' }, recover: 0.6 },
       scissors: { tell: 0.7, scissors: { n: 8, len: 9, dur: 1.2, open: 1.1, dmg: 82, proj: 'scissor_blade' }, recover: 0.6 },
       curtain: { special: true, tell: 0.9, curtain: { dur: 5, close: 0.4, dmg: 60 }, recover: 0.5 },
