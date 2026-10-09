@@ -59,3 +59,23 @@ Chests: T3–T6 gear, T1–T3 abilities, stat potions. Mycelia: her own items (s
 `tools/check_mirerot.mjs`: every seed connects with the full pacing and every tile skinned; pods burst from
 proximity and from shots; clouds poison and fade; boardwalks are full speed and bog is slow; Mycelia sleeps
 until you reach the island and every mechanic of hers happens in the real arena.
+
+## Result (built)
+- Generator: `LAYOUT.mirerot` / `DRESS.mirerot` (map 280x280). The way bends up to 60 degrees at each step and
+  swings aside near the map's edge or an earlier room (tested against the rooms' boxes, since nothing is carved
+  yet). Ways are a five-wide band of bog with our own plank tile down the middle (`mrboard`,
+  `tools/realmupdate_art.py`) and reeds along the banks. Vine lashers stand at the far end of every boardwalk past
+  the first (`def.extraSpawns`).
+- `src/mirerot.js`: pods (burst 0.4 s after you come near, or at once when shot), poison clouds, poison (8 per
+  0.5 s past Defense), Mycelia's acid puddles and sprouts. Clouds and puddles draw on the ground; a pod about to go
+  swells and flashes.
+- Population by `def.compose`: early hollows are toad ambushes (they rise from the bog as you enter), later ones
+  hornet swarms and clumps; the cathedral is the hornets' nest.
+- Its own portal art (mushroom caps round a spore swirl), weather (spores drifting up), and the dark: glowshrooms
+  and pods are the only lights.
+- `tools/check_mirerot.mjs`: every seed in bounds, no overlaps, connected, full pacing, skinned; pods burst both
+  ways; clouds poison; lashers at the chokes; Mycelia sleeps until you're on the island, and all her mechanics
+  happen in the arena.
+- Found and fixed while looking: the way ran off the map's east edge (the Mire was half void) and the cache could
+  land on top of a room; the boardwalk planks were too dark to read and were brightened; the dungeon was showing
+  the forge's ember weather.

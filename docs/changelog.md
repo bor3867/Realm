@@ -43,3 +43,8 @@
 - New dungeon (style `frostveil`), Glacius on the boss framework, chill, wall faces for skinned walls, its portal art,
   key and loot (Glacius' six items from `ix_items`). Notes: dungeon_frostveil.md, boss_glacius.md.
 - Tuning: tunnels centre to centre (blob edges); Glacius' start moved in from the edge.
+
+## Phase 3 — Mirerot Grotto (dungeon 2 of 6)
+- New dungeon (style `mirerot`), Mother Mycelia, spore pods and poison clouds, boardwalks over bog, its portal,
+  plank tile, key and loot. Notes: dungeon_mirerot.md, boss_mother_mycelia.md.
+- Both dungeon checks now also test that every room is inside the map and none overlap.

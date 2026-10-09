@@ -42,3 +42,8 @@ kills sprout a healing glowcap). Plus T6–T8 gear.
 Clouds of spores that hang where they stop; needles that poison; acid that pools where it lands; a lunge that ends
 in a short-range bite; seeds that sprout into minions unless shot; orbs that stop, then dart. None is used by
 another boss.
+
+## Result (built)
+- `src/bosses/mother_mycelia.js`. Checked in her arena (`tools/check_mirerot.mjs`): all 7 patterns; clouds hang,
+  needles poison, acid pools, the lunge ends in the bite, seeds sprout and hatch, orbs stop and dart.
+- Seen in the browser: the island with its pods and lights, each phase's form and every attack.
