@@ -7,6 +7,8 @@ import { ENEMIES, PACKS, CAMP_LOOT, BIOME_SPAWNS, BOSS, REALM_BOSSES, PARENTS, H
 import { nexus, vaultRoom, realm, dungeon, isSolid, biomeAt, randomTileInBiome, BIOMES, BIOME_RING, BIOME_LABEL, TID } from './world/maps.js';
 import { writeSave } from './save.js';
 import { installD4 } from './dungeons4.js';
+import { installBX } from './bossx.js';
+import { BX, bxEnemyDef } from './bosses/index.js';
 import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUEST_HUNTS, FETCH_ITEMS } from './data/lore.js';
 
 import { PET_KINDS, RARITY, PET_TICK, SHIELD_TICK, PET_MAX, petHeal, petMagic, petShield, petCap, petLevel, feedCost, feedValue, hatchKind, newPet, upgradePet, feed, canMorph, morph, FUSE_GOLD, petSprite } from './data/pets.js';
@@ -1393,7 +1395,7 @@ export class Game {
       if (e.dead || e.D.dummy) continue;
       if (this.frozen(e)) continue;                     // Stop Time
       if (e.stunT > 0) { e.stunT -= dt; continue; }
-      if (e.rb) { this.updateRealmBoss(e, dt, Math.sqrt(d2)); continue; }
+      if (e.rb) { if (e.D.bx) this.updateBx(e, dt, Math.sqrt(d2)); else this.updateRealmBoss(e, dt, Math.sqrt(d2)); continue; }
       if (e.kids) {
         e.kids = e.kids.filter((k) => !k.dead);
         e.childT -= dt;
@@ -1636,7 +1638,7 @@ export class Game {
   }
   firePattern(e, A, isWave = false) {
     const p = this.foe(e);
-    const [ox, oy] = this.up(e.x, e.y, e.rb ? 1.4 : 0.5);
+    const [ox, oy] = this.up(e.x, e.y, e.hitUp || (e.rb ? 1.4 : 0.5));
     const [px, py] = this.up(p.x, p.y, 0.4);
     const aim = angleTo(ox, oy, px, py);
     if (e.rb && A.pattern === 'radial') this.vx({ k: 'shake', amt: 2 });
@@ -1701,6 +1703,7 @@ export class Game {
     if (e.frenzyUntil > this.t) { if (!quiet) this.float(x, y - 0.8, e.D.bloodlust ? 'BLOODLUST' : 'INVULNERABLE', '#ff4a5a'); return 0; }
     if (e.invulnT > 0) { if (!quiet) this.float(x, y - 0.8, 'IMMUNE', '#8d88a0'); return 0; }
     if (e.rb && this.d4Immune(e, x, y, quiet)) return 0;
+    if (e.D && e.D.bx && !e.bxKill && this.bxImmune(e, x, y, quiet)) return 0;
     if (e.id === 'sleepers_nightmare') this.d4LinkHit(e, dmg);
     if (e.rb) dmg = Math.round(dmg * this.d4DamageMult(e));
     if (e.shieldBy && e.shieldBy.some((m) => !m.dead)) { if (!quiet) this.float(x, y - 0.8, 'SHIELDED', '#8af6ff'); return 0; }
@@ -1723,6 +1726,7 @@ export class Game {
       this.banner(SV.name || `${e.D.name} cannot be hurt. SURVIVE!`, 3200); this.vx({ k: 'shake', amt: 8 }); this.sfx('boss');
       return d;
     }
+    if (e.D && e.D.bx && !e.bxKill) d = this.bxClamp(e, d);
     e.hp -= d; e.hurtT = 0.12;
     if (e.id === 'coin_imp' && R() < 0.35) { const g0 = 8 + Math.floor(R() * 20); this.save.gold = (this.save.gold || 0) + g0; this.float(e.x, e.y - 1.4, `+${g0}g`, '#ffd650'); this.sfx('coin'); }
     if (!quiet) { this.sfx('hit'); this.vx({ k: 'hit', x, y, crit }); }
@@ -3032,7 +3036,7 @@ export class Game {
             if (d2 < bd) { bd = d2; best = e; }
           }
           if (best) {
-            const [hx, hy] = this.up(best.x, best.y, best === this.boss ? 2.3 : best.rb ? 1.4 : 0.5);
+            const [hx, hy] = this.up(best.x, best.y, best === this.boss ? 2.3 : best.hitUp || (best.rb ? 1.4 : 0.5));
             const want = Math.atan2(hy - b.y, hx - b.x), cur = Math.atan2(b.vy, b.vx);
             let da = ((want - cur + Math.PI * 3) % TAU) - Math.PI;
             da = Math.max(-sp.homing * dt, Math.min(sp.homing * dt, da));
@@ -3065,7 +3069,7 @@ export class Game {
         for (const e of targets) {
           if (e.dead || e.state === 'dead' || e.under) continue;
           const rr = (e === this.boss ? BOSS.r : e.D.r) + b.r;
-          const [hx, hy] = this.up(e.x, e.y, e === this.boss ? 2.3 : e.rb ? 1.4 : 0.5);
+          const [hx, hy] = this.up(e.x, e.y, e === this.boss ? 2.3 : e.hitUp || (e.rb ? 1.4 : 0.5));
           if (dist2(b.x, b.y, hx, hy) < rr * rr) {
             if (b.hit) { if (b.hit.has(e)) continue; b.hit.add(e); }
             if (e === this.boss && this.boss.state === 'phase') { alive = b.pierce; break; }
@@ -3727,6 +3731,13 @@ export class Game {
         else if (args.length === 2 && !isNaN(+args[0])) { p.x = +args[0]; p.y = +args[1]; }
         say(`Teleported${bi >= 0 ? ' to ' + BIOME_LABEL[w] : ''}.`); break;
       }
+      case 'bx': {                                         // /bx <boss>: a Realm Update boss beside you, to look at and fight
+        const id = args[0];
+        if (!BX[id]) { say(`Bundle bosses: ${Object.keys(BX).join(', ')}`); break; }
+        const e = this.spawnRealmBoss(id, near(7), bxEnemyDef(id));
+        if (e) say(`${e.D.name} (${e.D.hp} life). Phases at 66% and 33%.`);
+        break;
+      }
       case 'killall': {
         let k = 0;
         for (const e of this.enemies) if (!e.dead && dist(e.x, e.y, p.x, p.y) < 15) { this.damageEnemy(e, 1e7, e.x, e.y); k++; }
@@ -3761,3 +3772,4 @@ export class Game {
   }
 }
 installD4(Game);
+installBX(Game);

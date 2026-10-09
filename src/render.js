@@ -4,6 +4,7 @@
 // GROUND layer (tiles, biome edges, foam, decor) rotates as one image, while
 // every sprite stays upright at its rotated position, like classic tiny-MMO cameras.
 import { TILE_NAMES, BIOMES, biomeAt } from './world/maps.js';
+import { hoverY } from './registry.js';
 import { CLASSES } from './data/classes.js';
 import { ITEMS, iconIndex } from './data/items.js';
 import { outlinedFrame } from './outline.js';
@@ -956,7 +957,20 @@ export class Renderer {
     b.fillStyle = '#3a3028'; b.fillRect(x - 2, y, 5, 1);
     if (Math.random() < 0.3) this.spray(e.x, e.y, 1, cols, 1.4, 0.3, 4);
   }
+  // a Realm Update boss: its own clip (src/bossx.js), hover, ground shadow, rate-limited hit flash, facing
+  bxBoss(g, e, sx, sy) {
+    const S = e.bx;
+    if (!S || !S.def || !S.anim) return;
+    const def = S.def, W = def.size[0] * 2, fr = e.dead ? def.anims[def.death].frames.slice(-1)[0] : S.anim.frame;
+    if (!e.dead) this.shadow(sx, sy, Math.min(48, W * 0.55));
+    const hy = this.R ? hoverY(this.R, def, g.t, S.phase0, S.phase) : 0;
+    if (e.dead) this.b.globalAlpha = Math.max(0, 1 - e.deadT / 1.4);
+    this.drawDef(def, fr, sx, sy + hy, { flip: !!e.face, flash: S.flashT > 0 && S.state !== 'death' });
+    this.b.globalAlpha = 1;
+    if (S.B.draw) S.B.draw(this, g, e, sx, sy);
+  }
   realmBoss(g, e, sx, sy) {
+    if (e.D.bx) return this.bxBoss(g, e, sx, sy);
     if (e.blinkTo && e.state === 'tell') this.blinkMark(g, e.blinkTo);
     const S = this.A.sheets[e.D.sheet || 'realm_bosses'], Gd = S.guide, F = Gd.frameWidth, row = Gd.bosses[e.id].row;
     let col;
@@ -1235,6 +1249,14 @@ export class Renderer {
     const b = this.b, PI = this.A.img.projectiles, pc = this.W.projCols, PS = this.W.proj, half = PS / 2;
     const BW = this.buf.width, BH = this.buf.height;
     for (const pr of g.projectiles) {
+      if (pr.sprite.includes('/') && this.R) {                       // a Realm Update shot (registry)
+        const def = pr.def || (pr.def = this.R.resolve(pr.sprite));
+        if (def) {
+          const [qx, qy] = this.proj(pr.x, pr.y), A = Object.values(def.anims)[0], fr = A.frames[Math.floor(g.t * (A.fps || 8) + (pr.x + pr.y)) % A.frames.length];
+          if (qx > -20 && qy > -20 && qx < BW + 20 && qy < BH + 20) this.drawDef(def, fr, Math.round(qx), Math.round(qy), { rot: pr.a + this.th, alpha: pr.frozen ? 0.55 : pr.ghost ? 0.25 : 1 });
+          continue;
+        }
+      }
       const k0 = this.W.projectiles[pr.sprite] ?? 0, nf = this.W.projFrames || 1;
       const k = k0 + (nf > 1 ? Math.floor(g.t * 12 + (pr.x + pr.y) * 2) % nf : 0);
       const [sx0, sy0] = this.proj(pr.x, pr.y);
@@ -1421,6 +1443,8 @@ export class Renderer {
         if (!(e.rb || e.herald || (e.warden && e.seen !== false)) || e.dead || e.cloneOf) continue;
         const d = Math.hypot(e.x - g.player.x, e.y - g.player.y) - (e.rb ? 4 : e.warden ? 8 : 0);
         const surv = e.surviveUntil > g.t ? ` · SURVIVE ${Math.ceil(e.surviveUntil - g.t)}s` : e.frenzyUntil > g.t ? ` · ${e.D.bloodlust ? 'BLOODLUST' : 'FRENZY'} ${Math.ceil(e.frenzyUntil - g.t)}s` : '';
+        const X = e.D.bx && g.bxBar ? g.bxBar(e) : null;
+        if (X && d < best) { best = d; bar = { name: `${e.D.name.toUpperCase()} · ${X.name.toUpperCase()}`, f: e.hp / e.maxHp, hot: X.phase > 1, immune: X.immune, pips: X.pips }; continue; }
         if (d < best) { best = d; bar = { name: e.D.name.toUpperCase() + surv, f: surv ? (e.surviveUntil > g.t ? (e.surviveUntil - g.t) / 22 : (e.frenzyUntil - g.t) / (e.frenzyLen || 10)) : e.hp / e.maxHp, hot: e.phaseIdx > 0 || !!surv, immune: e.invulnT > 0 && !surv }; }
       }
     }
@@ -1430,6 +1454,7 @@ export class Renderer {
       ctx.fillStyle = '#5a0e1e'; ctx.fillRect(x, y, w, 12);
       ctx.fillStyle = bar.immune ? '#8d88a0' : bar.hot ? '#ff7a1a' : '#f2c14e';
       ctx.fillRect(x, y, w * Math.max(0, bar.f), 12);
+      for (const f of bar.pips || []) { ctx.fillStyle = '#000'; ctx.fillRect(Math.round(x + w * f) - 2, y - 3, 4, 18); ctx.fillStyle = bar.f > f ? '#fff6c8' : '#8a7a5a'; ctx.fillRect(Math.round(x + w * f) - 1, y - 1, 2, 14); }
       ctx.font = textFont(Math.max(13, s * 3 * 1.3));
       outlined(ctx, bar.name, this.c.width / 2, y + 30); ctx.fillStyle = '#e9e4f2'; ctx.fillText(bar.name, this.c.width / 2, y + 30);
     }
