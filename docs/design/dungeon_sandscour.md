@@ -52,7 +52,7 @@ Compositions: serpents outdoors; jackals at every doorway; mummies from the sarc
 chambers; scarabs from the urns and in clutches.
 
 ## Loot
-Chests: T3–T6 gear, T2–T3 abilities, stat potions, and the vault's two chests roll a tier higher.
+Chests: T3–T6 gear, T2–T3 abilities, stat potions. The vault holds a chest among the bundle's two gold chests (scenery).
 
 ## How it's tested
 `tools/check_sandscour.mjs`: every seed in bounds, no overlaps, connected, full pacing, skinned; quicksand slows
@@ -74,7 +74,7 @@ every one of its mechanics happens there.
   saguaro inside the tomb; quicksand pulls, urns break and some hold scarabs, the burial sarcophagi wake and the
   vault waits for their mummies; the Sphinx sleeps until the sanctum, and every mechanic happens there.
 - Found and fixed while testing: the burial chamber had 24 sarcophagi (one every second tile) and now has 12; its
-  sarcophagi wake from 4.5 tiles so you can rouse them from the side lanes (from 3 you'd have to hug the walls);
-  objects were placed after the floor had already turned to sand, so nothing stood outdoors (the order is now
-  objects first); the sanctum got the generic boss-hall pillars it didn't want, and its busy tomb floor hid the
-  Sphinx's gold shots, so it is sand now, with only the dais in stone.
+  sarcophagi wake from 4.5 tiles so you can rouse them from the side lanes (from 3 you'd have to hug the walls); the
+  sanctum got the generic boss-hall pillars it didn't want, and its busy tomb floor hid the
+  Sphinx's gold shots, so it is sand now, with only the dais in stone. (Caught in review before the first run:
+  objects must be placed before a room's floor turns to sand, since they only stand on the base floor.)
