@@ -8,8 +8,9 @@ import glacius_frozen_wyrm from './glacius_frozen_wyrm.js';
 import mother_mycelia from './mother_mycelia.js';
 import grand_orrery from './grand_orrery.js';
 import gilded_sphinx from './gilded_sphinx.js';
+import count_vesper from './count_vesper.js';
 
-export const BX = { framework_test, abyssal_kraken, thornheart_treant, glacius_frozen_wyrm, mother_mycelia, grand_orrery, gilded_sphinx };
+export const BX = { framework_test, abyssal_kraken, thornheart_treant, glacius_frozen_wyrm, mother_mycelia, grand_orrery, gilded_sphinx, count_vesper };
 
 // the enemy definition the rest of the game sees (spawnRealmBoss, loot, the boss bar)
 export function bxEnemyDef(id) {

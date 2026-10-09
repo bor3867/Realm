@@ -6,10 +6,10 @@ export const TILE_NAMES = ['water', 'deep', 'sand', 'fen', 'mud', 'snow', 'runef
   'grass', 'cobble', 'dirt', 'hedge', 'shallows', 'bog', 'ice', 'dune', 'glassflat', 'loam', 'bramble', 'steppe', 'quartz',
   'cryptfloor', 'cryptwall', 'cryptwater', 'emberfloor', 'emberwall', 'emberlava', 'carpet',
   'combfloor', 'waxwall', 'honey', 'stageboards', 'velvetwall', 'prismfloor', 'crystalwall', 'dreamfloor', 'dreamwall', 'starvoid', 'dreambridge', 'fadebridge', 'fadegone',
-  'cliff', 'rift', 'fvsnow', 'fvice', 'fvwater', 'fvwall', 'mrmud', 'mrmoss', 'mrboard', 'mrwall', 'asmarble', 'asgrate', 'asvoid', 'aswall', 'sdsand', 'sdtomb', 'quicksand', 'sdwall'];
+  'cliff', 'rift', 'fvsnow', 'fvice', 'fvwater', 'fvwall', 'mrmud', 'mrmoss', 'mrboard', 'mrwall', 'asmarble', 'asgrate', 'asvoid', 'aswall', 'sdsand', 'sdtomb', 'quicksand', 'sdwall', 'ckstone', 'ckcarpet', 'ckmarble', 'ckblood', 'ckwall', 'ckwin'];
 export const TID = Object.fromEntries(TILE_NAMES.map((n, i) => [n, i]));
 const SOLID_TILES = new Set([TID.water, TID.deep, TID.forgewall, TID.void, TID.chapelwall, TID.ribwall, TID.hedge, TID.bramble, TID.cryptwall, TID.emberwall, TID.cryptwater,
-  TID.waxwall, TID.velvetwall, TID.crystalwall, TID.dreamwall, TID.starvoid, TID.fadegone, TID.cliff, TID.fvwall, TID.mrwall, TID.aswall, TID.sdwall]);
+  TID.waxwall, TID.velvetwall, TID.crystalwall, TID.dreamwall, TID.starvoid, TID.fadegone, TID.cliff, TID.fvwall, TID.mrwall, TID.aswall, TID.sdwall, TID.ckwall, TID.ckwin]);
 export const BIOMES = ['shore', 'fen', 'runeholt', 'godfall', 'dunes', 'thornwood', 'steppe', 'lowlands'];
 // how deep in each land lies: 0 the coast ... 3 the god's fall. The three newer lands share a ring with an older one.
 export const BIOME_RING = [0, 1, 2, 3, 0, 1, 2, 1];
@@ -36,11 +36,15 @@ export const SKINS = [null,
   ['ex_tiles/astral_marble', 'asmarble'], ['ex_tiles/astral_brass_grate', 'asgrate'], ['ex_tiles/astral_void', 'asvoid'], ['ex_tiles/astral_wall_top', 'aswall'],
   // Sandscour Tomb: sand outside, the tomb floor inside, quicksand, the wall's top
   ['ex_tiles/sandscour_sand_a', 'sdsand'], ['ex_tiles/sandscour_sand_b', 'sdsand'], ['ex_tiles/sandscour_tomb_floor', 'sdtomb'],
-  ['ex_tiles/sandscour_quicksand', 'quicksand'], ['ex_tiles/sandscour_wall_top', 'sdwall']];
+  ['ex_tiles/sandscour_quicksand', 'quicksand'], ['ex_tiles/sandscour_wall_top', 'sdwall'],
+  // the Crimson Keep (dungeons_two): stone a/b, the carpet runner, marble checker, blood, and its walls (a window wall has the window as its face)
+  ['d2_tiles/crimson_keep_stone_floor_a', 'ckstone'], ['d2_tiles/crimson_keep_stone_floor_b', 'ckstone'], ['d2_tiles/crimson_keep_carpet', 'ckcarpet'],
+  ['d2_tiles/crimson_keep_marble_checker', 'ckmarble'], ['d2_tiles/crimson_keep_blood_pool', 'ckblood'], ['d2_tiles/crimson_keep_wall_top', 'ckwall'],
+  ['d2_tiles/crimson_keep_wall_top', 'ckwin']];
 // a wall skin's face: drawn under the wall, toward the camera, so walls stand up (RotMG-style)
-export const WALL_FACE = { fvwall: 'ex_tiles/frostveil_wall_side', mrwall: 'ex_tiles/mirerot_wall_side', aswall: 'ex_tiles/astral_wall_side', sdwall: 'ex_tiles/sandscour_wall_side' };
+export const WALL_FACE = { fvwall: 'ex_tiles/frostveil_wall_side', mrwall: 'ex_tiles/mirerot_wall_side', aswall: 'ex_tiles/astral_wall_side', sdwall: 'ex_tiles/sandscour_wall_side', ckwall: 'd2_tiles/crimson_keep_wall_side', ckwin: 'd2_tiles/crimson_keep_wall_window' };
 export const SKIN_TID = SKINS.map((s) => (s ? TID[s[1]] : -1));
-export const SK = Object.fromEntries(SKINS.map((s, k) => [s ? s[0].split('/')[1].replace(/^(shore|lowlands|midlands|highlands|godlands)_/, '') + (s[1] === 'deep' || s[1] === 'steppe' ? '@' + s[1] : '') : '-', k]));
+export const SK = Object.fromEntries(SKINS.map((s, k) => [s ? s[0].split('/')[1].replace(/^(shore|lowlands|midlands|highlands|godlands)_/, '') + (s[1] === 'deep' || s[1] === 'steppe' || s[1] === 'ckwin' ? '@' + s[1] : '') : '-', k]));
 // a fixed per-tile hash (0..1), so jitter and dithering never disturb the generator's random stream
 const hash01 = (x, y) => { let h = Math.imul(x, 374761393) + Math.imul(y, 668265263); h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
 
@@ -671,11 +675,11 @@ export function randomTileInBiome(m, b, r, avoid, minD = 14) {
 // Upper dungeons seal their boss behind a gate (def.seals: wardens, levers, a puzzle); the lower ones don't.
 export function dungeon(seed, def) {
   const r = rng(seed);
-  const S = { chapel: 200, crypt: 180, forge: 180, scriptorium: 214, heart: 196, throne: 196, hive: 200, theatre: 190, spire: 220, islands: 230, frostveil: 300, mirerot: 280, astral: 340, sandscour: 320 }[def.style] || 230;
+  const S = { chapel: 200, crypt: 180, forge: 180, scriptorium: 214, heart: 196, throne: 196, hive: 200, theatre: 190, spire: 220, islands: 230, frostveil: 300, mirerot: 280, astral: 340, sandscour: 320, keep: 280 }[def.style] || 230;
   const FLOOR = TID[def.floor], WALL = TID[def.wall], HAZ = def.hazard ? TID[def.hazard] : null;
   const WET = def.style === 'crypt' ? TID.cryptwater : TID.water, HOT = def.style === 'ember' ? TID.emberlava : TID.lava;
   const m = makeMap('dungeon', def.name, S, S, TID.void);
-  if (['frostveil', 'mirerot', 'astral', 'sandscour'].includes(def.style)) m.skin = new Uint8Array(S * S);
+  if (['frostveil', 'mirerot', 'astral', 'sandscour', 'keep'].includes(def.style)) m.skin = new Uint8Array(S * S);
   const tile = (x, y) => m.tiles[idx(m, x, y)];
   const set = (x, y, t) => { if (x > 1 && y > 1 && x < S - 2 && y < S - 2) m.tiles[idx(m, x, y)] = t; };
   const carve = (x0, y0, x1, y1, t = FLOOR) => {
@@ -731,6 +735,40 @@ export function dungeon(seed, def) {
 
   // ================================================================ the layouts
   const LAYOUT = {
+    // ---- THE CRIMSON KEEP: a castle of square rooms joined by long carpeted halls. The courtyard, the Great Hall with
+    // chambers off it, the banquet hall, the Long Gallery hall (north or south) with a chamber and the gallery off it,
+    // the crypt, the stair, the throne room
+    keep() {
+      const cy0 = S >> 1, neck = (a, b, w = 1) => { if (Math.abs(a.cx - b.cx) < Math.abs(a.cy - b.cy)) carve(b.cx - w, Math.min(a.cy, b.cy), b.cx + w, Math.max(a.cy, b.cy)); else carve(Math.min(a.cx, b.cx), a.cy - w, Math.max(a.cx, b.cx), a.cy + w); link(a, b); };
+      const fits = (x, y, w, h) => x > 6 && y > 6 && x + w < S - 6 && y + h < S - 6 && !rooms.some((o) => x < o.x + o.w + 3 && o.x < x + w + 3 && y < o.y + o.h + 3 && o.y < y + h + 3);
+      const court = room(14, cy0 - 10, 23, 21, { kind: 'court', dep: 0 });
+      const hallA = room(court.x + court.w + 4, cy0 - 2, r.int(56, 64), 5, { kind: 'greathall', dep: 1, few: true });
+      neck(court, hallA, 2);
+      m.ckHalls = [hallA];
+      const side = (H, kind, k0) => { for (let t = 0; t < 30; t++) {
+        const w = 15, h = 15, up = r.chance(0.5), along = H.w > H.h;
+        const x = along ? H.x + r.int(4, H.w - w - 4) : (up ? H.x - 4 - w : H.x + H.w + 4), y = along ? (up ? H.y - 4 - h : H.y + H.h + 4) : H.y + r.int(4, H.h - h - 4);
+        if (!fits(x, y, w, h)) continue;
+        const n = room(x, y, w, h, { kind, dep: k0 });
+        if (along) carve(n.cx - 1, Math.min(H.cy, n.cy), n.cx + 1, Math.max(H.cy, n.cy)); else carve(Math.min(H.cx, n.cx), n.cy - 1, Math.max(H.cx, n.cx), n.cy + 1);   // a door straight off the hall
+        link(H, n); return n;
+      } return null; };
+      side(hallA, 'chamber', 2); side(hallA, 'chamber', 2.5);
+      const banquet = room(hallA.x + hallA.w + 4, cy0 - 7, 27, 15, { kind: 'banquet', dep: 3 });
+      neck(hallA, banquet, 2);
+      const dir = banquet.cy < S / 2 ? 1 : -1, L = r.int(44, 52);
+      const hallB = room(banquet.cx - 2, dir > 0 ? banquet.y + banquet.h + 4 : banquet.y - 4 - L, 5, L, { kind: 'greathall', dep: 4, few: true });
+      neck(banquet, hallB, 2); m.ckHalls.push(hallB);
+      side(hallB, 'chamber', 5);
+      const gal = side(hallB, 'gallery', 5.5); if (gal) gal.role = 'treasure';
+      const crypt = room(hallB.cx - 11, dir > 0 ? hallB.y + hallB.h + 4 : hallB.y - 4 - 17, 23, 17, { kind: 'crypt', dep: 6 });
+      neck(hallB, crypt, 2);
+      const stair = room(crypt.x + crypt.w + 5, crypt.cy - 6, 13, 13, { kind: 'stair', dep: 7, role: 'rest' });
+      neck(crypt, stair, 1);
+      const throne = room(stair.x + stair.w + 5, stair.cy - 20, 40, 40, { kind: 'throneroom', dep: 8 });
+      neck(stair, throne, 2);
+      return { start: court, boss: throne };
+    },
     // ---- SANDSCOUR TOMB: the oasis and the dunes outdoors, the gate, the Long Hall with chambers off it, the
     // Burial Chamber and its sealed vault, the antechamber, the Sanctum
     sandscour() {
@@ -1304,7 +1342,57 @@ export function dungeon(seed, def) {
   const SD = (k) => 'ex_decor/sandscour_' + k;
   const urn = (x, y) => { if (isF(x, y) && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) put(m, SD('urn'), x, y, true, { sdUrn: true, hp: 3 }); };
   const sarc = (x, y, extra = {}) => { if (isF(x, y) && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) put(m, SD('sarcophagus'), x, y, true, { sdSarc: true, ...extra }); };
+  const CK = (k) => 'd2_decor/crimson_keep_' + k;
+  const ckPut = (x, y, k, solid = true, extra = {}) => { if (isF(x, y) && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) put(m, CK(k), x, y, solid, extra); };
   const DRESS = {
+    keep(n) {
+      const corners = (k, inset = 1, solid = true) => { for (const [x, y] of [[n.x + inset, n.y + inset], [n.x + n.w - 1 - inset, n.y + inset], [n.x + inset, n.y + n.h - 1 - inset], [n.x + n.w - 1 - inset, n.y + n.h - 1 - inset]]) ckPut(x, y, k, solid); };
+      const statue = (x, y, kind) => ckPut(x, y, kind === 'gargoyle' ? 'gargoyle_statue' : 'armor_stand', true, { ckStatue: kind, real: r.chance(0.25) });   // most are only statues
+      if (n.kind === 'court') {                                       // rose bushes in a ring, gothic pillars at the corners
+        for (let k = 0; k < 14; k++) { const a = (k / 14) * Math.PI * 2; if (Math.abs(Math.cos(a)) > 0.93) continue; ckPut(Math.round(n.cx + Math.cos(a) * 7), Math.round(n.cy + Math.sin(a) * 6), 'rose_bush'); }
+        corners('gothic_pillar', 2);
+        ckPut(n.cx - 3, n.y + 2, 'candelabra'); ckPut(n.cx + 3, n.y + 2, 'candelabra');
+      } else if (n.kind === 'greathall') {                            // the carpet runner, stands and candelabras alternating down both sides
+        const along = n.w > n.h;
+        for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) if ((along ? Math.abs(y - n.cy) : Math.abs(x - n.cx)) <= 1) set(x, y, TID.ckcarpet);
+        const len = along ? n.w : n.h;
+        for (let k = 3, j = 0; k < len - 3; k += 4, j++) for (const s of [0, 1]) {
+          const x = along ? n.x + k : (s ? n.x + n.w - 1 : n.x), y = along ? (s ? n.y + n.h - 1 : n.y) : n.y + k;
+          const out = along ? [x, y + (s ? 1 : -1)] : [x + (s ? 1 : -1), y];
+          if (tile(out[0], out[1]) !== TID.void) continue;                 // never in a doorway
+          if (j % 2) ckPut(x, y, 'candelabra'); else statue(x, y, r.chance(0.3) ? 'gargoyle' : 'armor');
+        }
+      } else if (n.kind === 'chamber') {
+        corners('candelabra', 1);
+        ckPut(n.cx - 2, n.cy, 'coffin', true, { ckCoffin: true }); if (r.chance(0.5)) ckPut(n.cx + 2, n.cy, 'coffin', true, { ckCoffin: true });
+        statue(n.cx, n.y + 1, 'armor');
+      } else if (n.kind === 'banquet') {                              // the table: two rows of candelabras down the middle; pillars along the walls
+        for (let x = n.x + 4; x < n.x + n.w - 4; x += 3) { ckPut(x, n.cy - 1, 'candelabra'); ckPut(x, n.cy + 1, 'candelabra'); }
+        for (let x = n.x + 2; x < n.x + n.w - 2; x += 6) { ckPut(x, n.y + 1, 'gothic_pillar'); ckPut(x, n.y + n.h - 2, 'gothic_pillar'); }
+        m.ckBanquet = { x: n.x, y: n.y, w: n.w, h: n.h };
+      } else if (n.kind === 'gallery') {                              // stands round all four walls; a dais at the far end for the chest
+        const spots = [];
+        for (let x = n.x + 2; x < n.x + n.w - 2; x += 3) { spots.push([x, n.y + 1]); spots.push([x, n.y + n.h - 2]); }
+        for (let y = n.y + 3; y < n.y + n.h - 3; y += 3) { spots.push([n.x + 1, y]); spots.push([n.x + n.w - 2, y]); }
+        const wake = new Set(spots.map((_, i) => i).sort(() => r() - 0.5).slice(0, 3));
+        spots.forEach(([x, y], i) => ckPut(x, y, 'armor_stand', true, { ckStatue: 'armor', gallery: true, real: wake.has(i) }));
+        for (let y = n.cy - 2; y <= n.cy + 1; y++) for (let x = n.cx - 2; x <= n.cx + 2; x++) set(x, y, TID.ckcarpet);
+        m.ckGallery = { x: n.x, y: n.y, w: n.w, h: n.h, woke: false };
+      } else if (n.kind === 'crypt') {                                // two rows of coffins in the dark; one candle at the door
+        for (let x = n.x + 3; x < n.x + n.w - 3; x += 3) { ckPut(x, n.cy - 3, 'coffin', true, { ckCoffin: true, crypt: true }); ckPut(x, n.cy + 3, 'coffin', true, { ckCoffin: true, crypt: true }); }
+        ckPut(n.x + 1, n.cy - 1, 'candelabra');
+        m.ckCrypt = { x: n.x, y: n.y, w: n.w, h: n.h, started: false };
+      } else if (n.kind === 'stair') { corners('candelabra', 1); ckPut(n.cx, n.y + 1, 'gothic_pillar'); }
+      else if (n.kind === 'throneroom') {                             // marble, a carpet to the throne, two rows of pillars, candelabras at the walls
+        for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) {       // a nave of marble before the throne, stone round it
+          const nave = Math.abs(x - n.cx) <= 8 && y >= n.y + 2, carpet = (Math.abs(y - n.cy) <= 1 && x <= n.cx) || (Math.abs(x - n.cx) <= 1 && y >= n.y + 4 && y <= n.cy);
+          set(x, y, carpet ? TID.ckcarpet : nave ? TID.ckmarble : TID.ckstone);
+        }
+        for (let x = n.x + 6; x < n.x + n.w - 6; x += 7) { put(m, CK('gothic_pillar'), x, n.y + 9, true); put(m, CK('gothic_pillar'), x, n.y + n.h - 10, true); }
+        for (let y = n.y + 4; y < n.y + n.h - 4; y += 8) { put(m, CK('candelabra'), n.x + 1, y, true); put(m, CK('candelabra'), n.x + n.w - 2, y, true); }
+        put(m, 'throne', n.cx, n.y + 3, true);
+      }
+    },
     sandscour(n) {
       const inRoom = (x, y) => isF(x, y) && x >= n.x && y >= n.y && x < n.x + n.w && y < n.y + n.h;
       const toSand = () => { for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) if (inRoom(x, y)) set(x, y, TID.sdsand); };   // after the objects: they stand on floor
@@ -1618,7 +1706,7 @@ export function dungeon(seed, def) {
       if (i % 3 === 0) for (const s of [-2, 2]) { const qx = Math.round(x - ((by - ay) / L) * s), qy = Math.round(y + ((bx - ax) / L) * s); if (tile(qx, qy) === TID.bog && !m.objects.some((o) => Math.floor(o.x) === qx && Math.floor(o.y) === qy)) put(m, 'ex_decor/mirerot_reeds', qx, qy, false); }
     }
   }
-  if (boss.shape === 'rect' && !['throne', 'crypt', 'forge', 'theatre', 'sandscour'].includes(def.style)) {   // a plain boss hall gets pillars and hazards
+  if (boss.shape === 'rect' && !['throne', 'crypt', 'forge', 'theatre', 'sandscour', 'keep'].includes(def.style)) {   // a plain boss hall gets pillars and hazards
     if (HAZ !== null) for (const [dx, dy] of [[3, 3], [boss.w - 5, 3], [3, boss.h - 5], [boss.w - 5, boss.h - 5]]) carve(boss.x + dx, boss.y + dy, boss.x + dx + 1, boss.y + dy + 1, HAZ);
     for (const [dx, dy] of [[7, 6], [boss.w - 8, 6], [7, boss.h - 7], [boss.w - 8, boss.h - 7]]) set(boss.x + dx, boss.y + dy, WALL);
   }
@@ -1652,7 +1740,12 @@ export function dungeon(seed, def) {
     }
   }
   for (const s of secrets) { m.tiles[idx(m, s.plug.x, s.plug.y)] = WALL; put(m, 'weak_wall', s.plug.x, s.plug.y, true, { interact: 'weak', hp: 4 }); }
-  if (m.sdSeal) for (const i of m.sdSeal) m.tiles[i] = TID.sdwall;     // Sandscour: a wall of sand across the vault's door, until the burial chamber is quiet
+  if (m.sdSeal) for (const i of m.sdSeal) m.tiles[i] = TID.sdwall;
+  if (m.ckHalls) {
+    for (const H of m.ckHalls) for (let y = H.y - 1; y <= H.y + H.h; y++) for (let x = H.x - 1; x <= H.x + H.w; x++) if (tile(x, y) === TID.ckwall) m.tiles[idx(m, x, y)] = TID.ckwin;
+    const C = rooms.find((n) => n.kind === 'court');
+    for (let x = C.x + 3; x < C.x + C.w - 3; x += 5) for (const y of [C.y - 1, C.y + C.h]) if (tile(x, y) === TID.ckwall && isF(x, y === C.y - 1 ? y + 1 : y - 1)) put(m, CK('gargoyle_statue'), x, y, true, { ckLedge: true });
+  }     // Sandscour: a wall of sand across the vault's door, until the burial chamber is quiet
   if (def.style === 'islands') for (let i = 0; i < m.tiles.length; i++) if (m.tiles[i] === TID.void) m.tiles[i] = TID.starvoid;
 
   // ---- the sealed gate: every way into the boss's hall is barred until the seals break
@@ -1746,7 +1839,7 @@ export function dungeon(seed, def) {
   const DEC = { chapel: ['shell', 'kelp', 'starfish', 'skullmoss'], forge: ['embervent', 'goldrubble', 'bonepile', 'brokenshield'], heart: ['bonepile', 'goldrubble', 'skullmoss', 'embervent'],
     scriptorium: ['icecrystal', 'runepebble', 'snowtuft', 'brokenshield'], crypt: ['bonepile', 'skullmoss', 'shell', 'kelp'],
     ember: ['embervent', 'goldrubble', 'bonepile'], throne: ['goldrubble', 'pillarstub', 'brokenshield'],
-    hive: ['goldrubble', 'shell', 'kelp'], theatre: ['brokenshield', 'goldrubble', 'runepebble'], spire: ['icecrystal', 'runepebble', 'icecrystal'], islands: ['snowtuft', 'runepebble', 'icecrystal'], frostveil: ['snowtuft', 'icecrystal', 'snowtuft', 'runepebble'], mirerot: ['shrooms', 'reeds', 'skullmoss', 'lily'], astral: ['runepebble', 'icecrystal'], sandscour: ['bonepile', 'goldrubble', 'shell'] }[def.style] || ['bonepile', 'goldrubble'];
+    hive: ['goldrubble', 'shell', 'kelp'], theatre: ['brokenshield', 'goldrubble', 'runepebble'], spire: ['icecrystal', 'runepebble', 'icecrystal'], islands: ['snowtuft', 'runepebble', 'icecrystal'], frostveil: ['snowtuft', 'icecrystal', 'snowtuft', 'runepebble'], mirerot: ['shrooms', 'reeds', 'skullmoss', 'lily'], astral: ['runepebble', 'icecrystal'], sandscour: ['bonepile', 'goldrubble', 'shell'], keep: ['bonepile', 'brokenshield', 'goldrubble'] }[def.style] || ['bonepile', 'goldrubble'];
   for (const n of [...rooms.filter((n) => n !== boss), ...secrets]) {
     for (let j = 0; j < Math.round(n.w * n.h * 0.04); j++) { const x = n.x + r.int(1, n.w - 2), y = n.y + r.int(1, n.h - 2); if (isF(x, y)) m.decor.push({ name: r.pick(DEC), x, y }); }
   }
@@ -1794,6 +1887,7 @@ export function dungeon(seed, def) {
     'ow_objects/godlands_rift_crystal': [2, '#ff5ad0', 0], 'ow_objects/godlands_corrupted_obelisk': [3, '#c03aff', 0],
     'ex_decor/frostveil_frost_brazier': [5, '#a8f0ff', 1], 'ex_decor/frostveil_ice_crystal': [2.2, '#8ad8ff', 0],
     'ex_decor/mirerot_glowshroom_cluster': [4.2, '#8aff6a', 0], 'ex_decor/mirerot_spore_pod': [1.6, '#c8ff8a', 0],
+    'd2_decor/crimson_keep_candelabra': [3.4, '#ffb060', 1],
     'ex_decor/astral_floating_crystal': [3.6, '#c8a0ff', 0], 'ex_decor/astral_star_globe': [4, '#fff6c8', 0], 'ex_decor/astral_rune_circle': [2.6, '#8af6ff', 0], 'ex_decor/astral_brass_pillar': [2.4, '#ffd690', 0] };
   m.lights = m.objects.filter((o) => LIGHT[o.sprite] && !o.unlit).map((o) => { const L = LIGHT[o.sprite]; return (o.light = { x: o.x, y: o.y - 0.4, r: L[0] * 16, col: L[1], fire: !!L[2] }); });
   if (def.style === 'frostveil') {                                    // the ice: snow in slow patches, ice, frigid water, the wall tops
@@ -1804,6 +1898,16 @@ export function dungeon(seed, def) {
       else if (t === TID.fvice) m.skin[i] = SK.frostveil_ice;
       else if (t === TID.fvwater) m.skin[i] = SK.frostveil_frigid_water;
       else if (t === TID.fvwall) m.skin[i] = SK.frostveil_wall_top;
+    }
+  }
+  if (def.style === 'keep') {                                         // stone in slow patches, the runner, marble, blood, the walls
+    const pv = noise2(seed ^ 0x6b656570);
+    for (let i = 0; i < m.tiles.length; i++) {
+      const t = m.tiles[i];
+      if (t === TID.ckstone) m.skin[i] = pv((i % S) / 5, Math.floor(i / S) / 5) > 0.5 ? SK.crimson_keep_stone_floor_b : SK.crimson_keep_stone_floor_a;
+      else if (t === TID.ckcarpet) m.skin[i] = SK.crimson_keep_carpet; else if (t === TID.ckmarble) m.skin[i] = SK.crimson_keep_marble_checker;
+      else if (t === TID.ckblood) m.skin[i] = SK.crimson_keep_blood_pool; else if (t === TID.ckwall) m.skin[i] = SK.crimson_keep_wall_top;
+      else if (t === TID.ckwin) m.skin[i] = SK['crimson_keep_wall_top@ckwin'];
     }
   }
   if (def.style === 'sandscour') {                                    // sand in slow patches, the tomb floor, quicksand, the wall tops

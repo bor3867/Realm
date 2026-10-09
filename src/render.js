@@ -16,7 +16,7 @@ const MINI = { 0: '#1e5078', 1: '#102c48', 2: '#d2b074', 3: '#3e6230', 4: '#4e41
   26: '#f0dcae', 27: '#b8dcd8', 28: '#2e3a22', 29: '#121c0e', 30: '#b89a48', 31: '#8a7aa8',
   32: '#3a4a5c', 33: '#7486a0', 34: '#2a6c9c', 35: '#3c2a28', 36: '#6c524a', 37: '#ff8c1e', 38: '#8e1e30',
   39: '#a86e26', 40: '#e8c878', 41: '#ffc040', 42: '#7a4e28', 43: '#6a1224', 44: '#2e2e56', 45: '#8a6ad0', 46: '#8878bc', 47: '#d8d0f4', 48: '#0a0618', 49: '#d8a8e8', 50: '#98c0f0', 51: '#1a1236',
-  52: '#5a5866', 53: '#c02a8a', 54: '#dceaf4', 55: '#9ad4f0', 56: '#2a6c9c', 57: '#4a5e86', 58: '#5a4a2e', 59: '#3e6a2a', 60: '#8a7a52', 61: '#2e3a22', 62: '#c8c0dc', 63: '#a87a3a', 64: '#0a0618', 65: '#4a3a7a', 66: '#e0c080', 67: '#a8885a', 68: '#8a6a3a', 69: '#6a4a2a' };   // cliff, rift, Frostveil snow, ice, frigid water, wall
+  52: '#5a5866', 53: '#c02a8a', 54: '#dceaf4', 55: '#9ad4f0', 56: '#2a6c9c', 57: '#4a5e86', 58: '#5a4a2e', 59: '#3e6a2a', 60: '#8a7a52', 61: '#2e3a22', 62: '#c8c0dc', 63: '#a87a3a', 64: '#0a0618', 65: '#4a3a7a', 66: '#e0c080', 67: '#a8885a', 68: '#8a6a3a', 69: '#6a4a2a', 70: '#4a4450', 71: '#8e1e30', 72: '#c8c0c8', 73: '#5a0a14', 74: '#2a2430', 75: '#3a3448' };   // cliff, rift, Frostveil snow, ice, frigid water, wall
 const DIRS = [[0, -1], [1, 0], [0, 1], [-1, 0]];          // N E S W (matches edge sheet order)
 const WEATHER = {
   shore: { n: 36, color: ['#e8f6ff', '#a8d8f0'], vx: 9, vy: 2, size: 1, blink: false },
@@ -33,6 +33,7 @@ const WEATHER = {
   frostveil: { n: 48, color: ['#ffffff', '#cfffff', '#e8f6ff'], vx: 3, vy: 9, size: 1, blink: false },       // snow sifting down through the ice
   mirerot: { n: 30, color: ['#c8ff8a', '#8aff6a', '#e8ffd0'], vx: 1, vy: -2, size: 1, blink: true },        // spores drifting up in the dark
   astral: { n: 40, color: ['#ffffff', '#ffd690', '#c8a0ff'], vx: 0.5, vy: 0.4, size: 1, blink: true },         // stars, near and far
+  keep: { n: 22, color: ['#8e1e30', '#c8b0a0', '#5a0a14'], vx: -1, vy: 1.5, size: 1, blink: false },          // dust and the odd drop of red
 };
 
 // minimap markers: o outline, 1 main colour, 2 accent
@@ -431,6 +432,7 @@ export class Renderer {
       let fr = A.frames.length > 1 && !o.unlit ? A.frames[Math.floor(this.lastT * (A.fps || 4) + o.x * 0.7 + o.y * 0.3) % A.frames.length] : A.frames[0];
       if (o.sdSarc) fr = A.frames[o.openT === undefined ? 0 : Math.min(A.frames.length - 1, Math.floor((this.lastT - o.openT) * 8))];   // a sarcophagus: shut, or its lid sliding open
       else if (o.sdUrn) fr = A.frames[o.cracked ? 1 : 0];
+      else if (o.ckCoffin && def.anims.open) fr = (o.openT === undefined ? def.anims.closed : def.anims.open).frames[0];   // a coffin, shut or open
       if (o.solid) this.shadow(sx, sy + 7, def.size[1] > 8 ? 12 : 10);
       if (o.fuse !== undefined) { this.drawDef(def, fr, sx, sy + 8, { scale: 1.3, flash: Math.floor(this.lastT * 20) % 2 === 0 }); return; }   // a spore pod about to burst
       this.drawDef(def, fr, sx, sy + 8, o.unlit ? { alpha: 0.45 } : undefined);   // a brazier gone out is dark and still
@@ -1599,7 +1601,7 @@ export class Renderer {
     this.parts = keep;
   }
   drawWeather(g, dt) {
-    const dz = { chapel: 'shore', heart: 'godfall', crypt: 'crypt', ember: 'forge', frostveil: 'frostveil', mirerot: 'mirerot', astral: 'astral', sandscour: 'dunes' };
+    const dz = { chapel: 'shore', heart: 'godfall', crypt: 'crypt', ember: 'forge', frostveil: 'frostveil', mirerot: 'mirerot', astral: 'astral', sandscour: 'dunes', keep: 'keep' };
     const bi = g.map.kind === 'realm' ? BIOMES[biomeAt(g.map, g.player.x, g.player.y)] : g.map.kind === 'dungeon' ? (dz[g.map.def && Object.keys(g.map.def).length && g.map.def.portal] || 'forge') : 'nexus';
     const kind = WEATHER[bi] ? bi : null;
     const BW = this.buf.width, BH = this.buf.height, b = this.b;

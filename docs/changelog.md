@@ -68,3 +68,8 @@
   of the last (always near you) in a ring of ribbons. It opens his first and last phases and recurs in both.
   The hanging marionette stays defined but no longer spawns. Checked headless: six drops in a fight, five of six
   surfacing within 7 tiles of you, no marionettes, the fight ends.
+
+## Phase 3 — the Crimson Keep (dungeon 5 of 6)
+- New dungeon (style `keep`): candlelight vs. the dark, coffins, waking statues, ledge gargoyles, the gallery and the
+  crypt, blood pools; Count Vesper. Notes: dungeon_crimson_keep.md, boss_count_vesper.md.
+- Engine: delayed events (`fvLater`) run for every map; window walls; coffin open frames.

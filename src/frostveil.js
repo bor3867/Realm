@@ -41,8 +41,6 @@ const methods = {
   updateFrostveil(dt) {
     const m = this.map, p = this.player;
     if (!m.fvBraziers) m.fvBraziers = m.objects.filter((o) => o.fvBrazier);
-    for (const T of m.fvTimers || []) if ((T.t -= dt) <= 0 && !T.done) { T.done = true; T.fn(); }
-    if (m.fvTimers) m.fvTimers = m.fvTimers.filter((T) => !T.done);
     // the Hall of the Frozen: cross its middle third and the false statues wake
     const H = m.fvHall;
     if (H && !H.woke && p.x > H.x0 && p.x < H.x1 && p.y > H.y0 && p.y < H.y1) {

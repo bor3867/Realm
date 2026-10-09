@@ -1458,6 +1458,38 @@ ENEMIES.giant_watermelon = { name: 'Giant Watermelon', biome: 'event', melon: tr
   });
   Object.assign(SPEECH, { gilded_sphinx: { see: ['What walks on four legs, then two, then none?', 'Answer, or be buried with the rest.'], die: ['...the riddle... was you...'] } });
 }
+// ================================================================ THE CRIMSON KEEP (Realm Update, docs/design/dungeon_crimson_keep.md)
+{
+  const LK = L([6, 9], [6, 9], [3, 4], [3, 4], 0.04), CKE = (k) => 'd2_crimson_keep/' + k, CKP = (k) => 'd2_projectiles/crimson_keep.' + k;
+  Object.assign(ENEMIES, {
+    blood_bat: { name: 'Blood Bat', biome: 'keep', reg: CKE('blood_bat'), hp: 600, def: 4, speed: 4.6, xp: 40, r: 0.38, ai: 'zigzag', aggro: 12, fly: true, contact: 42,
+      attacks: [{ pattern: 'aimed', proj: CKP('bat_screech'), count: 2, arc: 0.3, dmg: 52, speed: 8, range: 6, cd: 1.6, tell: 200 }], loot: LK },
+    gargoyle: { name: 'Gargoyle', biome: 'keep', reg: CKE('gargoyle'), hp: 1500, def: 16, speed: 2.4, xp: 90, r: 0.5, ai: 'hop', aggro: 11, contact: 60,
+      attacks: [{ pattern: 'radial', proj: CKP('stone_chip'), count: 8, dmg: 62, speed: 5, range: 6, cd: 2.4, tell: 450 }], loot: LK },
+    haunted_armor: { name: 'Haunted Armor', biome: 'keep', reg: CKE('haunted_armor'), scale: 1.3, hp: 2600, def: 24, speed: 1.4, xp: 120, r: 0.55, ai: 'shamble', aggro: 10, contact: 70,
+      attacks: [{ pattern: 'aimed', proj: CKP('crimson_slash'), count: 5, arc: 0.7, dmg: 72, speed: 7, range: 5, cd: 2.0, tell: 450 }], loot: LK },
+    blood_thrall: { name: 'Blood Thrall', biome: 'keep', reg: CKE('blood_thrall'), hp: 1100, def: 8, speed: 1.8, xp: 60, r: 0.45, ai: 'shamble', aggro: 10, contact: 50,
+      attacks: [{ pattern: 'aimed', proj: CKP('blood_spit'), count: 3, arc: 0.35, dmg: 58, speed: 6.5, range: 6, cd: 1.9, tell: 350 }], loot: LK },
+    kneeling_thrall: { name: 'Kneeling Thrall', biome: 'keep', reg: CKE('blood_thrall'), hp: 6000, def: 10, speed: 0, xp: 150, r: 0.5, ai: 'rooted', aggro: 0, attacks: [], loot: [] },
+  });
+  const CHK = [{ slot: 'weapon', tiers: [6, 9], p: 0.8 }, { slot: 'armor', tiers: [6, 9], p: 0.8 }, { slot: 'ability', tiers: [3, 4], p: 0.6 }, { slot: 'ring', tiers: [3, 4], p: 0.5 },
+    { stat: true, p: 1 }, { id: 'pot_hp', p: 1 }];
+  DUNGEONS.keep = { name: 'The Crimson Keep', floor: 'ckstone', wall: 'ckwall', hazard: null, rooms: 12, portal: 'keep', style: 'keep',
+    layout: { secrets: 1 }, seals: [], altar: false, chestLoot: CHK, mobs: ['blood_bat', 'gargoyle', 'haunted_armor', 'blood_thrall'], elites: [],
+    boss: 'count_vesper', mobHp: 1.4, ambient: 'rgba(14,2,6,0.7)',
+    compose(rm, r, deep) {
+      if (rm.kind === 'court') return [];
+      if (rm.kind === 'greathall') return ['blood_bat', 'blood_bat'];
+      if (rm.kind === 'banquet') return ['blood_bat', 'blood_bat', 'blood_bat', 'blood_bat', 'blood_bat', 'blood_thrall', 'blood_thrall'];
+      if (rm.kind === 'gallery' || rm.kind === 'crypt') return [];
+      return deep < 0.5 ? ['blood_thrall', 'blood_thrall', 'blood_bat', 'blood_bat', 'haunted_armor'] : ['blood_thrall', 'blood_thrall', 'blood_thrall', 'haunted_armor', 'gargoyle', 'blood_bat', 'blood_bat'];
+    } };
+  PORTAL_EXTRA.unshift((D) => {
+    if ((D.biome === 'fen' || D.biome === 'godfall') && Math.random() < 0.3) return ['keep', D.children ? 0.04 : 0.01];
+    return null;
+  });
+  Object.assign(SPEECH, { count_vesper: { see: ['Welcome to my home. Do stay for dinner.', 'You will be the finest vintage in my cellar.'], die: ['...the sun... so bright...'] } });
+}
 // the bands round the campfires: orcs and their archers in the Thornwood, goblins in the Greenmarch
 export const FIRECAMP_BANDS = { thornwood: ['orc_brute', 'orc_brute', 'bandit_archer', 'bandit_archer'], lowlands: ['hedge_goblin', 'hedge_goblin', 'hedge_goblin', 'field_rat'] };
 Object.assign(SPEECH, {

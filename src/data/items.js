@@ -670,7 +670,30 @@ UT.push(
   { id: 'pharaohs_deathmask', type: 'ring', slot: 'ring', name: 'The Pharaoh\'s Deathmask', reg: 'ix_items/pharaohs_deathmask', bonus: { hp: 20, mp: 20, att: 2, def: 2, spd: 2, dex: 2, vit: 2, wis: 2 }, legendary: true,
     desc: 'A face of gold for a king nobody remembers. Every death you cause, it drinks, and shares.' },
 );
+// ---- Count Vesper's (the Crimson Keep; icons from d2_items). The Nightfall Scythe drops only from a phase-3 kill.
+UT.push(
+  { id: 'crimson_rapier', type: 'dagger', slot: 'weapon', name: 'Crimson Rapier', reg: 'd2_items/crimson_rapier',
+    weapon: { dmg: [120, 180], range: 3.8, speed: 15, rate: 1.5, proj: 'd2_projectiles/crimson_keep.crimson_slash', size: 0.4, pierce: true }, desc: 'Thin, quick, and always a little thirsty.' },
+  { id: 'bloodthorn_staff', type: 'staff', slot: 'weapon', name: 'Bloodthorn Staff', reg: 'd2_items/bloodthorn_staff',
+    weapon: { dmg: [70, 108], count: 2, arc: 0.1, range: 6.4, speed: 16, rate: 1.0, proj: 'thornseed', size: 0.45 }, desc: 'A rose cane grown hard as iron. Its thorns burst where they strike.' },
+  { id: 'batwing_bow', type: 'bow', slot: 'weapon', name: 'Batwing Bow', reg: 'd2_items/batwing_bow',
+    weapon: { dmg: [66, 100], count: 3, arc: 0.2, range: 6.2, speed: 17, rate: 1.05, proj: 'd2_projectiles/crimson_keep.bat_screech', size: 0.45, pierce: true }, desc: 'Strung with a wing\'s membrane. Its arrows scream a little.' },
+  { id: 'sanguine_cloak', type: 'leather', slot: 'armor', name: 'Sanguine Cloak', reg: 'd2_items/sanguine_cloak', bonus: { def: 14, hp: 80, spd: 4 },
+    desc: 'Lined in red velvet that never dries. When you are low, it remembers what it has drunk.' },
+  { id: 'signet_of_the_count', type: 'ring', slot: 'ring', name: 'Signet of the Count', reg: 'd2_items/signet_of_the_count', bonus: { att: 6, vit: 6 },
+    desc: 'His crest in garnet: a bat over a crown. The castle doors open for it.' },
+  { id: 'crimson_chalice', type: 'reliquary', slot: 'ability', name: 'The Crimson Chalice', reg: 'd2_items/crimson_chalice',
+    ability: { cost: 90, heal: 260, burst: { count: 16, proj: 'd2_projectiles/crimson_keep.blood_spit', dmg: 150, range: 5 } }, desc: 'Drink from it, and those around you bleed for your health.' },
+  { id: 'nightfall_scythe', type: 'sword', slot: 'weapon', name: 'The Nightfall Scythe', reg: 'd2_items/nightfall_scythe', legendary: true,
+    weapon: { dmg: [210, 290], count: 3, arc: 0.6, range: 3.6, speed: 9, rate: 0.9, proj: 'd2_projectiles/crimson_keep.crimson_slash', size: 0.55, pierce: true }, desc: 'The Count\'s own blade. Night falls in a wide red arc, and drinks.' },
+);
 Object.assign(SPECIAL, {
+  crimson_rapier: { weapon: { lifesteal: 0.02 } },
+  bloodthorn_staff: { weapon: { split: { n: 4, proj: 'thornseed', f: 0.3 } } },
+  batwing_bow: { weapon: { homing: 0.8 } },
+  sanguine_cloak: { passive: { lowregen: 40 } },
+  crimson_chalice: { mod: 'devour' },
+  nightfall_scythe: { weapon: { lifesteal: 0.03 } },
   sunscorch_khopesh: { weapon: { burn: { dps: 50, t: 3 } } },
   pharaohs_deathmask: { passive: { killheal: 35 } },
   sphinx_helm: { mod: 'aftershock' },
@@ -752,6 +775,7 @@ for (const [d, name, desc, reg] of [
   ['frostveil', 'Frostveil Key', 'Cut from clear ice. It does not melt in your hand, which is worse.', 'ix_items/frostveil_key'],
   ['mirerot', 'Mirerot Key', 'Grown, not forged. It is slightly warm and very slightly alive.', 'ix_items/mirerot_key'],
   ['astral', 'Astral Key', 'Brass and starlight. It ticks.', 'ix_items/astral_key'],
+  ['keep', 'Crimson Key', 'Iron, warm, and slightly sticky. Don\'t ask.', 'd2_items/crimson_key'],
   ['sandscour', 'Sandscour Key', 'A scarab of beaten gold. Its legs twitch when you aren\'t looking.', 'ix_items/sandscour_key'],
 ]) add({ id: `key_${d}`, type: 'key', slot: 'consumable', tier: null, name, use: { key: d }, reg: reg || undefined, desc: `${desc} Use it outside a dungeon to open a portal there.` });
 // ---- a vault chest: use it and your vault grows by 8 slots

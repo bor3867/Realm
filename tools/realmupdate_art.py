@@ -70,7 +70,27 @@ def _sandscour(f):
     return c.done()
 
 
-PORTALS = {'frostveil': _frostveil, 'mirerot': _mirerot, 'astral': _astral, 'sandscour': _sandscour}
+def _keep(f):
+    """the Crimson Keep: a gothic arch of dark stone round a crimson swirl, a bat crossing it"""
+    c = _PT.Cv()
+    for y in range(2, 16):
+        for x in range(2, 14):
+            top = 2 + abs(x - 7.5) ** 1.6 / 3.2
+            if y < top:
+                continue
+            inner = 4 <= x <= 11 and y >= top + 2.2
+            if not inner:
+                c.p(x, y, 'i' if x < 7.5 else 'k')
+    c.swirl(7.5, 10.4, 3.2, 4.6, ['P', 'R', 'r', 'k'], f, arms=2)
+    bx = 4 + f * 3                                              # a bat crossing the arch
+    for dx, dy in ((0, 0), (-1, -1), (1, -1), (-2, 0), (2, 0)):
+        c.p(bx + dx, 6 + dy, 'k')
+    for x in range(1, 15):
+        c.p(x, 15, 'i' if (x + f) % 3 else 'r')
+    return c.done()
+
+
+PORTALS = {'frostveil': _frostveil, 'mirerot': _mirerot, 'astral': _astral, 'sandscour': _sandscour, 'keep': _keep}
 
 # ---- tiles the bundle didn't bring (8x8, the dungeons4 format: palette, [variants[frames[rows]]])
 _BOARD = ['bbbbcbbb', 'ccccbcec', 'aaaaaaaa', 'bbcbbbbb', 'cbcccccb', 'aaaaaaaa', 'bbbbbcbb', 'ccccccbc']
