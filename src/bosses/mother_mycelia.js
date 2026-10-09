@@ -1,7 +1,7 @@
 // Mother Mycelia: the boss of Mirerot Grotto (docs/design/boss_mother_mycelia.md).
 // Her arena is the Mire: an island of mud in a ring of bog, spore pods round its edge. Her own mechanics: spore
 // clouds that hang where they stop, needles that poison, acid that pools where it lands, a lunge that ends in a
-// short bite, seeds that sprout into sporelings unless shot, and toxic orbs that stop and then dart at you.
+// short bite, seeds that sprout into sporelings unless shot, and toxic orbs that curl outward and gather speed.
 const TAU = Math.PI * 2, R = Math.random;
 const SHOT = (n) => `bx_shots/mother_mycelia.${n}`;
 const angleTo = (x0, y0, x1, y1) => Math.atan2(y1 - y0, x1 - x0);
@@ -62,7 +62,7 @@ export default {
     ] },
     3: { move: 'center', patterns: [
       { name: 'glowcap seeds', windup: 0.7, recover: 0.6, special: 'seeds', n: 4 },
-      { name: 'toxic orbs', windup: 0.7, recover: 0.6, volleys: [{ form: 'spiral', shot: 'toxic_orb', arms: 2, every: 0.16, dur: 1.6, turn: 0.32, speed: 3.6, range: 12, dmg: 85, size: 0.6, mv: { brake: 0.7, re: 7 } }] },
+      { name: 'toxic orbs', windup: 0.7, recover: 0.6, volleys: [{ form: 'spiral', shot: 'toxic_orb', arms: 2, every: 0.16, dur: 1.6, turn: 0.32, speed: 2.2, range: 12, dmg: 85, size: 0.6, mv: { curve: 0.7, accel: 2.4, max: 2.6 } }] },
       { name: 'spore clouds', windup: 0.6, recover: 0.5, special: 'clouds', n: 7, dmg: 75 },
     ] },
   },

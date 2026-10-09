@@ -79,12 +79,12 @@ for (let s = 1; s <= seeds; s++) {
         if (g.projectiles.some((b) => b.sprite.endsWith('maw_fang'))) flags.bite = 1;
         if (g.enemies.some((e) => e.id === 'glowcap_sprout' && !e.dead)) flags.sprouts = 1;
         if (g.enemies.some((e) => e.id === 'sporeling' && !e.dead)) flags.hatched = 1;
-        if (g.projectiles.some((b) => b.sprite.endsWith('toxic_orb') && b.re)) flags.dart = 1;
+        if (g.projectiles.some((b) => b.sprite.endsWith('toxic_orb') && b.hs > b.s0 * 1.3)) flags.curl = 1;
         if (p.poisonUntil > g.t) flags.poisoned = 1;
       }
       if (phase < 3) { g.damageEnemy(my, Math.ceil(my.maxHp * 0.34) + 50, my.x, my.y, true); for (let k = 0; k < 60 * 5; k++) { p.hp = 1e6; g.update(1 / 60); } }
     }
-    for (const k of ['hang', 'needles', 'puddles', 'lunge', 'bite', 'sprouts', 'hatched', 'dart', 'poisoned']) if (!flags[k]) problems.push('never saw ' + k);
+    for (const k of ['hang', 'needles', 'puddles', 'lunge', 'bite', 'sprouts', 'hatched', 'curl', 'poisoned']) if (!flags[k]) problems.push('never saw ' + k);
     if (seenP.size < 7) problems.push('patterns ' + [...seenP].join(', '));
     console.log(`mycelia: patterns ${seenP.size}/7 | ${Object.keys(flags).join(', ')}`);
   }

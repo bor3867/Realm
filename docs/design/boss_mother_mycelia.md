@@ -25,8 +25,8 @@ Movement: she drifts after you, slowly, staying on the island.
 ## Phase 3 — Sporestorm (rooted again, at the island's centre)
 1. **Glowcap seeds**: four `glowcap_seed`s lobbed round the island. Each lands as a **sprout** (a small target,
    600 Life) that bursts into a sporeling after 3 s unless you kill it first. Shoot the sprouts.
-2. **Toxic orbs**: a two-armed spiral of `toxic_orb`s; each orb stops after a moment, hangs, then darts straight
-   at where you are. Keep moving across their lines.
+2. **Toxic orbs**: a two-armed spiral of `toxic_orb`s that leave slowly and curl outward, gathering speed as they
+   go: the spiral opens and quickens. Step through it early, while it is slow.
 3. **Spore clouds** return, seven of them.
 
 ## Death
@@ -40,10 +40,13 @@ mends you, and it mends you when you are low). Plus T6–T8 gear.
 
 ## Unique to it
 Clouds of spores that hang where they stop; needles that poison; acid that pools where it lands; a lunge that ends
-in a short-range bite; seeds that sprout into minions unless shot; orbs that stop, then dart. None is used by
+in a short-range bite; seeds that sprout into minions unless shot; orbs that curl outward and quicken. None is used by
 another boss.
 
 ## Result (built)
 - `src/bosses/mother_mycelia.js`. Checked in her arena (`tools/check_mirerot.mjs`): all 7 patterns; clouds hang,
-  needles poison, acid pools, the lunge ends in the bite, seeds sprout and hatch, orbs stop and dart.
+  needles poison, acid pools, the lunge ends in the bite, seeds sprout and hatch, orbs curl and quicken.
 - Seen in the browser: the island with its pods and lights, each phase's form and every attack.
+
+- Changed after the Sphinx was designed: her toxic orbs used to stop and dart, which is the Sphinx's riddle glyphs
+  (the brief gives that to the Sphinx). They now curl outward and gather speed, closer to the brief's "spirals".
