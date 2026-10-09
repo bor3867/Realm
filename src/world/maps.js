@@ -231,6 +231,27 @@ const DECOR_BIOME = [['shell', 'starfish', 'kelp', 'driftwood'], ['reeds', 'shro
 const LANDMARK_BIOME = ['whale_skull', 'hollow_oak', 'monolith', 'god_hand', 'whale_skull', 'hollow_oak', 'monolith', 'hollow_oak'];
 const OB = [['whale_rib', 0.006], ['dead_tree', 0.01], ['rune_pillar', 0.008], ['fallen_head', 0.006],
   ['glass_spire', 0.008], ['thorn_tree', 0.03], ['crystal_spire', 0.01], ['dead_tree', 0.004]];
+// standing things per land: [sprite, chance per tile, solid, where]. Registry keys (with a '/') are the Realm
+// Update's objects; the rest are the old ones, kept in the mix. 'where' gathers them: grove (slow noise woods, with
+// clearings between), meadow (the flowering grass), wet (by the water), rock (bare highland rock), cliff (under the
+// ledges), rift (beside a rift). Trees, rocks, spires, obelisks, pillars, wells and cairns block; clutter doesn't.
+const OW = 'ow_objects/';
+const STAND = [
+  [[OW + 'shore_palm_tree', 0.05, true, 'grove'], [OW + 'shore_seashells', 0.004, false], [OW + 'shore_driftwood', 0.003, false], [OW + 'shore_tide_pool', 0.05, false, 'wet'], ['whale_rib', 0.003, true]],
+  [['dead_tree', 0.01, true]],
+  [[OW + 'highlands_boulder', 0.06, true, 'cliff'], [OW + 'highlands_rock_spire', 0.025, true, 'cliff'], [OW + 'highlands_dead_tree', 0.003, true, 'rock'],
+    [OW + 'highlands_heather_bush', 0.012, false, 'rock'], ['rune_pillar', 0.006, true]],
+  [[OW + 'godlands_rift_crystal', 0.1, false, 'rift'], [OW + 'godlands_corrupted_obelisk', 0.0025, true], [OW + 'godlands_bone_pile', 0.007, false],
+    [OW + 'godlands_broken_pillar', 0.003, true], ['fallen_head', 0.004, true]],
+  [['glass_spire', 0.008, true]],
+  [[OW + 'midlands_elder_tree', 0.07, true, 'grove'], ['thorn_tree', 0.035, true, 'grove'], [OW + 'midlands_glow_mushrooms', 0.012, false, 'grove'],
+    [OW + 'midlands_tree_stump', 0.006, false], [OW + 'midlands_mossy_boulder', 0.004, true]],
+  [['crystal_spire', 0.01, true], [OW + 'highlands_boulder', 0.003, true]],
+  [[OW + 'lowlands_oak_tree', 0.16, true, 'grove'], [OW + 'lowlands_flower_bed', 0.02, false, 'meadow'], [OW + 'lowlands_hay_bale', 0.0025, false]],
+];
+// clutter that lies flat: drawn beneath anything standing on the same tile
+export const FLAT = new Set(['shore_seashells', 'shore_driftwood', 'shore_tide_pool', 'lowlands_flower_bed', 'midlands_glow_mushrooms', 'highlands_heather_bush',
+  'godlands_bone_pile'].map((n) => OW + n));
 // the sectors the new lands take out of their ring: a direction and a half-width (radians). The Greenmarch faces the
 // landing beach, so the first country you walk into from the sea is the gentlest.
 const SECTORS = { 4: [0, 0.95], 5: [Math.PI, 0.95], 6: [-Math.PI / 2, 1.15], 7: [Math.PI / 2, 0.8] };
@@ -249,6 +270,8 @@ const SITES = [
   { name: 'The Fallen Colossus', in: [3], kind: 'colossus' }, { name: 'The Old Waystation', in: [0, 1, 4, 5, 7], kind: 'hamlet' },
   { name: 'The Pilgrim Ruins', in: [1, 2, 5, 6], kind: 'hamlet' }, { name: 'The Glass Graveyard', in: [4], kind: 'graveyard' },
   { name: 'The Thorn Shrine', in: [5], kind: 'circle' }, { name: 'The Rune Gate', in: [2, 6], kind: 'stones' },
+  { name: 'The Elder Grove', in: [5], kind: 'eldergrove' }, { name: 'The Cairn Ring', in: [2], kind: 'cairns' },
+  { name: 'The Bleeding Fountain', in: [3], kind: 'bloodfountain' }, { name: 'Thistle Farm', in: [7], kind: 'farm' },
 ];
 
 export function realm(seed) {
@@ -259,7 +282,7 @@ export function realm(seed) {
   m.skin = new Uint8Array(S * S);
   // slow noise picks a ground's a/b variants in patches (never salt-and-pepper)
   const patch = (x, y, s = 7) => n3(x / s + 311.5, y / s + 97.25);
-  const R0 = C * 0.9;
+  const R0 = C * 0.9, SEC = Object.values(SECTORS), SECN = Object.entries(SECTORS).map(([k, [a0, w]]) => [+k, a0, w]);
   for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
     const i = idx(m, x, y);
     const d0 = dist(x, y, C, C) / R0 + (n(x / (26 * RK), y / (26 * RK)) - 0.5) * 0.32;
@@ -268,18 +291,26 @@ export function realm(seed) {
     if (d0 > 1.0) { m.tiles[i] = TID.water; m.skin[i] = SK.deep_water; continue; }
     // where two lands meet, each tile takes its land from a point jittered by up to 3 tiles each way: a dithered
     // band, like a hand-placed edge, rather than a ruled line (the coast itself is never jittered)
-    const xs = x + (hash01(x, y) - 0.5) * 6, ys = y + (hash01(y + 7919, x + 104729) - 0.5) * 6;
-    const d = dist(xs, ys, C, C) / R0 + (n(xs / (26 * RK), ys / (26 * RK)) - 0.5) * 0.32;
+    // (only tiles near a border pay for the second sample: the rest keep their own point)
+    const wob = (px, py) => (n4(px / (40 * RK), py / (40 * RK)) - 0.5) * 1.1;
+    let d = d0, ang = Math.atan2(y - C, x - C) + wob(x, y);
+    let near = Math.abs(d0 - 0.78) < 0.03 || Math.abs(d0 - 0.52) < 0.03 || Math.abs(d0 - 0.27) < 0.03;
+    for (let k = 0; k < SEC.length && !near; k++) { const q = ang - SEC[k][0]; near = Math.abs(Math.abs(Math.atan2(Math.sin(q), Math.cos(q))) - SEC[k][1]) < 0.09; }
+    if (near) {
+      const xs = x + (hash01(x, y) - 0.5) * 6, ys = y + (hash01(y + 7919, x + 104729) - 0.5) * 6;
+      d = dist(xs, ys, C, C) / R0 + (n(xs / (26 * RK), ys / (26 * RK)) - 0.5) * 0.32;
+      ang = Math.atan2(ys - C, xs - C) + wob(xs, ys);
+    }
     let b, t, sk = 0;
     if (d > 0.78) { b = 0; t = TID.sand; }
     else if (d > 0.52) { b = 1; t = v > 0.62 ? TID.mud : TID.fen; }
     else if (d > 0.27) { b = 2; t = v > 0.6 ? (r.chance(0.08) ? TID.runeglyph : TID.runefloor) : TID.snow; }
     else { b = 3; t = v > 0.6 ? TID.obsidian : TID.ash; }
     // the new lands take a wedge out of their ring (its edge wanders with the noise)
-    const ang = Math.atan2(ys - C, xs - C) + (n4(xs / (40 * RK), ys / (40 * RK)) - 0.5) * 1.1;
-    for (const [nb, [a0, w]] of Object.entries(SECTORS)) {
+    for (let k = 0; k < SECN.length; k++) {
+      const [nb, a0, w] = SECN[k];
       if (BIOME_RING[nb] !== b) continue;
-      if (Math.abs(Math.atan2(Math.sin(ang - a0), Math.cos(ang - a0))) < w) b = +nb;
+      if (Math.abs(Math.atan2(Math.sin(ang - a0), Math.cos(ang - a0))) < w) { b = nb; break; }
     }
     const pv = patch(x, y);
     if (b === 4) t = v < 0.2 ? TID.glassflat : TID.dune;
@@ -394,14 +425,38 @@ export function realm(seed) {
     }
   }
   const isRoad = (x, y) => { const t = m.tiles[idx(m, x, y)]; return t === TID.dirt || t === TID.cobble; };
-  // ---- standing things and flat ground dressing (never on the roads)
+  // ---- standing things and flat ground dressing (never on a road, nor right beside one)
   m.decor = [];
-  for (let y = 2; y < S - 2; y++) for (let x = 2; x < S - 2; x++) {
+  const nearTile = (x, y, R, test) => { for (let yy = -R; yy <= R; yy++) for (let xx = -R; xx <= R; xx++) if (test(m.tiles[idx(m, x + xx, y + yy)], idx(m, x + xx, y + yy))) return true; return false; };
+  const WHERE = {
+    grove: (x, y) => r.chance(Math.min(1, Math.max(0, (patch(x + 900, y - 300, 9) - 0.5) / 0.25))),
+    meadow: (x, y) => m.skin[idx(m, x, y)] === SK.grass_b,
+    wet: (x, y) => nearTile(x, y, 1, (t) => t === TID.shallows || t === TID.water),
+    rock: (x, y) => m.tiles[idx(m, x, y)] === TID.runefloor && m.skin[idx(m, x, y)] > 0,
+    cliff: (x, y) => nearTile(x, y, 2, (t) => t === TID.cliff),
+    rift: (x, y) => nearTile(x, y, 1, (t) => t === TID.rift),
+  };
+  for (let y = 3; y < S - 3; y++) for (let x = 3; x < S - 3; x++) {
     const b = m.biome[idx(m, x, y)];
-    if (b < 0 || !plain(x, y) || isRoad(x, y)) continue;
-    if (r.chance(OB[b][1])) put(m, OB[b][0], x, y);
-    else if (r.chance(0.045)) m.decor.push({ name: r.pick(DECOR_BIOME[b]), x, y });
+    if (b < 0 || !plain(x, y) || nearTile(x, y, 1, (t) => t === TID.dirt || t === TID.cobble)) continue;
+    let placed = false;
+    for (const [spr, p, solid, where] of STAND[b]) {
+      if (!r.chance(p) || (where && !WHERE[where](x, y))) continue;
+      put(m, spr, x, y, solid); placed = true; break;
+    }
+    if (!placed && r.chance(0.045)) m.decor.push({ name: r.pick(DECOR_BIOME[b]), x, y });
   }
+  // ---- little clusters: a few things gathered on purpose, so the land has places in it and not just scatter
+  const cluster = (b, n, fn) => { for (let k = 0; k < n; k++) for (let t = 0; t < 10; t++) { const at = spotIn(b, 6); if (at && clearOf(at[0], at[1], 3)) { fn(at[0], at[1]); break; } } };
+  const clearOf = (cx, cy, R) => { for (let y = cy - R; y <= cy + R; y++) for (let x = cx - R; x <= cx + R; x++) if (!plain(x, y) || isRoad(x, y) || m.solid[idx(m, x, y)]) return false; return !m.objects.some((o) => Math.abs(o.x - cx - 0.5) <= R && Math.abs(o.y - cy - 0.5) <= R); };
+  const around = (cx, cy, R, n, spr, solid, a0 = r() * 6.28) => { for (let j = 0; j < n; j++) { const a = a0 + (j / n) * Math.PI * 2; put(m, spr, Math.round(cx + Math.cos(a) * R), Math.round(cy + Math.sin(a) * R), solid); } };
+  m.firecamps = [];                                                // campfires: a fire, stumps to sit on; 2d gives each a band
+  for (const b of [5, 7]) cluster(b, per(b, 6000), (x, y) => { put(m, OW + 'midlands_campfire', x, y, false); around(x, y, 2, 4, OW + 'midlands_tree_stump', false); m.firecamps.push({ x: x + 0.5, y: y + 0.5, biome: BIOMES[b] }); });
+  cluster(0, per(0, 9000), (x, y) => { put(m, OW + 'shore_driftwood', x, y, false); put(m, OW + 'shore_seashells', x + 1, y + 1, false); put(m, OW + 'shore_seashells', x - 2, y, false); put(m, 'whale_rib', x + 2, y - 1); });
+  cluster(7, per(7, 5000), (x, y) => { put(m, OW + 'lowlands_hay_bale', x, y, false); put(m, OW + 'lowlands_hay_bale', x + 1, y, false); put(m, OW + 'lowlands_hay_bale', x, y + 1, false); around(x, y, 3, 5, OW + 'lowlands_flower_bed', false); });
+  cluster(5, per(5, 7000), (x, y) => { put(m, OW + 'midlands_mossy_boulder', x, y); around(x, y, 2, 6, OW + 'midlands_glow_mushrooms', false); });      // fairy rings
+  cluster(2, per(2, 9000), (x, y) => around(x, y, 2, 5, OW + 'highlands_cairn', true));                                                         // cairn circles
+  cluster(3, per(3, 6000), (x, y) => { put(m, OW + 'godlands_corrupted_obelisk', x, y); around(x, y, 3, 5, OW + 'godlands_bone_pile', false); });  // altars of bone
   // ---- landmarks: 32x32 set pieces, solid along their 2-tile base
   for (let b = 0; b < BIOMES.length; b++) {
     for (let k = 0; k < per(b, 2800); k++) {
@@ -476,6 +531,15 @@ export function realm(seed) {
     colossus: (x, y) => { put(m, 'fallen_head', x - 2, y); put(m, 'statue_fist', x + 2, y + 1); put(m, 'statue_sun', x, y - 3); ring(x, y, 5, 6, 'brazier'); put(m, 'chest', x, y + 3, true, { interact: 'chest', loot: 'godfall' }); },
     hamlet: (x, y) => { floor(x, y, 3, TID.cobble, false); for (const [dx, dy] of [[-5, -4], [4, -4], [-5, 3]]) { for (let k = 0; k < 4; k++) { put(m, k % 2 ? 'ruin_wall' : 'ruin_wall2', x + dx + k, y + dy); } }
       put(m, 'well', x, y, true, { interact: 'wish', biome: 'fen', label: 'Make a wish (50 gold)' }); put(m, 'signpost', x + 2, y + 1); put(m, 'crate', x - 2, y + 2); },
+    eldergrove: (x, y) => { floor(x, y, 3, TID.loam); around(x, y, 5, 10, OW + 'midlands_elder_tree', true, 0.3); around(x, y, 3, 8, OW + 'midlands_glow_mushrooms', false);
+      put(m, 'chest', x, y, true, { interact: 'chest', loot: 'thornwood' }); },
+    cairns: (x, y) => { floor(x, y, 4, TID.runefloor); around(x, y, 4, 7, OW + 'highlands_cairn', true, 0.2); around(x, y, 6, 6, OW + 'highlands_rock_spire', true, 0.7);
+      put(m, 'lorestone', x, y, true, { interact: 'riddle', label: 'Read the stone' }); },
+    bloodfountain: (x, y) => { around(x, y, 4, 8, OW + 'godlands_broken_pillar', true, 0.4); around(x, y, 2, 6, OW + 'godlands_bone_pile', false);
+      put(m, OW + 'godlands_blood_fountain', x, y, true, { interact: 'wish', biome: 'godfall', label: 'Make a wish (50 gold)' }); },
+    farm: (x, y) => { for (let k = -3; k <= 3; k++) { put(m, OW + 'lowlands_flower_bed', x + k, y + 2, false); put(m, OW + 'lowlands_flower_bed', x + k, y + 3, false); }
+      put(m, OW + 'lowlands_hay_bale', x - 3, y - 2, false); put(m, OW + 'lowlands_hay_bale', x - 2, y - 2, false); put(m, OW + 'lowlands_oak_tree', x + 4, y - 3);
+      put(m, OW + 'lowlands_signpost', x + 2, y - 1, false); put(m, 'chest', x, y - 1, true, { interact: 'chest', loot: 'lowlands' }); },
     graveyard: (x, y) => { for (let k = 0; k < 9; k++) put(m, 'ruin_wall2', x - 4 + (k % 3) * 4, y - 3 + Math.floor(k / 3) * 3); put(m, 'mystery_altar', x, y + 5, true, { interact: 'mystery', label: 'Touch the altar' }); },
   };
   for (const site of SITES) for (const b of site.in) {
@@ -493,6 +557,26 @@ export function realm(seed) {
     wipe(w.x, w.y, 1);
     floor(w.x, w.y, 1, TID.cobble, false);
     put(m, 'waypoint', w.x, w.y, true, { interact: 'waypoint', name: w.name, label: 'Travel' });
+    if (w.name === 'Haywain Cross') {                         // the Greenmarch's crossroads: a well and a signpost by the stone
+      wipe(w.x, w.y, 3);
+      put(m, OW + 'lowlands_well', w.x + 3, w.y - 2, true, { interact: 'wish', biome: 'shore', label: 'Make a wish (50 gold)' });
+      put(m, OW + 'lowlands_signpost', w.x - 2, w.y + 2, false);
+      put(m, OW + 'lowlands_hay_bale', w.x + 3, w.y + 2, false);
+    }
+  }
+  {                                                           // the Beached Skiff: a rowboat run up on the wet sand, tide pools round it
+    const wetSand = [];
+    for (let i = 0; i < m.skin.length; i++) if (m.skin[i] === SK.wet_sand && m.biome[i] === 0) wetSand.push(i);
+    for (let tries = 0; tries < 300 && wetSand.length; tries++) {
+      const i = wetSand[r.int(0, wetSand.length - 1)], x = i % m.w, y = Math.floor(i / m.w);
+      if (dist(x, y, m.spawn.x, m.spawn.y) < 60 || isRoad(x, y) || m.objects.some((o) => Math.abs(o.x - x) < 5 && Math.abs(o.y - y) < 5)) continue;
+      put(m, OW + 'shore_rowboat', x, y, true);
+      for (const [dx, dy] of [[-2, 1], [2, 1], [1, -2], [-1, 2]]) { const t = m.tiles[idx(m, x + dx, y + dy)]; if (t === TID.sand || t === TID.shallows) put(m, OW + 'shore_tide_pool', x + dx, y + dy, false); }
+      put(m, OW + 'shore_driftwood', x - 1, y - 1, false);
+      put(m, 'chest', x + 1, y, true, { interact: 'chest', loot: 'shore' });
+      m.sites.push({ name: 'The Beached Skiff', x: x + 0.5, y: y + 0.5, biome: 'shore' });
+      break;
+    }
   }
   // the landing beach stays clear: nothing may stand on or right beside the spot you arrive on
   {
@@ -1335,7 +1419,9 @@ export function dungeon(seed, def) {
     journal: [2.5, '#fff6c8', 0], seal_gate: [3, '#ff4a5a', 0], lever_off: [2.2, '#ffd650', 0], lorestone: [3, '#8af0ff', 0], statue_anvil: [3, '#ff9a3a', 0],
     glow_larva: [4, '#ffd650', 1], honey_vat: [3, '#ffb830', 0], footlight: [3.5, '#fff0b0', 0], vanity_mirror: [3, '#fff6d8', 0], ticket_booth: [3, '#ffd650', 0],
     crystal_cluster: [3.5, '#c8a0ff', 0], prism_pillar: [5, '#ffffff', 0], great_lens: [8, '#fffbe0', 0], lens_pedestal: [3, '#fff6c8', 0], beam_lamp: [3, '#fffbe0', 0],
-    dream_lamp: [5.5, '#c8b0ff', 1], moon_shard: [3.5, '#bff0ff', 0], dream_sigil: [3.5, '#ff7ab8', 0] };
+    dream_lamp: [5.5, '#c8b0ff', 1], moon_shard: [3.5, '#bff0ff', 0], dream_sigil: [3.5, '#ff7ab8', 0],
+    'ow_objects/midlands_campfire': [5, '#ff9a3a', 1], 'ow_objects/midlands_glow_mushrooms': [2.5, '#7affc8', 0], 'ow_objects/godlands_blood_fountain': [4, '#ff3a4a', 0],
+    'ow_objects/godlands_rift_crystal': [2, '#ff5ad0', 0], 'ow_objects/godlands_corrupted_obelisk': [3, '#c03aff', 0] };
   m.lights = m.objects.filter((o) => LIGHT[o.sprite]).map((o) => { const L = LIGHT[o.sprite]; return { x: o.x, y: o.y - 0.4, r: L[0] * 16, col: L[1], fire: !!L[2] }; });
   for (let y = 2; y < S - 2; y += 4) for (let x = (y >> 2) % 2 * 2 + 2; x < S - 2; x += 4) {    // lava glows (sampled, so a lake is a few soft pools)
     const t = tile(x, y);

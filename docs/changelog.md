@@ -18,3 +18,9 @@
 - Bundle tiles drawn as skins over tiles that keep their meaning; new `cliff` and `rift` tiles.
 - New land: the Greenmarch (lowlands) in ring 1, facing the landing beach; borrows shore monsters until 2d.
 - Dithered borders by jittered sampling (±3 tiles); variants by slow noise. Tuning notes in 02_overworld.md.
+
+## Phase 2c (objects, clustering, landmarks)
+- 25 bundle objects placed per land by rule (groves, meadows, by water, on rock, under ledges, along rifts); old
+  objects kept in the mix. Oak density doubled after looking (groves were too thin).
+- Campfire camps recorded for 2d; six new landmarks (Beached Skiff, Haywain Cross, Elder Grove, Cairn Ring,
+  Bleeding Fountain, Thistle Farm). Skiff placement picks from the wet-sand rim directly (random sampling missed it).

@@ -107,6 +107,26 @@ The dunes and the fen keep their own look.
   grove ringed with glow mushrooms; highlands: a cairn circle on a cliff; godlands: a blood fountain ringed by
   broken pillars.
 
+### Result (2c, built)
+- `STAND` in maps.js: per land, `[sprite, chance, solid, where]`; registry objects mixed with the old ones. `where`
+  gathers them: **grove** (slow-noise woods with clearings: palms, oaks, elder and thorn trees, glow mushrooms),
+  **meadow** (flower beds on the flowering grass), **wet** (tide pools by the water), **rock** (heather, dead trees on
+  bare highland rock), **cliff** (boulders and spires under the ledges), **rift** (crystals along the rifts). Nothing
+  stands on a road or beside one. Collision follows the note: trees, rocks, spires, obelisks, pillars, wells, cairns
+  and the rowboat block; clutter doesn't. Flat clutter sorts under whoever stands on it.
+- Clusters (placed on purpose, so the land has places in it): **campfire camps** with a ring of stumps in the
+  Thornwood and the Greenmarch (`m.firecamps`, for 2d's bands), driftwood-and-shell strands, hay ricks ringed with
+  flowers, fairy rings, cairn circles, altars of bone round an obelisk.
+- Landmarks (named sites, discovered like the others): **The Beached Skiff** (rowboat on the wet sand, tide pools,
+  a chest), **Haywain Cross** (well, signpost and hay at the Greenmarch crossroads), **The Elder Grove** (a ring of
+  elders and glow mushrooms round a chest), **The Cairn Ring** (cairns and spires round a riddle stone), **The
+  Bleeding Fountain** (a wishing fountain ringed by broken pillars and bones), **Thistle Farm** (flower rows, hay,
+  an oak, a signpost, a chest).
+- Lights: campfires, glow mushrooms, the fountain, rift crystals and obelisks glow at dusk.
+- Found while profiling: the wedge test rebuilt `Object.entries(SECTORS)` for every one of 1.6M tiles; it's
+  precomputed now, and only tiles near a border take the jittered second sample. Generation stays ~1.0–1.5 s.
+- Draw with 22.8k objects: objects 0.13 ms/frame (the chunk index from 2a).
+
 ## Spawning
 - The 20 overworld enemies and the 5 `ow2` realm enemies get enemy definitions (AI from the existing set, shots
   from their own sheets where they have them, themed shots otherwise) and join the mapped biomes' spawn tables with

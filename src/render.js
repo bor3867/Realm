@@ -3,7 +3,7 @@
 // an integer factor, so every pixel stays crisp. The camera can rotate: the
 // GROUND layer (tiles, biome edges, foam, decor) rotates as one image, while
 // every sprite stays upright at its rotated position, like classic tiny-MMO cameras.
-import { TILE_NAMES, BIOMES, biomeAt, objectsIn, SKINS, SKIN_TID, TID } from './world/maps.js';
+import { TILE_NAMES, BIOMES, biomeAt, objectsIn, SKINS, SKIN_TID, TID, FLAT } from './world/maps.js';
 import { hoverY } from './registry.js';
 import { CLASSES } from './data/classes.js';
 import { ITEMS, iconIndex } from './data/items.js';
@@ -134,7 +134,11 @@ export class Renderer {
       }
     };
     const VR = Math.hypot(BW, BH) / TS / 2 + 4;                     // the view's reach, in tiles, at any camera angle
-    for (const o of objectsIn(m, g.player.x - VR, g.player.y - VR, g.player.x + VR, g.player.y + VR)) add(o.x, o.y, (sx, sy) => this.obj(o, sx, sy));
+    for (const o of objectsIn(m, g.player.x - VR, g.player.y - VR, g.player.x + VR, g.player.y + VR)) {
+      const n0 = list.length;
+      add(o.x, o.y, (sx, sy) => this.obj(o, sx, sy));
+      if (list.length > n0 && FLAT.has(o.sprite)) list[n0].sy -= 12;               // flat clutter lies under whoever stands on it
+    }
     for (const pt of m.portals) add(pt.x, pt.y, (sx, sy) => this.portal(g, pt, sx, sy));
     for (const bag of g.bags) {                                // a bag on a portal is drawn in front of it, never hidden inside
       const onPortal = m.portals.some((pt) => Math.abs(pt.x - bag.x) < 1.8 && Math.abs(pt.y - bag.y) < 1.8);
@@ -380,6 +384,21 @@ export class Renderer {
       return;
     }
     if (o.trophy) return this.trophy(o, sx, sy);
+    if (o.sprite.includes('/')) {                            // a Realm Update object (registry): stands on the bottom of its tile
+      const C = this.objDefs || (this.objDefs = new Map());
+      let def = C.get(o.sprite);
+      if (def === undefined) C.set(o.sprite, (def = (this.R && this.R.resolve(o.sprite)) || null));
+      if (!def) return;
+      const A = Object.values(def.anims)[0], fr = A.frames.length > 1 ? A.frames[Math.floor(this.lastT * (A.fps || 4) + o.x * 0.7 + o.y * 0.3) % A.frames.length] : A.frames[0];
+      if (o.solid) this.shadow(sx, sy + 7, def.size[1] > 8 ? 12 : 10);
+      this.drawDef(def, fr, sx, sy + 8);
+      if (o.sprite === 'ow_objects/midlands_campfire' && Math.random() < 0.35) {
+        const ember = Math.random() < 0.6;
+        this.parts.push({ x: o.x + (Math.random() - 0.5) * 0.4, y: o.y, z: 6, vx: (Math.random() - 0.5) * 0.3, vy: 0, vz: ember ? 18 + Math.random() * 14 : 8,
+          g: ember ? 0 : -2, life: ember ? 0.9 : 1.6, max: 1.6, color: ember ? (Math.random() < 0.5 ? '#ffc94a' : '#f2641a') : '#4a4458' });
+      }
+      return;
+    }
     if (o.big) {
       const name = o.sprite.slice(3), Lm = this.W.landmarks[name], c = this.W.landmarksCols;
       const k = Lm.i + (Lm.frames > 1 ? Math.floor(this.lastT * 1.4 + o.x * 0.37) % Lm.frames : 0);
