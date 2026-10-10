@@ -120,3 +120,12 @@
   Seahorse, Star Wisp → Wisp Ghost); old eggs become family eggs of the same rarity.
 - Fix: `tools/check_events.mjs` no longer places you off the map's edge (a flaky "woke before you came").
 - New check: `tools/check_pets.mjs`.
+
+## After Phase 7 — the Priest, and the admin reference
+- The Priest's 8x8 sprite is redrawn (`tools/heroes8.py`): the one-pixel-feet pass had left it with a spiky gold
+  crown that read as antlers. It is now a white hood and robe, a flat gold halo over the head, a gold clasp and a
+  wand. Only the priest's sheet was rebuilt.
+- `ADMIN_REFERENCE.md` (via `tools/admin_reference.mjs`) now covers everything in the update: the six new dungeons'
+  tiers, hazards and bosses; the ten three-phase bosses (phases, mechanics, relics, legendary, how to fight each);
+  realm events; elites; legendaries; Pets v2 lines, forms, rarities and the 50 eggs; and `/bx`, `/kraken`,
+  `/treant`, `/melon`. The in-game `/help` lists the new commands.

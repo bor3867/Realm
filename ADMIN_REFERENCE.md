@@ -18,16 +18,20 @@ Type commands into chat (press `/` or Enter). Ids are case-sensitive and use und
 | `/give ITEM [N]` | Gives N of an item (ids below; enchanted ids work too, see Enchantments) |
 | `/items TEXT` | Searches item ids and names |
 | `/spawn ENEMY [N]` | Spawns N of an enemy near you (also works with realm boss ids) |
-| `/boss ID` | Spawns a realm boss here (realm only); drowned_abbot / fallen_heart / unstruck teleport you to their dungeon boss |
+| `/boss ID` | Spawns a realm boss here (realm only); drowned_abbot / fallen_heart / unstruck / the_archivist / the_unstruck_god / tidebound_lich / forgeheart_colossus take you to their dungeon boss |
+| `/bx ID` | Spawns a Realm Update three-phase boss beside you, anywhere (ids under Realm Update bosses). `/bx` alone lists them |
+| `/kraken` | The Abyssal Kraken rises on the Drowned Shore now (its reef and all), and puts you at the edge. Step in to wake it (realm only) |
+| `/treant` | The Thornheart Treant wakes in the Thornwood now (its clearing and ring of elders), and puts you at the edge (realm only) |
+| `/melon` | A Giant Watermelon plops down beside you (realm only; one at a time) |
 | `/bosses` | Lists boss ids |
 | `/event BIOME` | Starts a herald event in a biome (realm only; the four original lands) |
 | `/star` | A star falls in Godfall: the Fallen Star climbs out of the crater (realm only) |
 | `/seals` | Breaks every seal on a dungeon boss gate |
 | `/keys [DUNGEON] [N]` | Gives you a key for every dungeon (or N keys for one). Use a key in the Nexus or Realm to open the portal to that dungeon |
 | `/adminchest [N]` | Conjures up to 5 admin chests near you (realm or dungeon). Break one for top-tier gear, three relics, a likely mythic and a chance at the crown |
-| `/pet [KIND] [RARITY] [max]` | Adds a pet (max = every ability at its cap; good for testing fusing). Kinds and rarities are listed under Pets |
+| `/pet [LINE] [RARITY] [max]` | Adds a pet of a line (max = every ability at its cap, so a Divine max pet is in its divine form). Lines and rarities are listed under Pets |
 | `/progress BIOME N` | Sets herald progress toward that biome's realm boss |
-| `/tp WHERE` | Teleports: any land (shore, fen, runeholt, godfall, dunes, thornwood, steppe), realm, nexus, or a dungeon id |
+| `/tp WHERE` | Teleports: any land (shore, fen, runeholt, godfall, dunes, thornwood, steppe, lowlands), realm, nexus, a dungeon id, or X Y |
 | `/portal DUNGEON` | Opens a dungeon portal next to you |
 | `/killall` | Kills every enemy within 15 tiles |
 | `/clearbags` | Removes all loot bags on the map |
@@ -40,7 +44,7 @@ Type commands into chat (press `/` or Enter). Ids are case-sensitive and use und
 
 ## Places
 
-- Lands (`/tp`): `shore`, `fen`, `runeholt`, `godfall`, `dunes`, `thornwood`, `steppe` (`/event`, `/progress`: the first four)
+- Lands (`/tp`): `shore` (the Drowned Shore), `fen` (Ashfen), `runeholt`, `godfall`, `dunes` (the Saltglass Dunes), `thornwood`, `steppe` (the Crystal Steppe), `lowlands` (the Greenmarch). `/event` and `/progress` take the first four
 - Dungeons (`/tp`, `/portal`): `chapel`, `forge`, `heart`, `scriptorium`, `throne`, `frostveil`, `mirerot`, `astral`, `sandscour`, `keep`, `hollowmoon`, `crypt`, `ember`, `hive`, `theatre`, `spire`, `dream`
 - Classes: Brawler (`brawler`), Forge Knight (`forge_knight`), Priest (`priest`), Summoner (`summoner`), Harpooner (`harpooner`), Duelist (`duelist`), Stormwright (`stormwright`), Clockmaker (`clockmaker`), Runeblade (`runeblade`), Hexweaver (`hexweaver`)
 
@@ -55,12 +59,12 @@ Open one with `/portal ID` or a key (`/keys`). `/seals` breaks every seal on a b
 | `heart` | The Heart of Godfall | high | three wardens | a heartbeat of falling gold | `key_heart` | The Fallen Heart |
 | `scriptorium` | The Frozen Scriptorium | mid-high | a warden, a hidden lever and the rune puzzle | falling icicles | `key_scriptorium` | The Archivist |
 | `throne` | The Throne of the Unstruck God | endgame | two wardens | falling gold; sentinel statues fire across the royal road | `key_throne` | The Unstruck God |
-| `frostveil` | Frostveil Hollows | ? | none | - | `key_frostveil` | The Unstruck |
-| `mirerot` | Mirerot Grotto | ? | none | - | `key_mirerot` | The Unstruck |
-| `astral` | The Astral Observatory | ? | none | - | `key_astral` | The Unstruck |
-| `sandscour` | Sandscour Tomb | ? | none | - | `key_sandscour` | The Unstruck |
-| `keep` | The Crimson Keep | ? | none | - | `key_keep` | The Unstruck |
-| `hollowmoon` | Hollowmoon Carnival | ? | none | - | `key_hollowmoon` | The Unstruck |
+| `frostveil` | Frostveil Hollows | mid | none | chill builds in frigid water and frost (freeze at 100); braziers thaw you; ice floors slide | `key_frostveil` | Glacius, the Frozen Wyrm |
+| `mirerot` | Mirerot Grotto | mid | none | dark; spore pods burst into poison clouds (shoot them from range); bog slows you | `key_mirerot` | Mother Mycelia |
+| `astral` | The Astral Observatory | high | none | void (fall through); turning clockwork bridges; rune circles fold you between rooms | `key_astral` | The Grand Orrery |
+| `sandscour` | Sandscour Tomb | low-mid | none | quicksand drags you; urns may hold scarabs; sarcophagi open as you pass | `key_sandscour` | The Gilded Sphinx |
+| `keep` | The Crimson Keep | mid-high | none | the dark: coffins open and thralls are strong outside candlelight; statues wake | `key_keep` | Count Vesper, the Crimson Count |
+| `hollowmoon` | Hollowmoon Carnival | high | none | spin tiles turn your feet; jack crates bite; cannons and strikers; ghouls walk through walls | `key_hollowmoon` | The Grinning Ringmaster |
 | `crypt` | The Sunken Crypt | mid | none | the drowning dark; restless sarcophagi wake as you pass | `key_crypt` | The Tidebound Lich |
 | `ember` | The Emberforge Depths | high | two wardens, the pressure plates and a lever | falling cinders; ember vents erupt | `key_ember` | The Forgeheart Colossus |
 | `hive` | The Honeyed Hollow | low | none | honey floors halve your speed | `key_hive` | Queen Melliflua, the Honeyed Mother |
@@ -71,18 +75,112 @@ Open one with `/portal ID` or a key (`/keys`). `/seals` breaks every seal on a b
 ### The newer dungeons' bosses
 
 - **Queen Melliflua, the Honeyed Mother** (`honey_queen`, 52,000 life, 3 phases): Hex-stings, a jittering bee swarm, a figure-eight waggle dance, honey rain that leaves sticky puddles, brood cells that hatch unless broken. Relics: `queens_stinger` (12%), `honeyguard_band` (10%). Plus a 0.2% chance at each mythic (25).
-- **Maestro Lucan, the Puppeteer** (`the_puppeteer`, 140,000 life, 3 phases): Immune while strung to four hanging marionettes (cut them, then he takes double damage). Curtains close from both wings, scissor-lines snap shut, a mirror-puppet answers your every shot; an intermission hands the stage to his understudies. Relics: `maestros_baton` (10%), `the_last_curtain` (10%), `stringcutter` (8%). Plus a 0.6% chance at each mythic (25).
+- **Maestro Lucan, the Puppeteer** (`the_puppeteer`, 140,000 life, 3 phases): Trapdoors drop open under the stage (the last always near you) in a ring of ribbons; curtains close from both wings, scissor-lines snap shut, a mirror-puppet answers your every shot; an intermission hands the stage to his understudies. Relics: `maestros_baton` (10%), `the_last_curtain` (10%), `stringcutter` (8%). Plus a 0.6% chance at each mythic (25).
 - **Aurelia, the Prism Wyrm** (`prism_wyrm`, 380,000 life, 3 phases): Glass (immune) unless a lens pedestal beam is on her: stand on one (it overheats after 5s). Her images block the beam; burn them. Last phase: hold the light over 2s and she overcharges. Relics: `wyrmglass_wand` (10%), `prismglass_mantle` (10%), `the_seventh_colour` (7%). Plus a 1.2% chance at each mythic (25).
 - **The Sleeper, Who Dreams the Realm** (`the_sleeper`, 520,000 life, 4 phases): Stand still and you fall asleep. Dream-shift: its body is immune, strike its nightmare-self. Dream-logic inverts your controls. At 10% it will not wake until you ring the three alarms (F). Relics: `lullaby_staff` (10%), `nightlight_ring` (10%), `the_waking_bell` (7%). Plus a 1.9% chance at each mythic (25).
 
 ## Pets
 
-- Kinds (`/pet KIND`): Bubblefin (`bubblefin`), Coral Seahorse (`coral_seahorse`), Owlet (`owlet`), Ember Chick (`ember_chick`), Shiba Pup (`shiba_pup`), Frost Fox (`frost_fox`), Calico Kitten (`calico_kitten`), Shadow Lynx (`shadow_lynx`), Wisp Ghost (`wisp_ghost`), Lantern Bat (`lantern_bat`), Mossling (`mossling`), Acorn Squirrel (`acorn_squirrel`), Jade Gecko (`jade_gecko`), Tiny Drake (`tiny_drake`), Glow Beetle (`glow_beetle`), Moth Sprite (`moth_sprite`), Gear Pup (`gear_pup`), Brass Bot (`brass_bot`), Mimic Chest (`mimic_chest`), Pocket Yeti (`pocket_yeti`)
-- Rarities (`/pet KIND RARITY`): `common` (cap 30), `uncommon` (cap 50), `rare` (cap 70), `legendary` (cap 90), `divine` (cap 100)
-- Abilities: Heal (Life) and Magic Heal (Mana) for every pet; Shield (a ward) from Rare up. Feed gear at the Petkeeper (gold or fame); a meal splits 100% / 65% / 35% between the main, second and third ability.
-- Fusing: two pets of the same rarity whose **main** ability is at the cap fuse into one of the next rarity. Pay gold (common 600, uncommon 2500, rare 7500, legendary 20000) or fame (common 20, uncommon 60, rare 150, legendary 400). Pick which pet's look to keep; every ability keeps the better level.
-- Skins: Legendary pets are gilded, Divine pets celestial; Rare and up glitter. The sidebar's **Pet** tab shows your companion's abilities, levels and next heal.
-- Eggs: `pet_egg_common`, `pet_egg_uncommon`, `pet_egg_rare`, `pet_egg_legendary` (`/give`).
+- Lines (`/pet LINE`): each grows baby → evolved (main ability 30) → divine (main ability 100), and is named for its form.
+
+| Line id | Family | Forms | Leans to |
+| --- | --- | --- | --- |
+| `bubblefin` | Aquatic | Bubblefin → Spinefin → Sovereign Puffer | Life |
+| `coral_seahorse` | Aquatic | Coral Seahorse → Reef Seahorse → Tidecrown Seahorse | Mana |
+| `owlet` | Avian | Owlet → Great Owl → Starwise Owl | Mana |
+| `ember_chick` | Avian | Ember Chick → Firebird → Phoenix | Life |
+| `shiba_pup` | Canine | Shiba Pup → Shiba → Sun Shiba | Life |
+| `frost_fox` | Canine | Frost Fox → Snow Fox → Aurora Kitsune | Mana |
+| `calico_kitten` | Feline | Calico Kitten → Calico Cat → Lucky Cat | Life |
+| `shadow_lynx` | Feline | Shadow Lynx → Night Lynx → Eclipse Lynx | Mana |
+| `wisp_ghost` | Spooky | Wisp Ghost → Phantom → Grand Wraith | Mana |
+| `lantern_bat` | Spooky | Lantern Bat → Lantern Wing → Moonwing | Mana |
+| `mossling` | Woodland | Mossling → Moss Golem → Grove Guardian | Life |
+| `acorn_squirrel` | Woodland | Acorn Squirrel → Oak Squirrel → Celestial Squirrel | both |
+| `jade_gecko` | Reptile | Jade Gecko → Jade Lizard → Jade Dragon | Life |
+| `tiny_drake` | Reptile | Tiny Drake → Drakeling → Elder Drake | Life |
+| `glow_beetle` | Insect | Glow Beetle → Lumen Beetle → Stag Titan | Life |
+| `moth_sprite` | Insect | Moth Sprite → Luna Moth → Solar Moth | Mana |
+| `gear_pup` | Automaton | Gear Pup → Clockwork Hound → Titan Hound | Life |
+| `brass_bot` | Automaton | Brass Bot → Brass Knight → Brass Colossus | Mana |
+| `mimic_chest` | Exotic | Mimic Chest → Treasure Mimic → King Mimic | Mana |
+| `pocket_yeti` | Exotic | Pocket Yeti → Yeti → Yeti Lord | Life |
+
+- Rarities (`/pet LINE RARITY`): `common` (cap 30, hatches at 1), `uncommon` (cap 50, hatches at 5), `rare` (cap 70, hatches at 10), `legendary` (cap 90, hatches at 20), `divine` (cap 100, hatches at 30)
+- Abilities: Heal (Life) and Magic Heal (Mana) for every pet; Shield (a ward) from Rare up. Feed gear at the Petkeeper (gold or fame); a meal splits 100% / 65% / 35% between the main, second and third ability. Crossing a form plays its evolution.
+- Fusing: two pets of the same rarity whose **main** ability is at the cap fuse into one of the next rarity. Pay gold (common 600, uncommon 2500, rare 7500, legendary 20000) or fame (common 20, uncommon 60, rare 150, legendary 400). Pick which line to keep; every ability keeps the better level.
+- Rare and up glitter; the name shows the rarity colour. The sidebar's **Pet** tab shows your companion's abilities, levels and next heal.
+- Eggs (`/give egg_FAMILY_RARITY`, e.g. `egg_avian_rare`): families `aquatic`, `avian`, `canine`, `feline`, `spooky`, `woodland`, `reptile`, `insect`, `automaton`, `exotic`; rarities `common`, `uncommon`, `rare`, `legendary`, `divine`. Use one to hatch it at your feet. Divine eggs drop only from the Unstruck God. (The old `pet_egg_RARITY` eggs still work and turn into family eggs when a save loads.)
+
+## Realm Update bosses (three phases)
+
+Every one has three phases (it changes at 66% and 33%, immune while it does) and mechanics no other boss shares. Spawn any of them beside you with `/bx ID`.
+
+| Id | Name | Where | Life | Phases | Fight it | Legendary (phase-3 kill) |
+| --- | --- | --- | --- | --- | --- | --- |
+| `abyssal_kraken` | The Abyssal Kraken | realm event, the Drowned Shore | 32,000 | Surfaced → Enraged → Leviathan | `/kraken` | `leviathan_eye` (1.5%) |
+| `thornheart_treant` | The Thornheart Treant | realm event, the Thornwood | 26,000 | Ancient → Autumn → Withered | `/treant` | `blight_heart` (1.5%) |
+| `glacius_frozen_wyrm` | Glacius, the Frozen Wyrm | dungeon: frostveil | 150,000 | Coiled Hoard → Unfurled → Shattered Heart | `/tp frostveil` | `aurora_heart` (2%) |
+| `mother_mycelia` | Mother Mycelia | dungeon: mirerot | 85,000 | Bloom → Rot → Sporestorm | `/tp mirerot` | `glowcap_crown` (2%) |
+| `grand_orrery` | The Grand Orrery | dungeon: astral | 240,000 | Aligned → Eclipse → Collapse | `/tp astral` | `event_horizon` (2%) |
+| `gilded_sphinx` | The Gilded Sphinx | dungeon: sandscour | 70,000 | Guardian → Ascendant → Sandstorm Pharaoh | `/tp sandscour` | `pharaohs_deathmask` (2%) |
+| `count_vesper` | Count Vesper, the Crimson Count | dungeon: keep | 200,000 | Nobleman → Batstorm → Blood Beast | `/tp keep` | `nightfall_scythe` (2%) |
+| `grinning_ringmaster` | The Grinning Ringmaster | dungeon: hollowmoon | 300,000 | Showman → Puppeteer → Big Top | `/tp hollowmoon` | `grinning_mask` (2%) |
+| `tidebound_lich` | The Tidebound Lich | dungeon: crypt | 160,000 | Drowned King → Soulbinder → Tidewraith | `/tp crypt` | `tidewraith_staff` (2%) |
+| `forgeheart_colossus` | The Forgeheart Colossus | dungeon: ember | 520,000 | Forge Sentinel → Overheat → Molten Core | `/tp ember` | `forgeheart_maul` (2%) |
+
+- **The Abyssal Kraken**: Ink that blots your view; hooked arms that bend as they fly; a drifting whirlpool that drags you; lures joined by chain lightning. Relics: `tidebreaker_trident` (12%), `abyssal_pearl` (12%).
+- **The Thornheart Treant**: Seeds that mark the ground and burst; burning leaves that sway down; acorn bombs; thorn walls closing from both sides; wisps from the trees. Relics: `heartwood_bow` (12%), `seed_of_renewal` (12%).
+- **Glacius, the Frozen Wyrm**: A sweeping breath; lances that freeze the ground; drifting orbs; a gust that slides you; a glide that leaves a fence of lances; spiral-gap rings; braziers it puts out. Relics: `glacial_fang` (10%), `rimeheart_bow` (10%), `wand_of_hoarfrost` (10%), `frostweave_armor` (10%), `ring_of_the_wyrm` (10%).
+- **Mother Mycelia**: Spore clouds that hang; poison needles; acid pools; a lunge and bite; seeds that sprout minions unless shot; orbs that curl outward. Relics: `bog_cleaver` (10%), `sporecaller_wand` (10%), `mycelial_hide` (10%), `ring_of_rot` (10%), `spore_bomb` (10%).
+- **The Grand Orrery**: Orbiting rings that fly off on tangents; a conjunction that freezes every shot then fires them at you; a moving umbra; a gravity well; debris on marked spots. Relics: `starforged_katana` (10%), `comet_bow` (10%), `nebula_robe` (10%), `astral_signet` (10%), `orrery_orb` (10%).
+- **The Gilded Sphinx**: Crossing crescent fans; riddle glyphs that hang then dart; pinwheel sunbursts; feather fans that narrow to a spear; the sandstorm; dust devils that throw you; scarabs. Relics: `sunscorch_khopesh` (10%), `gilded_scepter` (10%), `embalmers_wraps` (10%), `scarab_ring` (10%), `sphinx_helm` (10%).
+- **Count Vesper, the Crimson Count**: Healing thralls that burn in candlelight; a hedge of thorns; weaving bat fans; scythes that wheel back; an afterimage dash; blood rain that pools. Relics: `crimson_rapier` (10%), `bloodthorn_staff` (10%), `batwing_bow` (10%), `sanguine_cloak` (10%), `signet_of_the_count` (10%), `crimson_chalice` (10%).
+- **The Grinning Ringmaster**: Drum leaps that ring out bursts; two jester marionettes he re-strings; arcing pins; needle lines; the tent with lantern-eye weak points; confetti bombs. Relics: `ringmaster_cane` (10%), `jugglers_dagger` (10%), `carousel_bow` (10%), `harlequin_garb` (10%), `ring_of_the_jester` (10%), `trick_deck` (10%).
+- **The Tidebound Lich**: Bolts that bend with the current; coral that splinters; souls that chase you then fly home; a turning soul cage; the tide from every wall; plus his swap, the dark and the grave call. Relics: `tidecaller_blade` (10%), `staff_of_drowned_stars` (10%), `hexsilk_robe` (10%), `ring_of_tides` (10%), `soul_lantern` (8%), `grimoire_of_ash` (6%).
+- **The Forgeheart Colossus**: Half-ring slams; ricocheting rivets; skipping slag; vent columns; rolling magma that leaves lava; quake rings; a core that throws shots back. Relics: `emberbrand_greatsword` (10%), `cinderwood_staff` (10%), `runeplate_armor` (10%), `emberheart_ring` (10%), `colossus_core` (8%), `runic_aegis` (6%).
+
+## Realm events
+
+- **The Abyssal Kraken** (`/kraken`): rises from a reef on the Drowned Shore; asleep until you step into its pool.
+- **The Thornheart Treant** (`/treant`): wakes in a clearing ringed by elder trees in the Thornwood.
+- **The Giant Watermelon** (`/melon`, `giant_watermelon`): a rare harmless event; break it for melon gear and slices (they heal over time).
+- **The Fallen Star** (`/star`): a star falls in Godfall and the Fallen Star climbs out of the crater.
+- **Herald events** (`/event BIOME`, `/progress BIOME N`): enough of them in a land summons its realm boss.
+
+## Elites
+
+One per 18 monster groups in each land, with an escort, a gold nameplate and one ability on a cooldown (the clip is the telegraph). Better loot and a raised egg chance. Spawn one with `/spawn ID`.
+
+| Id | Name | Land | Life | Ability |
+| --- | --- | --- | --- | --- |
+| `reef_golem` | Reef Golem | shore | 1,800 | Coral Bulwark: invulnerable 4s |
+| `siren` | Siren | shore | 1,800 | Siren Song: you move at 60% inside her ring |
+| `goblin_shaman` | Goblin Shaman | lowlands | 2,800 | Spirit Totem: heals goblins |
+| `bramble_bear` | Bramble Bear | lowlands | 2,800 | Thorn Roar: two rings of 24 thorns |
+| `orc_warlord` | Orc Warlord | thornwood | 6,000 | War Banner: nearby orcs faster and tougher |
+| `spider_queen` | Spider Queen | thornwood | 6,000 | Brood: three spiderlings |
+| `storm_gryphon` | Storm Gryphon | runeholt, steppe | 10,000 | Thunder Dive: a line, then it dives through you |
+| `rock_troll` | Rock Troll | runeholt, steppe | 10,000 | Burrow: a mound chases you, then erupts |
+| `void_seer` | Void Seer | godfall | 18,000 | Blink: re-forms 4-6 tiles from you |
+| `abyss_hound` | Abyss Hound | godfall | 18,000 | Shadow Dash: lunges 6 tiles |
+
+## Legendaries
+
+Ten items, each dropped only by its boss's phase-3 kill. Pale-gold slot, tag **L**; their bag gets a broad gold beam and "A LEGENDARY drops!". (Stats: docs/design/06_items.md.)
+
+| Id | Name | Kind | From |
+| --- | --- | --- | --- |
+| `leviathan_eye` | The Leviathan Eye | Untiered Ring | The Abyssal Kraken (1.5%) |
+| `blight_heart` | The Blight Heart | Untiered Ring | The Thornheart Treant (1.5%) |
+| `aurora_heart` | The Aurora Heart | Untiered Ring | Glacius, the Frozen Wyrm (2%) |
+| `glowcap_crown` | The Glowcap Crown | Untiered Ring | Mother Mycelia (2%) |
+| `event_horizon` | Event Horizon | Untiered Ring | The Grand Orrery (2%) |
+| `pharaohs_deathmask` | The Pharaoh's Deathmask | Untiered Ring | The Gilded Sphinx (2%) |
+| `nightfall_scythe` | The Nightfall Scythe | Untiered Sword · Brawler, Forge Knight, Runeblade | Count Vesper, the Crimson Count (2%) |
+| `grinning_mask` | The Grinning Mask | Untiered Ring | The Grinning Ringmaster (2%) |
+| `tidewraith_staff` | The Tidewraith Staff | Untiered Staff · Summoner, Stormwright, Hexweaver | The Tidebound Lich (2%) |
+| `forgeheart_maul` | The Forgeheart Maul | Untiered Sword · Brawler, Forge Knight, Runeblade | The Forgeheart Colossus (2%) |
 
 ## Bosses
 
@@ -105,6 +203,8 @@ Open one with `/portal ID` or a key (`/keys`). `/seals` breaks every seal on a b
 | `prism_wyrm` | Aurelia, the Prism Wyrm | dungeon: spire | 380,000 | /tp spire |
 | `the_sleeper` | The Sleeper, Who Dreams the Realm | dungeon: dream | 520,000 | /tp dream |
 | `unstruck` | The Unstruck | dungeon: forge | 168,000 | /boss unstruck |
+
+The Crypt's Lich and the Emberforge's Colossus now fight on the three-phase framework (see Realm Update bosses); their old entries above are kept for reference.
 
 ## Enemies
 
@@ -591,50 +691,40 @@ Use with `/give ID [N]`. Tiered gear ids are `TYPE_tN` (rings are `ring_STAT_tN`
 | `golden_honeydew` | The Golden Honeydew | Untiered Ring |
 | `tidebreaker_trident` | Tidebreaker Trident | Untiered Staff · Summoner, Stormwright, Hexweaver |
 | `abyssal_pearl` | Abyssal Pearl | Untiered Ring |
-| `leviathan_eye` | The Leviathan Eye | Untiered Ring |
 | `heartwood_bow` | Heartwood Bow | Untiered Bow · Harpooner |
 | `seed_of_renewal` | Seed of Renewal | Untiered Ring |
-| `blight_heart` | The Blight Heart | Untiered Ring |
 | `glacial_fang` | Glacial Fang | Untiered Dagger · Duelist |
 | `rimeheart_bow` | Rimeheart Bow | Untiered Bow · Harpooner |
 | `wand_of_hoarfrost` | Wand of Hoarfrost | Untiered Wand · Priest, Clockmaker |
 | `frostweave_armor` | Frostweave Robe | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
 | `ring_of_the_wyrm` | Ring of the Wyrm | Untiered Ring |
-| `aurora_heart` | The Aurora Heart | Untiered Ring |
 | `bog_cleaver` | Bog Cleaver | Untiered Sword · Brawler, Forge Knight, Runeblade |
 | `sporecaller_wand` | Sporecaller Wand | Untiered Wand · Priest, Clockmaker |
 | `mycelial_hide` | Mycelial Hide | Untiered Leather Armor · Harpooner, Duelist, Runeblade |
 | `ring_of_rot` | Ring of Rot | Untiered Ring |
 | `spore_bomb` | Spore Bomb | Untiered Bellows · Brawler |
-| `glowcap_crown` | The Glowcap Crown | Untiered Ring |
 | `starforged_katana` | Starforged Katana | Untiered Sword · Brawler, Forge Knight, Runeblade |
 | `comet_bow` | Comet Bow | Untiered Bow · Harpooner |
 | `nebula_robe` | Nebula Robe | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
 | `astral_signet` | Astral Signet | Untiered Ring |
 | `orrery_orb` | Orrery Orb | Untiered Halo · Priest |
-| `event_horizon` | Event Horizon | Untiered Ring |
 | `sunscorch_khopesh` | Sunscorch Khopesh | Untiered Sword · Brawler, Forge Knight, Runeblade |
 | `gilded_scepter` | Gilded Scepter | Untiered Wand · Priest, Clockmaker |
 | `embalmers_wraps` | Embalmer's Wraps | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
 | `scarab_ring` | Scarab Ring | Untiered Ring |
 | `sphinx_helm` | The Sphinx's Crown | Untiered Oath-Seal · Forge Knight |
-| `pharaohs_deathmask` | The Pharaoh's Deathmask | Untiered Ring |
 | `crimson_rapier` | Crimson Rapier | Untiered Dagger · Duelist |
 | `bloodthorn_staff` | Bloodthorn Staff | Untiered Staff · Summoner, Stormwright, Hexweaver |
 | `batwing_bow` | Batwing Bow | Untiered Bow · Harpooner |
 | `sanguine_cloak` | Sanguine Cloak | Untiered Leather Armor · Harpooner, Duelist, Runeblade |
 | `signet_of_the_count` | Signet of the Count | Untiered Ring |
 | `crimson_chalice` | The Crimson Chalice | Untiered Reliquary · Summoner |
-| `nightfall_scythe` | The Nightfall Scythe | Untiered Sword · Brawler, Forge Knight, Runeblade |
 | `ringmaster_cane` | The Ringmaster's Cane | Untiered Wand · Priest, Clockmaker |
 | `jugglers_dagger` | Juggler's Dagger | Untiered Dagger · Duelist |
 | `carousel_bow` | Carousel Bow | Untiered Bow · Harpooner |
 | `harlequin_garb` | Harlequin Garb | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
 | `ring_of_the_jester` | Ring of the Jester | Untiered Ring |
 | `trick_deck` | The Trick Deck | Untiered Grimoire · Hexweaver |
-| `grinning_mask` | The Grinning Mask | Untiered Ring |
-| `tidewraith_staff` | The Tidewraith Staff | Untiered Staff · Summoner, Stormwright, Hexweaver |
-| `forgeheart_maul` | The Forgeheart Maul | Untiered Sword · Brawler, Forge Knight, Runeblade |
 | `rubber_duck` | The Rubber Duck | Untiered Ring |
 | `runewarden_blade` | Runewarden's Blade | Untiered Sword · Brawler, Forge Knight, Runeblade |
 | `runewarden_ward` | Runewarden's Ward | Untiered Rune-Ward · Runeblade |
@@ -914,56 +1004,6 @@ Use with `/give ID [N]`. Tiered gear ids are `TYPE_tN` (rings are `ring_STAT_tN`
 | `pet_egg_uncommon` | Mossy Pet Egg | Consumable |
 | `pet_egg_rare` | Azure Pet Egg | Consumable |
 | `pet_egg_legendary` | Gilded Pet Egg | Consumable |
-| `egg_aquatic_common` | Common Aquatic Egg | Consumable |
-| `egg_aquatic_uncommon` | Uncommon Aquatic Egg | Consumable |
-| `egg_aquatic_rare` | Rare Aquatic Egg | Consumable |
-| `egg_aquatic_legendary` | Legendary Aquatic Egg | Consumable |
-| `egg_aquatic_divine` | Divine Aquatic Egg | Consumable |
-| `egg_avian_common` | Common Avian Egg | Consumable |
-| `egg_avian_uncommon` | Uncommon Avian Egg | Consumable |
-| `egg_avian_rare` | Rare Avian Egg | Consumable |
-| `egg_avian_legendary` | Legendary Avian Egg | Consumable |
-| `egg_avian_divine` | Divine Avian Egg | Consumable |
-| `egg_canine_common` | Common Canine Egg | Consumable |
-| `egg_canine_uncommon` | Uncommon Canine Egg | Consumable |
-| `egg_canine_rare` | Rare Canine Egg | Consumable |
-| `egg_canine_legendary` | Legendary Canine Egg | Consumable |
-| `egg_canine_divine` | Divine Canine Egg | Consumable |
-| `egg_feline_common` | Common Feline Egg | Consumable |
-| `egg_feline_uncommon` | Uncommon Feline Egg | Consumable |
-| `egg_feline_rare` | Rare Feline Egg | Consumable |
-| `egg_feline_legendary` | Legendary Feline Egg | Consumable |
-| `egg_feline_divine` | Divine Feline Egg | Consumable |
-| `egg_spooky_common` | Common Spooky Egg | Consumable |
-| `egg_spooky_uncommon` | Uncommon Spooky Egg | Consumable |
-| `egg_spooky_rare` | Rare Spooky Egg | Consumable |
-| `egg_spooky_legendary` | Legendary Spooky Egg | Consumable |
-| `egg_spooky_divine` | Divine Spooky Egg | Consumable |
-| `egg_woodland_common` | Common Woodland Egg | Consumable |
-| `egg_woodland_uncommon` | Uncommon Woodland Egg | Consumable |
-| `egg_woodland_rare` | Rare Woodland Egg | Consumable |
-| `egg_woodland_legendary` | Legendary Woodland Egg | Consumable |
-| `egg_woodland_divine` | Divine Woodland Egg | Consumable |
-| `egg_reptile_common` | Common Reptile Egg | Consumable |
-| `egg_reptile_uncommon` | Uncommon Reptile Egg | Consumable |
-| `egg_reptile_rare` | Rare Reptile Egg | Consumable |
-| `egg_reptile_legendary` | Legendary Reptile Egg | Consumable |
-| `egg_reptile_divine` | Divine Reptile Egg | Consumable |
-| `egg_insect_common` | Common Insect Egg | Consumable |
-| `egg_insect_uncommon` | Uncommon Insect Egg | Consumable |
-| `egg_insect_rare` | Rare Insect Egg | Consumable |
-| `egg_insect_legendary` | Legendary Insect Egg | Consumable |
-| `egg_insect_divine` | Divine Insect Egg | Consumable |
-| `egg_automaton_common` | Common Automaton Egg | Consumable |
-| `egg_automaton_uncommon` | Uncommon Automaton Egg | Consumable |
-| `egg_automaton_rare` | Rare Automaton Egg | Consumable |
-| `egg_automaton_legendary` | Legendary Automaton Egg | Consumable |
-| `egg_automaton_divine` | Divine Automaton Egg | Consumable |
-| `egg_exotic_common` | Common Exotic Egg | Consumable |
-| `egg_exotic_uncommon` | Uncommon Exotic Egg | Consumable |
-| `egg_exotic_rare` | Rare Exotic Egg | Consumable |
-| `egg_exotic_legendary` | Legendary Exotic Egg | Consumable |
-| `egg_exotic_divine` | Divine Exotic Egg | Consumable |
 | `key_chapel` | Sunken Chapel Key | Consumable |
 | `key_crypt` | Sunken Crypt Key | Consumable |
 | `key_forge` | Drowned Forge Key | Consumable |
@@ -987,6 +1027,10 @@ Use with `/give ID [N]`. Tiered gear ids are `TYPE_tN` (rings are `ring_STAT_tN`
 | `river_fish` | A Pond Fish | Consumable |
 | `golden_carp` | The Golden Carp | Consumable |
 | `mystery_box` | A Suspicious Box | Consumable |
+
+### Pet eggs
+
+Ids are `egg_FAMILY_RARITY`: `aquatic`, `avian`, `canine`, `feline`, `spooky`, `woodland`, `reptile`, `insect`, `automaton`, `exotic` × `common`, `uncommon`, `rare`, `legendary`, `divine` (50 eggs).
 
 ## Enchantments
 

@@ -3751,7 +3751,7 @@ export class Game {
     switch ((cmd || '').toLowerCase()) {
       case 'help':
         say('/admin  /backpack  /maxlevel  /level N  /maxstats  /heal  /god  /give ITEM [N]  /items TEXT  /spawn ENEMY [N]  /boss ID  ' +
-            '/event BIOME  /adminchest [N] (best loot)  /keys [dungeon N] (dungeon keys)  /pet [kind rarity max]  /star (a falling star in Godfall)  /seals (open a dungeon boss gate)  /progress BIOME N  /gold N  /essence N  /bosses  /tp shore|fen|runeholt|godfall|dunes|thornwood|steppe|nexus|realm|chapel|crypt|forge|ember|heart|scriptorium|throne  /killall  /clearbags  /fame N  /portal chapel|crypt|forge|ember|heart|scriptorium|throne  (final boss: /portal throne)');
+            '/bx BOSS (a three-phase boss beside you)  /kraken  /treant  /melon  /event BIOME  /adminchest [N] (best loot)  /keys [dungeon N] (dungeon keys)  /pet [kind rarity max]  /star (a falling star in Godfall)  /seals (open a dungeon boss gate)  /progress BIOME N  /gold N  /essence N  /bosses  /tp LAND|nexus|realm|DUNGEON (lands: shore fen runeholt godfall dunes thornwood steppe lowlands)  /killall  /clearbags  /fame N  /portal DUNGEON  (all ids: ADMIN_REFERENCE.md; final boss: /portal throne)');
         break;
       case 'maxlevel': {
         const C = CLASSES[p.cls];

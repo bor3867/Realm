@@ -6,7 +6,7 @@ in the light the thralls wither. Its statues are not all statues.
 
 ## Entry
 - **Portal:** Ashfen and Godfall monsters (a share of their drops; leaders 4%, others 1%).
-- **Key:** `key_crimson` (Crimson Key: "Iron, warm, and slightly sticky. Don't ask."), icon `d2_items/crimson_key`.
+- **Key:** `key_keep` (Crimson Key: "Iron, warm, and slightly sticky. Don't ask."), icon `d2_items/crimson_key`.
 
 ## Tiles (registry `d2_tiles/crimson_keep_*`)
 | Tile | Meaning |

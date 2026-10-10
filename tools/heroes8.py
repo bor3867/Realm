@@ -37,13 +37,14 @@ C['forge_knight'] = dict(file='anvilheart', pal={'i': '#C8D2E4', 'I': '#7A86A0',
     FA=['..iiii.w', '.iiiiiiw', '.iikkiiw', '..iiiid.', '.irrrri.', '.iIrrIi.', '..IrrI..'],
     SA=['..iiii..', '.iiiii..', '.iiikk..', '..iiii..', '..irdwww', '..irri..', '..IrrI..'],
     BA=['..iiii.w', '.iiiiiiw', '.iiiiiiw', '..iiiid.', '.iIIIIi.', '.iIIIIi.', '..IiiI..'])
-C['priest'] = dict(file='heliarch', pal={'y': '#FFD650', 'Y': '#FFF2A8', 'f': '#F4F0E6', 'F': '#C4BED4', 'a': '#C8D0DC', 'A': '#FFF2A8', 'l': '#B08A60'},
-    F=['.y.yy.y.', '..yYYy.A', '..sese.a', '..ffff.a', '.sfyyfsa', '..fyyf..', '.ffffff.'],
-    S=['..y.yy..', '..yYYy..', '..fses..', '..fff...', '..fyfsaA', '..fyff..', '..fffff.'],
-    B=['.y.yy.y.', '..yYYy.A', '..ffff.a', '..ffff.a', '.sfFFfsa', '..fFFf..', '.ffffff.'],
-    FA=['.y.yy.yA', '..yYYy.a', '..sese.a', '..ffffs.', '.sfyyf..', '..fyyf..', '.ffffff.'],
-    SA=['..y.yy..', '..yYYy..', '..fses..', '..fff...', '..fysaaA', '..fyff..', '..fffff.'],
-    BA=['.y.yy.yA', '..yYYy.a', '..ffff.a', '..ffffs.', '.sfFFf..', '..fFFf..', '.ffffff.'])
+# the Heliarch: a white hood and robe, a gold clasp, a flat gold halo floating over the head, a wand
+C['priest'] = dict(file='heliarch', pal={'y': '#E0A22A', 'Y': '#FFE680', 'f': '#F4F0E6', 'F': '#C4BED4', 'a': '#B8C0D0', 'A': '#FFE680', 'l': '#B08A60'},
+    F=['..yYYy..', '..ffff.A', '..sese.a', '..ffff.a', '.sfyyfsa', '..fFFf..', '.ffffff.'],
+    S=['..yYYy..', '..fff..A', '..fses.a', '..fff..a', '..ffyfsa', '..fFFf..', '..fffff.'],
+    B=['..yYYy..', '..ffff.A', '..ffff.a', '..ffff.a', '.sfyyfsa', '..fFFf..', '.ffffff.'],
+    FA=['..yYYy.A', '..ffff.a', '..sese.a', '..ffffs.', '.sfyyf..', '..fFFf..', '.ffffff.'],
+    SA=['..yYYy..', '..fff...', '..fses..', '..fff...', '..ffysaA', '..fFFf..', '..fffff.'],
+    BA=['..yYYy.A', '..ffff.a', '..ffff.a', '..ffffs.', '.sfyyf..', '..fFFf..', '.ffffff.'])
 C['summoner'] = dict(file='reliquarian', pal={'K': '#4E3880', 'k': '#1E1430', 'c': '#5EF0C8', 'f': '#E8E0C8', 'n': '#7A6A52', 'y': '#7CFFB0', 'l': '#6A5A8A'},
     F=['..KKKK.y', '.KKKKKKn', '.KckkcKn', '.KkkkkKn', 'fKKKKKfn', '.KKKKKK.', '.KKKKKK.'],
     S=['..KKKK.y', '.KKKKK.n', '.KKKkc.n', '.KKKkk.n', '..KKKKfn', '.KKKKK..', '.KKKKKK.'],
