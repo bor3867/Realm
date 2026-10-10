@@ -929,6 +929,8 @@ export class Renderer {
   enemy(g, e, sx, sy) {
     if (e.hidden) return;                                   // the Puppeteer, offstage during his intermission
     if (e.rb) return this.realmBoss(g, e, sx, sy);
+    if (e.spawnT > 0) return this.eliteArrival(g, e, sx, sy);
+    if (e.D.objSprite) return this.propEnemy(g, e, sx, sy);
     if (e.D.reg) return this.regEnemy(g, e, sx, sy);
     if (e.D.melon) return this.melon(g, e, sx, sy);
     if (e.D.sheet === 'champions') return this.champion(g, e, sx, sy);
@@ -955,11 +957,13 @@ export class Renderer {
     let def = C.get(e.D.reg);
     if (def === undefined) C.set(e.D.reg, (def = (this.R && this.R.resolve(e.D.reg)) || null));
     if (!def) return;
-    if (e.under) return this.mound(g, e, sx, sy, 10);
-    const F = Object.keys(def.frames), mv = def.anims.move ? def.anims.move.frames : F.slice(0, 2);
+    if (e.under) return this.mound(g, e, sx, sy, e.D.ability ? 22 : 10);
+    const F = Object.keys(def.frames), mv = (def.anims.move || def.anims.walk) ? (def.anims.move || def.anims.walk).frames : F.slice(0, 2);
     const fAtk = def.anims.attack ? def.anims.attack.frames[def.anims.attack.frames.length - 1] : F[2], fHurt = def.anims.hurt ? def.anims.hurt.frames[0] : F[3];   // by clip: some have three gallop frames
     let fr;
-    if (e.dead || e.shellT > 0) fr = fHurt;
+    if (e.abil && def.anims.ability) { const A = def.anims.ability; fr = A.frames[Math.min(A.frames.length - 1, Math.floor(e.abil.t * A.fps))]; }   // an elite's ability: the clip is the telegraph
+    else if (e.dead && def.anims.death) { const A = def.anims.death; fr = A.frames[Math.min(A.frames.length - 1, Math.floor(e.deadT * A.fps))]; }
+    else if (e.dead || e.shellT > 0) fr = fHurt;
     else if (e.state === 'tell' || e.state === 'charge' || e.state === 'attack') fr = fAtk;
     else if (e.hurtT > 0.03) fr = fHurt;
     else fr = mv[Math.floor(g.t * (e.hop || e.sk || e.dive ? 9 : 5) + e.phase) % mv.length];
@@ -969,8 +973,9 @@ export class Renderer {
       const pd = C.get('pick') || (C.set('pick', this.R.resolve('ow2_shots/crag_dwarf.spinning_pick')), C.get('pick')), [qx, qy] = this.proj(e.fetch.x, e.fetch.y);
       if (pd) this.drawDef(pd, Object.keys(pd.frames)[0], Math.round(qx), Math.round(qy), { center: true });
     }
-    if (!e.dead) this.shadow(sx, sy, Math.max(6, 12 * K - L.z * 0.5));
+    if (!e.dead) this.shadow(sx, sy, Math.max(6, (def.size[0] > 12 ? 18 : 12) * K - L.z * 0.5));
     const x = sx + L.dx, y = sy + L.dy - L.z + 1, alpha = e.dead ? Math.max(0, 1 - e.deadT / 0.6) : Math.min(1, L.rise);
+    if (e.D.ability) this.eliteFx(g, e, def, fr, x, y, L);
     this.drawDef(def, fr, x, y, { flip: L.flip, alpha, scale: K });
     if (!e.dead && L.glow) this.drawDef(def, fr, x, y, { flip: L.flip, flash: true, alpha: 0.35, scale: K });
     if (!e.dead && e.D.heat) {                             // the obsidian scorpion runs hotter as it's hurt
@@ -978,8 +983,53 @@ export class Renderer {
       if (h > 0.15 && Math.floor(g.t * (4 + h * 10)) % 2) this.drawDef(def, fr, x, y, { flip: L.flip, flash: true, alpha: 0.12 + h * 0.3, scale: K });
       if (Math.random() < h * 0.6) this.parts.push({ x: e.x + (Math.random() - 0.5) * 0.6, y: e.y, z: 4 + Math.random() * 6, vx: 0, vy: 0, vz: 10, g: 0, life: 0.5, max: 0.5, color: Math.random() < 0.5 ? '#ff7a1a' : '#ffc94a' });
     }
-    if (!e.dead && e.hp < e.maxHp) this.hpBar(sx, sy + 3, e.hp / e.maxHp, 12);
+    if (!e.dead && e.hp < e.maxHp) this.hpBar(sx, sy + 3, e.hp / e.maxHp, e.D.ability ? 20 : 12);
     if (!e.dead && e.stunT > 0) this.stunStars(g, sx, sy, 18);
+    if (e.bulwarkT > g.t && !e.dead) {                       // the reef golem's coral shell
+      const b = this.b, pulse = 0.6 + 0.4 * Math.sin(g.t * 8);
+      b.globalAlpha = 0.35 * pulse; b.fillStyle = '#ff8fbf'; b.beginPath(); b.ellipse(Math.round(sx), Math.round(sy - 16), 17, 21, 0, 0, Math.PI * 2); b.fill();
+      b.globalAlpha = 0.9; b.strokeStyle = '#ffd0e0'; b.lineWidth = 1; b.beginPath(); b.ellipse(Math.round(sx), Math.round(sy - 16), 17, 21, 0, 0, Math.PI * 2); b.stroke(); b.globalAlpha = 1;
+    }
+  }
+  // what an elite's ability shows: the siren's charm ring, the gryphon's line, the after-images of a dive or a dash
+  eliteFx(g, e, def, fr, x, y, L) {
+    const b = this.b, S = e.elState;
+    if (e.songT > g.t) {
+      b.globalAlpha = 0.25 + 0.15 * Math.sin(g.t * 9); b.fillStyle = '#8af6ff';
+      b.beginPath(); b.ellipse(Math.round(x), Math.round(y), 96, 68, 0, 0, Math.PI * 2); b.fill();
+      b.globalAlpha = 0.8; b.strokeStyle = '#e8ffff'; b.beginPath(); b.ellipse(Math.round(x), Math.round(y), 96, 68, 0, 0, Math.PI * 2); b.stroke(); b.globalAlpha = 1;
+    }
+    if (e.abil && e.D.ability.kind === 'dive' && e.abil.dir !== undefined) {   // the dive's line, flashing as the clip plays
+      b.fillStyle = Math.floor(g.t * 14) % 2 ? '#ffffff' : '#8af6ff'; b.globalAlpha = 0.7;
+      for (let d = 1; d < 9; d += 0.5) { const [qx, qy] = this.proj(e.x + Math.cos(e.abil.dir) * d, e.y + Math.sin(e.abil.dir) * d); b.fillRect(Math.round(qx) - 1, Math.round(qy) - 1, 2, 2); }
+      b.globalAlpha = 1;
+    }
+    if (S && S.trail) for (const q of S.trail) {               // after-images, fading
+      const a = Math.max(0, 0.5 - (g.t - q.t) * 1.6);
+      if (a <= 0) continue;
+      const [qx, qy] = this.proj(q.x, q.y);
+      this.drawDef(def, fr, Math.round(qx), Math.round(qy) + 1, { flip: L.flip, alpha: a, flash: S.kind === 'dive' });
+    }
+    if (S && S.kind === 'dive' && S.t < 0.5) { b.fillStyle = '#ffffff'; b.globalAlpha = 0.6; for (let k = 0; k < 3; k++) b.fillRect(Math.round(x + (Math.random() - 0.5) * 18), Math.round(y - 10 - Math.random() * 20), 1, 3); b.globalAlpha = 1; }
+  }
+  // an elite arriving: a column of light and a ring on the ground
+  eliteArrival(g, e, sx, sy) {
+    const b = this.b, k = 1 - e.spawnT / 1.2, x = Math.round(sx), y = Math.round(sy);
+    b.globalAlpha = 0.25 + 0.5 * k; b.fillStyle = '#fff6c8'; b.fillRect(x - 3 - Math.round(k * 3), y - 70, 6 + Math.round(k * 6), 70);
+    b.globalAlpha = 0.8; b.strokeStyle = '#ffd650'; b.lineWidth = 1; b.beginPath(); b.ellipse(x, y, 6 + 10 * k, 4 + 6 * k, 0, 0, Math.PI * 2); b.stroke(); b.globalAlpha = 1;
+  }
+  // a planted thing with life (the shaman's totem, the warlord's banner): an object sprite, a bar, a glow
+  propEnemy(g, e, sx, sy) {
+    if (e.dead) return;
+    const k = this.W.objects[e.D.objSprite], c = this.W.objectsCols;
+    if (k === undefined) return;
+    const rise = e.born !== undefined ? Math.min(1, (g.t - e.born) / 0.5) : 1;
+    this.shadow(sx, sy, 10);
+    const b = this.b; b.globalAlpha = rise;
+    this.spr(this.A.img.objects, (k % c) * TS, Math.floor(k / c) * TS, TS, TS, sx, sy + Math.round((1 - rise) * 10), 8, 8, false, e.hurtT > 0.03);
+    b.globalAlpha = 1;
+    if (Math.random() < 0.15) this.parts.push({ x: e.x + (Math.random() - 0.5) * 0.6, y: e.y, z: 10, vx: 0, vy: 0, vz: 8, g: 0, life: 0.7, max: 0.7, color: e.id === 'war_banner' ? '#ff4a5a' : '#7aff9a' });
+    if (e.hp < e.maxHp) this.hpBar(sx, sy + 3, e.hp / e.maxHp, 14);
   }
   // the Giant Watermelon: idle (a glint sweeps, the leaf sways), cracked at 66% and 33%, a hurt flash per stage,
   // the burst as it dies; its soft shadow is in the art
@@ -1087,15 +1137,16 @@ export class Renderer {
   // a burrowing enemy: just a churning mound of earth sliding toward you
   mound(g, e, sx, sy, w) {
     if (e.rumble) {                                       // it has stopped: a ring of dust grows where it will erupt
-      const b0 = this.b, k = 1 - Math.max(0, e.burT) / 0.7, R0 = 4 + k * 8;
+      const b0 = this.b, k = 1 - Math.max(0, e.burT) / (w > 16 ? 0.8 : 0.7), R0 = (4 + k * 8) * (w > 16 ? 1.8 : 1);
       b0.fillStyle = Math.floor(g.t * 12) % 2 ? '#ffc94a' : '#8a7e6a';
       for (let a = 0; a < 18; a++) { const t = (a / 18) * Math.PI * 2; b0.fillRect(Math.round(sx + Math.cos(t) * R0), Math.round(sy + Math.sin(t) * R0), 1, 1); }
     }
-    const b = this.b, x = Math.round(sx), y = Math.round(sy), cols = ['#5a4e44', '#8a7e6a', '#c8b890', '#3a3028'];
-    for (let k = 0; k < 14; k++) {
+    const b = this.b, x = Math.round(sx), y = Math.round(sy), cols = ['#5a4e44', '#8a7e6a', '#c8b890', '#3a3028'], big = w > 16, px = big ? 2 : 1;
+    if (big) { b.globalAlpha = 0.45; b.fillStyle = '#2a2018'; b.beginPath(); b.ellipse(x, y, w * 0.55, w * 0.25, 0, 0, Math.PI * 2); b.fill(); b.globalAlpha = 1; }   // a big one: a dark hump of earth
+    for (let k = 0; k < (big ? 22 : 14); k++) {
       const a = (k / 14) * Math.PI + g.t * 6 * (k % 2 ? 1 : -1), r0 = w * 0.5 * (0.6 + 0.4 * Math.sin(g.t * 9 + k));
       b.fillStyle = cols[(k + Math.floor(g.t * 10)) % 4];
-      b.fillRect(Math.round(x + Math.cos(a) * r0), Math.round(y - Math.abs(Math.sin(a)) * 3), 1, 1);
+      b.fillRect(Math.round(x + Math.cos(a) * r0), Math.round(y - Math.abs(Math.sin(a)) * (big ? 6 : 3)), px, px);
     }
     b.fillStyle = '#3a3028'; b.fillRect(x - 2, y, 5, 1);
     if (Math.random() < 0.3) this.spray(e.x, e.y, 1, cols, 1.4, 0.3, 4);
@@ -1663,6 +1714,13 @@ export class Renderer {
       ctx.fillStyle = f.color; ctx.fillText(f.text, x, y);
     }
     ctx.globalAlpha = 1;
+    { const f0 = ctx.font; ctx.font = textFont(Math.max(11, s * 4 * 1.05));
+      for (const e of g.activeMap === g.map ? g.active : []) {   // elites wear their names
+        if (!e.D.title || e.dead || e.spawnT > 0 || e.under) continue;
+        const [bx, by] = this.proj(e.x, e.y), x = bx * s, y = (by - 44) * s;
+        outlined(ctx, e.D.title, x, y); ctx.fillStyle = '#ffd650'; ctx.fillText(e.D.title, x, y);
+      }
+      ctx.font = f0; }
     for (const e of g.enemies) {                             // training dummies show your damage per second
       if (!e.D.dummy) continue;
       const [bx, by] = this.proj(e.x, e.y);

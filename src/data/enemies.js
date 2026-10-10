@@ -1527,6 +1527,47 @@ ENEMIES.giant_watermelon = { name: 'Giant Watermelon', biome: 'event', melon: tr
   });
   Object.assign(SPEECH, { grinning_ringmaster: { see: ['Ladies and gentlemen... and YOU!', 'Step right up! Step right IN!'], die: ['...the show... is over...'] } });
 }
+// ================================================================ ELITES (Realm Update Phase 5, docs/design/05_elites.md)
+// Two per land. Each has an ability on a cooldown (src/elites.js); its clip is the telegraph. Better loot, a raised egg.
+{
+  const ELS = (id, n) => `el_shots/${id}.${n}`, ELA = (k) => 'el_elites/' + k;
+  const EL = (tier) => [...L(...{ shore: [[2, 4], [2, 4], [1, 2], [1, 2], 0.02], lowlands: [[3, 5], [3, 5], [1, 3], [1, 2], 0.03], thornwood: [[4, 7], [4, 7], [2, 3], [2, 3], 0.04],
+    runeholt: [[6, 8], [6, 9], [3, 4], [3, 4], 0.05], godfall: [[8, 10], [9, 11], [4, 5], [4, 5], 0.07] }[tier]), { stat: true, p: 0.6 }];
+  const T = { shore: [1800, 4, 21, 140], lowlands: [2800, 6, 29, 190], thornwood: [6000, 12, 45, 360], runeholt: [10000, 18, 65, 620], godfall: [18000, 24, 88, 1100] };
+  const mk = (id, title, biome, ai, extra, atks, ability) => {
+    const [hp, def, dmg, xp] = T[biome];
+    return { name: title, title, biome, reg: ELA(id), elite: true, hp, def, xp, r: 0.7, speed: 2, aggro: 12, contact: Math.round(dmg * 1.4), ai, ...extra,
+      attacks: atks.map((a) => ({ ...a, proj: ELS(id, a.proj), dmg: Math.round(dmg * (a.k || 1)) })), ability: { ...ability, dmg: Math.round(dmg * (ability.k || 1.6)) }, loot: EL(biome), lootLuck: 1.5 };
+  };
+  Object.assign(ENEMIES, {
+    reef_golem: mk('reef_golem', 'Reef Golem', 'shore', 'shamble', { speed: 1.3 }, [{ pattern: 'aimed', proj: 'coral_spike', count: 3, arc: 0.4, speed: 7, range: 7, cd: 1.8, tell: 350 },
+      { pattern: 'radial', proj: 'brine_bubble', count: 10, speed: 3.6, range: 6, cd: 3, tell: 600, k: 0.9 }], { kind: 'bulwark', cd: 12, tell: 0.67 }),
+    siren: mk('siren', 'Siren', 'shore', 'kite', { keep: 5.5, fly: true }, [{ pattern: 'aimed', proj: 'song_note', count: 3, arc: 0.5, speed: 6, range: 8, cd: 1.8, tell: 300, mv: { wave: { amp: 1, freq: 5 } } },
+      { pattern: 'radial', proj: 'tide_orb', count: 8, speed: 3.4, range: 6, cd: 3, tell: 550 }], { kind: 'song', cd: 11, tell: 0.67 }),
+    goblin_shaman: mk('goblin_shaman', 'Goblin Shaman', 'lowlands', 'kite', { keep: 6 }, [{ pattern: 'aimed', proj: 'spirit_flame', count: 3, arc: 0.45, speed: 6.5, range: 8, cd: 1.9, tell: 350 },
+      { pattern: 'aimed', proj: 'bone_dart', count: 1, speed: 11, range: 9, cd: 1.2, tell: 200, k: 0.8 }], { kind: 'totem', cd: 14, tell: 0.67 }),
+    bramble_bear: mk('bramble_bear', 'Bramble Bear', 'lowlands', 'shamble', { speed: 2.2, r: 0.8 }, [{ pattern: 'aimed', proj: 'thorn_burst', count: 5, arc: 0.8, speed: 7, range: 6, cd: 1.8, tell: 350 },
+      { pattern: 'radial', proj: 'pollen_puff', count: 8, speed: 2.8, range: 5, cd: 3.2, tell: 600, k: 0.8 }], { kind: 'roar', cd: 10, tell: 0.67, k: 1 }),
+    orc_warlord: mk('orc_warlord', 'Orc Warlord', 'thornwood', 'shamble', { speed: 1.9 }, [{ pattern: 'aimed', proj: 'thrown_axe', count: 3, arc: 0.4, speed: 7, range: 7, cd: 2, tell: 400, mv: { boomer: 0.8 } },
+      { pattern: 'radial', proj: 'rally_wave', count: 12, speed: 4, range: 6, cd: 3, tell: 600 }], { kind: 'banner', cd: 16, tell: 0.67 }),
+    spider_queen: mk('spider_queen', 'Spider Queen', 'thornwood', 'skitter', { speed: 2.6, r: 0.8 }, [{ pattern: 'aimed', proj: 'web_ball', count: 1, speed: 6, range: 8, cd: 2.2, tell: 400, k: 1.2 },
+      { pattern: 'aimed', proj: 'venom_spit', count: 5, arc: 0.6, speed: 7.5, range: 6, cd: 1.7, tell: 300 }], { kind: 'brood', cd: 12, tell: 0.67 }),
+    storm_gryphon: mk('storm_gryphon', 'Storm Gryphon', 'runeholt', 'swoop', { speed: 3.6, fly: true, r: 0.8 }, [{ pattern: 'aimed', proj: 'lightning_feather', count: 5, arc: 0.6, speed: 9, range: 8, cd: 1.8, tell: 300 },
+      { pattern: 'radial', proj: 'static_orb', count: 10, speed: 3.6, range: 6, cd: 3, tell: 550 }], { kind: 'dive', cd: 9, tell: 0.67, k: 2 }),
+    rock_troll: mk('rock_troll', 'Rock Troll', 'runeholt', 'shamble', { speed: 1.5 }, [{ pattern: 'aimed', proj: 'thrown_boulder', count: 1, speed: 6, range: 8, cd: 2.2, tell: 450, k: 1.4, mv: { lob: { h: 30, n: 6, ss: 3.5 } } },
+      { pattern: 'radial', proj: 'rock_shard', count: 10, speed: 4.5, range: 6, cd: 2.8, tell: 550 }], { kind: 'burrow', cd: 13, tell: 0.67, k: 2 }),
+    void_seer: mk('void_seer', 'Void Seer', 'godfall', 'kite', { keep: 6, fly: true }, [{ pattern: 'aimed', proj: 'void_bolt', count: 3, arc: 0.3, speed: 9, range: 9, cd: 1.7, tell: 300 },
+      { pattern: 'radial', proj: 'rift_star', count: 12, turn: 0.3, speed: 4, range: 7, cd: 3, tell: 550 }], { kind: 'blink', cd: 8, tell: 0.67 }),
+    abyss_hound: mk('abyss_hound', 'Abyss Hound', 'godfall', 'flank', { speed: 3.6, keep: 4 }, [{ pattern: 'aimed', proj: 'shadow_fang', count: 3, arc: 0.4, speed: 9, range: 6, cd: 1.5, tell: 250 },
+      { pattern: 'aimed', proj: 'rift_flame', count: 1, waves: 3, gap: 0.12, speed: 8, range: 8, cd: 2.4, tell: 350 }], { kind: 'dash', cd: 7, tell: 0.67, k: 1.8 }),
+    // what the shaman and the warlord plant: their own targets
+    spirit_totem: { name: 'Spirit Totem', biome: 'lowlands', objSprite: 'rune_pillar', hp: 1800, def: 6, speed: 0, xp: 40, r: 0.5, ai: 'rooted', aggro: 0, attacks: [], loot: [] },
+    war_banner: { name: 'War Banner', biome: 'thornwood', objSprite: 'banner', hp: 2400, def: 10, speed: 0, xp: 60, r: 0.5, ai: 'rooted', aggro: 0, attacks: [], loot: [] },
+  });
+}
+// which elites walk which land (the steppe shares Runeholt's)
+export const ELITES = { shore: ['reef_golem', 'siren'], lowlands: ['goblin_shaman', 'bramble_bear'], thornwood: ['orc_warlord', 'spider_queen'],
+  runeholt: ['storm_gryphon', 'rock_troll'], steppe: ['storm_gryphon', 'rock_troll'], godfall: ['void_seer', 'abyss_hound'] };
 // the bands round the campfires: orcs and their archers in the Thornwood, goblins in the Greenmarch
 export const FIRECAMP_BANDS = { thornwood: ['orc_brute', 'orc_brute', 'bandit_archer', 'bandit_archer'], lowlands: ['hedge_goblin', 'hedge_goblin', 'hedge_goblin', 'field_rat'] };
 Object.assign(SPEECH, {

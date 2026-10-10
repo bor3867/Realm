@@ -90,3 +90,8 @@
   quest and bestiary all pointed at the Mirerot one). It is `mire_toad` now (art: `ex_mirerot/bog_toad`). A new
   check diffed every baseline monster and item against now: nothing else was overwritten.
 - `tools/check_ow2.mjs` now checks only the overworld's own monsters, and waits for the scorpion to run hot.
+
+## Phase 5 — Elites
+- Ten elites, two per land, each with its own ability on a cooldown (the clip is the telegraph), escorts, nameplates,
+  an arrival telegraph, better loot and a raised egg chance. Note: docs/design/05_elites.md.
+- Tuning: the Siren's charm ring 3.5 → 6 tiles; the burrow mound drawn large for elites.

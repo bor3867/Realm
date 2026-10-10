@@ -16,6 +16,7 @@ import { installSandscour } from './sandscour.js';
 import { installKeep } from './keep.js';
 import { installHollowmoon } from './hollowmoon.js';
 import { installCryptEmber } from './crypt_ember.js';
+import { installElites } from './elites.js';
 import { installBX } from './bossx.js';
 import { BX, bxEnemyDef } from './bosses/index.js';
 import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUEST_HUNTS, FETCH_ITEMS } from './data/lore.js';
@@ -489,6 +490,7 @@ export class Game {
       const a = r() * TAU, x = c.x + Math.cos(a) * 2.2, y = c.y + Math.sin(a) * 2.2;
       if (!isSolid(m, x, y)) this.addEnemy(id, x, y).pack = id;
     }
+    for (const b of BIOMES) for (let k = 0; k < Math.max(1, Math.round(parentTarget(m, b) / 18)); k++) this.spawnElite(b, r, m.spawn, true);   // the elites, each with its escort
     m.ev = Object.fromEntries(BIOMES.map((b) => [b, { herald: null, progress: 0, cd: 25 + r() * 35 }]));
   }
   // spread groups out: of a handful of candidate spots, take the one farthest from every other group
@@ -625,6 +627,7 @@ export class Game {
     const parents = Object.fromEntries(BIOMES.map((b) => [b, 0]));
     for (const e of this.enemies) if (!e.dead && e.kids && parents[e.D.biome] !== undefined) parents[e.D.biome]++;
     for (const b of BIOMES) if (parents[b] < parentTarget(this.map, b)) this.spawnParentGroup(b, R, this.player, 18);
+    this.maintainElites();
     const packs = {};
     for (const e of this.enemies) if (!e.dead && e.pack) packs[e.pack] = (packs[e.pack] || 0) + 1;
     for (const [b, list] of Object.entries(PACKS)) for (const [id, n] of list) if ((packs[id] || 0) < n * 1.5 * 2) this.spawnPack(b, id);
@@ -730,6 +733,7 @@ export class Game {
     this.updateProjectiles(dt);
     this.updateWorld(dt);
     if (this.map.kind === 'realm') { this.maintainRealm(dt); this.eventClock(dt); this.melonTick(dt); this.eventBossTick(dt); }
+    this.updateEliteAuras(dt);
     if (this.map.kind === 'dungeon') { this.updateDungeon(dt); this.updatePuzzles(dt); this.updateTraps(dt); this.updateD4(dt); if (this.map.def && this.map.def.style === 'frostveil') this.updateFrostveil(dt); if (this.map.def && this.map.def.style === 'mirerot') this.updateMirerot(dt); if (this.map.def && this.map.def.style === 'astral') this.updateAstral(dt); if (this.map.def && this.map.def.style === 'sandscour') this.updateSandscour(dt); if (this.map.def && this.map.def.style === 'keep') this.updateKeep(dt); if (this.map.def && this.map.def.style === 'hollowmoon') this.updateHollowmoon(dt); if (this.map.def && this.map.def.style === 'ember') this.updateEmber(dt); }
     { const m = this.map; if (m.fvTimers) { for (const T of m.fvTimers) if ((T.t -= dt) <= 0 && !T.done) { T.done = true; T.fn(); } m.fvTimers = m.fvTimers.filter((T) => !T.done); } }   // later(): any map's delayed events
     this.updateChill(dt); this.updatePoison(dt);
@@ -1436,6 +1440,8 @@ export class Game {
       this.tickStatus(e, dt);
       if (e.dead || e.D.dummy) continue;
       if (this.frozen(e)) continue;                     // Stop Time
+      if (e.spawnT > 0) { e.spawnT -= dt; if (e.spawnT <= 0) { e.born = this.t; this.vx({ k: 'burst', x: e.x, y: e.y - 0.6, n: 20, colors: ['#ffd650', '#ffffff', '#c8a0ff'] }); } continue; }   // an elite arriving
+      if (e.D.ability && this.updateEliteAbility(e, dt, Math.sqrt(d2))) continue;   // an elite using its ability
       if (e.stunT > 0) { e.stunT -= dt; continue; }
       if (e.rb) { if (e.D.bx) this.updateBx(e, dt, Math.sqrt(d2)); else this.updateRealmBoss(e, dt, Math.sqrt(d2)); continue; }
       if (e.kids) {
@@ -1649,6 +1655,7 @@ export class Game {
     }
     if (aggro && e.parent && !e.parent.dead && dist(e.x, e.y, e.parent.x, e.parent.y) > 13) { tx = e.parent.x; ty = e.parent.y; }
     if (e.lureTo && this.t < e.lureTo.until) { tx = e.lureTo.x; ty = e.lureTo.y; sp = D.speed * 1.2; }   // the striker's bell calls them
+    if (e.rallyUntil > this.t) sp *= 1.35;                       // the war banner's aura
     if (D.leash) { const lh = dist(tx, ty, e.hx, e.hy); if (lh > D.leash) { tx = e.hx + ((tx - e.hx) / lh) * D.leash; ty = e.hy + ((ty - e.hy) / lh) * D.leash; } }   // a doorway's guard keeps to its door
     sp *= (1 - (e.slowF || 0)) * (e.enraged ? 1.5 : 1);
     if (ai === 'hop') return this.hopToward(e, tx, ty, sp, dt);
@@ -1768,6 +1775,9 @@ export class Game {
   }
   damageEnemy(e, dmg, x, y, quiet = false, crit = false) {
     if (e.dead || e.state === 'dead') return 0;
+    if (e.spawnT > 0) return 0;                                  // an elite still arriving
+    if (e.bulwarkT > this.t) { if (!quiet) this.float(x, y - 0.8, 'BULWARK', '#ff8fbf'); return 0; }   // the reef golem's shell
+    if (e.rallyUntil > this.t) dmg = Math.round(dmg * 0.7);       // an orc under the war banner
     if (e.surviveUntil > this.t) { if (!quiet) this.float(x, y - 0.8, 'SURVIVE!', '#ff8c1e'); return 0; }
     if (e.frenzyUntil > this.t) { if (!quiet) this.float(x, y - 0.8, e.D.bloodlust ? 'BLOODLUST' : 'INVULNERABLE', '#ff4a5a'); return 0; }
     if (e.invulnT > 0) { if (!quiet) this.float(x, y - 0.8, 'IMMUNE', '#8d88a0'); return 0; }
@@ -2706,6 +2716,7 @@ export class Game {
     if (e.id === 'the_unstruck_god') return roll < 0.06 ? 'pet_egg_legendary' : roll < 0.3 ? 'pet_egg_rare' : null;
     if (bossy && this.map.kind === 'dungeon') return roll < 0.012 ? 'pet_egg_legendary' : roll < 0.07 ? 'pet_egg_rare' : roll < 0.2 ? 'pet_egg_uncommon' : null;
     if (bossy) return roll < 0.025 ? 'pet_egg_rare' : roll < 0.1 ? 'pet_egg_uncommon' : roll < 0.2 ? 'pet_egg_common' : null;
+    if (e.elite && D.ability) return roll < 0.004 ? 'pet_egg_rare' : roll < 0.024 ? 'pet_egg_uncommon' : roll < 0.084 ? 'pet_egg_common' : null;   // elites: a raised egg chance
     if (e.kids || D.herald) return roll < 0.0015 ? 'pet_egg_uncommon' : roll < 0.008 ? 'pet_egg_common' : null;
     return null;
   }
@@ -3881,3 +3892,4 @@ installSandscour(Game);
 installKeep(Game);
 installHollowmoon(Game);
 installCryptEmber(Game);
+installElites(Game);
