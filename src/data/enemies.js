@@ -1490,6 +1490,43 @@ ENEMIES.giant_watermelon = { name: 'Giant Watermelon', biome: 'event', melon: tr
   });
   Object.assign(SPEECH, { count_vesper: { see: ['Welcome to my home. Do stay for dinner.', 'You will be the finest vintage in my cellar.'], die: ['...the sun... so bright...'] } });
 }
+// ================================================================ HOLLOWMOON CARNIVAL (Realm Update, docs/design/dungeon_hollowmoon.md)
+{
+  const LH = L([8, 10], [8, 11], [4, 5], [4, 5], 0.06), HME = (k) => 'd2_hollowmoon/' + k, HMP = (k) => 'd2_projectiles/hollowmoon.' + k;
+  Object.assign(ENEMIES, {
+    jack_in_the_box: { name: 'Jack-in-the-Box', biome: 'hollowmoon', reg: HME('jack_in_the_box'), hp: 2200, def: 16, speed: 2.6, xp: 120, r: 0.45, ai: 'hop', aggro: 11, contact: 80,
+      attacks: [{ pattern: 'aimed', proj: HMP('boxing_glove'), count: 3, arc: 0.4, dmg: 95, speed: 7, range: 6, cd: 1.8, tell: 300 }], loot: LH },
+    carousel_horse: { name: 'Carousel Horse', biome: 'hollowmoon', reg: HME('carousel_horse'), scale: 1.3, hp: 4000, def: 22, speed: 3, xp: 160, r: 0.55, ai: 'carousel', aggro: 14, contact: 110,
+      attacks: [{ pattern: 'aimed', proj: HMP('horseshoe'), count: 3, arc: 0.5, dmg: 100, speed: 7, range: 7, cd: 2.0, tell: 300 }], loot: LH },
+    balloon_ghoul: { name: 'Balloon Ghoul', biome: 'hollowmoon', reg: HME('balloon_ghoul'), hp: 1600, def: 8, speed: 1.3, xp: 90, r: 0.45, ai: 'drift', aggro: 12, fly: true, noclip: true, confetti: true,
+      attacks: [{ pattern: 'radial', proj: HMP('grin_bubble'), count: 8, turn: 0.3, dmg: 85, speed: 3.6, range: 6, cd: 2.8, tell: 500 }], loot: LH },
+    knife_juggler: { name: 'Knife Juggler', biome: 'hollowmoon', reg: HME('knife_juggler'), hp: 2400, def: 14, speed: 2.0, xp: 140, r: 0.45, ai: 'kite', keep: 7, aggro: 12,
+      attacks: [{ pattern: 'aimed', proj: HMP('thrown_knife'), count: 5, arc: 0.8, dmg: 100, speed: 9, range: 9, cd: 2.0, tell: 350 }], loot: LH },
+    jester_puppet: { name: 'Jester Marionette', biome: 'hollowmoon', reg: HME('knife_juggler'), scale: 1.6, hp: 9000, def: 20, speed: 0, xp: 200, r: 0.6, ai: 'rooted', aggro: 16, fly: true,
+      attacks: [{ pattern: 'aimed', proj: 'bx2_shots/grinning_ringmaster.juggling_pin', count: 3, arc: 0.7, dmg: 110, speed: 6, range: 12, cd: 2.4, tell: 400, mv: { curve: 0.9, alt: true } }], loot: [] },
+  });
+  const CHH = [{ slot: 'weapon', tiers: [8, 10], p: 0.8 }, { slot: 'armor', tiers: [8, 11], p: 0.8 }, { slot: 'ability', tiers: [4, 5], p: 0.6 }, { slot: 'ring', tiers: [4, 5], p: 0.6 },
+    { stat: true, p: 1 }, { stat: true, p: 0.4 }];
+  DUNGEONS.hollowmoon = { name: 'Hollowmoon Carnival', floor: 'hmsaw', wall: 'hmwall', hazard: null, rooms: 9, portal: 'hollowmoon', style: 'hollowmoon',
+    layout: { secrets: 0 }, seals: [], altar: false, chestLoot: CHH, mobs: ['jack_in_the_box', 'carousel_horse', 'balloon_ghoul', 'knife_juggler'], elites: [],
+    boss: 'grinning_ringmaster', mobHp: 1.7, ambient: 'rgba(14,6,30,0.6)',
+    compose(rm, r, deep) {
+      if (rm.kind === 'midway') return ['balloon_ghoul', 'balloon_ghoul'];
+      if (rm.kind === 'booth') return ['knife_juggler'];
+      if (rm.kind === 'maze') return ['balloon_ghoul', 'balloon_ghoul', 'balloon_ghoul', 'jack_in_the_box', 'jack_in_the_box'];
+      if (rm.kind === 'funhouse') return ['jack_in_the_box', 'balloon_ghoul', 'balloon_ghoul'];
+      if (rm.kind === 'carousel') return [];
+      return ['balloon_ghoul', 'jack_in_the_box', 'knife_juggler'];
+    },
+    // jugglers on the funhouse's drums; six horses on the carousel's poles
+    extraSpawns: (m) => [...(m.hmDrumsFun || []).map(([x, y]) => ['knife_juggler', x, y]),
+      ...Array.from({ length: 6 }, (_, k) => { const H = m.hmCarousel, a = (k / 6) * Math.PI * 2; return ['carousel_horse', H.cx + Math.cos(a) * H.r, H.cy + Math.sin(a) * H.r]; })] };
+  PORTAL_EXTRA.unshift((D) => {
+    if ((D.biome === 'steppe' || D.biome === 'godfall') && Math.random() < 0.3) return ['hollowmoon', D.children ? 0.04 : 0.01];
+    return null;
+  });
+  Object.assign(SPEECH, { grinning_ringmaster: { see: ['Ladies and gentlemen... and YOU!', 'Step right up! Step right IN!'], die: ['...the show... is over...'] } });
+}
 // the bands round the campfires: orcs and their archers in the Thornwood, goblins in the Greenmarch
 export const FIRECAMP_BANDS = { thornwood: ['orc_brute', 'orc_brute', 'bandit_archer', 'bandit_archer'], lowlands: ['hedge_goblin', 'hedge_goblin', 'hedge_goblin', 'field_rat'] };
 Object.assign(SPEECH, {

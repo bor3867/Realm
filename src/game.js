@@ -14,6 +14,7 @@ import { installMirerot } from './mirerot.js';
 import { installAstral } from './astral.js';
 import { installSandscour } from './sandscour.js';
 import { installKeep } from './keep.js';
+import { installHollowmoon } from './hollowmoon.js';
 import { installBX } from './bossx.js';
 import { BX, bxEnemyDef } from './bosses/index.js';
 import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUEST_HUNTS, FETCH_ITEMS } from './data/lore.js';
@@ -728,7 +729,7 @@ export class Game {
     this.updateProjectiles(dt);
     this.updateWorld(dt);
     if (this.map.kind === 'realm') { this.maintainRealm(dt); this.eventClock(dt); this.melonTick(dt); this.eventBossTick(dt); }
-    if (this.map.kind === 'dungeon') { this.updateDungeon(dt); this.updatePuzzles(dt); this.updateTraps(dt); this.updateD4(dt); if (this.map.def && this.map.def.style === 'frostveil') this.updateFrostveil(dt); if (this.map.def && this.map.def.style === 'mirerot') this.updateMirerot(dt); if (this.map.def && this.map.def.style === 'astral') this.updateAstral(dt); if (this.map.def && this.map.def.style === 'sandscour') this.updateSandscour(dt); if (this.map.def && this.map.def.style === 'keep') this.updateKeep(dt); }
+    if (this.map.kind === 'dungeon') { this.updateDungeon(dt); this.updatePuzzles(dt); this.updateTraps(dt); this.updateD4(dt); if (this.map.def && this.map.def.style === 'frostveil') this.updateFrostveil(dt); if (this.map.def && this.map.def.style === 'mirerot') this.updateMirerot(dt); if (this.map.def && this.map.def.style === 'astral') this.updateAstral(dt); if (this.map.def && this.map.def.style === 'sandscour') this.updateSandscour(dt); if (this.map.def && this.map.def.style === 'keep') this.updateKeep(dt); if (this.map.def && this.map.def.style === 'hollowmoon') this.updateHollowmoon(dt); }
     { const m = this.map; if (m.fvTimers) { for (const T of m.fvTimers) if ((T.t -= dt) <= 0 && !T.done) { T.done = true; T.fn(); } m.fvTimers = m.fvTimers.filter((T) => !T.done); } }   // later(): any map's delayed events
     this.updateChill(dt); this.updatePoison(dt);
     if (this.map.kind !== 'nexus') this.openChests();
@@ -777,6 +778,7 @@ export class Game {
     const cs = Math.cos(this.camAngle), sn = Math.sin(this.camAngle);
     // terrain underfoot: shallows and bog drag at you, ice keeps you sliding
     const under = this.map.tiles[Math.floor(p.y) * this.map.w + Math.floor(p.x)];
+    if (under === TID.hmspin) { const t = mx; mx = -my; my = t; }   // a spin tile: up becomes right
     const drag = under === TID.bog || under === TID.fvwater ? 0.6 : under === TID.quicksand ? 0.55 : under === TID.ckblood ? 0.7 : under === TID.shallows ? 0.8 : 1;
     const bless = p.status.bless > 0 ? p.blessKind : null;
     if (len) { mx /= len; my /= len; }
@@ -1498,7 +1500,7 @@ export class Game {
       if (e.state === 'attack' && e.st > 0) continue;
       e.state = 'move';
       // attacks (not while burrowed, mid-hop or mid-dive)
-      if (aggro && !e.under && !e.hop && !e.dive && !e.sk && !e.fetch) {
+      if (aggro && !e.under && !e.hop && !e.dive && !e.sk && !e.fetch && !(D.ai === 'carousel' && !e.loose)) {
         if (!e.seen) this.speak(e, 'see', e.herald ? 0.5 : 0.05);
         e.seen = true;
         if (D.enrage && !e.enraged && e.hp < e.maxHp * 0.4) {        // ENRAGE: faster, angrier
@@ -1545,6 +1547,7 @@ export class Game {
   moveEnemy(e, dt, aggro, d) {
     const D = e.D, ai = D.ai, p = aggro ? this.foe(e) : this.player;
     if (ai === 'satellite') return this.asSatellite(e, dt);          // orrery drones wheel round their acolyte
+    if (ai === 'carousel' && this.hmHorse(e, dt, aggro)) return;    // carousel horses ride their circle
     if (e.fetch) {                                       // the crag dwarf runs to where his pick fell, and picks it up
       if (this.t < e.fetch.land) return;
       const dd = dist(e.x, e.y, e.fetch.x, e.fetch.y);
@@ -1644,6 +1647,7 @@ export class Game {
       if (ai === 'rooted') sp = 0;
     }
     if (aggro && e.parent && !e.parent.dead && dist(e.x, e.y, e.parent.x, e.parent.y) > 13) { tx = e.parent.x; ty = e.parent.y; }
+    if (e.lureTo && this.t < e.lureTo.until) { tx = e.lureTo.x; ty = e.lureTo.y; sp = D.speed * 1.2; }   // the striker's bell calls them
     if (D.leash) { const lh = dist(tx, ty, e.hx, e.hy); if (lh > D.leash) { tx = e.hx + ((tx - e.hx) / lh) * D.leash; ty = e.hy + ((ty - e.hy) / lh) * D.leash; } }   // a doorway's guard keeps to its door
     sp *= (1 - (e.slowF || 0)) * (e.enraged ? 1.5 : 1);
     if (ai === 'hop') return this.hopToward(e, tx, ty, sp, dt);
@@ -1654,7 +1658,7 @@ export class Game {
     if (dd > 0.2 && sp > 0) { const v = Math.min(sp, dd * 3); dvx = ((tx - e.x) / dd) * v; dvy = ((ty - e.y) / dd) * v; }
     const ease = Math.min(1, dt * (aggro ? 8 : 5));
     e.mvx = (e.mvx || 0) + (dvx - (e.mvx || 0)) * ease; e.mvy = (e.mvy || 0) + (dvy - (e.mvy || 0)) * ease;
-    if (Math.abs(e.mvx) + Math.abs(e.mvy) > 0.02) this.moveCircle(e, e.mvx * dt, e.mvy * dt, 0.35);
+    if (Math.abs(e.mvx) + Math.abs(e.mvy) > 0.02) { if (D.noclip) { e.x += e.mvx * dt; e.y += e.mvy * dt; } else this.moveCircle(e, e.mvx * dt, e.mvy * dt, 0.35); }   // balloon ghouls float over the canvas
   }
   // the crag dwarf's throw: the pick lands where it falls (short of a wall), and he must fetch it before throwing again
   throwPick(e, A) {
@@ -1816,6 +1820,7 @@ export class Game {
       if (e.cloneOf) { this.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 30, colors: ['#ffffff', '#8af6ff'] }); this.bubble(e, 'An echo shatters.', '#cfffff'); return d; }
       this.player.kills++;
       this.speak(e, 'die', e.rb ? 1 : 0.04);
+      if (e.D.confetti) { this.vx({ k: 'regfx', key: 'd2_effects/hollowmoon.confetti_pop', x: e.x, y: e.y - 0.6, fps: 10 }); const g0 = 3 + Math.floor(R() * 4); this.save.gold = (this.save.gold || 0) + g0; this.float(e.x, e.y - 1.4, `+${g0}g`, '#f2c14e'); }
       if (e.D.deathBurst) { const B = e.D.deathBurst, a0 = R() * TAU; for (let k = 0; k < B.n; k++) this.shoot('e', e.x, e.y - 0.4, a0 + (k / B.n) * TAU, B.speed, B.range, B.dmg, B.proj, 0.35, false, e.D.name); }
       if (e.D.split) for (let k = 0; k < e.D.split.n; k++) {   // splitters burst into smaller copies
         const a = (k / e.D.split.n) * TAU, x = e.x + Math.cos(a) * 0.7, y = e.y + Math.sin(a) * 0.7;
@@ -2888,9 +2893,10 @@ export class Game {
   }
   hitObject(x, y, dmg) {
     const m = this.map, xi = Math.floor(x), yi = Math.floor(y);
-    const o = m.objects.find((q) => (q.interact === 'weak' || q.sdUrn || (q.interact === 'chest' && !q.opened)) && Math.floor(q.x) === xi && Math.floor(q.y) === yi);
+    const o = m.objects.find((q) => (q.interact === 'weak' || q.sdUrn || q.hmStriker || q.hmCrate || (q.interact === 'chest' && !q.opened)) && Math.floor(q.x) === xi && Math.floor(q.y) === yi);
     if (!o) return;
     if (o.sdUrn) return this.hitUrn(o);
+    if (o.hmStriker || o.hmCrate) return this.hitFair(o);
     if (o.interact === 'weak') return this.hitWeak(o);
     if (o.guards && o.guards.some((g) => !g.dead)) { this.float(o.x, o.y - 1, 'GUARDED', '#8d88a0'); return; }
     if (!o.maxHp) o.hp = o.maxHp = this.chestHp(o);
@@ -3872,3 +3878,4 @@ installMirerot(Game);
 installAstral(Game);
 installSandscour(Game);
 installKeep(Game);
+installHollowmoon(Game);

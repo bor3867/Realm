@@ -6,10 +6,10 @@ export const TILE_NAMES = ['water', 'deep', 'sand', 'fen', 'mud', 'snow', 'runef
   'grass', 'cobble', 'dirt', 'hedge', 'shallows', 'bog', 'ice', 'dune', 'glassflat', 'loam', 'bramble', 'steppe', 'quartz',
   'cryptfloor', 'cryptwall', 'cryptwater', 'emberfloor', 'emberwall', 'emberlava', 'carpet',
   'combfloor', 'waxwall', 'honey', 'stageboards', 'velvetwall', 'prismfloor', 'crystalwall', 'dreamfloor', 'dreamwall', 'starvoid', 'dreambridge', 'fadebridge', 'fadegone',
-  'cliff', 'rift', 'fvsnow', 'fvice', 'fvwater', 'fvwall', 'mrmud', 'mrmoss', 'mrboard', 'mrwall', 'asmarble', 'asgrate', 'asvoid', 'aswall', 'sdsand', 'sdtomb', 'quicksand', 'sdwall', 'ckstone', 'ckcarpet', 'ckmarble', 'ckblood', 'ckwall', 'ckwin'];
+  'cliff', 'rift', 'fvsnow', 'fvice', 'fvwater', 'fvwall', 'mrmud', 'mrmoss', 'mrboard', 'mrwall', 'asmarble', 'asgrate', 'asvoid', 'aswall', 'sdsand', 'sdtomb', 'quicksand', 'sdwall', 'ckstone', 'ckcarpet', 'ckmarble', 'ckblood', 'ckwall', 'ckwin', 'hmsaw', 'hmboard', 'hmcheck', 'hmspin', 'hmwall'];
 export const TID = Object.fromEntries(TILE_NAMES.map((n, i) => [n, i]));
 const SOLID_TILES = new Set([TID.water, TID.deep, TID.forgewall, TID.void, TID.chapelwall, TID.ribwall, TID.hedge, TID.bramble, TID.cryptwall, TID.emberwall, TID.cryptwater,
-  TID.waxwall, TID.velvetwall, TID.crystalwall, TID.dreamwall, TID.starvoid, TID.fadegone, TID.cliff, TID.fvwall, TID.mrwall, TID.aswall, TID.sdwall, TID.ckwall, TID.ckwin]);
+  TID.waxwall, TID.velvetwall, TID.crystalwall, TID.dreamwall, TID.starvoid, TID.fadegone, TID.cliff, TID.fvwall, TID.mrwall, TID.aswall, TID.sdwall, TID.ckwall, TID.ckwin, TID.hmwall]);
 export const BIOMES = ['shore', 'fen', 'runeholt', 'godfall', 'dunes', 'thornwood', 'steppe', 'lowlands'];
 // how deep in each land lies: 0 the coast ... 3 the god's fall. The three newer lands share a ring with an older one.
 export const BIOME_RING = [0, 1, 2, 3, 0, 1, 2, 1];
@@ -40,9 +40,12 @@ export const SKINS = [null,
   // the Crimson Keep (dungeons_two): stone a/b, the carpet runner, marble checker, blood, and its walls (a window wall has the window as its face)
   ['d2_tiles/crimson_keep_stone_floor_a', 'ckstone'], ['d2_tiles/crimson_keep_stone_floor_b', 'ckstone'], ['d2_tiles/crimson_keep_carpet', 'ckcarpet'],
   ['d2_tiles/crimson_keep_marble_checker', 'ckmarble'], ['d2_tiles/crimson_keep_blood_pool', 'ckblood'], ['d2_tiles/crimson_keep_wall_top', 'ckwall'],
-  ['d2_tiles/crimson_keep_wall_top', 'ckwin']];
+  ['d2_tiles/crimson_keep_wall_top', 'ckwin'],
+  // Hollowmoon Carnival: sawdust a/b, the midway's planks, funhouse checker, spin tiles, the tents' canvas
+  ['d2_tiles/hollowmoon_sawdust_a', 'hmsaw'], ['d2_tiles/hollowmoon_sawdust_b', 'hmsaw'], ['d2_tiles/hollowmoon_boards', 'hmboard'],
+  ['d2_tiles/hollowmoon_funhouse_checker', 'hmcheck'], ['d2_tiles/hollowmoon_spin_tile', 'hmspin'], ['d2_tiles/hollowmoon_wall_top', 'hmwall']];
 // a wall skin's face: drawn under the wall, toward the camera, so walls stand up (RotMG-style)
-export const WALL_FACE = { fvwall: 'ex_tiles/frostveil_wall_side', mrwall: 'ex_tiles/mirerot_wall_side', aswall: 'ex_tiles/astral_wall_side', sdwall: 'ex_tiles/sandscour_wall_side', ckwall: 'd2_tiles/crimson_keep_wall_side', ckwin: 'd2_tiles/crimson_keep_wall_window' };
+export const WALL_FACE = { fvwall: 'ex_tiles/frostveil_wall_side', mrwall: 'ex_tiles/mirerot_wall_side', aswall: 'ex_tiles/astral_wall_side', sdwall: 'ex_tiles/sandscour_wall_side', ckwall: 'd2_tiles/crimson_keep_wall_side', ckwin: 'd2_tiles/crimson_keep_wall_window', hmwall: 'd2_tiles/hollowmoon_wall_side' };
 export const SKIN_TID = SKINS.map((s) => (s ? TID[s[1]] : -1));
 export const SK = Object.fromEntries(SKINS.map((s, k) => [s ? s[0].split('/')[1].replace(/^(shore|lowlands|midlands|highlands|godlands)_/, '') + (s[1] === 'deep' || s[1] === 'steppe' || s[1] === 'ckwin' ? '@' + s[1] : '') : '-', k]));
 // a fixed per-tile hash (0..1), so jitter and dithering never disturb the generator's random stream
@@ -675,11 +678,11 @@ export function randomTileInBiome(m, b, r, avoid, minD = 14) {
 // Upper dungeons seal their boss behind a gate (def.seals: wardens, levers, a puzzle); the lower ones don't.
 export function dungeon(seed, def) {
   const r = rng(seed);
-  const S = { chapel: 200, crypt: 180, forge: 180, scriptorium: 214, heart: 196, throne: 196, hive: 200, theatre: 190, spire: 220, islands: 230, frostveil: 300, mirerot: 280, astral: 340, sandscour: 320, keep: 280 }[def.style] || 230;
+  const S = { chapel: 200, crypt: 180, forge: 180, scriptorium: 214, heart: 196, throne: 196, hive: 200, theatre: 190, spire: 220, islands: 230, frostveil: 300, mirerot: 280, astral: 340, sandscour: 320, keep: 280, hollowmoon: 300 }[def.style] || 230;
   const FLOOR = TID[def.floor], WALL = TID[def.wall], HAZ = def.hazard ? TID[def.hazard] : null;
   const WET = def.style === 'crypt' ? TID.cryptwater : TID.water, HOT = def.style === 'ember' ? TID.emberlava : TID.lava;
   const m = makeMap('dungeon', def.name, S, S, TID.void);
-  if (['frostveil', 'mirerot', 'astral', 'sandscour', 'keep'].includes(def.style)) m.skin = new Uint8Array(S * S);
+  if (['frostveil', 'mirerot', 'astral', 'sandscour', 'keep', 'hollowmoon'].includes(def.style)) m.skin = new Uint8Array(S * S);
   const tile = (x, y) => m.tiles[idx(m, x, y)];
   const set = (x, y, t) => { if (x > 1 && y > 1 && x < S - 2 && y < S - 2) m.tiles[idx(m, x, y)] = t; };
   const carve = (x0, y0, x1, y1, t = FLOOR) => {
@@ -692,6 +695,7 @@ export function dungeon(seed, def) {
   const link = (a, b) => { if (!a.links.includes(b)) { a.links.push(b); b.links.push(a); } };
   const H3 = Math.sqrt(3) / 2;
   const carveRoom = (n) => {
+    if (n.shape === 'maze') return;                                     // carved by its layout
     if (n.shape === 'hex') {                                          // a comb cell, pointy-top
       for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) {
         const dx = Math.abs(x - n.cx), dy = Math.abs(y - n.cy);
@@ -735,6 +739,46 @@ export function dungeon(seed, def) {
 
   // ================================================================ the layouts
   const LAYOUT = {
+    // ---- HOLLOWMOON CARNIVAL: the midway, the tent maze, the funhouse, the carousel, backstage, the big top; the
+    // prize booth off the midway
+    hollowmoon() {
+      const cy0 = S >> 1, link2 = (a, b, w = 1) => { if (Math.abs(a.cy - b.cy) <= w) carve(Math.min(a.cx, b.cx), a.cy - w, Math.max(a.cx, b.cx), a.cy + w); else { carve(Math.min(a.cx, b.cx), a.cy - w, Math.max(a.cx, b.cx), a.cy + w); carve(b.cx - w, Math.min(a.cy, b.cy), b.cx + w, Math.max(a.cy, b.cy)); } link(a, b); };
+      const fits = (x, y, w, h) => x > 6 && y > 6 && x + w < S - 6 && y + h < S - 6 && !rooms.some((o) => x < o.x + o.w + 3 && o.x < x + w + 3 && y < o.y + o.h + 3 && o.y < y + h + 3);
+      const mid = room(12, cy0 - 5, 44, 11, { kind: 'midway', dep: 0 });
+      for (let t = 0; t < 20; t++) {                                  // the prize booth, off the midway
+        const up = r.chance(0.5), x = mid.x + r.int(8, 26), y = up ? mid.y - 6 - 11 : mid.y + mid.h + 6;
+        if (!fits(x, y, 13, 11)) continue;
+        const b = room(x, y, 13, 11, { kind: 'booth', dep: 1, leaf: true, role: 'treasure' });
+        carve(b.cx - 1, Math.min(mid.cy, b.cy), b.cx + 1, Math.max(mid.cy, b.cy)); link(mid, b); break;
+      }
+      // the tent maze: a grid of 2x2 cells, a wall of canvas between, carved by a recursive backtracker
+      const C = 9, R0 = 9, mx0 = mid.x + mid.w + 6, my0 = cy0 - Math.floor(R0 * 3 / 2);
+      const maze = room(mx0, my0, C * 3 - 1, R0 * 3 - 1, { kind: 'maze', dep: 2, shape: 'maze', few: true });
+      const seen = new Set(), stack = [[0, Math.floor(R0 / 2)]], cellAt = (i, j) => [mx0 + i * 3, my0 + j * 3];
+      seen.add(stack[0].join());
+      { const [x, y] = cellAt(...stack[0]); carve(x, y, x + 1, y + 1); }
+      while (stack.length) {
+        const [i, j] = stack[stack.length - 1], nb = [[1, 0], [-1, 0], [0, 1], [0, -1]].map(([di, dj]) => [i + di, j + dj]).filter(([a, b]) => a >= 0 && b >= 0 && a < C && b < R0 && !seen.has(a + ',' + b));
+        if (!nb.length) { stack.pop(); continue; }
+        const [a, b] = nb[Math.floor(r() * nb.length)], [x0, y0] = cellAt(i, j), [x1, y1] = cellAt(a, b);
+        carve(Math.min(x0, x1), Math.min(y0, y1), Math.max(x0, x1) + 1, Math.max(y0, y1) + 1);
+        seen.add(a + ',' + b); stack.push([a, b]);
+      }
+      { const [x, y] = cellAt(0, Math.floor(R0 / 2)); carve(mid.x + mid.w - 1, cy0 - 1, x, cy0 + 1); carve(x, Math.min(y, cy0 - 1), x + 1, Math.max(y + 1, cy0 + 1)); }
+      link(mid, maze);
+      const exitJ = r.int(1, R0 - 2), [ex, ey] = cellAt(C - 1, exitJ);
+      m.hmMaze = { x: mx0, y: my0, w: C * 3 - 1, h: R0 * 3 - 1 };
+      const fun = room(ex + 8, ey - 8, 27, 17, { kind: 'funhouse', dep: 3 });
+      carve(ex, ey, fun.x, ey + 1); link(maze, fun);
+      const car = room(fun.x + fun.w + 6, fun.cy - 12, 25, 25, { kind: 'carousel', dep: 4, shape: 'round' });
+      link2(fun, car, 1);
+      const back = room(car.x + car.w + 6, car.cy - 6, 13, 13, { kind: 'backstage', dep: 5, role: 'rest' });
+      link2(car, back, 1);
+      const top = room(back.x + back.w + 6, back.cy - 20, 36, 40, { kind: 'bigtop', dep: 6, shape: 'round' });
+      link2(back, top, 1);
+      m.hmCarousel = { cx: car.cx + 0.5, cy: car.cy + 0.5, r: 7, on: false, box: { x: car.x, y: car.y, w: car.w, h: car.h } };
+      return { start: mid, boss: top };
+    },
     // ---- THE CRIMSON KEEP: a castle of square rooms joined by long carpeted halls. The courtyard, the Great Hall with
     // chambers off it, the banquet hall, the Long Gallery hall (north or south) with a chamber and the gallery off it,
     // the crypt, the stair, the throne room
@@ -1344,7 +1388,45 @@ export function dungeon(seed, def) {
   const sarc = (x, y, extra = {}) => { if (isF(x, y) && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) put(m, SD('sarcophagus'), x, y, true, { sdSarc: true, ...extra }); };
   const CK = (k) => 'd2_decor/crimson_keep_' + k;
   const ckPut = (x, y, k, solid = true, extra = {}) => { if (isF(x, y) && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) put(m, CK(k), x, y, solid, extra); };
+  const HM = (k) => 'd2_decor/hollowmoon_' + k;
+  const hmPut = (x, y, k, solid = true, extra = {}) => { if (isF(x, y) && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) put(m, k.includes('/') || k === 'crate' ? k : HM(k), x, y, solid, extra); };
+  const crate = (x, y, jack) => hmPut(x, y, 'crate', true, { hmCrate: true, jack });
   const DRESS = {
+    hollowmoon(n) {
+      const inRoom = (x, y) => isF(x, y) && x >= n.x && y >= n.y && x < n.x + n.w && y < n.y + n.h;
+      if (n.kind === 'midway') {                                      // stalls both sides, a striker at the far end, planks underfoot
+        for (let x = n.x + 3; x < n.x + n.w - 4; x += 4) { const k = ['popcorn_cart', 'lamp_post', 'balloon_bundle'][((x - n.x) / 4) % 3 | 0]; hmPut(x, n.y + 1, k); hmPut(x + 2, n.y + n.h - 2, k === 'lamp_post' ? 'popcorn_cart' : 'lamp_post'); }
+        hmPut(n.x + n.w - 3, n.y + 2, 'high_striker', true, { hmStriker: true });
+        for (let k = 0; k < 4; k++) crate(n.x + 6 + k * 9, r.chance(0.5) ? n.y + 2 : n.y + n.h - 3, r.chance(0.4));
+        for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) if (inRoom(x, y) && Math.abs(y - n.cy) <= 2) set(x, y, TID.hmboard);
+      } else if (n.kind === 'booth') {
+        hmPut(n.x + 1, n.y + 1, 'high_striker', true, { hmStriker: true }); hmPut(n.x + n.w - 2, n.y + 1, 'balloon_bundle');
+        for (const [x, y] of [[n.x + 2, n.y + n.h - 2], [n.x + n.w - 3, n.y + n.h - 2]]) crate(x, y, r.chance(0.5));
+      } else if (n.kind === 'maze') {                                 // lamps at some turns, crates in dead ends, a cannon or two
+        const M0 = m.hmMaze;
+        for (let y = M0.y; y < M0.y + M0.h; y += 3) for (let x = M0.x; x < M0.x + M0.w; x += 3) {
+          if (!isF(x, y)) continue;
+          const open = [[2, 0], [-1, 0], [0, 2], [0, -1]].filter(([dx, dy]) => isF(x + dx, y + dy)).length;
+          if (open === 1 && r.chance(0.6)) crate(x, y, r.chance(0.4));
+          else if (open >= 3 && r.chance(0.4)) hmPut(x + 1, y + 1, 'lamp_post');
+        }
+        for (let k = 0; k < 2; k++) { const x = M0.x + 3 * r.int(1, 7), y = M0.y + 3 * r.int(1, 7); hmPut(x, y, 'circus_cannon', true, { hmCannon: { t: r() * 4 } }); }
+      } else if (n.kind === 'funhouse') {                             // jugglers' drums and cannons first (they stand on floor), then checker and spin tiles
+        m.hmDrumsFun = [];
+        for (const [dx, dy] of [[5, 7], [n.w - 6, 7], [n.w >> 1, 2], [n.w >> 1, n.h - 3]]) { hmPut(n.x + dx, n.y + dy, 'star_drum', false); m.hmDrumsFun.push([n.x + dx + 0.5, n.y + dy + 0.5]); }
+        hmPut(n.x + 1, n.y + 1, 'circus_cannon', true, { hmCannon: { t: 1 } }); hmPut(n.x + n.w - 2, n.y + n.h - 2, 'circus_cannon', true, { hmCannon: { t: 3 } });
+        for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) if (inRoom(x, y)) set(x, y, TID.hmcheck);
+        for (let k = 0; k < 4; k++) { const px = n.x + 4 + k * 6, py = n.y + 3 + (k % 2) * 8; for (let y = py; y < py + 3; y++) for (let x = px; x < px + 3; x++) if (tile(x, y) === TID.hmcheck && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) set(x, y, TID.hmspin); }
+      } else if (n.kind === 'carousel') {                             // sawdust ring; a pole of lamps at the hub; balloons round the edge
+        hmPut(n.cx, n.cy, 'lamp_post'); hmPut(n.cx + 1, n.cy, 'lamp_post');
+        for (let k = 0; k < 8; k++) { const a = (k / 8) * Math.PI * 2 + 0.2; hmPut(Math.round(n.cx + Math.cos(a) * 11), Math.round(n.cy + Math.sin(a) * 11), 'balloon_bundle', false); }
+      } else if (n.kind === 'backstage') { hmPut(n.x + 2, n.y + 2, 'lamp_post'); hmPut(n.x + n.w - 3, n.y + 2, 'lamp_post'); hmPut(n.cx, n.cy + 3, 'star_drum', false); }
+      else if (n.kind === 'bigtop') {                                 // the ring: eight star drums round its edge
+        m.hmDrums = [];
+        for (let k = 0; k < 8; k++) { const a = -Math.PI / 2 + (k / 8) * Math.PI * 2, x = Math.round(n.cx + Math.cos(a) * 14), y = Math.round(n.cy + Math.sin(a) * 16); hmPut(x, y, 'star_drum', false); m.hmDrums.push([x + 0.5, y + 0.5]); }
+        for (let k = 0; k < 4; k++) { const a = Math.PI / 4 + k * Math.PI / 2; hmPut(Math.round(n.cx + Math.cos(a) * 17), Math.round(n.cy + Math.sin(a) * 19), 'lamp_post'); }
+      }
+    },
     keep(n) {
       const corners = (k, inset = 1, solid = true) => { for (const [x, y] of [[n.x + inset, n.y + inset], [n.x + n.w - 1 - inset, n.y + inset], [n.x + inset, n.y + n.h - 1 - inset], [n.x + n.w - 1 - inset, n.y + n.h - 1 - inset]]) ckPut(x, y, k, solid); };
       const statue = (x, y, kind) => ckPut(x, y, kind === 'gargoyle' ? 'gargoyle_statue' : 'armor_stand', true, { ckStatue: kind, real: r.chance(0.25) });   // most are only statues
@@ -1706,7 +1788,7 @@ export function dungeon(seed, def) {
       if (i % 3 === 0) for (const s of [-2, 2]) { const qx = Math.round(x - ((by - ay) / L) * s), qy = Math.round(y + ((bx - ax) / L) * s); if (tile(qx, qy) === TID.bog && !m.objects.some((o) => Math.floor(o.x) === qx && Math.floor(o.y) === qy)) put(m, 'ex_decor/mirerot_reeds', qx, qy, false); }
     }
   }
-  if (boss.shape === 'rect' && !['throne', 'crypt', 'forge', 'theatre', 'sandscour', 'keep'].includes(def.style)) {   // a plain boss hall gets pillars and hazards
+  if (boss.shape === 'rect' && !['throne', 'crypt', 'forge', 'theatre', 'sandscour', 'keep', 'hollowmoon'].includes(def.style)) {   // a plain boss hall gets pillars and hazards
     if (HAZ !== null) for (const [dx, dy] of [[3, 3], [boss.w - 5, 3], [3, boss.h - 5], [boss.w - 5, boss.h - 5]]) carve(boss.x + dx, boss.y + dy, boss.x + dx + 1, boss.y + dy + 1, HAZ);
     for (const [dx, dy] of [[7, 6], [boss.w - 8, 6], [7, boss.h - 7], [boss.w - 8, boss.h - 7]]) set(boss.x + dx, boss.y + dy, WALL);
   }
@@ -1839,7 +1921,7 @@ export function dungeon(seed, def) {
   const DEC = { chapel: ['shell', 'kelp', 'starfish', 'skullmoss'], forge: ['embervent', 'goldrubble', 'bonepile', 'brokenshield'], heart: ['bonepile', 'goldrubble', 'skullmoss', 'embervent'],
     scriptorium: ['icecrystal', 'runepebble', 'snowtuft', 'brokenshield'], crypt: ['bonepile', 'skullmoss', 'shell', 'kelp'],
     ember: ['embervent', 'goldrubble', 'bonepile'], throne: ['goldrubble', 'pillarstub', 'brokenshield'],
-    hive: ['goldrubble', 'shell', 'kelp'], theatre: ['brokenshield', 'goldrubble', 'runepebble'], spire: ['icecrystal', 'runepebble', 'icecrystal'], islands: ['snowtuft', 'runepebble', 'icecrystal'], frostveil: ['snowtuft', 'icecrystal', 'snowtuft', 'runepebble'], mirerot: ['shrooms', 'reeds', 'skullmoss', 'lily'], astral: ['runepebble', 'icecrystal'], sandscour: ['bonepile', 'goldrubble', 'shell'], keep: ['bonepile', 'brokenshield', 'goldrubble'] }[def.style] || ['bonepile', 'goldrubble'];
+    hive: ['goldrubble', 'shell', 'kelp'], theatre: ['brokenshield', 'goldrubble', 'runepebble'], spire: ['icecrystal', 'runepebble', 'icecrystal'], islands: ['snowtuft', 'runepebble', 'icecrystal'], frostveil: ['snowtuft', 'icecrystal', 'snowtuft', 'runepebble'], mirerot: ['shrooms', 'reeds', 'skullmoss', 'lily'], astral: ['runepebble', 'icecrystal'], sandscour: ['bonepile', 'goldrubble', 'shell'], keep: ['bonepile', 'brokenshield', 'goldrubble'], hollowmoon: ['goldrubble', 'shell', 'runepebble'] }[def.style] || ['bonepile', 'goldrubble'];
   for (const n of [...rooms.filter((n) => n !== boss), ...secrets]) {
     for (let j = 0; j < Math.round(n.w * n.h * 0.04); j++) { const x = n.x + r.int(1, n.w - 2), y = n.y + r.int(1, n.h - 2); if (isF(x, y)) m.decor.push({ name: r.pick(DEC), x, y }); }
   }
@@ -1887,7 +1969,7 @@ export function dungeon(seed, def) {
     'ow_objects/godlands_rift_crystal': [2, '#ff5ad0', 0], 'ow_objects/godlands_corrupted_obelisk': [3, '#c03aff', 0],
     'ex_decor/frostveil_frost_brazier': [5, '#a8f0ff', 1], 'ex_decor/frostveil_ice_crystal': [2.2, '#8ad8ff', 0],
     'ex_decor/mirerot_glowshroom_cluster': [4.2, '#8aff6a', 0], 'ex_decor/mirerot_spore_pod': [1.6, '#c8ff8a', 0],
-    'd2_decor/crimson_keep_candelabra': [3.4, '#ffb060', 1],
+    'd2_decor/crimson_keep_candelabra': [3.4, '#ffb060', 1], 'd2_decor/hollowmoon_lamp_post': [4.5, '#ffe090', 1], 'd2_decor/hollowmoon_popcorn_cart': [2.4, '#fff0a0', 0],
     'ex_decor/astral_floating_crystal': [3.6, '#c8a0ff', 0], 'ex_decor/astral_star_globe': [4, '#fff6c8', 0], 'ex_decor/astral_rune_circle': [2.6, '#8af6ff', 0], 'ex_decor/astral_brass_pillar': [2.4, '#ffd690', 0] };
   m.lights = m.objects.filter((o) => LIGHT[o.sprite] && !o.unlit).map((o) => { const L = LIGHT[o.sprite]; return (o.light = { x: o.x, y: o.y - 0.4, r: L[0] * 16, col: L[1], fire: !!L[2] }); });
   if (def.style === 'frostveil') {                                    // the ice: snow in slow patches, ice, frigid water, the wall tops
@@ -1898,6 +1980,15 @@ export function dungeon(seed, def) {
       else if (t === TID.fvice) m.skin[i] = SK.frostveil_ice;
       else if (t === TID.fvwater) m.skin[i] = SK.frostveil_frigid_water;
       else if (t === TID.fvwall) m.skin[i] = SK.frostveil_wall_top;
+    }
+  }
+  if (def.style === 'hollowmoon') {                                   // sawdust in slow patches, planks, checker, spin tiles, canvas
+    const pv = noise2(seed ^ 0x686d6f6f);
+    for (let i = 0; i < m.tiles.length; i++) {
+      const t = m.tiles[i];
+      if (t === TID.hmsaw) m.skin[i] = pv((i % S) / 5, Math.floor(i / S) / 5) > 0.5 ? SK.hollowmoon_sawdust_b : SK.hollowmoon_sawdust_a;
+      else if (t === TID.hmboard) m.skin[i] = SK.hollowmoon_boards; else if (t === TID.hmcheck) m.skin[i] = SK.hollowmoon_funhouse_checker;
+      else if (t === TID.hmspin) m.skin[i] = SK.hollowmoon_spin_tile; else if (t === TID.hmwall) m.skin[i] = SK.hollowmoon_wall_top;
     }
   }
   if (def.style === 'keep') {                                         // stone in slow patches, the runner, marble, blood, the walls

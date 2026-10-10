@@ -73,3 +73,9 @@
 - New dungeon (style `keep`): candlelight vs. the dark, coffins, waking statues, ledge gargoyles, the gallery and the
   crypt, blood pools; Count Vesper. Notes: dungeon_crimson_keep.md, boss_count_vesper.md.
 - Engine: delayed events (`fvLater`) run for every map; window walls; coffin open frames.
+
+## Phase 3 — Hollowmoon Carnival (dungeon 6 of 6)
+- New dungeon (style `hollowmoon`): spin tiles, cannons, strikers, jack crates, the carousel, ghouls through walls;
+  the Grinning Ringmaster. Notes: dungeon_hollowmoon.md, boss_grinning_ringmaster.md.
+- Framework: `dmgMult` and `barTag` boss hooks; `lureTo`, `noclip` and `ai: 'carousel'` on enemies.
+- Fix: the Trick Deck's missing curse.

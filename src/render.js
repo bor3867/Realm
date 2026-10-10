@@ -16,7 +16,7 @@ const MINI = { 0: '#1e5078', 1: '#102c48', 2: '#d2b074', 3: '#3e6230', 4: '#4e41
   26: '#f0dcae', 27: '#b8dcd8', 28: '#2e3a22', 29: '#121c0e', 30: '#b89a48', 31: '#8a7aa8',
   32: '#3a4a5c', 33: '#7486a0', 34: '#2a6c9c', 35: '#3c2a28', 36: '#6c524a', 37: '#ff8c1e', 38: '#8e1e30',
   39: '#a86e26', 40: '#e8c878', 41: '#ffc040', 42: '#7a4e28', 43: '#6a1224', 44: '#2e2e56', 45: '#8a6ad0', 46: '#8878bc', 47: '#d8d0f4', 48: '#0a0618', 49: '#d8a8e8', 50: '#98c0f0', 51: '#1a1236',
-  52: '#5a5866', 53: '#c02a8a', 54: '#dceaf4', 55: '#9ad4f0', 56: '#2a6c9c', 57: '#4a5e86', 58: '#5a4a2e', 59: '#3e6a2a', 60: '#8a7a52', 61: '#2e3a22', 62: '#c8c0dc', 63: '#a87a3a', 64: '#0a0618', 65: '#4a3a7a', 66: '#e0c080', 67: '#a8885a', 68: '#8a6a3a', 69: '#6a4a2a', 70: '#4a4450', 71: '#8e1e30', 72: '#c8c0c8', 73: '#5a0a14', 74: '#2a2430', 75: '#3a3448' };   // cliff, rift, Frostveil snow, ice, frigid water, wall
+  52: '#5a5866', 53: '#c02a8a', 54: '#dceaf4', 55: '#9ad4f0', 56: '#2a6c9c', 57: '#4a5e86', 58: '#5a4a2e', 59: '#3e6a2a', 60: '#8a7a52', 61: '#2e3a22', 62: '#c8c0dc', 63: '#a87a3a', 64: '#0a0618', 65: '#4a3a7a', 66: '#e0c080', 67: '#a8885a', 68: '#8a6a3a', 69: '#6a4a2a', 70: '#4a4450', 71: '#8e1e30', 72: '#c8c0c8', 73: '#5a0a14', 74: '#2a2430', 75: '#3a3448', 76: '#c8a070', 77: '#8a6a48', 78: '#e8e0f0', 79: '#c83a8a', 80: '#6a1a3a' };   // cliff, rift, Frostveil snow, ice, frigid water, wall
 const DIRS = [[0, -1], [1, 0], [0, 1], [-1, 0]];          // N E S W (matches edge sheet order)
 const WEATHER = {
   shore: { n: 36, color: ['#e8f6ff', '#a8d8f0'], vx: 9, vy: 2, size: 1, blink: false },
@@ -34,6 +34,7 @@ const WEATHER = {
   mirerot: { n: 30, color: ['#c8ff8a', '#8aff6a', '#e8ffd0'], vx: 1, vy: -2, size: 1, blink: true },        // spores drifting up in the dark
   astral: { n: 40, color: ['#ffffff', '#ffd690', '#c8a0ff'], vx: 0.5, vy: 0.4, size: 1, blink: true },         // stars, near and far
   keep: { n: 22, color: ['#8e1e30', '#c8b0a0', '#5a0a14'], vx: -1, vy: 1.5, size: 1, blink: false },          // dust and the odd drop of red
+  hollowmoon: { n: 36, color: ['#ff8fbf', '#ffd650', '#8af6ff', '#7aff9a'], vx: 0.5, vy: 3, size: 1, blink: true },   // confetti, still falling
 };
 
 // minimap markers: o outline, 1 main colour, 2 accent
@@ -169,6 +170,12 @@ export class Renderer {
     if (g.activeMap === m) for (const e of g.notable) if (e.bx && e.bx.B.drawGround && !e.dead) e.bx.B.drawGround(this, g, e);   // a boss's hazards on the ground
     if (m.mrClouds || m.mrPuddles) this.mireFx(g, m);
     if (m.asClocks || m.asDais) this.astralFx(g, m);
+    if (m.hmCannons) for (const o of m.hmCannons) if (o.hmCannon.aim !== null && o.hmCannon.aim !== undefined) {   // a cannon's line: where the glove will fly
+      const a = o.hmCannon.aim, b = this.b, k = Math.max(0, Math.min(1, 1 - o.hmCannon.t / 1.2));
+      b.fillStyle = Math.floor(g.t * 10) % 2 ? '#ff4a8a' : '#ffd650'; b.globalAlpha = 0.4 + 0.5 * k;
+      for (let d = 1; d < 15; d += 0.5) { const [x, y] = this.proj(o.x + Math.cos(a) * d, o.y - 0.4 + Math.sin(a) * d); if (Math.floor(d * 2) % 2) b.fillRect(Math.round(x), Math.round(y), 2, 2); }
+      b.globalAlpha = 1;
+    }
     list.sort((a, c) => a.sy - c.sy);
     for (const d of list) d.f();
     if (g.player.hook) this.hookFx(g, g.player.hook);
@@ -433,6 +440,7 @@ export class Renderer {
       if (o.sdSarc) fr = A.frames[o.openT === undefined ? 0 : Math.min(A.frames.length - 1, Math.floor((this.lastT - o.openT) * 8))];   // a sarcophagus: shut, or its lid sliding open
       else if (o.sdUrn) fr = A.frames[o.cracked ? 1 : 0];
       else if (o.ckCoffin && def.anims.open) fr = (o.openT === undefined ? def.anims.closed : def.anims.open).frames[0];   // a coffin, shut or open
+      else if (o.hmStriker && def.anims.ring) { const k = this.lastT - (o.ringT || -9); fr = k < 0.8 ? def.anims.ring.frames[Math.min(def.anims.ring.frames.length - 1, Math.floor(k * 8))] : def.anims.idle.frames[0]; }   // the puck flies up and rings the bell
       if (o.solid) this.shadow(sx, sy + 7, def.size[1] > 8 ? 12 : 10);
       if (o.fuse !== undefined) { this.drawDef(def, fr, sx, sy + 8, { scale: 1.3, flash: Math.floor(this.lastT * 20) % 2 === 0 }); return; }   // a spore pod about to burst
       this.drawDef(def, fr, sx, sy + 8, o.unlit ? { alpha: 0.45 } : undefined);   // a brazier gone out is dark and still
@@ -944,10 +952,11 @@ export class Renderer {
     if (!def) return;
     if (e.under) return this.mound(g, e, sx, sy, 10);
     const F = Object.keys(def.frames), mv = def.anims.move ? def.anims.move.frames : F.slice(0, 2);
+    const fAtk = def.anims.attack ? def.anims.attack.frames[def.anims.attack.frames.length - 1] : F[2], fHurt = def.anims.hurt ? def.anims.hurt.frames[0] : F[3];   // by clip: some have three gallop frames
     let fr;
-    if (e.dead || e.shellT > 0) fr = F[3];
-    else if (e.state === 'tell' || e.state === 'charge' || e.state === 'attack') fr = F[2];
-    else if (e.hurtT > 0.03) fr = F[3];
+    if (e.dead || e.shellT > 0) fr = fHurt;
+    else if (e.state === 'tell' || e.state === 'charge' || e.state === 'attack') fr = fAtk;
+    else if (e.hurtT > 0.03) fr = fHurt;
     else fr = mv[Math.floor(g.t * (e.hop || e.sk || e.dive ? 9 : 5) + e.phase) % mv.length];
     const L = this.alive(g, e, sx, sy, 16), K = e.D.scale || 1;
     L.flip = !L.flip;                                       // the bundle's art faces right; the old sheets face left
@@ -1094,7 +1103,7 @@ export class Renderer {
     if (!e.dead && !S.B.noShadow) this.shadow(sx, sy, Math.min(48, W * 0.55));
     const hy = this.R ? hoverY(this.R, def, g.t, S.phase0, S.phase) : 0;
     if (e.dead) this.b.globalAlpha = Math.max(0, 1 - e.deadT / 1.4);
-    this.drawDef(def, fr, sx, sy + hy, { flip: !!e.face, flash: S.flashT > 0 && S.state !== 'death' });
+    this.drawDef(def, fr, sx, sy + hy - (S.leapZ || 0), { flip: !!e.face, flash: S.flashT > 0 && S.state !== 'death' });
     this.b.globalAlpha = 1;
     if (S.B.draw) S.B.draw(this, g, e, sx, sy);
   }
@@ -1601,7 +1610,7 @@ export class Renderer {
     this.parts = keep;
   }
   drawWeather(g, dt) {
-    const dz = { chapel: 'shore', heart: 'godfall', crypt: 'crypt', ember: 'forge', frostveil: 'frostveil', mirerot: 'mirerot', astral: 'astral', sandscour: 'dunes', keep: 'keep' };
+    const dz = { chapel: 'shore', heart: 'godfall', crypt: 'crypt', ember: 'forge', frostveil: 'frostveil', mirerot: 'mirerot', astral: 'astral', sandscour: 'dunes', keep: 'keep', hollowmoon: 'hollowmoon' };
     const bi = g.map.kind === 'realm' ? BIOMES[biomeAt(g.map, g.player.x, g.player.y)] : g.map.kind === 'dungeon' ? (dz[g.map.def && Object.keys(g.map.def).length && g.map.def.portal] || 'forge') : 'nexus';
     const kind = WEATHER[bi] ? bi : null;
     const BW = this.buf.width, BH = this.buf.height, b = this.b;

@@ -687,7 +687,30 @@ UT.push(
   { id: 'nightfall_scythe', type: 'sword', slot: 'weapon', name: 'The Nightfall Scythe', reg: 'd2_items/nightfall_scythe', legendary: true,
     weapon: { dmg: [210, 290], count: 3, arc: 0.6, range: 3.6, speed: 9, rate: 0.9, proj: 'd2_projectiles/crimson_keep.crimson_slash', size: 0.55, pierce: true }, desc: 'The Count\'s own blade. Night falls in a wide red arc, and drinks.' },
 );
+// ---- the Grinning Ringmaster's (Hollowmoon Carnival; icons from d2_items). The Grinning Mask drops only from a phase-3 kill.
+UT.push(
+  { id: 'ringmaster_cane', type: 'wand', slot: 'weapon', name: 'The Ringmaster\'s Cane', reg: 'd2_items/ringmaster_cane',
+    weapon: { dmg: [125, 190], range: 8.6, speed: 19, rate: 1.05, proj: 'bx2_shots/grinning_ringmaster.cane_star', size: 0.45 }, desc: 'Point it and say "and now". Something always happens.' },
+  { id: 'jugglers_dagger', type: 'dagger', slot: 'weapon', name: 'Juggler\'s Dagger', reg: 'd2_items/jugglers_dagger',
+    weapon: { dmg: [120, 175], range: 3.8, speed: 13, rate: 1.5, proj: 'd2_projectiles/hollowmoon.thrown_knife', size: 0.42 }, desc: 'Throw it. It comes back. It always comes back.' },
+  { id: 'carousel_bow', type: 'bow', slot: 'weapon', name: 'Carousel Bow', reg: 'd2_items/carousel_bow',
+    weapon: { dmg: [70, 108], count: 3, arc: 0.2, range: 6.4, speed: 17, rate: 1.05, proj: 'd2_projectiles/hollowmoon.horseshoe', size: 0.45, pierce: true }, desc: 'Painted horses gallop round its grip. Its arrows go round and round, then in.' },
+  { id: 'harlequin_garb', type: 'robe', slot: 'armor', name: 'Harlequin Garb', reg: 'd2_items/harlequin_garb', bonus: { def: 12, dex: 8, spd: 6 },
+    desc: 'Diamonds of every colour. It makes you very hard to hit, and impossible to miss.' },
+  { id: 'ring_of_the_jester', type: 'ring', slot: 'ring', name: 'Ring of the Jester', reg: 'd2_items/ring_of_the_jester', bonus: { att: 4, dex: 6, spd: 4 },
+    desc: 'It jingles. Your luck is better for wearing it, and so is your timing.' },
+  { id: 'trick_deck', type: 'hex', slot: 'ability', name: 'The Trick Deck', reg: 'd2_items/trick_deck',
+    ability: { cost: 80, curse: { t: 6, f: 0.3, r: 3.6 }, burst: { count: 18, proj: 'bx2_shots/grinning_ringmaster.playing_card', dmg: 170, range: 6 } }, desc: 'Pick a card. Any card. They all curse.' },
+  { id: 'grinning_mask', type: 'ring', slot: 'ring', name: 'The Grinning Mask', reg: 'd2_items/grinning_mask', bonus: { att: 8, dex: 8 }, legendary: true,
+    desc: 'It smiles for you. When you land a lucky blow, it laughs, and the blow lands three times over.' },
+);
 Object.assign(SPECIAL, {
+  jugglers_dagger: { weapon: { boomerang: true } },
+  carousel_bow: { weapon: { homing: 1.6 } },
+  harlequin_garb: { passive: { dodge: 0.12 } },
+  ring_of_the_jester: { passive: { crit: { p: 0.1, x: 2 } } },
+  trick_deck: { mod: 'contagion' },
+  grinning_mask: { passive: { crit: { p: 0.12, x: 3 } } },
   crimson_rapier: { weapon: { lifesteal: 0.02 } },
   bloodthorn_staff: { weapon: { split: { n: 4, proj: 'thornseed', f: 0.3 } } },
   batwing_bow: { weapon: { homing: 0.8 } },
@@ -775,6 +798,7 @@ for (const [d, name, desc, reg] of [
   ['frostveil', 'Frostveil Key', 'Cut from clear ice. It does not melt in your hand, which is worse.', 'ix_items/frostveil_key'],
   ['mirerot', 'Mirerot Key', 'Grown, not forged. It is slightly warm and very slightly alive.', 'ix_items/mirerot_key'],
   ['astral', 'Astral Key', 'Brass and starlight. It ticks.', 'ix_items/astral_key'],
+  ['hollowmoon', 'Hollowmoon Ticket', 'ADMIT ONE. The moon on it is grinning.', 'd2_items/hollowmoon_key'],
   ['keep', 'Crimson Key', 'Iron, warm, and slightly sticky. Don\'t ask.', 'd2_items/crimson_key'],
   ['sandscour', 'Sandscour Key', 'A scarab of beaten gold. Its legs twitch when you aren\'t looking.', 'ix_items/sandscour_key'],
 ]) add({ id: `key_${d}`, type: 'key', slot: 'consumable', tier: null, name, use: { key: d }, reg: reg || undefined, desc: `${desc} Use it outside a dungeon to open a portal there.` });

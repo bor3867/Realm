@@ -193,6 +193,7 @@ export const BXF = {
   bxClamp(e, d) {
     const S = e.bx;
     if (!S) return d;
+    if (S.B.dmgMult) d = Math.round(d * S.B.dmgMult(this, e));       // a boss's own weak moments (the Ringmaster's lantern eyes)
     const th = this.bxThresholds(e), next = th[S.phase - 1];
     if (next !== undefined && e.hp - d <= e.maxHp * next) { const keep = e.hp - e.maxHp * next; this.bxMorph(e); return Math.max(0, keep); }
     if (e.hp - d <= 0 && S.state !== 'death') { this.bxDie(e); return 0; }   // bxDie leaves it at 1 life while the death clip plays
@@ -257,7 +258,7 @@ export const BXF = {
   bxBar(e) {
     const S = e.bx;
     if (!S || !S.def) return null;
-    return { pips: this.bxThresholds(e), phase: S.phase, name: S.def.phases[S.phase].name, immune: ['intro', 'morph', 'death', 'sleep'].includes(S.state) };
+    return { pips: this.bxThresholds(e), phase: S.phase, name: S.def.phases[S.phase].name + (S.B.barTag ? S.B.barTag(this, e) : ''), immune: ['intro', 'morph', 'death', 'sleep'].includes(S.state) };
   },
 };
 export function installBX(Game) { Object.assign(Game.prototype, BXF); }

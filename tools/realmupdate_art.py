@@ -90,7 +90,25 @@ def _keep(f):
     return c.done()
 
 
-PORTALS = {'frostveil': _frostveil, 'mirerot': _mirerot, 'astral': _astral, 'sandscour': _sandscour, 'keep': _keep}
+def _hollowmoon(f):
+    """Hollowmoon Carnival: a striped tent flap open on a grinning-moon swirl, a pennant on top"""
+    c = _PT.Cv()
+    for y in range(3, 16):
+        half = (y - 3) * 0.55 + 1.2
+        for x in range(16):
+            if abs(x - 7.5) <= half:
+                c.p(x, y, 'R' if int((x - 7.5) / 1.6 + 8) % 2 else 'W')
+    c.swirl(7.5, 11.0, 3.0, 3.8, ['G', 'Y', 'v', 'q'], f, arms=2)
+    for x in (5, 6, 9, 10):                                  # the moon's grin across the swirl
+        c.p(x, 12 if x in (5, 10) else 13, 'G')
+    c.p(7, 0, 'G'); c.p(7, 1, 'k'); c.p(7, 2, 'k')              # the pole and its pennant, flapping
+    c.p(8 + (f % 2), 0, 'R'); c.p(8, 1, 'R' if f != 2 else 'r')
+    for x in range(1, 15):
+        c.p(x, 15, 'g' if (x + f) % 3 else 'Y')
+    return c.done()
+
+
+PORTALS = {'frostveil': _frostveil, 'mirerot': _mirerot, 'astral': _astral, 'sandscour': _sandscour, 'keep': _keep, 'hollowmoon': _hollowmoon}
 
 # ---- tiles the bundle didn't bring (8x8, the dungeons4 format: palette, [variants[frames[rows]]])
 _BOARD = ['bbbbcbbb', 'ccccbcec', 'aaaaaaaa', 'bbcbbbbb', 'cbcccccb', 'aaaaaaaa', 'bbbbbcbb', 'ccccccbc']
