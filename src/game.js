@@ -21,6 +21,7 @@ import { installRemaster } from './remaster.js';
 import { installSetpieces, wireBxSetpieces } from './setpieces.js';
 import { installBX } from './bossx.js';
 import { BX, bxEnemyDef } from './bosses/index.js';
+import { assignItemShots } from './data/uniques.js';
 import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUEST_HUNTS, FETCH_ITEMS } from './data/lore.js';
 
 import { PET_KINDS, RARITY, PET_TICK, SHIELD_TICK, PET_MAX, petHeal, petMagic, petShield, petCap, petLevel, feedCost, feedValue, hatchKind, newPet, upgradePet, feed, canMorph, morph, FUSE_GOLD, petSprite, petName, petStage, START_LV, FAMILIES, eggId } from './data/pets.js';
@@ -55,6 +56,7 @@ const FORTUNES = ['You will meet a tall, dark monster. It will be very rude.', '
 export class Game {
   constructor(assets, save) {
     this.A = assets;
+    assignItemShots(assets.reg, Object.fromEntries(Object.entries(BX).map(([k, B]) => [k, B.loot])));   // every relic its own shot (src/data/uniques.js)
     this.save = save;
     this.mode = 'title';
     this.t = 0;
@@ -843,8 +845,9 @@ export class Game {
       this.vx({ k: 'muzzle', x: ox + Math.cos(a) * 0.5, y: oy + Math.sin(a) * 0.5, proj: W.proj });
       this.sfx('shoot', p.cls);
       const sp = W.special || null;
-      for (let k = 0; k < W.count; k++) {
-        const off = W.count > 1 ? (k / (W.count - 1) - 0.5) * W.arc : 0;
+      const cnt = W.count || 1;                              // a weapon that names no count fires one shot (some relics left it out and fired nothing)
+      for (let k = 0; k < cnt; k++) {
+        const off = cnt > 1 ? (k / (cnt - 1) - 0.5) * (W.arc || 0) : 0;
         const dmg = Math.round((W.dmg[0] + R() * (W.dmg[1] - W.dmg[0])) * mult);
         const b = this.shoot('p', ox, oy, a + off, W.speed, W.range, dmg, W.proj, W.size, W.pierce);
         if (sp) { b.sp = sp; b.speed = W.speed; b.max = b.life; }
@@ -884,6 +887,25 @@ export class Game {
       }
     }
   }
+  // an ability's signature: one of six shapes, drawn with the item's own shot
+  abilitySig(S, mult, aim, tgt) {
+    const p = this.player, [ox, oy] = this.up(p.x, p.y, 0.5), dmg = Math.round(S.dmg * mult), proj = S.proj || 'spark', n = S.n || 6;
+    if (S.kind === 'nova') for (let k = 0; k < n; k++) this.shoot('p', ox, oy, aim + (k / n) * TAU, 8, 6, dmg, proj, 0.5, true);
+    else if (S.kind === 'lance') for (let k = 0; k < n; k++) this.shoot('p', ox, oy, aim + (k - (n - 1) / 2) * 0.12, 14, 12, dmg, proj, 0.62, true);
+    else if (S.kind === 'wave') {
+      const perp = aim + Math.PI / 2;
+      for (let k = 0; k < n; k++) { const o = (k - (n - 1) / 2) * 0.55; this.shoot('p', ox + Math.cos(perp) * o, oy + Math.sin(perp) * o, aim, 9, 9, dmg, proj, 0.5, true); }
+    } else if (S.kind === 'mines') {
+      const at = tgt(8);
+      for (let k = 0; k < n; k++) { const a = (k / n) * TAU, b = this.shoot('p', at.x + Math.cos(a) * 1.2, at.y - 0.5 + Math.sin(a) * 1.2, a, 6, 3.2, dmg, proj, 0.5, true); b.mv = { hold: 0.55 }; b.t = 0; }
+    } else if (S.kind === 'rain') {
+      const at = tgt(9);
+      for (let k = 0; k < n; k++) this.fvLater(k * 0.07, () => { const x = at.x + (R() - 0.5) * 3, y = at.y + (R() - 0.5) * 2.4; this.shoot('p', x, y - 5, Math.PI / 2, 12, 5, dmg, proj, 0.5, true); });
+    } else if (S.kind === 'spiral') {
+      const a0 = aim;
+      for (let st = 0; st < 9; st++) this.fvLater(st * 0.1, () => { if (p.dead) return; const [x, y] = this.up(p.x, p.y, 0.5); for (let k = 0; k < n; k++) this.shoot('p', x, y, a0 + st * 0.35 + (k / n) * TAU, 8, 6, dmg, proj, 0.45, true); });
+    }
+  }
   useAbility() {
     const p = this.player;
     if (this.mode !== 'play' || p.dead) return;
@@ -907,6 +929,7 @@ export class Game {
       return { x: p.x + Math.cos(aim) * d, y: p.y + Math.sin(aim) * d };
     };
     const type = ITEMS[id].type;
+    if (A.sig) this.abilitySig(A.sig, mult, aim, tgt);   // the item's own signature, whatever its type (src/data/uniques.js)
     if (type === 'bellows') {
       // BELLOWS CHARGE: an untouchable dash that batters everything in its path, then an ember blast
       const len = 4.2 + (B.range - 3) * 0.6;
@@ -2967,14 +2990,15 @@ export class Game {
     const m = this.map;
     if (!m.brk || this.t - m.brkT > 0.5) {
       m.brkT = this.t; m.brk = new Set();
-      for (const q of m.objects) if (q.sdUrn || q.hmStriker || q.hmCrate || (q.interact === 'chest' && !q.opened)) m.brk.add(Math.floor(q.y) * m.w + Math.floor(q.x));
+      for (const q of m.objects) if (q.sdUrn || q.hmStriker || q.hmCrate || (q.mrPod && !q.burst) || (q.interact === 'chest' && !q.opened)) m.brk.add(Math.floor(q.y) * m.w + Math.floor(q.x));
     }
     return m.brk.size > 0 && m.brk.has(Math.floor(y) * m.w + Math.floor(x));
   }
   hitObject(x, y, dmg) {
     const m = this.map, xi = Math.floor(x), yi = Math.floor(y);
-    const o = m.objects.find((q) => (q.interact === 'weak' || q.sdUrn || q.hmStriker || q.hmCrate || (q.interact === 'chest' && !q.opened)) && Math.floor(q.x) === xi && Math.floor(q.y) === yi);
+    const o = m.objects.find((q) => (q.interact === 'weak' || q.sdUrn || q.hmStriker || q.hmCrate || (q.mrPod && !q.burst) || (q.interact === 'chest' && !q.opened)) && Math.floor(q.x) === xi && Math.floor(q.y) === yi);
     if (!o) return;
+    if (o.mrPod) { m.brkT = -9; return this.mrBurst(o); }        // a spore pod pops the moment your shot reaches it
     if (o.sdUrn) return this.hitUrn(o);
     if (o.hmStriker || o.hmCrate) return this.hitFair(o);
     if (o.interact === 'weak') return this.hitWeak(o);

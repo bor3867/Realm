@@ -175,3 +175,15 @@
   distance); background layers for the Sleeper and Maestro Lucan; denser patterns for both.
 - No more white flash on bosses (hits or wind-ups).
 - Checks: `tools/check_setpieces.mjs`, `tools/check_old_boss_pressure.mjs`.
+
+## Fixes and a pass over every relic
+- UI: bigger equipment, backpack and potion slots (as big as the panel allows); a slightly smaller minimap; the loot
+  bag is one row of eight, so the loot and dungeon-portal panels always fit.
+- Only large things block (trees, rocks, spires, pillars, walls, statues, great furniture, gates); chests, crates,
+  barrels, braziers, fences, seats, signs, lamps, shrines and people are walkable. Chests, urns, crates and spore pods
+  still catch your shots.
+- The Kraken's pool drains to wadeable shallows after it dies, so its loot can be reached; it deepens again when the
+  Kraken returns.
+- The loot bags have their old art back.
+- Every untiered, legendary and mythic item has an effect and a shot of its own (docs/design/11_unique_items.md);
+  14 weapons that fired nothing now fire (the Wand of Hoarfrost among them).

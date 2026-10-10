@@ -855,6 +855,9 @@ const MOD_TEXT = {
 };
 export function specialLines(it) {
   const L = [], w = it.weapon && it.weapon.special, p = it.passive;
+  const sg = it.ability && it.ability.sig;                // its signature on every use (src/data/uniques.js)
+  if (sg) L.push({ nova: `Signature: a ring of ${sg.n} shots bursts from you`, rain: `Signature: ${sg.n} shots rain onto the cursor`, mines: `Signature: ${sg.n} mines at the cursor, which burst`,
+    wave: `Signature: a wall of ${sg.n} shots sweeps forward`, spiral: `Signature: a ${sg.n}-armed spiral turns out from you`, lance: `Signature: ${sg.n} heavy piercing lances` }[sg.kind] + ` (${sg.dmg} each)`);
   if (w) {
     if (w.homing && !(it.type === 'lantern' && !it.ut)) L.push('Shots seek enemies');
     if (w.chain) L.push(`Arcs to ${w.chain.n} more enemies (${Math.round(w.chain.f * 100)}%)`);
