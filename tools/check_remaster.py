@@ -14,7 +14,7 @@ import tempfile
 
 sys.path.insert(0, os.path.dirname(__file__))
 from reduce import read_png  # noqa: E402
-from apply_remaster import CREATURES, RM, ROOT, spans, sheet_entries  # noqa: E402
+from apply_remaster import CREATURES, RM, ROOT, spans, sheet_entries, KEEP_OLD  # noqa: E402
 
 fail = 0
 
@@ -54,7 +54,7 @@ for sheet, C in cols.items():
     get = lambda img, k: [tuple(img[(k // C) * cell + y][(k % C) * cell + x]) for y in range(cell) for x in range(cell)]
     ok = blank = 0
     for name, (a, n0) in s0.items():
-        if name not in s1:
+        if name not in s1 or name in KEEP_OLD:
             continue
         b, n1 = s1[name]
         for q in range(min(n0, n1)):

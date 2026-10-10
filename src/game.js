@@ -2962,6 +2962,15 @@ export class Game {
       else this.toast('Locked tight. Break it open: only your own hits count toward its loot.');
     }
   }
+  // the tiles holding something you can break by shooting it (rebuilt twice a second: chests open, urns break)
+  breakableAt(x, y) {
+    const m = this.map;
+    if (!m.brk || this.t - m.brkT > 0.5) {
+      m.brkT = this.t; m.brk = new Set();
+      for (const q of m.objects) if (q.sdUrn || q.hmStriker || q.hmCrate || (q.interact === 'chest' && !q.opened)) m.brk.add(Math.floor(q.y) * m.w + Math.floor(q.x));
+    }
+    return m.brk.size > 0 && m.brk.has(Math.floor(y) * m.w + Math.floor(x));
+  }
   hitObject(x, y, dmg) {
     const m = this.map, xi = Math.floor(x), yi = Math.floor(y);
     const o = m.objects.find((q) => (q.interact === 'weak' || q.sdUrn || q.hmStriker || q.hmCrate || (q.interact === 'chest' && !q.opened)) && Math.floor(q.x) === xi && Math.floor(q.y) === yi);
@@ -3216,7 +3225,8 @@ export class Game {
       }
       if (!b.orb) { b.x += b.vx * dt; b.y += b.vy * dt; }
       b.life -= dt;
-      if (b.life <= 0 || (!b.back && !b.orb && shotBlocked(m, b.x, b.y + 0.3))) {
+      const onBreakable = b.from === 'p' && m.kind !== 'nexus' && this.breakableAt(b.x, b.y + 0.3);   // chests and urns you walk through still catch your shots
+      if (b.life <= 0 || onBreakable || (!b.back && !b.orb && shotBlocked(m, b.x, b.y + 0.3))) {
         if (b.from === 'p' && b.life > 0 && m.kind !== 'nexus') this.hitObject(b.x, b.y + 0.3, b.dmg);
         if (sp && sp.split && sp.split.onEnd && !b.child && b.from === 'p') this.splitShot(b, sp.split);
         continue;

@@ -67,8 +67,13 @@ export function isSolid(m, x, y) {
   if (xi < 0 || yi < 0 || xi >= m.w || yi >= m.h) return true;
   return m.solid[yi * m.w + xi] === 1;
 }
+// only the big things stop you: trees, rocks, spires, pillars and walls, statues, the great furniture, gates. Chests,
+// crates, barrels, braziers, candles, fences, seats, signs, lamps, shrines and people you walk through, as in RotMG
+const BIG = /tree|palm|pine|oak|saguaro|giant_mushroom|rotting_log|boulder|rock|cairn|spire|crystal_cluster|ice_crystal|pillar|column|obelisk|wall|statue|whale_rib|fallen_head|bookshelf|furnace|well$|fountain|throne|sarcophag|coffin|gate|telescope|star_globe|high_striker|circus_cannon|rowboat|ticket_booth|stage_moon|great_lens|golem_husk|anvil_block|crucible|stump|gargoyle/;
+export const blocks = (sprite) => BIG.test(sprite || '');
 function finalize(m) {
   for (let i = 0; i < m.tiles.length; i++) if (SOLID_TILES.has(m.tiles[i])) m.solid[i] = 1;
+  for (const o of m.objects) if (o.solid && !blocks(o.sprite)) o.solid = false;
   for (const o of m.objects) if (o.solid) m.solid[idx(m, Math.floor(o.x), Math.floor(o.y))] = 1;
   return m;
 }

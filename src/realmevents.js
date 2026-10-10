@@ -98,11 +98,36 @@ const methods = {
     m.ogridDirty = true; m.miniDirty = true;
     return (m.treantArena = { x: cx + 0.5, y: cy + 0.5, box: { x: cx - 11, y: cy - 11, w: 23, h: 23 } });
   },
+  // when the Kraken dies its pool drains, ring by ring from the edge in, to shallows you can wade (its loot lands in
+  // the middle); the next time it rises the pool is deep again
+  krakenDrain() {
+    const m = this.map, A = m.krakenArena;
+    if (!A) return;
+    const cx = Math.floor(A.x), cy = Math.floor(A.y);
+    m.krakenDrained = true;
+    for (let r = 5; r >= 0; r--) this.fvLater((5 - r) * 0.55, () => {
+      for (let yy = -r - 1; yy <= r + 1; yy++) for (let xx = -r - 1; xx <= r + 1; xx++) {
+        const d = Math.hypot(xx, yy), i = (cy + yy) * m.w + cx + xx;
+        if (d > r - 0.5 && d <= r + 0.5 && m.tiles[i] === TID.deep) { this.evSet(cx + xx, cy + yy, TID.shallows, SK.shallows); m.biome[i] = 0; }
+      }
+      this.vx({ k: 'burst', x: cx + 0.5, y: cy + 0.5, n: 10, colors: ['#c8eeff', '#7ec0e4', '#ffffff'] });
+      m.miniDirty = true;
+    });
+  },
+  krakenRefill() {
+    const m = this.map, A = m.krakenArena;
+    if (!A || !m.krakenDrained) return;
+    m.krakenDrained = false;
+    const cx = Math.floor(A.x), cy = Math.floor(A.y);
+    for (let yy = -5; yy <= 5; yy++) for (let xx = -5; xx <= 5; xx++) if (Math.hypot(xx, yy) < 4.2) this.evSet(cx + xx, cy + yy, TID.deep, SK['deep_water@deep']);
+    m.miniDirty = true;
+  },
   // raise an event boss: its arena, the boss asleep in it, the announcement
   spawnEventBoss(id, announce = true) {
     if (this.enemies.some((e) => e.D.bx === id && !e.dead)) return null;
     const A = id === 'abyssal_kraken' ? this.krakenArena() : this.treantArena();
     if (!A) return null;
+    if (id === 'abyssal_kraken') this.krakenRefill();
     const e = this.spawnRealmBoss(id, { x: A.x, y: A.y }, bxEnemyDef(id));
     if (!e) return null;
     e.state = 'sleep'; e.room = A.box; e.home = { x: A.x, y: A.y };

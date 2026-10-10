@@ -116,7 +116,7 @@ export default {
     if (S.chainAt && g.t >= S.chainAt) chain(g, e);
   },
   onPhase(g, e) { const S = e.bx; S.whirls = []; S.lures = []; S.chainAt = 0; },
-  onDeath(g, e) { const S = e.bx; S.whirls = []; S.lures = []; S.chainAt = 0; },
+  onDeath(g, e) { const S = e.bx; S.whirls = []; S.lures = []; S.chainAt = 0; if (g.krakenDrain) g.krakenDrain(); },   // its pool drains so you can reach the loot
   // drawn on the water, under the bullets: the whirlpools, the lures and their flickering links
   drawGround(r, g, e) {
     const S = e.bx, b = r.b;

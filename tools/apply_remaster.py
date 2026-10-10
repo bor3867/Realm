@@ -33,6 +33,9 @@ CREATURES = {**{f'cls_{c}.png': f'art/sprites/player/{c}/{f}_sheet.png' for c, f
              'unstruck.png': 'art/sprites/bosses/unstruck_sheet.png'}
 
 
+KEEP_OLD = {('b', k) for k in ('brown', 'purple', 'white', 'starfall', 'divine')}
+
+
 def creatures():
     n = 0
     for src, dst in CREATURES.items():
@@ -88,6 +91,8 @@ def world():
         for name, (a, n0) in s0.items():
             if name not in s1:
                 continue                                        # an original sprite the game no longer has: nothing to replace
+            if name in KEEP_OLD:
+                continue                                        # turned down: the loot bags keep their own art
             b, n1 = s1[name]
             n = min(n0, n1)
             for q in range(n):
