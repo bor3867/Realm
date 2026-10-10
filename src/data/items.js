@@ -581,6 +581,8 @@ UT.push(
     weapon: { dmg: [38, 62], count: 5, arc: 0.45, range: 5.2, speed: 15, rate: 1.0, proj: 'thornseed', size: 0.4 }, desc: 'Five seeds a pull, in a wide spray. Aim roughly.' },
   { id: 'rind_bulwark', type: 'seal', slot: 'ability', name: 'Rind Bulwark', reg: 'mx_items/rind_bulwark',
     ability: { cost: 70, armored: 4, heal: 100, burst: { count: 12, proj: 'thornseed', dmg: 120, range: 4 } }, desc: 'A shield of thick green rind. Slam it down and the seeds fly.' },
+  { id: 'melon_orb', type: 'hex', slot: 'ability', name: 'The Melon Orb', reg: 'mx_items/melon_orb',
+    ability: { cost: 80, curse: { t: 5, f: 0.25, r: 3.4 }, burst: { count: 10, proj: 'thornseed', dmg: 140, range: 4.5 } }, desc: 'A little green moon, ripe and humming. Throw its curse and the seeds scatter out of it.' },
   { id: 'ring_of_the_rind', type: 'ring', slot: 'ring', name: 'Ring of the Rind', reg: 'mx_items/ring_of_the_rind', bonus: { hp: 80, def: 4 },
     desc: 'A green band with a stripe of red inside, like a slice held up to the light.' },
   { id: 'honeydew_scepter', type: 'wand', slot: 'weapon', name: 'Honeydew Scepter', reg: 'mx_items/honeydew_scepter',

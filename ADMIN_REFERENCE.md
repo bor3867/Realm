@@ -683,6 +683,7 @@ Use with `/give ID [N]`. Tiered gear ids are `TYPE_tN` (rings are `ring_STAT_tN`
 | `vinegrown_staff` | Vinegrown Staff | Untiered Staff · Summoner, Stormwright, Hexweaver |
 | `seedspitter_bow` | Seedspitter | Untiered Bow · Harpooner |
 | `rind_bulwark` | Rind Bulwark | Untiered Oath-Seal · Forge Knight |
+| `melon_orb` | The Melon Orb | Untiered Grimoire · Hexweaver |
 | `ring_of_the_rind` | Ring of the Rind | Untiered Ring |
 | `honeydew_scepter` | Honeydew Scepter | Untiered Wand · Priest, Clockmaker |
 | `dewveil_robe` | Dewveil Robe | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |

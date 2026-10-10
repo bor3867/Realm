@@ -174,3 +174,5 @@ if __name__ == '__main__':
     for cls, D in C.items():
         build(cls, D)          # all ten, the Runeblade and the Hexweaver included (no longer from the sprite pack)
     print('built', list(C))
+    import apply_remaster                                # the Realm Remaster's classes replace these (realm_update_2)
+    apply_remaster.creatures()

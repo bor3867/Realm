@@ -812,4 +812,6 @@ def build():
 
 if __name__ == '__main__':
     idx = build()
+    import apply_remaster                                # the Realm Remaster's art over the baked originals (realm_update_2)
+    apply_remaster.world()
     print({k: len(v) if isinstance(v, dict) else v for k, v in idx.items()})

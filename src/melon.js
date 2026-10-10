@@ -19,7 +19,7 @@ export const MELON = {
   rolls: [
     { p: 0.35, one: ['melon_slicer', 'rindguard', 'vinegrown_staff', 'ring_of_the_rind'] },
     { p: 0.25, one: ['honeydew_scepter', 'dewveil_robe', 'melon_baller'] },
-    { p: 0.06, one: ['seedspitter_bow', 'rind_bulwark', 'dewdrop_ring'] },
+    { p: 0.06, one: ['seedspitter_bow', 'rind_bulwark', 'melon_orb', 'dewdrop_ring'] },
     { p: 0.01, one: ['golden_honeydew'] },
   ],
 };

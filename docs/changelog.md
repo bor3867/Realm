@@ -154,3 +154,13 @@
 ## Old sprites document
 - `docs/old_sprites.html` (`node tools/old_sprite_book.mjs`): every sprite from before the Realm Update, read from the
   baseline commit, named, grouped and searchable (1,069 sprites).
+
+## The Realm Remaster (realm_update_2) — every original sprite redrawn
+- All 1,069 original sprites (classes, monsters, champions, bosses, tiles, objects, items, projectiles, decor,
+  landmarks, effects) replaced by the remaster's. Source art in `art/remaster/`; `tools/apply_remaster.py` copies
+  the creature sheets and overlays the world sheets by name (they grew during the Realm Update, so a straight copy
+  would have misplaced 151 objects); the bake scripts reapply it. `tools/check_remaster.py` verifies every cell.
+  Note: docs/design/09_remaster.md.
+- The melon event's revised sheet and a 13th item, the Melon Orb (a curse that scatters seeds), in its rare pool.
+- `.gitignore`: later update bundles (`realm_update_*.zip`, `realm_update_*/`) stay out of git, like the first.
+- Not yet wired: the remaster's new boss phases (17 bosses) and the new monster and champion shots.

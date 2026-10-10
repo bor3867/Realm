@@ -34,6 +34,7 @@
      "pick_one": [
       "seedspitter_bow",
       "rind_bulwark",
+      "melon_orb",
       "dewdrop_ring"
      ]
     },
@@ -356,7 +357,7 @@
     "image": "native/mx_items.png",
     "size": [
      73,
-     109
+     118
     ],
     "sprites": {
      "melon_slicer": {
@@ -694,6 +695,32 @@
        "w": 8,
        "h": 8
       }
+     },
+     "melon_orb": {
+      "0": {
+       "x": 1,
+       "y": 109,
+       "w": 8,
+       "h": 8
+      },
+      "shine1": {
+       "x": 10,
+       "y": 109,
+       "w": 8,
+       "h": 8
+      },
+      "shine2": {
+       "x": 19,
+       "y": 109,
+       "w": 8,
+       "h": 8
+      },
+      "shine3": {
+       "x": 28,
+       "y": 109,
+       "w": 8,
+       "h": 8
+      }
      }
     }
    },
@@ -701,7 +728,7 @@
     "image": "x5/mx_items.png",
     "size": [
      354,
-     530
+     574
     ],
     "sprites": {
      "melon_slicer": {
@@ -1039,6 +1066,32 @@
        "w": 42,
        "h": 42
       }
+     },
+     "melon_orb": {
+      "0": {
+       "x": 2,
+       "y": 530,
+       "w": 42,
+       "h": 42
+      },
+      "shine1": {
+       "x": 46,
+       "y": 530,
+       "w": 42,
+       "h": 42
+      },
+      "shine2": {
+       "x": 90,
+       "y": 530,
+       "w": 42,
+       "h": 42
+      },
+      "shine3": {
+       "x": 134,
+       "y": 530,
+       "w": 42,
+       "h": 42
+      }
      }
     }
    },
@@ -1332,6 +1385,29 @@
       "fps": 8,
       "loop": true
      }
+    },
+    "melon_orb": {
+     "static": {
+      "frames": [
+       "0"
+      ],
+      "fps": 1,
+      "loop": true
+     },
+     "shine": {
+      "frames": [
+       "0",
+       "0",
+       "shine1",
+       "shine2",
+       "shine3",
+       "0",
+       "0",
+       "0"
+      ],
+      "fps": 10,
+      "loop": true
+     }
     }
    },
    "info": {
@@ -1382,6 +1458,10 @@
     "golden_honeydew": {
      "tier": "legendary",
      "melon": "honeydew"
+    },
+    "melon_orb": {
+     "tier": "boss",
+     "melon": "watermelon"
     }
    }
   },
