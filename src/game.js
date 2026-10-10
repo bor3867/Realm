@@ -18,6 +18,7 @@ import { installHollowmoon } from './hollowmoon.js';
 import { installCryptEmber } from './crypt_ember.js';
 import { installElites } from './elites.js';
 import { installRemaster } from './remaster.js';
+import { installSetpieces, wireBxSetpieces } from './setpieces.js';
 import { installBX } from './bossx.js';
 import { BX, bxEnemyDef } from './bosses/index.js';
 import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUEST_HUNTS, FETCH_ITEMS } from './data/lore.js';
@@ -138,6 +139,7 @@ export class Game {
   }
 
   enter(where) {
+    if (this.spClear) this.spClear();                    // no set piece outlives its map
     const p = this.player;
     p.carry = null; p.drowsy = 0; this.invertUntil = 0;                // nothing carried, dreamt or inverted crosses a portal
     p.chill = 0; p.frozenUntil = 0; p.gust = null; p.poisonUntil = 0;   // nor any cold or poison
@@ -731,6 +733,7 @@ export class Game {
     this.updatePlayer(dt);
     this.updatePet(dt);
     this.updateHatch(dt);
+    this.spUpdate(dt);                                   // boss set pieces (src/setpieces.js)
     this.updateEnemies(dt);
     if (this.boss) this.updateBoss(dt);
     this.updateAllies(dt);
@@ -2035,6 +2038,7 @@ export class Game {
       return;
     }
     this.rxPhaseTick(e, dt);                             // the remaster's phases 2 and 3 (src/remaster.js)
+    this.spAmbient(e, dt);                               // a boss's own background layer (src/setpieces.js)
     if (this.bossD4Tick(e, dt)) return;
     e.st -= dt;
     e.invulnT = Math.max(0, e.invulnT - dt);
@@ -2148,6 +2152,7 @@ export class Game {
         const Ln = M.lanes, a0 = (e.laneTurn = (e.laneTurn || 0) + 1) * (Math.PI / Ln.n / 2) + angleTo(e.x, e.y, p.x, p.y);
         for (let k = 0; k < Ln.n; k++) this.fx.push({ kind: 'lane', e, x: e.x, y: e.y, a: a0 + (k / Ln.n) * TAU, len: Ln.len, w: Ln.w || 0.8, t: 0, delay: Ln.delay, life: Ln.delay + Ln.dur, dmg: Ln.dmg, hitT: 0, by: D.name });
       }
+      if (M.setpiece) e.spUntil = this.t + this.spStart(e, M.setpiece);   // a set piece: it plays out before the boss moves on (src/setpieces.js)
       if (M.reflect) { e.reflectUntil = this.t + M.reflect.dur; e.reflectDmg = M.reflect.dmg; e.reflectProj = M.reflect.proj; this.banner('Its core blazes white: hold your fire!', 1800); }
       if (M.shield) {                                  // invulnerable until its summoned guard is dead
         const guard = [];
@@ -2176,7 +2181,7 @@ export class Game {
         }
       }
       e.state = 'attack';
-      e.st = Math.max(0.35, ...sp.map((S) => S.dur), M.stream ? M.stream.dur : 0, M.invuln || 0, M.dash ? M.dash.dur : 0, M.orbit ? M.orbit.dur : 0);
+      e.st = Math.max(0.35, ...sp.map((S) => S.dur), M.stream ? M.stream.dur : 0, M.invuln || 0, M.dash ? M.dash.dur : 0, M.orbit ? M.orbit.dur : 0, e.spUntil > this.t ? e.spUntil - this.t : 0);
       return;
     }
     if (e.dashing) {                                   // a charge: barrels at where you were, shedding shots
@@ -2228,7 +2233,8 @@ export class Game {
       return;
     }
     // idle: reposition, then pick the next move from the current phase
-    if (engaged) {
+    if (engaged && D.mstyle && this.spMove(e, dt, D.mstyle, d)) { /* its own way of moving (src/setpieces.js) */ }
+    else if (engaged) {
       const a = angleTo(p.x, p.y, e.x, e.y);
       const tx = p.x + Math.cos(a) * D.keep, ty = p.y + Math.sin(a) * D.keep;
       const dd = dist(e.x, e.y, tx, ty);
@@ -2999,7 +3005,7 @@ export class Game {
   updateBoss(dt) {
     const B = this.boss, p = this.player;
     if (B.state === 'dead') { B.deadT += dt; return; }
-    this.rxPhaseTick(B, dt); this.rxUnstruck(B, dt);    // the remaster's phases 2 and 3 (src/remaster.js)
+    this.rxPhaseTick(B, dt); this.rxUnstruck(B, dt); this.spUnstruck(B, dt);    // the remaster's phases 2 and 3 (src/remaster.js)
     B.hurtT = Math.max(0, B.hurtT - dt);
     this.tickStatus(B, dt);
     if (B.state === 'dead' || this.frozen(B)) return;
@@ -3952,3 +3958,5 @@ installHollowmoon(Game);
 installCryptEmber(Game);
 installElites(Game);
 installRemaster(Game);
+installSetpieces(Game);
+wireBxSetpieces(BX);

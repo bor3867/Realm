@@ -168,3 +168,10 @@
 - 15 original bosses morph at 66% and 33% into the remaster's phase 2 and 3 art (immune morph, phase names, death
   clips) and gain a new attack per phase from their new shots; monsters fire their new shot every fourth volley;
   champions add a signature volley. `src/remaster.js`; check: `tools/check_remaster_ext.mjs`.
+
+## Boss overhaul: set pieces and movement (docs/design/10_boss_setpieces.md)
+- `src/setpieces.js`: a set-piece engine (steered bullet formations, ground telegraphs, boss movement) and a
+  handcrafted signature for all 25 bosses; a movement style for each original boss (they all used to keep the same
+  distance); background layers for the Sleeper and Maestro Lucan; denser patterns for both.
+- No more white flash on bosses (hits or wind-ups).
+- Checks: `tools/check_setpieces.mjs`, `tools/check_old_boss_pressure.mjs`.

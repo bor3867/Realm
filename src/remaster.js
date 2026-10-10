@@ -65,7 +65,7 @@ for (const [id, [shots, forms]] of Object.entries(RX_BOSSES)) {
       { ...F[forms[(n - 1) * 2 + 1]], proj: S(id, b), dmg: Math.round(dmg * 0.9), size: 0.45, delay: 0.35 }] };
   }
   D.moves.rx = D.moves.rx1;                             // the slot in the rotation; game.js picks rx1-3 by the phase it's in
-  for (const P of D.phases) if (P.cycle && !P.cycle.includes('rx')) P.cycle.splice(Math.ceil(P.cycle.length / 2), 0, 'rx');
+  for (const P of D.phases) for (const L of [P.cycle, P.after]) if (L && !L.includes('rx')) L.splice(Math.ceil(L.length / 2), 0, 'rx');   // after: the rotation a frenzy settles into
 }
 
 const methods = {

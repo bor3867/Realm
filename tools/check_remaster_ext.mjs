@@ -27,7 +27,7 @@ for (const id of Object.keys(RX_BOSSES)) {
   const ob = g.banner.bind(g); g.banner = (t, ms) => { names.push(t); ob(t, ms); };
   for (let n = 1; n <= 3; n++) {                           // hold it in each phase a while and watch its new shots
     e.hp = Math.round(e.maxHp * [0.95, 0.55, 0.25][n - 1]);
-    for (let f = 0; f < 60 * 40; f++) {
+    for (let f = 0; f < 60 * 60; f++) {                  // a minute: long enough for a rotation with set pieces in it
       live();
       if (e.rxMorph && !morphs.includes(e.rxMorph.to)) { morphs.push(e.rxMorph.to); if (!(e.invulnT > 0)) bad(`${id}: not immune while it morphs`); }
       for (const b of g.projectiles) if (b.from === 'e' && /^rx_shots\//.test(b.sprite)) shots[n - 1].add(b.sprite.split('.')[1]);

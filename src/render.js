@@ -170,6 +170,7 @@ export class Renderer {
     if (g.timeStop) this.timeDial(g, g.timeStop);
     for (const f of g.fx) if (f.kind === 'cloud' || f.kind === 'zone') this.groundFx(f, g);
     if (g.activeMap === m) for (const e of g.notable) if (e.bx && e.bx.B.drawGround && !e.dead) e.bx.B.drawGround(this, g, e);   // a boss's hazards on the ground
+    this.spGround(g);                                       // set-piece telegraphs (src/setpieces.js)
     if (m.mrClouds || m.mrPuddles) this.mireFx(g, m);
     if (m.asClocks || m.asDais) this.astralFx(g, m);
     if (m.emVents) for (const V of m.emVents) if (V.warn) {           // the Emberforge: a vent about to erupt glows and shudders
@@ -546,6 +547,33 @@ export class Renderer {
     if (h.pet && h.t > C.frames.length / C.fps) return;   // the shell's last frame has played
     this.shadow(sx, sy, 7);
     this.drawDef(def, C.frames[i], Math.round(sx), Math.round(sy) + 1, {});
+  }
+  // a set piece's telegraphs: where something will land (circle), a path (line), a ring, and where to be (safe, wedge)
+  spGround(g) {
+    const b = this.b, T2 = Math.PI * 2;
+    for (const m of g.spMarks || []) {
+      const k = Math.min(1, (g.t - m.born) / Math.max(0.01, m.until - m.born)), [x, y] = this.proj(m.x, m.y), blink = Math.floor(g.t * 10) % 2;
+      if (m.kind === 'circle' || m.kind === 'safe') {
+        const safe = m.kind === 'safe', R0 = m.r * TS;
+        b.globalAlpha = safe ? 0.22 : 0.12 + 0.25 * k; b.fillStyle = safe ? '#5ef08a' : m.color || '#ff4a5a';
+        b.beginPath(); b.ellipse(Math.round(x), Math.round(y), R0, R0 * 0.75, 0, 0, T2); b.fill();
+        b.globalAlpha = 0.85; b.fillStyle = safe ? (blink ? '#c8ffd8' : '#5ef08a') : (blink ? '#ffffff' : m.color || '#ff4a5a');
+        const n = Math.max(12, Math.round(R0 * 0.8));
+        for (let i = 0; i < n; i++) { const a = (i / n) * T2; b.fillRect(Math.round(x + Math.cos(a) * R0) - 1, Math.round(y + Math.sin(a) * R0 * 0.75) - 1, 2, 2); }
+      } else if (m.kind === 'ring') {
+        b.globalAlpha = 0.6 * (1 - k); b.strokeStyle = m.color || '#ffffff'; b.lineWidth = 2;
+        b.beginPath(); b.ellipse(Math.round(x), Math.round(y), m.r * TS * (0.4 + 0.6 * k), m.r * TS * 0.75 * (0.4 + 0.6 * k), 0, 0, T2); b.stroke(); b.lineWidth = 1;
+      } else if (m.kind === 'line') {
+        b.globalAlpha = 0.85; b.fillStyle = blink ? '#ffffff' : m.color || '#ff4a5a';
+        for (let d = 0.6; d < m.len; d += 0.45) { const [qx, qy] = this.proj(m.x + Math.cos(m.a) * d, m.y + Math.sin(m.a) * d); b.fillRect(Math.round(qx) - 1, Math.round(qy) - 1, 2, 2); }
+      } else if (m.kind === 'wedge') {                     // the way out: a green wedge
+        b.globalAlpha = 0.28; b.fillStyle = '#5ef08a';
+        b.beginPath(); b.moveTo(x, y);
+        for (let i = 0; i <= 12; i++) { const a = m.a - m.w + (i / 12) * 2 * m.w, [qx, qy] = this.proj(m.x + Math.cos(a) * m.len, m.y + Math.sin(a) * m.len); b.lineTo(qx, qy); }
+        b.closePath(); b.fill();
+      }
+      b.globalAlpha = 1;
+    }
   }
   // rotating laser sweeps around a boss: thin warning lines first, then the beams turn
   sweepFx(f, g) {
@@ -1583,6 +1611,7 @@ export class Renderer {
     // cached stamp rather than a path per bullet
     const trailP = Math.min(0.4, 240 / (g.projectiles.length + 1));
     for (const pr of g.projectiles) {
+      if (pr.hidden) continue;                                     // an opening in a set piece's formation
       if (pr.sprite.includes('/') && this.R) {                       // a Realm Update shot (registry)
         const def = pr.def || (pr.def = this.R.resolve(pr.sprite));
         if (def) {
