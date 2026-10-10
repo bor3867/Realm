@@ -8,7 +8,8 @@
   "item_overhaul/atlas_items.json",
   "melon_event/atlas_melon.json",
   "overworld/atlas_overworld.json",
-  "pets_v2/atlas_pets_v2.json"
+  "pets_v2/atlas_pets_v2.json",
+  "remaster/atlas_remaster_ext.json"
  ],
  "hover": "HOVER.json",
  "manifest": "MANIFEST.json"

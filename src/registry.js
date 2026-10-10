@@ -94,6 +94,27 @@ function fromBosses(R, pack, atlas, img) {
       pivot: [0, 0], foot: [w / 2, h / 2], size: [w, h], kind: 'shot', meta: {} });
   }
 }
+// 2b. the Realm Remaster's new content: phase 2/3, morphs and death for the original bosses (rx_<boss>/<boss>), and the
+// new shots of bosses, champions and monsters (rx_shots/<owner>.<shot>, pointing right, two frames)
+function fromRemaster(R, pack, atlas, img) {
+  const clip = (n, fps, loop) => ({ frames: Array.from({ length: n }, (_, k) => k), fps, loop });
+  for (const [name, B] of Object.entries(atlas.bosses)) {
+    const frames = {}; let w = 0, h = 0;
+    for (const [fn, r] of Object.entries(B.native.frames)) { frames[fn] = { x: r.x, y: r.y, w: r.w, h: r.h }; w = r.w; h = r.h; }
+    const anims = {};
+    for (const [c, n, fps, loop] of [['p1_to_p2', 4, 6, false], ['p2_idle', 4, 5, true], ['p2_attack', 3, 8, false], ['p2_to_p3', 4, 6, false],
+      ['p3_idle', 4, 5, true], ['p3_attack', 3, 8, false], ['death', 4, 5, false]]) anims[c] = { ...clip(n, fps, loop), frames: Array.from({ length: n }, (_, k) => `${c}_${k}`) };
+    R.add({ key: `rx_${name}/${name}`, pack, sheet: `rx_${name}`, name, img: img(B.native.image), frames, anims, pivot: [0, 0], foot: [w / 2, h - 3], size: [w, h],
+      kind: 'boss', meta: { label: B.label, phaseNames: B.phase_names } });
+  }
+  const simg = img(atlas.shots_sheet.native);
+  for (const [name, S] of Object.entries(atlas.shots)) {
+    const frames = {}; let w = 0, h = 0;
+    for (const [fn, r] of Object.entries(S.native)) { frames[fn] = { x: r.x, y: r.y, w: r.w, h: r.h }; w = r.w; h = r.h; }
+    R.add({ key: `rx_shots/${name}`, pack, sheet: 'rx_shots', name, img: simg, frames, anims: { loop: { frames: S.frames, fps: 8, loop: true } },
+      pivot: [0, 0], foot: [w / 2, h / 2], size: [w, h], kind: 'shot', meta: { owner: S.owner } });
+  }
+}
 // 3. the item format: items[name] = { group, tier, native:{frame:rect}, animations }
 function fromItems(R, pack, atlas, img) {
   const I = img(atlas.sheet.native);
@@ -155,7 +176,8 @@ export function buildRegistry(atlases, hover, img = () => null) {
   const R = new Registry();
   for (const { pack, json } of atlases) {
     const im = (rel) => img(`${pack}/${rel}`);
-    if (json.bosses) fromBosses(R, pack, json, im);
+    if (json.bosses && json.meta && /^Realm Remaster/.test(json.meta.name)) fromRemaster(R, pack, json, im);
+    else if (json.bosses) fromBosses(R, pack, json, im);
     else if (json.items) fromItems(R, pack, json, im);
     else fromSheets(R, pack, json, im);
   }

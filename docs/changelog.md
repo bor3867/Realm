@@ -163,4 +163,8 @@
   Note: docs/design/09_remaster.md.
 - The melon event's revised sheet and a 13th item, the Melon Orb (a curse that scatters seeds), in its rare pool.
 - `.gitignore`: later update bundles (`realm_update_*.zip`, `realm_update_*/`) stay out of git, like the first.
-- Not yet wired: the remaster's new boss phases (17 bosses) and the new monster and champion shots.
+
+## The Remaster's new content
+- 15 original bosses morph at 66% and 33% into the remaster's phase 2 and 3 art (immune morph, phase names, death
+  clips) and gain a new attack per phase from their new shots; monsters fire their new shot every fourth volley;
+  champions add a signature volley. `src/remaster.js`; check: `tools/check_remaster_ext.mjs`.

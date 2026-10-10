@@ -17,6 +17,7 @@ import { installKeep } from './keep.js';
 import { installHollowmoon } from './hollowmoon.js';
 import { installCryptEmber } from './crypt_ember.js';
 import { installElites } from './elites.js';
+import { installRemaster } from './remaster.js';
 import { installBX } from './bossx.js';
 import { BX, bxEnemyDef } from './bosses/index.js';
 import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUEST_HUNTS, FETCH_ITEMS } from './data/lore.js';
@@ -1495,6 +1496,7 @@ export class Game {
       // queued burst waves
       for (const q of e.queue) q.t -= dt;
       while (e.queue.length && e.queue[0].t <= 0) { const q = e.queue.shift(); this.firePattern(e, q.atk, true); }
+      if (e.state !== 'sleep') this.rxSignature(e, dt, Math.sqrt(d2));   // a champion's signature volley (src/remaster.js)
 
       if (e.state === 'tell') {
         if (e.st <= 0) {
@@ -1719,6 +1721,7 @@ export class Game {
     e.sk = { vx: Math.cos(a) * s2, vy: Math.sin(a) * s2, t: 0.16 + R() * 0.1 };
   }
   firePattern(e, A, isWave = false) {
+    A = this.rxAlt(e, A);                                // now and then a monster's new shot (src/remaster.js)
     const p = this.foe(e);
     const [ox, oy] = this.up(e.x, e.y, e.hitUp || (e.rb ? 1.4 : 0.5));
     const [px, py] = this.up(p.x, p.y, 0.4);
@@ -2031,6 +2034,7 @@ export class Game {
       }
       return;
     }
+    this.rxPhaseTick(e, dt);                             // the remaster's phases 2 and 3 (src/remaster.js)
     if (this.bossD4Tick(e, dt)) return;
     e.st -= dt;
     e.invulnT = Math.max(0, e.invulnT - dt);
@@ -2252,7 +2256,7 @@ export class Game {
     }
     const PH = D.phases[pi], cyc = e.frenzyUntil > this.t || !PH.after ? PH.cycle : PH.after;   // a frenzy phase runs its own script, then settles
     if ((e.talkT = (e.talkT === undefined ? 0 : e.talkT) - 1) <= 0) { e.talkT = e.id === 'emily_the_yapper' ? 2 + Math.floor(R() * 3) : 10 + Math.floor(R() * 8); e.sayT = 0; this.speak(e, 'see', 1); }
-    e.move = D.moves[cyc[e.cycleIdx++ % cyc.length]];
+    { const mv = cyc[e.cycleIdx++ % cyc.length]; e.move = D.moves[mv === 'rx' ? `rx${e.rxPhase || 1}` : mv] || D.moves[mv]; }   // 'rx': the remaster's attack for the phase it's in
     e.special = !!e.move.special;
     e.state = 'tell'; e.st = e.move.tell;
     if (e.move.blink) { e.blinkTo = this.blinkSpot(e, e.move.blink.r); e.st = Math.max(e.st, 0.9); }
@@ -2995,6 +2999,7 @@ export class Game {
   updateBoss(dt) {
     const B = this.boss, p = this.player;
     if (B.state === 'dead') { B.deadT += dt; return; }
+    this.rxPhaseTick(B, dt); this.rxUnstruck(B, dt);    // the remaster's phases 2 and 3 (src/remaster.js)
     B.hurtT = Math.max(0, B.hurtT - dt);
     this.tickStatus(B, dt);
     if (B.state === 'dead' || this.frozen(B)) return;
@@ -3946,3 +3951,4 @@ installKeep(Game);
 installHollowmoon(Game);
 installCryptEmber(Game);
 installElites(Game);
+installRemaster(Game);

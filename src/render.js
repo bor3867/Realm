@@ -3,6 +3,7 @@
 // an integer factor, so every pixel stays crisp. The camera can rotate: the
 // GROUND layer (tiles, biome edges, foam, decor) rotates as one image, while
 // every sprite stays upright at its rotated position, like classic tiny-MMO cameras.
+import { rxFrame } from './remaster.js';
 import { TILE_NAMES, BIOMES, biomeAt, objectsIn, SKINS, SKIN_TID, TID, FLAT, WALL_FACE } from './world/maps.js';
 import { hoverY } from './registry.js';
 import { CLASSES } from './data/classes.js';
@@ -1218,7 +1219,8 @@ export class Renderer {
     }
     if (e.cloneOf) this.b.globalAlpha = 0.55 + Math.sin(g.t * 6 + e.phase) * 0.15;
     const blaze = !e.dead && e.reflectUntil > g.t;          // the Colossus's bulwark: it flashes white while it reflects
-    this.liveSpr(S.img, col * F, row * F, F, sx + L.dx, sy + L.dy, Gd.pivot.x, Gd.pivot.y, L, blaze && Math.floor(g.t * 10) % 2 === 0);
+    const rx = rxFrame(this.R, g, e);                      // the remaster's phase 2/3, morphs and death (src/remaster.js)
+    this.liveSpr(rx ? rx.img : S.img, rx ? rx.x : col * F, rx ? rx.y : row * F, F, sx + L.dx, sy + L.dy, Gd.pivot.x, Gd.pivot.y, L, blaze && Math.floor(g.t * 10) % 2 === 0);
     if (blaze && Math.random() < 0.6) this.parts.push({ x: e.x + (Math.random() - 0.5) * 2.4, y: e.y, z: 10 + 30 * Math.random(), vx: 0, vy: 0, vz: 8, g: 0, life: 0.4, max: 0.4, color: Math.random() < 0.5 ? '#ffffff' : '#ffd84a' });
     this.b.globalAlpha = 1;
     if (e.cloneOf && Math.random() < 0.3) this.parts.push({ x: e.x + (Math.random() - 0.5) * 2, y: e.y, z: 20 * Math.random(), vx: 0, vy: 0, vz: 6, g: 0, life: 0.5, max: 0.5, color: '#8af6ff' });
@@ -1255,7 +1257,8 @@ export class Renderer {
     else f = Math.floor(g.t * 3) % 2;
     const [cx, cy] = a.cells[Math.min(f, a.cells.length - 1)];
     if (st !== 'dead') this.shadow(sx, sy, 44);
-    this.spr(S.img, cx * F, cy * F, F, F, sx, sy, Gd.pivot.x, Gd.pivot.y, false, false);
+    const rx = rxFrame(this.R, g, B);
+    this.spr(rx ? rx.img : S.img, rx ? rx.x : cx * F, rx ? rx.y : cy * F, F, F, sx, sy, Gd.pivot.x, Gd.pivot.y, false, false);
   }
   player(g, p, sx, sy) {
     const C = CLASSES[p.cls], S = this.A.sheets[C.sheet], A = S.guide.animations;
