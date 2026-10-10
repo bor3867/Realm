@@ -616,15 +616,18 @@ export class UI {
     const over = () => P.scrollHeight > P.clientHeight + 1, now = performance.now();
     if (!over() && now - (this.fitT || 0) < 1500) return;   // it fits: only look for spare room now and then
     this.fitT = now;
-    P.classList.remove('tight', 'squeeze'); P.style.removeProperty('--slotw');
-    const small = () => false;                              // the minimap is a fixed square now (style.css): only the slots give way
-    if (!over() && !small()) return;
-    P.classList.add('tight');
-    if (!over() && !small()) return;
-    let w = Math.floor(($('inv').clientWidth - 18) / 4);
-    while ((over() || small()) && w > 44) { w -= 3; P.style.setProperty("--slotw", w + "px"); }
-    if (over()) P.classList.add('squeeze');                 // a very short screen with a bag open: stats step aside
+    P.classList.remove('tight', 'squeeze');
+    // the slots are as big as the panel allows: start from the widest four across, give way until everything fits
+    let w = Math.min(78, Math.floor(($('inv').clientWidth - 18) / 4));
+    const set = () => P.style.setProperty('--slotw', w + 'px');
+    set();
+    while (over() && w > 62) { w -= 2; set(); }
+    if (over()) P.classList.add('squeeze');                 // the stats step aside before the items get small
+    while (over() && w > 52) { w -= 2; set(); }
+    if (over()) P.classList.add('tight');                   // then the gaps close up
+    while (over() && w > 38) { w -= 2; set(); }
   }
+
   hideTip() { this.tip.classList.add('hidden'); this.bagTip = null; }
   // hover a loot bag lying in the world to see what's inside it, without walking over
   hoverWorld(w) {                                         // hover a bag in the world: its slots show above it (drawn by the renderer)

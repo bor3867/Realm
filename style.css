@@ -611,11 +611,30 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 .slot.legend .tier { color: #ffe9a0; }
 /* ---- the minimap, RotMG-style: one fixed square at the top of the panel, as wide as the panel allows (capped so the
    inventory always fits under it). It never shrinks to make room: the slots give way instead (ui.fitPanel) */
-#miniwrap { flex: none !important; width: 100% !important; height: max(200px, min(100cqw, 34vh)) !important; min-height: 0 !important; max-height: none !important;
+#miniwrap { flex: none !important; width: 100% !important; height: clamp(170px, min(100cqw, 26vh), 300px) !important; min-height: 0 !important; max-height: none !important;
   aspect-ratio: auto !important; padding: 0 !important; background: #000 !important; border-radius: 4px !important; display: flex; justify-content: center; align-items: center; }
-#minimap { width: max(200px, min(100cqw, 34vh)) !important; height: max(200px, min(100cqw, 34vh)) !important; max-width: 100% !important; max-height: 100% !important; border-radius: 4px !important; }
+#minimap { width: clamp(170px, min(100cqw, 26vh), 300px) !important; height: clamp(170px, min(100cqw, 26vh), 300px) !important; max-width: 100% !important; max-height: 100% !important; border-radius: 4px !important; }
 #panel.tight #miniwrap, #panel.squeeze #miniwrap { min-height: 0 !important; }
 #invcount .pg { display: inline-block; min-width: 18px; text-align: center; margin-right: 3px; padding: 0 4px; border-radius: 4px; border: 1px solid #3a3846; color: var(--mut); cursor: pointer; font-weight: 700; }
 #invcount .pg.on { color: #1a1218; background: var(--gold); border-color: var(--gold); }
 #panel.tight { gap: 5px !important; }
 #panel.squeeze { gap: 3px !important; }
+/* the slots get the room: thinner bars and labels so equipment, backpack and potions can be as big as the panel allows */
+#panel .bar { height: 15px !important; }
+#panel .bar.xp { height: 10px !important; }
+#panel .bar b { font-size: 11px !important; line-height: 15px !important; }
+#panel .bar.xp b { font-size: 9px !important; line-height: 10px !important; }
+#panel > .label { margin: 0 !important; line-height: 14px; }
+/* every slot follows --slotw (ui.fitPanel: as big as the panel allows) */
+#panel .slots { grid-template-columns: repeat(4, var(--slotw, 66px)) !important; gap: 6px !important; justify-content: center; width: auto !important; max-width: none !important; }
+#panel #pots.slots { grid-template-columns: repeat(2, var(--slotw, 66px)) !important; }
+#panel .slot { width: var(--slotw, 66px) !important; height: var(--slotw, 66px) !important; }
+#panel .slot .ico { width: calc(var(--slotw, 66px) * 0.74) !important; height: calc(var(--slotw, 66px) * 0.74) !important; }
+/* the loot bag: one row of eight (RotMG-style), so the equipment, backpack and potions keep their size */
+#panel #ground.slots:not(.vault) { grid-template-columns: repeat(8, 1fr) !important; gap: 3px !important; width: 100% !important; }
+#panel #ground:not(.vault) .slot { width: auto !important; height: auto !important; aspect-ratio: 1 / 1; border-width: 2px !important; }
+#panel #ground:not(.vault) .slot .ico { width: 74% !important; height: 74% !important; }
+#panel #ground:not(.vault) .slot .tier { font-size: 9px !important; }
+#panel #pots .slot { width: var(--slotw, 66px) !important; height: var(--slotw, 66px) !important; }
+#panel #pots .slot .ico { width: calc(var(--slotw, 66px) * 0.74) !important; height: calc(var(--slotw, 66px) * 0.74) !important; }
+#panel #pots.slots { grid-template-columns: repeat(2, var(--slotw, 66px)) !important; }
