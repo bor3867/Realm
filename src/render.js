@@ -1656,7 +1656,9 @@ export class Renderer {
       } else if (v.k === 'death') {
         const e = v.e;
         let cols;
-        if (e.rb) {
+        const xd = e.bx && e.bx.def, xf = xd && Object.values(xd.frames)[0];
+        if (xf) cols = this.colorsOf('bx:' + e.D.bx, xd.img, xf.x, xf.y, xf.w, xf.h);   // a three-phase boss: its own art (it has no row on the old sheets)
+        else if (e.rb && this.A.sheets[e.D.sheet || 'realm_bosses'].guide.bosses[e.id]) {
           const S = this.A.sheets[e.D.sheet || 'realm_bosses'], F = S.guide.frameWidth, row = S.guide.bosses[e.id].row;
           cols = this.colorsOf('rb:' + e.id, S.img, 0, row * F, F, F);
         } else if (e.D.melon) {
@@ -1664,13 +1666,13 @@ export class Renderer {
         } else if (e.D.reg) {
           const def = this.R && this.R.resolve(e.D.reg), f = def && Object.values(def.frames)[0];
           cols = f ? this.colorsOf('g:' + e.D.reg, def.img, f.x, f.y, f.w, f.h) : ['#ffffff'];
-        } else if (e.D.sheet === 'champions') {
+        } else if (e.D.sheet === 'champions' && this.A.sheets.champions.guide.champions[e.id]) {
           const S = this.A.sheets.champions, F = S.guide.frameWidth, row = S.guide.champions[e.id].row;
           cols = this.colorsOf('c:' + e.id, S.img, 0, row * F, F, F);
-        } else {
+        } else if (this.A.sheets.enemies.guide.enemies[e.id]) {
           const S = this.A.sheets.enemies, row = S.guide.enemies[e.id].row;
           cols = this.colorsOf('e:' + e.id, S.img, 0, row * 16, 16, 16);
-        }
+        } else cols = ['#ffffff', '#c8c0d8', '#8a8098'];                 // anything without art on the old sheets: a plain burst, never a crash
         const champ = e.D.sheet === 'champions';
         if (!e.rb) this.sprFx('death_poof', e.x, e.y - 0.5, 12);
         this.spray(e.x, e.y, v.big ? 70 : champ ? 30 : 16, cols, v.big ? 9 : champ ? 7 : 5, v.big ? 1.1 : 0.8, v.big ? 30 : champ ? 16 : 8);
