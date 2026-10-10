@@ -96,7 +96,7 @@ for (let s = 1; s <= seeds; s++) {
       if (S.umbra) flags.umbra = 1;
       if (g.projectiles.some((b) => b.sprite.endsWith('corona_flare'))) flags.flares = 1;
       if (g.projectiles.some((b) => b.sprite.endsWith('eclipse_ring'))) flags.rings = 1;
-      if (S.well) flags.well = 1;
+      if (S.wells && S.wells.length) flags.well = 1;
       if ((S.debris || []).length) flags.debris = 1;
       if (g.projectiles.some((b) => b.sprite.endsWith('brass_shard'))) flags.shards = 1;
     }

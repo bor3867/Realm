@@ -1,6 +1,9 @@
 // The boss framework for the Realm Update's three-phase bosses (docs/design/04_boss_framework.md).
 // A bundle boss is an ordinary boss enemy (e.rb) whose data names a registry def (D.bx). This module runs it:
-//   sleep -> intro -> fight(P1) -> morph -> fight(P2) -> morph -> fight(P3) -> death -> gone
+//   sleep -> intro -> fight(P1) -> morph -> fight(P2) -> morph -> fight(P3) [-> finale -> broken] -> death -> gone
+// Difficulty (docs/design/08_boss_rework.md): each phase may have pressure layers (attacks on their own timers, under
+// the main cycle), the boss a tempo (windups and recovers scaled), a dmgScale (every shot), and the hardest a finale
+// (immune, a survival sequence of its own, then broken: +50% damage taken for the rest of the fight).
 // Patterns are data (src/bosses/<boss>.js): windup frame held as the telegraph, volleys on the release frame,
 // a recover pause after the clip's 'ended' event. Signature mechanics live in each boss's own file as 'specials'.
 import { Anim } from './anim.js';
@@ -35,11 +38,13 @@ export const BXF = {
       if (!R0 || (p.x > R0.x && p.x < R0.x + R0.w && p.y > R0.y && p.y < R0.y + R0.h)) this.bxWake(e);
       return;
     }
+    if (S.state === 'finale') { this.bxFinale(e, dt); return; }
     if (B.update) B.update(this, e, dt);                         // the boss's own continuous mechanics
     for (const v of S.vol) if ((v.t -= dt) <= 0 && !v.done) { v.done = true; this.bxVolley(e, v.V); }
     S.vol = S.vol.filter((v) => !v.done);
     if (S.state === 'intro') { if ((S.wait -= dt) <= 0) { S.state = 'fight'; S.wait = 0.6; } return; }
     if (S.state === 'morph' || S.state === 'death') return;     // the clip's 'ended' event moves things on
+    if (S.state !== 'grace' && !p.dead) this.bxPressure(e, dt);
     if (S.state === 'grace') { this.bxMove(e, dt, 'hold'); if ((S.wait -= dt) <= 0) { S.state = 'fight'; S.wait = 0.2; } return; }
     // fight: move, then start the next pattern when the last one has recovered
     const PH = this.bxPhaseData(e);
@@ -67,9 +72,9 @@ export const BXF = {
     const S = e.bx, PH = this.bxPhaseData(e), list = PH.patterns;
     const pat = list[S.patIdx++ % list.length];
     S.pat = pat; S.fired = false;
-    if (pat.special && S.B.specials[pat.special] && pat.instant) { S.B.specials[pat.special](this, e, pat, null); S.state = 'recover'; S.wait = pat.recover || 0.4; return; }
+    if (pat.special && S.B.specials[pat.special] && pat.instant) { S.B.specials[pat.special](this, e, pat, null); S.state = 'recover'; S.wait = (pat.recover || 0.4) * (S.B.tempo || 1); return; }
     // the windup frame (frame 0 of the attack clip) is held: that's the telegraph
-    S.state = 'windup'; S.wait = Math.max(0.45, pat.windup || 0.6);
+    S.state = 'windup'; S.wait = Math.max(0.45, (pat.windup || 0.6) * (S.B.tempo || 1));
     if (S.anim) { S.anim.play(e.bx.def.phases[S.phase].attack); S.anim.speed = 0; }
     if (pat.tell && S.B.specials[pat.tell]) S.B.specials[pat.tell](this, e, pat, null);
   },
@@ -79,7 +84,7 @@ export const BXF = {
     if (clip === ph[S.phase].attack) {
       if (!S.fired) this.bxRelease(e);
       S.anim.play(ph[S.phase].idle);
-      S.state = 'recover'; S.wait = (S.pat && S.pat.recover) || 0.4;
+      S.state = 'recover'; S.wait = ((S.pat && S.pat.recover) || 0.4) * (S.B.tempo || 1);
       return;
     }
     if (S.state === 'morph' && (clip === ph[S.phase].enter)) {
@@ -97,10 +102,48 @@ export const BXF = {
     if (pat.special && S.B.specials[pat.special]) S.B.specials[pat.special](this, e, pat, null);
   },
 
+  // pressure layers: a phase's attacks on their own timers, running under the main cycle
+  bxPressure(e, dt) {
+    const S = e.bx, L = this.bxPhaseData(e).pressure;
+    if (!L) return;
+    S.pr = S.pr && S.prPhase === S.phase ? S.pr : L.map((q) => q.delay !== undefined ? q.delay : q.every * 0.6);
+    S.prPhase = S.phase;
+    L.forEach((q, k) => {
+      if ((S.pr[k] -= dt) > 0) return;
+      S.pr[k] = q.every * (0.9 + R() * 0.2);
+      if (q.special && S.B.specials[q.special]) S.B.specials[q.special](this, e, q, null);
+      else if (q.form) this.bxVolley(e, q);
+    });
+  },
+  // the finale: immune, its own survival sequence, then broken
+  bxStartFinale(e) {
+    const S = e.bx, F = S.B.finale;
+    S.state = 'finale'; S.finT = 0; S.vol = []; S.pat = null; S.finaleDone = true;
+    this.bxClearBullets(e);
+    if (S.anim) S.anim.play(S.def.phases[S.phase].idle, { speed: 1 });
+    this.banner(F.name.toUpperCase() + (F.say ? ' · ' + F.say : ''), 3200); this.vx({ k: 'shake', amt: 10 }); this.sfx('boss');
+    if (F.start) F.start(this, e);
+  },
+  bxFinale(e, dt) {
+    const S = e.bx, F = S.B.finale;
+    S.finT += dt;
+    for (const v of S.vol) if ((v.t -= dt) <= 0 && !v.done) { v.done = true; this.bxVolley(e, v.V); }
+    S.vol = S.vol.filter((v) => !v.done);
+    if (F.update) F.update(this, e, dt, S.finT);
+    if (S.finT >= F.dur) {
+      if (F.end) F.end(this, e);
+      this.bxClearBullets(e);
+      S.state = 'grace'; S.wait = 1.2; S.broken = true;
+      this.banner(`${e.D.name.toUpperCase()} IS BROKEN`, 2600); this.vx({ k: 'shake', amt: 8 });
+      this.vx({ k: 'burst', x: e.x, y: e.y - e.hitUp, n: 40, colors: ['#ffffff', '#ffd650', '#ff8a1f'] });
+    }
+  },
+
   // ---------------------------------------------------------------- volleys (generic forms; specials live with each boss)
   bxOrigin(e) { return [e.x, e.y - e.hitUp]; },
+  bxDmg(e, d) { return Math.round((d || 60) * ((e.bx && e.bx.B.dmgScale) || 1)); },   // the boss's damage scale, for shots made outside bxShot (lobs)
   bxShot(e, x, y, a, V, extra) {
-    const b = this.shoot('e', x, y, a, V.speed || 5, V.range || 14, V.dmg || 60, V.sprite || `${e.bx.B.shotSheet || 'bx_shots'}/${e.bx.B.art || e.D.bx}.${V.shot}`, V.size || 0.45, false, e.D.name);
+    const b = this.shoot('e', x, y, a, V.speed || 5, V.range || 14, this.bxDmg(e, V.dmg || 60), V.sprite || `${e.bx.B.shotSheet || 'bx_shots'}/${e.bx.B.art || e.D.bx}.${V.shot}`, V.size || 0.45, false, e.D.name);
     if (V.mv) b.mv = { ...V.mv };
     if (V.life) b.life = V.life;
     if (V.chill) b.chill = V.chill;
@@ -186,6 +229,7 @@ export const BXF = {
     const S = e.bx;
     if (!S) return false;
     if (S.state === 'sleep' || S.state === 'intro' || S.state === 'morph' || S.state === 'death') { if (!quiet) this.float(x, y - 0.8, 'IMMUNE', '#8d88a0'); return true; }
+    if (S.state === 'finale') { if (!quiet) this.float(x, y - 0.8, 'SURVIVE', '#ffd650'); return true; }
     if (S.B.immune && S.B.immune(this, e)) { if (!quiet) this.float(x, y - 0.8, S.B.immuneText || 'IMMUNE', '#c8c0d8'); return true; }
     return false;
   },
@@ -194,6 +238,9 @@ export const BXF = {
     const S = e.bx;
     if (!S) return d;
     if (S.B.dmgMult) d = Math.round(d * S.B.dmgMult(this, e));       // a boss's own weak moments (the Ringmaster's lantern eyes)
+    if (S.broken) d = Math.round(d * 1.5);                          // after its finale it is broken
+    const F = S.B.finale;
+    if (F && S.phase === 3 && !S.finaleDone && e.hp - d <= e.maxHp * F.at) { const keep = e.hp - e.maxHp * F.at; this.bxStartFinale(e); return Math.max(0, keep); }
     const th = this.bxThresholds(e), next = th[S.phase - 1];
     if (next !== undefined && e.hp - d <= e.maxHp * next) { const keep = e.hp - e.maxHp * next; this.bxMorph(e); return Math.max(0, keep); }
     if (e.hp - d <= 0 && S.state !== 'death') { this.bxDie(e); return 0; }   // bxDie leaves it at 1 life while the death clip plays
@@ -258,7 +305,8 @@ export const BXF = {
   bxBar(e) {
     const S = e.bx;
     if (!S || !S.def) return null;
-    return { pips: this.bxThresholds(e), phase: S.phase, name: S.def.phases[S.phase].name + (S.B.barTag ? S.B.barTag(this, e) : ''), immune: ['intro', 'morph', 'death', 'sleep'].includes(S.state) };
+    const F = S.B.finale, tag = S.state === 'finale' ? ` · ${F.name.toUpperCase()} ${Math.max(0, Math.ceil(F.dur - S.finT))}s` : S.broken ? ' · BROKEN' : '';
+    return { pips: F ? [...this.bxThresholds(e), F.at] : this.bxThresholds(e), phase: S.phase, name: S.def.phases[S.phase].name + (S.B.barTag ? S.B.barTag(this, e) : '') + tag, immune: ['intro', 'morph', 'death', 'sleep', 'finale'].includes(S.state) };
   },
 };
 export function installBX(Game) { Object.assign(Game.prototype, BXF); }

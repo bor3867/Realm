@@ -131,3 +131,26 @@
   `/treant`, `/melon`. The in-game `/help` lists the new commands.
 - The Priest's side view redrawn: a hood behind and a face in profile, no arm and wand sticking out (the wand shows
   when it attacks). Its skin is left unshaded (`flat`), since the shading pass darkened a side-on face into a hole.
+
+## Fix: every three-phase boss crashed the game when it died
+- The death burst looked for the boss on the old boss sheet; none of the ten new-framework bosses is there (the six
+  new dungeons, the Crypt's Lich, the Emberforge's Colossus, the Kraken and the Treant). It takes its colours from the
+  boss's own art now, and anything without old art gets a plain burst. Checked in the browser: all ten die, with a frame
+  drawn every step, and the game carries on.
+
+## Boss rework: harder, denser, still fair (docs/design/08_boss_rework.md)
+- Framework: pressure layers (attacks on their own timers under the main cycle), tempo, damage scale, and a finale for
+  the hardest three (immune, a survival sequence, then BROKEN: +50% damage taken).
+- Glacius, the Grand Orrery and the Forgeheart Colossus are the hardest (×1.45–1.6 damage, tempo 0.64–0.68, new
+  patterns every phase, finales Absolute Zero / Collapse / Meltdown; Glacius 300k life, the Orrery 380k).
+- Every other boss gains its own pressure layer and new patterns (obelisk sand, moulting and the scales; pod puffs,
+  chained lunges and sprout needles; drift bolts, souls from behind and the undertow; pillar bats, dash volleys and
+  boiling pools; juggling pins and the grin; spouts; the canopy).
+- Measured with a dodging bot (`tools/check_boss_pressure.mjs`): the hardest three went from ~2,000–2,500 damage a
+  minute to ~8,900–10,800; the rest to ~2,000–5,200.
+- Fixes found on the way: Glacius' phase 2 never reached a player at the lake's edge; the tools placed you outside the
+  Frostveil boss's room.
+
+## Old sprites document
+- `docs/old_sprites.html` (`node tools/old_sprite_book.mjs`): every sprite from before the Realm Update, read from the
+  baseline commit, named, grouped and searchable (1,069 sprites).

@@ -12,7 +12,7 @@ function ink(g, e, V) {
   for (let k = 0; k < (V.n || 3); k++) {
     const a = R() * TAU, d = k ? 1.2 + R() * 1.4 : 0, x1 = p.x + Math.cos(a) * d, y1 = p.y + Math.sin(a) * d;
     const T = Math.max(0.6, Math.min(1.3, Math.hypot(x1 - ox, y1 - oy) / 7));
-    const b = g.shoot('e', ox, oy, angleTo(ox, oy, x1, y1), 7, 99, V.dmg || 50, SHOT('ink_blob'), 0.45, false, e.D.name);
+    const b = g.shoot('e', ox, oy, angleTo(ox, oy, x1, y1), 7, 99, g.bxDmg(e, V.dmg || 50), SHOT('ink_blob'), 0.45, false, e.D.name);
     b.bxOf = e;
     b.lob = { x0: ox, y0: oy, x1, y1, t: 0, T, h: 34, n: 0, r: 1.0, ss: 0,
       onLand: (G) => {
@@ -55,8 +55,22 @@ function chain(g, e) {
   S.lures = []; S.chainAt = 0;
 }
 
+// spouts (P2-P3 pressure): the shallows near you bubble, then a column of water bursts up and sprays a fan away
+// from the pool (the way the water runs)
+function spout(g, e, V) {
+  const p = g.player, a = R() * TAU, d = 1.5 + R() * 2, x = p.x + Math.cos(a) * d, y = p.y + Math.sin(a) * d, h = e.home || e;
+  g.vx({ k: 'burst', x, y, n: 6, colors: ['#c8eeff', '#ffffff'] });
+  g.fvLater(0.6, () => {
+    if (e.dead || e.bx.state === 'death') return;
+    const out = angleTo(h.x, h.y, x, y);
+    for (let k = 0; k < 6; k++) g.bxShot(e, x, y, out + (k / 5 - 0.5) * 1.6, { shot: 'water_bolt', speed: 5, range: 6, dmg: V.dmg || 50 });
+    g.vx({ k: 'burst', x, y: y - 0.6, n: 14, colors: ['#c8eeff', '#7ec0e4', '#ffffff'] });
+  });
+}
+
 export default {
-  id: 'abyssal_kraken', name: 'The Abyssal Kraken', biome: 'shore', hp: 32000, def: 18, xp: 3200, r: 2.2, speed: 0.8, keep: 6, faces: false, noShadow: true,
+  id: 'abyssal_kraken', name: 'The Abyssal Kraken', biome: 'shore', hp: 36000, def: 18, xp: 3600, r: 2.2, speed: 0.8, keep: 6, faces: false, noShadow: true,
+  tempo: 0.85, dmgScale: 1.15,
   phases: {
     1: { move: 'lurk', patterns: [
       { name: 'ink lob', windup: 0.7, recover: 0.7, special: 'ink', n: 3, dmg: 50 },
@@ -65,12 +79,12 @@ export default {
         { form: 'stream', shot: 'water_bolt', n: 10, every: 0.08, wobble: 0.25, speed: 7, dmg: 45, from: (g, e) => [e.x + 1.2, e.y - e.hitUp], t: 0.04 }] },
       { name: 'breach', windup: 0.8, recover: 0.6, volleys: [{ form: 'ring', shot: 'water_bolt', count: 20, gaps: 3, rot: 0.13, speed: 4.5, dmg: 50 }] },
     ] },
-    2: { move: 'lurk', patterns: [
+    2: { move: 'lurk', pressure: [{ every: 2.2, special: 'spout', delay: 1.5, dmg: 50 }], patterns: [
       { name: 'barbed tentacles', windup: 0.7, recover: 0.6, special: 'tentacles', arms: 4, s0: 3, s1: 7, curve: 0.7, dmg: 55 },
       { name: 'whirlpool', windup: 0.6, recover: 0.5, special: 'whirl' },
       { name: 'ink lob', windup: 0.6, recover: 0.6, special: 'ink', n: 4, dmg: 55 },
     ] },
-    3: { move: 'lurk', patterns: [
+    3: { move: 'lurk', pressure: [{ every: 1.7, special: 'spout', dmg: 55 }], patterns: [
       { name: 'lures', windup: 0.7, recover: 1.4, special: 'lures' },
       { name: 'barbed tentacles', windup: 0.6, recover: 0.5, special: 'tentacles', arms: 6, s0: 3.5, s1: 8, curve: 0.9, dmg: 60 },
       { name: 'deep breach', windup: 0.8, recover: 0.6, volleys: [
@@ -78,7 +92,7 @@ export default {
         { form: 'ring', shot: 'water_bolt', count: 22, gaps: 3, rot: 0.14, speed: 4.5, dmg: 55, t: 0.25 }] },
     ] },
   },
-  specials: { ink, tentacles, whirl, lures },
+  specials: { ink, tentacles, whirl, lures, spout },
   moves: {
     lurk(g, e) {                                    // it sways about the middle of its pool and never leaves it
       const h = e.home || (e.home = { x: e.x, y: e.y }), t = e.bx.t;
@@ -91,7 +105,7 @@ export default {
       if (w.life <= 0) continue;
       w.life -= dt; w.spin += dt * 4;
       const dd = Math.hypot(p.x - w.x, p.y - w.y) || 1;
-      w.x += ((p.x - w.x) / dd) * 1.4 * dt; w.y += ((p.y - w.y) / dd) * 1.4 * dt;
+      w.x += ((p.x - w.x) / dd) * 1.9 * dt; w.y += ((p.y - w.y) / dd) * 1.9 * dt;
       if (dd < 1.8 && !p.dead) { p.dragUntil = g.t + 0.1; p.dragF = 0.55; }
       if ((w.spray -= dt) <= 0) {
         w.spray = 0.6;

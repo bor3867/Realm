@@ -37,7 +37,7 @@ function bombs(g, e, V) {                           // the grin opens: confetti 
   const p = g.player, [ox, oy] = g.bxOrigin(e);
   for (let k = 0; k < 4; k++) {
     const a = R() * TAU, d = k ? 1.6 + R() * 2.4 : 0, x1 = p.x + Math.cos(a) * d, y1 = p.y + Math.sin(a) * d;
-    const b = g.shoot('e', ox, oy, angleTo(ox, oy, x1, y1), 7, 99, V.dmg || 125, SHOT('confetti_bomb'), 0.45, false, e.D.name);
+    const b = g.shoot('e', ox, oy, angleTo(ox, oy, x1, y1), 7, 99, g.bxDmg(e, V.dmg || 125), SHOT('confetti_bomb'), 0.45, false, e.D.name);
     b.bxOf = e;
     b.lob = { x0: ox, y0: oy, x1, y1, t: 0, T: Math.max(0.7, Math.min(1.3, Math.hypot(x1 - ox, y1 - oy) / 7)), h: 34, n: 8, r: 1.0, ss: 3.6, bxOf: e,
       onLand: (G) => { G.vx({ k: 'regfx', key: 'd2_effects/hollowmoon.confetti_pop', x: x1, y: y1, fps: 10 }); for (let j = 0; j < 8; j++) { const s = G.shoot('e', x1, y1, (j / 8) * TAU + 0.2, 3.6, 3, Math.round((V.dmg || 125) * 0.5), SHOT('confetti_bomb'), 0.3, false, e.D.name); s.bxOf = e; } } };
@@ -49,25 +49,42 @@ function darts(g, e, V) {                           // pennant darts from the bu
   void p;
 }
 
+// juggling (P1 pressure): a pin thrown from one of the drums round the ring, arcing in toward you (the way it's thrown)
+function juggle(g, e, V) {
+  const D = drums(g, e), p = g.player, d = D[Math.floor(R() * D.length)], spin = R() < 0.5 ? 1 : -1;
+  if (Math.hypot(d[0] - e.x, d[1] - e.y) < 2) return;
+  for (let k = 0; k < 2; k++) g.bxShot(e, d[0], d[1] - 0.8, angleTo(d[0], d[1], p.x, p.y) - spin * (0.45 + k * 0.2), { shot: 'juggling_pin', speed: 6 + k, range: 22, dmg: V.dmg || 110, mv: { curve: spin * 0.75 } });
+}
+// the grin (P3 pressure): cards fly from the tent's mouth, a little fan straight at you
+function grinCards(g, e, V) {
+  const p = g.player, [ox, oy] = g.bxOrigin(e), a = angleTo(ox, oy, p.x, p.y);
+  for (const off of [-0.18, 0, 0.18]) g.bxShot(e, ox, oy, a + off, { shot: 'playing_card', speed: 8, range: 16, dmg: V.dmg || 110 });
+}
+// stitches come three at a time in the Puppeteer
+function stitches3(g, e, V) {
+  for (let k = 0; k < 3; k++) e.bx.vol.push({ t: k * 0.4, V: { form: 'wall', shot: 'string_needle', count: 13, space: 0.65, gaps: 2, speed: 6.5, range: 14, dmg: V.dmg || 120 } });
+}
+
 export default {
-  id: 'grinning_ringmaster', name: 'The Grinning Ringmaster', biome: 'dungeon', hp: 300000, def: 32, xp: 15000, r: 2.2, speed: 1.2, keep: 8, faces: true, shotSheet: 'bx2_shots',
+  id: 'grinning_ringmaster', name: 'The Grinning Ringmaster', biome: 'dungeon', hp: 240000, def: 32, xp: 15000, r: 2.2, speed: 1.2, keep: 8, faces: true, shotSheet: 'bx2_shots',
+  tempo: 0.9, dmgScale: 1.0,                         // his needle walls were already the hardest thing in the update
   phases: {
-    1: { move: 'hold', patterns: [
-      { name: 'card fans', windup: 0.6, recover: 0.5, special: 'cards', dmg: 115 },
-      { name: 'the leap', windup: 0.5, recover: 1.1, special: 'leap' },
-      { name: 'card fans', windup: 0.5, recover: 0.5, special: 'cards', dmg: 115 },
+    1: { move: 'hold', pressure: [{ every: 0.7, special: 'juggle', delay: 1.2, dmg: 110 }], patterns: [
+      { name: 'card fans', windup: 0.6, recover: 0.4, special: 'cards', dmg: 115 },
+      { name: 'the leap', windup: 0.5, recover: 0.9, special: 'leap' },
+      { name: 'card fans', windup: 0.5, recover: 0.4, special: 'cards', dmg: 115 },
     ] },
     2: { move: 'float', patterns: [
       { name: 'the marionettes', windup: 0.7, recover: 0.4, special: 'puppets' },
       { name: 'stitches', windup: 0.6, recover: 0.7, special: 'needles', dmg: 120 },
       { name: 'stitches', windup: 0.5, recover: 0.7, special: 'needles', dmg: 120 },
     ] },
-    3: { move: 'center', patterns: [
-      { name: 'confetti bombs', windup: 0.7, recover: 0.6, special: 'bombs', dmg: 125 },
-      { name: 'pennant darts', windup: 0.6, recover: 0.6, special: 'darts', dmg: 115 },
+    3: { move: 'center', pressure: [{ every: 2.2, special: 'grinCards', dmg: 110 }], patterns: [
+      { name: 'confetti bombs', windup: 0.7, recover: 0.5, special: 'bombs', dmg: 125 },
+      { name: 'pennant darts', windup: 0.6, recover: 0.5, special: 'darts', dmg: 115 },
     ] },
   },
-  specials: { cards, leap, needles, puppets, bombs, darts },
+  specials: { cards, leap, needles, puppets, bombs, darts, juggle, grinCards, stitches3 },
   moves: {
     float(g, e, dt) {                               // aloft above the middle of the ring, drifting a little
       const [cx, cy] = centre(e), S = e.bx;

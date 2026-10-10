@@ -50,24 +50,47 @@ function swarm(g, e) {
   g.vx({ k: 'regfx', key: 'ex_effects/sand_puff', x, y, fps: 8 });
 }
 
+// obelisk sand (P1 pressure): the four obelisks round the dais take turns throwing a crescent at you
+function obeliskSand(g, e, V) {
+  const S = e.bx, [cx, cy] = centre(e), p = g.player, k = (S.obK = ((S.obK || 0) + 1) % 4), a = Math.PI / 4 + k * Math.PI / 2;
+  const x = cx + Math.cos(a) * 9.5, y = cy + Math.sin(a) * 9.5;
+  for (const off of [-0.16, 0, 0.16]) g.bxShot(e, x, y - 1, angleTo(x, y - 1, p.x, p.y) + off, { shot: 'sand_crescent', speed: 5.5, range: 20, dmg: V.dmg || 60, mv: { curve: off * 3.2 } });
+  g.vx({ k: 'burst', x, y: y - 1, n: 5, colors: ['#ffd650', '#e8cf96'] });
+}
+// moulting (P2 pressure): as it glides between obelisks it sheds feathers that drift down onto the floor below it
+function moult(g, e, V) {
+  if (!e.bx.perch) return;
+  for (let k = 0; k < 3; k++) g.bxShot(e, e.x + (R() - 0.5) * 2.4, e.y - e.hitUp, Math.PI / 2 + (R() - 0.5) * 0.9, { shot: 'gilded_feather', speed: 2.6, range: 7, dmg: V.dmg || 65, mv: { wave: { amp: 0.6, freq: 3 } } });
+}
+// the scales (P3): a fan from each side of it, swinging toward each other, crossing on you
+function scales(g, e, V) {
+  const p = g.player;
+  for (const side of [-1, 1]) {
+    const x = e.x + side * 3, y = e.y - e.hitUp, a = angleTo(x, y, p.x, p.y);
+    for (let k = 0; k < 6; k++) e.bx.vol.push({ t: k * 0.09, V: { form: 'fan', shot: 'sun_disk', count: 2, spread: 0.25, angle: a - side * (0.9 - k * 0.18), speed: 6.5, range: 16, dmg: V.dmg || 70, from: () => [x, y] } });
+  }
+}
+
 export default {
-  id: 'gilded_sphinx', name: 'The Gilded Sphinx', biome: 'dungeon', hp: 70000, def: 10, xp: 4600, r: 2.3, speed: 2.4, keep: 8, faces: true,
+  id: 'gilded_sphinx', name: 'The Gilded Sphinx', biome: 'dungeon', hp: 85000, def: 10, xp: 5200, r: 2.3, speed: 2.4, keep: 8, faces: true,
+  tempo: 0.8, dmgScale: 1.2,
   phases: {
-    1: { move: 'hold', patterns: [
-      { name: 'crescent sweep', windup: 0.7, recover: 0.6, special: 'crescents', dmg: 60 },
-      { name: 'the riddle', windup: 0.8, recover: 0.8, special: 'riddle', dmg: 65 },
+    1: { move: 'hold', pressure: [{ every: 1.15, special: 'obeliskSand', delay: 1.2, dmg: 60 }], patterns: [
+      { name: 'crescent sweep', windup: 0.7, recover: 0.5, special: 'crescents', dmg: 60 },
+      { name: 'the riddle', windup: 0.8, recover: 0.6, special: 'riddle', dmg: 65 },
     ] },
-    2: { move: 'perch', patterns: [
-      { name: 'sunbursts', windup: 0.6, recover: 0.6, special: 'sunbursts', dmg: 65 },
-      { name: 'feather fans', windup: 0.6, recover: 0.6, special: 'feathers', dmg: 70 },
+    2: { move: 'perch', pressure: [{ every: 0.7, special: 'moult', dmg: 65 }], patterns: [
+      { name: 'sunbursts', windup: 0.6, recover: 0.5, special: 'sunbursts', dmg: 65 },
+      { name: 'feather fans', windup: 0.6, recover: 0.5, special: 'feathers', dmg: 70 },
     ] },
-    3: { move: 'center', patterns: [
-      { name: 'dust devils', windup: 0.7, recover: 0.6, special: 'devils' },
-      { name: 'scarab swarm', windup: 0.6, recover: 0.6, special: 'swarm' },
-      { name: 'crescent sweep', windup: 0.5, recover: 0.5, special: 'crescents', dmg: 65, speed: 6.5 },
+    3: { move: 'center', pressure: [{ every: 1.4, special: 'obeliskSand', dmg: 65 }], patterns: [
+      { name: 'dust devils', windup: 0.7, recover: 0.5, special: 'devils' },
+      { name: 'the scales', windup: 0.6, recover: 0.5, special: 'scales', dmg: 70 },
+      { name: 'scarab swarm', windup: 0.6, recover: 0.5, special: 'swarm' },
+      { name: 'crescent sweep', windup: 0.5, recover: 0.4, special: 'crescents', dmg: 65, speed: 6.5 },
     ] },
   },
-  specials: { crescents, crescentFan, riddle, sunbursts, sunRing, feathers, devils, swarm },
+  specials: { crescents, crescentFan, riddle, sunbursts, sunRing, feathers, devils, swarm, obeliskSand, moult, scales },
   moves: {
     perch(g, e, dt) {                               // aloft: it glides from one obelisk to the next round the dais
       const S = e.bx, [cx, cy] = centre(e);
@@ -85,7 +108,7 @@ export default {
       d.x += Math.cos(d.h) * 2.4 * dt; d.y += Math.sin(d.h) * 2.4 * dt;
       if (Math.hypot(d.x - cx, d.y - cy) > 17) d.h = angleTo(d.x, d.y, cx, cy);
       if (!p.dead && Math.hypot(d.x - p.x, d.y - p.y) < 1.1 && (d.tick -= dt) <= 0) {
-        d.tick = 0.6; g.hurtPlayer(60, 'a dust devil');
+        d.tick = 0.6; g.hurtPlayer(g.bxDmg(e, 60), 'a dust devil');
         const a = angleTo(d.x, d.y, p.x, p.y) + Math.PI / 2;
         p.gust = { vx: Math.cos(a) * 7, vy: Math.sin(a) * 7, until: g.t + 0.35 };
       }

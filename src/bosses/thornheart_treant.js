@@ -21,7 +21,7 @@ function acorns(g, e, V) {
   for (let k = 0; k < (V.n || 3); k++) {
     const a = R() * TAU, d = k ? 1.4 + R() * 1.6 : 0, x1 = p.x + Math.cos(a) * d, y1 = p.y + Math.sin(a) * d;
     const T = Math.max(0.7, Math.min(1.3, Math.hypot(x1 - ox, y1 - oy) / 6));
-    const b = g.shoot('e', ox, oy, angleTo(ox, oy, x1, y1), 6, 99, V.dmg || 50, SHOT('acorn_bomb'), 0.45, false, e.D.name);
+    const b = g.shoot('e', ox, oy, angleTo(ox, oy, x1, y1), 6, 99, g.bxDmg(e, V.dmg || 50), SHOT('acorn_bomb'), 0.45, false, e.D.name);
     b.bxOf = e;
     b.lob = { x0: ox, y0: oy, x1, y1, t: 0, T, h: 30, n: 6, r: 1.0, ss: 3.5, sprite: SHOT('burning_leaf'), bxOf: e };
   }
@@ -36,8 +36,18 @@ function wisps(g, e, V) {
   }
 }
 
+// canopy (P2-P3 pressure): burning leaves let go of the branches above you and sway down onto where you stand
+function canopy(g, e, V) {
+  const p = g.player;
+  for (let k = 0; k < 5; k++) {
+    const x = p.x + (k - 2) * 1.3 + (R() - 0.5) * 0.8, y = p.y - 5.5 - R() * 1.5;
+    g.bxShot(e, x, y, Math.PI / 2 + (R() - 0.5) * 0.3, { shot: 'burning_leaf', speed: 2.6, range: 9, dmg: V.dmg || 50, mv: { wave: { amp: 0.7, freq: 2.5 + R() } } });
+  }
+}
+
 export default {
-  id: 'thornheart_treant', name: 'The Thornheart Treant', biome: 'thornwood', hp: 26000, def: 16, xp: 2800, r: 1.8, speed: 1.0, keep: 5, faces: true,
+  id: 'thornheart_treant', name: 'The Thornheart Treant', biome: 'thornwood', hp: 30000, def: 16, xp: 3100, r: 1.8, speed: 1.0, keep: 5, faces: true,
+  tempo: 0.85, dmgScale: 1.15,
   phases: {
     1: { move: 'hold', patterns: [
       { name: 'seedfall', windup: 0.6, recover: 0.6, special: 'seedfall', n: 3 },
@@ -46,12 +56,12 @@ export default {
         { form: 'fan', shot: 'thorn_seed', count: 7, spread: 1.2, speed: 6, dmg: 45 },
         { form: 'fan', shot: 'thorn_seed', count: 7, spread: 1.2, speed: 6, dmg: 45, offset: 0.1, t: 0.3 }] },
     ] },
-    2: { move: 'stalk', patterns: [
+    2: { move: 'stalk', pressure: [{ every: 1.1, special: 'canopy', delay: 1.2, dmg: 50 }], patterns: [
       { name: 'falling fire', windup: 0.8, recover: 0.6, volleys: [{ form: 'curtain', from_side: 'n', shot: 'burning_leaf', count: 14, gaps: 3, speed: 2.2, dmg: 50, mv: { wave: { amp: 0.8, freq: 3 } } }] },
       { name: 'acorn bombs', windup: 0.7, recover: 0.6, special: 'acorns', n: 3, dmg: 55 },
       { name: 'seedfall', windup: 0.6, recover: 0.5, special: 'seedfall', n: 4 },
     ] },
-    3: { move: 'center', patterns: [
+    3: { move: 'center', pressure: [{ every: 0.9, special: 'canopy', dmg: 55 }], patterns: [
       { name: 'pincer', windup: 0.9, recover: 0.8, volleys: [
         { form: 'curtain', from_side: 'e', shot: 'corrupted_thorn', count: 14, gaps: 3, speed: 2.8, dmg: 55 },
         { form: 'curtain', from_side: 'w', shot: 'corrupted_thorn', count: 14, gaps: 3, speed: 2.8, dmg: 55 }] },
@@ -59,7 +69,7 @@ export default {
       { name: 'leaf spiral', windup: 0.6, recover: 0.5, volleys: [{ form: 'spiral', shot: 'leaf_blade', arms: 5, every: 0.11, dur: 1.8, turn: 0.26, speed: 4, dmg: 50, mv: { curve: 0.9 } }] },
     ] },
   },
-  specials: { seedfall, acorns, wisps },
+  specials: { seedfall, acorns, wisps, canopy },
   moves: {
     stalk(g, e, dt) {                               // it walks slowly after you, but never out of its clearing
       const p = g.player, A = e.bx.arena, cx = A ? A.x + A.w / 2 : e.x, cy = A ? A.y + A.h / 2 : e.y;

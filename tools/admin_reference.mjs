@@ -130,12 +130,12 @@ const PH = {
   forgeheart_colossus: ["Forge Sentinel", "Overheat", "Molten Core", "dungeon: ember", "/tp ember", "Half-ring slams; ricocheting rivets; skipping slag; vent columns; rolling magma that leaves lava; quake rings; a core that throws shots back."],
 };
 L.push('## Realm Update bosses (three phases)', '');
-L.push('Every one has three phases (it changes at 66% and 33%, immune while it does) and mechanics no other boss shares. Spawn any of them beside you with `/bx ID`.', '');
-table(['Id', 'Name', 'Where', 'Life', 'Phases', 'Fight it', 'Legendary (phase-3 kill)']);
+L.push('Every one has three phases (it changes at 66% and 33%, immune while it does) and mechanics no other boss shares; each phase also has its own pressure layer firing under its main attacks. The hardest three (Glacius, the Grand Orrery, the Forgeheart Colossus) end with a finale you can only dodge. Spawn any of them beside you with `/bx ID`.', '');
+table(['Id', 'Name', 'Where', 'Life', 'Phases', 'Finale', 'Fight it', 'Legendary (phase-3 kill)']);
 for (const [id, B] of Object.entries(BX)) {
   if (!PH[id]) continue;
   const leg = (B.loot || []).find((l) => l.id && ITEMS[l.id] && ITEMS[l.id].legendary);
-  row('`' + id + '`', B.name, PH[id][3], B.hp.toLocaleString(), PH[id].slice(0, 3).join(' → '), '`' + PH[id][4] + '`', leg ? `\`${leg.id}\` (${pct(leg.p)})` : '-');
+  row('`' + id + '`', B.name, PH[id][3], B.hp.toLocaleString(), PH[id].slice(0, 3).join(' → '), B.finale ? `**${B.finale.name}** at ${Math.round(B.finale.at * 100)}%: survive ${B.finale.dur}s, then it's broken (+50% damage taken)` : '-', '`' + PH[id][4] + '`', leg ? `\`${leg.id}\` (${pct(leg.p)})` : '-');
 }
 L.push('');
 for (const [id, B] of Object.entries(BX)) {

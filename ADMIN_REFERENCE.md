@@ -114,20 +114,20 @@ Open one with `/portal ID` or a key (`/keys`). `/seals` breaks every seal on a b
 
 ## Realm Update bosses (three phases)
 
-Every one has three phases (it changes at 66% and 33%, immune while it does) and mechanics no other boss shares. Spawn any of them beside you with `/bx ID`.
+Every one has three phases (it changes at 66% and 33%, immune while it does) and mechanics no other boss shares; each phase also has its own pressure layer firing under its main attacks. The hardest three (Glacius, the Grand Orrery, the Forgeheart Colossus) end with a finale you can only dodge. Spawn any of them beside you with `/bx ID`.
 
-| Id | Name | Where | Life | Phases | Fight it | Legendary (phase-3 kill) |
-| --- | --- | --- | --- | --- | --- | --- |
-| `abyssal_kraken` | The Abyssal Kraken | realm event, the Drowned Shore | 32,000 | Surfaced → Enraged → Leviathan | `/kraken` | `leviathan_eye` (1.5%) |
-| `thornheart_treant` | The Thornheart Treant | realm event, the Thornwood | 26,000 | Ancient → Autumn → Withered | `/treant` | `blight_heart` (1.5%) |
-| `glacius_frozen_wyrm` | Glacius, the Frozen Wyrm | dungeon: frostveil | 150,000 | Coiled Hoard → Unfurled → Shattered Heart | `/tp frostveil` | `aurora_heart` (2%) |
-| `mother_mycelia` | Mother Mycelia | dungeon: mirerot | 85,000 | Bloom → Rot → Sporestorm | `/tp mirerot` | `glowcap_crown` (2%) |
-| `grand_orrery` | The Grand Orrery | dungeon: astral | 240,000 | Aligned → Eclipse → Collapse | `/tp astral` | `event_horizon` (2%) |
-| `gilded_sphinx` | The Gilded Sphinx | dungeon: sandscour | 70,000 | Guardian → Ascendant → Sandstorm Pharaoh | `/tp sandscour` | `pharaohs_deathmask` (2%) |
-| `count_vesper` | Count Vesper, the Crimson Count | dungeon: keep | 200,000 | Nobleman → Batstorm → Blood Beast | `/tp keep` | `nightfall_scythe` (2%) |
-| `grinning_ringmaster` | The Grinning Ringmaster | dungeon: hollowmoon | 300,000 | Showman → Puppeteer → Big Top | `/tp hollowmoon` | `grinning_mask` (2%) |
-| `tidebound_lich` | The Tidebound Lich | dungeon: crypt | 160,000 | Drowned King → Soulbinder → Tidewraith | `/tp crypt` | `tidewraith_staff` (2%) |
-| `forgeheart_colossus` | The Forgeheart Colossus | dungeon: ember | 520,000 | Forge Sentinel → Overheat → Molten Core | `/tp ember` | `forgeheart_maul` (2%) |
+| Id | Name | Where | Life | Phases | Finale | Fight it | Legendary (phase-3 kill) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `abyssal_kraken` | The Abyssal Kraken | realm event, the Drowned Shore | 36,000 | Surfaced → Enraged → Leviathan | - | `/kraken` | `leviathan_eye` (1.5%) |
+| `thornheart_treant` | The Thornheart Treant | realm event, the Thornwood | 30,000 | Ancient → Autumn → Withered | - | `/treant` | `blight_heart` (1.5%) |
+| `glacius_frozen_wyrm` | Glacius, the Frozen Wyrm | dungeon: frostveil | 300,000 | Coiled Hoard → Unfurled → Shattered Heart | **Absolute Zero** at 12%: survive 10s, then it's broken (+50% damage taken) | `/tp frostveil` | `aurora_heart` (2%) |
+| `mother_mycelia` | Mother Mycelia | dungeon: mirerot | 95,000 | Bloom → Rot → Sporestorm | - | `/tp mirerot` | `glowcap_crown` (2%) |
+| `grand_orrery` | The Grand Orrery | dungeon: astral | 380,000 | Aligned → Eclipse → Collapse | **Collapse** at 12%: survive 12s, then it's broken (+50% damage taken) | `/tp astral` | `event_horizon` (2%) |
+| `gilded_sphinx` | The Gilded Sphinx | dungeon: sandscour | 85,000 | Guardian → Ascendant → Sandstorm Pharaoh | - | `/tp sandscour` | `pharaohs_deathmask` (2%) |
+| `count_vesper` | Count Vesper, the Crimson Count | dungeon: keep | 200,000 | Nobleman → Batstorm → Blood Beast | - | `/tp keep` | `nightfall_scythe` (2%) |
+| `grinning_ringmaster` | The Grinning Ringmaster | dungeon: hollowmoon | 240,000 | Showman → Puppeteer → Big Top | - | `/tp hollowmoon` | `grinning_mask` (2%) |
+| `tidebound_lich` | The Tidebound Lich | dungeon: crypt | 180,000 | Drowned King → Soulbinder → Tidewraith | - | `/tp crypt` | `tidewraith_staff` (2%) |
+| `forgeheart_colossus` | The Forgeheart Colossus | dungeon: ember | 520,000 | Forge Sentinel → Overheat → Molten Core | **Meltdown** at 12%: survive 12s, then it's broken (+50% damage taken) | `/tp ember` | `forgeheart_maul` (2%) |
 
 - **The Abyssal Kraken**: Ink that blots your view; hooked arms that bend as they fly; a drifting whirlpool that drags you; lures joined by chain lightning. Relics: `tidebreaker_trident` (12%), `abyssal_pearl` (12%).
 - **The Thornheart Treant**: Seeds that mark the ground and burst; burning leaves that sway down; acorn bombs; thorn walls closing from both sides; wisps from the trees. Relics: `heartwood_bow` (12%), `seed_of_renewal` (12%).

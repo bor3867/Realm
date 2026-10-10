@@ -8,11 +8,11 @@ const angleTo = (x0, y0, x1, y1) => Math.atan2(y1 - y0, x1 - x0);
 
 function bolts(g, e, V) {                           // volleys of five, every bolt bending the same way with the current
   const dir = R() < 0.5 ? 1 : -1;
-  for (let k = 0; k < 3; k++) e.bx.vol.push({ t: k * 0.4, V: { form: 'fan', shot: 'soul_bolt', count: 5, spread: 0.45, speed: 6.5, range: 12, dmg: V.dmg || 80, mv: { curve: 0.55 * dir } } });
+  for (let k = 0; k < 4; k++) e.bx.vol.push({ t: k * 0.35, V: { form: 'fan', shot: 'soul_bolt', count: 5, spread: 0.45, speed: 6.5, range: 12, dmg: V.dmg || 80, mv: { curve: 0.55 * dir } } });
 }
 function coral(g, e, V) {                           // three coral chunks that splinter into six
   const p = g.player, [ox, oy] = g.bxOrigin(e), a = angleTo(ox, oy, p.x, p.y);
-  for (const off of [-0.5, 0, 0.5]) g.bxShot(e, ox, oy, a + off, { shot: 'coral_shard', speed: 6, range: 12, dmg: V.dmg || 85, size: 0.55, mv: { split: { at: 0.6, n: 6, speed: 4.5, range: 4 } } });
+  for (const off of [-0.8, -0.4, 0, 0.4, 0.8]) g.bxShot(e, ox, oy, a + off, { shot: 'coral_shard', speed: 6, range: 12, dmg: V.dmg || 85, size: 0.55, mv: { split: { at: 0.6, n: 6, speed: 4.5, range: 4 } } });
 }
 function swap(g, e) {                               // his own: you trade places
   g.fx.push({ kind: 'soulswap', e, t: 0, delay: 0.6, life: 0.9, dmg: 75, proj: 'bx_shots/tidebound_lich.lost_soul', by: e.D.name });
@@ -50,27 +50,55 @@ function gravecall(g, e) {                          // his own: the dead rise wh
   g.banner('The dead walk where you walked.', 1800);
 }
 
+// a single soul bolt bent by the current (P1 pressure): the current changes direction now and then
+function driftBolt(g, e, V) {
+  const S = e.bx, p = g.player, [ox, oy] = g.bxOrigin(e);
+  if (!S.current || R() < 0.15) S.current = R() < 0.5 ? 1 : -1;
+  g.bxShot(e, ox, oy, angleTo(ox, oy, p.x, p.y) - S.current * 0.35, { shot: 'soul_bolt', speed: 7, range: 14, dmg: V.dmg || 80, mv: { curve: 0.55 * S.current } });
+}
+// the second wave of lost souls (P2): they come from the walls behind you, not from him
+function soulsBehind(g, e, V) {
+  const p = g.player, A = e.bx.arena, [ox, oy] = g.bxOrigin(e), a = angleTo(ox, oy, p.x, p.y);
+  for (let k = 0; k < 4; k++) {
+    const aa = a + (k / 3 - 0.5) * 1.4, x = p.x + Math.cos(aa) * 8, y = p.y + Math.sin(aa) * 8;
+    const cx = A ? Math.max(A.x + 1, Math.min(A.x + A.w - 1, x)) : x, cy = A ? Math.max(A.y + 1, Math.min(A.y + A.h - 1, y)) : y;
+    const b = g.bxShot(e, cx, cy, angleTo(cx, cy, p.x, p.y), { shot: 'lost_soul', speed: 4, range: 99, dmg: V.dmg || 80, mv: { seek: 2 } });
+    b.tether = { home: e, out: 1.8 }; b.life = 5;
+  }
+}
+function soulsTwice(g, e, V) { souls(g, e, V); e.bx.vol.push({ t: 0.9, V: { form: 'special', name: 'soulsBehind', dmg: V.dmg } }); }
+// undertow (P3 pressure): drowned skulls rise at the hall's edge and drift in toward its middle
+function undertow(g, e, V) {
+  const A = e.bx.arena || { x: e.x - 16, y: e.y - 18, w: 32, h: 36 }, cx = A.x + A.w / 2, cy = A.y + A.h / 2;
+  for (let k = 0; k < 3; k++) {
+    const side = Math.floor(R() * 4), u = R(), x = side < 2 ? A.x + 1 + u * (A.w - 2) : side === 2 ? A.x + 1 : A.x + A.w - 1, y = side < 2 ? (side ? A.y + A.h - 1 : A.y + 1) : A.y + 1 + u * (A.h - 2);
+    g.bxShot(e, x, y, angleTo(x, y, cx, cy) + (R() - 0.5) * 0.5, { shot: 'drowned_skull', speed: 2.4, range: Math.max(A.w, A.h), dmg: V.dmg || 85 });
+  }
+}
+
 export default {
-  id: 'tidebound_lich', name: 'The Tidebound Lich', biome: 'dungeon', hp: 160000, def: 26, xp: 9000, r: 2, speed: 1.3, keep: 7, faces: true,
+  id: 'tidebound_lich', name: 'The Tidebound Lich', biome: 'dungeon', hp: 180000, def: 26, xp: 10000, r: 2, speed: 1.3, keep: 7, faces: true,
+  tempo: 0.75, dmgScale: 1.2,
   phases: {
-    1: { move: 'pace', patterns: [
-      { name: 'soul bolts', windup: 0.6, recover: 0.6, special: 'bolts', dmg: 80 },
-      { name: 'coral', windup: 0.6, recover: 0.7, special: 'coral', dmg: 85 },
-      { name: 'the swap', windup: 0.9, recover: 0.8, special: 'swap' },
+    1: { move: 'pace', pressure: [{ every: 0.75, special: 'driftBolt', delay: 1.2, dmg: 80 }], patterns: [
+      { name: 'soul bolts', windup: 0.6, recover: 0.5, special: 'bolts', dmg: 80 },
+      { name: 'coral', windup: 0.6, recover: 0.5, special: 'coral', dmg: 85 },
+      { name: 'soul bolts', windup: 0.5, recover: 0.5, special: 'bolts', dmg: 80 },
+      { name: 'the swap', windup: 0.9, recover: 0.6, special: 'swap' },
     ] },
-    2: { move: 'pace', patterns: [
-      { name: 'lost souls', windup: 0.6, recover: 0.7, special: 'souls', dmg: 80 },
-      { name: 'soul cage', windup: 0.7, recover: 0.9, special: 'cage', dmg: 85 },
-      { name: 'lost souls', windup: 0.5, recover: 0.6, special: 'souls', dmg: 80 },
-      { name: 'lights out', windup: 0.9, recover: 0.6, special: 'lightsOut' },
+    2: { move: 'pace', pressure: [{ every: 1.0, special: 'driftBolt', dmg: 80 }], patterns: [
+      { name: 'lost souls', windup: 0.6, recover: 0.6, special: 'soulsTwice', dmg: 80 },
+      { name: 'soul cage', windup: 0.7, recover: 0.7, special: 'cage', dmg: 85 },
+      { name: 'coral', windup: 0.5, recover: 0.5, special: 'coral', dmg: 85 },
+      { name: 'lights out', windup: 0.9, recover: 0.5, special: 'lightsOut' },
     ] },
-    3: { move: 'center', patterns: [
-      { name: 'the tide comes in', windup: 0.8, recover: 0.8, special: 'tide', dmg: 85 },
-      { name: 'drowned skulls', windup: 0.6, recover: 0.6, special: 'skulls', dmg: 90 },
+    3: { move: 'center', pressure: [{ every: 3.4, special: 'undertow', dmg: 80 }], patterns: [
+      { name: 'the tide comes in', windup: 0.8, recover: 1.5, special: 'tide', dmg: 85 },
+      { name: 'drowned skulls', windup: 0.6, recover: 0.7, special: 'skulls', dmg: 85 },
       { name: 'grave call', windup: 0.7, recover: 0.6, special: 'gravecall' },
     ] },
   },
-  specials: { bolts, coral, swap, lightsOut, souls, cage, tide, skulls, gravecall },
+  specials: { bolts, coral, swap, lightsOut, souls, cage, tide, skulls, gravecall, driftBolt, soulsBehind, soulsTwice, undertow },
   update(g, e, dt) {
     for (const b of g.projectiles) {
       if (b.bxOf !== e) continue;

@@ -55,10 +55,28 @@ function novaRing(g, e, V) {
   for (let k = 0; k < n; k++) { const a = (k / n) * TAU; if (Math.abs(Math.atan2(Math.sin(a - V.gapA), Math.cos(a - V.gapA))) < 0.4) continue; g.bxShot(e, ox, oy, a, { shot: 'sanguine_nova', speed: 4.4, range: 18, dmg: V.dmg }); }
 }
 
+// pillar bats (P1 pressure): a bat or two leaves the pillars down the hall's sides and flies at you
+function pillarBats(g, e, V) {
+  const [cx, cy] = centre(e), p = g.player, A = e.bx.arena;
+  for (let k = 0, n = R() < 0.5 ? 1 : 2; k < n; k++) {
+    const side = R() < 0.5 ? -1 : 1, x = cx + side * 9, y = A ? A.y + 4 + R() * (A.h - 8) : cy + (R() - 0.5) * 12;
+    g.bxShot(e, x, y, angleTo(x, y, p.x, p.y), { shot: 'bat_swarm', speed: 6, range: 22, dmg: V.dmg || 95, mv: { wave: { amp: 0.5, freq: 6 } } });
+  }
+}
+// the pools boil (P3 pressure): every blood pool he has made spits at you
+function poolsBoil(g, e, V) {
+  const p = g.player;
+  for (const P of (e.bx.pools || []).slice(-4)) {
+    const a = angleTo(P.x, P.y, p.x, p.y);
+    for (const off of [-0.15, 0.15]) g.bxShot(e, P.x, P.y, a + off, { sprite: 'd2_projectiles/crimson_keep.blood_spit', speed: 6, range: 14, dmg: V.dmg || 90 });
+  }
+}
+
 export default {
   id: 'count_vesper', name: 'Count Vesper, the Crimson Count', biome: 'dungeon', hp: 200000, def: 26, xp: 11000, r: 2.2, speed: 1.6, keep: 7, faces: true, shotSheet: 'bx2_shots',
+  tempo: 0.78, dmgScale: 1.1,
   phases: {
-    1: { move: 'promenade', patterns: [
+    1: { move: 'promenade', pressure: [{ every: 0.85, special: 'pillarBats', delay: 1.5, dmg: 95 }], patterns: [
       { name: 'the kneeling thralls', windup: 0.6, recover: 0.4, special: 'kneel' },
       { name: 'blood bolts', windup: 0.6, recover: 0.6, special: 'bolts', n: 2, dmg: 100 },
       { name: 'hedge of thorns', windup: 0.7, recover: 0.8, special: 'hedge', dmg: 105 },
@@ -67,16 +85,19 @@ export default {
       { name: 'the kneeling thralls', windup: 0.6, recover: 0.4, special: 'kneel' },
     ] },
     2: { move: 'batdash', patterns: [
-      { name: 'bat swarm', windup: 0.6, recover: 0.5, special: 'bats', dmg: 100 },
-      { name: 'scythes', windup: 0.7, recover: 0.9, special: 'scythes', dmg: 115 },
+      { name: 'bat swarm', windup: 0.6, recover: 0.4, special: 'bats', dmg: 100 },
+      { name: 'scythes', windup: 0.7, recover: 0.7, special: 'scythes', dmg: 115 },
+      { name: 'bat swarm', windup: 0.5, recover: 0.4, special: 'bats', dmg: 100 },
+      { name: 'hedge of thorns', windup: 0.6, recover: 0.6, special: 'hedge', dmg: 105 },
     ] },
-    3: { move: 'center', patterns: [
-      { name: 'blood rain', windup: 0.6, recover: 0.6, special: 'rain', dmg: 95 },
-      { name: 'sanguine nova', windup: 0.7, recover: 0.6, special: 'nova', dmg: 110 },
-      { name: 'blood bolts', windup: 0.5, recover: 0.5, special: 'bolts', n: 3, dmg: 105 },
+    3: { move: 'center', pressure: [{ every: 2.2, special: 'poolsBoil', dmg: 90 }], patterns: [
+      { name: 'blood rain', windup: 0.6, recover: 0.5, special: 'rain', dmg: 95 },
+      { name: 'sanguine nova', windup: 0.7, recover: 0.5, special: 'nova', dmg: 110 },
+      { name: 'blood bolts', windup: 0.5, recover: 0.4, special: 'bolts', n: 3, dmg: 105 },
+      { name: 'scythes', windup: 0.6, recover: 0.6, special: 'scythes', dmg: 115 },
     ] },
   },
-  specials: { bolts, boltVolley, hedge, kneel, bats, batFan, scythes, rain, nova, novaRing },
+  specials: { bolts, boltVolley, hedge, kneel, bats, batFan, scythes, rain, nova, novaRing, pillarBats, poolsBoil },
   moves: {
     promenade(g, e, dt) {                           // he paces before the throne
       const [cx] = centre(e), A = e.bx.arena, S = e.bx, y = A ? A.y + 8 : e.y;
@@ -97,7 +118,7 @@ export default {
       if (S.dashTo) {
         (S.trail = S.trail || []).push({ x: e.x, y: e.y, t: g.t });
         const d = Math.hypot(S.dashTo.x - e.x, S.dashTo.y - e.y);
-        if (d < 0.3) S.dashTo = null; else { const s = Math.min(d, 15 * dt); e.x += ((S.dashTo.x - e.x) / d) * s; e.y += ((S.dashTo.y - e.y) / d) * s; }
+        if (d < 0.3) { S.dashTo = null; boltVolley(g, e, { lead: 1, dmg: 100 }); } else { const s = Math.min(d, 15 * dt); e.x += ((S.dashTo.x - e.x) / d) * s; e.y += ((S.dashTo.y - e.y) / d) * s; }
       }
     },
   },
@@ -113,7 +134,7 @@ export default {
       if (g.t < P.until) {
         if ((P.drop -= dt) <= 0) { P.drop = 0.09; g.bxShot(e, P.x - 0.5 + R() * 3, P.y - 1.6 + R() * 1.5, Math.PI / 2, { shot: 'blood_rain', speed: 7, range: 1.6, dmg: P.dmg }); }
       } else if (!P.pooled) {
-        P.pooled = true;
+        P.pooled = true; (S.pools = S.pools || []).push({ x: P.x + 0.5, y: P.y + 0.5 });
         for (let y = P.y - 1; y <= P.y + 1; y++) for (let x = P.x - 1; x <= P.x + 1; x++) {
           const i = y * m.w + x;
           if (!m.solid[i] && m.tiles[i] !== TID.ckblood) { m.tiles[i] = TID.ckblood; if (m.skin) m.skin[i] = SK.crimson_keep_blood_pool; }

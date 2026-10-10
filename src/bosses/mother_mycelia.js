@@ -26,16 +26,39 @@ function acid(g, e, V) {
   for (let k = 0; k < (V.n || 4); k++) {
     const a = R() * TAU, d = k ? 1.4 + R() * 2.2 : 0, x1 = p.x + Math.cos(a) * d, y1 = p.y + Math.sin(a) * d;
     const T = Math.max(0.7, Math.min(1.3, Math.hypot(x1 - ox, y1 - oy) / 7));
-    const b = g.shoot('e', ox, oy, angleTo(ox, oy, x1, y1), 7, 99, V.dmg || 80, SHOT('acid_glob'), 0.45, false, e.D.name);
+    const b = g.shoot('e', ox, oy, angleTo(ox, oy, x1, y1), 7, 99, g.bxDmg(e, V.dmg || 80), SHOT('acid_glob'), 0.45, false, e.D.name);
     b.bxOf = e;
     b.lob = { x0: ox, y0: oy, x1, y1, t: 0, T, h: 30, n: 0, r: 1.0, ss: 0,
       onLand: (G) => { (G.map.mrPuddles = G.map.mrPuddles || []).push({ x: x1, y: y1, r: 1.2, until: G.t + 6, dmg: 14 }); G.vx({ k: 'burst', x: x1, y: y1, n: 10, colors: ['#c8ff3a', '#7ac83a', '#3a5a1a'] }); } };
   }
 }
-// the lunge: she lurches toward you, then her maw snaps shut in a short ring of fangs
+// the lunge: she lurches toward you, then her maw snaps shut in a short ring of fangs (and in the Rot, she lunges again)
 function lunge(g, e, V) {
   const S = e.bx, p = g.player, a = angleTo(e.x, e.y, p.x, p.y);
-  S.lunge = { vx: Math.cos(a) * 8.6, vy: Math.sin(a) * 8.6, t: 0.35, dmg: V.dmg || 90 };
+  S.lunge = { vx: Math.cos(a) * 8.6, vy: Math.sin(a) * 8.6, t: 0.35, dmg: V.dmg || 90, chain: V.chain || 0 };
+}
+// pod puffs (P1-P2 pressure): a spore pod round the Mire puffs a hanging cloud toward the middle (it doesn't burst)
+function podPuff(g, e, V) {
+  const [cx, cy] = centre(e), A = e.bx.arena;
+  const pods = g.map.objects.filter((o) => o.mrPod && !o.burst && (!A || (o.x > A.x - 3 && o.x < A.x + A.w + 3 && o.y > A.y - 3 && o.y < A.y + A.h + 3)));
+  let x, y;
+  if (pods.length) { const o = pods[Math.floor(R() * pods.length)]; x = o.x; y = o.y; }
+  else { const a = R() * TAU; x = cx + Math.cos(a) * 11; y = cy + Math.sin(a) * 11; }
+  const a = angleTo(x, y, cx, cy);
+  for (const off of [-0.45, 0, 0.45]) {
+    const b = g.bxShot(e, x, y, a + off, { shot: 'spore_puff', speed: 4, range: 99, dmg: V.dmg || 70, size: 0.6, mv: { wave: { amp: 0.25, freq: 2 } } });
+    b.mrStop = 3.5 + R() * 3; b.mrHang = 3.5; b.poison = 2;
+  }
+  g.vx({ k: 'burst', x, y: y - 0.4, n: 6, colors: ['#c8ff3a', '#7ac83a'] });
+}
+// sprout needles (P3 pressure): every glowcap sprout still alive fires a little fan of needles at you
+function sproutNeedles(g, e, V) {
+  const p = g.player;
+  for (const q of g.enemies) {
+    if (q.id !== 'glowcap_sprout' || q.dead) continue;
+    const a = angleTo(q.x, q.y, p.x, p.y);
+    for (const off of [-0.2, 0, 0.2]) g.bxShot(e, q.x, q.y - 0.4, a + off, { shot: 'poison_needle', speed: 7, range: 12, dmg: V.dmg || 70, poison: 1.2 });
+  }
 }
 // glowcap seeds: lobbed round the island; each lands as a sprout that bursts into a sporeling unless it's shot
 function seeds(g, e, V) {
@@ -50,23 +73,26 @@ function seeds(g, e, V) {
 }
 
 export default {
-  id: 'mother_mycelia', name: 'Mother Mycelia', biome: 'dungeon', hp: 85000, def: 14, xp: 5200, r: 2.0, speed: 1.4, keep: 7, faces: true,
+  id: 'mother_mycelia', name: 'Mother Mycelia', biome: 'dungeon', hp: 95000, def: 14, xp: 5800, r: 2.0, speed: 1.4, keep: 7, faces: true,
+  tempo: 0.9, dmgScale: 1.0,                      // her clouds linger and poison: she needs less on top (docs/design/08_boss_rework.md)
   phases: {
-    1: { move: 'hold', patterns: [
-      { name: 'spore clouds', windup: 0.7, recover: 0.6, special: 'clouds', n: 5, dmg: 70 },
-      { name: 'needle bursts', windup: 0.6, recover: 0.6, special: 'needles', dmg: 75 },
+    1: { move: 'hold', pressure: [{ every: 2.4, special: 'podPuff', delay: 1.5, dmg: 70 }], patterns: [
+      { name: 'spore clouds', windup: 0.7, recover: 0.5, special: 'clouds', n: 5, dmg: 70 },
+      { name: 'needle bursts', windup: 0.6, recover: 0.5, special: 'needles', dmg: 75 },
+      { name: 'acid globs', windup: 0.6, recover: 0.5, special: 'acid', n: 3, dmg: 75 },
     ] },
-    2: { move: 'creep', patterns: [
-      { name: 'acid globs', windup: 0.7, recover: 0.6, special: 'acid', n: 4, dmg: 80 },
-      { name: 'lunging bite', windup: 0.6, recover: 0.9, special: 'lunge', dmg: 90, move: 'hold' },
+    2: { move: 'creep', pressure: [{ every: 3.2, special: 'podPuff', dmg: 75 }], patterns: [
+      { name: 'acid globs', windup: 0.7, recover: 0.5, special: 'acid', n: 5, dmg: 80 },
+      { name: 'lunging bite', windup: 0.6, recover: 0.7, special: 'lunge', chain: 1, dmg: 90, move: 'hold' },
+      { name: 'needle bursts', windup: 0.5, recover: 0.5, special: 'needles', dmg: 80 },
     ] },
-    3: { move: 'center', patterns: [
-      { name: 'glowcap seeds', windup: 0.7, recover: 0.6, special: 'seeds', n: 4 },
-      { name: 'toxic orbs', windup: 0.7, recover: 0.6, volleys: [{ form: 'spiral', shot: 'toxic_orb', arms: 2, every: 0.16, dur: 1.6, turn: 0.32, speed: 2.2, range: 12, dmg: 85, size: 0.6, mv: { curve: 0.7, accel: 2.4, max: 2.6 } }] },
-      { name: 'spore clouds', windup: 0.6, recover: 0.5, special: 'clouds', n: 7, dmg: 75 },
+    3: { move: 'center', pressure: [{ every: 2.6, special: 'sproutNeedles', dmg: 70 }], patterns: [
+      { name: 'glowcap seeds', windup: 0.7, recover: 0.5, special: 'seeds', n: 5 },
+      { name: 'toxic orbs', windup: 0.7, recover: 0.5, volleys: [{ form: 'spiral', shot: 'toxic_orb', arms: 2, every: 0.15, dur: 1.8, turn: 0.32, speed: 2.2, range: 14, dmg: 85, size: 0.6, mv: { curve: 0.7, accel: 2.4, max: 2.6 } }] },
+      { name: 'spore clouds', windup: 0.6, recover: 0.4, special: 'clouds', n: 7, dmg: 75 },
     ] },
   },
-  specials: { clouds, needles, acid, lunge, seeds },
+  specials: { clouds, needles, acid, lunge, seeds, podPuff, sproutNeedles },
   moves: {
     creep(g, e, dt) {                               // she drags herself after you, but never off her island
       const p = g.player, [cx, cy] = centre(e);
@@ -86,6 +112,7 @@ export default {
         const [ox, oy] = g.bxOrigin(e);
         for (let k = 0; k < 12; k++) g.bxShot(e, ox, oy, (k / 12) * TAU, { shot: 'maw_fang', speed: 7, range: 3.5, dmg: L.dmg });
         g.vx({ k: 'shake', amt: 3 });
+        if (L.chain > 0) g.fvLater(0.35, () => { if (!e.dead && e.bx.phase === 2) lunge(g, e, { dmg: L.dmg, chain: L.chain - 1 }); });   // she lunges again
       }
     }
     for (const b of g.projectiles) {                // spore puffs: slow, stop, hang, then fade
