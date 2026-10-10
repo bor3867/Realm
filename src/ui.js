@@ -471,8 +471,14 @@ export class UI {
     }
     // the second backpack's 8 slots only exist once you've used a Pilgrim's Satchel
     const big = this.g.player && this.g.player.inv.length > 8;
-    this.slots.inv.forEach((el, i) => el.classList.toggle('hidden', i >= 8 && !big));
-    $('invcount').textContent = big ? '(16 slots · 1–8 to use)' : '(1–8 to use)';
+    // the second backpack shows 8 slots at a time, like RotMG's: a switch beside the label flips between them
+    const pg = big ? (this.invPage || 0) : 0;
+    this.slots.inv.forEach((el, i) => el.classList.toggle('hidden', big ? (i >= 8) !== (pg === 1) : i >= 8));
+    const ic = $('invcount');
+    if (big) {
+      ic.innerHTML = `<span class="pg${pg ? '' : ' on'}" data-pg="0">1</span><span class="pg${pg ? ' on' : ''}" data-pg="1">2</span> (1–8 to use)`;
+      ic.querySelectorAll('[data-pg]').forEach((s) => { s.onclick = () => { this.invPage = +s.dataset.pg; this.refreshSlots(); }; });
+    } else ic.textContent = '(1–8 to use)';
     const g = this.g;
     const show = g.nearVault || g.nearBag;
     $('groundwrap').classList.toggle('off', !show);
@@ -611,12 +617,12 @@ export class UI {
     if (!over() && now - (this.fitT || 0) < 1500) return;   // it fits: only look for spare room now and then
     this.fitT = now;
     P.classList.remove('tight', 'squeeze'); P.style.removeProperty('--slotw');
-    const small = () => $('miniwrap').clientHeight < 160;     // a map too small to read: the slots give a little instead
+    const small = () => false;                              // the minimap is a fixed square now (style.css): only the slots give way
     if (!over() && !small()) return;
     P.classList.add('tight');
     if (!over() && !small()) return;
     let w = Math.floor(($('inv').clientWidth - 18) / 4);
-    while ((over() || small()) && w > 56) { w -= 3; P.style.setProperty('--slotw', w + 'px'); }
+    while ((over() || small()) && w > 44) { w -= 3; P.style.setProperty("--slotw", w + "px"); }
     if (over()) P.classList.add('squeeze');                 // a very short screen with a bag open: stats step aside
   }
   hideTip() { this.tip.classList.add('hidden'); this.bagTip = null; }

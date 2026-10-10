@@ -609,3 +609,13 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 @keyframes itemsweep { 0%, 86% { background-position: 100% 0; } 100% { background-position: 0% 0; } }
 .slot.legend { background: radial-gradient(circle at 50% 45%, #3a2e10 0%, #0c0a10 72%); }
 .slot.legend .tier { color: #ffe9a0; }
+/* ---- the minimap, RotMG-style: one fixed square at the top of the panel, as wide as the panel allows (capped so the
+   inventory always fits under it). It never shrinks to make room: the slots give way instead (ui.fitPanel) */
+#miniwrap { flex: none !important; width: 100% !important; height: max(200px, min(100cqw, 34vh)) !important; min-height: 0 !important; max-height: none !important;
+  aspect-ratio: auto !important; padding: 0 !important; background: #000 !important; border-radius: 4px !important; display: flex; justify-content: center; align-items: center; }
+#minimap { width: max(200px, min(100cqw, 34vh)) !important; height: max(200px, min(100cqw, 34vh)) !important; max-width: 100% !important; max-height: 100% !important; border-radius: 4px !important; }
+#panel.tight #miniwrap, #panel.squeeze #miniwrap { min-height: 0 !important; }
+#invcount .pg { display: inline-block; min-width: 18px; text-align: center; margin-right: 3px; padding: 0 4px; border-radius: 4px; border: 1px solid #3a3846; color: var(--mut); cursor: pointer; font-weight: 700; }
+#invcount .pg.on { color: #1a1218; background: var(--gold); border-color: var(--gold); }
+#panel.tight { gap: 5px !important; }
+#panel.squeeze { gap: 3px !important; }

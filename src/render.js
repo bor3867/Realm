@@ -1089,7 +1089,7 @@ export class Renderer {
     // height: mid-hop, or a flier bobbing on the air (it drops low when it dives)
     out.z = Math.round(e.z || 0);
     if (e.D.fly) out.z += Math.round((e.dive ? 2 : 6) + Math.sin(g.t * 3 + e.phase) * 2);
-    if (e.state === 'tell' && Math.floor(g.t * 12) % 2) out.glow = true;       // the tell flashes: get ready
+    if (e.state === 'tell' && !e.rb && Math.floor(g.t * 12) % 2) out.glow = true;   // the tell flashes: get ready (bosses don't flash: they tremble)
     if (e.blinkTo) { out.glow = Math.floor(g.t * 16) % 2 === 0; this.blinkMark(g, e.blinkTo); }   // about to teleport: shimmer + landing mark
     if (e.digT !== undefined || e.diveWarn !== undefined) out.dx += Math.floor(g.t * 40) % 2 ? 1 : -1;   // about to dig in / dive
     if (e.diveWarn !== undefined) out.z += 4;
@@ -1196,7 +1196,7 @@ export class Renderer {
     if (!e.dead && !S.B.noShadow) this.shadow(sx, sy, Math.min(48, W * 0.55));
     const hy = this.R ? hoverY(this.R, def, g.t, S.phase0, S.phase) : 0;
     if (e.dead) this.b.globalAlpha = Math.max(0, 1 - e.deadT / 1.4);
-    this.drawDef(def, fr, sx, sy + hy - (S.leapZ || 0), { flip: !!e.face, flash: S.flashT > 0 && S.state !== 'death' });
+    this.drawDef(def, fr, sx, sy + hy - (S.leapZ || 0), { flip: !!e.face });   // no hit flash on bosses
     this.b.globalAlpha = 1;
     if (S.B.draw) S.B.draw(this, g, e, sx, sy);
   }

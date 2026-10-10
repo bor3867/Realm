@@ -244,7 +244,7 @@ export const BXF = {
     const th = this.bxThresholds(e), next = th[S.phase - 1];
     if (next !== undefined && e.hp - d <= e.maxHp * next) { const keep = e.hp - e.maxHp * next; this.bxMorph(e); return Math.max(0, keep); }
     if (e.hp - d <= 0 && S.state !== 'death') { this.bxDie(e); return 0; }   // bxDie leaves it at 1 life while the death clip plays
-    if (S.hurtT <= 0) { S.hurtT = 0.12; S.flashT = 0.08; }   // the hit flash, rate-limited
+    if (S.hurtT <= 0) S.hurtT = 0.12;
     return d;
   },
   bxMorph(e) {
