@@ -234,36 +234,36 @@ const UT = [
     ability: { cost: 85, heal: 240, invuln: 2.2, burst: { count: 20, proj: 'dreamstar', dmg: 190, range: 5, pierce: true } },
     desc: "One of the alarms that woke the Sleeper. Ring it and nothing can keep you down." },
   // ---- the Sunken Crypt (the Tidebound Lich) and the Emberforge Depths (the Forgeheart Colossus)
-  { id: 'tidecaller_blade', type: 'sword', slot: 'weapon', name: 'Tidecaller Blade', bag: 'urn',
+  { id: 'tidecaller_blade', reg: 'ix_items/tidecaller_blade', type: 'sword', slot: 'weapon', name: 'Tidecaller Blade', bag: 'urn',
     weapon: { dmg: [160, 220], count: 1, arc: 0, range: 3.2, speed: 13, rate: 1.0, proj: 'tide_wave', size: 0.55, pierce: true, special: { slow: { f: 0.3, t: 2 } } },
     desc: 'The Lich drowned a knight to forge it. Every cut drags like an undertow.' },
-  { id: 'emberbrand_greatsword', type: 'sword', slot: 'weapon', name: 'Emberbrand Greatsword', bag: 'urn',
+  { id: 'emberbrand_greatsword', reg: 'ix_items/emberbrand_greatsword', type: 'sword', slot: 'weapon', name: 'Emberbrand Greatsword', bag: 'urn',
     weapon: { dmg: [210, 290], count: 1, arc: 0, range: 3.0, speed: 12, rate: 0.85, proj: 'fireball', size: 0.6, special: { burn: { dps: 80, t: 3 } } },
     desc: 'Quenched in the Colossus\'s heart. It has not stopped glowing.' },
-  { id: 'staff_of_drowned_stars', type: 'staff', slot: 'weapon', name: 'Staff of Drowned Stars', bag: 'urn',
+  { id: 'staff_of_drowned_stars', reg: 'ix_items/staff_of_drowned_stars', type: 'staff', slot: 'weapon', name: 'Staff of Drowned Stars', bag: 'urn',
     weapon: { dmg: [90, 130], count: 2, arc: 0.1, range: 6.6, speed: 11, rate: 1.0, proj: 'wisp_flame', size: 0.45, special: { slow: { f: 0.25, t: 1.5 } } },
     desc: 'Stars fell into the crypt\'s flooded vaults. The Lich fished one out.' },
-  { id: 'cinderwood_staff', type: 'staff', slot: 'weapon', name: 'Cinderwood Staff', bag: 'urn',
+  { id: 'cinderwood_staff', reg: 'ix_items/cinderwood_staff', type: 'staff', slot: 'weapon', name: 'Cinderwood Staff', bag: 'urn',
     weapon: { dmg: [95, 140], count: 2, arc: 0.1, range: 6.2, speed: 11, rate: 1.0, proj: 'fireball', size: 0.45, special: { burn: { dps: 50, t: 3 } } },
     desc: 'Cut from a tree that grows in the forge-fires. It still smoulders at the tip.' },
-  { id: 'runeplate_armor', type: 'leather', slot: 'armor', name: 'Runeplate Brigandine', bag: 'urn', bonus: { def: 20, hp: 60, att: 3, dex: 3 },
+  { id: 'runeplate_armor', reg: 'ix_items/runeplate_armor', type: 'leather', slot: 'armor', name: 'Runeplate Brigandine', bag: 'urn', bonus: { def: 20, hp: 60, att: 3, dex: 3 },
     desc: 'Rune-cut plates riveted to supple leather. The runes glow when you are hit.' },
-  { id: 'hexsilk_robe', type: 'robe', slot: 'armor', name: 'Hexsilk Robe', bag: 'urn', bonus: { def: 12, mp: 80, wis: 6, att: 2 },
+  { id: 'hexsilk_robe', reg: 'ix_items/hexsilk_robe', type: 'robe', slot: 'armor', name: 'Hexsilk Robe', bag: 'urn', bonus: { def: 12, mp: 80, wis: 6, att: 2 },
     desc: 'Woven by the Lich\'s handmaidens from drowned spider-silk.' },
-  { id: 'ring_of_tides', type: 'ring', slot: 'ring', name: 'Ring of Tides', bag: 'urn', bonus: { hp: 80, wis: 5, vit: 3 },
+  { id: 'ring_of_tides', reg: 'ix_items/ring_of_tides', type: 'ring', slot: 'ring', name: 'Ring of Tides', bag: 'urn', bonus: { hp: 80, wis: 5, vit: 3 },
     desc: 'A drop of the sea that never dries, held in gold.' },
-  { id: 'emberheart_ring', type: 'ring', slot: 'ring', name: 'Emberheart Ring', bag: 'urn', bonus: { att: 6, def: 3 },
+  { id: 'emberheart_ring', reg: 'ix_items/emberheart_ring', type: 'ring', slot: 'ring', name: 'Emberheart Ring', bag: 'urn', bonus: { att: 6, def: 3 },
     desc: 'A spark from the Colossus\'s core, still burning in an iron band.' },
-  { id: 'runic_aegis', type: 'runeward', slot: 'ability', name: 'The Runic Aegis', bag: 'urn',
+  { id: 'runic_aegis', reg: 'ix_items/runic_aegis', type: 'runeward', slot: 'ability', name: 'The Runic Aegis', bag: 'urn',
     ability: { cost: 80, ward: 520, burst: { count: 16, proj: 'rune_slash', dmg: 200, range: 4, pierce: true } },
     desc: 'A shield with every rune of warding cut into it. Nothing gets through twice.' },
-  { id: 'grimoire_of_ash', type: 'hex', slot: 'ability', name: 'The Grimoire of Ash', bag: 'urn',
+  { id: 'grimoire_of_ash', reg: 'ix_items/grimoire_of_ash', type: 'hex', slot: 'ability', name: 'The Grimoire of Ash', bag: 'urn',
     ability: { cost: 85, curse: { t: 7, f: 0.35, r: 3.4 }, burst: { count: 12, proj: 'fireball', dmg: 160, range: 4.5 } },
     desc: 'Its pages are ash. The curses written on them burn all the same.' },
-  { id: 'soul_lantern', type: 'reliquary', slot: 'ability', name: 'The Soul Lantern', bag: 'urn',
+  { id: 'soul_lantern', reg: 'ix_items/soul_lantern', type: 'reliquary', slot: 'ability', name: 'The Soul Lantern', bag: 'urn',
     ability: { cost: 90, thralls: 5, life: 11, summon: 'thrall_knight', burst: { count: 1, proj: 'pj_thrall', dmg: 60, range: 6 } },
     desc: 'The Lich kept its servants\' souls in here. They are glad to work for someone else.' },
-  { id: 'colossus_core', type: 'bellows', slot: 'ability', name: 'The Colossus Core', bag: 'urn',
+  { id: 'colossus_core', reg: 'ix_items/colossus_core', type: 'bellows', slot: 'ability', name: 'The Colossus Core', bag: 'urn',
     ability: { cost: 80, berserk: 5, burst: { count: 14, proj: 'fireball', dmg: 220, range: 3.5 } },
     desc: 'The Forgeheart\'s burning core. Breathe through it and the forge breathes with you.' },
   // ---- urn: realm boss uniques
@@ -653,7 +653,7 @@ UT.push(
   { id: 'orrery_orb', type: 'halo', slot: 'ability', name: 'Orrery Orb', reg: 'ix_items/orrery_orb',
     ability: { cost: 90, heal: 220, burst: { count: 20, proj: 'star', dmg: 170, range: 5.5, pierce: true } }, desc: 'A small brass sky that unfolds round you, all its stars at once.' },
   { id: 'event_horizon', type: 'ring', slot: 'ring', name: 'Event Horizon', reg: 'ix_items/event_horizon', bonus: { att: 8, hp: 90 }, legendary: true,
-    desc: 'What is left of the machine\'s heart: a point nothing comes back from. Your shots lean toward what they hunt.' },
+    desc: 'What is left of the machine\'s heart: a point nothing comes back from. Keep moving, and it pulls harder.' },
 );
 // ---- the Gilded Sphinx's (Sandscour Tomb; icons from ix_items). The Deathmask drops only from a phase-3 kill.
 UT.push(
@@ -712,7 +712,7 @@ UT.push(
     weapon: { dmg: [300, 420], range: 3.2, speed: 8, rate: 0.6, proj: 'bx_shots/forgeheart_colossus.hammer_spark', size: 0.6 }, desc: 'Too heavy to swing, and you swing it anyway. Every blow throws a ring of sparks.' },
 );
 Object.assign(SPECIAL, {
-  tidewraith_staff: { weapon: { boomerang: true } },
+  tidewraith_staff: { weapon: { boomerang: true, current: 1.6 } },
   forgeheart_maul: { weapon: { quake: { n: 8, proj: 'bx_shots/forgeheart_colossus.hammer_spark', f: 0.3, stun: 0.3 } } },
   jugglers_dagger: { weapon: { boomerang: true } },
   carousel_bow: { weapon: { homing: 1.6 } },
@@ -902,7 +902,7 @@ export const BAG_NAMES = { white: 'A white bag', starfall: 'A STARFALL bag', div
 const DIVINE = new Set(['crown_of_the_unstruck']);
 export function bagRank(it) {
   if (it.admin || DIVINE.has(it.base || it.id)) return 4;          // beyond mythic: the final boss's prize, the admin kit
-  if (it.mythic) return 3;
+  if (it.mythic || it.legendary) return 3;
   if (it.ut || it.bag === 'urn' || it.bag === 'reliquary' || it.bag === 'starfall') return 2;
   if (it.slot === 'consumable') return it.use && it.use.stat ? 1 : 0;
   if (it.enchants) return 1;

@@ -883,7 +883,16 @@ export class Renderer {
   }
   bag(g, bag, sx, sy) {
     const k = this.W.bags[bag.kind] ?? this.W.bags.brown, c = this.W.objectsCols;
-    if (bag.rare) {                                        // a beam of light: white, gold for starfall, crimson for divine
+    if (bag.legend) {                                      // a legendary inside: a broad beam, sparkles climbing it
+      const b = this.b, x = Math.round(sx), y = Math.round(sy);
+      b.globalAlpha = 0.35; b.fillStyle = '#ffc93a'; b.fillRect(x - 3, y - 96, 7, 92);
+      b.globalAlpha = 0.85; b.fillStyle = '#fff6d8'; b.fillRect(x - 1, y - 96, 3, 92); b.globalAlpha = 1;
+      for (let k = 0; k < 4; k++) {
+        const u = (g.t * 0.6 + k / 4) % 1, yy = y - 8 - u * 84, xx = x + Math.round(Math.sin(u * 9 + k * 2) * 4);
+        b.fillStyle = k % 2 ? '#ffffff' : '#ffd650';
+        b.fillRect(xx, yy - 1, 1, 3); b.fillRect(xx - 1, yy, 3, 1);
+      }
+    } else if (bag.rare) {                                 // a beam of light: white, gold for starfall, crimson for divine
       const b = this.b, col = { starfall: '#ffd650', divine: '#ff4a5a' }[bag.kind] || '#dfe8ff';
       const x = Math.round(sx), y = Math.round(sy);
       for (let yy = 6; yy < 80; yy++) {
@@ -1923,13 +1932,15 @@ export class Renderer {
   }
   // item icons, drawn the RotMG way: the 8x8 art (stored doubled in the sheet) loses its baked outer outline,
   // is scaled up 5x, then gets a thin crisp black outline and a soft drop shadow so it pops off any background
-  icon(id) {
-    this.icons = this.icons || {};
-    if (this.icons[id]) return this.icons[id];
+  icon(id, frame) {
+    this.icons = this.icons || {}; this.iconBox = this.iconBox || {};
+    const key = frame && frame !== '0' ? id + '|' + frame : id;
+    if (this.icons[key]) return this.icons[key];
+    if (key !== id) this.icon(id);                          // frame 0 first: it sets the box every frame shares
     const k = iconIndex(this.W, ITEMS[id]), c = this.W.itemsCols;
     const src = document.createElement('canvas'); src.width = src.height = 16;
     const sx = src.getContext('2d');
-    const rd = ITEMS[id] && ITEMS[id].reg && this.R && this.R.resolve(ITEMS[id].reg), rf = rd && rd.frames[Object.keys(rd.frames)[0]];
+    const rd = ITEMS[id] && ITEMS[id].reg && this.R && this.R.resolve(ITEMS[id].reg), rf = rd && (rd.frames[frame] || rd.frames[Object.keys(rd.frames)[0]]);
     sx.imageSmoothingEnabled = false;
     if (rf) sx.drawImage(rd.img, rf.x, rf.y, rf.w, rf.h, 0, 0, 16, 16);       // a Realm Update item: its 8x8 art at 2x
     else sx.drawImage(this.A.img.items, (k % c) * 16, Math.floor(k / c) * 16, 16, 16, 0, 0, 16, 16);
@@ -1961,7 +1972,8 @@ export class Renderer {
     }
     // fill the slot: the silhouette is scaled by a whole number to fit, and centred on its own bounds
     const W = 48, xs = keep.map((k) => k[0]), ys = keep.map((k) => k[1]);
-    const x0 = Math.min(...xs), y0 = Math.min(...ys), bw = Math.max(...xs) - x0 + 1, bh = Math.max(...ys) - y0 + 1;
+    const box = key === id ? (this.iconBox[id] = [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)]) : this.iconBox[id];
+    const x0 = box[0], y0 = box[1], bw = box[2] - x0 + 1, bh = box[3] - y0 + 1;
     const S = Math.min(4, 42 / Math.max(bw, bh)), ox = (W - bw * S) / 2, oy = (W - bh * S) / 2 - 1;
     const art = document.createElement('canvas'); art.width = art.height = W;
     const ax = art.getContext('2d');
@@ -1982,7 +1994,7 @@ export class Renderer {
     cx.globalAlpha = 1;
     for (const [dx, dy] of [[-2, 0], [2, 0], [0, -2], [0, 2], [-1, -1], [1, -1], [-1, 1], [1, 1], [-2, -1], [2, 1], [-1, 2], [1, -2]]) cx.drawImage(mask, dx, dy);   // outline
     cx.drawImage(art, 0, 0);
-    return (this.icons[id] = cv.toDataURL());
+    return (this.icons[key] = cv.toDataURL());
   }
 
 }

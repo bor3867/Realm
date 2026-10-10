@@ -13,6 +13,7 @@ const POT_COL = { pot_hp: '#ff4a5a', pot_mp: '#5a8aff' };
 export function rarityColor(it) {
   if (it.admin) return '#ff4af0';
   if (it.mythic) return '#8af6ff';
+  if (it.legendary) return '#ffe9a0';
   if (it.ut) return it.bag === 'urn' ? '#ff6a4a' : '#f2c14e';
   if (it.slot === 'consumable') return POT_COL[it.id] || '#d8b8ff';
   return TIER_COL[it.tier];
@@ -430,6 +431,8 @@ export class UI {
     return c ? c[i] : null;
   }
   refreshSlots() {
+    this.shines = [];
+    let sn = 0;
     for (const name of ['equip', 'inv', 'ground', 'pots']) {
       this.slots[name].forEach((el, i) => {
         const id = this.itemAt(name, i), ico = el.children[1], tier = el.children[2];
@@ -437,16 +440,23 @@ export class UI {
           const it = ITEMS[id];
           ico.style.backgroundImage = `url(${this.r.icon(id)})`;
           ico.style.backgroundSize = '100% 100%';
-          tier.textContent = name === 'pots' ? '×' + this.g.pots()[i].n : it.admin ? 'ADMIN' : it.mythic ? 'M' : it.ut ? 'UT' : it.tier === null ? '' : 'T' + it.tier;
+          // now and then the item catches the light: its own shine frames when it has them, a sweep when it doesn't
+          const rd = it.reg && this.r.R && this.r.R.resolve(it.reg), own = !!(rd && rd.frames.shine1);
+          if (own) this.shines.push({ ico, id, off: (sn * 0.77) % 5, legend: !!(it.legendary && rd.frames.twinkle0), f: '0' });
+          ico.classList.toggle('sweep', !own && name !== 'pots');
+          if (!own) { ico.style.setProperty('--m', `url(${this.r.icon(id)})`); ico.style.setProperty('--d', `${-((sn * 0.77) % 6).toFixed(2)}s`); }
+          sn++;
+          tier.textContent = name === 'pots' ? '×' + this.g.pots()[i].n : it.admin ? 'ADMIN' : it.mythic ? 'M' : it.legendary ? 'L' : it.ut ? 'UT' : it.tier === null ? '' : 'T' + it.tier;
           tier.className = 'tier' + (it.ut ? ' ut' : '');
           el.style.setProperty('--rc', rarityColor(it));
           el.classList.add('has'); el.classList.remove('ghost'); el.classList.toggle('mythic', !!it.mythic); el.classList.toggle('ut', !!it.ut && !it.mythic && !it.admin);
-          el.classList.toggle('admin', !!it.admin); el.classList.toggle('ench', !!it.enchants);
+          el.classList.toggle('admin', !!it.admin); el.classList.toggle('ench', !!it.enchants); el.classList.toggle('legend', !!it.legendary);
         } else {
+          ico.classList.remove('sweep');
           const C = name === 'equip' && this.g.player ? CLASSES[this.g.player.cls] : null;
           const ghost = C ? [`${C.weapon}_t0`, `${C.ability}_t0`, `${C.armor}_t0`, 'ring_hp_t0'][i] : null;
           ico.style.backgroundImage = ghost ? `url(${this.r.icon(ghost)})` : ''; ico.style.backgroundSize = '100% 100%';
-          tier.textContent = ''; el.classList.remove('has', 'mythic', 'ut', 'admin', 'ench'); el.classList.toggle('ghost', !!ghost);
+          tier.textContent = ''; el.classList.remove('has', 'mythic', 'ut', 'admin', 'ench', 'legend'); el.classList.toggle('ghost', !!ghost);
         }
       });
     }
@@ -474,7 +484,7 @@ export class UI {
   }
   tipHTML(it, id, name) {
     const g = this.g, row = (k, v, cls = '') => `<div class="kv ${cls}"><span>${k}</span><b>${v}</b></div>`;
-    const badge = it.admin ? 'ADMIN' : it.mythic ? 'MYTHIC' : it.ut ? 'UT' : it.tier === null || it.tier === undefined ? '' : 'T' + it.tier;
+    const badge = it.admin ? 'ADMIN' : it.mythic ? 'MYTHIC' : it.legendary ? 'LEGENDARY' : it.ut ? 'UT' : it.tier === null || it.tier === undefined ? '' : 'T' + it.tier;
     let h = `<div class="th"><div><h4>${it.name}</h4><div class="t">${itemLabel(it)}</div></div>${badge ? `<span class="badge">${badge}</span>` : ''}</div>`;
     if (it.desc) h += `<div class="flav">${it.desc}</div>`;
     let stats = '';
@@ -668,6 +678,12 @@ export class UI {
     if (this.bannerT > 0 && (this.bannerT -= dt) <= 0) $('banner').classList.add('hidden');
     this.chatAcc = (this.chatAcc || 0) + dt;
     if (this.chatAcc > 1) { this.chatAcc = 0; if (!this.chatOpen()) this.renderChat(); }   // let old lines fade
+    this.shineT = (this.shineT || 0) + dt;
+    for (const s of this.shines || []) {                     // the item art's own shine (every 5 s), and a legendary's twinkle
+      const t = (this.shineT + s.off) % 5, f = t < 0.3 ? ['shine1', 'shine2', 'shine3'][Math.floor(t / 0.1)]
+        : s.legend && t >= 1.2 && t < 2.53 ? ['twinkle0', '0', 'twinkle1', '0', 'twinkle2', '0', 'twinkle3', '0'][Math.floor((t - 1.2) * 6)] : '0';
+      if (f !== s.f) { s.f = f; s.ico.style.backgroundImage = `url(${this.r.icon(s.id, f)})`; }
+    }
     this.acc = (this.acc || 0) + dt;
     if (this.acc < 0.1 || g.mode !== 'play') { if (g.mode !== 'play') $('portalwrap').classList.add('off'); return; }
     this.refreshPortal();

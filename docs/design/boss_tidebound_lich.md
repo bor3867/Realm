@@ -31,7 +31,7 @@ On the morph he puts the lights out for 9 s (everything but a small circle round
 
 ## Loot
 Unchanged from the Crypt's Lich (Tidecaller Blade, Staff of Drowned Stars, Hexsilk Robe, Ring of Tides, Soul
-Lantern, Grimoire of Ash), plus the brief's legendary (phase-3 kill, 2%): **Tidewraith Staff** (staff: two piercing
+Lantern, Grimoire of Ash), plus the brief's legendary (phase-3 kill, 2%): **Tidewraith Staff** (staff: two
 bolts that bend with the current and come back once).
 
 ## Unique to it

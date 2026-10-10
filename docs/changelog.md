@@ -95,3 +95,14 @@
 - Ten elites, two per land, each with its own ability on a cooldown (the clip is the telegraph), escorts, nameplates,
   an arrival telegraph, better loot and a raised egg chance. Note: docs/design/05_elites.md.
 - Tuning: the Siren's charm ring 3.5 → 6 tiles; the burrow mound drawn large for elites.
+
+## Phase 6 — Items
+- The last 12 pack-1 items the Item Overhaul redrew now use its art (`reg: ix_items/*`); their old art stays in the
+  items sheet. Note: docs/design/06_items.md (the ten legendaries' stats and descriptions are there for review).
+- Inventory: items catch the light now and then, one slot at a time: their own shine frames every 5 s, or a soft sweep
+  clipped to the item for the old art; legendaries also twinkle. Icons are drawn per frame in frame 0's box.
+- Legendaries: their own slot colour, tag (L) and tooltip badge; their bags are starfall rank with a broad gold beam
+  and sparkles, and "A LEGENDARY drops!".
+- The Tidewraith Staff's bolts now really bend with the current (new weapon special `current`), as its description
+  says. Event Horizon's description no longer promises homing it never had: it says what it does (damage on the move).
+- New check: `tools/check_items.mjs`.

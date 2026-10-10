@@ -1999,9 +1999,11 @@ export class Game {
       const it = [...chunk, ...Array(8 - chunk.length).fill(null)];
       const kind = bagFor(chunk.map((id) => ITEMS[id]));
       const rare = BAG_ORDER.indexOf(kind) >= BAG_ORDER.indexOf('white');
-      made = { x: x + (k ? 0.6 : 0), y, items: it, kind, rare, life: rare ? 180 : 90 };
+      const legend = chunk.some((id) => ITEMS[id] && ITEMS[id].legendary);
+      made = { x: x + (k ? 0.6 : 0), y, items: it, kind, rare, legend, life: rare ? 180 : 90 };
       this.bags.push(made);
-      if (rare) this.banner(`${BAG_NAMES[kind] || "A rare bag"} drops!`, 2800);
+      if (legend) this.banner('A LEGENDARY drops!', 3600);
+      else if (rare) this.banner(`${BAG_NAMES[kind] || "A rare bag"} drops!`, 2800);
       this.sfx(rare ? 'rare' : 'loot');
     }
     return made;
@@ -3136,6 +3138,10 @@ export class Game {
             const s = Math.hypot(b.vx, b.vy), na = cur + da;
             b.vx = Math.cos(na) * s; b.vy = Math.sin(na) * s; b.a = na;
           }
+        }
+        if (sp.current && !b.back) {                     // the Tidewraith's bolts lean with a current, all the same way
+          const na = Math.atan2(b.vy, b.vx) + sp.current * dt, s = Math.hypot(b.vx, b.vy);
+          b.vx = Math.cos(na) * s; b.vy = Math.sin(na) * s; b.a = na;
         }
         if (sp.accel) {                                  // pendulum weights: slow out of the hand, then they fly
           const s0 = Math.hypot(b.vx, b.vy), s1 = Math.min(24, s0 + sp.accel * dt);

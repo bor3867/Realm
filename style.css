@@ -602,3 +602,10 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #miniwrap { max-height: min(400px, 100cqw) !important; }   /* never taller than it is wide: the map stays square */
 /* the bag area under the potions is always reserved (room for a full 8-slot bag), so nothing shifts when you step on one */
 #interact { display: block !important; flex: none; }
+/* Phase 6: items catch the light now and then (the art's own shine frames are stepped in ui.js) */
+.slot .ico { position: relative; }
+.slot .ico.sweep::after { content: ""; position: absolute; inset: 0; pointer-events: none; -webkit-mask: var(--m) 0 0 / 100% 100% no-repeat; mask: var(--m) 0 0 / 100% 100% no-repeat;
+  background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.75) 50%, transparent 60%) no-repeat; background-size: 300% 100%; animation: itemsweep 6s linear infinite; animation-delay: var(--d, 0s); }
+@keyframes itemsweep { 0%, 86% { background-position: 100% 0; } 100% { background-position: 0% 0; } }
+.slot.legend { background: radial-gradient(circle at 50% 45%, #3a2e10 0%, #0c0a10 72%); }
+.slot.legend .tier { color: #ffe9a0; }
