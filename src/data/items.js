@@ -791,6 +791,25 @@ for (const [r, name, desc] of [
   ['rare', 'Azure Pet Egg', 'Cool to the touch and faintly glowing. It hums when you hold it close.'],
   ['legendary', 'Gilded Pet Egg', 'It shines like a coin and beats like a heart. Legends hatch from eggs like this.'],
 ]) add({ id: `pet_egg_${r}`, type: 'egg', slot: 'consumable', tier: null, name, use: { egg: r }, desc });
+// Phase 7: the Pets v2 eggs, one per family x rarity. The shell shows the family, the band the rarity, the name both.
+// (The four eggs above stay defined for old saves; loading turns them into these.)
+export const EGG_FAMILIES = {
+  aquatic: ['Aquatic', 'It sloshes when you shake it. Something in there is already swimming.'],
+  avian: ['Avian', 'Speckled like a sparrow\'s. Every so often it chirps.'],
+  canine: ['Canine', 'Warm, and it thumps now and then, like a tail against the shell.'],
+  feline: ['Feline', 'It rolls off any table you put it on. On purpose, you suspect.'],
+  spooky: ['Spooky', 'Cold, and lighter than an egg should be. It glows a little in the dark.'],
+  woodland: ['Woodland', 'It smells of moss and rain. A leaf is stuck to it that won\'t come off.'],
+  reptile: ['Reptile', 'Leathery and patient. It has been waiting a long time and can wait longer.'],
+  insect: ['Insect', 'It buzzes. Hold it to your ear and it buzzes louder.'],
+  automaton: ['Automaton', 'It ticks. Somewhere inside, a very small spring is being wound.'],
+  exotic: ['Exotic', 'Nobody agrees on what lays these. Whatever is inside is something else.'],
+};
+export const EGG_RARITY = { common: 'Common', uncommon: 'Uncommon', rare: 'Rare', legendary: 'Legendary', divine: 'Divine' };
+for (const [f, [fam, desc]] of Object.entries(EGG_FAMILIES)) for (const [r, rn] of Object.entries(EGG_RARITY)) {
+  add({ id: `egg_${f}_${r}`, type: 'egg', slot: 'consumable', tier: null, name: `${rn} ${fam} Egg`, reg: `pt2_eggs/${f}_${r}`, use: { egg: r, family: f },
+    desc: `${desc} Use it to hatch ${/^[AEIOU]/.test(fam) ? "an" : "a"} ${fam.toLowerCase()} pet.` });
+}
 // ---- dungeon keys: use one (outside a dungeon) and that dungeon's portal opens where you stand
 for (const [d, name, desc, reg] of [
   ['chapel', 'Sunken Chapel Key', 'Barnacled bronze. You can hear the tide on the other side of the lock.'],

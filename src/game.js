@@ -21,7 +21,7 @@ import { installBX } from './bossx.js';
 import { BX, bxEnemyDef } from './bosses/index.js';
 import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUEST_HUNTS, FETCH_ITEMS } from './data/lore.js';
 
-import { PET_KINDS, RARITY, PET_TICK, SHIELD_TICK, PET_MAX, petHeal, petMagic, petShield, petCap, petLevel, feedCost, feedValue, hatchKind, newPet, upgradePet, feed, canMorph, morph, FUSE_GOLD, petSprite } from './data/pets.js';
+import { PET_KINDS, RARITY, PET_TICK, SHIELD_TICK, PET_MAX, petHeal, petMagic, petShield, petCap, petLevel, feedCost, feedValue, hatchKind, newPet, upgradePet, feed, canMorph, morph, FUSE_GOLD, petSprite, petName, petStage, START_LV, FAMILIES, eggId } from './data/pets.js';
 const PLAYER_R = 0.32;
 const r4 = () => [0, Math.PI / 2, Math.PI, -Math.PI / 2][Math.floor(Math.random() * 4)];
 export const POT_STACK = 10, VAULT_MAX = 80;
@@ -34,6 +34,11 @@ const TILES_PER_GROUP = [1700, 1600, 1200, 560];
 const parentTarget = (m, b) => Math.round((m.area ? m.area[BIOMES.indexOf(b)] : 60000) / TILES_PER_GROUP[BIOME_RING[BIOMES.indexOf(b)]]);
 const MAX_REALM_BOSSES = 3;
 // things you walk up to and press F on
+// Phase 7: an egg's burst frame (its hatch clip: 9 frames at 6 fps), how hard each land is, and the families it keeps
+const HATCH_BURST = 8 / 6;
+const EGG_LAND_TIER = { shore: 0, dunes: 0, lowlands: 1, fen: 1, thornwood: 2, runeholt: 3, steppe: 3, godfall: 4 };
+const EGG_LAND_FAMILIES = { shore: ['aquatic', 'reptile'], dunes: ['reptile', 'exotic'], lowlands: ['woodland', 'canine'], fen: ['spooky', 'reptile'],
+  thornwood: ['feline', 'insect'], runeholt: ['avian', 'automaton'], steppe: ['avian', 'automaton'], godfall: ['spooky', 'exotic'] };
 const TALKY = new Set(['scope', 'mask', 'maskstand', 'mirror', 'sigil', 'alarm', 'journal', 'petyard', 'shop', 'forge', 'board', 'talk', 'lore', 'wish', 'altar', 'dig', 'fish', 'cat', 'bard', 'fortune', 'waypoint', 'riddle', 'mystery']);
 const VILLAGER_LINES = ['Lovely evening.', 'Did you hear the bells last night?', 'Mind the cat. She bites.', 'The Peddler overcharged me again.',
   'My cousin went into the realm. He came back a toad.', 'Is it always dusk here? Huh.', 'Watch out for the Golden Duck. It\'s a scam.',
@@ -411,7 +416,7 @@ export class Game {
         return;
       }
       if (it.use.egg) {                                    // a pet egg: it hatches in your hands
-        if (!this.hatch(it.use.egg)) return;
+        if (!this.hatch(it.use.egg, it.use.family)) return;
         C[i] = null;
         this.cleanBags(); this.events.push({ type: 'ground' }); this.persist();
         return;
@@ -724,6 +729,7 @@ export class Game {
     }
     this.updatePlayer(dt);
     this.updatePet(dt);
+    this.updateHatch(dt);
     this.updateEnemies(dt);
     if (this.boss) this.updateBoss(dt);
     this.updateAllies(dt);
@@ -2691,16 +2697,42 @@ export class Game {
   // ---- PETS: one companion follows you and heals your Life and Mana every few seconds
   pets() { const L = this.save.pets || (this.save.pets = []); for (const q of L) upgradePet(q); return L; }
   activePet() { return this.pets().find((q) => q.id === this.save.activePet) || null; }
-  hatch(rarity) {
+  // an egg hatches at your feet: it wobbles, wobbles, cracks and bursts (its own clip), and the pet comes out on the burst
+  hatch(rarity, family) {
     if (this.pets().length >= PET_MAX) { this.toast(`Your Pet Yard is full (${PET_MAX} pets). Release one first.`); return false; }
-    const kind = hatchKind(rarity, R), pet = newPet(kind, rarity);
-    this.pets().push(pet);
-    if (!this.activePet()) this.save.activePet = pet.id;
-    this.banner(`The egg hatches: a ${RARITY[rarity].name} ${PET_KINDS[kind].name}!${this.save.activePet === pet.id ? ' It follows you now.' : ' Visit the Pet Yard to choose your companion.'}`, 3400);
-    this.vx({ k: 'burst', x: this.player.x, y: this.player.y - 0.6, n: 36, colors: [RARITY[rarity].color, '#ffffff', '#fff6c8'] });
-    this.sfx('rare');
-    this.pet = null;
+    if (this.hatching) { this.toast('One egg at a time: this one is still hatching.'); return false; }
+    if (!FAMILIES[family]) family = R.pick(Object.keys(FAMILIES));
+    const p = this.player;
+    this.hatching = { x: p.x + (p.dir === 'left' ? -0.8 : 0.8), y: p.y + 0.3, t: 0, rarity, family, egg: `pt2_eggs/${family}_${rarity}`, pet: null };
+    this.sfx('loot');
     return true;
+  }
+  updateHatch(dt) {
+    const H = this.hatching;
+    if (!H) return;
+    H.t += dt;
+    if (!H.pet && H.t >= HATCH_BURST) {                    // the burst frame: out it comes
+      const pet = newPet(hatchKind(H.family, R), H.rarity, START_LV[H.rarity] || 1);
+      H.pet = pet;
+      this.pets().push(pet);
+      if (!this.activePet()) { this.save.activePet = pet.id; this.pet = null; this.petAt = { x: H.x, y: H.y }; }
+      this.petJoy(pet);
+      this.banner(`The egg hatches: a ${RARITY[H.rarity].name} ${petName(pet)}!${this.save.activePet === pet.id ? ' It follows you now.' : ' Visit the Pet Yard to choose your companion.'}`, 3400);
+      this.vx({ k: 'burst', x: H.x, y: H.y - 0.4, n: 36, colors: [RARITY[H.rarity].color, '#ffffff', '#fff6c8'] });
+      this.sfx('rare'); this.persist();
+    }
+    if (H.t >= HATCH_BURST + 0.5) this.hatching = null;
+  }
+  petJoy(P, s = 1.3) { this.joy = this.joy || {}; this.joy[P.id] = { from: this.t, until: this.t + s }; }
+  // a pet grows into its next form: a flash, a burst of its rarity's colours, then it's happy
+  evolveFx(P, from) {
+    const q = this.pet && this.pet.ref === P ? this.pet : null, x = q ? q.x : this.player.x, y = q ? q.y : this.player.y;
+    if (q) q.flashT = this.t + 0.45;
+    this.vx({ k: 'burst', x, y: y - 0.4, n: 40, colors: [RARITY[P.rarity].color, '#ffffff', '#fff6c8'] });
+    this.vx({ k: 'levelup', x, y });
+    this.petJoy(P, 1.8);
+    this.banner(`Your ${from} grows into a ${petName(P)}!`, 3200);
+    this.sfx('rare');
   }
   keyDrop(e) {
     const m = this.map;
@@ -2715,18 +2747,26 @@ export class Game {
   }
   eggDrop(e) {
     const D = e.D || {}, roll = R(), bossy = e.rb || e === this.boss;
-    if (e.id === 'the_unstruck_god') return roll < 0.06 ? 'pet_egg_legendary' : roll < 0.3 ? 'pet_egg_rare' : null;
-    if (bossy && this.map.kind === 'dungeon') return roll < 0.012 ? 'pet_egg_legendary' : roll < 0.07 ? 'pet_egg_rare' : roll < 0.2 ? 'pet_egg_uncommon' : null;
-    if (bossy) return roll < 0.025 ? 'pet_egg_rare' : roll < 0.1 ? 'pet_egg_uncommon' : roll < 0.2 ? 'pet_egg_common' : null;
-    if (e.elite && D.ability) return roll < 0.004 ? 'pet_egg_rare' : roll < 0.024 ? 'pet_egg_uncommon' : roll < 0.084 ? 'pet_egg_common' : null;   // elites: a raised egg chance
-    if (e.kids || D.herald) return roll < 0.0015 ? 'pet_egg_uncommon' : roll < 0.008 ? 'pet_egg_common' : null;
-    return null;
+    let r = null;
+    if (e.id === 'the_unstruck_god') r = roll < 0.02 ? 'divine' : roll < 0.08 ? 'legendary' : roll < 0.3 ? 'rare' : null;   // the only Divine eggs
+    else if (bossy && this.map.kind === 'dungeon') r = roll < 0.012 ? 'legendary' : roll < 0.07 ? 'rare' : roll < 0.2 ? 'uncommon' : null;
+    else if (bossy) r = roll < 0.025 ? 'rare' : roll < 0.1 ? 'uncommon' : roll < 0.2 ? 'common' : null;
+    else if (e.elite && D.ability) r = roll < 0.004 ? 'rare' : roll < 0.024 ? 'uncommon' : roll < 0.084 ? 'common' : null;   // elites: a raised egg chance
+    else if (e.kids || D.herald) r = roll < 0.0015 ? 'uncommon' : roll < 0.008 ? 'common' : null;
+    if (!r) return null;
+    const land = this.map.kind === 'realm' ? BIOMES[biomeAt(this.map, e.x, e.y)] : null;
+    const RO = ['common', 'uncommon', 'rare', 'legendary'];
+    if (land && RO.indexOf(r) >= 0 && RO.indexOf(r) < 3 && R() < 0.08 * (EGG_LAND_TIER[land] || 0)) r = RO[RO.indexOf(r) + 1];   // harder lands: a step up
+    const local = land && EGG_LAND_FAMILIES[land], family = local && R() < 0.6 ? R.pick(local) : R.pick(Object.keys(FAMILIES));
+    return eggId(family, r);
   }
   updatePet(dt) {
     const P = this.activePet(), p = this.player;
     if (!P || p.dead || this.map.kind === 'vault') { this.pet = null; return; }
     if (!this.pet || this.pet.ref !== P) this.pet = { ref: P, kind: P.kind, rarity: P.rarity, sprite: petSprite(P), x: p.x - 1, y: p.y + 0.6, tick: PET_TICK, face: false, moving: false };
+    if (this.petAt) { this.pet.x = this.petAt.x; this.pet.y = this.petAt.y; this.petAt = null; }   // a fresh hatchling starts where its egg was
     const q = this.pet, tx = p.x - (p.dir === 'left' ? -1.1 : 1.1), ty = p.y + 0.5, d = dist(q.x, q.y, tx, ty);
+    q.sprite = petSprite(P); const J = this.joy && this.joy[P.id]; q.joy = J && J.until > this.t ? J.until : 0; q.joy0 = J ? J.from : 0;
     if (d > 9) { q.x = tx; q.y = ty; }                     // left behind: it catches up in a hop
     q.moving = d > 0.35;
     if (q.moving) { const sp = Math.min(d, Math.max(3, d * 4) * dt); const ox = q.x; q.x += ((tx - q.x) / d) * sp; q.y += ((ty - q.y) / d) * sp; q.face = q.x < ox; }
@@ -2748,15 +2788,17 @@ export class Game {
     if (!P) return 'You have no companion to feed.';
     const C = this.container(cont), id = C && C[i], it = id && ITEMS[id];
     if (!it) return 'Nothing there.';
-    const v = feedValue(it), cost = feedCost(P)[pay], name = PET_KINDS[P.kind].name;
+    const v = feedValue(it), cost = feedCost(P)[pay], name = petName(P);
     if (!v) return `${name} will not eat that.`;
     if (Object.values(P.ab).every((A) => A.lv >= petCap(P))) return `${name} is fully grown for a ${RARITY[P.rarity].name} pet. Morph it with another to grow further.`;
     const have = pay === 'fame' ? this.save.fame || 0 : this.save.gold || 0;
     if (have < cost) return `A meal costs ${cost} ${pay}.`;
     if (pay === 'fame') this.save.fame -= cost; else this.save.gold -= cost;
     C[i] = null;
-    const ups = feed(P, v);
+    const st = petStage(P), ups = feed(P, v);
     this.sfx(ups.length ? 'level' : 'coin');
+    this.petJoy(P);
+    if (petStage(P) > st) this.evolveFx(P, name);
     this.persist();
     return ups.length ? `${name} grew: ${ups.join(', ')}!` : `${name} ate the ${it.name} (+${v} feed power).`;
   }
@@ -2769,11 +2811,11 @@ export class Game {
     if (pay === 'gold') this.save.gold -= cost; else this.save.fame -= cost;
     const c = morph(a, b, kind === b.kind ? b.kind : a.kind);
     L.splice(L.indexOf(a), 1); L.splice(L.indexOf(b), 1); L.push(c);
-    this.save.activePet = c.id; this.pet = null;
-    this.banner(`Fused! A ${RARITY[c.rarity].name} ${PET_KINDS[c.kind].name} (cap ${petCap(c)})`, 3200);
+    this.save.activePet = c.id; this.pet = null; this.petJoy(c, 1.8);
+    this.banner(`Fused! A ${RARITY[c.rarity].name} ${petName(c)} (cap ${petCap(c)})`, 3200);
     this.vx({ k: 'burst', x: this.player.x, y: this.player.y - 0.6, n: 40, colors: [RARITY[c.rarity].color, '#ffffff', '#fff6c8'] });
     this.sfx('rare'); this.persist();
-    return `Your pets fused into one ${RARITY[c.rarity].name} ${PET_KINDS[c.kind].name}. Its abilities can now reach level ${petCap(c)}.`;
+    return `Your pets fused into one ${RARITY[c.rarity].name} ${petName(c)}. Its abilities can now reach level ${petCap(c)}.`;
   }
   setActivePet(id) { this.save.activePet = id; this.pet = null; this.persist(); }
   releasePet(id) {
@@ -2783,15 +2825,20 @@ export class Game {
     if (this.save.activePet === id) this.save.activePet = L[0] ? L[0].id : null;
     this.pet = null; this.persist();
   }
+  eggsForSale(day = Math.floor(Date.now() / 864e5)) {
+    const F = Object.keys(FAMILIES);
+    return [['common', 900, F[day % F.length]], ['uncommon', 3500, F[(day + 5) % F.length]]];
+  }
   buyEgg(rarity) {
-    const price = { common: 900, uncommon: 3500 }[rarity], p = this.player;
+    const sale = this.eggsForSale().find((s) => s[0] === rarity), price = sale && sale[1], p = this.player;
     if (!price) return 'Not for sale.';
     if ((this.save.gold || 0) < price) return 'Not enough gold.';
     const f = p.inv.indexOf(null);
     if (f < 0) return 'Your backpack is full.';
-    this.save.gold -= price; p.inv[f] = `pet_egg_${rarity}`;
+    const id = eggId(sale[2], rarity);
+    this.save.gold -= price; p.inv[f] = id;
     this.sfx('coin'); this.persist();
-    return `Bought a ${ITEMS['pet_egg_' + rarity].name}. Use it (shift-click) to hatch it.`;
+    return `Bought a ${ITEMS[id].name}. Use it (shift-click) to hatch it.`;
   }
   // ---- waypoints: travel between the ones you have found
   travel(name) {
@@ -2930,7 +2977,7 @@ export class Game {
     if (R() < 0.35) out.push(pick(myth));                                              // often two
     if (R() < 0.15) out.push('crown_of_the_unstruck');                                 // and now and then, the crown itself
     for (let k = 0; k < 3; k++) out.push(`stat_${pick(STATS)}`);
-    if (R() < 0.35) out.push(R() < 0.25 ? 'pet_egg_legendary' : 'pet_egg_rare');
+    if (R() < 0.35) out.push(eggId(R.pick(Object.keys(FAMILIES)), R() < 0.25 ? 'legendary' : 'rare'));
     if (R() < 0.35) out.push(`key_${pick(Object.keys(DUNGEONS))}`);
     return out;
   }
@@ -3605,7 +3652,7 @@ export class Game {
   basePrice(it) {
     if (it.id === 'backpack') return 2500;
     if (it.use && it.use.key) return { chapel: 600, crypt: 900, forge: 1200, ember: 1600, scriptorium: 1200, heart: 2500, throne: 6000 }[it.use.key];
-    if (it.use && it.use.egg) return { common: 900, uncommon: 3500, rare: 12000, legendary: 40000 }[it.use.egg];
+    if (it.use && it.use.egg) return { common: 900, uncommon: 3500, rare: 12000, legendary: 40000, divine: 120000 }[it.use.egg];
     if (it.id === 'vault_chest') return Math.round(600 * Math.pow(this.save.vaults[0].length / 8, 1.3) / 50) * 50;
     if (it.use && it.use.junk) return 3;
     if (it.admin) return 999999;
@@ -3792,12 +3839,12 @@ export class Game {
         break;
       }
       case 'pet': {                                        // /pet [kind] [rarity] [max]: a pet for testing (max = every ability at its cap)
-        const kind = PET_KINDS[args[0]] ? args[0] : hatchKind('rare', R), rar = RARITY[args[1]] ? args[1] : 'common';
+        const kind = PET_KINDS[args[0]] ? args[0] : hatchKind(undefined, R), rar = RARITY[args[1]] ? args[1] : 'common';
         if (this.pets().length >= PET_MAX) { say('Your Pet Yard is full.'); break; }
         const q = newPet(kind, rar);
         if (args[2] === 'max') for (const A of Object.values(q.ab)) A.lv = petCap(q);
         this.pets().push(q); if (!this.activePet()) this.save.activePet = q.id; this.persist();
-        say(`Added a ${RARITY[rar].name} ${PET_KINDS[kind].name}${args[2] === 'max' ? ' (maxed)' : ''}. Kinds: ${Object.keys(PET_KINDS).join(', ')}; rarities: ${Object.keys(RARITY).join(', ')}.`);
+        say(`Added a ${RARITY[rar].name} ${petName(q)}${args[2] === 'max' ? ' (maxed)' : ''}. Kinds: ${Object.keys(PET_KINDS).join(', ')}; rarities: ${Object.keys(RARITY).join(', ')}.`);
         break;
       }
       case 'keys': {                                       // /keys [dungeon]: one key for every dungeon (or N of one)

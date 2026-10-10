@@ -25,7 +25,12 @@ for (const id of ['abyssal_kraken', 'thornheart_treant']) {
     if (m.objects.filter((o) => o.sprite === 'ow_objects/midlands_elder_tree' && Math.abs(Math.hypot(o.x - H.x, o.y - H.y) - 12.8) < 1.2).length < 30) problems.push('no ring of elders');
   }
   // asleep until you step in
-  p.x = H.x; p.y = H.y + 20; for (let k = 0; k < 120; k++) g.update(1 / 60);
+  {                                                        // a free spot 20 tiles out, on the map and outside its room (south can be the sea's edge)
+    const ok = (x, y) => x > 2 && y > 2 && x < m.w - 2 && y < m.h - 2 && !m.solid[Math.floor(y) * m.w + Math.floor(x)];
+    const d = [[0, 20], [0, -20], [20, 0], [-20, 0], [14, 14], [-14, -14], [14, -14], [-14, 14]].find(([dx, dy]) => ok(H.x + dx, H.y + dy)) || [0, 20];
+    p.x = H.x + d[0]; p.y = H.y + d[1];
+  }
+  for (let k = 0; k < 120; k++) g.update(1 / 60);
   if (e.bx && e.bx.state !== 'sleep' && e.state !== 'sleep') problems.push('woke before you came');
   p.x = H.x; p.y = H.y + 8; p.dead = false;
   const seen = new Set(), flags = {};

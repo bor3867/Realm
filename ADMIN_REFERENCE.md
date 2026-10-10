@@ -41,7 +41,7 @@ Type commands into chat (press `/` or Enter). Ids are case-sensitive and use und
 ## Places
 
 - Lands (`/tp`): `shore`, `fen`, `runeholt`, `godfall`, `dunes`, `thornwood`, `steppe` (`/event`, `/progress`: the first four)
-- Dungeons (`/tp`, `/portal`): `chapel`, `forge`, `heart`, `scriptorium`, `throne`, `crypt`, `ember`, `hive`, `theatre`, `spire`, `dream`
+- Dungeons (`/tp`, `/portal`): `chapel`, `forge`, `heart`, `scriptorium`, `throne`, `frostveil`, `mirerot`, `astral`, `sandscour`, `keep`, `hollowmoon`, `crypt`, `ember`, `hive`, `theatre`, `spire`, `dream`
 - Classes: Brawler (`brawler`), Forge Knight (`forge_knight`), Priest (`priest`), Summoner (`summoner`), Harpooner (`harpooner`), Duelist (`duelist`), Stormwright (`stormwright`), Clockmaker (`clockmaker`), Runeblade (`runeblade`), Hexweaver (`hexweaver`)
 
 ## Dungeons
@@ -55,23 +55,29 @@ Open one with `/portal ID` or a key (`/keys`). `/seals` breaks every seal on a b
 | `heart` | The Heart of Godfall | high | three wardens | a heartbeat of falling gold | `key_heart` | The Fallen Heart |
 | `scriptorium` | The Frozen Scriptorium | mid-high | a warden, a hidden lever and the rune puzzle | falling icicles | `key_scriptorium` | The Archivist |
 | `throne` | The Throne of the Unstruck God | endgame | two wardens | falling gold; sentinel statues fire across the royal road | `key_throne` | The Unstruck God |
+| `frostveil` | Frostveil Hollows | ? | none | - | `key_frostveil` | The Unstruck |
+| `mirerot` | Mirerot Grotto | ? | none | - | `key_mirerot` | The Unstruck |
+| `astral` | The Astral Observatory | ? | none | - | `key_astral` | The Unstruck |
+| `sandscour` | Sandscour Tomb | ? | none | - | `key_sandscour` | The Unstruck |
+| `keep` | The Crimson Keep | ? | none | - | `key_keep` | The Unstruck |
+| `hollowmoon` | Hollowmoon Carnival | ? | none | - | `key_hollowmoon` | The Unstruck |
 | `crypt` | The Sunken Crypt | mid | none | the drowning dark; restless sarcophagi wake as you pass | `key_crypt` | The Tidebound Lich |
 | `ember` | The Emberforge Depths | high | two wardens, the pressure plates and a lever | falling cinders; ember vents erupt | `key_ember` | The Forgeheart Colossus |
 | `hive` | The Honeyed Hollow | low | none | honey floors halve your speed | `key_hive` | Queen Melliflua, the Honeyed Mother |
-| `theatre` | The Gilded Marionette Theatre | mid | carry the three lost masks (Comedy, Tragedy, Silence) to the stand before the stage | spotlights: caught in one, every puppet in the room fires faster | `key_theatre` | Maestro Vesper, the Puppeteer |
+| `theatre` | The Gilded Marionette Theatre | mid | carry the three lost masks (Comedy, Tragedy, Silence) to the stand before the stage | spotlights: caught in one, every puppet in the room fires faster | `key_theatre` | Maestro Lucan, the Puppeteer |
 | `spire` | The Prism Lighthouse | high | three mirror chambers: turn the mirrors (F) to bend the beam onto each crystal | lens sentries fire along their sight-line | `key_spire` | Aurelia, the Prism Wyrm |
 | `dream` | The Sleeper's Dream | endgame | survive three nightmare trials (the bridges vanish until you do) | bridges fade (fall through: -15% life) | `key_dream` | The Sleeper, Who Dreams the Realm |
 
 ### The newer dungeons' bosses
 
 - **Queen Melliflua, the Honeyed Mother** (`honey_queen`, 52,000 life, 3 phases): Hex-stings, a jittering bee swarm, a figure-eight waggle dance, honey rain that leaves sticky puddles, brood cells that hatch unless broken. Relics: `queens_stinger` (12%), `honeyguard_band` (10%). Plus a 0.2% chance at each mythic (25).
-- **Maestro Vesper, the Puppeteer** (`the_puppeteer`, 140,000 life, 3 phases): Immune while strung to four hanging marionettes (cut them, then he takes double damage). Curtains close from both wings, scissor-lines snap shut, a mirror-puppet answers your every shot; an intermission hands the stage to his understudies. Relics: `maestros_baton` (10%), `the_last_curtain` (10%), `stringcutter` (8%). Plus a 0.6% chance at each mythic (25).
+- **Maestro Lucan, the Puppeteer** (`the_puppeteer`, 140,000 life, 3 phases): Immune while strung to four hanging marionettes (cut them, then he takes double damage). Curtains close from both wings, scissor-lines snap shut, a mirror-puppet answers your every shot; an intermission hands the stage to his understudies. Relics: `maestros_baton` (10%), `the_last_curtain` (10%), `stringcutter` (8%). Plus a 0.6% chance at each mythic (25).
 - **Aurelia, the Prism Wyrm** (`prism_wyrm`, 380,000 life, 3 phases): Glass (immune) unless a lens pedestal beam is on her: stand on one (it overheats after 5s). Her images block the beam; burn them. Last phase: hold the light over 2s and she overcharges. Relics: `wyrmglass_wand` (10%), `prismglass_mantle` (10%), `the_seventh_colour` (7%). Plus a 1.2% chance at each mythic (25).
 - **The Sleeper, Who Dreams the Realm** (`the_sleeper`, 520,000 life, 4 phases): Stand still and you fall asleep. Dream-shift: its body is immune, strike its nightmare-self. Dream-logic inverts your controls. At 10% it will not wake until you ring the three alarms (F). Relics: `lullaby_staff` (10%), `nightlight_ring` (10%), `the_waking_bell` (7%). Plus a 1.9% chance at each mythic (25).
 
 ## Pets
 
-- Kinds (`/pet KIND`): Ember Fox (`ember_fox`), Tide Turtle (`tide_turtle`), Lantern Moth (`lantern_moth`), Bog Frog (`bog_frog`), Rune Owl (`rune_owl`), Salt Crab (`salt_crab`), Frost Kit (`frost_kit`), Star Wisp (`star_wisp`)
+- Kinds (`/pet KIND`): Bubblefin (`bubblefin`), Coral Seahorse (`coral_seahorse`), Owlet (`owlet`), Ember Chick (`ember_chick`), Shiba Pup (`shiba_pup`), Frost Fox (`frost_fox`), Calico Kitten (`calico_kitten`), Shadow Lynx (`shadow_lynx`), Wisp Ghost (`wisp_ghost`), Lantern Bat (`lantern_bat`), Mossling (`mossling`), Acorn Squirrel (`acorn_squirrel`), Jade Gecko (`jade_gecko`), Tiny Drake (`tiny_drake`), Glow Beetle (`glow_beetle`), Moth Sprite (`moth_sprite`), Gear Pup (`gear_pup`), Brass Bot (`brass_bot`), Mimic Chest (`mimic_chest`), Pocket Yeti (`pocket_yeti`)
 - Rarities (`/pet KIND RARITY`): `common` (cap 30), `uncommon` (cap 50), `rare` (cap 70), `legendary` (cap 90), `divine` (cap 100)
 - Abilities: Heal (Life) and Magic Heal (Mana) for every pet; Shield (a ward) from Rare up. Feed gear at the Petkeeper (gold or fame); a meal splits 100% / 65% / 35% between the main, second and third ability.
 - Fusing: two pets of the same rarity whose **main** ability is at the cap fuse into one of the next rarity. Pay gold (common 600, uncommon 2500, rare 7500, legendary 20000) or fame (common 20, uncommon 60, rare 150, legendary 400). Pick which pet's look to keep; every ability keeps the better level.
@@ -84,7 +90,7 @@ Open one with `/portal ID` or a key (`/keys`). `/seals` breaks every seal on a b
 | --- | --- | --- | --- | --- |
 | `brine_cathedral` | The Brine Cathedral | shore | 28,000 | /boss brine_cathedral |
 | `wick_mother` | The Wick-Mother | fen | 60,000 | /boss wick_mother |
-| `orrery_of_winter` | The Orrery of Winter | runeholt | 104,000 | /boss orrery_of_winter |
+| `orrery_of_winter` | The Rime Astrolabe | runeholt | 104,000 | /boss orrery_of_winter |
 | `penitent_colossus` | The Penitent Colossus | godfall | 168,000 | /boss penitent_colossus |
 | `emily_the_yapper` | Emily, the Yapper | runeholt | 80,000 | /boss emily_the_yapper (or /boss emily) |
 | `the_fallen_star` | The Fallen Star | godfall | 240,000 | /boss the_fallen_star |
@@ -95,7 +101,7 @@ Open one with `/portal ID` or a key (`/keys`). `/seals` breaks every seal on a b
 | `tidebound_lich` | The Tidebound Lich | dungeon: crypt | 160,000 | /tp crypt |
 | `forgeheart_colossus` | The Forgeheart Colossus | dungeon: ember | 550,000 | /tp ember |
 | `honey_queen` | Queen Melliflua, the Honeyed Mother | dungeon: hive | 52,000 | /tp hive |
-| `the_puppeteer` | Maestro Vesper, the Puppeteer | dungeon: theatre | 140,000 | /tp theatre |
+| `the_puppeteer` | Maestro Lucan, the Puppeteer | dungeon: theatre | 140,000 | /tp theatre |
 | `prism_wyrm` | Aurelia, the Prism Wyrm | dungeon: spire | 380,000 | /tp spire |
 | `the_sleeper` | The Sleeper, Who Dreams the Realm | dungeon: dream | 520,000 | /tp dream |
 | `unstruck` | The Unstruck | dungeon: forge | 168,000 | /boss unstruck |
@@ -109,13 +115,18 @@ Use with `/spawn ID [N]`.
 | Id | Name | Life | Notes |
 | --- | --- | --- | --- |
 | `brine_slimelet` | Brine Slimelet | 70 | moves: skitter |
+| `gull` | Gull | 70 | flies, moves: swoop |
 | `lens_moth` | Lens Moth | 80 | flies, moves: zigzag |
 | `lantern_jelly` | Lantern Jelly | 85 | flies, moves: float |
 | `trap_hound` | Trap-Hound | 90 | moves: zigzag |
+| `driftwood_bandit` | Driftwood Bandit | 100 | moves: flank |
 | `brine_pilgrim` | Brine Pilgrim | 110 | moves: shamble |
+| `shore_crab` | Shore Crab | 120 | moves: skitter |
 | `salt_widow` | Salt Widow | 140 | moves: kite |
+| `tide_slime` | Tide Slime | 140 | moves: hop |
 | `anchor_bearer` | Anchor-Bearer | 150 | moves: hop |
 | `reef_eel` | Reef Eel | 160 | moves: burrow |
+| `conch_hermit` | Conch Hermit | 160 | moves: shamble |
 | `brine_slime` | Brine Slime | 300 | moves: hop |
 | `moth_queen` | Lens Moth Queen | 400 | champion, flies, moves: swoop |
 | `lighthouse_jelly` | The Lighthouse Jelly | 425 | champion, flies, moves: float |
@@ -124,6 +135,8 @@ Use with `/spawn ID [N]`.
 | `salt_matriarch` | Salt Matriarch | 700 | champion, moves: kite |
 | `anchor_titan` | Anchor Titan | 750 | champion, moves: hop |
 | `golden_duck` | The Golden Duck | 1,500 | moves: flee |
+| `reef_golem` | Reef Golem | 1,800 | moves: shamble |
+| `siren` | Siren | 1,800 | flies, moves: kite |
 | `coin_imp` | The Coin Thief | 2,500 | moves: flee |
 | `tide_herald` | The Tide Herald | 2,600 | champion, flies, moves: float |
 
@@ -155,32 +168,44 @@ Use with `/spawn ID [N]`.
 | Id | Name | Life | Notes |
 | --- | --- | --- | --- |
 | `emily_chick` | Emily's Chick | 260 | moves: hop |
+| `cave_bat` | Cave Bat | 500 | flies, moves: zigzag |
 | `antlered_hush` | Antlered Hush | 750 | moves: drift |
+| `stone_harpy` | Stone Harpy | 750 | flies, moves: swoop |
 | `cairn_crawler` | Cairn Crawler | 800 | moves: charge |
 | `frost_skald` | Frost Skald | 800 | moves: kite |
 | `prayer_monk` | Prayer-Wheel Monk | 900 | moves: kite |
 | `frost_wraith` | Frost Wraith | 950 | flies, moves: blink |
 | `wolf_shield` | Wolf-Shield | 1,000 | moves: flank |
+| `mountain_ram` | Mountain Ram | 1,000 | moves: charge |
 | `cairn_mender` | Cairn Mender | 1,100 | moves: kite |
+| `crag_dwarf` | Crag Dwarf | 1,100 | moves: flank |
 | `frozen_executioner` | Frozen Executioner | 1,150 | moves: shamble |
+| `crag_ogre` | Crag Ogre | 1,600 | moves: shamble |
 | `elder_hush` | The Elder Hush | 3,750 | champion, moves: drift |
 | `saga_singer` | Saga-Singer | 4,000 | champion, moves: kite |
 | `wheel_abbot` | Prayer-Wheel Abbot | 4,500 | champion, moves: kite |
 | `rune_warden` | Rune-Warden | 4,800 | champion, moves: shamble |
 | `shieldwall_pack` | The Shieldwall Pack | 5,000 | champion, moves: flank |
 | `glacier_headsman` | Glacier Headsman | 5,750 | champion, moves: hop |
+| `storm_gryphon` | Storm Gryphon | 10,000 | flies, moves: swoop |
+| `rock_troll` | Rock Troll | 10,000 | moves: shamble |
 | `rime_herald` | The Rime Herald | 12,000 | champion, moves: kite |
 
 ### godfall
 
 | Id | Name | Life | Notes |
 | --- | --- | --- | --- |
+| `rift_wraith` | Rift Wraith | 1,600 | flies, moves: blink |
 | `cherub_husk` | Cherub Husk | 1,700 | flies, moves: float |
+| `gazer` | Gazer | 1,800 | flies, moves: orbit |
 | `halo_eater` | Halo-Eater | 1,900 | flies, moves: swoop |
 | `ash_harpy` | Ash Harpy | 2,000 | flies, moves: swoop |
+| `obsidian_scorpion` | Obsidian Scorpion | 2,000 | moves: skitter |
 | `reliquary_spider` | Reliquary Spider | 2,100 | moves: skitter |
+| `blood_maw` | Blood Maw | 2,200 | flies, moves: float |
 | `hollow_thane` | Hollow Thane | 2,300 | moves: flank |
 | `gilded_lancer` | Gilded Lancer | 2,600 | moves: flank |
+| `fallen_knight` | Fallen Knight | 2,800 | moves: shamble |
 | `choir_engine` | Choir Engine | 3,200 | moves: shamble |
 | `censer_magistrate` | Censer-Magistrate | 6,500 | moves: kite |
 | `seraph_husk` | Seraph Husk | 8,500 | champion, flies, moves: swoop |
@@ -189,6 +214,8 @@ Use with `/spawn ID [N]`.
 | `broodmother` | Reliquary Broodmother | 10,500 | champion, moves: skitter |
 | `hollow_jarl` | The Hollow Jarl | 11,500 | champion, moves: flank |
 | `cathedral_engine` | The Cathedral Engine | 16,000 | champion, moves: shamble |
+| `void_seer` | Void Seer | 18,000 | flies, moves: kite |
+| `abyss_hound` | Abyss Hound | 18,000 | moves: flank |
 | `gilded_penitent` | The Gilded Penitent | 22,000 | champion, moves: flank |
 
 ### forge
@@ -252,11 +279,19 @@ Use with `/spawn ID [N]`.
 | Id | Name | Life | Notes |
 | --- | --- | --- | --- |
 | `briar_bee` | Briar Bee | 260 | flies, moves: zigzag |
+| `bark_spider` | Bark Spider | 340 | moves: skitter |
+| `bandit_archer` | Bandit Archer | 360 | moves: kite |
 | `thorn_sprite` | Thorn Sprite | 380 | flies, moves: swoop |
+| `forest_druid` | Forest Druid | 400 | moves: kite |
 | `spore_puff` | Spore Puff | 450 | moves: drift |
 | `bramble_wolf` | Bramble Wolf | 520 | moves: flank |
+| `orc_brute` | Orc Brute | 620 | moves: shamble |
+| `mossback_turtle` | Mossback Turtle | 900 | moves: shamble |
 | `witch_of_briars` | The Witch of Briars | 2,100 | champion, moves: kite |
 | `thornwood_stag` | The Thornwood Stag | 2,400 | champion, moves: hop |
+| `war_banner` | War Banner | 2,400 | moves: rooted |
+| `orc_warlord` | Orc Warlord | 6,000 | moves: shamble |
+| `spider_queen` | Spider Queen | 6,000 | moves: skitter |
 
 ### steppe
 
@@ -268,6 +303,83 @@ Use with `/spawn ID [N]`.
 | `crystal_golem` | Crystal Golem | 1,500 | moves: shamble |
 | `skyglass_seer` | The Skyglass Seer | 5,200 | champion, flies, moves: kite |
 | `geode_titan` | The Geode Titan | 6,500 | champion, moves: shamble |
+
+### lowlands
+
+| Id | Name | Life | Notes |
+| --- | --- | --- | --- |
+| `field_rat` | Field Rat | 130 | moves: skitter |
+| `burrow_mole` | Burrow Mole | 180 | moves: burrow |
+| `hedge_goblin` | Hedge Goblin | 200 | moves: flank |
+| `wild_boar` | Wild Boar | 320 | moves: charge |
+| `scarecrow` | The Field Warden | 1,100 | moves: rooted |
+| `spirit_totem` | Spirit Totem | 1,800 | moves: rooted |
+| `goblin_shaman` | Goblin Shaman | 2,800 | moves: kite |
+| `bramble_bear` | Bramble Bear | 2,800 | moves: shamble |
+
+### event
+
+| Id | Name | Life | Notes |
+| --- | --- | --- | --- |
+| `giant_watermelon` | Giant Watermelon | 4,000 | moves: rooted |
+
+### frostveil
+
+| Id | Name | Life | Notes |
+| --- | --- | --- | --- |
+| `shardling` | Shardling | 380 | moves: skitter |
+| `frost_sprite` | Frost Sprite | 700 | flies, moves: kite |
+| `rime_wolf` | Rime Wolf | 800 | moves: flank |
+| `glacial_sentinel` | Glacial Sentinel | 2,000 | moves: shamble |
+
+### mirerot
+
+| Id | Name | Life | Notes |
+| --- | --- | --- | --- |
+| `rot_hornet` | Rot Hornet | 400 | flies, moves: swoop |
+| `sporeling` | Sporeling | 420 | moves: shamble |
+| `glowcap_sprout` | Glowcap Sprout | 600 | moves: rooted |
+| `mire_toad` | Mire Toad | 650 | moves: hop |
+| `vine_lasher` | Vine Lasher | 1,300 | moves: rooted |
+| `sporeling_clump` | Sporeling Clump | 1,500 | moves: shamble |
+
+### astral
+
+| Id | Name | Life | Notes |
+| --- | --- | --- | --- |
+| `orrery_drone` | Orrery Drone | 900 | flies, moves: satellite |
+| `star_eye` | Star Eye | 1,600 | flies, moves: rooted |
+| `constellation_stalker` | Constellation Stalker | 1,800 | moves: blink |
+| `void_acolyte` | Void Acolyte | 2,200 | moves: kite |
+
+### sandscour
+
+| Id | Name | Life | Notes |
+| --- | --- | --- | --- |
+| `tomb_scarab` | Tomb Scarab | 260 | moves: skitter |
+| `dune_serpent` | Dune Serpent | 700 | moves: burrow |
+| `jackal_warden` | Jackal Warden | 1,100 | moves: flank |
+| `sand_mummy` | Sand Mummy | 1,500 | moves: shamble |
+
+### keep
+
+| Id | Name | Life | Notes |
+| --- | --- | --- | --- |
+| `blood_bat` | Blood Bat | 600 | flies, moves: zigzag |
+| `blood_thrall` | Blood Thrall | 1,100 | moves: shamble |
+| `gargoyle` | Gargoyle | 1,500 | moves: hop |
+| `haunted_armor` | Haunted Armor | 2,600 | moves: shamble |
+| `kneeling_thrall` | Kneeling Thrall | 6,000 | moves: rooted |
+
+### hollowmoon
+
+| Id | Name | Life | Notes |
+| --- | --- | --- | --- |
+| `balloon_ghoul` | Balloon Ghoul | 1,600 | flies, moves: drift |
+| `jack_in_the_box` | Jack-in-the-Box | 2,200 | moves: hop |
+| `knife_juggler` | Knife Juggler | 2,400 | moves: kite |
+| `carousel_horse` | Carousel Horse | 4,000 | moves: carousel |
+| `jester_puppet` | Jester Marionette | 9,000 | flies, moves: rooted |
 
 ### crypt
 
@@ -407,7 +519,7 @@ Use with `/give ID [N]`. Tiered gear ids are `TYPE_tN` (rings are `ring_STAT_tN`
 | `pearl_of_the_drowned_mass` | Pearl of the Drowned Mass | Untiered Ring |
 | `wick_of_the_mother` | Wick of the Mother | Untiered Halo · Priest |
 | `tallow_vestment` | Tallow Vestment | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
-| `orrery_seal` | Seal of the Orrery | Untiered Oath-Seal · Forge Knight |
+| `orrery_seal` | Seal of the Astrolabe | Untiered Oath-Seal · Forge Knight |
 | `starless_band` | The Starless Band | Untiered Ring |
 | `penitents_head` | The Penitent's Greatsword | Untiered Sword · Brawler, Forge Knight, Runeblade |
 | `gilded_penance` | Gilded Penance | Untiered Heavy Armor · Brawler, Forge Knight |
@@ -417,7 +529,7 @@ Use with `/give ID [N]`. Tiered gear ids are `TYPE_tN` (rings are `ring_STAT_tN`
 | `penitents_scourge` | The Penitent's Scourge | Untiered Sword · Brawler, Forge Knight, Runeblade |
 | `rose_window_vestment` | Rose Window Vestment | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
 | `tallow_tongs` | The Tallow Brand | Untiered Sword · Brawler, Forge Knight, Runeblade |
-| `orrery_rod` | The Orrery Rod | Untiered Wand · Priest, Clockmaker |
+| `orrery_rod` | The Astrolabe Rod | Untiered Wand · Priest, Clockmaker |
 | `kintsugi_band` | The Kintsugi Band | Untiered Ring |
 | `unstruck_anvil` | The Unstruck Anvil | Untiered Oath-Seal · Forge Knight |
 | `furnace_heart_coat` | Furnace-Heart Coat | Untiered Heavy Armor · Brawler, Forge Knight |
@@ -466,6 +578,63 @@ Use with `/give ID [N]`. Tiered gear ids are `TYPE_tN` (rings are `ring_STAT_tN`
 | `the_hourglass_of_sand` | The Hourglass of Sand | Untiered Stopwatch · Clockmaker |
 | `the_gearmail` | The Gearwright's Robe | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
 | `emilys_scarf` | Emily's Knitted Scarf | Untiered Ring |
+| `melon_slicer` | Melon Slicer | Untiered Sword · Brawler, Forge Knight, Runeblade |
+| `rindguard` | Rindguard | Untiered Heavy Armor · Brawler, Forge Knight |
+| `vinegrown_staff` | Vinegrown Staff | Untiered Staff · Summoner, Stormwright, Hexweaver |
+| `seedspitter_bow` | Seedspitter | Untiered Bow · Harpooner |
+| `rind_bulwark` | Rind Bulwark | Untiered Oath-Seal · Forge Knight |
+| `ring_of_the_rind` | Ring of the Rind | Untiered Ring |
+| `honeydew_scepter` | Honeydew Scepter | Untiered Wand · Priest, Clockmaker |
+| `dewveil_robe` | Dewveil Robe | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
+| `dewdrop_ring` | Dewdrop Ring | Untiered Ring |
+| `melon_baller` | Melon Baller | Untiered Dagger · Duelist |
+| `golden_honeydew` | The Golden Honeydew | Untiered Ring |
+| `tidebreaker_trident` | Tidebreaker Trident | Untiered Staff · Summoner, Stormwright, Hexweaver |
+| `abyssal_pearl` | Abyssal Pearl | Untiered Ring |
+| `leviathan_eye` | The Leviathan Eye | Untiered Ring |
+| `heartwood_bow` | Heartwood Bow | Untiered Bow · Harpooner |
+| `seed_of_renewal` | Seed of Renewal | Untiered Ring |
+| `blight_heart` | The Blight Heart | Untiered Ring |
+| `glacial_fang` | Glacial Fang | Untiered Dagger · Duelist |
+| `rimeheart_bow` | Rimeheart Bow | Untiered Bow · Harpooner |
+| `wand_of_hoarfrost` | Wand of Hoarfrost | Untiered Wand · Priest, Clockmaker |
+| `frostweave_armor` | Frostweave Robe | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
+| `ring_of_the_wyrm` | Ring of the Wyrm | Untiered Ring |
+| `aurora_heart` | The Aurora Heart | Untiered Ring |
+| `bog_cleaver` | Bog Cleaver | Untiered Sword · Brawler, Forge Knight, Runeblade |
+| `sporecaller_wand` | Sporecaller Wand | Untiered Wand · Priest, Clockmaker |
+| `mycelial_hide` | Mycelial Hide | Untiered Leather Armor · Harpooner, Duelist, Runeblade |
+| `ring_of_rot` | Ring of Rot | Untiered Ring |
+| `spore_bomb` | Spore Bomb | Untiered Bellows · Brawler |
+| `glowcap_crown` | The Glowcap Crown | Untiered Ring |
+| `starforged_katana` | Starforged Katana | Untiered Sword · Brawler, Forge Knight, Runeblade |
+| `comet_bow` | Comet Bow | Untiered Bow · Harpooner |
+| `nebula_robe` | Nebula Robe | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
+| `astral_signet` | Astral Signet | Untiered Ring |
+| `orrery_orb` | Orrery Orb | Untiered Halo · Priest |
+| `event_horizon` | Event Horizon | Untiered Ring |
+| `sunscorch_khopesh` | Sunscorch Khopesh | Untiered Sword · Brawler, Forge Knight, Runeblade |
+| `gilded_scepter` | Gilded Scepter | Untiered Wand · Priest, Clockmaker |
+| `embalmers_wraps` | Embalmer's Wraps | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
+| `scarab_ring` | Scarab Ring | Untiered Ring |
+| `sphinx_helm` | The Sphinx's Crown | Untiered Oath-Seal · Forge Knight |
+| `pharaohs_deathmask` | The Pharaoh's Deathmask | Untiered Ring |
+| `crimson_rapier` | Crimson Rapier | Untiered Dagger · Duelist |
+| `bloodthorn_staff` | Bloodthorn Staff | Untiered Staff · Summoner, Stormwright, Hexweaver |
+| `batwing_bow` | Batwing Bow | Untiered Bow · Harpooner |
+| `sanguine_cloak` | Sanguine Cloak | Untiered Leather Armor · Harpooner, Duelist, Runeblade |
+| `signet_of_the_count` | Signet of the Count | Untiered Ring |
+| `crimson_chalice` | The Crimson Chalice | Untiered Reliquary · Summoner |
+| `nightfall_scythe` | The Nightfall Scythe | Untiered Sword · Brawler, Forge Knight, Runeblade |
+| `ringmaster_cane` | The Ringmaster's Cane | Untiered Wand · Priest, Clockmaker |
+| `jugglers_dagger` | Juggler's Dagger | Untiered Dagger · Duelist |
+| `carousel_bow` | Carousel Bow | Untiered Bow · Harpooner |
+| `harlequin_garb` | Harlequin Garb | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
+| `ring_of_the_jester` | Ring of the Jester | Untiered Ring |
+| `trick_deck` | The Trick Deck | Untiered Grimoire · Hexweaver |
+| `grinning_mask` | The Grinning Mask | Untiered Ring |
+| `tidewraith_staff` | The Tidewraith Staff | Untiered Staff · Summoner, Stormwright, Hexweaver |
+| `forgeheart_maul` | The Forgeheart Maul | Untiered Sword · Brawler, Forge Knight, Runeblade |
 | `rubber_duck` | The Rubber Duck | Untiered Ring |
 | `runewarden_blade` | Runewarden's Blade | Untiered Sword · Brawler, Forge Knight, Runeblade |
 | `runewarden_ward` | Runewarden's Ward | Untiered Rune-Ward · Runeblade |
@@ -732,6 +901,7 @@ Use with `/give ID [N]`. Tiered gear ids are `TYPE_tN` (rings are `ring_STAT_tN`
 | --- | --- | --- |
 | `pot_hp` | Draught of Embers | Consumable |
 | `pot_mp` | Draught of Tides | Consumable |
+| `watermelon_slice` | Watermelon Slice | Consumable |
 | `stat_hp` | Heartstone Tincture | Consumable |
 | `stat_mp` | Wellspring Tincture | Consumable |
 | `stat_att` | Tincture of Wrath | Consumable |
@@ -744,6 +914,56 @@ Use with `/give ID [N]`. Tiered gear ids are `TYPE_tN` (rings are `ring_STAT_tN`
 | `pet_egg_uncommon` | Mossy Pet Egg | Consumable |
 | `pet_egg_rare` | Azure Pet Egg | Consumable |
 | `pet_egg_legendary` | Gilded Pet Egg | Consumable |
+| `egg_aquatic_common` | Common Aquatic Egg | Consumable |
+| `egg_aquatic_uncommon` | Uncommon Aquatic Egg | Consumable |
+| `egg_aquatic_rare` | Rare Aquatic Egg | Consumable |
+| `egg_aquatic_legendary` | Legendary Aquatic Egg | Consumable |
+| `egg_aquatic_divine` | Divine Aquatic Egg | Consumable |
+| `egg_avian_common` | Common Avian Egg | Consumable |
+| `egg_avian_uncommon` | Uncommon Avian Egg | Consumable |
+| `egg_avian_rare` | Rare Avian Egg | Consumable |
+| `egg_avian_legendary` | Legendary Avian Egg | Consumable |
+| `egg_avian_divine` | Divine Avian Egg | Consumable |
+| `egg_canine_common` | Common Canine Egg | Consumable |
+| `egg_canine_uncommon` | Uncommon Canine Egg | Consumable |
+| `egg_canine_rare` | Rare Canine Egg | Consumable |
+| `egg_canine_legendary` | Legendary Canine Egg | Consumable |
+| `egg_canine_divine` | Divine Canine Egg | Consumable |
+| `egg_feline_common` | Common Feline Egg | Consumable |
+| `egg_feline_uncommon` | Uncommon Feline Egg | Consumable |
+| `egg_feline_rare` | Rare Feline Egg | Consumable |
+| `egg_feline_legendary` | Legendary Feline Egg | Consumable |
+| `egg_feline_divine` | Divine Feline Egg | Consumable |
+| `egg_spooky_common` | Common Spooky Egg | Consumable |
+| `egg_spooky_uncommon` | Uncommon Spooky Egg | Consumable |
+| `egg_spooky_rare` | Rare Spooky Egg | Consumable |
+| `egg_spooky_legendary` | Legendary Spooky Egg | Consumable |
+| `egg_spooky_divine` | Divine Spooky Egg | Consumable |
+| `egg_woodland_common` | Common Woodland Egg | Consumable |
+| `egg_woodland_uncommon` | Uncommon Woodland Egg | Consumable |
+| `egg_woodland_rare` | Rare Woodland Egg | Consumable |
+| `egg_woodland_legendary` | Legendary Woodland Egg | Consumable |
+| `egg_woodland_divine` | Divine Woodland Egg | Consumable |
+| `egg_reptile_common` | Common Reptile Egg | Consumable |
+| `egg_reptile_uncommon` | Uncommon Reptile Egg | Consumable |
+| `egg_reptile_rare` | Rare Reptile Egg | Consumable |
+| `egg_reptile_legendary` | Legendary Reptile Egg | Consumable |
+| `egg_reptile_divine` | Divine Reptile Egg | Consumable |
+| `egg_insect_common` | Common Insect Egg | Consumable |
+| `egg_insect_uncommon` | Uncommon Insect Egg | Consumable |
+| `egg_insect_rare` | Rare Insect Egg | Consumable |
+| `egg_insect_legendary` | Legendary Insect Egg | Consumable |
+| `egg_insect_divine` | Divine Insect Egg | Consumable |
+| `egg_automaton_common` | Common Automaton Egg | Consumable |
+| `egg_automaton_uncommon` | Uncommon Automaton Egg | Consumable |
+| `egg_automaton_rare` | Rare Automaton Egg | Consumable |
+| `egg_automaton_legendary` | Legendary Automaton Egg | Consumable |
+| `egg_automaton_divine` | Divine Automaton Egg | Consumable |
+| `egg_exotic_common` | Common Exotic Egg | Consumable |
+| `egg_exotic_uncommon` | Uncommon Exotic Egg | Consumable |
+| `egg_exotic_rare` | Rare Exotic Egg | Consumable |
+| `egg_exotic_legendary` | Legendary Exotic Egg | Consumable |
+| `egg_exotic_divine` | Divine Exotic Egg | Consumable |
 | `key_chapel` | Sunken Chapel Key | Consumable |
 | `key_crypt` | Sunken Crypt Key | Consumable |
 | `key_forge` | Drowned Forge Key | Consumable |
@@ -755,6 +975,12 @@ Use with `/give ID [N]`. Tiered gear ids are `TYPE_tN` (rings are `ring_STAT_tN`
 | `key_theatre` | Theatre Ticket | Consumable |
 | `key_spire` | Lighthouse Key | Consumable |
 | `key_dream` | Key of Dreams | Consumable |
+| `key_frostveil` | Frostveil Key | Consumable |
+| `key_mirerot` | Mirerot Key | Consumable |
+| `key_astral` | Astral Key | Consumable |
+| `key_hollowmoon` | Hollowmoon Ticket | Consumable |
+| `key_keep` | Crimson Key | Consumable |
+| `key_sandscour` | Sandscour Key | Consumable |
 | `vault_chest` | Vault Chest | Consumable |
 | `backpack` | Pilgrim's Satchel | Consumable · Character upgrade |
 | `old_boot` | An Old Boot | Consumable |

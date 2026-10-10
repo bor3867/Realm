@@ -163,6 +163,7 @@ export class Renderer {
     for (const v of m.villagers || []) add(v.x, v.y, (sx, sy) => this.villager(g, v, sx, sy));
     for (const v of m.penPets || []) add(v.x, v.y, (sx, sy) => this.villager(g, v, sx, sy));        // pets in the Pet Yard
     if (g.pet && !g.player.dead) add(g.pet.x, g.pet.y, (sx, sy) => this.villager(g, g.pet, sx, sy)); // your companion
+    if (g.hatching) add(g.hatching.x, g.hatching.y, (sx, sy) => this.hatchEgg(g, g.hatching, sx, sy));   // an egg hatching at your feet
     if (m.belts) this.beltFx(g, m.belts);
     if (g.arena) this.arenaFx(g, g.arena);
     if (g.timeStop) this.timeDial(g, g.timeStop);
@@ -511,6 +512,7 @@ export class Renderer {
     b.restore();
   }
   villager(g, v, sx, sy) {
+    if (v.sprite && v.sprite.startsWith('pt2_')) return this.petBody(g, v, sx, sy);
     const k = this.W.objects[v.sprite] + (v.moving ? Math.floor(g.t * 6) % 2 : 0), c = this.W.objectsCols;
     this.shadow(sx, sy, 8);
     this.spr(this.A.img.objects, (k % c) * TS, Math.floor(k / c) * TS, TS, TS, sx, sy, 8, 15, !!v.face);
@@ -518,6 +520,31 @@ export class Renderer {
     if (aura && Math.random() < aura[2]) {                // rarer pets glitter as they go
       this.parts.push({ x: v.x + (Math.random() - 0.5) * 0.8, y: v.y, z: 3 + Math.random() * 10, vx: 0, vy: 0, vz: 5 + Math.random() * 5, g: 0, life: 0.7, max: 0.7, color: aura[Math.random() < 0.6 ? 0 : 1] });
     }
+  }
+  // a Pets v2 pet: idle (it blinks; divine forms twinkle), follow while it trails you, happy (a heart) when it's pleased
+  petBody(g, v, sx, sy) {
+    const def = this.R && this.R.resolve(v.sprite);
+    if (!def) return;
+    const A = def.anims, clip = v.joy > g.t && A.happy ? 'happy' : v.moving && A.follow ? 'follow' : 'idle', C = A[clip] || A.idle;
+    const t = clip === 'happy' ? Math.max(0, g.t - v.joy0) : g.t + (v.x || 0) * 0.37;   // pen pets don't blink in step
+    const n = C.frames.length, i = clip === 'happy' && !C.loop ? Math.min(n - 1, Math.floor(t * C.fps)) : Math.floor(t * C.fps) % n;
+    this.shadow(sx, sy, def.size[0] > 10 ? 10 : 8);
+    this.drawDef(def, C.frames[i], Math.round(sx), Math.round(sy) + 1, { flip: !!v.face, flash: v.flashT > g.t && Math.floor(g.t * 16) % 2 === 0 });
+    if (clip === 'happy' && i === 0 && !v.hearted) { v.hearted = true; this.parts.push({ x: v.x, y: v.y, z: def.size[1] * 2 + 2, vx: 0, vy: 0, vz: 7, g: 0, life: 0.9, max: 0.9, color: '#ff8fbf', heart: true }); }
+    if (clip !== 'happy') v.hearted = false;
+    const aura = { rare: ['#7aa8ff', '#ffffff', 0.05], legendary: ['#ffd650', '#fff6c8', 0.1], divine: ['#ff7af0', '#8af6ff', 0.16] }[v.rarity];
+    if (aura && Math.random() < aura[2]) {                // rarer pets glitter as they go
+      this.parts.push({ x: v.x + (Math.random() - 0.5) * 0.8, y: v.y, z: 3 + Math.random() * 10, vx: 0, vy: 0, vz: 5 + Math.random() * 5, g: 0, life: 0.7, max: 0.7, color: aura[Math.random() < 0.6 ? 0 : 1] });
+    }
+  }
+  // an egg hatching: its own clip (wobble, wobble, crack, burst); the pet appears on the burst frame
+  hatchEgg(g, h, sx, sy) {
+    const def = this.R && this.R.resolve(h.egg);
+    if (!def || !def.anims.hatch) return;
+    const C = def.anims.hatch, i = Math.min(C.frames.length - 1, Math.floor(h.t * C.fps));
+    if (h.pet && h.t > C.frames.length / C.fps) return;   // the shell's last frame has played
+    this.shadow(sx, sy, 7);
+    this.drawDef(def, C.frames[i], Math.round(sx), Math.round(sy) + 1, {});
   }
   // rotating laser sweeps around a boss: thin warning lines first, then the beams turn
   sweepFx(f, g) {

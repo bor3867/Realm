@@ -106,3 +106,17 @@
 - The Tidewraith Staff's bolts now really bend with the current (new weapon special `current`), as its description
   says. Event Horizon's description no longer promises homing it never had: it says what it does (damage on the move).
 - New check: `tools/check_items.mjs`.
+
+## Phase 7 — Pets and eggs (audit D6: merge)
+- Pets wear Pets v2: the 20 lines are the kinds, and a pet's form follows its main ability (baby → evolved at 30 →
+  divine at 100). Feeding, fusing, rarity caps and Heal / Magic Heal / Shield are unchanged. A rarer egg hatches a
+  pet at a higher level (1 / 5 / 10 / 20 / 30). Note: docs/design/07_pets.md.
+- 50 eggs (family × rarity) that hatch at your feet with their own clip, the pet coming out on the burst; the rarity
+  shows in the egg's name, slot tag and tooltip. Drops step up a rarity in harder lands and keep to each land's
+  families; Divine eggs come only from the final god. The Pet Yard sells two families a day.
+- Pets: idle / follow / happy clips, a heart when pleased, an evolution flash and banner.
+- Migration: old pets keep their levels and move to the closest line (Ember Fox → Shiba Pup, Frost Kit → Frost Fox,
+  Rune Owl → Owlet, Lantern Moth → Moth Sprite, Tide Turtle → Jade Gecko, Bog Frog → Bubblefin, Salt Crab → Coral
+  Seahorse, Star Wisp → Wisp Ghost); old eggs become family eggs of the same rarity.
+- Fix: `tools/check_events.mjs` no longer places you off the map's edge (a flaky "woke before you came").
+- New check: `tools/check_pets.mjs`.

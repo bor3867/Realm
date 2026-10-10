@@ -26,7 +26,11 @@ export async function hashPassword(name, pw) {
 const empty8 = () => Array(8).fill(null);
 const LEGACY = { gauntlet: 'sword', tongs: 'sword', sunrod: 'wand', pendulum: 'wand', lantern: 'staff', coil: 'staff', harpoon: 'bow',
   rapier: 'dagger', plate: 'heavy', coat: 'heavy', oilskin: 'leather', glassmail: 'leather', vestment: 'robe', shroud: 'robe', stormcloak: 'robe', brasscoat: 'robe' };
+// Phase 7: the old pet eggs become a Pets v2 egg of the same rarity, of a family picked at random
+const EGG_FAMS = ['aquatic', 'avian', 'canine', 'feline', 'spooky', 'woodland', 'reptile', 'insect', 'automaton', 'exotic'];
 const migrate = (id) => {
+  const e = typeof id === 'string' && /^pet_egg_(common|uncommon|rare|legendary)$/.exec(id);
+  if (e) return `egg_${EGG_FAMS[Math.floor(Math.random() * EGG_FAMS.length)]}_${e[1]}`;
   const m = typeof id === 'string' && /^([a-z]+)_t(\d+)(~.*)?$/.exec(id);
   return m && LEGACY[m[1]] ? `${LEGACY[m[1]]}_t${m[2]}${m[3] || ''}` : id;
 };

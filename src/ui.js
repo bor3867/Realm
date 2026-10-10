@@ -3,7 +3,7 @@ import { CLASSES, STATS, STAT_NAMES, xpToNext, MAX_LEVEL, FAME_GOALS } from './d
 import { outlinedFrame } from './outline.js';
 import { ITEMS, itemLabel, specialLines, canEquip, SETS, SET_PIECES } from './data/items.js';
 import { ACTIONS, MINI_STEPS, keyLabel, resetSettings } from './settings.js';
-import { PET_KINDS, RARITY, RARITY_ORDER, ABILITIES, PET_TICK, SHIELD_TICK, PET_MAX, petHeal, petMagic, petShield, petXpToNext, petCap, petMaxed, feedCost, feedValue, canMorph, FUSE_GOLD, petSprite, abilityOrder, mainMaxed, petLevel } from './data/pets.js';
+import { PET_KINDS, RARITY, RARITY_ORDER, ABILITIES, PET_TICK, SHIELD_TICK, PET_MAX, petHeal, petMagic, petShield, petXpToNext, petCap, petMaxed, feedCost, feedValue, canMorph, FUSE_GOLD, petSprite, petName, abilityOrder, mainMaxed, petLevel } from './data/pets.js';
 import { loadAccounts, saveAccounts, saveKeyFor, hashPassword, loadSave } from './save.js';
 
 const $ = (id) => document.getElementById(id);
@@ -15,6 +15,7 @@ export function rarityColor(it) {
   if (it.mythic) return '#8af6ff';
   if (it.legendary) return '#ffe9a0';
   if (it.ut) return it.bag === 'urn' ? '#ff6a4a' : '#f2c14e';
+  if (it.use && it.use.egg && RARITY[it.use.egg]) return RARITY[it.use.egg].color;
   if (it.slot === 'consumable') return POT_COL[it.id] || '#d8b8ff';
   return TIER_COL[it.tier];
 }
@@ -80,6 +81,13 @@ export class UI {
   petIcon(sprite) {
     this.petIcons = this.petIcons || {};
     if (this.petIcons[sprite]) return this.petIcons[sprite];
+    const rd = sprite.startsWith('pt2_') && this.r.R && this.r.R.resolve(sprite);
+    if (rd) {                                                // a Pets v2 form: its idle frame, centred on a 12x12 ground so every stage keeps its scale
+      const f = rd.frames.idle1 || rd.frames[Object.keys(rd.frames)[0]], cv = document.createElement('canvas');
+      cv.width = cv.height = 12;
+      cv.getContext('2d').drawImage(rd.img, f.x, f.y, f.w, f.h, Math.floor((12 - f.w) / 2), 12 - f.h, f.w, f.h);
+      return (this.petIcons[sprite] = cv.toDataURL());
+    }
     const W = this.r.W, k = W.objects[sprite] ?? W.objects[sprite.replace(/_(gold|divine)$/, '')], c = W.objectsCols, cv = document.createElement('canvas');
     cv.width = cv.height = 16;
     cv.getContext('2d').drawImage(this.r.A.img.objects, (k % c) * 16, Math.floor(k / c) * 16, 16, 16, 0, 0, 16, 16);
@@ -100,10 +108,10 @@ export class UI {
     }).join('');
     const effect = (q) => `Every ${PET_TICK}s: +${petHeal(q)} Life, +${petMagic(q)} Mana${q.ab.shield ? ` · every ${SHIELD_TICK}s: a ${petShield(q)} ward` : ''}`;
     const card = (q, extra) => {
-      const K = PET_KINDS[q.kind], Rr = RARITY[q.rarity];
+      const Rr = RARITY[q.rarity];
       const tag = petMaxed(q) ? ' · <span class="maxed">MAXED</span>' : Rr.morph && mainMaxed(q) ? ' · <span class="maxed">READY TO FUSE</span>' : '';
       return `<div class="ware petcard r-${q.rarity}${q === act ? ' active' : ''}${pick.includes(q.id) ? ' picked' : ''}"><div class="ico pet" style="background-image:url(${this.petIcon(petSprite(q))})"></div>
-        <div class="wn"><b style="color:${Rr.color}">${K.name}</b><small>${Rr.name} · level ${petLevel(q)}${tag}<br>${effect(q)}</small>${bars(q)}</div>${extra}</div>`;
+        <div class="wn"><b style="color:${Rr.color}">${petName(q)}</b><small>${Rr.name} · level ${petLevel(q)}${tag}<br>${effect(q)}</small>${bars(q)}</div>${extra}</div>`;
     };
     const mine = pets.map((q) => card(q, `<div class="acts">${q === act ? '<small class="mut">companion</small>' : `<button class="btn sm" data-act="${q.id}">Follow me</button>`}
       ${RARITY[q.rarity].morph ? `<button class="btn sm${pick.includes(q.id) ? '' : ' ghost'}" data-pick="${q.id}">${pick.includes(q.id) ? 'Picked' : 'Fuse'}</button>` : ''}
@@ -115,8 +123,9 @@ export class UI {
       if (!this.fuseSkin || ![a.kind, b && b.kind].includes(this.fuseSkin)) this.fuseSkin = a.kind;
       let plan = 'Two pets of the same rarity fuse into one pet of the next rarity. Only each pet\'s <b>main</b> ability needs to be at its cap.';
       if (pick.length === 2 && next) {
-        const skins = [...new Set([a.kind, b.kind])].map((k) => `<button class="btn sm${this.fuseSkin === k ? '' : ' ghost'}" data-skin="${k}"><span class="ico pet mini" style="background-image:url(${this.petIcon(petSprite({ kind: k, rarity: next }))})"></span>${PET_KINDS[k].name}</button>`).join('');
-        plan = `→ a <b style="color:${RARITY[next].color}">${RARITY[next].name} ${PET_KINDS[this.fuseSkin].name}</b>. Every ability keeps the better of the two levels; the cap rises to ${RARITY[next].max}.${next === 'rare' ? ' It learns <b>Shield</b>.' : ''}
+        const look = (k) => ({ kind: k, rarity: next, ab: [a, b].find((q) => q.kind === k).ab });
+        const skins = [...new Set([a.kind, b.kind])].map((k) => `<button class="btn sm${this.fuseSkin === k ? '' : ' ghost'}" data-skin="${k}"><span class="ico pet mini" style="background-image:url(${this.petIcon(petSprite(look(k)))})"></span>${PET_KINDS[k].name} line</button>`).join('');
+        plan = `→ a <b style="color:${RARITY[next].color}">${RARITY[next].name} ${PET_KINDS[this.fuseSkin].name}-line pet</b>. Every ability keeps the better of the two levels; the cap rises to ${RARITY[next].max}.${next === 'rare' ? ' It learns <b>Shield</b>.' : ''}
           <div class="skins">Keep the look of: ${skins}</div>`;
       }
       morphBox = `<section class="morphbox"><h3>Fuse</h3><p>${plan}</p><p class="mut">${why || 'Ready.'}</p>
@@ -127,13 +136,13 @@ export class UI {
       .map(([id, i]) => this.itemCell(id, `<div class="acts"><small class="mut">power ${feedValue(ITEMS[id])}</small><button class="btn sm" data-feed="${i}" data-pay="gold">${cost.gold}g</button><button class="btn sm" data-feed="${i}" data-pay="fame">${cost.fame} fame</button></div>`)).join('')
       || '<p class="mut">Nothing in your backpack to feed. Pets eat gear, potions and relics: higher tiers, and relics from harder bosses, make bigger meals.</p>'
       : '<p class="mut">Choose a companion first.</p>';
-    const eggs = [['common', 900], ['uncommon', 3500]].map(([r, pr]) => this.itemCell(`pet_egg_${r}`, `<button class="btn sm" data-egg="${r}">${pr}g</button>`)).join('');
+    const eggs = g.eggsForSale().map(([r, pr, f]) => this.itemCell(`egg_${f}_${r}`, `<button class="btn sm" data-egg="${r}">${pr}g</button>`)).join('') + '<p class="mut">New families every day.</p>';
     const o = this.overlay(`<div class="screen shop"><h1>The Pet Yard</h1>
       <h2>"Every pet heals the hand that feeds it." · ${this.wallet()} · <span style="color:#ffb84a">${g.save.fame || 0} fame</span> · ${pets.length}/${PET_MAX} pets</h2>
       ${act ? `<section class="petnow">${card(act, '')}<p class="mut">${PET_KINDS[act.kind].desc}</p></section>` : ''}
       ${morphBox}
       <div class="cols"><section><h3>Your pets</h3>${mine}<h3 style="margin-top:12px">Eggs for sale</h3>${eggs}</section>
-      <section><h3>Feed ${act ? PET_KINDS[act.kind].name : 'your companion'}</h3><p class="mut">Pay in gold or fame. Most of a meal goes to the main ability (100% / 65% / 35%).</p>${feedList}</section></div>
+      <section><h3>Feed ${act ? petName(act) : 'your companion'}</h3><p class="mut">Pay in gold or fame. Most of a meal goes to the main ability (100% / 65% / 35%).</p>${feedList}</section></div>
       <p class="msg">${msg}</p><button class="btn" id="mclose">Leave (Esc)</button></div>`);
     o.querySelectorAll('[data-act]').forEach((b) => { b.onclick = () => { g.setActivePet(b.dataset.act); this.openPetYard('A new companion follows you.'); }; });
     o.querySelectorAll('[data-rel]').forEach((b) => { b.onclick = () => { if (b.dataset.sure) { g.releasePet(b.dataset.rel); this.openPetYard('Released. It trots off happily.'); } else { b.dataset.sure = 1; b.textContent = 'Sure?'; } }; });
@@ -446,7 +455,7 @@ export class UI {
           ico.classList.toggle('sweep', !own && name !== 'pots');
           if (!own) { ico.style.setProperty('--m', `url(${this.r.icon(id)})`); ico.style.setProperty('--d', `${-((sn * 0.77) % 6).toFixed(2)}s`); }
           sn++;
-          tier.textContent = name === 'pots' ? '×' + this.g.pots()[i].n : it.admin ? 'ADMIN' : it.mythic ? 'M' : it.legendary ? 'L' : it.ut ? 'UT' : it.tier === null ? '' : 'T' + it.tier;
+          tier.textContent = name === 'pots' ? '×' + this.g.pots()[i].n : it.admin ? 'ADMIN' : it.mythic ? 'M' : it.legendary ? 'L' : it.ut ? 'UT' : it.use && it.use.egg ? RARITY[it.use.egg].name[0] : it.tier === null ? '' : 'T' + it.tier;
           tier.className = 'tier' + (it.ut ? ' ut' : '');
           el.style.setProperty('--rc', rarityColor(it));
           el.classList.add('has'); el.classList.remove('ghost'); el.classList.toggle('mythic', !!it.mythic); el.classList.toggle('ut', !!it.ut && !it.mythic && !it.admin);
@@ -484,7 +493,7 @@ export class UI {
   }
   tipHTML(it, id, name) {
     const g = this.g, row = (k, v, cls = '') => `<div class="kv ${cls}"><span>${k}</span><b>${v}</b></div>`;
-    const badge = it.admin ? 'ADMIN' : it.mythic ? 'MYTHIC' : it.legendary ? 'LEGENDARY' : it.ut ? 'UT' : it.tier === null || it.tier === undefined ? '' : 'T' + it.tier;
+    const badge = it.admin ? 'ADMIN' : it.mythic ? 'MYTHIC' : it.legendary ? 'LEGENDARY' : it.use && it.use.egg && RARITY[it.use.egg] ? RARITY[it.use.egg].name.toUpperCase() : it.ut ? 'UT' : it.tier === null || it.tier === undefined ? '' : 'T' + it.tier;
     let h = `<div class="th"><div><h4>${it.name}</h4><div class="t">${itemLabel(it)}</div></div>${badge ? `<span class="badge">${badge}</span>` : ''}</div>`;
     if (it.desc) h += `<div class="flav">${it.desc}</div>`;
     let stats = '';
@@ -730,7 +739,7 @@ export class UI {
     const g = this.g, P = g.activePet(), el = $('stats');
     el.classList.add('petview');
     if (!P) { if (this.petKey !== 'none') { this.petKey = 'none'; el.innerHTML = '<div class="pv-none">No companion yet. Visit the Petkeeper in the Nexus, or hatch an egg.</div>'; } return; }
-    const K = PET_KINDS[P.kind], Rr = RARITY[P.rarity], q = g.pet, cap = petCap(P);
+    const Rr = RARITY[P.rarity], q = g.pet, cap = petCap(P);
     const key = `${P.id}:${P.rarity}:${Object.values(P.ab).map((A) => A.lv + '.' + A.xp).join(',')}:${q ? Math.ceil(q.tick) : '-'}`;
     if (this.petKey === key) return;
     this.petKey = key;
@@ -738,7 +747,7 @@ export class UI {
       const A = P.ab[k], full = A.lv >= cap, val = k === 'heal' ? `+${petHeal(P)} Life` : k === 'magic' ? `+${petMagic(P)} Mana` : `a ${petShield(P)} ward`;
       return `<div class="pv-ab${i === 0 ? ' main' : ''}"><span>${ABILITIES[k].name}${i === 0 ? ' · main' : ''}</span><b>${A.lv}<small>/${cap}</small></b><em>${val}</em><div class="pxp"><i style="width:${full ? 100 : Math.round(100 * A.xp / petXpToNext(A.lv))}%"></i></div></div>`;
     }).join('');
-    el.innerHTML = `<div class="pv-head"><span class="ico pet" style="background-image:url(${this.petIcon(petSprite(P))})"></span><div><b style="color:${Rr.color}">${K.name}</b>
+    el.innerHTML = `<div class="pv-head"><span class="ico pet" style="background-image:url(${this.petIcon(petSprite(P))})"></span><div><b style="color:${Rr.color}">${petName(P)}</b>
       <small>${Rr.name} · level ${petLevel(P)}${Rr.morph && mainMaxed(P) ? ' · ready to fuse' : ''}</small></div></div>${ab}
       <div class="pv-foot">${q ? `next heal in ${Math.max(0, Math.ceil(q.tick))}s` : 'resting'} · every ${PET_TICK}s${P.ab.shield ? ` · ward every ${SHIELD_TICK}s` : ''}</div>`;
   }
