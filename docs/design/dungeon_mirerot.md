@@ -44,7 +44,7 @@ Round hollows strung along a meandering way (it bends up to 60° from east at ea
 ## Enemies (registry `ex_mirerot/*`)
 | Monster | Role | Shot | Behaviour |
 |---|---|---|---|
-| bog_toad | ambusher | `bogspit` ring of 6 | hops; whole rooms of them rise out of the bog when you walk in |
+| mire_toad (art: bog_toad) | ambusher | `bogspit` ring of 6 | hops; whole rooms of them rise out of the bog when you walk in |
 | rot_hornet | swarm | `stinger`, 2 | swoops; in packs of 4–5 |
 | sporeling | runs at you and explodes into a poison cloud | — | shamble, bomb |
 | sporeling_clump | a big one that splits into three sporelings when it dies | `gasbubble` ring | shamble |

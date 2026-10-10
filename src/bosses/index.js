@@ -10,8 +10,11 @@ import grand_orrery from './grand_orrery.js';
 import gilded_sphinx from './gilded_sphinx.js';
 import count_vesper from './count_vesper.js';
 import grinning_ringmaster from './grinning_ringmaster.js';
+import tidebound_lich from './tidebound_lich.js';
+import forgeheart_colossus from './forgeheart_colossus.js';
 
-export const BX = { framework_test, abyssal_kraken, thornheart_treant, glacius_frozen_wyrm, mother_mycelia, grand_orrery, gilded_sphinx, count_vesper, grinning_ringmaster };
+export const BX = { framework_test, abyssal_kraken, thornheart_treant, glacius_frozen_wyrm, mother_mycelia, grand_orrery, gilded_sphinx, count_vesper, grinning_ringmaster,
+  tidebound_lich, forgeheart_colossus };
 
 // the enemy definition the rest of the game sees (spawnRealmBoss, loot, the boss bar)
 export function bxEnemyDef(id) {

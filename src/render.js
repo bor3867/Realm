@@ -170,6 +170,11 @@ export class Renderer {
     if (g.activeMap === m) for (const e of g.notable) if (e.bx && e.bx.B.drawGround && !e.dead) e.bx.B.drawGround(this, g, e);   // a boss's hazards on the ground
     if (m.mrClouds || m.mrPuddles) this.mireFx(g, m);
     if (m.asClocks || m.asDais) this.astralFx(g, m);
+    if (m.emVents) for (const V of m.emVents) if (V.warn) {           // the Emberforge: a vent about to erupt glows and shudders
+      const [x, y] = this.proj(V.o.x, V.o.y), b = this.b;
+      b.globalAlpha = 0.5; b.fillStyle = Math.floor(g.t * 14) % 2 ? '#ffd84a' : '#ff6a1a';
+      b.beginPath(); b.ellipse(Math.round(x), Math.round(y), 9, 5, 0, 0, Math.PI * 2); b.fill(); b.globalAlpha = 1;
+    }
     if (m.hmCannons) for (const o of m.hmCannons) if (o.hmCannon.aim !== null && o.hmCannon.aim !== undefined) {   // a cannon's line: where the glove will fly
       const a = o.hmCannon.aim, b = this.b, k = Math.max(0, Math.min(1, 1 - o.hmCannon.t / 1.2));
       b.fillStyle = Math.floor(g.t * 10) % 2 ? '#ff4a8a' : '#ffd650'; b.globalAlpha = 0.4 + 0.5 * k;

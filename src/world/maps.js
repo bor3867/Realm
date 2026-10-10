@@ -1637,9 +1637,13 @@ export function dungeon(seed, def) {
       }
     },
     crypt(n) {
-      if (n.kind === 'tomb') {                                          // sarcophagi in rows, candles at the corners
+      if (n.kind === 'tomb') {                                          // a candle-lit tomb hall: candles down both walls, sarcophagi, crypt water to wade down the middle
         if (n.role !== 'treasure') { put2(null, n.x + 2, n.cy, 'sarcophagus'); put2(null, n.x + n.w - 3, n.cy, 'sarcophagus'); }
         for (const [x, y] of [[n.x + 1, n.y + 1], [n.x + n.w - 2, n.y + 1], [n.x + 1, n.y + n.h - 2], [n.x + n.w - 2, n.y + n.h - 2]]) put2(null, x, y, 'crypt_candle');
+        if (!quietRole(n)) {
+          for (let x = n.x + 4; x < n.x + n.w - 4; x += 4) { put2(null, x, n.y + 1, 'crypt_candle'); put2(null, x, n.y + n.h - 2, 'crypt_candle'); }
+          for (let x = n.x + 1; x < n.x + n.w - 1; x++) for (let y = n.cy - 1; y <= n.cy + 1; y++) if (isF(x, y) && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) set(x, y, TID.shallows);   // wall to wall: you wade across
+        }
       } else if (n.kind === 'ossuary_hall') {                           // the Lich's hall: rows of sarcophagi, a drowned floor at the edges
         for (let x = n.x + 3; x < n.x + n.w - 3; x += 5) { put2(n, x, n.y + 3, 'sarcophagus'); put2(n, x, n.y + n.h - 4, 'sarcophagus'); }
         for (let x = n.x; x < n.x + n.w; x++) { set(x, n.y, WET); set(x, n.y + n.h - 1, WET); }
@@ -1703,7 +1707,15 @@ export function dungeon(seed, def) {
       }
     },
     ember(n) {
-      if (n === start || n === boss || quietRole(n)) return;
+      if (n === boss) {                                                 // the forge floor: six vents round it, for the Colossus
+        m.cvVents = [];
+        for (let k = 0; k < 6; k++) {
+          const a = (k / 6) * Math.PI * 2 + Math.PI / 6, x = Math.round(n.cx + Math.cos(a) * (n.w / 2 - 4)), y = Math.round(n.cy + Math.sin(a) * (n.h / 2 - 4));
+          put2(null, x, y, 'ember_vent', false, { cvVent: true }); m.cvVents.push([x + 0.5, y + 0.5]);
+        }
+        return;
+      }
+      if (n === start || quietRole(n)) return;
       const theme = THEMES[themeK++ % THEMES.length]; n.theme = theme;
       const at = (x, y, sprite, solid = true) => put2(n, x, y, sprite, solid);
       if (theme === 'foundry') { for (let x = n.x + 3; x < n.x + n.w - 3; x += 4) { at(x, n.y + 3, 'crucible'); at(x, n.y + n.h - 4, 'crucible'); at(x + 2, n.y + 5, 'ember_vent', false); } }

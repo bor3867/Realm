@@ -79,3 +79,14 @@
   the Grinning Ringmaster. Notes: dungeon_hollowmoon.md, boss_grinning_ringmaster.md.
 - Framework: `dmgMult` and `barTag` boss hooks; `lureTo`, `noclip` and `ai: 'carousel'` on enemies.
 - Fix: the Trick Deck's missing curse.
+
+## Phase 3 — the Crypt and the Emberforge (audit D7) — Phase 3 complete
+- The Tidebound Lich and the Forgeheart Colossus are now three-phase framework bosses (notes:
+  boss_tidebound_lich.md, boss_forgeheart_colossus.md), keeping their own old signatures. Their brief legendaries
+  (the Tidewraith Staff, the Forgeheart Maul) join their loot.
+- Detail pass: the Crypt's tomb halls are candle-lit down both walls with crypt water to wade across them; the
+  Emberforge's vents erupt on a timer (a second's glow first), and its forge floor has six vents for the Colossus.
+- **Fixed (audit D5)**: the Mirerot toad had been defined as `bog_toad`, overwriting Ashfen's own Bog Toad (its packs,
+  quest and bestiary all pointed at the Mirerot one). It is `mire_toad` now (art: `ex_mirerot/bog_toad`). A new
+  check diffed every baseline monster and item against now: nothing else was overwritten.
+- `tools/check_ow2.mjs` now checks only the overworld's own monsters, and waits for the scorpion to run hot.

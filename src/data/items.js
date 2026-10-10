@@ -704,7 +704,16 @@ UT.push(
   { id: 'grinning_mask', type: 'ring', slot: 'ring', name: 'The Grinning Mask', reg: 'd2_items/grinning_mask', bonus: { att: 8, dex: 8 }, legendary: true,
     desc: 'It smiles for you. When you land a lucky blow, it laughs, and the blow lands three times over.' },
 );
+// ---- the Crypt's and the Emberforge's legendaries, from the brief (phase-3 kills of the Lich and the Colossus)
+UT.push(
+  { id: 'tidewraith_staff', type: 'staff', slot: 'weapon', name: 'The Tidewraith Staff', reg: 'ix_items/tidewraith_staff', legendary: true,
+    weapon: { dmg: [95, 140], count: 2, arc: 0.1, range: 6.6, speed: 15, rate: 1.0, proj: 'bx_shots/tidebound_lich.soul_bolt', size: 0.45, pierce: true }, desc: 'The Lich\'s own. Its bolts lean with a current only they can feel, and come back once.' },
+  { id: 'forgeheart_maul', type: 'sword', slot: 'weapon', name: 'The Forgeheart Maul', reg: 'ix_items/forgeheart_maul', legendary: true,
+    weapon: { dmg: [300, 420], range: 3.2, speed: 8, rate: 0.6, proj: 'bx_shots/forgeheart_colossus.hammer_spark', size: 0.6 }, desc: 'Too heavy to swing, and you swing it anyway. Every blow throws a ring of sparks.' },
+);
 Object.assign(SPECIAL, {
+  tidewraith_staff: { weapon: { boomerang: true } },
+  forgeheart_maul: { weapon: { quake: { n: 8, proj: 'bx_shots/forgeheart_colossus.hammer_spark', f: 0.3, stun: 0.3 } } },
   jugglers_dagger: { weapon: { boomerang: true } },
   carousel_bow: { weapon: { homing: 1.6 } },
   harlequin_garb: { passive: { dodge: 0.12 } },

@@ -14,7 +14,7 @@ const by = {};
 for (const e of g.enemies) if (e.D.reg) by[e.D.biome] = (by[e.D.biome] || 0) + 1;
 console.log('in the realm:', JSON.stringify(by), '| bands at campfires:', g.enemies.filter((e) => e.pack && (e.id === 'orc_brute' || e.id === 'hedge_goblin')).length);
 for (const b of ['shore', 'lowlands', 'thornwood', 'runeholt', 'godfall']) if (!by[b]) { console.log('no new monsters in', b); fail++; }
-const ids = Object.keys(ENEMIES).filter((id) => ENEMIES[id].reg);
+const ids = Object.keys(ENEMIES).filter((id) => (ENEMIES[id].reg || '').startsWith('ow_enemies/') || (ENEMIES[id].reg || '').startsWith('ow2_enemies/'));   // the overworld's own (the dungeons have their own checks)
 for (const id of ids) {
   g.enemies.length = 0; g.projectiles.length = 0;
   p.x = m.spawn.x; p.y = m.spawn.y;
@@ -30,7 +30,8 @@ for (const id of ids) {
     if (wasUnder && !e.under) surfaced++;
     if (e.under) dug = true;
     for (const b of g.projectiles) { sprites.add(b.sprite); if (b.mv && b.mv.split) hot++; }
-    if (f % 15 === 0 && t > (ENEMIES[id].surfaceFling ? 12 : 6)) g.damageEnemy(e, Math.round(e.maxHp / 24) + (e.D.def || 0), e.x, e.y, true);
+    const waitHot = ENEMIES[id].heat && e.hp < e.maxHp * 0.34 && !hot && (e.hotWait = (e.hotWait || 0) + 1 / 60) < 8;   // let it run hot a while
+    if (!waitHot && f % 15 === 0 && t > (ENEMIES[id].surfaceFling ? 12 : 6)) g.damageEnemy(e, Math.round(e.maxHp / 24) + (e.D.def || 0), e.x, e.y, true);
     seen.add(e.state);
   }
   const problems = [];
