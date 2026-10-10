@@ -38,12 +38,12 @@ C['forge_knight'] = dict(file='anvilheart', pal={'i': '#C8D2E4', 'I': '#7A86A0',
     SA=['..iiii..', '.iiiii..', '.iiikk..', '..iiii..', '..irdwww', '..irri..', '..IrrI..'],
     BA=['..iiii.w', '.iiiiiiw', '.iiiiiiw', '..iiiid.', '.iIIIIi.', '.iIIIIi.', '..IiiI..'])
 # the Heliarch: a white hood and robe, a gold clasp, a flat gold halo floating over the head, a wand
-C['priest'] = dict(file='heliarch', pal={'y': '#E0A22A', 'Y': '#FFE680', 'f': '#F4F0E6', 'F': '#C4BED4', 'a': '#B8C0D0', 'A': '#FFE680', 'l': '#B08A60'},
+C['priest'] = dict(file='heliarch', pal={'y': '#E0A22A', 'Y': '#FFE680', 'f': '#F4F0E6', 'F': '#C4BED4', 'a': '#B8C0D0', 'A': '#FFE680', 'l': '#B08A60'}, flat='se',
     F=['..yYYy..', '..ffff.A', '..sese.a', '..ffff.a', '.sfyyfsa', '..fFFf..', '.ffffff.'],
-    S=['..yYYy..', '..fff..A', '..fses.a', '..fff..a', '..ffyfsa', '..fFFf..', '..fffff.'],
+    S=['..yYYy..', '..ffff..', '..ffse..', '..ffss..', '..ffff..', '..fyyf..', '.ffffff.'],
     B=['..yYYy..', '..ffff.A', '..ffff.a', '..ffff.a', '.sfyyfsa', '..fFFf..', '.ffffff.'],
     FA=['..yYYy.A', '..ffff.a', '..sese.a', '..ffffs.', '.sfyyf..', '..fFFf..', '.ffffff.'],
-    SA=['..yYYy..', '..fff...', '..fses..', '..fff...', '..ffysaA', '..fFFf..', '..fffff.'],
+    SA=['..yYYy..', '..ffff..', '..ffse..', '..ffss..', '..fffsaA', '..fyyf..', '.ffffff.'],
     BA=['..yYYy.A', '..ffff.a', '..ffff.a', '..ffffs.', '.sfyyf..', '..fFFf..', '.ffffff.'])
 C['summoner'] = dict(file='reliquarian', pal={'K': '#4E3880', 'k': '#1E1430', 'c': '#5EF0C8', 'f': '#E8E0C8', 'n': '#7A6A52', 'y': '#7CFFB0', 'l': '#6A5A8A'},
     F=['..KKKK.y', '.KKKKKKn', '.KckkcKn', '.KkkkkKn', 'fKKKKKfn', '.KKKKKK.', '.KKKKKK.'],
@@ -158,11 +158,11 @@ def build(cls, D):
     from reduce import read_png
     shade_sheet(os.path.join(d, D['file'] + '_sheet.png'), 16, 16)   # RotMG light and shadow
     px = read_png(os.path.join(d, D['file'] + '_sheet.png'))          # ...but not on the legs: a one-pixel leg is all edge,
-    for y in range(H):                                                 # and shading would sink it into the outline
-        if y % 16 >= 14:
-            for x in range(W):
-                if out[y][x][3]:
-                    px[y][x] = out[y][x]
+    flat = {pal[c] for c in D.get('flat', '')}                         # (and a face kept flat where asked: shading the rim of a
+    for y in range(H):                                                 # side-on face turns it into a dark hole)
+        for x in range(W):
+            if out[y][x][3] and (y % 16 >= 14 or out[y][x] in flat):     # and shading would sink it into the outline
+                px[y][x] = out[y][x]
     write_png(os.path.join(d, D['file'] + '_sheet.png'), px)
     guide = {'image': D['file'] + '_sheet.png', 'frameWidth': 16, 'frameHeight': 16, 'columns': COLS, 'rows': len(rows),
              'art': 8, 'pivot': {'x': 8, 'y': 15},

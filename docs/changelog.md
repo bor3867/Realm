@@ -129,3 +129,5 @@
   tiers, hazards and bosses; the ten three-phase bosses (phases, mechanics, relics, legendary, how to fight each);
   realm events; elites; legendaries; Pets v2 lines, forms, rarities and the 50 eggs; and `/bx`, `/kraken`,
   `/treant`, `/melon`. The in-game `/help` lists the new commands.
+- The Priest's side view redrawn: a hood behind and a face in profile, no arm and wand sticking out (the wand shows
+  when it attacks). Its skin is left unshaded (`flat`), since the shading pass darkened a side-on face into a hole.
