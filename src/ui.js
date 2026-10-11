@@ -385,10 +385,21 @@ export class UI {
   // over the world to drop it on the ground, anywhere else and it glides back home
   dragStart(ev, name, i, el) {
     if (ev.button !== 0 || ev.shiftKey || !this.itemAt(name, i)) return;
+    this.dragClear();                                         // a drag still in hand (a fast double-click, a lost release) ends first
     const r = el.querySelector('.ico').getBoundingClientRect();
-    this.drag = { name, i, el, x0: ev.clientX, y0: ev.clientY, ox: ev.clientX - r.left, oy: ev.clientY - r.top, r, live: false };
-    const move = (e) => this.dragMove(e), up = (e) => { removeEventListener('pointermove', move); removeEventListener('pointerup', up); this.dragEnd(e); };
-    addEventListener('pointermove', move); addEventListener('pointerup', up);
+    const D = this.drag = { name, i, el, x0: ev.clientX, y0: ev.clientY, ox: ev.clientX - r.left, oy: ev.clientY - r.top, r, live: false };
+    const move = (e) => this.dragMove(e), up = (e) => { D.unhook(); if (this.drag === D) this.dragEnd(e); };
+    const lost = () => { D.unhook(); if (this.drag === D) this.dragClear(); };   // released outside the window, or the gesture was cancelled
+    D.unhook = () => { removeEventListener('pointermove', move); removeEventListener('pointerup', up); removeEventListener('pointercancel', lost); removeEventListener('blur', lost); };
+    addEventListener('pointermove', move); addEventListener('pointerup', up); addEventListener('pointercancel', lost); addEventListener('blur', lost);
+  }
+  // put everything back: no ghost icon left on screen, no slot left lifted, whatever happened
+  dragClear() {
+    const D = this.drag;
+    this.drag = null;
+    if (D && D.unhook) D.unhook();
+    document.querySelectorAll('#dragghost').forEach((n) => n.remove());
+    document.querySelectorAll('.slot.lifted, .slot.over').forEach((n) => n.classList.remove('lifted', 'over'));
   }
   dragMove(ev) {
     const D = this.drag;
@@ -410,6 +421,9 @@ export class UI {
     if (slot && slot !== D.el) { slot.classList.add('over'); D.over = slot; } else D.over = null;
   }
   dragEnd(ev) {
+    try { this.dragDrop(ev); } catch (err) { this.dragClear(); this.refreshSlots(); throw err; }   // never leave a ghost behind
+  }
+  dragDrop(ev) {
     const D = this.drag;
     this.drag = null;
     if (!D || !D.live) return;
@@ -429,7 +443,9 @@ export class UI {
     const gh = D.gh;
     const done = () => { gh.remove(); D.el.classList.remove('lifted'); this.refreshSlots(); };
     if (!target) { gh.style.transition = 'transform 120ms ease-in, opacity 120ms'; gh.style.opacity = '0'; gh.style.transform += ' scale(0.5)'; setTimeout(done, 120); return; }
-    const r = target.querySelector('.ico').getBoundingClientRect();
+    const ico = target.querySelector('.ico');
+    if (!ico || !target.isConnected || target.offsetParent === null) { done(); return; }   // its slot is gone or hidden (another tab): no glide
+    const r = ico.getBoundingClientRect();
     if (ok) this.refreshSlots();
     gh.style.transition = 'transform 110ms cubic-bezier(.2,.8,.3,1)';
     gh.style.transform = `translate3d(${r.left}px, ${r.top}px, 0) scale(1)`;

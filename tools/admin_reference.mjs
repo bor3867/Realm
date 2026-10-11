@@ -28,15 +28,16 @@ for (const [c, d] of [
   ['/level N', 'Levels up to N'],
   ['/maxstats', 'Sets every stat to your class maximum'],
   ['/backpack', 'Adds the second backpack (16 slots)'],
-  ['/give ITEM [N]', 'Gives N of an item (ids below; enchanted ids work too, see Enchantments)'],
+  ['/give ITEM [N]', 'Gives N of an item: any id below, every item in the game (enchanted ids work too, see Enchantments). A name works too'],
+  ['/give dungeon ID', 'Gives every item its boss can drop (its whole loot set), e.g. `/give dungeon astral`'],
   ['/items TEXT', 'Searches item ids and names'],
-  ['/spawn ENEMY [N]', 'Spawns N of an enemy near you (also works with realm boss ids)'],
+  ['/spawn ID [N]', 'Spawns anything by id near you: N of a monster or elite, or any boss (realm, dungeon or three-phase). Only the Unstruck needs /boss unstruck'],
   ['/boss ID', 'Spawns a realm boss here (realm only); drowned_abbot / fallen_heart / unstruck / the_archivist / the_unstruck_god / tidebound_lich / forgeheart_colossus take you to their dungeon boss'],
   ['/bx ID', 'Spawns a Realm Update three-phase boss beside you, anywhere (ids under Realm Update bosses). `/bx` alone lists them'],
   ['/kraken', 'The Abyssal Kraken rises on the Drowned Shore now (its reef and all), and puts you at the edge. Step in to wake it (realm only)'],
   ['/treant', 'The Thornheart Treant wakes in the Thornwood now (its clearing and ring of elders), and puts you at the edge (realm only)'],
   ['/melon', 'A Giant Watermelon plops down beside you (realm only; one at a time)'],
-  ['/bosses', 'Lists boss ids'],
+  ['/bosses', 'Lists every boss id (realm, dungeon, three-phase)'],
   ['/event BIOME', 'Starts a herald event in a biome (realm only; the four original lands)'],
   ['/star', 'A star falls in Godfall: the Fallen Star climbs out of the crater (realm only)'],
   ['/seals', 'Breaks every seal on a dungeon boss gate'],
@@ -124,13 +125,13 @@ const PH = {
   mother_mycelia: ["Bloom", "Rot", "Sporestorm", "dungeon: mirerot", "/tp mirerot", "Spore clouds that hang; poison needles; acid pools; a lunge and bite; seeds that sprout minions unless shot; orbs that curl outward."],
   glacius_frozen_wyrm: ["Coiled Hoard", "Unfurled", "Shattered Heart", "dungeon: frostveil", "/tp frostveil", "A sweeping breath; lances that freeze the ground; drifting orbs; a gust that slides you; a glide that leaves a fence of lances; spiral-gap rings; braziers it puts out."],
   count_vesper: ["Nobleman", "Batstorm", "Blood Beast", "dungeon: keep", "/tp keep", "Healing thralls that burn in candlelight; a hedge of thorns; weaving bat fans; scythes that wheel back; an afterimage dash; blood rain that pools."],
-  grand_orrery: ["Aligned", "Eclipse", "Collapse", "dungeon: astral", "/tp astral", "An eclipse all fight long that burns, lunges and flares; meridian fans, precessing rings, spirals, meteors, orbits; black holes with accretion disks; finale: a singularity, then a supernova."],
+  grand_orrery: ["Aligned", "Eclipse", "Collapse", "dungeon: astral", "/tp astral", "Eclipse transits that burn, lunge and flare; meridian fans, precessing rings, spirals, meteors on red circles, orbits; small singularities with accretion disks and infall. Finale at 12%: Singularity (it swallows, collapses, goes nova). Second survival at 4%: Supernova in the dark."],
   grinning_ringmaster: ["Showman", "Puppeteer", "Big Top", "dungeon: hollowmoon", "/tp hollowmoon", "Drum leaps that ring out bursts; two jester marionettes he re-strings; arcing pins; needle lines; the tent with lantern-eye weak points; confetti bombs."],
   tidebound_lich: ["Drowned King", "Soulbinder", "Tidewraith", "dungeon: crypt", "/tp crypt", "Bolts that bend with the current; coral that splinters; souls that chase you then fly home; a turning soul cage; the tide from every wall; plus his swap, the dark and the grave call."],
   forgeheart_colossus: ["Forge Sentinel", "Overheat", "Molten Core", "dungeon: ember", "/tp ember", "Half-ring slams; ricocheting rivets; skipping slag; vent columns; rolling magma that leaves lava; quake rings; a core that throws shots back."],
 };
 L.push('## Realm Update bosses (three phases)', '');
-L.push('Every one has three phases (it changes at 66% and 33%, immune while it does) and mechanics no other boss shares; each phase also has its own pressure layer firing under its main attacks. The hardest three (Glacius, the Grand Orrery, the Forgeheart Colossus) end with a finale you can only dodge. Spawn any of them beside you with `/bx ID`.', '');
+L.push('Every one has three phases (it changes at 66% and 33%, immune while it does) and mechanics no other boss shares; each phase also has its own pressure layer firing under its main attacks. The hardest three (Glacius, the Grand Orrery, the Forgeheart Colossus) end with a finale you can only dodge. Spawn any of them beside you with `/spawn ID` (or `/bx ID`). The Grand Orrery has a second survival, **Supernova**, at 4%. `/give dungeon ID` gives the whole loot set of a dungeon.', '');
 table(['Id', 'Name', 'Where', 'Life', 'Phases', 'Finale', 'Fight it', 'Legendary (phase-3 kill)']);
 for (const [id, B] of Object.entries(BX)) {
   if (!PH[id]) continue;
@@ -173,10 +174,10 @@ L.push('');
 
 L.push('## Bosses', '');
 table(['Id', 'Name', 'Where', 'Life', 'How to summon']);
-for (const [id, B] of Object.entries(REALM_BOSSES)) row('`' + id + '`', B.name, B.biome, B.hp.toLocaleString(), `/boss ${id}` + (id === 'emily_the_yapper' ? ' (or /boss emily)' : ''));
+for (const [id, B] of Object.entries(REALM_BOSSES)) row('`' + id + '`', B.name, B.biome, B.hp.toLocaleString(), `/spawn ${id}` + (id === 'emily_the_yapper' ? ' (or /boss emily)' : ''));
 for (const [id, B] of Object.entries(DUNGEON_BOSSES)) {
   const d = Object.entries(DUNGEONS).find(([, D]) => D.boss === id);
-  row('`' + id + '`', B.name, d ? `dungeon: ${d[0]}` : 'dungeon', B.hp.toLocaleString(), ['drowned_abbot', 'fallen_heart'].includes(id) ? `/boss ${id}` : `/tp ${d ? d[0] : '?'}`);
+  row('`' + id + '`', B.name, d ? `dungeon: ${d[0]}` : 'dungeon', B.hp.toLocaleString(), `/spawn ${id}` + (d ? ` (or its dungeon: /tp ${d[0]})` : ''));
 }
 row('`unstruck`', BOSS.name, 'dungeon: forge', BOSS.hp.toLocaleString(), '/boss unstruck');
 L.push('', 'The Crypt\'s Lich and the Emberforge\'s Colossus now fight on the three-phase framework (see Realm Update bosses); their old entries above are kept for reference.');

@@ -188,14 +188,7 @@ export function nexus() {
   put(m, 'bard', CX - 3, CY - 3, true, { interact: 'bard', label: 'Listen to the bard' });            // a bard by the fire
   bigProp(m, 'tent', CX - 15, CY - 1);                                                                // the fortune teller
   put(m, 'pedestal', CX - 15, CY + 1, true, { interact: 'fortune', label: 'Have your fortune told (100 gold)', hidden: true });
-  // the trophy hall: a pedestal for every great foe; the ones you've beaten wear their statue
-  m.trophySpots = [];
-  ['brine_cathedral', 'wick_mother', 'orrery_of_winter', 'penitent_colossus', 'drowned_abbot', 'unstruck', 'the_archivist', 'fallen_heart'].forEach((id, k) => {
-    const x = CX - 6 + (k % 4) * 4, y = k < 4 ? 7 : 12;
-    put(m, 'pedestal', x + (x >= CX ? 2 : -2), y, true, { trophy: id });
-  });
-  put(m, 'pedestal', CX + 1, 9, true, { trophy: 'emily_the_yapper' });
-  put(m, 'pedestal', CX + 1, 4, true, { trophy: 'the_unstruck_god' });                        // and at the top, the throne's                          // and one for a penguin, front and centre
+  // (the trophy statues of the great foes you have beaten stand in your vault now: see vaultRoom)
   // villagers stroll between these points
   m.strolls = [[CX - 6, CY + 7], [CX + 7, CY + 4], [CX + 12, CY - 4], [CX - 9, CY - 4], [CX + 2, CY + 12], [CX - 12, CY + 6]];
   m.villagers = [['villager_farmer', 0], ['villager_child', 2], ['villager_guard', 4]].map(([sp, k]) => ({ sprite: sp, x: m.strolls[k][0] + 0.5, y: m.strolls[k][1] + 0.5, goal: (k + 1) % 6, wait: 0 }));
@@ -240,14 +233,20 @@ export function nexus() {
 
 // ------------------------------------------------------------------ VAULT (personal: one chest that grows)
 export function vaultRoom() {
-  const W = 17, H = 12;
+  const W = 27, H = 16, CX = 13;
   const m = makeMap('vault', 'Your Vault', W, H, TID.void);
   for (let y = 2; y < H - 2; y++) for (let x = 2; x < W - 2; x++) m.tiles[idx(m, x, y)] = TID.marble;
   wallUp(m);
-  put(m, 'vault_chest', 8, 3, true, { interact: 'vault', chest: 0 });                  // one chest; buy Vault Chests to make it bigger
+  put(m, 'vault_chest', CX, 3, true, { interact: 'vault', chest: 0 });                 // one chest; buy Vault Chests to make it bigger
   for (const x of [2, W - 3]) put(m, 'brazier', x, 2);
-  m.portals = [{ kind: 'nexus', x: 8.5, y: H - 2.5, label: 'Back to the Nexus', to: 'nexus' }];
-  m.spawn = { x: 8.5, y: H - 4.5 };
+  // your trophies: a pedestal round the walls for every great foe; the ones you have beaten wear their statue.
+  // The throne's own and the penguin's flank the chest.
+  const T = [['the_unstruck_god', CX - 4, 4], ['emily_the_yapper', CX + 4, 4],
+    ['brine_cathedral', 5, 4], ['wick_mother', W - 6, 4], ['orrery_of_winter', 4, 7], ['penitent_colossus', W - 5, 7],
+    ['drowned_abbot', 4, 10], ['unstruck', W - 5, 10], ['the_archivist', 7, 12], ['fallen_heart', W - 8, 12]];
+  for (const [id, x, y] of T) put(m, 'pedestal', x, y, true, { trophy: id });
+  m.portals = [{ kind: 'nexus', x: CX + 0.5, y: H - 2.5, label: 'Back to the Nexus', to: 'nexus' }];
+  m.spawn = { x: CX + 0.5, y: H - 4.5 };
   return finalize(m);
 }
 

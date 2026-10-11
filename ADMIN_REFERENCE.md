@@ -15,15 +15,16 @@ Type commands into chat (press `/` or Enter). Ids are case-sensitive and use und
 | `/level N` | Levels up to N |
 | `/maxstats` | Sets every stat to your class maximum |
 | `/backpack` | Adds the second backpack (16 slots) |
-| `/give ITEM [N]` | Gives N of an item (ids below; enchanted ids work too, see Enchantments) |
+| `/give ITEM [N]` | Gives N of an item: any id below, every item in the game (enchanted ids work too, see Enchantments). A name works too |
+| `/give dungeon ID` | Gives every item its boss can drop (its whole loot set), e.g. `/give dungeon astral` |
 | `/items TEXT` | Searches item ids and names |
-| `/spawn ENEMY [N]` | Spawns N of an enemy near you (also works with realm boss ids) |
+| `/spawn ID [N]` | Spawns anything by id near you: N of a monster or elite, or any boss (realm, dungeon or three-phase). Only the Unstruck needs /boss unstruck |
 | `/boss ID` | Spawns a realm boss here (realm only); drowned_abbot / fallen_heart / unstruck / the_archivist / the_unstruck_god / tidebound_lich / forgeheart_colossus take you to their dungeon boss |
 | `/bx ID` | Spawns a Realm Update three-phase boss beside you, anywhere (ids under Realm Update bosses). `/bx` alone lists them |
 | `/kraken` | The Abyssal Kraken rises on the Drowned Shore now (its reef and all), and puts you at the edge. Step in to wake it (realm only) |
 | `/treant` | The Thornheart Treant wakes in the Thornwood now (its clearing and ring of elders), and puts you at the edge (realm only) |
 | `/melon` | A Giant Watermelon plops down beside you (realm only; one at a time) |
-| `/bosses` | Lists boss ids |
+| `/bosses` | Lists every boss id (realm, dungeon, three-phase) |
 | `/event BIOME` | Starts a herald event in a biome (realm only; the four original lands) |
 | `/star` | A star falls in Godfall: the Fallen Star climbs out of the crater (realm only) |
 | `/seals` | Breaks every seal on a dungeon boss gate |
@@ -114,7 +115,7 @@ Open one with `/portal ID` or a key (`/keys`). `/seals` breaks every seal on a b
 
 ## Realm Update bosses (three phases)
 
-Every one has three phases (it changes at 66% and 33%, immune while it does) and mechanics no other boss shares; each phase also has its own pressure layer firing under its main attacks. The hardest three (Glacius, the Grand Orrery, the Forgeheart Colossus) end with a finale you can only dodge. Spawn any of them beside you with `/bx ID`.
+Every one has three phases (it changes at 66% and 33%, immune while it does) and mechanics no other boss shares; each phase also has its own pressure layer firing under its main attacks. The hardest three (Glacius, the Grand Orrery, the Forgeheart Colossus) end with a finale you can only dodge. Spawn any of them beside you with `/spawn ID` (or `/bx ID`). The Grand Orrery has a second survival, **Supernova**, at 4%. `/give dungeon ID` gives the whole loot set of a dungeon.
 
 | Id | Name | Where | Life | Phases | Finale | Fight it | Legendary (phase-3 kill) |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -122,7 +123,7 @@ Every one has three phases (it changes at 66% and 33%, immune while it does) and
 | `thornheart_treant` | The Thornheart Treant | realm event, the Thornwood | 30,000 | Ancient → Autumn → Withered | - | `/treant` | `blight_heart` (1.5%) |
 | `glacius_frozen_wyrm` | Glacius, the Frozen Wyrm | dungeon: frostveil | 300,000 | Coiled Hoard → Unfurled → Shattered Heart | **Absolute Zero** at 12%: survive 10s, then it's broken (+50% damage taken) | `/tp frostveil` | `aurora_heart` (2%) |
 | `mother_mycelia` | Mother Mycelia | dungeon: mirerot | 95,000 | Bloom → Rot → Sporestorm | - | `/tp mirerot` | `glowcap_crown` (2%) |
-| `grand_orrery` | The Grand Orrery | dungeon: astral | 400,000 | Aligned → Eclipse → Collapse | **Singularity** at 12%: survive 17.5s, then it's broken (+50% damage taken) | `/tp astral` | `event_horizon` (2%) |
+| `grand_orrery` | The Grand Orrery | dungeon: astral | 400,000 | Aligned → Eclipse → Collapse | **Singularity** at 12%: survive 36s, then it's broken (+50% damage taken) | `/tp astral` | `event_horizon` (2%) |
 | `gilded_sphinx` | The Gilded Sphinx | dungeon: sandscour | 85,000 | Guardian → Ascendant → Sandstorm Pharaoh | - | `/tp sandscour` | `pharaohs_deathmask` (2%) |
 | `count_vesper` | Count Vesper, the Crimson Count | dungeon: keep | 200,000 | Nobleman → Batstorm → Blood Beast | - | `/tp keep` | `nightfall_scythe` (2%) |
 | `grinning_ringmaster` | The Grinning Ringmaster | dungeon: hollowmoon | 240,000 | Showman → Puppeteer → Big Top | - | `/tp hollowmoon` | `grinning_mask` (2%) |
@@ -133,7 +134,7 @@ Every one has three phases (it changes at 66% and 33%, immune while it does) and
 - **The Thornheart Treant**: Seeds that mark the ground and burst; burning leaves that sway down; acorn bombs; thorn walls closing from both sides; wisps from the trees. Relics: `heartwood_bow` (12%), `seed_of_renewal` (12%).
 - **Glacius, the Frozen Wyrm**: A sweeping breath; lances that freeze the ground; drifting orbs; a gust that slides you; a glide that leaves a fence of lances; spiral-gap rings; braziers it puts out. Relics: `glacial_fang` (10%), `rimeheart_bow` (10%), `wand_of_hoarfrost` (10%), `frostweave_armor` (10%), `ring_of_the_wyrm` (10%).
 - **Mother Mycelia**: Spore clouds that hang; poison needles; acid pools; a lunge and bite; seeds that sprout minions unless shot; orbs that curl outward. Relics: `bog_cleaver` (10%), `sporecaller_wand` (10%), `mycelial_hide` (10%), `ring_of_rot` (10%), `spore_bomb` (10%).
-- **The Grand Orrery**: An eclipse all fight long that burns, lunges and flares; meridian fans, precessing rings, spirals, meteors, orbits; black holes with accretion disks; finale: a singularity, then a supernova. Relics: `starforged_katana` (10%), `comet_bow` (10%), `nebula_robe` (10%), `astral_signet` (10%), `orrery_orb` (10%).
+- **The Grand Orrery**: Eclipse transits that burn, lunge and flare; meridian fans, precessing rings, spirals, meteors on red circles, orbits; small singularities with accretion disks and infall. Finale at 12%: Singularity (it swallows, collapses, goes nova). Second survival at 4%: Supernova in the dark. Relics: `starforged_katana` (10%), `comet_bow` (10%), `nebula_robe` (10%), `astral_signet` (10%), `orrery_orb` (10%).
 - **The Gilded Sphinx**: Crossing crescent fans; riddle glyphs that hang then dart; pinwheel sunbursts; feather fans that narrow to a spear; the sandstorm; dust devils that throw you; scarabs. Relics: `sunscorch_khopesh` (10%), `gilded_scepter` (10%), `embalmers_wraps` (10%), `scarab_ring` (10%), `sphinx_helm` (10%).
 - **Count Vesper, the Crimson Count**: Healing thralls that burn in candlelight; a hedge of thorns; weaving bat fans; scythes that wheel back; an afterimage dash; blood rain that pools. Relics: `crimson_rapier` (10%), `bloodthorn_staff` (10%), `batwing_bow` (10%), `sanguine_cloak` (10%), `signet_of_the_count` (10%), `crimson_chalice` (10%).
 - **The Grinning Ringmaster**: Drum leaps that ring out bursts; two jester marionettes he re-strings; arcing pins; needle lines; the tent with lantern-eye weak points; confetti bombs. Relics: `ringmaster_cane` (10%), `jugglers_dagger` (10%), `carousel_bow` (10%), `harlequin_garb` (10%), `ring_of_the_jester` (10%), `trick_deck` (10%).
@@ -186,22 +187,22 @@ Ten items, each dropped only by its boss's phase-3 kill. Pale-gold slot, tag **L
 
 | Id | Name | Where | Life | How to summon |
 | --- | --- | --- | --- | --- |
-| `brine_cathedral` | The Brine Cathedral | shore | 28,000 | /boss brine_cathedral |
-| `wick_mother` | The Wick-Mother | fen | 60,000 | /boss wick_mother |
-| `orrery_of_winter` | The Rime Astrolabe | runeholt | 104,000 | /boss orrery_of_winter |
-| `penitent_colossus` | The Penitent Colossus | godfall | 168,000 | /boss penitent_colossus |
-| `emily_the_yapper` | Emily, the Yapper | runeholt | 80,000 | /boss emily_the_yapper (or /boss emily) |
-| `the_fallen_star` | The Fallen Star | godfall | 240,000 | /boss the_fallen_star |
-| `drowned_abbot` | The Drowned Abbot | dungeon: chapel | 64,000 | /boss drowned_abbot |
-| `fallen_heart` | The Fallen Heart | dungeon: heart | 400,000 | /boss fallen_heart |
-| `the_archivist` | The Archivist | dungeon: scriptorium | 136,000 | /tp scriptorium |
-| `the_unstruck_god` | The Unstruck God | dungeon: throne | 720,000 | /tp throne |
-| `tidebound_lich` | The Tidebound Lich | dungeon: crypt | 160,000 | /tp crypt |
-| `forgeheart_colossus` | The Forgeheart Colossus | dungeon: ember | 550,000 | /tp ember |
-| `honey_queen` | Queen Melliflua, the Honeyed Mother | dungeon: hive | 52,000 | /tp hive |
-| `the_puppeteer` | Maestro Lucan, the Puppeteer | dungeon: theatre | 140,000 | /tp theatre |
-| `prism_wyrm` | Aurelia, the Prism Wyrm | dungeon: spire | 380,000 | /tp spire |
-| `the_sleeper` | The Sleeper, Who Dreams the Realm | dungeon: dream | 520,000 | /tp dream |
+| `brine_cathedral` | The Brine Cathedral | shore | 28,000 | /spawn brine_cathedral |
+| `wick_mother` | The Wick-Mother | fen | 60,000 | /spawn wick_mother |
+| `orrery_of_winter` | The Rime Astrolabe | runeholt | 104,000 | /spawn orrery_of_winter |
+| `penitent_colossus` | The Penitent Colossus | godfall | 168,000 | /spawn penitent_colossus |
+| `emily_the_yapper` | Emily, the Yapper | runeholt | 80,000 | /spawn emily_the_yapper (or /boss emily) |
+| `the_fallen_star` | The Fallen Star | godfall | 240,000 | /spawn the_fallen_star |
+| `drowned_abbot` | The Drowned Abbot | dungeon: chapel | 64,000 | /spawn drowned_abbot (or its dungeon: /tp chapel) |
+| `fallen_heart` | The Fallen Heart | dungeon: heart | 400,000 | /spawn fallen_heart (or its dungeon: /tp heart) |
+| `the_archivist` | The Archivist | dungeon: scriptorium | 136,000 | /spawn the_archivist (or its dungeon: /tp scriptorium) |
+| `the_unstruck_god` | The Unstruck God | dungeon: throne | 720,000 | /spawn the_unstruck_god (or its dungeon: /tp throne) |
+| `tidebound_lich` | The Tidebound Lich | dungeon: crypt | 160,000 | /spawn tidebound_lich (or its dungeon: /tp crypt) |
+| `forgeheart_colossus` | The Forgeheart Colossus | dungeon: ember | 550,000 | /spawn forgeheart_colossus (or its dungeon: /tp ember) |
+| `honey_queen` | Queen Melliflua, the Honeyed Mother | dungeon: hive | 52,000 | /spawn honey_queen (or its dungeon: /tp hive) |
+| `the_puppeteer` | Maestro Lucan, the Puppeteer | dungeon: theatre | 140,000 | /spawn the_puppeteer (or its dungeon: /tp theatre) |
+| `prism_wyrm` | Aurelia, the Prism Wyrm | dungeon: spire | 380,000 | /spawn prism_wyrm (or its dungeon: /tp spire) |
+| `the_sleeper` | The Sleeper, Who Dreams the Realm | dungeon: dream | 520,000 | /spawn the_sleeper (or its dungeon: /tp dream) |
 | `unstruck` | The Unstruck | dungeon: forge | 168,000 | /boss unstruck |
 
 The Crypt's Lich and the Emberforge's Colossus now fight on the three-phase framework (see Realm Update bosses); their old entries above are kept for reference.

@@ -258,3 +258,11 @@
   as big as meteors are now a little under a tile.
 - Orbiting companions (the crown's motes and every other) are about two-thirds of a tile; item black holes about a
   tile and a half.
+
+- Fixed: a dragged item's icon could stay stuck on screen (a lost release, a second press mid-drag, or a slot
+  hidden by another tab). A drag now always cleans up after itself.
+- The trophy statues of the great foes you have beaten stand in your vault now (it is bigger, 27x16, with a pedestal
+  round the walls for each), not in the Nexus.
+- Admin: `/spawn ID` takes any monster, elite or boss (realm, dungeon or three-phase); `/give dungeon ID` gives a
+  dungeon boss's whole loot set; `/bosses` lists every boss. ADMIN_REFERENCE.md regenerated with all of it (every
+  item, enemy and boss; all 232 spawn ids and 505 item ids checked to work).

@@ -3256,7 +3256,7 @@ export class Game {
   }
   trophy(id) {
     const t = this.save.trophies || (this.save.trophies = []);
-    if (!t.includes(id)) { t.push(id); this.toast('A new statue will stand in the Nexus trophy hall.'); this.persist(); }
+    if (!t.includes(id)) { t.push(id); this.toast('A new statue will stand in your vault.'); this.persist(); }
   }
   killBoss() {
     const B = this.boss;
@@ -3904,7 +3904,7 @@ export class Game {
     const n = (v, dflt) => (v === undefined || isNaN(+v) ? dflt : +v);
     switch ((cmd || '').toLowerCase()) {
       case 'help':
-        say('/admin  /backpack  /maxlevel  /level N  /maxstats  /heal  /god  /give ITEM [N]  /items TEXT  /spawn ENEMY [N]  /boss ID  ' +
+        say('/admin  /backpack  /maxlevel  /level N  /maxstats  /heal  /god  /give ITEM [N]  /give dungeon ID (its whole loot set)  /items TEXT  /spawn ID [N] (any monster, elite or boss)  /boss ID  ' +
             '/bx BOSS (a three-phase boss beside you)  /kraken  /treant  /melon  /event BIOME  /adminchest [N] (best loot)  /keys [dungeon N] (dungeon keys)  /pet [kind rarity max]  /star (a falling star in Godfall)  /seals (open a dungeon boss gate)  /progress BIOME N  /gold N  /essence N  /bosses  /tp LAND|nexus|realm|DUNGEON (lands: shore fen runeholt godfall dunes thornwood steppe lowlands)  /killall  /clearbags  /fame N  /portal DUNGEON  (all ids: ADMIN_REFERENCE.md; final boss: /portal throne)');
         break;
       case 'maxlevel': {
@@ -3940,6 +3940,14 @@ export class Game {
         say(hits.length ? hits.map((it) => it.id).join(', ') : 'No matching items.'); break;
       }
       case 'give': {
+        if ((args[0] || '').toLowerCase() === 'dungeon') {        // /give dungeon ID: every item its boss can drop
+          const D = DUNGEONS[(args[1] || '').toLowerCase()], B = D && (BX[D.boss] || DUNGEON_BOSSES[D.boss] || (D.boss === 'unstruck' ? BOSS : null));
+          if (!B) { say(`Dungeons: ${Object.keys(DUNGEONS).join(', ')}`); break; }
+          const ids = [...new Set((B.loot || []).filter((l) => l.id && ITEMS[l.id] && !/^(pot_|stat_)/.test(l.id)).map((l) => l.id))], left = [];
+          for (const id of ids) { const f = p.inv.indexOf(null); if (f >= 0) p.inv[f] = id; else left.push(id); }
+          if (left.length) this.addBag(p.x, p.y + 0.4, left);
+          this.events.push({ type: 'ground' }); say(`Gave ${ids.length} items from ${D.name}.`); break;
+        }
         const q = (args[0] || '').toLowerCase();
         const it = ITEMS[q] || Object.values(ITEMS).find((x) => x.name.toLowerCase().replace(/[^a-z0-9]/g, '').includes(q.replace(/[^a-z0-9]/g, '')));
         if (!it) { say(`No item "${q}". Try /items ${q}`); break; }
@@ -3949,10 +3957,13 @@ export class Game {
         if (left.length) this.addBag(p.x, p.y + 0.4, left);
         this.events.push({ type: 'ground' }); say(`Gave ${ids.length} × ${it.name}.`); break;
       }
-      case 'spawn': {
+      case 'spawn': {                                     // any monster, elite or boss by id (the Unstruck: /boss unstruck)
         const id = args[0];
-        if (REALM_BOSSES[id]) { this.spawnRealmBoss(id, near(6)); break; }
-        if (!ENEMIES[id]) { say(`Unknown enemy. Try: ${Object.keys(ENEMIES).join(', ')}`); break; }
+        if (BX[id]) { const e = this.spawnRealmBoss(id, near(7), bxEnemyDef(id)); if (e) say(`${e.D.name} (${e.D.hp} life).`); break; }
+        if (REALM_BOSSES[id]) { this.spawnRealmBoss(id, near(6)); say(`Spawned ${REALM_BOSSES[id].name}.`); break; }
+        if (DUNGEON_BOSSES[id]) { const e = this.spawnRealmBoss(id, near(6), DUNGEON_BOSSES[id]); if (e) say(`Spawned ${e.D.name}.`); break; }
+        if (id === 'unstruck') { say('The Unstruck lives only in its forge: /boss unstruck.'); break; }
+        if (!ENEMIES[id]) { say(`Unknown id. Monsters, elites and bosses: see ADMIN_REFERENCE.md (or /bosses).`); break; }
         for (let k = 0; k < Math.min(30, n(args[1], 1)); k++) {
           const at = near(3 + (k % 4)), e = this.addEnemy(id, at.x, at.y);
           if (e.D.children) { e.kids = []; e.childT = e.D.every; for (let j = 0; j < 3; j++) this.spawnChild(e); }
@@ -3967,7 +3978,7 @@ export class Game {
         if (this.map.kind !== 'realm') { say('Realm bosses only spawn in the realm. /tp realm first.'); break; }
         this.spawnRealmBoss(id, near(6)); break;
       }
-      case 'bosses': say(`${Object.keys(REALM_BOSSES).join(', ')}, unstruck`); break;
+      case 'bosses': say(`Realm: ${Object.keys(REALM_BOSSES).join(', ')} | Dungeon: ${Object.keys(DUNGEON_BOSSES).join(', ')}, unstruck | Three-phase: ${Object.keys(BX).join(', ')} (all work with /spawn)`); break;
       case 'seals': {
         if (this.map.kind !== 'dungeon' || !this.map.sealsLeft) { say('No seals here.'); break; }
         while (this.map.sealsLeft) this.breakSeal('By admin decree.');
