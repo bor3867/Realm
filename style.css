@@ -649,3 +649,55 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #panel #ground:not(.vault) .slot { width: var(--slotw, 66px) !important; height: var(--slotw, 66px) !important; border-width: 3px !important; }
 #panel #ground:not(.vault) .slot .ico { width: calc(var(--slotw, 66px) * 0.74) !important; height: calc(var(--slotw, 66px) * 0.74) !important; }
 #panel #ground:not(.vault) .slot .tier { font-size: inherit !important; }
+
+/* ---- the loading card shown while a portal makes the next place */
+#loadcard { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: #07060b; transition: opacity .35s; }
+#loadcard.off { opacity: 0; pointer-events: none; }
+#loadcard .lbox { text-align: center; color: #d8d0e4; }
+#loadcard small { letter-spacing: .2em; text-transform: uppercase; color: #8a8496; font-size: 12px; }
+#loadcard h2 { margin: 6px 0 8px; font-size: 34px; color: #ffe89a; text-shadow: 2px 2px 0 #000; }
+#loadcard .lstars { font-size: 20px; color: #ff8a3a; letter-spacing: 3px; }
+#loadcard .lstars i { color: #3a3446; font-style: normal; }
+#loadcard .lstars.safe { color: #7ad0a8; font-size: 15px; letter-spacing: .15em; text-transform: uppercase; }
+#loadcard p { margin: 10px 0 22px; color: #a8a2b4; font-size: 14px; }
+#loadcard .lspin { position: relative; width: 44px; height: 44px; margin: 0 auto; animation: lspin 1s steps(8) infinite; }
+#loadcard .lspin i { position: absolute; left: 19px; top: 0; width: 6px; height: 6px; background: #ffe89a; transform-origin: 3px 22px; }
+#loadcard .lspin i:nth-child(1) { transform: rotate(0deg); opacity: 0.2; }
+#loadcard .lspin i:nth-child(2) { transform: rotate(45deg); opacity: 0.3; }
+#loadcard .lspin i:nth-child(3) { transform: rotate(90deg); opacity: 0.4; }
+#loadcard .lspin i:nth-child(4) { transform: rotate(135deg); opacity: 0.5; }
+#loadcard .lspin i:nth-child(5) { transform: rotate(180deg); opacity: 0.6; }
+#loadcard .lspin i:nth-child(6) { transform: rotate(225deg); opacity: 0.7; }
+#loadcard .lspin i:nth-child(7) { transform: rotate(270deg); opacity: 0.8; }
+#loadcard .lspin i:nth-child(8) { transform: rotate(315deg); opacity: 0.9; }
+@keyframes lspin { to { transform: rotate(360deg); } }
+
+/* ==== THE HUD (RotMG-style). One fixed layout; it never resizes itself. Top to bottom: minimap, who you are, the
+   fame/XP, HP and MP bars, your four equipment slots, one box for Backpack | Stats | Pet (the backpack by default),
+   the potions, then a reserved place for a bag or a portal, then where you are. Short windows get one smaller
+   fixed size (by the window's height, not by what is on screen). ==== */
+#app #panel { --slot: 54px; --mini: 196px; gap: 7px !important; overflow: hidden !important; }
+@media (max-height: 760px) { #app #panel { --slot: 46px; --mini: 160px; } }
+@media (max-height: 660px) { #app #panel { --slot: 40px; --mini: 124px; } }
+#app #panel #miniwrap { flex: none !important; height: var(--mini) !important; }
+#app #panel #minimap { width: var(--mini) !important; height: var(--mini) !important; }
+#app #panel .slots:not(#pots) { grid-template-columns: repeat(4, var(--slot)) !important; gap: 6px !important; justify-content: center; width: auto !important; max-width: none !important; margin: 0 !important; }
+#app #panel .slots:not(#pots) .slot { width: var(--slot) !important; height: var(--slot) !important; }
+#app #panel .slots:not(#pots) .slot .ico { width: calc(var(--slot) * 0.74) !important; height: calc(var(--slot) * 0.74) !important; }
+#app #panel #ground.vault { grid-template-columns: repeat(8, 1fr) !important; }
+#app #panel #ground.vault .slot { width: auto !important; height: auto !important; }
+#app #panel #equip { margin-top: 2px !important; }
+#app #panel #stattabs { display: flex !important; margin: 0 0 -7px !important; }
+#app #panel #stattabs small { color: inherit; font-size: 11px; }
+#app #panel #tabbody { flex: none; height: calc(var(--slot) * 2 + 18px); background: var(--well, #17141e); border-radius: 0 0 6px 6px; padding: 6px 4px; overflow-y: auto; }
+#app #panel #tabbody #stats { background: transparent !important; padding: 2px 6px !important; }
+#app #panel[data-tab="inv"] #stats { display: none !important; }
+#app #panel:not([data-tab="inv"]) #inv { display: none !important; }
+#app #panel .potrow { display: flex !important; align-items: center; justify-content: center; gap: 10px; }
+#app #panel #pots.slots { grid-template-columns: repeat(2, calc(var(--slot) * 0.82)) !important; gap: 6px !important; margin: 0 !important; }
+#app #panel #pots .slot { width: calc(var(--slot) * 0.82) !important; height: calc(var(--slot) * 0.82) !important; }
+#app #panel #pots .slot .ico { width: calc(var(--slot) * 0.6) !important; height: calc(var(--slot) * 0.6) !important; }
+#app #panel #potkeys { color: var(--mut, #8a8496); font-size: 11px; }
+#app #panel #interact { flex: none; position: relative; height: calc(26px + var(--slot) * 2 + 6px); }
+#app #panel #interact > div { position: absolute; left: 0; right: 0; top: 0; }
+#app #panel #where { margin-top: auto !important; }

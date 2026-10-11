@@ -36,6 +36,7 @@ async function boot() {
   ui.sfx = sfx;
   ui.onSettingsChanged = () => { saveSettings(settings); fit(); sfx.setVolume(settings.volume, settings.muted); ui.keyLine(); };
   ui.keyLine();                                          // the hints show your own keys
+  game.onTravel = (where) => ui.travel(where);            // portals show a loading card while the next place is made
   for (const ev of ['pointerdown', 'keydown']) addEventListener(ev, () => sfx.unlock(), { once: false, passive: true });
   ui.miniLabel();
 
@@ -105,6 +106,7 @@ async function boot() {
       case 'viewIn': viewZoom(1); break;
       case 'viewOut': viewZoom(-1); break;
       case 'autofire': I.auto = !I.auto; game.toast(`Autofire ${I.auto ? 'on' : 'off'}`); break;
+      case 'lookAhead': settings.lookAhead = !settings.lookAhead; saveSettings(settings); game.toast(`Look ahead ${settings.lookAhead ? 'on' : 'off'}`); break;
       case 'resetCam': game.resetCam(); break;
       case 'snapCam': game.snapCam(); break;
       case 'miniIn': miniZoom(-1); break;
@@ -164,7 +166,7 @@ async function boot() {
   const frame = (now) => {
     const dt = Math.min(0.05, (now - last) / 1000);
     last = now;
-    if (game.mode === 'play' && !ui.settingsOpen && !ui.modal) {    // settings / shop / forge screens pause the game
+    if (game.mode === 'play' && !ui.settingsOpen && !ui.modal && !game.loading) {   // (and a portal's loading card)    // settings / shop / forge screens pause the game
       if (!I.scripted) {                                   // scripted = automated playtest drives aim
         const w = rnd.toWorld(mouse.x * (canvas.width / canvas.clientWidth), mouse.y * (canvas.height / canvas.clientHeight));
         I.aimX = w.x; I.aimY = w.y;

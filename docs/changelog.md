@@ -229,3 +229,17 @@
   bag is four by two, like the backpack.
 - The Grand Orrery's eclipse comes and goes (transits, marked first) instead of filling the screen all fight; the
   survival phase's strands all have openings. docs/design/boss_grand_orrery.md.
+
+## Clearer realm, a stronger halo, a loading card, look-ahead
+- The realm's walls of stone are gone: no more highland crags (long one-tile ledges), thickets are small clumps,
+  low ruin walls (fewer of them) and whale ribs are walkable, half the rune pillars. Realm bosses pass over rocks,
+  trees and thickets, so they never get stuck.
+- The priest's halo: a narrower pillar that falls at once (0.15 s) and strikes everything under it for 2.8x its
+  damage, then burns briefly.
+- Portals show a loading card (where you're going, its danger, a spinner) while the next place is made.
+- Look ahead (H, rebindable; a setting): the camera puts you near the bottom of the screen to see further ahead.
+
+## The HUD, fixed
+- One fixed RotMG-style layout that never resizes itself: minimap, you, the bars, your equipment, one box for
+  Backpack | Stats | Pet (the backpack by default), the potions, a reserved place for a bag (4x2) or a portal, then
+  where you are. Short windows get one smaller fixed size. (ui.fitPanel no longer does anything.)

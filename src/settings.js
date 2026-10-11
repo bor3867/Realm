@@ -5,7 +5,7 @@ export const ACTIONS = [
   ['up', 'Move up'], ['down', 'Move down'], ['left', 'Move left'], ['right', 'Move right'],
   ['ability', 'Use ability'], ['potion1', 'Drink from potion slot 1'], ['potion2', 'Drink from potion slot 2'], ['lootAll', 'Take everything from a bag'], ['autofire', 'Toggle autofire'], ['portal', 'Enter portal'], ['nexus', 'Escape to Nexus'],
   ['rotL', 'Rotate camera left'], ['rotR', 'Rotate camera right'], ['resetCam', 'Reset camera upright'],
-  ['snapCam', 'Snap camera to nearest 90°'], ['viewIn', 'Zoom view in'], ['viewOut', 'Zoom view out'], ['miniIn', 'Minimap zoom in'], ['miniOut', 'Minimap zoom out'],
+  ['snapCam', 'Snap camera to nearest 90°'], ['lookAhead', 'Look ahead (you near the bottom of the screen)'], ['viewIn', 'Zoom view in'], ['viewOut', 'Zoom view out'], ['miniIn', 'Minimap zoom in'], ['miniOut', 'Minimap zoom out'],
   ['chat', 'Open chat'], ['command', 'Type a command (/)'], ['settings', 'Open settings'],
 ];
 
@@ -13,7 +13,7 @@ export const DEFAULTS = {
   binds: {
     up: ['KeyW', 'ArrowUp'], down: ['KeyS', 'ArrowDown'], left: ['KeyA', 'ArrowLeft'], right: ['KeyD', 'ArrowRight'],
     ability: ['Space'], potion1: ['KeyC'], potion2: ['KeyV'], lootAll: ['KeyG'], autofire: ['KeyT'], portal: ['KeyF'], nexus: ['KeyR'], chat: ['Enter'], command: ['Slash'],
-    rotL: ['KeyQ'], rotR: ['KeyE'], resetCam: ['KeyZ'], snapCam: ['KeyX'], viewIn: ['BracketRight'], viewOut: ['BracketLeft'],
+    rotL: ['KeyQ'], rotR: ['KeyE'], resetCam: ['KeyZ'], snapCam: ['KeyX'], lookAhead: ['KeyH'], viewIn: ['BracketRight'], viewOut: ['BracketLeft'],
     miniIn: ['Equal', 'NumpadAdd'], miniOut: ['Minus', 'NumpadSubtract'], settings: ['Escape'],
   },
   rotSpeed: 1.9,          // radians / second
@@ -26,6 +26,7 @@ export const DEFAULTS = {
   vignette: false,        // RotMG has no vignette: off by default, the edges stay clean
   groundLight: true,     // soft pools of light and shadow over the terrain
   damageNumbers: true,
+  lookAhead: false,       // the camera sits ahead of you: you near the bottom of the screen, more of what is in front
   volume: 0.5,
   muted: false,
 };

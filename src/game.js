@@ -1019,11 +1019,12 @@ export class Game {
       if (mod === 'aftershock') anvil(at.x, at.y, 1.2);
     } else if (type === 'halo') {
       // JUDGMENT OF NOON: a pillar of light falls on the target and burns everything inside it
-      const at = tgt(8), r0 = 1.6 + (B.range - 5) * 0.25;
-      const beam = (x, y, r, k) => this.fx.push({ kind: 'beam', x, y, t: 0, life: 1.75, delay: 0.45, r, dmg: Math.round(B.dmg * 0.8 * mult * k),
+      // a narrower pillar that falls at once: one heavy strike on everything under it, then a short burn
+      const at = tgt(8), r0 = 1.15 + (B.range - 5) * 0.15;
+      const beam = (x, y, r, k) => this.fx.push({ kind: 'beam', x, y, t: 0, life: 1.35, delay: 0.15, r, dmg: Math.round(B.dmg * 0.7 * mult * k), strike: Math.round(B.dmg * 2.8 * mult * k),
         tick: 0, proj: B.proj, follow: mod === 'follow', devour: mod === 'devour', ignite: mod === 'ignite' ? Math.round(B.dmg * 0.4 * mult) : 0 });
       if (mod === 'prism3') for (let k = 0; k < 3; k++) beam(at.x + Math.cos(aim + k * TAU / 3) * 1.6, at.y + Math.sin(aim + k * TAU / 3) * 1.6, r0 * 0.75, 0.8);
-      else if (mod === 'eclipse') this.fx.push({ kind: 'beam', x: at.x, y: at.y, t: 0, life: 2.6, delay: 0.45, r: r0 * 1.5, dmg: Math.round(B.dmg * 0.9 * mult),
+      else if (mod === 'eclipse') this.fx.push({ kind: 'beam', x: at.x, y: at.y, t: 0, life: 2.6, delay: 0.2, r: r0 * 1.5, dmg: Math.round(B.dmg * 0.9 * mult), strike: Math.round(B.dmg * 2 * mult),
         tick: 0, proj: B.proj, follow: true, devour: true, ignite: Math.round(B.dmg * 0.4 * mult) });
       else beam(at.x, at.y, r0, 1);
       this.vx({ k: 'burst', x: cx0, y: cy0, n: 14, colors: ['#ffeb8f', '#fffdf0'] });
@@ -1166,6 +1167,11 @@ export class Game {
         this.vx({ k: 'burst', x: f.x, y: f.y, n: 30, colors: ['#ffffff', '#8af6ff', '#3bc8e8'] });
         this.fx.push({ kind: 'ring', x: f.x, y: f.y, t: 0, max: f.r + 0.4, color: '#8af6ff' });
         this.vx({ k: 'shake', amt: 3 });
+      }
+      if (f.kind === 'beam' && f.t >= f.delay && f.strike && !f.struck) {   // the moment it lands: the heavy blow
+        f.struck = true; f.tick = 0.25;
+        for (const e of this.enemiesIn(f.x, f.y, f.r)) this.damageEnemy(e, f.strike, e.x, e.y - 0.5);
+        this.vx({ k: 'burst', x: f.x, y: f.y, n: 24, colors: ['#ffffff', '#ffeb8f', '#f2c14e'] }); this.vx({ k: 'shake', amt: 2 });
       }
       if (f.kind === 'beam' && f.t >= f.delay) {
         if (f.follow) {                                 // The Last Noon: the pillar walks toward your cursor
@@ -1387,6 +1393,9 @@ export class Game {
     return false;
   }
   moveCircle(o, dx, dy, r) {
+    if (o.rb && this.map.kind === 'realm') {              // realm bosses pass over rocks, trees and thickets (RotMG-style): they never get stuck
+      const m = this.map; o.x = Math.max(2, Math.min(m.w - 2, o.x + dx)); o.y = Math.max(2, Math.min(m.h - 2, o.y + dy)); return;
+    }
     const m = this.map, nv = m.hasVoid && o !== this.player && !(o.D && o.D.fly) && !o.rb;      // walking monsters won't step into the void
     const vd = (x, y) => nv && m.tiles[Math.floor(y) * m.w + Math.floor(x)] === TID.asvoid;
     const free = (x, y) => !isSolid(m, x - r, y - r) && !isSolid(m, x + r, y - r) && !isSolid(m, x - r, y + r) && !isSolid(m, x + r, y + r) && !(nv && (vd(x - r, y - r) || vd(x + r, y - r) || vd(x - r, y + r) || vd(x + r, y + r)));
@@ -4056,10 +4065,23 @@ export class Game {
     if (!this.nearPortal) return;
     const pt = this.nearPortal;
     if (pt.life !== undefined) this.map.portals = this.map.portals.filter((x) => x !== pt);   // used portals close
-    this.enter(pt.to);
+    this.travel(pt.to);
   }
   toNexus() {
-    if (this.mode === 'play' && !this.player.dead && this.map.kind !== 'nexus') this.enter('nexus');
+    if (this.mode === 'play' && !this.player.dead && this.map.kind !== 'nexus') this.travel('nexus');
+  }
+  // going through a portal: the UI shows a loading card first (onTravel), then the map is made; headless, at once
+  travel(where) { if (this.onTravel) this.onTravel(where); else this.enter(where); }
+  // where a portal leads, for the loading card: its name, how dangerous it is (1-5), a line about it
+  destination(where) {
+    if (where === 'nexus') return { name: 'The Nexus', stars: 0, sub: 'Safe ground. Rest, trade, and stash your loot.' };
+    if (where === 'vault') return { name: 'Your Vault', stars: 0, sub: 'Everything you have kept, safe.' };
+    if (where === 'realm') return { name: 'The Realm', stars: -1, sub: 'The shore is gentle. The closer to the middle, the deadlier it gets.' };
+    const D = DUNGEONS[where];
+    if (!D) return { name: where, stars: 0, sub: '' };
+    const dg = { hive: 0.6, chapel: 0.7, crypt: 0.8, theatre: 0.82, forge: 0.9, ember: 0.95, spire: 0.97, dream: 1, heart: 1 }[where] || 0.85;
+    const boss = BX[D.boss] ? BX[D.boss].name : DUNGEON_BOSSES[D.boss] ? DUNGEON_BOSSES[D.boss].name : D.boss === 'unstruck' ? 'The Unstruck' : '';
+    return { name: D.name, stars: Math.max(1, Math.min(5, Math.round((dg - 0.45) * 8) + (D.mobHp > 1.5 ? 1 : 0))), sub: boss ? `Its master: ${boss}` : '' };
   }
 }
 installD4(Game);

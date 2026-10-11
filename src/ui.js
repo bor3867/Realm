@@ -477,9 +477,9 @@ export class UI {
     this.slots.inv.forEach((el, i) => el.classList.toggle('hidden', big ? (i >= 8) !== (pg === 1) : i >= 8));
     const ic = $('invcount');
     if (big) {
-      ic.innerHTML = `<span class="pg${pg ? '' : ' on'}" data-pg="0">1</span><span class="pg${pg ? ' on' : ''}" data-pg="1">2</span> (1–8 to use)`;
+      ic.innerHTML = `<span class="pg${pg ? '' : ' on'}" data-pg="0">1</span><span class="pg${pg ? ' on' : ''}" data-pg="1">2</span>`;
       ic.querySelectorAll('[data-pg]').forEach((s) => { s.onclick = () => { this.invPage = +s.dataset.pg; this.refreshSlots(); }; });
-    } else ic.textContent = '(1–8 to use)';
+    } else ic.textContent = '';
     const g = this.g;
     const show = g.nearVault || g.nearBag;
     $('groundwrap').classList.toggle('off', !show);
@@ -613,26 +613,8 @@ export class UI {
   // squeeze the side panel when a bag, a portal card and quests all want room at once (no scrolling, ever)
   // fit the side panel to the screen with no scrolling. Decided in one pass from the roomiest layout down, so the same
   // screen always lands on the same layout (nothing pulses): full size, then tight, then smaller slots, then stats aside.
-  fitPanel() {
-    const P = $('panel');
-    if (!P) return;
-    const over = () => P.scrollHeight > P.clientHeight + 1, now = performance.now();
-    if (!over() && now - (this.fitT || 0) < 1500) return;   // it fits: only look for spare room now and then
-    this.fitT = now;
-    P.classList.remove('tight', 'squeeze');
-    // the slots (equipment, backpack, potions, the bag) start as big as the width allows; when the panel runs out of
-    // height the slots give a little, then the minimap, then both. The Stats | Pet tabs and the stats never go.
-    const cs = getComputedStyle(P), inner = P.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-    let w = Math.min(70, Math.floor((inner - 18) / 4)), mini = Math.min(300, Math.floor(inner), Math.round(innerHeight * 0.27));
-    const set = () => { P.style.setProperty('--slotw', w + 'px'); P.style.setProperty('--mini', mini + 'px'); };
-    set();
-    while (over() && w > 54) { w -= 2; set(); }
-    while (over() && mini > 176) { mini -= 6; set(); }
-    while (over() && w > 48) { w -= 2; set(); }
-    if (over()) P.classList.add('tight');                   // the gaps close up, the key line steps aside
-    while (over() && mini > 130) { mini -= 6; set(); }
-    while (over() && w > 36) { w -= 2; set(); }
-  }
+  // the side panel has one fixed layout (style.css, the HUD block at the end): nothing resizes to fit any more
+  fitPanel() {}
 
   hideTip() { this.tip.classList.add('hidden'); this.bagTip = null; }
   // hover a loot bag lying in the world to see what's inside it, without walking over
@@ -644,6 +626,22 @@ export class UI {
       for (const b of g.bags) { const d = Math.hypot(b.x - w.x, b.y - 0.35 - w.y); if (d < bd) { bd = d; bag = b; } }
     }
     g.hoverBag = bag;
+  }
+  // the loading card: where you're going, how dangerous it is, a spinner. It is painted before the map is made, so
+  // the moment of making it is spent on this card instead of a frozen screen; it stays at least 0.7 s, then fades
+  travel(where) {
+    const g = this.g;
+    if (this.loading) return;
+    const D = g.destination(where), L = document.getElementById('loadcard') || document.body.appendChild(Object.assign(document.createElement('div'), { id: 'loadcard' }));
+    const stars = D.stars > 0 ? `<div class="lstars">${'★'.repeat(D.stars)}<i>${'★'.repeat(5 - D.stars)}</i></div>` : D.stars < 0 ? '<div class="lstars">★<i>★★★★</i> to ★★★★★</div>' : '<div class="lstars safe">Safe</div>';
+    L.innerHTML = `<div class="lbox"><small>Travelling to</small><h2>${D.name}</h2>${stars}<p>${D.sub}</p><div class="lspin">${'<i></i>'.repeat(8)}</div></div>`;
+    L.className = 'on'; this.loading = true; g.loading = true;
+    const t0 = performance.now();
+    requestAnimationFrame(() => requestAnimationFrame(() => {   // let the card paint, then do the heavy work
+      try { g.enter(where); } finally {
+        setTimeout(() => { L.className = 'off'; this.loading = false; g.loading = false; this.refreshSlots(); this.refreshPortal(); }, Math.max(0, 700 - (performance.now() - t0)));
+      }
+    }));
   }
   // the key hints round the panel name your own keys (and leave out an action with none)
   keyLine() {
@@ -745,8 +743,9 @@ export class UI {
       $('xpfill').parentElement.classList.remove('fame');
     }
     const tabs = $('stattabs');
-    if (tabs && !tabs.wired) { tabs.wired = true; tabs.querySelectorAll('button').forEach((b) => { b.onclick = () => { this.statTab = b.dataset.t; this.petKey = null; }; }); }
-    if (tabs) tabs.querySelectorAll('button').forEach((b) => b.classList.toggle('on', (this.statTab || 'stats') === b.dataset.t));
+    if (tabs && !tabs.wired) { tabs.wired = true; tabs.querySelectorAll('button').forEach((b) => { b.onclick = () => { this.statTab = b.dataset.t; this.petKey = null; $('panel').dataset.tab = b.dataset.t; }; }); }
+    if (tabs) tabs.querySelectorAll('button').forEach((b) => b.classList.toggle('on', (this.statTab || 'inv') === b.dataset.t));
+    $('panel').dataset.tab = this.statTab || 'inv';      // Backpack | Stats | Pet share one fixed box under the equipment
     if (this.statTab === 'pet') { this.petPanel(); $('where').textContent = g.where || ''; $('hfame').textContent = g.save.fame; $('hgold').textContent = g.save.gold || 0; $('hess').textContent = g.save.essence || 0; this.refreshSlots(); return; }
     $('stats').classList.remove('petview'); this.petKey = null;
     $('stats').innerHTML = STATS.slice(2).map((s) => {

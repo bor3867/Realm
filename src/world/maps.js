@@ -71,9 +71,10 @@ export function isSolid(m, x, y) {
   if (xi < 0 || yi < 0 || xi >= m.w || yi >= m.h) return true;
   return m.solid[yi * m.w + xi] === 1;
 }
+// (low ruin walls and whale ribs you step over: their rows walled players and realm bosses in)
 // only the big things stop you: trees, rocks, spires, pillars and walls, statues, the great furniture, gates. Chests,
 // crates, barrels, braziers, candles, fences, seats, signs, lamps, shrines and people you walk through, as in RotMG
-const BIG = /tree|palm|pine|oak|saguaro|giant_mushroom|rotting_log|boulder|rock|cairn|spire|crystal_cluster|ice_crystal|pillar|column|obelisk|wall|statue|whale_rib|fallen_head|bookshelf|furnace|well$|fountain|throne|sarcophag|coffin|gate|telescope|star_globe|high_striker|circus_cannon|rowboat|ticket_booth|stage_moon|great_lens|golem_husk|anvil_block|crucible|stump|gargoyle/;
+const BIG = /tree|palm|pine|oak|saguaro|giant_mushroom|rotting_log|boulder|rock|cairn|spire|crystal_cluster|ice_crystal|pillar|column|obelisk|(?<!ruin_)wall|statue|fallen_head|bookshelf|furnace|well$|fountain|throne|sarcophag|coffin|gate|telescope|star_globe|high_striker|circus_cannon|rowboat|ticket_booth|stage_moon|great_lens|golem_husk|anvil_block|crucible|stump|gargoyle/;
 export const blocks = (sprite) => BIG.test(sprite || '');
 function finalize(m) {
   for (let i = 0; i < m.tiles.length; i++) if (SOLID_TILES.has(m.tiles[i])) m.solid[i] = 1;
@@ -258,7 +259,7 @@ const DECOR_BIOME = [['shell', 'starfish', 'kelp', 'driftwood'], ['reeds', 'shro
   ['shell', 'driftwood', 'goldrubble', 'bonepile'], ['shrooms', 'skullmoss', 'reeds', 'bonepile'], ['icecrystal', 'runepebble', 'brokenshield', 'pillarstub'],
   ['reeds', 'shrooms', 'runepebble']];
 const LANDMARK_BIOME = ['whale_skull', 'hollow_oak', 'monolith', 'god_hand', 'whale_skull', 'hollow_oak', 'monolith', 'hollow_oak'];
-const OB = [['whale_rib', 0.006], ['dead_tree', 0.01], ['rune_pillar', 0.008], ['fallen_head', 0.006],
+const OB = [['whale_rib', 0.006], ['dead_tree', 0.01], ['rune_pillar', 0.004], ['fallen_head', 0.006],
   ['glass_spire', 0.008], ['thorn_tree', 0.03], ['crystal_spire', 0.01], ['dead_tree', 0.004]];
 // standing things per land: [sprite, chance per tile, solid, where]. Registry keys (with a '/') are the Realm
 // Update's objects; the rest are the old ones, kept in the mix. 'where' gathers them: grove (slow noise woods, with
@@ -269,7 +270,7 @@ const STAND = [
   [[OW + 'shore_palm_tree', 0.05, true, 'grove'], [OW + 'shore_seashells', 0.004, false], [OW + 'shore_driftwood', 0.003, false], [OW + 'shore_tide_pool', 0.05, false, 'wet'], ['whale_rib', 0.003, true]],
   [['dead_tree', 0.01, true]],
   [[OW + 'highlands_boulder', 0.06, true, 'cliff'], [OW + 'highlands_rock_spire', 0.025, true, 'cliff'], [OW + 'highlands_dead_tree', 0.003, true, 'rock'],
-    [OW + 'highlands_heather_bush', 0.012, false, 'rock'], ['rune_pillar', 0.006, true]],
+    [OW + 'highlands_heather_bush', 0.012, false, 'rock'], ['rune_pillar', 0.003, true]],
   [[OW + 'godlands_rift_crystal', 0.1, false, 'rift'], [OW + 'godlands_corrupted_obelisk', 0.0025, true], [OW + 'godlands_bone_pile', 0.007, false],
     [OW + 'godlands_broken_pillar', 0.003, true], ['fallen_head', 0.004, true]],
   [['glass_spire', 0.008, true]],
@@ -344,7 +345,7 @@ export function realm(seed) {
     const pv = patch(x, y);
     if (b === 4) t = v < 0.2 ? TID.glassflat : TID.dune;
     if (b === 5) {                                                                   // the Thornwood: forest floor and leaf litter
-      t = v > 0.68 ? TID.bramble : v < 0.16 ? TID.bog : TID.loam;
+      t = v > 0.8 ? TID.bramble : v < 0.16 ? TID.bog : TID.loam;                   // thickets: small clumps, not hedges
       if (t === TID.loam) sk = v > 0.64 ? SK.mossy_stone : pv > 0.55 ? SK.leaf_litter : SK.forest_floor;   // moss rims the briars
       if (Math.abs(n4(x / (22 * RK) + 40, y / (22 * RK) - 40) - 0.5) < 0.006 && t !== TID.bog) { t = TID.shallows; sk = SK.stream; }   // brooks
     }
@@ -372,7 +373,7 @@ export function realm(seed) {
         else { t = TID.snow; sk = SK.snowcap; }
       }
       if (v < 0.26) { t = TID.ice; sk = 0; }                                         // frozen lakes: you slide
-      else if (v > 0.45 && v < 0.6 && n3(x / 9 - 200, y / 1.3 + 90) > 0.72 && m.tiles[idx(m, x, y - 1)] !== TID.cliff) { t = TID.cliff; sk = SK.cliff_top; }   // crags: long one-tile ledges you go round
+      // (no crags: their long one-tile ledges walled players and bosses in)
     }
     if (b === 3) {
       if (t === TID.obsidian && v <= 0.68) t = TID.ash;                             // ash plains, a few slabs of blood rock
@@ -525,10 +526,10 @@ export function realm(seed) {
       for (let y = ry - 1; y <= ry + H && ok; y++) for (let x = rx - 1; x <= rx + W && ok; x++) if (m.biome[idx(m, x, y)] !== b || !plain(x, y) || isRoad(x, y)) ok = false;
       if (!ok) continue;
       for (let x = rx; x < rx + W; x++) {
-        if (r.chance(0.8)) put(m, x % 2 ? 'ruin_wall' : 'ruin_wall2', x, ry);
-        if (x - rx !== door && x - rx !== door + 1 && r.chance(0.8)) put(m, x % 2 ? 'ruin_wall2' : 'ruin_wall', x, ry + H);
+        if (r.chance(0.45)) put(m, x % 2 ? 'ruin_wall' : 'ruin_wall2', x, ry);
+        if (x - rx !== door && x - rx !== door + 1 && r.chance(0.45)) put(m, x % 2 ? 'ruin_wall2' : 'ruin_wall', x, ry + H);
       }
-      for (let y = ry + 1; y < ry + H; y++) { if (r.chance(0.75)) put(m, 'ruin_wall', rx, y); if (r.chance(0.75)) put(m, 'ruin_wall2', rx + W - 1, y); }
+      for (let y = ry + 1; y < ry + H; y++) { if (r.chance(0.4)) put(m, 'ruin_wall', rx, y); if (r.chance(0.4)) put(m, 'ruin_wall2', rx + W - 1, y); }
       for (let y = ry + 1; y < ry + H; y++) for (let x = rx + 1; x < rx + W - 1; x++) { m.tiles[idx(m, x, y)] = BIOME_RING[b] === 3 ? TID.obsidian : TID.runefloor; m.skin[idx(m, x, y)] = 0; }
       put(m, 'chest', rx + Math.floor(W / 2), ry + Math.floor(H / 2), true, { interact: 'chest', loot: BIOMES[b] });
       put(m, 'brazier', rx + 1, ry + 1);

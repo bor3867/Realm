@@ -12,6 +12,7 @@ import { outlinedFrame } from './outline.js';
 import { keyHint } from './settings.js';
 
 const TS = 16;
+const LOOK = 0.27;                                       // how far down the screen look-ahead puts you
 // the Grand Orrery's pink bolts are drawn as lasers; its yellow shards and rings hold still (their flicker was too much)
 const LASER = { 'bx_shots/grand_orrery.star_bolt': ['#d02ab8', '#ff8af0'] };
 const STILL = new Set(['bx_shots/grand_orrery.brass_shard', 'bx_shots/grand_orrery.eclipse_ring', 'bx_shots/grand_orrery.corona_flare', 'bx_shots/grand_orrery.moon_shard']);
@@ -91,7 +92,7 @@ export class Renderer {
     this.buf.width = Math.max(1, Math.floor(w / s)); this.buf.height = Math.max(1, Math.floor(h / s));
     this.c.width = Math.round(this.buf.width * s); this.c.height = Math.round(this.buf.height * s);
     this.hi.width = this.c.width; this.hi.height = this.c.height;
-    const G = Math.ceil(Math.hypot(this.buf.width, this.buf.height) / 2) * 2 + 48;
+    const G = Math.ceil(Math.hypot(this.buf.width, this.buf.height * (1 + 2 * LOOK)) / 2) * 2 + 48;   // room for the look-ahead offset
     this.ground.width = this.ground.height = G;
     for (const x of [this.b, this.ctx, this.gctx]) x.imageSmoothingEnabled = false;
     this.U = Math.max(1, Math.round(s));                         // sprites are baked at this many screen px per buffer px
@@ -102,7 +103,9 @@ export class Renderer {
     const p = g.player;
     this.th = g.camAngle; this.cs = Math.cos(this.th); this.sn = Math.sin(this.th);
     this.px = p.x; this.py = p.y;
-    this.cx = Math.floor(this.buf.width / 2); this.cy = Math.floor(this.buf.height / 2) + 5;
+    // look ahead (a setting, toggled by a key): you sit near the bottom of the screen, so you see further in front
+    this.look = (this.look || 0) + ((this.settings && this.settings.lookAhead ? 1 : 0) - (this.look || 0)) * 0.12;
+    this.cx = Math.floor(this.buf.width / 2); this.cy = Math.floor(this.buf.height / 2) + 5 + Math.round(this.look * this.buf.height * LOOK);
   }
   proj(x, y) {
     const dx = (x - this.px) * TS, dy = (y - this.py) * TS;
