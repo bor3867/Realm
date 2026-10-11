@@ -266,3 +266,14 @@
 - Admin: `/spawn ID` takes any monster, elite or boss (realm, dungeon or three-phase); `/give dungeon ID` gives a
   dungeon boss's whole loot set; `/bosses` lists every boss. ADMIN_REFERENCE.md regenerated with all of it (every
   item, enemy and boss; all 232 spawn ids and 505 item ids checked to work).
+
+## The Supernova, from its own art
+- The Grand Orrery's last survival uses realm_astral_supernova (art/bundle/orrery_supernova): the Event Horizon (its
+  p3_to_p4 transformation over 3 s: the pull, the void creeping in from the walls, the floor's debris spiralling in,
+  black, a detonation that throws you out), then the Orrery reborn as a supernova cycling Spiral Storm, Planetfall,
+  Comet Wheel and Gamma Burst with its ten new shots, a shock ring ending each cycle. The dark is drawn over
+  everything: a pool of light round you that fades at its edge, the star burning through, shots dim out in the dark.
+- The first survival: openings back to a squeeze (two shots in ten), plus a tidal pulse with one narrow opening and
+  lasers across the floor from its rim; the boss takes the middle of its floor so every spiral comes from it.
+- Shots come from the middle of a boss as drawn, whatever the camera's turn (they could start beside it).
+- Every three-phase boss changes phase more slowly (its morph clip at 0.55 speed, then 2.4 s before it attacks).

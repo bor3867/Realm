@@ -1,0 +1,957 @@
+{
+ "meta": {
+  "name": "Grand Orrery - Phase 4: Supernova",
+  "version": 1,
+  "x5_scale": 5,
+  "notes": "Phase 4 frames are 48x48; draw them centred on the boss (base_offset [-6, -6] relative to the 36x36 phases). Shots point right. void_creep is a flat floor overlay (not outlined)."
+ },
+ "phase": {
+  "4": {
+   "name": "Supernova",
+   "enter": "p3_to_p4",
+   "idle": "p4_idle",
+   "attack": "p4_attack",
+   "death": "p4_death",
+   "trigger": "Collapse phase below 25% HP",
+   "base_offset": [
+    -6,
+    -6
+   ],
+   "size": [
+    48,
+    48
+   ]
+  }
+ },
+ "clips": {
+  "p3_to_p4": {
+   "frames": [
+    "p3_to_p4_0",
+    "p3_to_p4_1",
+    "p3_to_p4_2",
+    "p3_to_p4_3",
+    "p3_to_p4_4",
+    "p3_to_p4_5",
+    "p3_to_p4_6",
+    "p3_to_p4_7",
+    "p3_to_p4_8",
+    "p3_to_p4_9",
+    "p3_to_p4_10",
+    "p3_to_p4_11"
+   ],
+   "fps": 6,
+   "loop": false
+  },
+  "p4_idle": {
+   "frames": [
+    "p4_idle_0",
+    "p4_idle_1",
+    "p4_idle_2",
+    "p4_idle_3",
+    "p4_idle_4",
+    "p4_idle_5"
+   ],
+   "fps": 7,
+   "loop": true
+  },
+  "p4_attack": {
+   "frames": [
+    "p4_attack_0",
+    "p4_attack_1",
+    "p4_attack_2"
+   ],
+   "fps": 8,
+   "loop": false
+  },
+  "p4_death": {
+   "frames": [
+    "p4_death_0",
+    "p4_death_1",
+    "p4_death_2",
+    "p4_death_3",
+    "p4_death_4",
+    "p4_death_5"
+   ],
+   "fps": 6,
+   "loop": false
+  }
+ },
+ "boss": {
+  "native": "supernova/native/bx_orrery_supernova.png",
+  "x5": "supernova/x5/bx_orrery_supernova.png",
+  "frames": {
+   "p3_to_p4": {
+    "p3_to_p4_0": {
+     "native": {
+      "x": 1,
+      "y": 1,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 2,
+      "y": 2,
+      "w": 242,
+      "h": 242
+     }
+    },
+    "p3_to_p4_1": {
+     "native": {
+      "x": 50,
+      "y": 1,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 246,
+      "y": 2,
+      "w": 242,
+      "h": 242
+     }
+    },
+    "p3_to_p4_2": {
+     "native": {
+      "x": 99,
+      "y": 1,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 490,
+      "y": 2,
+      "w": 242,
+      "h": 242
+     }
+    },
+    "p3_to_p4_3": {
+     "native": {
+      "x": 148,
+      "y": 1,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 734,
+      "y": 2,
+      "w": 242,
+      "h": 242
+     }
+    },
+    "p3_to_p4_4": {
+     "native": {
+      "x": 197,
+      "y": 1,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 978,
+      "y": 2,
+      "w": 242,
+      "h": 242
+     }
+    },
+    "p3_to_p4_5": {
+     "native": {
+      "x": 246,
+      "y": 1,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 1222,
+      "y": 2,
+      "w": 242,
+      "h": 242
+     }
+    },
+    "p3_to_p4_6": {
+     "native": {
+      "x": 295,
+      "y": 1,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 1466,
+      "y": 2,
+      "w": 242,
+      "h": 242
+     }
+    },
+    "p3_to_p4_7": {
+     "native": {
+      "x": 344,
+      "y": 1,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 1710,
+      "y": 2,
+      "w": 242,
+      "h": 242
+     }
+    },
+    "p3_to_p4_8": {
+     "native": {
+      "x": 393,
+      "y": 1,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 1954,
+      "y": 2,
+      "w": 242,
+      "h": 242
+     }
+    },
+    "p3_to_p4_9": {
+     "native": {
+      "x": 442,
+      "y": 1,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 2198,
+      "y": 2,
+      "w": 242,
+      "h": 242
+     }
+    },
+    "p3_to_p4_10": {
+     "native": {
+      "x": 491,
+      "y": 1,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 2442,
+      "y": 2,
+      "w": 242,
+      "h": 242
+     }
+    },
+    "p3_to_p4_11": {
+     "native": {
+      "x": 540,
+      "y": 1,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 2686,
+      "y": 2,
+      "w": 242,
+      "h": 242
+     }
+    }
+   },
+   "p4_idle": {
+    "p4_idle_0": {
+     "native": {
+      "x": 1,
+      "y": 50,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 2,
+      "y": 246,
+      "w": 242,
+      "h": 242
+     }
+    },
+    "p4_idle_1": {
+     "native": {
+      "x": 50,
+      "y": 50,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 246,
+      "y": 246,
+      "w": 242,
+      "h": 242
+     }
+    },
+    "p4_idle_2": {
+     "native": {
+      "x": 99,
+      "y": 50,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 490,
+      "y": 246,
+      "w": 242,
+      "h": 242
+     }
+    },
+    "p4_idle_3": {
+     "native": {
+      "x": 148,
+      "y": 50,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 734,
+      "y": 246,
+      "w": 242,
+      "h": 242
+     }
+    },
+    "p4_idle_4": {
+     "native": {
+      "x": 197,
+      "y": 50,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 978,
+      "y": 246,
+      "w": 242,
+      "h": 242
+     }
+    },
+    "p4_idle_5": {
+     "native": {
+      "x": 246,
+      "y": 50,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 1222,
+      "y": 246,
+      "w": 242,
+      "h": 242
+     }
+    }
+   },
+   "p4_attack": {
+    "p4_attack_0": {
+     "native": {
+      "x": 1,
+      "y": 99,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 2,
+      "y": 490,
+      "w": 242,
+      "h": 242
+     }
+    },
+    "p4_attack_1": {
+     "native": {
+      "x": 50,
+      "y": 99,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 246,
+      "y": 490,
+      "w": 242,
+      "h": 242
+     }
+    },
+    "p4_attack_2": {
+     "native": {
+      "x": 99,
+      "y": 99,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 490,
+      "y": 490,
+      "w": 242,
+      "h": 242
+     }
+    }
+   },
+   "p4_death": {
+    "p4_death_0": {
+     "native": {
+      "x": 1,
+      "y": 148,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 2,
+      "y": 734,
+      "w": 242,
+      "h": 242
+     }
+    },
+    "p4_death_1": {
+     "native": {
+      "x": 50,
+      "y": 148,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 246,
+      "y": 734,
+      "w": 242,
+      "h": 242
+     }
+    },
+    "p4_death_2": {
+     "native": {
+      "x": 99,
+      "y": 148,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 490,
+      "y": 734,
+      "w": 242,
+      "h": 242
+     }
+    },
+    "p4_death_3": {
+     "native": {
+      "x": 148,
+      "y": 148,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 734,
+      "y": 734,
+      "w": 242,
+      "h": 242
+     }
+    },
+    "p4_death_4": {
+     "native": {
+      "x": 197,
+      "y": 148,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 978,
+      "y": 734,
+      "w": 242,
+      "h": 242
+     }
+    },
+    "p4_death_5": {
+     "native": {
+      "x": 246,
+      "y": 148,
+      "w": 48,
+      "h": 48
+     },
+     "x5": {
+      "x": 1222,
+      "y": 734,
+      "w": 242,
+      "h": 242
+     }
+    }
+   }
+  }
+ },
+ "shots": {
+  "native": "supernova/native/bx_orrery_supernova_shots.png",
+  "x5": "supernova/x5/bx_orrery_supernova_shots.png",
+  "frames": {
+   "nova_spiral": {
+    "0": {
+     "native": {
+      "x": 1,
+      "y": 1,
+      "w": 14,
+      "h": 10
+     },
+     "x5": {
+      "x": 2,
+      "y": 2,
+      "w": 72,
+      "h": 52
+     }
+    },
+    "1": {
+     "native": {
+      "x": 16,
+      "y": 1,
+      "w": 14,
+      "h": 10
+     },
+     "x5": {
+      "x": 76,
+      "y": 2,
+      "w": 72,
+      "h": 52
+     }
+    }
+   },
+   "planet_chunk_ice": {
+    "0": {
+     "native": {
+      "x": 1,
+      "y": 12,
+      "w": 12,
+      "h": 12
+     },
+     "x5": {
+      "x": 2,
+      "y": 56,
+      "w": 62,
+      "h": 62
+     }
+    },
+    "1": {
+     "native": {
+      "x": 14,
+      "y": 12,
+      "w": 12,
+      "h": 12
+     },
+     "x5": {
+      "x": 66,
+      "y": 56,
+      "w": 62,
+      "h": 62
+     }
+    }
+   },
+   "planet_chunk_rock": {
+    "0": {
+     "native": {
+      "x": 1,
+      "y": 25,
+      "w": 12,
+      "h": 12
+     },
+     "x5": {
+      "x": 2,
+      "y": 120,
+      "w": 62,
+      "h": 62
+     }
+    },
+    "1": {
+     "native": {
+      "x": 14,
+      "y": 25,
+      "w": 12,
+      "h": 12
+     },
+     "x5": {
+      "x": 66,
+      "y": 120,
+      "w": 62,
+      "h": 62
+     }
+    }
+   },
+   "planet_chunk_violet": {
+    "0": {
+     "native": {
+      "x": 1,
+      "y": 38,
+      "w": 12,
+      "h": 12
+     },
+     "x5": {
+      "x": 2,
+      "y": 184,
+      "w": 62,
+      "h": 62
+     }
+    },
+    "1": {
+     "native": {
+      "x": 14,
+      "y": 38,
+      "w": 12,
+      "h": 12
+     },
+     "x5": {
+      "x": 66,
+      "y": 184,
+      "w": 62,
+      "h": 62
+     }
+    }
+   },
+   "plasma_comet": {
+    "0": {
+     "native": {
+      "x": 1,
+      "y": 51,
+      "w": 16,
+      "h": 10
+     },
+     "x5": {
+      "x": 2,
+      "y": 248,
+      "w": 82,
+      "h": 52
+     }
+    },
+    "1": {
+     "native": {
+      "x": 18,
+      "y": 51,
+      "w": 16,
+      "h": 10
+     },
+     "x5": {
+      "x": 86,
+      "y": 248,
+      "w": 82,
+      "h": 52
+     }
+    }
+   },
+   "gamma_ray": {
+    "0": {
+     "native": {
+      "x": 1,
+      "y": 62,
+      "w": 16,
+      "h": 7
+     },
+     "x5": {
+      "x": 2,
+      "y": 302,
+      "w": 82,
+      "h": 37
+     }
+    },
+    "1": {
+     "native": {
+      "x": 18,
+      "y": 62,
+      "w": 16,
+      "h": 7
+     },
+     "x5": {
+      "x": 86,
+      "y": 302,
+      "w": 82,
+      "h": 37
+     }
+    }
+   },
+   "helix_pair": {
+    "0": {
+     "native": {
+      "x": 1,
+      "y": 70,
+      "w": 14,
+      "h": 12
+     },
+     "x5": {
+      "x": 2,
+      "y": 341,
+      "w": 72,
+      "h": 62
+     }
+    },
+    "1": {
+     "native": {
+      "x": 16,
+      "y": 70,
+      "w": 14,
+      "h": 12
+     },
+     "x5": {
+      "x": 76,
+      "y": 341,
+      "w": 72,
+      "h": 62
+     }
+    },
+    "2": {
+     "native": {
+      "x": 31,
+      "y": 70,
+      "w": 14,
+      "h": 12
+     },
+     "x5": {
+      "x": 150,
+      "y": 341,
+      "w": 72,
+      "h": 62
+     }
+    },
+    "3": {
+     "native": {
+      "x": 46,
+      "y": 70,
+      "w": 14,
+      "h": 12
+     },
+     "x5": {
+      "x": 224,
+      "y": 341,
+      "w": 72,
+      "h": 62
+     }
+    }
+   },
+   "shock_arc": {
+    "0": {
+     "native": {
+      "x": 1,
+      "y": 83,
+      "w": 10,
+      "h": 16
+     },
+     "x5": {
+      "x": 2,
+      "y": 405,
+      "w": 52,
+      "h": 82
+     }
+    },
+    "1": {
+     "native": {
+      "x": 12,
+      "y": 83,
+      "w": 10,
+      "h": 16
+     },
+     "x5": {
+      "x": 56,
+      "y": 405,
+      "w": 52,
+      "h": 82
+     }
+    }
+   },
+   "stellar_ember": {
+    "0": {
+     "native": {
+      "x": 1,
+      "y": 100,
+      "w": 8,
+      "h": 8
+     },
+     "x5": {
+      "x": 2,
+      "y": 489,
+      "w": 42,
+      "h": 42
+     }
+    },
+    "1": {
+     "native": {
+      "x": 10,
+      "y": 100,
+      "w": 8,
+      "h": 8
+     },
+     "x5": {
+      "x": 46,
+      "y": 489,
+      "w": 42,
+      "h": 42
+     }
+    }
+   },
+   "singularity_seed": {
+    "0": {
+     "native": {
+      "x": 1,
+      "y": 109,
+      "w": 12,
+      "h": 12
+     },
+     "x5": {
+      "x": 2,
+      "y": 533,
+      "w": 62,
+      "h": 62
+     }
+    },
+    "1": {
+     "native": {
+      "x": 14,
+      "y": 109,
+      "w": 12,
+      "h": 12
+     },
+     "x5": {
+      "x": 66,
+      "y": 533,
+      "w": 62,
+      "h": 62
+     }
+    }
+   }
+  },
+  "info": {
+   "nova_spiral": "Spiral-arm star. Fired from 4 arms that rotate 11 deg per volley, 6 volleys/s for 3s; arms reverse every cycle.",
+   "planet_chunk_ice": "Shattered-planet chunk. Radial bursts of 10, alternating colour per burst; chunks slow down then hang for 0.5s.",
+   "planet_chunk_rock": "As planet_chunk_ice; heavier (slower, bigger hitbox, more damage).",
+   "planet_chunk_violet": "As planet_chunk_ice; splits into 3 stellar_embers when it stops.",
+   "plasma_comet": "Big curving comet. 6 at once, each curving clockwise (angular velocity 60 deg/s), leaving an ember every 0.2s.",
+   "gamma_ray": "Beam segment; chain 12 end to end for a gamma burst out of a jet that sweeps 90 deg over 2s (telegraph 1s).",
+   "helix_pair": "Twin braided orbs on one path. 8 directions, rotating; the two orbs have separate hitboxes.",
+   "shock_arc": "Nova shock ring slice. Fire 36 as an expanding ring with 2 gaps (aimed gap + random gap) on every p4_attack release.",
+   "stellar_ember": "Filler ember. Dense slow rings of 24 between patterns; dropped by comets and violet chunks.",
+   "singularity_seed": "Small black hole. 2 per cycle, slow homing; pulls players gently within 2 tiles."
+  }
+ },
+ "room_fx": {
+  "native": "supernova/native/bx_orrery_event_horizon_fx.png",
+  "x5": "supernova/x5/bx_orrery_event_horizon_fx.png",
+  "frames": {
+   "void_creep": {
+    "0": {
+     "native": {
+      "x": 1,
+      "y": 1,
+      "w": 8,
+      "h": 8
+     },
+     "x5": {
+      "x": 2,
+      "y": 2,
+      "w": 42,
+      "h": 42
+     }
+    },
+    "1": {
+     "native": {
+      "x": 10,
+      "y": 1,
+      "w": 8,
+      "h": 8
+     },
+     "x5": {
+      "x": 46,
+      "y": 2,
+      "w": 42,
+      "h": 42
+     }
+    },
+    "2": {
+     "native": {
+      "x": 19,
+      "y": 1,
+      "w": 8,
+      "h": 8
+     },
+     "x5": {
+      "x": 90,
+      "y": 2,
+      "w": 42,
+      "h": 42
+     }
+    },
+    "3": {
+     "native": {
+      "x": 28,
+      "y": 1,
+      "w": 8,
+      "h": 8
+     },
+     "x5": {
+      "x": 134,
+      "y": 2,
+      "w": 42,
+      "h": 42
+     }
+    }
+   },
+   "debris_marble": {
+    "0": {
+     "native": {
+      "x": 1,
+      "y": 10,
+      "w": 8,
+      "h": 8
+     },
+     "x5": {
+      "x": 2,
+      "y": 46,
+      "w": 42,
+      "h": 42
+     }
+    },
+    "1": {
+     "native": {
+      "x": 10,
+      "y": 10,
+      "w": 8,
+      "h": 8
+     },
+     "x5": {
+      "x": 46,
+      "y": 46,
+      "w": 42,
+      "h": 42
+     }
+    }
+   },
+   "debris_brass": {
+    "0": {
+     "native": {
+      "x": 1,
+      "y": 19,
+      "w": 8,
+      "h": 8
+     },
+     "x5": {
+      "x": 2,
+      "y": 90,
+      "w": 42,
+      "h": 42
+     }
+    },
+    "1": {
+     "native": {
+      "x": 10,
+      "y": 19,
+      "w": 8,
+      "h": 8
+     },
+     "x5": {
+      "x": 46,
+      "y": 90,
+      "w": 42,
+      "h": 42
+     }
+    }
+   }
+  }
+ },
+ "event_horizon_sequence": [
+  "0.0s  Boss invulnerable. Play p3_to_p4 at 6fps (2.0s). Music cuts to a low drone.",
+  "0.0-1.0s  (frames 0-5) The hole swells. Pull every player toward the centre (1.5 tiles/s). Spawn debris_marble / debris_brass particles on the floor and spiral them into the boss.",
+  "0.0-1.0s  void_creep spreads from the arena walls to the centre (ring by ring, frames 0->3 per tile). Wall tiles go dark. Vignette the screen edges.",
+  "1.0-1.3s  (frames 6-7) Everything black except the boss; the pull stops.",
+  "1.3s  (frame 8) Detonation: full-screen white flash (0.15s), screen shake, 1 knockback ring that pushes players 3 tiles out.",
+  "1.3-2.0s  (frames 9-11) The nova unfolds. The floor stays void (use astral_void tiles); the arena is now a starfield.",
+  "2.0s  Phase 4 starts (p4_idle). Boss gains 'Supernova' name plate."
+ ],
+ "phase4_cycle": [
+  "Spiral Storm (4s): nova_spiral from 4 arms, 6 volleys/s, arms rotate 11 deg per volley, reversing each cycle. helix_pair in 8 directions every 0.8s.",
+  "Planetfall (3s): planet_chunk bursts of 10 every 0.6s, cycling ice/rock/violet; violet chunks split into embers.",
+  "Comet Wheel (3s): 6 plasma_comets curving clockwise + stellar_ember rings of 24.",
+  "Gamma Burst (3s): the polar jets telegraph 1s, then gamma_ray beams sweep 90 deg; 2 singularity_seeds drift in.",
+  "Every cycle ends with p4_attack: release fires a shock_arc ring (36, two gaps)."
+ ]
+}

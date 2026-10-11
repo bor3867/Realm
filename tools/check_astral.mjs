@@ -171,7 +171,7 @@ for (let s = 1; s <= seeds; s++) {
   { for (let f = 0; f < 60 * 3; f++) { p.hp = 1e6; g.update(1 / 60); }
     g.damageEnemy(orr, Math.max(1, orr.hp - orr.maxHp * 0.03), orr.x, orr.y, true);
     let dark = false, most = 0;
-    for (let f = 0; f < 60 * 28; f++) { p.x = L.cx + 0.5 + 9; p.y = L.cy + 0.5; p.hp = 1e6; p.dead = false; g.update(1 / 60); if (S.nova2 && S.nova2.dark > 0.9) dark = true; most = Math.max(most, g.projectiles.filter((b) => b.bxOf === orr).length); }
+    for (let f = 0; f < 60 * 33; f++) { p.x = L.cx + 0.5 + 9; p.y = L.cy + 0.5; p.hp = 1e6; p.dead = false; g.update(1 / 60); if (S.nova2 && S.nova2.dark > 0.9) dark = true; most = Math.max(most, g.projectiles.filter((b) => b.bxOf === orr).length); }
     if (!S.finale2Done || !dark) problems.push('the Supernova never came');
     if (S.state === 'finale') problems.push('the Supernova never ended');
     console.log(`supernova: dark ${dark}, up to ${most} shots at once`); }

@@ -96,7 +96,7 @@ export const BXF = {
     }
     if (S.state === 'morph' && (clip === ph[S.phase].enter)) {
       S.anim.play(ph[S.phase].idle);
-      S.state = 'grace'; S.wait = 1.4; e.invulnT = 0;
+      S.state = 'grace'; S.wait = 2.4; e.invulnT = 0;          // a breath after each change before it attacks
       return;
     }
     if (S.state === 'death' && clip === S.def.death) {
@@ -150,7 +150,7 @@ export const BXF = {
   },
 
   // ---------------------------------------------------------------- volleys (generic forms; specials live with each boss)
-  bxOrigin(e) { return [e.x, e.y - e.hitUp]; },
+  bxOrigin(e) { return this.up(e.x, e.y, e.hitUp); },      // the middle of its body as drawn (up the screen, whatever the camera's turn)
   bxDmg(e, d) { return Math.round((d || 60) * ((e.bx && e.bx.B.dmgScale) || 1)); },   // the boss's damage scale, for shots made outside bxShot (lobs)
   bxShot(e, x, y, a, V, extra) {
     const b = this.shoot('e', x, y, a, V.speed || 5, V.range || 14, this.bxDmg(e, V.dmg || 60), V.sprite || `${e.bx.B.shotSheet || 'bx_shots'}/${e.bx.B.art || e.D.bx}.${V.shot}`, V.size || 0.45, false, e.D.name);
@@ -266,8 +266,8 @@ export const BXF = {
     this.bxClearBullets(e);
     const ph = def.phases[S.phase];
     this.banner(`${ph.name.toUpperCase()}`, 2600); this.vx({ k: 'shake', amt: 8 }); this.sfx('boss');
-    if (S.anim) S.anim.play(ph.enter || ph.idle, { speed: 1 });          // speed 1: a morph can land mid-windup, while the frame is held
-    if (!ph.enter) { S.state = 'grace'; S.wait = 1.4; e.invulnT = 0; }
+    if (S.anim) S.anim.play(ph.enter || ph.idle, { speed: S.B.morphSpeed || 0.55 });   // slow and heavy (a morph can land mid-windup, while the frame is held)
+    if (!ph.enter) { S.state = 'grace'; S.wait = 3; e.invulnT = 0; }
     if (S.B.onPhase) S.B.onPhase(this, e, S.phase);
   },
   bxClearBullets(e) {

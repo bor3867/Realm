@@ -132,6 +132,23 @@ function fromAstralPlus(R, pack, atlas, img) {
     }
   }
 }
+// 2d. the Grand Orrery's phase 4, Supernova (realm_astral_supernova): the reborn boss (48x48, drawn centred on the
+// boss), its shots (sn_shots/<name>, pointing right) and the Event Horizon's floor effects (sn_fx/<name>)
+function fromOrrerySupernova(R, pack, atlas, img) {
+  const flat = (groups) => { const out = {}; for (const g of Object.values(groups)) for (const [fn, f] of Object.entries(g)) out[fn] = { ...f.native }; return out; };
+  const frames = flat(atlas.boss.frames);
+  R.add({ key: 'bx_orrery_supernova/grand_orrery', pack, sheet: 'bx_orrery_supernova', name: 'grand_orrery_supernova', img: img(atlas.boss.native), frames,
+    anims: atlas.clips, pivot: [0, 0], foot: [24, 24], size: atlas.phase['4'].size, kind: 'boss', meta: { center: true, phase: atlas.phase['4'] } });
+  for (const [k, sheet, kind] of [['shots', 'sn_shots', 'shot'], ['room_fx', 'sn_fx', 'fx']]) {
+    const I = img(atlas[k].native);
+    for (const [name, fr] of Object.entries(atlas[k].frames)) {
+      const frames = {}; let w = 0, h = 0;
+      for (const [fn, f] of Object.entries(fr)) { frames[fn] = { ...f.native }; w = Math.max(w, f.native.w); h = Math.max(h, f.native.h); }
+      R.add({ key: `${sheet}/${name}`, pack, sheet, name, img: I, frames, anims: { loop: { frames: Object.keys(frames), fps: 10, loop: true } },
+        pivot: [0, 0], foot: [w / 2, h / 2], size: [w, h], kind, meta: { text: (atlas[k].info || {})[name] } });
+    }
+  }
+}
 // 3. the item format: items[name] = { group, tier, native:{frame:rect}, animations }
 function fromItems(R, pack, atlas, img) {
   const I = img(atlas.sheet.native);
@@ -195,6 +212,7 @@ export function buildRegistry(atlases, hover, img = () => null) {
     const im = (rel) => img(`${pack}/${rel}`);
     if (json.bosses && json.meta && /^Realm Remaster/.test(json.meta.name)) fromRemaster(R, pack, json, im);
     else if (json.bosses) fromBosses(R, pack, json, im);
+    else if (json.boss && json.clips && json.phase) fromOrrerySupernova(R, pack, json, im);
     else if (json.sheets && Object.values(json.sheets).some((S) => typeof S.native === 'string')) fromAstralPlus(R, pack, json, im);
     else if (json.items) fromItems(R, pack, json, im);
     else fromSheets(R, pack, json, im);

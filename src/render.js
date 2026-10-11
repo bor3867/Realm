@@ -1239,7 +1239,11 @@ export class Renderer {
     if (!e.dead && !S.B.noShadow) this.shadow(sx, sy, Math.min(48 * K, W * 0.55));
     const hy = this.R ? hoverY(this.R, def, g.t, S.phase0, S.phase) : 0;
     if (e.dead) this.b.globalAlpha = Math.max(0, 1 - e.deadT / 1.4);
-    this.drawDef(def, fr, sx, sy + hy - (S.leapZ || 0), { flip: !!e.face, scale: K });   // no hit flash on bosses
+    if (S.alt && S.alt.def) {                               // another body for a while (the Orrery reborn as a supernova): centred on its middle
+      const A = S.alt, cy = sy + hy - (def.foot[1] - def.size[1] / 2) * 2 * K;
+      A.anim.update(Math.max(0, Math.min(0.1, g.t - (A.lastT === undefined ? g.t : A.lastT)))); A.lastT = g.t;   // its clip runs with the game's clock
+      this.drawDef(A.def, A.anim.frame, sx, Math.round(cy), { center: true, scale: K * (A.scale || 1) });
+    } else this.drawDef(def, fr, sx, sy + hy - (S.leapZ || 0), { flip: !!e.face, scale: K });   // no hit flash on bosses
     this.b.globalAlpha = 1;
     if (S.B.draw) S.B.draw(this, g, e, sx, sy);
   }
