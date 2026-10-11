@@ -32,6 +32,7 @@ export const BXF = {
   updateBx(e, dt, d) {
     const S = e.bx || this.bxSetup(e), p = this.player, B = S.B;
     S.t += dt; S.hurtT = Math.max(0, S.hurtT - dt); S.flashT = Math.max(0, S.flashT - dt);
+    if (e.invulnT > 0 && e.invulnT < 50) e.invulnT = Math.max(0, e.invulnT - dt);   // a timed immunity (after a finale) wears off; a morph's (99) is cleared by its clip
     if (S.anim) S.anim.update(dt);
     if (S.state === 'sleep' || e.state === 'sleep') {
       const R0 = e.room;
@@ -142,8 +143,9 @@ export const BXF = {
     if (F.update) F.update(this, e, dt, S.finT);
     if (S.finT >= F.dur) {
       if (F.end) F.end(this, e);
-      this.bxClearBullets(e);
-      S.state = 'grace'; S.wait = 1.2; S.broken = true;
+      if (!F.keepShots) this.bxClearBullets(e);              // (a finale may leave its shots flying as it ends)
+      S.state = 'grace'; S.wait = Math.max(1.2, F.after || 0); S.broken = true;
+      if (F.after) e.invulnT = F.after;                       // immune while it comes out of it
       this.banner(`${e.D.name.toUpperCase()} IS BROKEN`, 2600); this.vx({ k: 'shake', amt: 8 });
       this.vx({ k: 'burst', x: e.x, y: e.y - e.hitUp, n: 40, colors: ['#ffffff', '#ffd650', '#ff8a1f'] });
     }

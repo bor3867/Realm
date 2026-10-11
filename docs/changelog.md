@@ -277,3 +277,15 @@
   lasers across the floor from its rim; the boss takes the middle of its floor so every spiral comes from it.
 - Shots come from the middle of a boss as drawn, whatever the camera's turn (they could start beside it).
 - Every three-phase boss changes phase more slowly (its morph clip at 0.55 speed, then 2.4 s before it attacks).
+
+## The Orrery, tuned toward a cinematic finale
+- 520,000 Life (was 400,000), shots 10% harder (damage scale 1.6).
+- Out of each survival it is immune for 3.5 s; the shots of the first survival fly on as it comes out of it. (Fixed:
+  a timed immunity never wore off on a three-phase boss.)
+- First survival: every 5 s, four beams of starlight are marked right across the floor, then burn.
+- The Supernova (36.5 s): six movements (Spiral Storm, Planetfall, the Orrery's last formation of three expanding,
+  counter-turning planet rings, Comet Wheel, a Constellation of singularity seeds shedding embers, Gamma Burst), all
+  ten of its shots, shots that live 30 tiles; it burns hotter as it goes (level 2: an ember drizzle; level 3: braided
+  helices), each step announced; then THE DEATH OF A STAR: ring after ring in every direction (an opening aimed at
+  you and one anywhere), spirals between, the screen shaking harder and a soft pulse of light on each wave, the star
+  swelling, and a final blinding detonation.
