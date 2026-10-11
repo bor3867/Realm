@@ -187,3 +187,45 @@
 - The loot bags have their old art back.
 - Every untiered, legendary and mythic item has an effect and a shot of its own (docs/design/11_unique_items.md);
   14 weapons that fired nothing now fire (the Wand of Hoarfrost among them).
+
+## The Astral Observatory, reworked (realm_astral_plus; docs/design/dungeon_astral.md, boss_grand_orrery.md)
+- All of the pack's art in: elites, monsters, shots, tiles, decor and treasure (`art/bundle/astral_plus/`, a new
+  registry adapter for its format; the weaver and the wisp hover).
+- Six new monsters (four with an ability each), new shots for the four old ones, ~90 monsters a run instead of ~40,
+  thirteen rooms instead of nine, new floors and decor, and a star vault with a sleeping keeper who seals it.
+- The rune circle that carried you from the entrance to the boss's door is gone; the antechamber is a guard room.
+- The Grand Orrery: a new RotMG-style first phase; the eclipse up all fight, burning whoever stands in it; black
+  holes drawn as black holes; more patterns; a new finale (a singularity that swallows everything, then a
+  supernova). The conjunction (shots frozen, then loosed at you) is removed.
+
+## Quality of life, the dungeons' items, no teleporters in the Observatory
+- Damage numbers (and words like IMMUNE) float above the head of whoever they belong to, following them, staggered
+  when several land at once, instead of over their body.
+- Key hints show your own keys and disappear for an action with no key: the [F] over portals and people, the panel's
+  key line, the potion label, Leave/Close buttons, quest hints, the waypoint banner. The portal and talk buttons show
+  the key when there is one.
+- A Take all button on loot bags for mouse players.
+- The Astral Observatory has no rune circles left: no teleporters at all.
+- Every dungeon's items: names that match what they are, and a dungeon-themed set of orbiters (planets and black
+  holes from the Orrery Halo and Event Horizon Ring, bats, scarabs, bees, souls, masks...). No item seeks any more.
+  docs/design/11_unique_items.md.
+
+## The Grand Orrery, second pass (realm_astral__singularity)
+- Small singularities with their own sprite (the boss's and the astral items' black holes); they drift, pull and burn.
+- Pink bolts drawn as lasers; the yellow shots stop flickering.
+- It grows 1.75x in its Collapse; the finale is 36 s (was 17.5); a slow death that holds, then bursts in rings.
+- Fixed: after one shot of a volley hit you, the rest of that volley did no damage for the rest of its flight (every
+  enemy, every boss). Shots now hit a touch wider too. Every boss is somewhat harder for it.
+
+## Hitboxes, the panel, the eclipse
+- **Hits follow the art.** A shot used to hurt only inside a small fixed circle round your middle (whatever its size
+  or shape), so most shots had to overlap your sprite by about 6-7 pixels before they counted. Now you are an upright
+  capsule just inside your sprite, and every enemy shot is checked by its own visible pixels (src/data/shot_boxes.js,
+  measured from the art by tools/shot_boxes.mjs; a capsule first, then the pixels when it is close). Upright and
+  diagonal sprites, crescents and waves are handled as drawn. tools/check_hitboxes.mjs: for all 512 enemy shots, from
+  24 directions at 8 headings, 95% of hits land within 3 px of the art touching yours (14.7% before).
+- No screen shake, red flash or white blink when you are hit.
+- The side panel: the Stats | Pet tabs never hide any more (the slots and the minimap give way instead), and the loot
+  bag is four by two, like the backpack.
+- The Grand Orrery's eclipse comes and goes (transits, marked first) instead of filling the screen all fight; the
+  survival phase's strands all have openings. docs/design/boss_grand_orrery.md.

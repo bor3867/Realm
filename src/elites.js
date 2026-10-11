@@ -86,7 +86,7 @@ const methods = {
         }
         break;
       }
-      default: break;
+      default: if (this.asEliteEffect) this.asEliteEffect(e); break;   // the Astral Observatory's guardians (src/astral.js)
     }
   },
   // the states that follow some abilities

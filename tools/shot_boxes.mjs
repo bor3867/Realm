@@ -1,0 +1,69 @@
+// Measures every shot's visible art (the opaque pixels of its frames) and writes src/data/shot_boxes.js, which the game
+// uses for its hits: a shot hurts where it is drawn, not in a fixed little circle.
+//   node tools/shot_boxes.mjs
+// Each entry: [length, thickness, along, across, how] in buffer pixels (16 to a tile) as the shot is drawn pointing
+// right: the size of its opaque box, that box's centre off the frame's centre, and how it is drawn
+// ('h' turns to its heading, 's' spins, 'f' fixed upright).
+import { readFileSync, writeFileSync } from 'node:fs';
+import { readPng } from './png.mjs';
+globalThis.localStorage = { getItem: () => null, setItem: () => {} };
+const { buildRegistry } = await import('../src/registry.js');
+const B0 = new URL('../art/bundle/', import.meta.url), J = (q) => JSON.parse(readFileSync(new URL(q, B0), 'utf8')), idx = J('index.json');
+const reg = buildRegistry(idx.atlases.map((a) => ({ pack: a.split('/')[0], json: J(a) })), J(idx.hover), (q) => q);
+const imgs = new Map(), img = (path) => { if (!imgs.has(path)) imgs.set(path, readPng(path)); return imgs.get(path); };
+// the opaque box of some cells of a sheet, over all of them: [x0, y0, x1, y1] relative to the cell (or null)
+const box = (I, cells, cw, ch) => {
+  let x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1;
+  for (const [cx, cy] of cells) for (let y = 0; y < ch; y++) for (let x = 0; x < cw; x++) if (I.a(cx + x, cy + y) > 40) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+  return x1 < 0 ? null : [x0, y0, x1 + 1, y1 + 1];
+};
+const out = {};
+// the visible pixels themselves, as points about the frame centre (buffer pixels, packed two to a byte pair)
+const pack = (pts) => Buffer.from(Int8Array.from(pts.flatMap(([u, v]) => [Math.round(u * 2), Math.round(v * 2)])).buffer).toString('base64');
+const pixels = (I, cells, cw, ch, K, turn) => {
+  const set = new Set(), pts = [];
+  for (const [cx, cy] of cells) for (let y = 0; y < ch; y++) for (let x = 0; x < cw; x++) if (I.a(cx + x, cy + y) > 40 && !set.has(x + ',' + y)) {
+    set.add(x + ',' + y);
+    let u = (x + 0.5 - cw / 2) * K, v = (y + 0.5 - ch / 2) * K;
+    if (turn) [u, v] = [(u - v) * Math.SQRT1_2, (u + v) * Math.SQRT1_2];
+    pts.push([u, v]);
+  }
+  return pack(pts);
+};
+for (const d of reg.list((q) => q.kind === 'shot' || q.key === 'ap_shots/grand_orrery.singularity')) {
+  const I = img(new URL(d.img, B0).pathname.replace(/^\/([A-Z]:)/, '$1').replace(/%20/g, ' '));
+  const fr = Object.values(d.frames), w = Math.max(...fr.map((f) => f.w)), h = Math.max(...fr.map((f) => f.h));
+  const b = box(I, fr.map((f) => [f.x, f.y]), w, h);
+  if (!b) continue;
+  const K = 2;                                              // registry art: two buffer pixels to an art pixel
+  out[d.key] = [(b[2] - b[0]) * K, (b[3] - b[1]) * K, ((b[0] + b[2]) / 2 - w / 2) * K, ((b[1] + b[3]) / 2 - h / 2) * K, 'h', pixels(I, fr.map((f) => [f.x, f.y]), w, h, K), K / 2];
+}
+// the original sheet's shots: 16-pixel cells, drawn one to one (an enemy's "big" ones 1.3 times)
+const W = JSON.parse(readFileSync(new URL('../art/world/world.json', import.meta.url), 'utf8'));
+const P = readPng(new URL('../art/world/projectiles.png', import.meta.url).pathname.replace(/^\/([A-Z]:)/, '$1').replace(/%20/g, ' '));
+const PS = W.proj, pc = W.projCols, nf = W.projFrames || 1, big = new Set(W.projBig || []), rot = new Set(W.projRot || []), spin = new Set(W.projSpin || []), diag = new Set(W.projDiag || []);
+for (const [name, k0] of Object.entries(W.projectiles)) {
+  const cells = Array.from({ length: nf }, (_, j) => [((k0 + j) % pc) * PS, Math.floor((k0 + j) / pc) * PS]);
+  const K = big.has(name) ? 1.3 : 1;
+  if (diag.has(name)) {                                     // drawn turned 45 degrees past its heading: measure it along that diagonal
+    let a0 = 1e9, a1 = -1e9, c0 = 1e9, c1 = -1e9;
+    for (const [cx, cy] of cells) for (let y = 0; y < PS; y++) for (let x = 0; x < PS; x++) if (P.a(cx + x, cy + y) > 40) {
+      for (const [u, v] of [[x, y], [x + 1, y], [x, y + 1], [x + 1, y + 1]]) { const dx = u - PS / 2, dy = v - PS / 2, al = (dx - dy) * Math.SQRT1_2, ac = (dx + dy) * Math.SQRT1_2; a0 = Math.min(a0, al); a1 = Math.max(a1, al); c0 = Math.min(c0, ac); c1 = Math.max(c1, ac); }
+    }
+    if (a1 > a0) out[name] = [(a1 - a0) * K, (c1 - c0) * K, ((a0 + a1) / 2) * K, ((c0 + c1) / 2) * K, 'h', pixels(P, cells, PS, PS, K, true), K / 2];
+    continue;
+  }
+  const b = box(P, cells, PS, PS);
+  if (!b) continue;
+  out[name] = [(b[2] - b[0]) * K, (b[3] - b[1]) * K, ((b[0] + b[2]) / 2 - PS / 2) * K, ((b[1] + b[3]) / 2 - PS / 2) * K, spin.has(name) ? 's' : rot.has(name) ? 'h' : 'f', pixels(P, cells, PS, PS, K), K / 2];
+}
+const r1 = (v) => (typeof v === 'number' ? Math.round(v * 10) / 10 : v);
+const body = Object.entries(out).sort().map(([k, v]) => `  ${JSON.stringify(k)}: ${JSON.stringify(v.map(r1))},`).join('\n');
+writeFileSync(new URL('../src/data/shot_boxes.js', import.meta.url), `// Generated by tools/shot_boxes.mjs: every shot's visible art, for hits (see that file). Do not edit by hand.
+// key: [length, thickness, along, across, how, pixels, pixel half-size] in buffer pixels (16 to a tile), drawn pointing
+// right; pixels are the opaque pixels' centres about the frame centre, as int8 pairs (half buffer pixels) in base64.
+export const SHOT_BOXES = {
+${body}
+};
+`);
+console.log(`shot boxes: ${Object.keys(out).length}`);

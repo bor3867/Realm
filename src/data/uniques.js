@@ -74,7 +74,6 @@ export const EFFECTS = {
   spore_bomb: Sg({ kind: 'spiral', n: 3, dmg: 110 }),
   the_thirteenth_page: Sg({ kind: 'nova', n: 13, dmg: 160 }),
   crimson_chalice: Sg({ kind: 'spiral', n: 2, dmg: 150 }),
-  orrery_orb: Sg({ kind: 'nova', n: 24, dmg: 120 }),
   glassfencer_mirror: Sg({ kind: 'wave', n: 5, dmg: 180 }),
   dawnchoir_halo: Sg({ kind: 'rain', n: 11, dmg: 130 }),
   leviathan_line: Sg({ kind: 'lance', n: 3, dmg: 260 }),
@@ -136,7 +135,7 @@ function slots(it) {
   if (it.weapon && it.weapon.proj) out.push([it.weapon, 'proj']);
   const B = it.ability && it.ability.burst;
   if (B && B.proj && B.count > 0 && !NO_SHOT.has(B.proj) && !DRAWS_OWN.has(it.type)) out.push([B, 'proj']);
-  if (it.ability && it.ability.sig) out.push([it.ability.sig, 'proj']);
+  if (it.ability && it.ability.sig && it.ability.sig.kind !== 'orbit') out.push([it.ability.sig, 'proj']);   // an orbit draws its own sprites
   if (it.passive && it.passive.prism) out.push([it.passive.prism, 'proj']);
   if (it.weapon && it.weapon.special && it.weapon.special.split && !it.weapon.special.split.proj) out.push([it.weapon.special.split, 'proj']);
   return out;

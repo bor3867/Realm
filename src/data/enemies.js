@@ -1388,31 +1388,64 @@ ENEMIES.giant_watermelon = { name: 'Giant Watermelon', biome: 'event', melon: tr
 }
 // ================================================================ THE ASTRAL OBSERVATORY (Realm Update, docs/design/dungeon_astral.md)
 {
-  const LA = L([7, 9], [7, 10], [3, 4], [3, 4], 0.05), ASE = (k) => 'ex_astral/' + k;
+  const LA = L([7, 9], [7, 10], [3, 4], [3, 4], 0.05), ASE = (k) => 'ex_astral/' + k, AP = (k) => 'ap_shots/' + k;
+  const LM = [...L([8, 10], [8, 11], [4, 5], [4, 5], 0.07), { stat: true, p: 0.35 }];
   Object.assign(ENEMIES, {
-    void_acolyte: { name: 'Void Acolyte', biome: 'astral', reg: ASE('void_acolyte'), hp: 2200, def: 16, speed: 2.0, xp: 150, r: 0.5, ai: 'kite', keep: 6, aggro: 11,
-      attacks: [{ pattern: 'aimed', proj: 'starbeam', count: 3, arc: 0.4, dmg: 80, speed: 8, range: 8, cd: 2.0, tell: 350 }],
+    void_acolyte: { name: 'Void Acolyte', biome: 'astral', reg: ASE('void_acolyte'), hp: 2600, def: 16, speed: 2.0, xp: 150, r: 0.5, ai: 'kite', keep: 6, aggro: 11,
+      attacks: [{ pattern: 'aimed', proj: 'starbeam', count: 3, arc: 0.4, dmg: 85, speed: 8.5, range: 8, cd: 1.8, tell: 350 },
+        { pattern: 'aimed', proj: AP('void_acolyte.void_orb'), count: 1, dmg: 95, speed: 4, range: 9, cd: 3, tell: 500, size: 0.55, pull: 1 }],
       children: ['orrery_drone'], cap: 3, every: 8, loot: LA },
     orrery_drone: { name: 'Orrery Drone', biome: 'astral', reg: ASE('orrery_drone'), hp: 900, def: 12, speed: 3, xp: 60, r: 0.4, ai: 'satellite', aggro: 11, fly: true, contact: 60,
-      attacks: [{ pattern: 'aimed', proj: 'lensbolt', count: 1, dmg: 70, speed: 9, range: 7, cd: 1.6, tell: 250 }], loot: LA },
-    star_eye: { name: 'Star Eye', biome: 'astral', reg: ASE('star_eye'), hp: 1600, def: 14, speed: 0, xp: 120, r: 0.5, ai: 'rooted', aggro: 14, fly: true,
-      attacks: [{ pattern: 'beam', range: 13, dmg: 110, cd: 3.2, tell: 300, tele: 0.9, col: '#c8a0ff' }], loot: LA },
-    constellation_stalker: { name: 'Constellation Stalker', biome: 'astral', reg: ASE('constellation_stalker'), hp: 1800, def: 14, speed: 2.6, xp: 140, r: 0.5, ai: 'blink', keep: 4, aggro: 12,
-      attacks: [{ pattern: 'radial', proj: 'star', count: 10, turn: 0.3, dmg: 85, speed: 5, range: 6, cd: 2.4, tell: 450 }], loot: LA },
+      attacks: [{ pattern: 'aimed', proj: AP('orrery_drone.cog_shot'), count: 1, dmg: 75, speed: 8, range: 9, cd: 1.5, tell: 250, bounce: 1 }], loot: LA },
+    star_eye: { name: 'Star Eye', biome: 'astral', reg: ASE('star_eye'), hp: 2000, def: 14, speed: 0, xp: 120, r: 0.5, ai: 'rooted', aggro: 14, fly: true,
+      attacks: [{ pattern: 'beam', range: 13, dmg: 115, cd: 3.2, tell: 300, tele: 0.9, col: '#c8a0ff' },
+        { pattern: 'aimed', proj: AP('star_eye.gaze_spark'), count: 3, arc: 0.5, dmg: 85, speed: 8, range: 10, cd: 1.4, tell: 250, waves: 2, gap: 0.2 }], loot: LA },
+    constellation_stalker: { name: 'Constellation Stalker', biome: 'astral', reg: ASE('constellation_stalker'), hp: 2200, def: 14, speed: 2.6, xp: 140, r: 0.5, ai: 'blink', keep: 4, aggro: 12,
+      attacks: [{ pattern: 'radial', proj: 'star', count: 10, turn: 0.3, dmg: 85, speed: 5, range: 6, cd: 2.4, tell: 450 },
+        { pattern: 'aimed', proj: AP('constellation_stalker.star_claw'), count: 2, arc: 0.3, dmg: 115, speed: 9, range: 4.5, cd: 1.3, tell: 200 }], loot: LA },
+    // ---- Astral Observatory Plus (realm_astral_plus): four mid-tier guardians with an ability each (src/astral.js), two small things
+    astrolabe_sentinel: { name: 'Astrolabe Sentinel', biome: 'astral', reg: 'ap_elites/astrolabe_sentinel', hp: 5600, def: 22, speed: 1.4, xp: 320, r: 0.7, ai: 'shamble', aggro: 11,
+      attacks: [{ pattern: 'aimed', proj: AP('astrolabe_sentinel.star_lance'), count: 1, waves: 3, gap: 0.12, dmg: 100, speed: 13, range: 10, cd: 1.6, tell: 300 },
+        { pattern: 'radial', proj: AP('astrolabe_sentinel.astro_disc'), count: 6, turn: 0.5, dmg: 90, speed: 4.5, range: 7, cd: 3, tell: 450, size: 0.5, mv: { boomer: 1.1 } }],
+      ability: { kind: 'alignment', cd: 9, tell: 0.67, dmg: 100 }, loot: LM },
+    comet_hound: { name: 'Comet Hound', biome: 'astral', reg: 'ap_elites/comet_hound', hp: 3800, def: 16, speed: 3.4, xp: 260, r: 0.6, ai: 'flank', aggro: 12, contact: 90,
+      attacks: [{ pattern: 'aimed', proj: AP('comet_hound.comet_spark'), count: 3, arc: 0.35, dmg: 85, speed: 11, range: 8, cd: 1.5, tell: 250 },
+        { pattern: 'aimed', proj: AP('comet_hound.star_fang'), count: 2, arc: 0.4, dmg: 110, speed: 8, range: 3.5, cd: 1.1, tell: 150, chill: 1 }],
+      ability: { kind: 'comet', cd: 6, tell: 0.67, dmg: 130 }, loot: LM },
+    nebula_weaver: { name: 'Nebula Weaver', biome: 'astral', reg: 'ap_elites/nebula_weaver', hp: 4400, def: 14, speed: 2.2, xp: 300, r: 0.6, ai: 'kite', keep: 6, aggro: 12, fly: true,
+      attacks: [{ pattern: 'aimed', proj: AP('nebula_weaver.nebula_thread'), count: 5, arc: 0.9, dmg: 85, speed: 6, range: 9, cd: 1.7, tell: 350, mv: { wave: { amp: 0.8, freq: 6 }, alt: true } },
+        { pattern: 'aimed', proj: AP('nebula_weaver.dust_mote'), count: 1, dmg: 95, speed: 3.5, range: 8, cd: 2.6, tell: 400, size: 0.5, mv: { split: { at: 1.1, n: 3, speed: 5, range: 4 } } }],
+      ability: { kind: 'veil', cd: 10, tell: 0.67 }, loot: LM },
+    vault_keeper: { name: 'Vault Keeper', biome: 'astral', reg: 'ap_elites/vault_keeper', hp: 30000, def: 30, speed: 1.8, xp: 2400, r: 0.8, ai: 'shamble', aggro: 16, contact: 120,
+      attacks: [{ pattern: 'aimed', proj: AP('vault_keeper.key_bolt'), count: 3, arc: 0.35, dmg: 125, speed: 9, range: 10, cd: 1.3, tell: 300, ap: true },
+        { pattern: 'radial', proj: AP('vault_keeper.seal_glyph'), count: 14, turn: 0.22, dmg: 110, speed: 6, range: 9, cd: 2.6, tell: 450, mv: { hold: 0.5 } }],
+      ability: { kind: 'lockdown', cd: 11, tell: 0.67 }, asDeath: {}, loot: [{ stat: true, p: 1 }, { slot: 'ring', tiers: [4, 5], p: 0.6 }] },
+    meteor_mite: { name: 'Meteor Mite', biome: 'astral', reg: 'ap_enemies/meteor_mite', hp: 550, def: 6, speed: 3.6, xp: 30, r: 0.35, ai: 'skitter', aggro: 10, contact: 50,
+      attacks: [{ pattern: 'aimed', proj: AP('meteor_mite.ember_chunk'), count: 1, dmg: 60, speed: 7, range: 5, cd: 1.4, tell: 200 }],
+      asDeath: { ring: 8, proj: AP('meteor_mite.ember_chunk'), dmg: 60 }, loot: LA },
+    lens_wisp: { name: 'Lens Wisp', biome: 'astral', reg: 'ap_enemies/lens_wisp', hp: 750, def: 8, speed: 2.8, xp: 45, r: 0.35, ai: 'kite', keep: 8.5, aggro: 13, fly: true,
+      attacks: [{ pattern: 'aimed', proj: AP('lens_wisp.focus_beam'), count: 1, dmg: 105, speed: 17, range: 12, cd: 2, tell: 500 }], loot: LA },
   });
   const CHA = [{ slot: 'weapon', tiers: [7, 9], p: 0.8 }, { slot: 'armor', tiers: [7, 10], p: 0.8 }, { slot: 'ability', tiers: [3, 4], p: 0.6 }, { slot: 'ring', tiers: [3, 4], p: 0.6 },
     { stat: true, p: 1 }, { id: 'pot_mp', p: 1 }];
   DUNGEONS.astral = { name: 'The Astral Observatory', floor: 'asmarble', wall: 'aswall', hazard: null, rooms: 11, portal: 'astral', style: 'astral',
     layout: { secrets: 0 }, seals: [], altar: false, chestLoot: CHA, mobs: ['void_acolyte', 'star_eye', 'constellation_stalker'], elites: [],
-    boss: 'grand_orrery', mobHp: 1.6, ambient: 'rgba(6,4,22,0.5)',
+    boss: 'grand_orrery', mobHp: 1.7, ambient: 'rgba(6,4,22,0.5)',
+    // who stands where (realm_astral_plus's spawn notes): sentinels in pairs on the walkways, hounds in pairs in the
+    // star-map halls, a weaver over each skylight, mites in packs round the meteors, wisps near the lens stands
     compose(rm, r, deep) {
-      if (rm.kind === 'cogplatform') return rm.few ? ['star_eye'] : ['constellation_stalker', 'star_eye'];
-      if (rm.kind === 'dais') return ['star_eye', 'star_eye'];
-      if (rm.kind === 'vault') return ['void_acolyte', 'constellation_stalker'];
-      if (deep < 0.4) return ['void_acolyte', 'star_eye'];
-      if (deep < 0.75) return ['void_acolyte', 'constellation_stalker', 'constellation_stalker', 'star_eye'];
-      return ['void_acolyte', 'void_acolyte', 'constellation_stalker', 'constellation_stalker', 'star_eye', 'star_eye'];
-    } };
+      const n = (id, k) => Array(k).fill(id), mites = () => n('meteor_mite', r.int(4, 6)), wisps = () => n('lens_wisp', r.int(2, 3));
+      if (rm.kind === 'vault') return [];                                       // the Vault Keeper sleeps there (src/astral.js)
+      if (rm.kind === 'cogplatform') return rm.few ? ['star_eye', ...wisps()] : ['constellation_stalker', 'star_eye', 'comet_hound', ...mites()];
+      if (rm.kind === 'dais') return ['star_eye', 'star_eye', ...n('astrolabe_sentinel', 2), ...wisps()];
+      if (rm.kind === 'starhall') return [...n('comet_hound', 2), 'constellation_stalker', 'constellation_stalker', 'void_acolyte', ...(deep > 0.5 ? ['star_eye', 'comet_hound', 'comet_hound'] : ['star_eye'])];
+      if (rm.kind === 'skylight') return ['nebula_weaver', ...wisps(), 'void_acolyte', 'constellation_stalker', ...(deep > 0.5 ? ['nebula_weaver', 'star_eye', ...mites()] : ['star_eye'])];
+      if (rm.kind === 'antechamber') return [...n('astrolabe_sentinel', 2), ...n('comet_hound', 2), 'nebula_weaver', 'star_eye', 'star_eye'];
+      if (deep < 0.3) return ['void_acolyte', 'star_eye', ...mites(), ...wisps()];
+      if (deep < 0.7) return [...n('astrolabe_sentinel', 2), 'void_acolyte', 'constellation_stalker', 'star_eye', ...mites(), ...wisps()];
+      return [...n('astrolabe_sentinel', 2), 'void_acolyte', 'void_acolyte', 'constellation_stalker', 'constellation_stalker', 'star_eye', ...mites(), ...wisps()];
+    },
+    extraSpawns(m) { const V = m.rooms.find((q) => q.kind === 'vault'); return V ? [['vault_keeper', V.cx + 2.5, V.cy + 0.6]] : []; } };
   PORTAL_EXTRA.unshift((D) => {
     if ((D.biome === 'steppe' || D.biome === 'godfall') && Math.random() < 0.3) return ['astral', D.children ? 0.04 : 0.01];
     return null;

@@ -38,6 +38,13 @@ export const BXF = {
       if (!R0 || (p.x > R0.x && p.x < R0.x + R0.w && p.y > R0.y && p.y < R0.y + R0.h)) this.bxWake(e);
       return;
     }
+    if (S.state === 'deathhold') {                              // dead on its last frame, shaking; then it bursts
+      S.wait -= dt;
+      if (Math.random() < 0.5) this.vx({ k: 'burst', x: e.x + (Math.random() - 0.5) * 3, y: e.y - e.hitUp + (Math.random() - 0.5) * 3, n: 3, colors: ['#ffffff', '#ffd690', '#c8a0ff'] });
+      if (Math.random() < 0.08) this.vx({ k: 'shake', amt: 2 + (1 - S.wait / S.B.death.hold) * 4 });
+      if (S.wait <= 0) { if (S.B.death.burst) S.B.death.burst(this, e); this.bxFinish(e); }
+      return;
+    }
     if (S.state === 'finale') { this.bxFinale(e, dt); return; }
     if (B.update) B.update(this, e, dt);                         // the boss's own continuous mechanics
     for (const v of S.vol) if ((v.t -= dt) <= 0 && !v.done) { v.done = true; this.bxVolley(e, v.V); }
@@ -92,7 +99,10 @@ export const BXF = {
       S.state = 'grace'; S.wait = 1.4; e.invulnT = 0;
       return;
     }
-    if (S.state === 'death' && clip === S.def.death) this.bxFinish(e);
+    if (S.state === 'death' && clip === S.def.death) {
+      if (S.B.death && S.B.death.hold) { S.state = 'deathhold'; S.wait = S.B.death.hold; return; }   // it holds its last frame a while first
+      this.bxFinish(e);
+    }
   },
   bxRelease(e) {
     const S = e.bx, pat = S.pat;
@@ -228,7 +238,7 @@ export const BXF = {
   bxImmune(e, x, y, quiet) {
     const S = e.bx;
     if (!S) return false;
-    if (S.state === 'sleep' || S.state === 'intro' || S.state === 'morph' || S.state === 'death') { if (!quiet) this.float(x, y - 0.8, 'IMMUNE', '#8d88a0'); return true; }
+    if (S.state === 'sleep' || S.state === 'intro' || S.state === 'morph' || S.state === 'death' || S.state === 'deathhold') { if (!quiet) this.float(x, y - 0.8, 'IMMUNE', '#8d88a0'); return true; }
     if (S.state === 'finale') { if (!quiet) this.float(x, y - 0.8, 'SURVIVE', '#ffd650'); return true; }
     if (S.B.immune && S.B.immune(this, e)) { if (!quiet) this.float(x, y - 0.8, S.B.immuneText || 'IMMUNE', '#c8c0d8'); return true; }
     return false;
@@ -243,7 +253,7 @@ export const BXF = {
     if (F && S.phase === 3 && !S.finaleDone && e.hp - d <= e.maxHp * F.at) { const keep = e.hp - e.maxHp * F.at; this.bxStartFinale(e); return Math.max(0, keep); }
     const th = this.bxThresholds(e), next = th[S.phase - 1];
     if (next !== undefined && e.hp - d <= e.maxHp * next) { const keep = e.hp - e.maxHp * next; this.bxMorph(e); return Math.max(0, keep); }
-    if (e.hp - d <= 0 && S.state !== 'death') { this.bxDie(e); return 0; }   // bxDie leaves it at 1 life while the death clip plays
+    if (e.hp - d <= 0 && S.state !== 'death' && S.state !== 'deathhold') { this.bxDie(e); return 0; }   // bxDie leaves it at 1 life while the death clip plays
     if (S.hurtT <= 0) S.hurtT = 0.12;
     return d;
   },
@@ -271,7 +281,7 @@ export const BXF = {
     S.state = 'death'; S.vol = []; e.invulnT = 99; e.hp = 1;
     this.bxClearBullets(e);
     if (S.B.onDeath) S.B.onDeath(this, e);
-    if (S.anim && S.def.anims[S.def.death]) S.anim.play(S.def.death, { speed: 1 }); else this.bxFinish(e);
+    if (S.anim && S.def.anims[S.def.death]) S.anim.play(S.def.death, { speed: (S.B.death && S.B.death.speed) || 1 }); else this.bxFinish(e);   // a boss may die slower
   },
   bxFinish(e) {
     const S = e.bx;
@@ -306,7 +316,7 @@ export const BXF = {
     const S = e.bx;
     if (!S || !S.def) return null;
     const F = S.B.finale, tag = S.state === 'finale' ? ` · ${F.name.toUpperCase()} ${Math.max(0, Math.ceil(F.dur - S.finT))}s` : S.broken ? ' · BROKEN' : '';
-    return { pips: F ? [...this.bxThresholds(e), F.at] : this.bxThresholds(e), phase: S.phase, name: S.def.phases[S.phase].name + (S.B.barTag ? S.B.barTag(this, e) : '') + tag, immune: ['intro', 'morph', 'death', 'sleep', 'finale'].includes(S.state) };
+    return { pips: F ? [...this.bxThresholds(e), F.at] : this.bxThresholds(e), phase: S.phase, name: S.def.phases[S.phase].name + (S.B.barTag ? S.B.barTag(this, e) : '') + tag, immune: ['intro', 'morph', 'death', 'deathhold', 'sleep', 'finale'].includes(S.state) };
   },
 };
 export function installBX(Game) { Object.assign(Game.prototype, BXF); }

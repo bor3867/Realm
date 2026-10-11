@@ -65,7 +65,9 @@
     "pt2_pets/firebird": "pet",
     "pt2_pets/phoenix": "pet",
     "pt2_pets/jade_dragon": "pet",
-    "pt2_pets/elder_drake": "pet"
+    "pt2_pets/elder_drake": "pet",
+    "ap_elites/nebula_weaver": "glide",
+    "ap_enemies/lens_wisp": "float"
   },
   "bosses": {
     "grand_orrery": {

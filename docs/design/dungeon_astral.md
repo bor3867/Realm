@@ -80,3 +80,38 @@ the Grand Orrery sleeps until you step onto its floor, and every one of its mech
   telescope finding the globe; the Orrery sleeps until you're on its floor, and every mechanic happens there.
 - Found and fixed while looking: the arena's door seals were being placed all along the floor's rim over the void
   (now only where a way comes in).
+
+## Astral Observatory Plus (realm_astral_plus)
+The dungeon was too easy and too empty. Its art pack is integrated (`art/bundle/astral_plus/`, read by the
+registry's `fromAstralPlus` adapter) and the dungeon reworked round it:
+- **Layout** (map 470x470): gallery, platform, star-map hall, platform, the clockwork, skylight hall, platform, the
+  telescope dais (and the star vault), star-map hall, platform, skylight hall, the antechamber, the Orrery Floor.
+  **No teleporters**: every rune circle is gone (the one that joined the gallery to the antechamber first, then the
+  last fold between two platforms); every step is walked. The antechamber is a guard room, not a rest.
+- **Floors**: inlaid marble round every rim, cracked marble here and there, brass walkways across the platforms,
+  constellation inlays in the star-map halls, a skylight in each skylight hall, the vault's medallion floor.
+  Decor: armillary stands, astrolabe tables, star-chart lecterns, celestial braziers, fallen meteors, gear heaps,
+  lens stands.
+- **Monsters** (~90 a run, was ~40): sentinels in pairs on the walkways, hounds in pairs in the star-map halls, a
+  weaver over each skylight, meteor mites in packs of 4–6, lens wisps in twos and threes; the old four tougher, each
+  with a new shot.
+
+| Monster | Shots | Its own |
+|---|---|---|
+| Astrolabe Sentinel | star lance (three, fast), astro disc (ring, boomerangs) | **Alignment**: a ring ward that blocks every shot for 2 s, then a shockwave of lances and discs |
+| Comet Hound | comet sparks (three), star fang (close, chills) | **Comet Dash**: crouch, streak through you, a burning trail for 2 s |
+| Nebula Weaver | nebula threads (fan of five, wavy), dust mote (splits in three) | **Star Veil**: a cloud (radius 3) that hides it and slows you for 3 s |
+| Vault Keeper | key bolts (armour-piercing), seal glyphs (ring that hangs, then flies out) | **Lockdown** (see below) |
+| Meteor Mite | ember chunk | bursts into a ring of eight embers when it dies |
+| Lens Wisp | focus beam (fast, after a long glint) | hangs far back |
+| Void Acolyte | + void orb (slow; drags you toward it on hit) | |
+| Orrery Drone | cog shot (ricochets once) | |
+| Star Eye | + gaze sparks (three, twice) | |
+| Constellation Stalker | + star claw (twin crescents, close) | |
+No shot seeks you.
+- **The star vault**: across the star bridge, a medallion floor, four trap plates, two relic pedestals, gold, a
+  brazier in each corner, the vault door at the bridge, and the Star Vault chest with the Vault Keeper asleep beside
+  it. Strike the chest (or the Keeper) and it wakes; **Lockdown** seals the vault's mouth with glyphs and the trap
+  plates fire in turn until it falls. When it does, the door unlocks and the chest opens: its loot is yours.
+- Checked by `tools/check_astral.mjs`: pacing, the furnished vault, no rune circle reaching the machine, every new
+  floor painted, all ten monster kinds present, each ability landing, the vault's whole flow.

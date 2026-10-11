@@ -34,7 +34,8 @@ async function boot() {
   const sfx = new Sfx();
   sfx.setVolume(settings.volume, settings.muted);
   ui.sfx = sfx;
-  ui.onSettingsChanged = () => { saveSettings(settings); fit(); sfx.setVolume(settings.volume, settings.muted); };
+  ui.onSettingsChanged = () => { saveSettings(settings); fit(); sfx.setVolume(settings.volume, settings.muted); ui.keyLine(); };
+  ui.keyLine();                                          // the hints show your own keys
   for (const ev of ['pointerdown', 'keydown']) addEventListener(ev, () => sfx.unlock(), { once: false, passive: true });
   ui.miniLabel();
 

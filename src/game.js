@@ -6,12 +6,15 @@ import { ITEMS, SETS, rollLoot, bagFor, canEquip, TYPE_SLOT, BAG_ORDER, BAG_NAME
 import { ENEMIES, PACKS, CAMP_LOOT, BIOME_SPAWNS, BOSS, REALM_BOSSES, PARENTS, HERALDS, BIOME_BOSS, EVENTS_TO_BOSS, GROUPS, DUNGEONS, DUNGEON_BOSSES, FIRECAMP_BANDS, portalDrop2 as portalDrop } from './data/enemies.js';
 import { nexus, vaultRoom, realm, dungeon, isSolid, shotBlocked, biomeAt, randomTileInBiome, BIOMES, BIOME_RING, BIOME_LABEL, TID } from './world/maps.js';
 import { writeSave } from './save.js';
+import { keyParen } from './settings.js';
+import { SHOT_BOXES } from './data/shot_boxes.js';
 import { installD4 } from './dungeons4.js';
 import { installMelon } from './melon.js';
 import { installRealmEvents } from './realmevents.js';
 import { installFrostveil } from './frostveil.js';
 import { installMirerot } from './mirerot.js';
 import { installAstral } from './astral.js';
+import { installOrbiters } from './orbiters.js';
 import { installSandscour } from './sandscour.js';
 import { installKeep } from './keep.js';
 import { installHollowmoon } from './hollowmoon.js';
@@ -26,6 +29,58 @@ import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUES
 
 import { PET_KINDS, RARITY, PET_TICK, SHIELD_TICK, PET_MAX, petHeal, petMagic, petShield, petCap, petLevel, feedCost, feedValue, hatchKind, newPet, upgradePet, feed, canMorph, morph, FUSE_GOLD, petSprite, petName, petStage, START_LV, FAMILIES, eggId } from './data/pets.js';
 const PLAYER_R = 0.32;
+// hits follow the art. You are an upright capsule a little inside your sprite (feet to the top of your head); a shot is a
+// capsule along its flight the size of its visible pixels (src/data/shot_boxes.js, made by tools/shot_boxes.mjs),
+// trimmed by HIT_K so that a graze of a pixel or two does not count. tools/check_hitboxes.mjs holds them to the art.
+export const HITBOX = { foot: 0.26, head: 0.66, r: 0.29, k: 0.86, kRound: 0.95 };
+const SHOT_OVERRIDE = { 'bx_shots/grand_orrery.star_bolt': [20, 4, 0, 0, 'h'] };   // drawn as a laser (render.js laserShot)
+const shapeCache = new Map();
+export function shotShape(sprite, size) {
+  let S = shapeCache.get(sprite);
+  if (S) return S;
+  const B = SHOT_OVERRIDE[sprite] || SHOT_BOXES[sprite], k = HITBOX.k / 16;
+  if (!B) S = { r: (size || 0.4) * 0.7, half: 0, al: 0, ac: 0 };
+  else if (B[4] !== 's') {                                  // a capsule along its longer side (across its flight for a crescent or a wave);
+                                                            // an upright sprite ('f') keeps to the screen, not its flight
+    const across = B[1] > B[0], r = (Math.min(B[0], B[1]) / 2) * k, round = Math.abs(B[0] - B[1]) <= 2;
+    S = { r: round ? (B[0] / 2) * (HITBOX.kRound / 16) : r, half: round ? 0 : Math.max(0, (Math.max(B[0], B[1]) / 2) * k - r), al: B[2] / 16, ac: B[3] / 16, across, upright: B[4] === 'f' };
+  }
+  else S = { r: ((B[0] + B[1]) / 4) * k, half: 0, al: 0, ac: 0 };                   // spinning: a round shape
+  if (B && B[5] && B[4] !== 's') {                          // its visible pixels, for the close look
+    const bin = typeof atob === 'function' ? atob(B[5]) : Buffer.from(B[5], 'base64').toString('binary'), pts = new Float32Array(bin.length);
+    for (let i = 0; i < bin.length; i++) { const v = bin.charCodeAt(i); pts[i] = (v > 127 ? v - 256 : v) / 32; }   // half buffer pixels -> tiles
+    S.pts = pts; S.pr = (B[6] || 1) / 16;
+  }
+  shapeCache.set(sprite, S);
+  return S;
+}
+// a shot against your capsule: its own capsule first (cheap), then, if that is close, its visible pixels one by one
+export function shotTouches(S, bx, by, ca, sa, cx, cy, ux, uy, fx, fy, hx, hy) {
+  const d = segDist(cx - ux * S.half, cy - uy * S.half, cx + ux * S.half, cy + uy * S.half, fx, fy, hx, hy);
+  if (!S.pts) return d < S.r + HITBOX.r;
+  if (d > S.r + HITBOX.r + 0.35) return false;
+  const reach = HITBOX.r + S.pr * 0.6, P = S.pts;
+  for (let i = 0; i < P.length; i += 2) {
+    const x = bx + P[i] * ca - P[i + 1] * sa, y = by + P[i] * sa + P[i + 1] * ca;
+    if (segDist(x, y, x, y, fx, fy, hx, hy) < reach) return true;
+  }
+  return false;
+}
+// the nearest distance between two segments (a0-a1 and b0-b1)
+export function segDist(ax, ay, bx, by, cx, cy, dx, dy) {
+  const ux = bx - ax, uy = by - ay, vx = dx - cx, vy = dy - cy, wx = ax - cx, wy = ay - cy;
+  const a = ux * ux + uy * uy, b = ux * vx + uy * vy, c = vx * vx + vy * vy, d = ux * wx + uy * wy, e = vx * wx + vy * wy, D = a * c - b * b;
+  let s = 0, t = 0;
+  if (a < 1e-9 && c < 1e-9) return Math.hypot(wx, wy);
+  if (a < 1e-9) t = Math.max(0, Math.min(1, e / c));
+  else if (c < 1e-9) s = Math.max(0, Math.min(1, -d / a));
+  else {
+    s = D > 1e-9 ? Math.max(0, Math.min(1, (b * e - c * d) / D)) : 0;
+    t = (b * s + e) / c;
+    if (t < 0) { t = 0; s = Math.max(0, Math.min(1, -d / a)); } else if (t > 1) { t = 1; s = Math.max(0, Math.min(1, (b - d) / a)); }
+  }
+  return Math.hypot(wx + s * ux - t * vx, wy + s * uy - t * vy);
+}
 const r4 = () => [0, Math.PI / 2, Math.PI, -Math.PI / 2][Math.floor(Math.random() * 4)];
 export const POT_STACK = 10, VAULT_MAX = 80;
 const ACTIVE_R = 24;            // enemies farther than this sleep
@@ -479,7 +534,20 @@ export class Game {
     p.mp = Math.min(p.mp, this.stat('mp'));
   }
   toast(text) { this.events.push({ type: 'toast', text }); }
-  float(x, y, text, color) { this.floaters.push({ x, y, text, color, t: 0 }); }
+  // floating text: numbers and words that belong to someone ride above their head, not over their body
+  float(x, y, text, color) {
+    const who = this.floatOwner(x, y), n = who ? this.floaters.filter((f) => f.who === who && f.t < 0.3).length : 0;
+    this.floaters.push({ x, y, text, color, t: 0, who, dx: who ? [0, -0.45, 0.45][n % 3] : 0 });
+  }
+  floatOwner(x, y) {
+    let best = null, bd = 1e9;
+    const test = (e, up, reach) => { const d = Math.hypot(e.x - x, e.y - up - y); if (d < reach && d < bd) { bd = d; best = e; } };
+    const p = this.player;
+    if (p && !p.dead) test(p, 0.7, 1.6);
+    for (const e of this.active || []) if (!e.dead) test(e, e.hitUp || 0.6, e.rb ? 3.2 : 1.6);
+    if (this.boss && this.boss.state !== 'dead') test(this.boss, 2.3, 3.5);
+    return best;
+  }
 
   // ------------------------------------------------------------- spawning
   populateRealm() {
@@ -864,6 +932,7 @@ export class Game {
   // armour / ring effects that tick every frame
   updatePassives(dt) {
     const p = this.player, P = this.passive();
+    this.updateOrbs(dt);                                 // whatever circles you (src/orbiters.js)
     if (P.lowregen && p.hp < this.stat('hp') * 0.35) p.hp = Math.min(this.stat('hp'), p.hp + P.lowregen * dt);
     if (P.aegis && !p.aegisUp) { p.aegisT = (p.aegisT || 0) - dt; if (p.aegisT <= 0) p.aegisUp = true; }
     if (P.cheatdeath) p.cheatT = Math.max(0, (p.cheatT || 0) - dt);
@@ -890,6 +959,7 @@ export class Game {
   // an ability's signature: one of six shapes, drawn with the item's own shot
   abilitySig(S, mult, aim, tgt) {
     const p = this.player, [ox, oy] = this.up(p.x, p.y, 0.5), dmg = Math.round(S.dmg * mult), proj = S.proj || 'spark', n = S.n || 6;
+    if (S.kind === 'orbit') return this.orbSummon(S);
     if (S.kind === 'nova') for (let k = 0; k < n; k++) this.shoot('p', ox, oy, aim + (k / n) * TAU, 8, 6, dmg, proj, 0.5, true);
     else if (S.kind === 'lance') for (let k = 0; k < n; k++) this.shoot('p', ox, oy, aim + (k - (n - 1) / 2) * 0.12, 14, 12, dmg, proj, 0.62, true);
     else if (S.kind === 'wave') {
@@ -1336,6 +1406,13 @@ export class Game {
     return b;
   }
 
+  // does this enemy shot touch you? (its art against yours; see HITBOX)
+  shotHitsPlayer(b, p) {
+    const S = shotShape(b.sprite, b.r), a = S.upright ? -this.camAngle : b.a || 0, ca = Math.cos(a), sa = Math.sin(a);
+    const cx = b.x + ca * S.al - sa * S.ac, cy = b.y + sa * S.al + ca * S.ac, ux = S.across ? -sa : ca, uy = S.across ? ca : sa;
+    const [fx, fy] = this.up(p.x, p.y, HITBOX.foot), [hx, hy] = this.up(p.x, p.y, HITBOX.head);
+    return shotTouches(S, b.x, b.y, ca, sa, cx, cy, ux, uy, fx, fy, hx, hy);
+  }
   hurtPlayer(dmg, by, ignoreDef = false) {
     const p = this.player;
     if (p.dead || p.status.invuln > 0 || this.map.kind === 'nexus' || this.god) return;
@@ -1474,6 +1551,7 @@ export class Game {
       if (e.dead || e.D.dummy) continue;
       if (this.frozen(e)) continue;                     // Stop Time
       if (e.spawnT > 0) { e.spawnT -= dt; if (e.spawnT <= 0) { e.born = this.t; this.vx({ k: 'burst', x: e.x, y: e.y - 0.6, n: 20, colors: ['#ffd650', '#ffffff', '#c8a0ff'] }); } continue; }   // an elite arriving
+      if ((e.asDormant || e.asWakeT > 0) && this.asDormantTick(e, dt)) continue;      // the Vault Keeper, asleep or waking (src/astral.js)
       if (e.D.ability && this.updateEliteAbility(e, dt, Math.sqrt(d2))) continue;   // an elite using its ability
       if (e.stunT > 0) { e.stunT -= dt; continue; }
       if (e.rb) { if (e.D.bx) this.updateBx(e, dt, Math.sqrt(d2)); else this.updateRealmBoss(e, dt, Math.sqrt(d2)); continue; }
@@ -1797,7 +1875,7 @@ export class Game {
         dmg: A.dmg, by: nm, hit: false, col: A.col || '#ffd650' });
       return;
     }
-    const tag = (b, k) => { if (A.mv) { b.mv = A.mv; b.cs = A.mv.alt && k % 2 ? -1 : 1; } if (A.chill) b.chill = A.chill; };
+    const tag = (b, k) => { if (A.mv) { b.mv = A.mv; b.cs = A.mv.alt && k % 2 ? -1 : 1; } if (A.chill) b.chill = A.chill; if (A.bounce) { b.bounce = A.bounce; b.life *= 1.6; } if (A.pull) b.pull = A.pull; if (A.ap) b.ap = true; };
     if (A.pattern === 'radial') {
       e.spin = (e.spin || 0) + (A.turn || 0);
       for (let k = 0; k < A.count; k++) tag(this.shoot('e', ox, oy, e.spin + (k / A.count) * TAU, A.speed, A.range, A.dmg, A.proj, size, false, e.D.name), k);
@@ -1812,6 +1890,8 @@ export class Game {
     if (e.dead || e.state === 'dead') return 0;
     if (e.spawnT > 0) return 0;                                  // an elite still arriving
     if (e.bulwarkT > this.t) { if (!quiet) this.float(x, y - 0.8, 'BULWARK', '#ff8fbf'); return 0; }   // the reef golem's shell
+    if (e.asDormant) this.asWake(e);                              // the Vault Keeper wakes when struck
+    if (e.wardT > this.t) { if (!quiet) this.float(x, y - 0.8, 'WARDED', '#ffd690'); return 0; }   // an astrolabe sentinel's ring ward
     if (e.rallyUntil > this.t) dmg = Math.round(dmg * 0.7);       // an orc under the war banner
     if (e.surviveUntil > this.t) { if (!quiet) this.float(x, y - 0.8, 'SURVIVE!', '#ff8c1e'); return 0; }
     if (e.frenzyUntil > this.t) { if (!quiet) this.float(x, y - 0.8, e.D.bloodlust ? 'BLOODLUST' : 'INVULNERABLE', '#ff4a5a'); return 0; }
@@ -1868,6 +1948,7 @@ export class Game {
       this.speak(e, 'die', e.rb ? 1 : 0.04);
       if (e.D.confetti) { this.vx({ k: 'regfx', key: 'd2_effects/hollowmoon.confetti_pop', x: e.x, y: e.y - 0.6, fps: 10 }); const g0 = 3 + Math.floor(R() * 4); this.save.gold = (this.save.gold || 0) + g0; this.float(e.x, e.y - 1.4, `+${g0}g`, '#f2c14e'); }
       if (e.D.deathBurst) { const B = e.D.deathBurst, a0 = R() * TAU; for (let k = 0; k < B.n; k++) this.shoot('e', e.x, e.y - 0.4, a0 + (k / B.n) * TAU, B.speed, B.range, B.dmg, B.proj, 0.35, false, e.D.name); }
+      if (e.D.asDeath) this.asDeath(e);                       // a meteor mite's ring of embers; the Vault Keeper's fall (src/astral.js)
       if (e.D.split) for (let k = 0; k < e.D.split.n; k++) {   // splitters burst into smaller copies
         const a = (k / e.D.split.n) * TAU, x = e.x + Math.cos(a) * 0.7, y = e.y + Math.sin(a) * 0.7;
         if (!isSolid(this.map, x, y)) this.addEnemy(e.D.split.id, x, y);
@@ -2631,10 +2712,10 @@ export class Game {
       if (this.player.carry) out.push({ kind: 'mask', done: false, x: stand.x, y: stand.y, text: `Carry the Mask of ${NAMES[this.player.carry]} to the stand`, sub: 'before the stage', live: true });
       for (let k = 0; k < placed; k++) out.push({ kind: 'mask', done: true, x: stand.x, y: stand.y, text: 'A mask returned to its stand', sub: '' });
     }
-    for (const B of m.beams || []) out.push({ kind: 'mirror', done: B.lit, x: B.recv.x + 0.5, y: B.recv.y + 0.5, text: 'Light the crystal', sub: B.lit ? '' : 'turn the mirrors (F) to bend the beam' });
+    for (const B of m.beams || []) out.push({ kind: 'mirror', done: B.lit, x: B.recv.x + 0.5, y: B.recv.y + 0.5, text: 'Light the crystal', sub: B.lit ? '' : `turn the mirrors${keyParen('portal')} to bend the beam` });
     for (const o of m.objects) if (o.interact === 'sigil') {
       const live = S4.trial && S4.trial.o === o;
-      out.push({ kind: 'trial', done: !!o.done, x: o.x, y: o.y, text: 'Survive a nightmare trial', sub: o.done ? '' : live ? `wave ${S4.trial.wave} of 3` : 'step onto the sigil and press F', live });
+      out.push({ kind: 'trial', done: !!o.done, x: o.x, y: o.y, text: 'Survive a nightmare trial', sub: o.done ? '' : live ? `wave ${S4.trial.wave} of 3` : `step onto the sigil and use it${keyParen('portal')}`, live });
     }
     return out;
   }
@@ -3002,7 +3083,7 @@ export class Game {
     if (o.sdUrn) return this.hitUrn(o);
     if (o.hmStriker || o.hmCrate) return this.hitFair(o);
     if (o.interact === 'weak') return this.hitWeak(o);
-    if (o.guards && o.guards.some((g) => !g.dead)) { this.float(o.x, o.y - 1, 'GUARDED', '#8d88a0'); return; }
+    if (o.guards && o.guards.some((g) => !g.dead)) { if (o.starVault) this.asVaultHit(o); this.float(o.x, o.y - 1, 'GUARDED', '#8d88a0'); return; }
     if (!o.maxHp) o.hp = o.maxHp = this.chestHp(o);
     o.hp -= dmg; o.mine = (o.mine || 0) + dmg; o.hurtT = this.t;
     this.float(o.x, o.y - 0.9, `${Math.round(dmg)}`, '#ffd650');
@@ -3276,15 +3357,17 @@ export class Game {
             if (!b.pierce) { alive = false; break; }
           }
         }
-      } else if (!p.dead && !b.ghost) {
-        const rr = PLAYER_R + b.r * 0.6;
-        const [hx, hy] = this.up(p.x, p.y, 0.45);
-        if (dist2(b.x, b.y, hx, hy) < rr * rr) {
+      } else if (!p.dead && !b.ghost && !b.harmless) {
+        if (Math.abs(b.x - p.x) < 2.5 && Math.abs(b.y - p.y) < 3 && this.shotHitsPlayer(b, p)) {
           alive = false;
-          // one volley, one hit: the rest of a shotgun blast / cage / wall that lands with it is absorbed
+          // one volley, one hit: the rest of a shotgun blast / cage / wall that lands with it in the same instant is
+          // absorbed. Only in that instant: a shot from the same volley that reaches you later (an orbiting ring, a
+          // spiral arm, a wall you walk back into) hurts like any other. (It used to be absorbed for good: you were
+          // hit, the shot vanished, and nothing happened.)
           this.hitVols = this.hitVols || new Map();
           const seen = this.hitVols.get(b.vol);
-          if (seen === undefined) { this.hitVols.set(b.vol, this.t); this.hurtPlayer(b.dmg, this.killerName(b)); }
+          if (seen === undefined || this.t - seen > 0.12) { this.hitVols.set(b.vol, this.t); this.hurtPlayer(b.dmg, this.killerName(b), !!b.ap); }   // armour-piercing shots ignore Defense
+          if (b.pull) { const s = Math.hypot(b.vx, b.vy) || 1; this.moveCircle(p, (-b.vx / s) * b.pull, (-b.vy / s) * b.pull, 0.32); }   // a void orb drags you toward its caster
           if (b.drowsy) p.drowsy = Math.min(1, (p.drowsy || 0) + b.drowsy);
           if (b.chill) this.addChill(b.chill);
           if (b.poison) this.poison(b.poison);
@@ -3574,7 +3657,7 @@ export class Game {
         if (has && o.sprite !== 'waypoint_on') o.sprite = 'waypoint_on';
         if (!has && dist2(o.x, o.y, p.x, p.y) < 9) {
           known.push(o.name); o.sprite = 'waypoint_on';
-          this.banner(`Waypoint discovered: ${o.name}. Press F at any waypoint to travel.`, 3200);
+          this.banner(`Waypoint discovered: ${o.name}. Use any waypoint${keyParen('portal')} to travel.`, 3200);
           this.vx({ k: 'burst', x: o.x, y: o.y - 1, n: 30, colors: ['#8af0ff', '#ffffff'] }); this.sfx('rare');
           this.persist();
         }
@@ -3986,6 +4069,7 @@ installRealmEvents(Game);
 installFrostveil(Game);
 installMirerot(Game);
 installAstral(Game);
+installOrbiters(Game);
 installSandscour(Game);
 installKeep(Game);
 installHollowmoon(Game);

@@ -115,6 +115,23 @@ function fromRemaster(R, pack, atlas, img) {
       pivot: [0, 0], foot: [w / 2, h / 2], size: [w, h], kind: 'shot', meta: { owner: S.owner } });
   }
 }
+// 2c. the Astral Observatory Plus format: sheets[name] = { native:'<png>', sprites:{ sprite:{ frames:{fn:{native:rect}}, anims, ...meta } } }
+const AP_KIND = { ap_shots: 'shot', ap_tiles: 'tile', ap_decor: 'decor', ap_treasure: 'decor' };
+function fromAstralPlus(R, pack, atlas, img) {
+  for (const [sheet, S] of Object.entries(atlas.sheets)) {
+    const I = img(S.native), kind = AP_KIND[sheet] || 'creature';
+    for (const [name, sp] of Object.entries(S.sprites)) {
+      const frames = {}; let w = 0, h = 0;
+      for (const [fn, f] of Object.entries(sp.frames)) { const r = f.native; frames[fn] = { x: r.x, y: r.y, w: r.w, h: r.h }; w = Math.max(w, r.w); h = Math.max(h, r.h); }
+      const { frames: _f, anims, ...meta } = sp;
+      const def = { key: `${sheet}/${name}`, pack, sheet, name, img: I, frames, anims, pivot: [0, 0], size: [w, h], kind, meta };
+      if (kind === 'shot' || kind === 'tile') def.foot = [w / 2, h / 2];
+      else if (kind === 'decor') def.foot = [w / 2, h];
+      else { def.foot = [w / 2, h]; def.needsFoot = true; }
+      R.add(def);
+    }
+  }
+}
 // 3. the item format: items[name] = { group, tier, native:{frame:rect}, animations }
 function fromItems(R, pack, atlas, img) {
   const I = img(atlas.sheet.native);
@@ -178,6 +195,7 @@ export function buildRegistry(atlases, hover, img = () => null) {
     const im = (rel) => img(`${pack}/${rel}`);
     if (json.bosses && json.meta && /^Realm Remaster/.test(json.meta.name)) fromRemaster(R, pack, json, im);
     else if (json.bosses) fromBosses(R, pack, json, im);
+    else if (json.sheets && Object.values(json.sheets).some((S) => typeof S.native === 'string')) fromAstralPlus(R, pack, json, im);
     else if (json.items) fromItems(R, pack, json, im);
     else fromSheets(R, pack, json, im);
   }

@@ -43,7 +43,11 @@ export const SKINS = [null,
   ['d2_tiles/crimson_keep_wall_top', 'ckwin'],
   // Hollowmoon Carnival: sawdust a/b, the midway's planks, funhouse checker, spin tiles, the tents' canvas
   ['d2_tiles/hollowmoon_sawdust_a', 'hmsaw'], ['d2_tiles/hollowmoon_sawdust_b', 'hmsaw'], ['d2_tiles/hollowmoon_boards', 'hmboard'],
-  ['d2_tiles/hollowmoon_funhouse_checker', 'hmcheck'], ['d2_tiles/hollowmoon_spin_tile', 'hmspin'], ['d2_tiles/hollowmoon_wall_top', 'hmwall']];
+  ['d2_tiles/hollowmoon_funhouse_checker', 'hmcheck'], ['d2_tiles/hollowmoon_spin_tile', 'hmspin'], ['d2_tiles/hollowmoon_wall_top', 'hmwall'],
+  // Astral Observatory Plus: inlaid and cracked marble, star-map inlays, skylights, brass walkways, the star vault's floor
+  ['ap_tiles/astral_marble_inlay', 'asmarble'], ['ap_tiles/astral_marble_cracked', 'asmarble'], ['ap_tiles/astral_constellation_inlay', 'asmarble'],
+  ['ap_tiles/astral_constellation_inlay_b', 'asmarble'], ['ap_tiles/astral_skylight', 'asmarble'], ['ap_tiles/astral_brass_walkway', 'asgrate'],
+  ['ap_tiles/vault_floor', 'asmarble'], ['ap_tiles/vault_floor_plain', 'asmarble']];
 // a wall skin's face: drawn under the wall, toward the camera, so walls stand up (RotMG-style)
 export const WALL_FACE = { fvwall: 'ex_tiles/frostveil_wall_side', mrwall: 'ex_tiles/mirerot_wall_side', aswall: 'ex_tiles/astral_wall_side', sdwall: 'ex_tiles/sandscour_wall_side', ckwall: 'd2_tiles/crimson_keep_wall_side', ckwin: 'd2_tiles/crimson_keep_wall_window', hmwall: 'd2_tiles/hollowmoon_wall_side' };
 export const SKIN_TID = SKINS.map((s) => (s ? TID[s[1]] : -1));
@@ -683,7 +687,7 @@ export function randomTileInBiome(m, b, r, avoid, minD = 14) {
 // Upper dungeons seal their boss behind a gate (def.seals: wardens, levers, a puzzle); the lower ones don't.
 export function dungeon(seed, def) {
   const r = rng(seed);
-  const S = { chapel: 200, crypt: 180, forge: 180, scriptorium: 214, heart: 196, throne: 196, hive: 200, theatre: 190, spire: 220, islands: 230, frostveil: 300, mirerot: 280, astral: 340, sandscour: 320, keep: 280, hollowmoon: 300 }[def.style] || 230;
+  const S = { chapel: 200, crypt: 180, forge: 180, scriptorium: 214, heart: 196, throne: 196, hive: 200, theatre: 190, spire: 220, islands: 230, frostveil: 300, mirerot: 280, astral: 470, sandscour: 320, keep: 280, hollowmoon: 300 }[def.style] || 230;
   const FLOOR = TID[def.floor], WALL = TID[def.wall], HAZ = def.hazard ? TID[def.hazard] : null;
   const WET = def.style === 'crypt' ? TID.cryptwater : TID.water, HOT = def.style === 'ember' ? TID.emberlava : TID.lava;
   const m = makeMap('dungeon', def.name, S, S, TID.void);
@@ -862,8 +866,8 @@ export function dungeon(seed, def) {
     // platforms, the Clockwork (two turning bridges), the Telescope Dais (its vault across a star bridge), the
     // Antechamber, the Orrery Floor. Nothing is walled: the void is everywhere.
     astral() {
-      const order = ['gallery', 'platform', 'platform', 'clockwork', 'platform', 'dais', 'platform', 'antechamber', 'orrery'];
-      const shape = { gallery: ['octa', 15, 15], platform: null, dais: ['round', 15, 15], antechamber: ['round', 13, 13], orrery: ['round', 36, 36] };
+      const order = ['gallery', 'platform', 'starhall', 'platform', 'clockwork', 'skylight', 'platform', 'dais', 'starhall', 'platform', 'skylight', 'antechamber', 'orrery'];
+      const shape = { gallery: ['octa', 15, 15], platform: null, starhall: ['rect', 23, 15], skylight: ['octa', 19, 19], dais: ['round', 15, 15], antechamber: ['round', 15, 15], orrery: ['round', 36, 36] };
       const grate = (x0, y0, x1, y1) => carve(x0, y0, x1, y1, TID.asgrate);
       // a straight bridge (or an L of two) two wide, from one room's centre to the next
       const bridge = (a, b) => {
@@ -889,7 +893,7 @@ export function dungeon(seed, def) {
         }
         const [shp, w, h] = sh;
         const n = room(gx, gy - (h >> 1), w, h, { kind, dep: k, shape: shp });
-        if (kind === 'antechamber') n.role = 'rest';
+        if (kind === 'antechamber') n.role = 'fight';                // the last guard before the machine: no rest, no way round
         if (prev) {
           if (prev.clock && prev.clock !== clocks[0]) link(prev, n);   // across the second clockwork: joined by its arms
           else { bridge(prev, n); link(prev, n); }
@@ -905,14 +909,17 @@ export function dungeon(seed, def) {
       const dais = nodes.find((n) => n.kind === 'dais'), vw = 11, vx = dais.cx - (vw >> 1);
       const clash = (y) => rooms.some((o) => vx < o.x + o.w + 3 && o.x < vx + vw + 3 && y < o.y + o.h + 3 && o.y < y + vw + 3);
       const up = !clash(dais.y - 8 - vw) || clash(dais.y + dais.h + 8);
-      const vault = room(vx, up ? dais.y - 8 - vw : dais.y + dais.h + 8, vw, vw, { kind: 'vault', dep: dais.dep, leaf: true, shape: 'rect', role: 'treasure' });
+      const vault = room(vx, up ? dais.y - 8 - vw : dais.y + dais.h + 8, vw, vw, { kind: 'vault', dep: dais.dep, leaf: true, shape: 'rect', role: 'treasure', noChest: true });
       link(dais, vault);
       const y0 = up ? vault.y + vault.h : dais.y + dais.h, y1 = up ? dais.y - 1 : vault.y - 1;
       const span = []; for (let y = y0; y <= y1; y++) span.push(y);
       m.asStar = [0, 1, 2].map((s) => { const ys = span.slice(Math.floor(s * span.length / 3), Math.floor((s + 1) * span.length / 3)); const out = []; for (const y of ys) for (let x = dais.cx - 1; x <= dais.cx + 1; x++) out.push(y * S + x); return out; });
       m.asDais = { cx: dais.cx, cy: dais.cy, r: 7, up, globe: { x: vault.cx + 0.5, y: up ? vault.y + 1.5 : vault.y + vault.h - 1.5 } };
+      // the star vault's mouth: where the bridge meets it (the Vault Keeper's Lockdown seals it)
+      const mouthY = up ? vault.y + vault.h : vault.y - 1;
+      m.asVault = { mouth: [-1, 0, 1].map((d) => mouthY * S + dais.cx + d), door: { x: dais.cx, y: up ? vault.y + vault.h - 1 : vault.y } };
       m.asClocks = clocks;
-      m.asRunePairs = [[start, nodes.find((n) => n.kind === 'antechamber')], [nodes.filter((n) => n.kind === 'platform')[0], nodes.filter((n) => n.kind === 'platform')[2]]].filter(([a, b]) => a && b);
+      m.asRunePairs = [];                                          // no rune circles: every step of the way is walked
       m.asVoidBox = rooms.reduce((B, n) => ({ x0: Math.min(B.x0, n.x - 14), y0: Math.min(B.y0, n.y - 14), x1: Math.max(B.x1, n.x + n.w + 14), y1: Math.max(B.y1, n.y + n.h + 14) }), { x0: S, y0: S, x1: 0, y1: 0 });
       return { start, boss: floorRoom };
     },
@@ -1524,15 +1531,48 @@ export function dungeon(seed, def) {
     astral(n) {
       const inRoom = (x, y) => isF(x, y) && x >= n.x && y >= n.y && x < n.x + n.w && y < n.y + n.h;
       const corners = (inset, sprite, solid = true) => { for (const [x, y] of [[n.x + inset, n.y + inset], [n.x + n.w - 1 - inset, n.y + inset], [n.x + inset, n.y + n.h - 1 - inset], [n.x + n.w - 1 - inset, n.y + n.h - 1 - inset]]) if (inRoom(x, y)) put2(null, x, y, sprite, solid); };
-      if (n.kind === 'gallery') { corners(3, AS('brass_pillar')); put2(null, n.cx, n.cy - 3, AS('star_globe')); }
-      else if (n.kind === 'platform') { corners(2, AS('brass_pillar')); for (let k = 0; k < 2; k++) put2(n, n.x + 3 + r.int(0, n.w - 7), n.y + 3 + r.int(0, n.h - 7), AS('floating_crystal')); }
+      m.asPaint = m.asPaint || new Map();
+      const paint = (x, y, k) => { if (inRoom(x, y)) m.asPaint.set(y * S + x, k); };
+      // every room: inlaid marble round its rim, cracks here and there
+      for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) {
+        if (!inRoom(x, y)) continue;
+        const rim = [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => !inRoom(x + dx, y + dy));
+        if (rim) paint(x, y, 'astral_marble_inlay'); else if (r.chance(0.07)) paint(x, y, 'astral_marble_cracked');
+      }
+      const AP = (k) => 'ap_decor/' + k;
+      if (n.kind === 'gallery') { corners(3, AS('brass_pillar')); put2(null, n.cx, n.cy - 3, AS('star_globe')); put2(null, n.cx - 3, n.cy + 3, AP('celestial_brazier'), false); put2(null, n.cx + 3, n.cy + 3, AP('celestial_brazier'), false); }
+      else if (n.kind === 'platform') {                             // a brass walkway across it (sentinels walk it), a fallen meteor, lens stands
+        corners(2, AS('brass_pillar'));
+        for (let x = n.x; x < n.x + n.w; x++) for (let y = n.cy; y <= n.cy + 1; y++) if (inRoom(x, y)) { set(x, y, TID.asgrate); m.asPaint.set(y * S + x, 'astral_brass_walkway'); }
+        const mx = n.x + 3 + r.int(0, 3), my = n.y + 3;
+        put2(null, mx, my, AP('fallen_meteor'), false); put2(null, mx + 1, my + 1, AP('gear_heap'), false);
+        put2(null, n.x + n.w - 4, n.y + n.h - 3, AP('lens_stand'), false); put2(null, n.x + n.w - 6, n.y + n.h - 3, AP('lens_stand'), false);
+        put2(n, n.x + 3 + r.int(0, n.w - 7), n.y + n.h - 4, AS('floating_crystal'));
+      } else if (n.kind === 'starhall') {                           // the star-map hall: constellations inlaid in the floor, lecterns and tables
+        for (let y = n.y + 2; y < n.y + n.h - 2; y++) for (let x = n.x + 2; x < n.x + n.w - 2; x++) if ((x * 7 + y * 13) % 5 === 0) paint(x, y, (x + y) % 2 ? 'astral_constellation_inlay' : 'astral_constellation_inlay_b');
+        for (let x = n.x + 3; x < n.x + n.w - 3; x += 5) { put2(null, x, n.y + 1, AP('star_chart_lectern'), false); put2(null, x, n.y + n.h - 2, AP('armillary_stand'), false); }
+        put2(null, n.cx, n.cy, AP('astrolabe_table'), false);
+      } else if (n.kind === 'skylight') {                           // a skylight onto the stars; the weaver hangs over it
+        for (let y = n.cy - 3; y <= n.cy + 3; y++) for (let x = n.cx - 3; x <= n.cx + 3; x++) if (Math.hypot(x - n.cx, y - n.cy) < 3.6) paint(x, y, 'astral_skylight');
+        corners(2, AP('armillary_stand'), false); corners(4, AS('brass_pillar'));
+        put2(null, n.cx - 6, n.cy, AP('lens_stand'), false); put2(null, n.cx + 6, n.cy, AP('lens_stand'), false);
+      }
       else if (n.kind === 'cogplatform') { corners(1, AS('brass_pillar')); }
       else if (n.kind === 'dais') {                                 // the telescopes, on the side that faces the vault
         const up = m.asDais ? m.asDais.up : n.cy > S / 2, dy = up ? -3 : 3;
         [-4, 0, 4].forEach((dx, j) => put2(null, n.cx + dx, n.cy + dy, AS('telescope'), true, { interact: 'scope', j, dir: (j * 3 + 1) % 8, label: 'Turn the telescope' }));
         for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) if (inRoom(x, y) && Math.hypot(x - n.cx, y - n.cy) < 2.2) set(x, y, TID.asgrate);
-      } else if (n.kind === 'vault') { corners(1, AS('floating_crystal')); }
-      else if (n.kind === 'antechamber') { for (let k = 0; k < 4; k++) { const a = Math.PI / 4 + k * Math.PI / 2; put2(null, Math.round(n.cx + Math.cos(a) * 4.5), Math.round(n.cy + Math.sin(a) * 4.5), AS('brass_pillar')); } }
+      } else if (n.kind === 'vault') {                              // the star vault: medallion floor, four trap plates, the chest, its keeper asleep beside it
+        for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) paint(x, y, (Math.abs(x - n.cx) + Math.abs(y - n.cy)) % 3 === 0 ? 'vault_floor' : 'vault_floor_plain');
+        const T = (k) => 'ap_treasure/' + k;
+        const D = m.asVault && m.asVault.door;
+        if (D) put(m, T('vault_door'), D.x, D.y, false, { asDoor: true, clip: 'open' });
+        put2(null, n.cx, n.cy, T('star_vault_chest'), false, { interact: 'chest', starVault: true });
+        for (const [dx, dy] of [[-3, -3], [3, -3], [-3, 3], [3, 3]]) put2(null, n.cx + dx, n.cy + dy, 'ap_tiles/vault_trap', false, { asTrap: true, clip: 'loop', clipT: -99 });
+        put2(null, n.cx - 2, n.cy - 1, T('relic_pedestal'), false); put2(null, n.cx + 2, n.cy - 1, T('relic_pedestal'), false);
+        for (const [dx, dy] of [[-1, 2], [1, 2], [0, -2], [2, 1]]) put2(null, n.cx + dx, n.cy + dy, T('star_gold_pile'), false);
+        corners(0, AP('celestial_brazier'), false);
+      } else if (n.kind === 'antechamber') { for (let k = 0; k < 4; k++) { const a = Math.PI / 4 + k * Math.PI / 2; put2(null, Math.round(n.cx + Math.cos(a) * 4.5), Math.round(n.cy + Math.sin(a) * 4.5), AS('brass_pillar')); } corners(1, AP('celestial_brazier'), false); }
       else if (n.kind === 'orrery') {                              // brass rings inlaid in the marble
         for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) { if (!inRoom(x, y)) continue; const d = Math.hypot(x - n.cx, y - n.cy); if (Math.abs(d - 6) < 0.5 || Math.abs(d - 12) < 0.5) set(x, y, TID.asgrate); }
       }
@@ -1942,7 +1982,7 @@ export function dungeon(seed, def) {
   for (const n of [...rooms.filter((n) => n !== boss), ...secrets]) {
     for (let j = 0; j < Math.round(n.w * n.h * 0.04); j++) { const x = n.x + r.int(1, n.w - 2), y = n.y + r.int(1, n.h - 2); if (isF(x, y)) m.decor.push({ name: r.pick(DEC), x, y }); }
   }
-  for (const n of [...rooms.filter((n) => n.role === 'treasure'), ...secrets]) {
+  for (const n of [...rooms.filter((n) => n.role === 'treasure' && !n.noChest), ...secrets]) {
     let x = n.cx, y = n.cy - 1;
     for (let t = 0; t < 8 && (!isF(x, y) || m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)); t++) { x = n.cx + r.int(-2, 2); y = n.cy + r.int(-2, 1); }
     put(m, 'chest', x, y, true, { interact: 'chest', secret: !!n.secret });
@@ -2030,7 +2070,9 @@ export function dungeon(seed, def) {
   if (def.style === 'astral') {                                       // marble, grate, the void, the wall tops (the hidden star bridge is void until revealed)
     for (let i = 0; i < m.tiles.length; i++) {
       const t = m.tiles[i];
-      if (t === TID.asmarble) m.skin[i] = SK.astral_marble; else if (t === TID.asgrate) m.skin[i] = SK.astral_brass_grate;
+      const pk = m.asPaint && m.asPaint.get(i);
+      if (pk && SK[pk] !== undefined && SKIN_TID[SK[pk]] === t) m.skin[i] = SK[pk];
+      else if (t === TID.asmarble) m.skin[i] = SK.astral_marble; else if (t === TID.asgrate) m.skin[i] = SK.astral_brass_grate;
       else if (t === TID.asvoid) m.skin[i] = SK.astral_void; else if (t === TID.aswall) m.skin[i] = SK.astral_wall_top;
     }
     m.hasVoid = true;

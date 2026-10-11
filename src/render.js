@@ -9,8 +9,12 @@ import { hoverY } from './registry.js';
 import { CLASSES } from './data/classes.js';
 import { ITEMS, iconIndex } from './data/items.js';
 import { outlinedFrame } from './outline.js';
+import { keyHint } from './settings.js';
 
 const TS = 16;
+// the Grand Orrery's pink bolts are drawn as lasers; its yellow shards and rings hold still (their flicker was too much)
+const LASER = { 'bx_shots/grand_orrery.star_bolt': ['#d02ab8', '#ff8af0'] };
+const STILL = new Set(['bx_shots/grand_orrery.brass_shard', 'bx_shots/grand_orrery.eclipse_ring', 'bx_shots/grand_orrery.corona_flare', 'bx_shots/grand_orrery.moon_shard']);
 const MINI = { 0: '#1e5078', 1: '#102c48', 2: '#d2b074', 3: '#3e6230', 4: '#4e412c', 5: '#c4d2e0', 6: '#5e5a76', 7: '#5e5a76',
   8: '#3e373c', 9: '#221d28', 10: '#d8d2c4', 11: '#3a2a2a', 12: '#2e2a38', 13: '#c0400e', 14: '#0a080c',
   15: '#4e6670', 16: '#8a9aa0', 17: '#221d28', 18: '#c8c0b0', 19: '#4a7a30', 20: '#8e8a9a', 21: '#9a764e', 22: '#18321a', 23: '#5aa0c8', 24: '#3a4a28', 25: '#c4dcee',
@@ -159,6 +163,7 @@ export class Renderer {
     for (const e of drawn || g.enemies) add(e.x, e.y, (sx, sy) => this.enemy(g, e, sx, sy));
     if (g.boss) add(g.boss.x, g.boss.y, (sx, sy) => this.boss(g, g.boss, sx, sy));
     add(g.player.x, g.player.y, (sx, sy) => this.player(g, g.player, sx, sy));
+    for (const L of g.player.orbsLive || []) add(L.B.x, L.B.y + 0.5, () => this.orbiter(g, L));   // what circles you (src/orbiters.js)
     for (const a of g.allies || []) add(a.x, a.y, (sx, sy) => (a.kind === 'kite' ? this.kiteSpr(g, a, sx, sy) : this.ally(g, a, sx, sy)));
     for (const d of g.decoys || []) add(d.x, d.y, (sx, sy) => this.decoy(g, d, sx, sy));
     for (const v of m.villagers || []) add(v.x, v.y, (sx, sy) => this.villager(g, v, sx, sy));
@@ -445,7 +450,9 @@ export class Renderer {
       }
       const A = Object.values(def.anims)[0];
       let fr = A.frames.length > 1 && !o.unlit ? A.frames[Math.floor(this.lastT * (A.fps || 4) + o.x * 0.7 + o.y * 0.3) % A.frames.length] : A.frames[0];
-      if (o.sdSarc) fr = A.frames[o.openT === undefined ? 0 : Math.min(A.frames.length - 1, Math.floor((this.lastT - o.openT) * 8))];   // a sarcophagus: shut, or its lid sliding open
+      if (o.asTrap) { const k = this.lastT - (o.clipT || -99); fr = A.frames[k < 0.45 ? 1 : k < 0.75 ? 2 : 0]; }   // a vault trap plate: idle, arming, firing
+      else if (o.clip && def.anims[o.clip]) { const C2 = def.anims[o.clip], k = Math.max(0, Math.floor((this.lastT - (o.clipT || 0)) * (C2.fps || 4))); fr = C2.frames[C2.loop ? k % C2.frames.length : Math.min(C2.frames.length - 1, k)]; }   // an object playing a named clip (the star vault)
+      else if (o.sdSarc) fr = A.frames[o.openT === undefined ? 0 : Math.min(A.frames.length - 1, Math.floor((this.lastT - o.openT) * 8))];   // a sarcophagus: shut, or its lid sliding open
       else if (o.sdUrn) fr = A.frames[o.cracked ? 1 : 0];
       else if (o.ckCoffin && def.anims.open) fr = (o.openT === undefined ? def.anims.closed : def.anims.open).frames[0];   // a coffin, shut or open
       else if (o.hmStriker && def.anims.ring) { const k = this.lastT - (o.ringT || -9); fr = k < 0.8 ? def.anims.ring.frames[Math.min(def.anims.ring.frames.length - 1, Math.floor(k * 8))] : def.anims.idle.frames[0]; }   // the puck flies up and rings the bell
@@ -1026,7 +1033,9 @@ export class Renderer {
     const F = Object.keys(def.frames), mv = (def.anims.move || def.anims.walk) ? (def.anims.move || def.anims.walk).frames : F.slice(0, 2);
     const fAtk = def.anims.attack ? def.anims.attack.frames[def.anims.attack.frames.length - 1] : F[2], fHurt = def.anims.hurt ? def.anims.hurt.frames[0] : F[3];   // by clip: some have three gallop frames
     let fr;
-    if (e.abil && def.anims.ability) { const A = def.anims.ability; fr = A.frames[Math.min(A.frames.length - 1, Math.floor(e.abil.t * A.fps))]; }   // an elite's ability: the clip is the telegraph
+    if (e.asDormant && def.anims.dormant) fr = def.anims.dormant.frames[0];        // the Vault Keeper, asleep by its chest
+    else if (e.asWakeT > 0 && def.anims.wake) { const A = def.anims.wake; fr = A.frames[Math.min(A.frames.length - 1, Math.floor((0.8 - e.asWakeT) * A.fps))]; }
+    else if (e.abil && def.anims.ability) { const A = def.anims.ability; fr = A.frames[Math.min(A.frames.length - 1, Math.floor(e.abil.t * A.fps))]; }   // an elite's ability: the clip is the telegraph
     else if (e.dead && def.anims.death) { const A = def.anims.death; fr = A.frames[Math.min(A.frames.length - 1, Math.floor(e.deadT * A.fps))]; }
     else if (e.dead || e.shellT > 0) fr = fHurt;
     else if (e.state === 'tell' || e.state === 'charge' || e.state === 'attack') fr = fAtk;
@@ -1039,7 +1048,7 @@ export class Renderer {
       if (pd) this.drawDef(pd, Object.keys(pd.frames)[0], Math.round(qx), Math.round(qy), { center: true });
     }
     if (!e.dead) this.shadow(sx, sy, Math.max(6, (def.size[0] > 12 ? 18 : 12) * K - L.z * 0.5));
-    const x = sx + L.dx, y = sy + L.dy - L.z + 1, alpha = e.dead ? Math.max(0, 1 - e.deadT / 0.6) : Math.min(1, L.rise);
+    const x = sx + L.dx, y = sy + L.dy - L.z + 1, alpha = e.dead ? Math.max(0, 1 - e.deadT / 0.6) : Math.min(1, L.rise) * (e.asVeiled > g.t ? 0.22 : 1);   // a nebula weaver in its veil is all but hidden
     if (e.D.ability) this.eliteFx(g, e, def, fr, x, y, L);
     this.drawDef(def, fr, x, y, { flip: L.flip, alpha, scale: K });
     if (!e.dead && L.glow) this.drawDef(def, fr, x, y, { flip: L.flip, flash: true, alpha: 0.35, scale: K });
@@ -1220,11 +1229,13 @@ export class Renderer {
   bxBoss(g, e, sx, sy) {
     const S = e.bx;
     if (!S || !S.def || !S.anim) return;
-    const def = S.def, W = def.size[0] * 2, fr = e.dead ? def.anims[def.death].frames.slice(-1)[0] : S.anim.frame;
-    if (!e.dead && !S.B.noShadow) this.shadow(sx, sy, Math.min(48, W * 0.55));
+    const def = S.def, fr = e.dead ? def.anims[def.death].frames.slice(-1)[0] : S.anim.frame;
+    S.drawK = (S.drawK || 1) + ((S.B.scaleFor ? S.B.scaleFor(g, e) : 1) - (S.drawK || 1)) * 0.04;   // a boss may grow (the Orrery in its Collapse), eased
+    const K = S.drawK, W = def.size[0] * 2 * K;
+    if (!e.dead && !S.B.noShadow) this.shadow(sx, sy, Math.min(48 * K, W * 0.55));
     const hy = this.R ? hoverY(this.R, def, g.t, S.phase0, S.phase) : 0;
     if (e.dead) this.b.globalAlpha = Math.max(0, 1 - e.deadT / 1.4);
-    this.drawDef(def, fr, sx, sy + hy - (S.leapZ || 0), { flip: !!e.face });   // no hit flash on bosses
+    this.drawDef(def, fr, sx, sy + hy - (S.leapZ || 0), { flip: !!e.face, scale: K });   // no hit flash on bosses
     this.b.globalAlpha = 1;
     if (S.B.draw) S.B.draw(this, g, e, sx, sy);
   }
@@ -1314,7 +1325,7 @@ export class Renderer {
       if (Math.random() < 0.15) this.parts.push({ x: p.x + (Math.random() - 0.5), y: p.y, z: 14, vx: 0, vy: 0, vz: 8, g: 0, life: 0.8, max: 0.8, color: ['#ff4af0', '#8af6ff', '#ffd650'][Math.floor(Math.random() * 3)] });
     }
     if (!p.dead) this.shadow(sx, sy, 12);
-    this.spr(S.img, (an.col + frame) * 16, an.row * 16, 16, 16, sx, sy - hop, 8, 15, flip, p.hitT > 0.1);
+    this.spr(S.img, (an.col + frame) * 16, an.row * 16, 16, 16, sx, sy - hop, 8, 15, flip, false);   // no white blink when hit
     if (!p.dead && p.hp < g.stat('hp')) this.hpBar(sx, sy + 3, p.hp / g.stat('hp'), 14);   // RotMG-style bar at your feet
     if (!p.dead && p.chill > 0) {                                      // Frostveil's chill: a pale bar under the life bar
       const b = this.b, w = 14, x = Math.round(sx - w / 2), y = Math.round(sy + 6), hot = p.chill > 80 && Math.floor(g.t * 6) % 2;
@@ -1475,6 +1486,28 @@ export class Renderer {
     }
     this.sfxList = keep.length > 60 ? keep.slice(-60) : keep;
   }
+  // a small singularity (ap_shots/grand_orrery.singularity): it opens, turns, and collapses at the end of its life
+  singularity(g, wx, wy, alpha, scale, born, until) {
+    const d = this.R && this.R.resolve('ap_shots/grand_orrery.singularity');
+    if (!d) return;
+    const A = d.anims, t = g.t - born, [x, y] = this.proj(wx, wy);
+    let fr;
+    if (until !== undefined && until - g.t < A.collapse.frames.length / A.collapse.fps) fr = A.collapse.frames[Math.min(A.collapse.frames.length - 1, Math.floor((g.t - (until - A.collapse.frames.length / A.collapse.fps)) * A.collapse.fps))];
+    else if (t < A.spawn.frames.length / A.spawn.fps) fr = A.spawn.frames[Math.floor(t * A.spawn.fps)];
+    else fr = A.loop.frames[Math.floor(t * A.loop.fps) % A.loop.frames.length];
+    this.drawDef(d, fr, Math.round(x), Math.round(y), { center: true, scale, alpha });
+  }
+  // an orbiter: a black hole, or one of the item's own shots turning on its orbit (faint while it rests)
+  orbiter(g, L) {
+    const { B, O, set } = L, fade = Math.max(0, Math.min(1, (g.t - set.born) / 0.4, set.until === Infinity ? 1 : (set.until - g.t) / 0.6)) * (B.rest > 0 ? 0.3 : 1);
+    if (O.kind === 'hole') { this.singularity(g, B.x, B.y, fade, 1.3, set.born); return; }
+    const C = this.objDefs || (this.objDefs = new Map());
+    let d = C.get(O.sprite);
+    if (d === undefined) C.set(O.sprite, (d = (this.R && this.R.resolve(O.sprite)) || null));
+    if (!d) return;
+    const F = Object.keys(d.frames), [x, y] = this.proj(B.x, B.y);
+    this.drawDef(d, F[Math.floor(g.t * 8 + B.k) % F.length], Math.round(x), Math.round(y), { center: true, scale: O.scale || 1.2, alpha: fade, rot: B.a });
+  }
   // the Astral Observatory: clockwork arms flash before they turn; each telescope's dotted line of sight; a rune
   // circle swirls under you as it folds you away
   astralFx(g, m) {
@@ -1490,6 +1523,28 @@ export class Renderer {
       b.fillStyle = o.found ? '#fff6c8' : '#8af6ff'; b.globalAlpha = o.found ? 0.8 : 0.5;
       for (let d = 1; d < 22; d += 0.6) { const [x, y] = this.proj(o.x + Math.cos(a) * d, o.y - 0.6 + Math.sin(a) * d); if ((Math.floor(d * 2) + Math.floor(g.t * 6)) % 3) b.fillRect(Math.round(x), Math.round(y), 1, 1); }
       b.globalAlpha = 1;
+    }
+    for (const f of m.asFire || []) {                          // comet trails: embers that burn for 2 s
+      const [x, y] = this.proj(f.x, f.y), k = Math.min(1, (f.until - g.t) / 0.5);
+      b.globalAlpha = 0.45 * k; b.fillStyle = '#ff7a1a'; b.beginPath(); b.ellipse(Math.round(x), Math.round(y), 8, 5, 0, 0, Math.PI * 2); b.fill();
+      b.globalAlpha = 0.9 * k; for (let j = 0; j < 4; j++) { b.fillStyle = (j + Math.floor(g.t * 12)) % 2 ? '#ffd650' : '#ffffff'; b.fillRect(Math.round(x + Math.sin(g.t * 9 + j * 1.7 + f.x) * 6), Math.round(y + Math.cos(g.t * 7 + j * 2.1) * 3) - j * 2, 1, 2); }
+      b.globalAlpha = 1;
+    }
+    for (const v of m.asVeils || []) {                         // star veils: a cloud of dust with stars in it
+      const [x, y] = this.proj(v.x, v.y), r = v.r * TS, k = Math.min(1, (v.until - g.t) / 0.6, (g.t - v.born) / 0.3);
+      b.globalAlpha = 0.32 * k; b.fillStyle = '#3a2a6a'; b.beginPath(); b.ellipse(Math.round(x), Math.round(y), r, r * 0.8, 0, 0, Math.PI * 2); b.fill();
+      b.globalAlpha = 0.8 * k; for (let j = 0; j < 18; j++) { const a = j * 2.4 + g.t * 0.5, d = r * (0.2 + ((j * 37) % 10) / 12); b.fillStyle = j % 3 ? '#c8a0ff' : '#ffffff'; b.fillRect(Math.round(x + Math.cos(a) * d), Math.round(y + Math.sin(a) * d * 0.8), 1, 1); }
+      b.globalAlpha = 1;
+    }
+    for (const e of g.active || []) if (e.wardT > g.t && !e.dead) {   // an astrolabe sentinel's ring ward, turning
+      const [x, y] = this.proj(e.x, e.y), R0 = 20;
+      b.globalAlpha = 0.85; b.strokeStyle = '#ffd690'; b.beginPath(); b.ellipse(Math.round(x), Math.round(y - 14), R0, R0 * 0.9, 0, 0, Math.PI * 2); b.stroke();
+      for (let j = 0; j < 12; j++) { const a = j / 12 * Math.PI * 2 + g.t * 3; b.fillStyle = j % 3 ? '#ffd690' : '#ffffff'; b.fillRect(Math.round(x + Math.cos(a) * R0) - 1, Math.round(y - 14 + Math.sin(a) * R0 * 0.9) - 1, 2, 2); }
+      b.globalAlpha = 1;
+    }
+    if (m.asSealed && m.asVault) {                             // Lockdown: seal glyphs hang across the vault's mouth
+      const Gd = this.R && this.R.resolve('ap_shots/vault_keeper.seal_glyph');
+      if (Gd) for (const i of m.asVault.mouth) { const [x, y] = this.proj((i % m.w) + 0.5, Math.floor(i / m.w) + 0.5); this.drawDef(Gd, Object.keys(Gd.frames)[Math.floor(g.t * 6) % 2], Math.round(x), Math.round(y), { center: true, scale: 1.5 }); }
     }
     const p = g.player;
     if (p.asRune > 0 && p.asRuneAt) {
@@ -1604,6 +1659,15 @@ export class Renderer {
     }
     return c;
   }
+  // a laser bolt: a soft coloured glow round a hard white core, along its flight
+  laserShot(pr, [glow, mid]) {
+    const b = this.b, [x, y] = this.proj(pr.x, pr.y), a = pr.a + this.th;
+    b.save(); b.translate(Math.round(x), Math.round(y)); b.rotate(a);
+    b.globalAlpha = 0.35; b.fillStyle = glow; b.fillRect(-12, -3, 24, 6);
+    b.globalAlpha = 0.9; b.fillStyle = glow; b.fillRect(-11, -2, 22, 4);
+    b.globalAlpha = 1; b.fillStyle = mid; b.fillRect(-10, -1, 20, 2); b.fillStyle = '#ffffff'; b.fillRect(-6, -1, 14, 2); b.fillRect(6, -2, 3, 4);
+    b.restore();
+  }
   drawProjectiles(g, dt) {
     const b = this.b, PI = this.A.img.projectiles, pc = this.W.projCols, PS = this.W.proj, half = PS / 2;
     const BW = this.buf.width, BH = this.buf.height;
@@ -1616,7 +1680,8 @@ export class Renderer {
         const def = pr.def || (pr.def = this.R.resolve(pr.sprite));
         if (def) {
           let [qx, qy] = this.proj(pr.x, pr.y);
-          const A = Object.values(def.anims)[0], fr = A.frames[Math.floor(g.t * (A.fps || 8) + (pr.x + pr.y)) % A.frames.length];
+          if (LASER[pr.sprite]) { this.laserShot(pr, LASER[pr.sprite]); continue; }   // drawn as a bolt of light, not a sprite
+          const A = Object.values(def.anims)[0], fr = STILL.has(pr.sprite) ? A.frames[0] : A.frames[Math.floor(g.t * (A.fps || 8) + (pr.x + pr.y)) % A.frames.length];
           if (pr.lob) {                                     // lobbed: a mark where it will land, the shot arcing over
             const L = pr.lob, kk = Math.min(1, L.t / L.T), [mx, my] = this.proj(L.x1, L.y1), rr = Math.round(L.r * TS * (0.4 + 0.6 * kk));
             b.fillStyle = Math.floor(g.t * 10) % 2 ? '#ff4a5a' : '#ffc94a';
@@ -1664,7 +1729,7 @@ export class Renderer {
     for (const v of g.vfx.splice(0)) {
       const shakeOn = !this.settings || this.settings.shake;
       if (v.k === 'shake') { if (shakeOn) this.shake = Math.max(this.shake, v.amt); }
-      else if (v.k === 'hurt') { if (shakeOn) this.shake = Math.max(this.shake, v.amt); this.hurtFlash = Math.max(this.hurtFlash, 0.05 + v.amt * 0.02); }
+      else if (v.k === 'hurt') { /* getting hit no longer shakes or flashes the screen (RotMG doesn't) */ }
       else if (v.k === 'levelup') this.sprFx('level_up_ring', v.x, v.y, 7);
       else if (v.k === 'regfx') this.sprFx(v.key, v.x, v.y, v.fps || 12);
       else if (v.k === 'hit') this.sprFx('hit_spark', v.x, v.y, 20), this.spray(v.x, v.y, v.crit ? 10 : 3, v.crit ? ['#ffd650', '#ffffff', '#ff8a1f'] : ['#ffffff', '#fff4c2'], v.crit ? 5 : 2.5, 0.22, v.crit ? 8 : 4);
@@ -1769,6 +1834,19 @@ export class Renderer {
     x.putImageData(img, 0, 0);
   }
 
+  // how far above its feet something's head is drawn, in buffer pixels (for the numbers that float over it)
+  headPx(g, e) {
+    if (e === g.player) return 24;
+    if (e.bx && e.bx.def) return e.bx.def.foot[1] * 2 + 6;
+    if (e === g.boss || (e.rb && !e.D.reg)) return 44;
+    if (e.D && e.D.reg) {
+      const C = this.objDefs || (this.objDefs = new Map());
+      let d = C.get(e.D.reg);
+      if (d === undefined) C.set(e.D.reg, (d = (this.R && this.R.resolve(e.D.reg)) || null));
+      if (d) return d.foot[1] * 2 * (e.D.scale || 1) + 6;
+    }
+    return 16 * (e.warden ? 2 : (e.D && e.D.scale) || 1) + 6;
+  }
   // ------------------------------------------------------------ HUD overlays
   overlays(g) {
     const ctx = this.ctx, s = this.scale;
@@ -1777,7 +1855,9 @@ export class Renderer {
     const nums = !this.settings || this.settings.damageNumbers;
     for (const f of g.floaters) {
       if (!nums && /^[-+]?\d+$/.test(f.text)) continue;
-      const [bx, by] = this.proj(f.x, f.y);
+      let bx, by;
+      if (f.who) { [bx, by] = this.proj(f.who.x, f.who.y); bx += f.dx * TS; by -= this.headPx(g, f.who); }   // above its owner's head, following it
+      else [bx, by] = this.proj(f.x, f.y);
       const x = bx * s, y = by * s - f.t * 30;
       ctx.globalAlpha = Math.max(0, 1 - f.t / 0.9);
       outlined(ctx, f.text, x, y);
@@ -1809,13 +1889,13 @@ export class Renderer {
     if (g.nearPortal) {
       const [bx, by] = this.proj(g.nearPortal.x, g.nearPortal.y);
       const L = g.nearPortal.life, x = bx * s, y = (by - 20) * s;
-      const t = `[F] ${g.nearPortal.label}${L !== undefined ? ` (${Math.ceil(L)}s)` : ''}`;
+      const t = `${keyHint('portal')}${g.nearPortal.label}${L !== undefined ? ` (${Math.ceil(L)}s)` : ''}`;   // the key shown is yours (none if unbound)
       outlined(ctx, t, x, y);
       ctx.fillStyle = '#f2c14e'; ctx.fillText(t, x, y);
     }
     if (g.nearNPC && !g.nearPortal) {
       const [bx, by] = this.proj(g.nearNPC.x, g.nearNPC.y);
-      const x = bx * s, y = (by - 20) * s, t = `[F] ${g.nearNPC.label}`;
+      const x = bx * s, y = (by - 20) * s, t = `${keyHint('portal')}${g.nearNPC.label}`;
       outlined(ctx, t, x, y);
       ctx.fillStyle = '#f2c14e'; ctx.fillText(t, x, y);
     }

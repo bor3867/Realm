@@ -61,7 +61,7 @@ Open one with `/portal ID` or a key (`/keys`). `/seals` breaks every seal on a b
 | `throne` | The Throne of the Unstruck God | endgame | two wardens | falling gold; sentinel statues fire across the royal road | `key_throne` | The Unstruck God |
 | `frostveil` | Frostveil Hollows | mid | none | chill builds in frigid water and frost (freeze at 100); braziers thaw you; ice floors slide | `key_frostveil` | Glacius, the Frozen Wyrm |
 | `mirerot` | Mirerot Grotto | mid | none | dark; spore pods burst into poison clouds (shoot them from range); bog slows you | `key_mirerot` | Mother Mycelia |
-| `astral` | The Astral Observatory | high | none | void (fall through); turning clockwork bridges; rune circles fold you between rooms | `key_astral` | The Grand Orrery |
+| `astral` | The Astral Observatory | high | none | void (fall through); turning clockwork bridges; guardians with abilities; a star vault whose keeper seals it | `key_astral` | The Grand Orrery |
 | `sandscour` | Sandscour Tomb | low-mid | none | quicksand drags you; urns may hold scarabs; sarcophagi open as you pass | `key_sandscour` | The Gilded Sphinx |
 | `keep` | The Crimson Keep | mid-high | none | the dark: coffins open and thralls are strong outside candlelight; statues wake | `key_keep` | Count Vesper, the Crimson Count |
 | `hollowmoon` | Hollowmoon Carnival | high | none | spin tiles turn your feet; jack crates bite; cannons and strikers; ghouls walk through walls | `key_hollowmoon` | The Grinning Ringmaster |
@@ -122,7 +122,7 @@ Every one has three phases (it changes at 66% and 33%, immune while it does) and
 | `thornheart_treant` | The Thornheart Treant | realm event, the Thornwood | 30,000 | Ancient → Autumn → Withered | - | `/treant` | `blight_heart` (1.5%) |
 | `glacius_frozen_wyrm` | Glacius, the Frozen Wyrm | dungeon: frostveil | 300,000 | Coiled Hoard → Unfurled → Shattered Heart | **Absolute Zero** at 12%: survive 10s, then it's broken (+50% damage taken) | `/tp frostveil` | `aurora_heart` (2%) |
 | `mother_mycelia` | Mother Mycelia | dungeon: mirerot | 95,000 | Bloom → Rot → Sporestorm | - | `/tp mirerot` | `glowcap_crown` (2%) |
-| `grand_orrery` | The Grand Orrery | dungeon: astral | 380,000 | Aligned → Eclipse → Collapse | **Collapse** at 12%: survive 12s, then it's broken (+50% damage taken) | `/tp astral` | `event_horizon` (2%) |
+| `grand_orrery` | The Grand Orrery | dungeon: astral | 400,000 | Aligned → Eclipse → Collapse | **Singularity** at 12%: survive 17.5s, then it's broken (+50% damage taken) | `/tp astral` | `event_horizon` (2%) |
 | `gilded_sphinx` | The Gilded Sphinx | dungeon: sandscour | 85,000 | Guardian → Ascendant → Sandstorm Pharaoh | - | `/tp sandscour` | `pharaohs_deathmask` (2%) |
 | `count_vesper` | Count Vesper, the Crimson Count | dungeon: keep | 200,000 | Nobleman → Batstorm → Blood Beast | - | `/tp keep` | `nightfall_scythe` (2%) |
 | `grinning_ringmaster` | The Grinning Ringmaster | dungeon: hollowmoon | 240,000 | Showman → Puppeteer → Big Top | - | `/tp hollowmoon` | `grinning_mask` (2%) |
@@ -133,7 +133,7 @@ Every one has three phases (it changes at 66% and 33%, immune while it does) and
 - **The Thornheart Treant**: Seeds that mark the ground and burst; burning leaves that sway down; acorn bombs; thorn walls closing from both sides; wisps from the trees. Relics: `heartwood_bow` (12%), `seed_of_renewal` (12%).
 - **Glacius, the Frozen Wyrm**: A sweeping breath; lances that freeze the ground; drifting orbs; a gust that slides you; a glide that leaves a fence of lances; spiral-gap rings; braziers it puts out. Relics: `glacial_fang` (10%), `rimeheart_bow` (10%), `wand_of_hoarfrost` (10%), `frostweave_armor` (10%), `ring_of_the_wyrm` (10%).
 - **Mother Mycelia**: Spore clouds that hang; poison needles; acid pools; a lunge and bite; seeds that sprout minions unless shot; orbs that curl outward. Relics: `bog_cleaver` (10%), `sporecaller_wand` (10%), `mycelial_hide` (10%), `ring_of_rot` (10%), `spore_bomb` (10%).
-- **The Grand Orrery**: Orbiting rings that fly off on tangents; a conjunction that freezes every shot then fires them at you; a moving umbra; a gravity well; debris on marked spots. Relics: `starforged_katana` (10%), `comet_bow` (10%), `nebula_robe` (10%), `astral_signet` (10%), `orrery_orb` (10%).
+- **The Grand Orrery**: An eclipse all fight long that burns, lunges and flares; meridian fans, precessing rings, spirals, meteors, orbits; black holes with accretion disks; finale: a singularity, then a supernova. Relics: `starforged_katana` (10%), `comet_bow` (10%), `nebula_robe` (10%), `astral_signet` (10%), `orrery_orb` (10%).
 - **The Gilded Sphinx**: Crossing crescent fans; riddle glyphs that hang then dart; pinwheel sunbursts; feather fans that narrow to a spear; the sandstorm; dust devils that throw you; scarabs. Relics: `sunscorch_khopesh` (10%), `gilded_scepter` (10%), `embalmers_wraps` (10%), `scarab_ring` (10%), `sphinx_helm` (10%).
 - **Count Vesper, the Crimson Count**: Healing thralls that burn in candlelight; a hedge of thorns; weaving bat fans; scythes that wheel back; an afterimage dash; blood rain that pools. Relics: `crimson_rapier` (10%), `bloodthorn_staff` (10%), `batwing_bow` (10%), `sanguine_cloak` (10%), `signet_of_the_count` (10%), `crimson_chalice` (10%).
 - **The Grinning Ringmaster**: Drum leaps that ring out bursts; two jester marionettes he re-strings; arcing pins; needle lines; the tent with lantern-eye weak points; confetti bombs. Relics: `ringmaster_cane` (10%), `jugglers_dagger` (10%), `carousel_bow` (10%), `harlequin_garb` (10%), `ring_of_the_jester` (10%), `trick_deck` (10%).
@@ -173,14 +173,14 @@ Ten items, each dropped only by its boss's phase-3 kill. Pale-gold slot, tag **L
 | --- | --- | --- | --- |
 | `leviathan_eye` | The Leviathan Eye | Untiered Ring | The Abyssal Kraken (1.5%) |
 | `blight_heart` | The Blight Heart | Untiered Ring | The Thornheart Treant (1.5%) |
-| `aurora_heart` | The Aurora Heart | Untiered Ring | Glacius, the Frozen Wyrm (2%) |
-| `glowcap_crown` | The Glowcap Crown | Untiered Ring | Mother Mycelia (2%) |
-| `event_horizon` | Event Horizon | Untiered Ring | The Grand Orrery (2%) |
-| `pharaohs_deathmask` | The Pharaoh's Deathmask | Untiered Ring | The Gilded Sphinx (2%) |
-| `nightfall_scythe` | The Nightfall Scythe | Untiered Sword · Brawler, Forge Knight, Runeblade | Count Vesper, the Crimson Count (2%) |
-| `grinning_mask` | The Grinning Mask | Untiered Ring | The Grinning Ringmaster (2%) |
+| `aurora_heart` | Ring of the Aurora Heart | Untiered Ring | Glacius, the Frozen Wyrm (2%) |
+| `glowcap_crown` | The Glowcap Ring | Untiered Ring | Mother Mycelia (2%) |
+| `event_horizon` | Event Horizon Ring | Untiered Ring | The Grand Orrery (2%) |
+| `pharaohs_deathmask` | The Pharaoh's Signet | Untiered Ring | The Gilded Sphinx (2%) |
+| `nightfall_scythe` | The Nightfall Blade | Untiered Sword · Brawler, Forge Knight, Runeblade | Count Vesper, the Crimson Count (2%) |
+| `grinning_mask` | The Grinning Ring | Untiered Ring | The Grinning Ringmaster (2%) |
 | `tidewraith_staff` | The Tidewraith Staff | Untiered Staff · Summoner, Stormwright, Hexweaver | The Tidebound Lich (2%) |
-| `forgeheart_maul` | The Forgeheart Maul | Untiered Sword · Brawler, Forge Knight, Runeblade | The Forgeheart Colossus (2%) |
+| `forgeheart_maul` | The Forgeheart Greatblade | Untiered Sword · Brawler, Forge Knight, Runeblade | The Forgeheart Colossus (2%) |
 
 ## Bosses
 
@@ -447,10 +447,16 @@ Use with `/spawn ID [N]`.
 
 | Id | Name | Life | Notes |
 | --- | --- | --- | --- |
+| `meteor_mite` | Meteor Mite | 550 | moves: skitter |
+| `lens_wisp` | Lens Wisp | 750 | flies, moves: kite |
 | `orrery_drone` | Orrery Drone | 900 | flies, moves: satellite |
-| `star_eye` | Star Eye | 1,600 | flies, moves: rooted |
-| `constellation_stalker` | Constellation Stalker | 1,800 | moves: blink |
-| `void_acolyte` | Void Acolyte | 2,200 | moves: kite |
+| `star_eye` | Star Eye | 2,000 | flies, moves: rooted |
+| `constellation_stalker` | Constellation Stalker | 2,200 | moves: blink |
+| `void_acolyte` | Void Acolyte | 2,600 | moves: kite |
+| `comet_hound` | Comet Hound | 3,800 | moves: flank |
+| `nebula_weaver` | Nebula Weaver | 4,400 | flies, moves: kite |
+| `astrolabe_sentinel` | Astrolabe Sentinel | 5,600 | moves: shamble |
+| `vault_keeper` | Vault Keeper | 30,000 | moves: shamble |
 
 ### sandscour
 
@@ -569,7 +575,7 @@ Use with `/give ID [N]`. Tiered gear ids are `TYPE_tN` (rings are `ring_STAT_tN`
 | `ring_of_the_first_flame` | Ring of the First Flame | Mythic Ring |
 | `ring_of_still_waters` | Ring of Still Waters | Mythic Ring |
 | `band_of_the_open_hand` | Band of the Open Hand | Mythic Ring |
-| `crown_of_the_unstruck` | Crown of the Unstruck | Mythic Ring |
+| `crown_of_the_unstruck` | Band of the Unstruck Crown | Mythic Ring |
 | `the_unbroken_oath` | The Unbroken Oath | Mythic Rune-Ward · Runeblade |
 | `oathbreaker` | Oathbreaker | Mythic Sword · Brawler, Forge Knight, Runeblade |
 | `the_thirteenth_page` | The Thirteenth Page | Mythic Grimoire · Hexweaver |
@@ -590,19 +596,19 @@ Use with `/give ID [N]`. Tiered gear ids are `TYPE_tN` (rings are `ring_STAT_tN`
 | `trap_hound_collar` | Trap-Hound's Collar | Untiered Ring |
 | `hymn_of_the_mire` | Hymn of the Mire | Untiered Bellows · Brawler |
 | `antler_crown` | Antler Crown | Untiered Ring |
-| `the_turning_verse` | The Turning Verse | Untiered Oath-Seal · Forge Knight |
+| `the_turning_verse` | Seal of the Turning Verse | Untiered Oath-Seal · Forge Knight |
 | `eaten_halo` | The Eaten Halo | Untiered Halo · Priest |
 | `queens_stinger` | The Queen's Stinger | Untiered Dagger · Duelist |
 | `honeyguard_band` | Honeyguard Band | Untiered Ring |
 | `maestros_baton` | The Maestro's Baton | Untiered Wand · Priest, Clockmaker |
-| `the_last_curtain` | The Last Curtain | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
+| `the_last_curtain` | Robe of the Last Curtain | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
 | `stringcutter` | Stringcutter | Untiered Dagger · Duelist |
 | `wyrmglass_wand` | Wyrmglass Wand | Untiered Wand · Priest, Clockmaker |
 | `prismglass_mantle` | Prismglass Mantle | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
-| `the_seventh_colour` | The Seventh Colour | Untiered Ring |
+| `the_seventh_colour` | Ring of the Seventh Colour | Untiered Ring |
 | `lullaby_staff` | The Lullaby Staff | Untiered Staff · Summoner, Stormwright, Hexweaver |
 | `nightlight_ring` | Nightlight Ring | Untiered Ring |
-| `the_waking_bell` | The Waking Bell | Untiered Halo · Priest |
+| `the_waking_bell` | Halo of the Waking Bell | Untiered Halo · Priest |
 | `tidecaller_blade` | Tidecaller Blade | Untiered Sword · Brawler, Forge Knight, Runeblade |
 | `emberbrand_greatsword` | Emberbrand Greatsword | Untiered Sword · Brawler, Forge Knight, Runeblade |
 | `staff_of_drowned_stars` | Staff of Drowned Stars | Untiered Staff · Summoner, Stormwright, Hexweaver |
@@ -611,10 +617,10 @@ Use with `/give ID [N]`. Tiered gear ids are `TYPE_tN` (rings are `ring_STAT_tN`
 | `hexsilk_robe` | Hexsilk Robe | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
 | `ring_of_tides` | Ring of Tides | Untiered Ring |
 | `emberheart_ring` | Emberheart Ring | Untiered Ring |
-| `runic_aegis` | The Runic Aegis | Untiered Rune-Ward · Runeblade |
+| `runic_aegis` | The Runic Ward | Untiered Rune-Ward · Runeblade |
 | `grimoire_of_ash` | The Grimoire of Ash | Untiered Grimoire · Hexweaver |
-| `soul_lantern` | The Soul Lantern | Untiered Reliquary · Summoner |
-| `colossus_core` | The Colossus Core | Untiered Bellows · Brawler |
+| `soul_lantern` | The Soul Reliquary | Untiered Reliquary · Summoner |
+| `colossus_core` | The Colossus Bellows | Untiered Bellows · Brawler |
 | `abbots_claw` | The Abbot's Cleaver | Untiered Sword · Brawler, Forge Knight, Runeblade |
 | `pearl_of_the_drowned_mass` | Pearl of the Drowned Mass | Untiered Ring |
 | `wick_of_the_mother` | Wick of the Mother | Untiered Halo · Priest |
@@ -633,47 +639,47 @@ Use with `/give ID [N]`. Tiered gear ids are `TYPE_tN` (rings are `ring_STAT_tN`
 | `kintsugi_band` | The Kintsugi Band | Untiered Ring |
 | `unstruck_anvil` | The Unstruck Anvil | Untiered Oath-Seal · Forge Knight |
 | `furnace_heart_coat` | Furnace-Heart Coat | Untiered Heavy Armor · Brawler, Forge Knight |
-| `abbots_crozier` | The Abbot's Crozier | Untiered Wand · Priest, Clockmaker |
+| `abbots_crozier` | The Abbot's Wand | Untiered Wand · Priest, Clockmaker |
 | `stained_glass_halo` | Stained-Glass Halo | Untiered Halo · Priest |
-| `tidewoven_coat` | Tidewoven Coat | Untiered Heavy Armor · Brawler, Forge Knight |
-| `drowned_bell` | The Drowned Bell | Untiered Ring |
+| `tidewoven_coat` | Tidewoven Mail | Untiered Heavy Armor · Brawler, Forge Knight |
+| `drowned_bell` | Ring of the Drowned Bell | Untiered Ring |
 | `godheart_knuckle` | Godheart Blade | Untiered Sword · Brawler, Forge Knight, Runeblade |
 | `godheart_tongs` | Godheart Greatsword | Untiered Sword · Brawler, Forge Knight, Runeblade |
 | `godheart_scepter` | Godheart Scepter | Untiered Wand · Priest, Clockmaker |
 | `godforged_plate` | Godforged Plate | Untiered Heavy Armor · Brawler, Forge Knight |
-| `heartstring_vestment` | Heartstring Vestment | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
-| `heartbreak_coat` | Heartbreak Coat | Untiered Heavy Armor · Brawler, Forge Knight |
-| `crown_of_the_fallen` | Crown of the Fallen | Untiered Ring |
+| `heartstring_vestment` | Heartstring Robe | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
+| `heartbreak_coat` | Heartbreak Mail | Untiered Heavy Armor · Brawler, Forge Knight |
+| `crown_of_the_fallen` | Band of the Fallen Crown | Untiered Ring |
 | `lantern_of_the_last_watch` | Staff of the Last Watch | Untiered Staff · Summoner, Stormwright, Hexweaver |
 | `choir_of_bones` | The Choir of Bones | Untiered Reliquary · Summoner |
 | `gravewardens_pall` | The Gravewarden's Pall | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
-| `the_hollow_psalm` | The Hollow Psalm | Untiered Reliquary · Summoner |
+| `the_hollow_psalm` | Reliquary of the Hollow Psalm | Untiered Reliquary · Summoner |
 | `leviathan_tine` | The Leviathan Bow | Untiered Bow · Harpooner |
 | `drowned_mans_line` | The Drowned Man's Line | Untiered Grapple Line · Harpooner |
 | `whalers_slicker` | The Whaler's Slicker | Untiered Leather Armor · Harpooner, Duelist, Runeblade |
-| `kraken_bane` | Kraken-Bane | Untiered Bow · Harpooner |
+| `kraken_bane` | Kraken-Bane Bow | Untiered Bow · Harpooner |
 | `abyssal_line` | The Abyssal Line | Untiered Grapple Line · Harpooner |
 | `cinder_saints_fist` | The Cinder-Saint's Sword | Untiered Sword · Brawler, Forge Knight, Runeblade |
 | `quenching_tongs` | The Quenching Blade | Untiered Sword · Brawler, Forge Knight, Runeblade |
-| `dawnbreaker` | Dawnbreaker | Untiered Wand · Priest, Clockmaker |
+| `dawnbreaker` | Dawnbreaker Wand | Untiered Wand · Priest, Clockmaker |
 | `bellwrights_mail` | The Bellwright's Mail | Untiered Heavy Armor · Brawler, Forge Knight |
 | `ring_of_the_undertow` | Ring of the Undertow | Untiered Ring |
 | `gravedust_band` | The Gravedust Band | Untiered Ring |
 | `the_last_reflection` | The Last Reflection | Untiered Dagger · Duelist |
 | `hall_of_mirrors` | The Hall of Mirrors | Untiered Mirror · Duelist |
 | `silvered_duelcoat` | The Silvered Duelcoat | Untiered Leather Armor · Harpooner, Duelist, Runeblade |
-| `heaven_wire` | The Heaven Wire | Untiered Staff · Summoner, Stormwright, Hexweaver |
-| `the_thunderhead` | The Thunderhead | Untiered Storm Kite · Stormwright |
-| `the_eleventh_hour` | The Eleventh Hour | Untiered Wand · Priest, Clockmaker |
+| `heaven_wire` | Heaven-Wire Staff | Untiered Staff · Summoner, Stormwright, Hexweaver |
+| `the_thunderhead` | The Thunderhead Kite | Untiered Storm Kite · Stormwright |
+| `the_eleventh_hour` | Wand of the Eleventh Hour | Untiered Wand · Priest, Clockmaker |
 | `the_broken_hourglass` | The Broken Hourglass | Untiered Stopwatch · Clockmaker |
 | `the_bone_lantern` | The Bone Staff | Untiered Staff · Summoner, Stormwright, Hexweaver |
-| `the_mourners_veil` | The Mourner's Veil | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
+| `the_mourners_veil` | The Mourner's Robe | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
 | `the_sea_wolf` | The Sea-Wolf's Oilskin | Untiered Leather Armor · Harpooner, Duelist, Runeblade |
-| `the_feint` | The Feint | Untiered Dagger · Duelist |
+| `the_feint` | Dagger of the Feint | Untiered Dagger · Duelist |
 | `cracked_looking_glass` | The Cracked Looking-Glass | Untiered Mirror · Duelist |
 | `the_lightning_rod` | The Lightning Rod | Untiered Staff · Summoner, Stormwright, Hexweaver |
 | `the_squall` | The Squall | Untiered Storm Kite · Stormwright |
-| `the_tempest_cloak` | The Tempest Cloak | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
+| `the_tempest_cloak` | Storm-Woven Robe | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
 | `the_cuckoo` | The Cuckoo | Untiered Wand · Priest, Clockmaker |
 | `the_hourglass_of_sand` | The Hourglass of Sand | Untiered Stopwatch · Clockmaker |
 | `the_gearmail` | The Gearwright's Robe | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
@@ -703,29 +709,29 @@ Use with `/give ID [N]`. Tiered gear ids are `TYPE_tN` (rings are `ring_STAT_tN`
 | `sporecaller_wand` | Sporecaller Wand | Untiered Wand · Priest, Clockmaker |
 | `mycelial_hide` | Mycelial Hide | Untiered Leather Armor · Harpooner, Duelist, Runeblade |
 | `ring_of_rot` | Ring of Rot | Untiered Ring |
-| `spore_bomb` | Spore Bomb | Untiered Bellows · Brawler |
+| `spore_bomb` | The Spore Bellows | Untiered Bellows · Brawler |
 | `starforged_katana` | Starforged Katana | Untiered Sword · Brawler, Forge Knight, Runeblade |
 | `comet_bow` | Comet Bow | Untiered Bow · Harpooner |
 | `nebula_robe` | Nebula Robe | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
 | `astral_signet` | Astral Signet | Untiered Ring |
-| `orrery_orb` | Orrery Orb | Untiered Halo · Priest |
+| `orrery_orb` | The Orrery Halo | Untiered Halo · Priest |
 | `sunscorch_khopesh` | Sunscorch Khopesh | Untiered Sword · Brawler, Forge Knight, Runeblade |
 | `gilded_scepter` | Gilded Scepter | Untiered Wand · Priest, Clockmaker |
 | `embalmers_wraps` | Embalmer's Wraps | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
 | `scarab_ring` | Scarab Ring | Untiered Ring |
-| `sphinx_helm` | The Sphinx's Crown | Untiered Oath-Seal · Forge Knight |
-| `crimson_rapier` | Crimson Rapier | Untiered Dagger · Duelist |
+| `sphinx_helm` | Seal of the Sphinx | Untiered Oath-Seal · Forge Knight |
+| `crimson_rapier` | The Crimson Stiletto | Untiered Dagger · Duelist |
 | `bloodthorn_staff` | Bloodthorn Staff | Untiered Staff · Summoner, Stormwright, Hexweaver |
 | `batwing_bow` | Batwing Bow | Untiered Bow · Harpooner |
-| `sanguine_cloak` | Sanguine Cloak | Untiered Leather Armor · Harpooner, Duelist, Runeblade |
+| `sanguine_cloak` | Sanguine Leathers | Untiered Leather Armor · Harpooner, Duelist, Runeblade |
 | `signet_of_the_count` | Signet of the Count | Untiered Ring |
-| `crimson_chalice` | The Crimson Chalice | Untiered Reliquary · Summoner |
-| `ringmaster_cane` | The Ringmaster's Cane | Untiered Wand · Priest, Clockmaker |
+| `crimson_chalice` | The Crimson Reliquary | Untiered Reliquary · Summoner |
+| `ringmaster_cane` | The Ringmaster's Wand | Untiered Wand · Priest, Clockmaker |
 | `jugglers_dagger` | Juggler's Dagger | Untiered Dagger · Duelist |
 | `carousel_bow` | Carousel Bow | Untiered Bow · Harpooner |
 | `harlequin_garb` | Harlequin Garb | Untiered Robe · Priest, Summoner, Stormwright, Clockmaker, Hexweaver |
 | `ring_of_the_jester` | Ring of the Jester | Untiered Ring |
-| `trick_deck` | The Trick Deck | Untiered Grimoire · Hexweaver |
+| `trick_deck` | The Grimoire of Tricks | Untiered Grimoire · Hexweaver |
 | `rubber_duck` | The Rubber Duck | Untiered Ring |
 | `runewarden_blade` | Runewarden's Blade | Untiered Sword · Brawler, Forge Knight, Runeblade |
 | `runewarden_ward` | Runewarden's Ward | Untiered Rune-Ward · Runeblade |

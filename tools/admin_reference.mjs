@@ -79,7 +79,7 @@ const GUIDE = {
   mirerot: ['mid', 'none', 'dark; spore pods burst into poison clouds (shoot them from range); bog slows you'],
   frostveil: ['mid', 'none', 'chill builds in frigid water and frost (freeze at 100); braziers thaw you; ice floors slide'],
   keep: ['mid-high', 'none', 'the dark: coffins open and thralls are strong outside candlelight; statues wake'],
-  astral: ['high', 'none', 'void (fall through); turning clockwork bridges; rune circles fold you between rooms'],
+  astral: ['high', 'none', 'void (fall through); turning clockwork bridges; guardians with abilities; a star vault whose keeper seals it'],
   hollowmoon: ['high', 'none', 'spin tiles turn your feet; jack crates bite; cannons and strikers; ghouls walk through walls'],
 };
 const BOSS_NOTE = {
@@ -124,7 +124,7 @@ const PH = {
   mother_mycelia: ["Bloom", "Rot", "Sporestorm", "dungeon: mirerot", "/tp mirerot", "Spore clouds that hang; poison needles; acid pools; a lunge and bite; seeds that sprout minions unless shot; orbs that curl outward."],
   glacius_frozen_wyrm: ["Coiled Hoard", "Unfurled", "Shattered Heart", "dungeon: frostveil", "/tp frostveil", "A sweeping breath; lances that freeze the ground; drifting orbs; a gust that slides you; a glide that leaves a fence of lances; spiral-gap rings; braziers it puts out."],
   count_vesper: ["Nobleman", "Batstorm", "Blood Beast", "dungeon: keep", "/tp keep", "Healing thralls that burn in candlelight; a hedge of thorns; weaving bat fans; scythes that wheel back; an afterimage dash; blood rain that pools."],
-  grand_orrery: ["Aligned", "Eclipse", "Collapse", "dungeon: astral", "/tp astral", "Orbiting rings that fly off on tangents; a conjunction that freezes every shot then fires them at you; a moving umbra; a gravity well; debris on marked spots."],
+  grand_orrery: ["Aligned", "Eclipse", "Collapse", "dungeon: astral", "/tp astral", "An eclipse all fight long that burns, lunges and flares; meridian fans, precessing rings, spirals, meteors, orbits; black holes with accretion disks; finale: a singularity, then a supernova."],
   grinning_ringmaster: ["Showman", "Puppeteer", "Big Top", "dungeon: hollowmoon", "/tp hollowmoon", "Drum leaps that ring out bursts; two jester marionettes he re-strings; arcing pins; needle lines; the tent with lantern-eye weak points; confetti bombs."],
   tidebound_lich: ["Drowned King", "Soulbinder", "Tidewraith", "dungeon: crypt", "/tp crypt", "Bolts that bend with the current; coral that splinters; souls that chase you then fly home; a turning soul cage; the tide from every wall; plus his swap, the dark and the grave call."],
   forgeheart_colossus: ["Forge Sentinel", "Overheat", "Molten Core", "dungeon: ember", "/tp ember", "Half-ring slams; ricocheting rivets; skipping slag; vent columns; rolling magma that leaves lava; quake rings; a core that throws shots back."],

@@ -43,7 +43,7 @@ longest fights after the Colossus' 520k).
 
 **The Grand Orrery** (hardest)
 - P1 pressure, *planets*: two planets orbit the machine and each fires a three-shot burst at you as it passes:
-  the sources move. Orbits now come with a conjunction in every cycle.
+  the sources move. Orbits now come with a conjunction in every cycle. (Later removed: see boss_grand_orrery.md.)
 - P2 pressure, *corona*: the umbra's rim flares on its own every 1.6 s. New pattern, *syzygy*: the machine, the
   umbra and you line up, and a dense stream fires down that line, **through the dark**.
 - P3 pressure, *falling brass* on you every 2.4 s, and *two wells* at once. New pattern, *spaghettification*: rings

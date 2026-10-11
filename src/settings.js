@@ -33,6 +33,12 @@ export const MINI_STEPS = [40, 80, 160, 320, 640, 9999];   // the last step alwa
 export const VIEW_ZOOM = { min: 0.75, max: 1.5, step: 0.05 };
 
 function clone(o) { return JSON.parse(JSON.stringify(o)); }
+// the settings in use, so hints anywhere show the player's own keys (and nothing when an action has no key)
+let CUR = null;
+export function useSettings(s) { CUR = s; }
+export function keyName(act) { const c = CUR && CUR.binds[act] && CUR.binds[act].find(Boolean); return c ? keyLabel(c) : ''; }
+export const keyHint = (act) => { const k = keyName(act); return k ? `[${k}] ` : ''; };     // "[F] " or ""
+export const keyParen = (act) => { const k = keyName(act); return k ? ` (${k})` : ''; };  // " (F)" or ""
 
 export function loadSettings() {
   let s = clone(DEFAULTS);
@@ -42,9 +48,11 @@ export function loadSettings() {
   } catch { /* fall back to defaults */ }
   // older saves bound Enter to portals; Enter now opens chat
   if (s.binds.portal.includes('Enter') && s.binds.chat.includes('Enter')) s.binds.portal = s.binds.portal.map((c) => (c === 'Enter' ? null : c));
+  CUR = s;
   return s;
 }
 export function saveSettings(s) {
+  CUR = s;
   try { localStorage.setItem(KEY, JSON.stringify(s)); } catch { /* storage unavailable */ }
 }
 export function resetSettings() { return clone(DEFAULTS); }
@@ -59,6 +67,6 @@ export function keyLabel(code) {
   const named = { ArrowUp: '↑', ArrowDown: '↓', ArrowLeft: '←', ArrowRight: '→', Equal: '+', Minus: '−',
     BracketLeft: '[', BracketRight: ']', NumpadAdd: 'Num +', NumpadSubtract: 'Num −', Escape: 'Esc', Space: 'Space', Enter: 'Enter',
     ShiftLeft: 'L-Shift', ShiftRight: 'R-Shift', ControlLeft: 'L-Ctrl', ControlRight: 'R-Ctrl', Tab: 'Tab',
-    Mouse1: 'Middle mouse', Mouse2: 'Right mouse', Mouse3: 'Mouse back', Mouse4: 'Mouse forward' };
+    Mouse1: 'Middle mouse', Mouse2: 'Right mouse', Mouse3: 'Mouse 4', Mouse4: 'Mouse 5' };
   return named[code] || code.replace(/^Key/, '').replace(/^Digit/, '').replace(/^Numpad/, 'Num ');
 }

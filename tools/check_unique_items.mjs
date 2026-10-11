@@ -22,7 +22,7 @@ const empty = S.filter((it) => /^\{\}$|^\|\{\}\|\{\}$/.test(eff(it)));
 if (empty.length) bad('no effect: ' + empty.map((i) => i.id).join(', '));
 const seen = {};
 for (const it of S) { const k = it.slot + eff(it); if (seen[k]) bad(`${it.id} has the same effect as ${seen[k]}`); else seen[k] = it.id; }
-const projs = (it) => [it.weapon && it.weapon.proj, it.ability && it.ability.burst && it.ability.burst.count > 0 && !['none', 'zap', 'hook'].includes(it.ability.burst.proj) && !DRAWS_OWN.has(it.type) ? it.ability.burst.proj : null, it.ability && it.ability.sig && it.ability.sig.proj, it.passive && it.passive.prism && it.passive.prism.proj].filter(Boolean);
+const projs = (it) => [it.weapon && it.weapon.proj, it.ability && it.ability.burst && it.ability.burst.count > 0 && !['none', 'zap', 'hook'].includes(it.ability.burst.proj) && !DRAWS_OWN.has(it.type) ? it.ability.burst.proj : null, it.ability && it.ability.sig && it.ability.sig.kind !== 'orbit' && it.ability.sig.proj, it.passive && it.passive.prism && it.passive.prism.proj].filter(Boolean);
 const owner = {};
 for (const it of S) for (const p of projs(it)) { if (owner[p] && owner[p] !== it.id) bad(`${it.id} shares ${p} with ${owner[p]}`); owner[p] = it.id; if (!(p.includes('/') ? reg.resolve(p) : WJ.projectiles[p] !== undefined)) bad(`${it.id}: no art for ${p}`); }
 console.log(`special items: ${S.length} | distinct effects: ${Object.keys(seen).length} | distinct shots: ${Object.keys(owner).length}`);
@@ -56,5 +56,40 @@ for (const it of S) {
   } catch (err) { bad(`${it.id} threw: ${err.message}`); }
 }
 console.log(`weapons fired their own shot: ${fired} | abilities used: ${used}`);
+// no item seeks
+const seek = Object.values(ITEMS).filter((it) => it.weapon && it.weapon.special && it.weapon.special.homing).map((it) => it.id);
+if (seek.length) bad('these still seek: ' + seek.slice(0, 8).join(', '));
+// the dungeon items' orbiters: each has its art, strikes what comes close, and (where it should) catches shots
+const { DUNGEON_ITEMS } = await import('../src/data/dungeon_items.js');
+let orbs = 0;
+for (const [id, D] of Object.entries(DUNGEON_ITEMS)) {
+  const it = ITEMS[id], O = (D.passive && D.passive.orbit) || (D.sig && D.sig.sets);
+  if (!O) continue;
+  const sets = Array.isArray(O) ? O : [O];
+  for (const q of sets) if (q.kind !== 'hole' && !reg.resolve(q.sprite)) bad(`${id}: no art for its orbiter ${q.sprite}`);
+  try {
+    const cls = Object.keys(CLASSES).find((c) => canEquip(c, it)); if (cls) p.cls = cls;
+    g.projectiles.length = 0; g.enemies = g.map.enemies = []; reset(); p.equip = [null, null, null, null]; p.orbCast = []; p.orbKey = null;
+    p.equip[{ weapon: 0, ability: 1, armor: 2, ring: 3 }[it.slot]] = id;
+    if (D.sig) { p.abilityT = 0; Object.assign(g.input, { aimX: p.x + 3, aimY: p.y }); g.useAbility(); }
+    const e0 = g.addEnemy('brine_pilgrim', p.x + 1.6, p.y); e0.hp = e0.maxHp = 1e7; e0.seen = true; e0.D = { ...e0.D, speed: 0, attacks: [] };
+    for (let k = 0; k < 300; k++) { p.hp = 1e7; e0.x = p.x + 1.6; e0.y = p.y; g.update(1 / 60); }
+    if (!(p.orbsLive || []).length) bad(`${id}: nothing orbits`);
+    if (!(e0.hp < e0.maxHp)) bad(`${id}: its orbiters never touched a monster`);
+    if (sets.some((q) => q.block)) {
+      let caught = 0;
+      for (let k = 0; k < 240; k++) {
+        p.hp = 1e7;
+        if (k % 6 === 0) for (const L of p.orbsLive || []) if (L.O.block) { const b = g.shoot('e', L.B.x + 0.05, L.B.y, 0, 0.2, 2, 1, 'star', 0.3, false, 'test'); b.tag = 'probe'; }
+        const before = g.projectiles.filter((b) => b.tag === 'probe' && b.life > 0).length;
+        g.update(1 / 60);
+        caught += Math.max(0, before - g.projectiles.filter((b) => b.tag === 'probe').length);
+      }
+      if (!caught) bad(`${id}: its orbiters never caught a shot`);
+    }
+    orbs++;
+  } catch (err) { bad(`${id} (orbit) threw: ${err.message}`); }
+}
+console.log(`dungeon items with orbiters: ${orbs}`);
 console.log(fail ? `${fail} problem(s)` : 'all OK');
 process.exit(fail ? 1 : 0);

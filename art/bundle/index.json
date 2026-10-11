@@ -1,5 +1,6 @@
 {
  "atlases": [
+  "astral_plus/atlas_astral_plus.json",
   "boss_overhaul/atlas_bosses.json",
   "dungeons_two/atlas_bosses_two.json",
   "dungeons_two/atlas_dungeons_two.json",

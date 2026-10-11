@@ -1,6 +1,7 @@
 // Item database: tiered gear is generated from formulas; untiered (UT) relics are hand-written.
 import { R } from '../util.js';
 import { STATS, STAT_NAMES, CLASSES } from './classes.js';
+import { applyDungeonItems, orbitLine } from './dungeon_items.js';
 
 const METAL = ['Rust', 'Iron', 'Bronze', 'Steel', 'Verdigris', 'Cobalt', 'Crimson', 'Violet', 'Sunforged', 'Obsidian', 'Rune-White', 'Bloodgold'];
 const NAMES = {
@@ -856,10 +857,10 @@ const MOD_TEXT = {
 export function specialLines(it) {
   const L = [], w = it.weapon && it.weapon.special, p = it.passive;
   const sg = it.ability && it.ability.sig;                // its signature on every use (src/data/uniques.js)
-  if (sg) L.push({ nova: `Signature: a ring of ${sg.n} shots bursts from you`, rain: `Signature: ${sg.n} shots rain onto the cursor`, mines: `Signature: ${sg.n} mines at the cursor, which burst`,
+  if (sg && sg.kind === 'orbit') L.push(orbitLine(sg.sets, sg.life));
+  else if (sg) L.push({ nova: `Signature: a ring of ${sg.n} shots bursts from you`, rain: `Signature: ${sg.n} shots rain onto the cursor`, mines: `Signature: ${sg.n} mines at the cursor, which burst`,
     wave: `Signature: a wall of ${sg.n} shots sweeps forward`, spiral: `Signature: a ${sg.n}-armed spiral turns out from you`, lance: `Signature: ${sg.n} heavy piercing lances` }[sg.kind] + ` (${sg.dmg} each)`);
   if (w) {
-    if (w.homing && !(it.type === 'lantern' && !it.ut)) L.push('Shots seek enemies');
     if (w.chain) L.push(`Arcs to ${w.chain.n} more enemies (${Math.round(w.chain.f * 100)}%)`);
     if (w.explode) L.push(`Explodes on hit (${w.explode.r} tiles, ${Math.round(w.explode.f * 100)}%)`);
     if (w.burn) L.push(`Ignites: ${w.burn.dps}/s for ${w.burn.t}s`);
@@ -875,6 +876,7 @@ export function specialLines(it) {
   }
   if (it.ability && it.ability.mod) L.push(MOD_TEXT[it.ability.mod]);
   if (p) {
+    if (p.orbit) L.push(orbitLine(p.orbit));
     if (p.aura) L.push(p.aura.dps ? `Aura: ${p.aura.dps}/s to enemies within ${p.aura.r} tiles${p.aura.slow ? ', slowing them' : ''}` : `Frost aura: slows enemies within ${p.aura.r} tiles`);
     if (p.manashield) L.push(`${Math.round(p.manashield * 100)}% of damage taken drains Mana instead`);
     if (p.emberthorns) L.push(`When hit, ignites enemies around you (${p.emberthorns}/s)`);
@@ -961,7 +963,8 @@ export const ENCHANTS = {
   frost: { adj: 'Frosted', slots: ['weapon'], w: 6, apply: (it, g) => addSpecial(it, 'slow', { f: g3(0.2, 0.3, 0.4)(g), t: 1.5 }), text: (g) => `Hits slow by ${g3(20, 30, 40)(g)}%` },
   vampiric: { adj: 'Vampiric', slots: ['weapon'], w: 5, apply: (it, g) => addSpecial(it, 'lifesteal', g3(0.02, 0.035, 0.05)(g)), text: (g) => `Lifesteal ${g3(2, 3.5, 5)(g)}%` },
   arcing: { adj: 'Arcing', slots: ['weapon'], w: 5, apply: (it, g) => addSpecial(it, 'chain', { n: g, f: 0.5 }), text: (g) => `Arcs to ${g} more ${g > 1 ? 'enemies' : 'enemy'} (50%)` },
-  seeking: { adj: 'Seeking', slots: ['weapon'], w: 4, apply: (it, g) => addSpecial(it, 'homing', 1.5 + g), text: () => 'Shots gently seek enemies' },
+  // (once 'Seeking': no item seeks now, so the id stays for old saves and it reaches farther instead)
+  seeking: { adj: 'Far-Flung', slots: ['weapon'], w: 4, apply: (it, g) => { it.weapon = { ...it.weapon, range: +(it.weapon.range * (1 + 0.06 * g)).toFixed(2) }; }, text: (g) => `Shots fly ${6 * g}% farther` },
   volatile: { adj: 'Volatile', slots: ['weapon'], w: 4, apply: (it, g) => addSpecial(it, 'explode', { r: 1, f: g3(0.2, 0.3, 0.4)(g) }), text: (g) => `Explodes on hit (${g3(20, 30, 40)(g)}%)` },
   // abilities
   thrifty: { adj: 'Thrifty', slots: ['ability'], w: 10, apply: (it, g) => { it.ability = { ...it.ability, cost: Math.round(it.ability.cost * (1 - 0.1 * g)) }; }, text: (g) => `Costs ${10 * g}% less Mana` },
@@ -1303,3 +1306,6 @@ for (const it of Object.values(BASE_ITEMS)) {
       bonus: { att: 4, wis: 5 }, desc: 'The orb on its tip is an eye, and it does not blink. Whatever it looks at is already cursed.' },
   ]) add({ bag: 'starfall', ...u, tier: 'UT', ut: true, mythic: true });
 }
+
+// the dungeons' own items: their names, their orbiters; and no item seeks (src/data/dungeon_items.js)
+applyDungeonItems(ITEMS);

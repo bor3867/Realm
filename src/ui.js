@@ -2,7 +2,7 @@
 import { CLASSES, STATS, STAT_NAMES, xpToNext, MAX_LEVEL, FAME_GOALS } from './data/classes.js';
 import { outlinedFrame } from './outline.js';
 import { ITEMS, itemLabel, specialLines, canEquip, SETS, SET_PIECES } from './data/items.js';
-import { ACTIONS, MINI_STEPS, keyLabel, resetSettings } from './settings.js';
+import { ACTIONS, MINI_STEPS, keyLabel, resetSettings, keyName, keyParen } from './settings.js';
 import { PET_KINDS, RARITY, RARITY_ORDER, ABILITIES, PET_TICK, SHIELD_TICK, PET_MAX, petHeal, petMagic, petShield, petXpToNext, petCap, petMaxed, feedCost, feedValue, canMorph, FUSE_GOLD, petSprite, petName, abilityOrder, mainMaxed, petLevel } from './data/pets.js';
 import { loadAccounts, saveAccounts, saveKeyFor, hashPassword, loadSave } from './save.js';
 
@@ -31,6 +31,7 @@ export class UI {
     $('gear').onclick = () => this.toggleSettings();
     $('portalgo').onclick = () => { this.enterNear(); $('portalgo').blur(); };
     $('bagportal').onclick = () => { this.g.usePortal(); this.refreshPortal(); $('bagportal').blur(); };
+    $('baglootall').onclick = () => { this.g.lootAll(); this.refreshSlots(); $('baglootall').blur(); };   // for mouse players: everything that fits, in one click
     $('miniIn').onclick = () => this.miniZoom && this.miniZoom(-1);
     $('miniOut').onclick = () => this.miniZoom && this.miniZoom(1);
   }
@@ -54,7 +55,7 @@ export class UI {
     const o = this.overlay(`<div class="screen shop"><h1>The Salt-Peddler</h1>
       <h2>"Everything the tide brings in, I sell back out." · ${this.wallet()}</h2>
       <div class="cols"><section><h3>Buy</h3>${buy}</section><section><h3>Sell from your backpack</h3>${sell}</section></div>
-      <p class="msg">${msg}</p><button class="btn" id="mclose">Leave (Esc)</button></div>`);
+      <p class="msg">${msg}</p><button class="btn" id="mclose">Leave${keyParen('settings')}</button></div>`);
     o.querySelectorAll('[data-buy]').forEach((b) => { b.onclick = () => this.openShop(g.buy(+b.dataset.buy)); });
     o.querySelectorAll('[data-sell]').forEach((b) => { b.onclick = () => { const [c, i] = b.dataset.sell.split(':'); this.openShop(g.sell(c, +i)); }; });
     o.querySelector('#mclose').onclick = () => this.closeModal();
@@ -71,7 +72,7 @@ export class UI {
     const o = this.overlay(`<div class="screen shop"><h1>The Ashwright's Forge</h1>
       <h2>"Bring me iron. I'll give you better iron. Bring me junk, I'll melt it." · ${this.wallet()}</h2>
       <section class="forge"><h3>Upgrade a tiered item one tier, or salvage anything into essence</h3>${rows || '<p class="mut">Nothing to work on.</p>'}</section>
-      <p class="msg">${msg}</p><button class="btn" id="mclose">Leave (Esc)</button></div>`);
+      <p class="msg">${msg}</p><button class="btn" id="mclose">Leave${keyParen('settings')}</button></div>`);
     o.querySelectorAll('[data-up]').forEach((b) => { b.onclick = () => { const [c, i] = b.dataset.up.split(':'); this.openForge(g.upgrade(c, +i)); }; });
     o.querySelectorAll('[data-salv]').forEach((b) => { b.onclick = () => { const [c, i] = b.dataset.salv.split(':'); this.openForge(g.salvage(c, +i)); }; });
     o.querySelector('#mclose').onclick = () => this.closeModal();
@@ -96,7 +97,7 @@ export class UI {
   openJournal(ev) {
     this.modal = 'journal';
     const o = this.overlay(`<div class="screen journal"><h1>${ev.title}</h1><h2>Page ${ev.page + 1} of ${ev.of}</h2>
-      <div class="page">${ev.text}</div><button class="btn" id="mclose">Close (Esc)</button></div>`);
+      <div class="page">${ev.text}</div><button class="btn" id="mclose">Close${keyParen('settings')}</button></div>`);
     o.querySelector('#mclose').onclick = () => this.closeModal();
   }
   openPetYard(msg = '') {
@@ -143,7 +144,7 @@ export class UI {
       ${morphBox}
       <div class="cols"><section><h3>Your pets</h3>${mine}<h3 style="margin-top:12px">Eggs for sale</h3>${eggs}</section>
       <section><h3>Feed ${act ? petName(act) : 'your companion'}</h3><p class="mut">Pay in gold or fame. Most of a meal goes to the main ability (100% / 65% / 35%).</p>${feedList}</section></div>
-      <p class="msg">${msg}</p><button class="btn" id="mclose">Leave (Esc)</button></div>`);
+      <p class="msg">${msg}</p><button class="btn" id="mclose">Leave${keyParen('settings')}</button></div>`);
     o.querySelectorAll('[data-act]').forEach((b) => { b.onclick = () => { g.setActivePet(b.dataset.act); this.openPetYard('A new companion follows you.'); }; });
     o.querySelectorAll('[data-rel]').forEach((b) => { b.onclick = () => { if (b.dataset.sure) { g.releasePet(b.dataset.rel); this.openPetYard('Released. It trots off happily.'); } else { b.dataset.sure = 1; b.textContent = 'Sure?'; } }; });
     o.querySelectorAll('[data-pick]').forEach((b) => { b.onclick = () => { const id = b.dataset.pick, P = this.morphPick; if (P.includes(id)) P.splice(P.indexOf(id), 1); else { P.push(id); if (P.length > 2) P.shift(); } this.openPetYard(); }; });
@@ -169,7 +170,7 @@ export class UI {
     const o = this.overlay(`<div class="screen shop"><h1>Waypoints</h1>
       <h2>Touch an obelisk to remember it. ${found} of ${total} found.</h2>
       <div class="cols wp">${sec}</div>
-      <p class="msg">${msg}</p><button class="btn" id="mclose">Close (Esc)</button></div>`);
+      <p class="msg">${msg}</p><button class="btn" id="mclose">Close${keyParen('settings')}</button></div>`);
     o.querySelectorAll('[data-go]').forEach((b) => { b.onclick = () => { const err = g.travel(b.dataset.go); if (err) this.openWaypoints(here, err); else this.closeModal(); }; });
     o.querySelector('#mclose').onclick = () => this.closeModal();
   }
@@ -184,7 +185,7 @@ export class UI {
     const o = this.overlay(`<div class="screen shop"><h1>The Notice Board</h1>
       <h2>Pinned with rusty nails. Some of the handwriting is very bad.</h2>
       <div class="cols"><section><h3>Notices</h3>${offers}</section><section><h3>Your quests (${p.quests.length}/3)</h3>${mine}</section></div>
-      <p class="msg">${msg}</p><button class="btn" id="mclose">Leave (Esc)</button></div>`);
+      <p class="msg">${msg}</p><button class="btn" id="mclose">Leave${keyParen('settings')}</button></div>`);
     o.querySelectorAll('[data-take]').forEach((b) => { b.onclick = () => { const i = +b.dataset.take, q = g.questOffers[i]; const m = g.acceptQuest(q); if (m.startsWith('Quest')) g.questOffers.splice(i, 1); this.openBoard(m); }; });
     o.querySelectorAll('[data-drop]').forEach((b) => { b.onclick = () => { p.quests.splice(+b.dataset.drop, 1); g.persist(); this.openBoard('Quest abandoned.'); }; });
     o.querySelector('#mclose').onclick = () => this.closeModal();
@@ -485,6 +486,8 @@ export class UI {
     const V = g.nearVault ? g.container('vault') : null, n = V ? V.length : 8;
     this.slots.ground.forEach((el, i) => el.classList.toggle('hidden', i >= n));
     $('ground').classList.toggle('vault', !!V);
+    $('baglootall').classList.toggle('off', !(g.nearBag && !V && g.nearBag.items && g.nearBag.items.some(Boolean)));
+    $('baglootall').textContent = `Take all${keyParen('lootAll')}`;
     $('groundlabel').textContent = V ? `Your vault · ${V.filter(Boolean).length}/${V.length} slots (buy Vault Chests to grow it)` : g.nearBag && g.nearBag.soulbound ? 'Soulbound loot (yours alone)' : 'Loot bag';
   }
   // ---- the item tooltip: a header, the item's story, its numbers in tidy rows, then what's special about it
@@ -617,15 +620,18 @@ export class UI {
     if (!over() && now - (this.fitT || 0) < 1500) return;   // it fits: only look for spare room now and then
     this.fitT = now;
     P.classList.remove('tight', 'squeeze');
-    // the slots are as big as the panel allows: start from the widest four across, give way until everything fits
-    let w = Math.min(78, Math.floor(($('inv').clientWidth - 18) / 4));
-    const set = () => P.style.setProperty('--slotw', w + 'px');
+    // the slots (equipment, backpack, potions, the bag) start as big as the width allows; when the panel runs out of
+    // height the slots give a little, then the minimap, then both. The Stats | Pet tabs and the stats never go.
+    const cs = getComputedStyle(P), inner = P.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    let w = Math.min(70, Math.floor((inner - 18) / 4)), mini = Math.min(300, Math.floor(inner), Math.round(innerHeight * 0.27));
+    const set = () => { P.style.setProperty('--slotw', w + 'px'); P.style.setProperty('--mini', mini + 'px'); };
     set();
-    while (over() && w > 62) { w -= 2; set(); }
-    if (over()) P.classList.add('squeeze');                 // the stats step aside before the items get small
-    while (over() && w > 52) { w -= 2; set(); }
-    if (over()) P.classList.add('tight');                   // then the gaps close up
-    while (over() && w > 38) { w -= 2; set(); }
+    while (over() && w > 54) { w -= 2; set(); }
+    while (over() && mini > 176) { mini -= 6; set(); }
+    while (over() && w > 48) { w -= 2; set(); }
+    if (over()) P.classList.add('tight');                   // the gaps close up, the key line steps aside
+    while (over() && mini > 130) { mini -= 6; set(); }
+    while (over() && w > 36) { w -= 2; set(); }
   }
 
   hideTip() { this.tip.classList.add('hidden'); this.bagTip = null; }
@@ -638,6 +644,15 @@ export class UI {
       for (const b of g.bags) { const d = Math.hypot(b.x - w.x, b.y - 0.35 - w.y); if (d < bd) { bd = d; bag = b; } }
     }
     g.hoverBag = bag;
+  }
+  // the key hints round the panel name your own keys (and leave out an action with none)
+  keyLine() {
+    const parts = [['portal', 'portal / talk'], ['lootAll', 'loot all'], ['nexus', 'nexus'], ['ability', 'ability'], ['autofire', 'autofire'], ['chat', 'chat'], ['settings', 'settings']]
+      .map(([a, l]) => (keyName(a) ? `${keyName(a)} ${l}` : '')).filter(Boolean);
+    if ($('keys')) $('keys').textContent = parts.join(' · ');
+    const c = keyName('potion1'), v = keyName('potion2');
+    if ($('potkeys')) $('potkeys').textContent = `${[c, v].filter(Boolean).map((k) => k.replace(/^Mouse /, 'M').replace(/^(Middle|Right) mouse/, '$1')).join(' / ')}${c || v ? ' · ' : ''}10 each`;
+    if ($('gear')) $('gear').title = `Settings${keyParen('settings')}`;
   }
   // the portal (or NPC) you're standing at: same as pressing the portal key
   enterNear() {
@@ -664,7 +679,7 @@ export class UI {
       $('portalkind').textContent = kind;
       $('portalname').textContent = pt.label;
       $('portalsub').textContent = pt.life !== undefined ? `Closes in ${Math.ceil(pt.life)}s` : pt.to === 'realm' && g.map.kind === 'dungeon' ? 'Leads back to where you entered' : 'Always open';
-      $('portalgo').textContent = 'Enter';
+      $('portalgo').textContent = `Enter${keyParen('portal')}`;
     } else {
       const info = {
         shop: ['Merchant', 'The Salt-Peddler', 'Buy and sell gear', 'Talk'], forge: ['Smithy', 'The Ashwright\'s Forge', 'Upgrade or salvage gear', 'Talk'],
@@ -679,7 +694,7 @@ export class UI {
         bard: ['The bard', 'A bard by the fire', 'Songs, and a little inspiration', 'Listen'],
         fortune: ['Fortune teller', "Madame Ostra's tent", '100 gold for a glimpse of tomorrow', 'Pay'],
       }[npc.interact] || ['', npc.label || '', '', 'Use'];
-      $('portalkind').textContent = info[0]; $('portalname').textContent = info[1]; $('portalsub').textContent = info[2]; $('portalgo').textContent = info[3];
+      $('portalkind').textContent = info[0]; $('portalname').textContent = info[1]; $('portalsub').textContent = info[2]; $('portalgo').textContent = info[3] + keyParen('portal');
     }
   }
   // per-frame cheap updates
