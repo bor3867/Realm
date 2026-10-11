@@ -3,6 +3,8 @@ realm_update/
 realm_update.zip
 realm_update_*.zip
 realm_update_*/
+realm_*.zip
+realm_astral_plus/
 # local tooling and caches
 __pycache__/
 *.pyc
