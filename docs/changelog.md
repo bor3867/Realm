@@ -251,3 +251,10 @@
 - A second survival, SUPERNOVA, at 4%: the floor goes dark but for the light round you; the machine swells and burns
   white and throws pulse after pulse (rings with openings), flare spirals with openings, meteors on red circles,
   faster to the end (26 s). The boss framework allows a second finale (B.finale2).
+
+## Shot and companion sizes
+- Every shot is drawn at the size its attack meant (its size: about 2.4x that radius for an enemy, 2.2x for yours);
+  art bigger than that is drawn smaller (never bigger), and its hits shrink with it. Beach monsters' shots that were
+  as big as meteors are now a little under a tile.
+- Orbiting companions (the crown's motes and every other) are about two-thirds of a tile; item black holes about a
+  tile and a half.

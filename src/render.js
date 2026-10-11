@@ -10,6 +10,7 @@ import { CLASSES } from './data/classes.js';
 import { ITEMS, iconIndex } from './data/items.js';
 import { outlinedFrame } from './outline.js';
 import { keyHint } from './settings.js';
+import { SHOT_BOXES } from './data/shot_boxes.js';
 
 const TS = 16;
 const LOOK = 0.18;                                       // how far down the screen look-ahead puts you
@@ -1503,13 +1504,14 @@ export class Renderer {
   // an orbiter: a black hole, or one of the item's own shots turning on its orbit (faint while it rests)
   orbiter(g, L) {
     const { B, O, set } = L, fade = Math.max(0, Math.min(1, (g.t - set.born) / 0.4, set.until === Infinity ? 1 : (set.until - g.t) / 0.6)) * (B.rest > 0 ? 0.3 : 1);
-    if (O.kind === 'hole') { this.singularity(g, B.x, B.y, fade, 1.3, set.born); return; }
+    if (O.kind === 'hole') { this.singularity(g, B.x, B.y, fade, 0.75, set.born); return; }   // a small black hole, about a tile and a half
     const C = this.objDefs || (this.objDefs = new Map());
     let d = C.get(O.sprite);
     if (d === undefined) C.set(O.sprite, (d = (this.R && this.R.resolve(O.sprite)) || null));
     if (!d) return;
     const F = Object.keys(d.frames), [x, y] = this.proj(B.x, B.y);
-    this.drawDef(d, F[Math.floor(g.t * 8 + B.k) % F.length], Math.round(x), Math.round(y), { center: true, scale: O.scale || 1.2, alpha: fade, rot: B.a });
+    const box = SHOT_BOXES[O.sprite], big = box ? Math.max(box[0], box[1]) : 16;   // a companion's size: about two-thirds of a tile, whatever its art
+    this.drawDef(d, F[Math.floor(g.t * 8 + B.k) % F.length], Math.round(x), Math.round(y), { center: true, scale: Math.min(1, 11 / big), alpha: fade, rot: B.a });
   }
   // the Astral Observatory: clockwork arms flash before they turn; each telescope's dotted line of sight; a rune
   // circle swirls under you as it folds you away
@@ -1664,8 +1666,8 @@ export class Renderer {
   }
   // a laser bolt: a soft coloured glow round a hard white core, along its flight
   laserShot(pr, [glow, mid]) {
-    const b = this.b, [x, y] = this.proj(pr.x, pr.y), a = pr.a + this.th;
-    b.save(); b.translate(Math.round(x), Math.round(y)); b.rotate(a);
+    const b = this.b, [x, y] = this.proj(pr.x, pr.y), a = pr.a + this.th, k = pr.k || 1;
+    b.save(); b.translate(Math.round(x), Math.round(y)); b.rotate(a); b.scale(k, k);
     b.globalAlpha = 0.35; b.fillStyle = glow; b.fillRect(-12, -3, 24, 6);
     b.globalAlpha = 0.9; b.fillStyle = glow; b.fillRect(-11, -2, 22, 4);
     b.globalAlpha = 1; b.fillStyle = mid; b.fillRect(-10, -1, 20, 2); b.fillStyle = '#ffffff'; b.fillRect(-6, -1, 14, 2); b.fillRect(6, -2, 3, 4);
@@ -1691,7 +1693,7 @@ export class Renderer {
             for (let a = 0; a < 16; a += 2) { const t = (a / 16) * Math.PI * 2; b.fillRect(Math.round(mx + Math.cos(t) * rr), Math.round(my + Math.sin(t) * rr * 0.7), 1, 1); }
             qy -= Math.sin(Math.PI * kk) * L.h;
           }
-          if (qx > -20 && qy > -20 && qx < BW + 20 && qy < BH + 20) this.drawDef(def, fr, Math.round(qx), Math.round(qy), { rot: pr.lob ? g.t * 6 : pr.a + this.th, alpha: pr.frozen ? 0.55 : pr.ghost ? 0.25 : 1 });
+          if (qx > -20 && qy > -20 && qx < BW + 20 && qy < BH + 20) this.drawDef(def, fr, Math.round(qx), Math.round(qy), { rot: pr.lob ? g.t * 6 : pr.a + this.th, alpha: pr.frozen ? 0.55 : pr.ghost ? 0.25 : 1, scale: pr.k || 1 });
           continue;
         }
       }
@@ -1716,7 +1718,7 @@ export class Renderer {
       // RotMG-style shots: 8x8 art at the characters' scale. Pointed shots turn to their flight (the long ones are drawn
       // on the diagonal), stars and wheels spin, the big slow ones are drawn a size up. Enemy shots sit on a faint dark halo.
       const S = this.shotSets || (this.shotSets = { rot: new Set(this.W.projRot || []), diag: new Set(this.W.projDiag || []), spin: new Set(this.W.projSpin || []), big: new Set(this.W.projBig || []) });
-      const Q = (pr.from === 'e' ? 1 : 0.875) * (S.big.has(pr.sprite) ? 1.3 : 1), QS = PS * Q, qh = half * Q;
+      const Q = (pr.from === 'e' ? 1 : 0.875) * (S.big.has(pr.sprite) ? 1.3 : 1) * (pr.k || 1), QS = PS * Q, qh = half * Q;
       if (pr.from === 'e') { const H = this.haloStamp(qh * 0.66); b.drawImage(H, sx - H.width / 2, sy - H.height / 2); }
       if (S.rot.has(pr.sprite) || S.spin.has(pr.sprite)) {
         const ang = S.spin.has(pr.sprite) ? g.t * 9 + (pr.x + pr.y) : pr.a + this.th + (S.diag.has(pr.sprite) ? Math.PI / 4 : 0);

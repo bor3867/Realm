@@ -55,16 +55,30 @@ export function shotShape(sprite, size) {
   return S;
 }
 // a shot against your capsule: its own capsule first (cheap), then, if that is close, its visible pixels one by one
-export function shotTouches(S, bx, by, ca, sa, cx, cy, ux, uy, fx, fy, hx, hy) {
-  const d = segDist(cx - ux * S.half, cy - uy * S.half, cx + ux * S.half, cy + uy * S.half, fx, fy, hx, hy);
-  if (!S.pts) return d < S.r + HITBOX.r;
-  if (d > S.r + HITBOX.r + 0.35) return false;
-  const reach = HITBOX.r + S.pr * 0.6, P = S.pts;
+export function shotTouches(S, bx, by, ca, sa, cx, cy, ux, uy, fx, fy, hx, hy, k = 1) {   // k: the shot is drawn k times its art
+  const half = S.half * k, r = S.r * k;
+  const d = segDist(cx - ux * half, cy - uy * half, cx + ux * half, cy + uy * half, fx, fy, hx, hy);
+  if (!S.pts) return d < r + HITBOX.r;
+  if (d > r + HITBOX.r + 0.35) return false;
+  const reach = HITBOX.r + S.pr * k * 0.6, P = S.pts;
   for (let i = 0; i < P.length; i += 2) {
-    const x = bx + P[i] * ca - P[i + 1] * sa, y = by + P[i] * sa + P[i + 1] * ca;
+    const x = bx + (P[i] * ca - P[i + 1] * sa) * k, y = by + (P[i] * sa + P[i + 1] * ca) * k;
     if (segDist(x, y, x, y, fx, fy, hx, hy) < reach) return true;
   }
   return false;
+}
+// how big a shot is drawn: the attack's own size (its "size", a radius in tiles) sets how long the shot may look:
+// about 2.4 (enemy) or 2.2 (yours) times that radius. Art bigger than that is drawn smaller; nothing is drawn bigger.
+const kCache = new Map();
+export function shotScale(sprite, size, from) {
+  const key = sprite + '|' + size + '|' + from;
+  let k = kCache.get(key);
+  if (k === undefined) {
+    const B = SHOT_OVERRIDE[sprite] || SHOT_BOXES[sprite], want = (size || 0.4) * 16 * (from === 'e' ? 2.4 : 2.2);
+    k = B ? Math.min(1, want / Math.max(B[0], B[1], 1)) : 1;
+    kCache.set(key, k);
+  }
+  return k;
 }
 // the nearest distance between two segments (a0-a1 and b0-b1)
 export function segDist(ax, ay, bx, by, cx, cy, dx, dy) {
@@ -1412,6 +1426,7 @@ export class Game {
     const b = { from, x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, life: range / Math.max(0.01, speed),
       dmg, sprite, r: size, pierce, hit: pierce ? new Set() : null, a, by };
     if (from === 'e') b.vol = `${this.frameN || 0}:${by}`;
+    b.k = shotScale(sprite, size, from);                      // big art is drawn (and hits) at the size its attack meant
     this.projectiles.push(b);
     return b;
   }
@@ -1419,9 +1434,9 @@ export class Game {
   // does this enemy shot touch you? (its art against yours; see HITBOX)
   shotHitsPlayer(b, p) {
     const S = shotShape(b.sprite, b.r), a = S.upright ? -this.camAngle : b.a || 0, ca = Math.cos(a), sa = Math.sin(a);
-    const cx = b.x + ca * S.al - sa * S.ac, cy = b.y + sa * S.al + ca * S.ac, ux = S.across ? -sa : ca, uy = S.across ? ca : sa;
+    const k = b.k || 1, cx = b.x + (ca * S.al - sa * S.ac) * k, cy = b.y + (sa * S.al + ca * S.ac) * k, ux = S.across ? -sa : ca, uy = S.across ? ca : sa;
     const [fx, fy] = this.up(p.x, p.y, HITBOX.foot), [hx, hy] = this.up(p.x, p.y, HITBOX.head);
-    return shotTouches(S, b.x, b.y, ca, sa, cx, cy, ux, uy, fx, fy, hx, hy);
+    return shotTouches(S, b.x, b.y, ca, sa, cx, cy, ux, uy, fx, fy, hx, hy, k);
   }
   hurtPlayer(dmg, by, ignoreDef = false) {
     const p = this.player;
