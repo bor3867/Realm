@@ -126,16 +126,16 @@ export const BXF = {
     });
   },
   // the finale: immune, its own survival sequence, then broken
-  bxStartFinale(e) {
-    const S = e.bx, F = S.B.finale;
-    S.state = 'finale'; S.finT = 0; S.vol = []; S.pat = null; S.finaleDone = true;
+  bxStartFinale(e, F = e.bx.B.finale) {                       // (a boss may have a second: B.finale2, lower down)
+    const S = e.bx;
+    S.fin = F; S.state = 'finale'; S.finT = 0; S.vol = []; S.pat = null; if (F === S.B.finale) S.finaleDone = true; else S.finale2Done = true;
     this.bxClearBullets(e);
     if (S.anim) S.anim.play(S.def.phases[S.phase].idle, { speed: 1 });
     this.banner(F.name.toUpperCase() + (F.say ? ' · ' + F.say : ''), 3200); this.vx({ k: 'shake', amt: 10 }); this.sfx('boss');
     if (F.start) F.start(this, e);
   },
   bxFinale(e, dt) {
-    const S = e.bx, F = S.B.finale;
+    const S = e.bx, F = S.fin || S.B.finale;
     S.finT += dt;
     for (const v of S.vol) if ((v.t -= dt) <= 0 && !v.done) { v.done = true; this.bxVolley(e, v.V); }
     S.vol = S.vol.filter((v) => !v.done);
@@ -251,6 +251,8 @@ export const BXF = {
     if (S.broken) d = Math.round(d * 1.5);                          // after its finale it is broken
     const F = S.B.finale;
     if (F && S.phase === 3 && !S.finaleDone && e.hp - d <= e.maxHp * F.at) { const keep = e.hp - e.maxHp * F.at; this.bxStartFinale(e); return Math.max(0, keep); }
+    const F2 = S.B.finale2;
+    if (F2 && S.finaleDone && !S.finale2Done && S.state !== 'finale' && e.hp - d <= e.maxHp * F2.at) { const keep = e.hp - e.maxHp * F2.at; this.bxStartFinale(e, F2); return Math.max(0, keep); }
     const th = this.bxThresholds(e), next = th[S.phase - 1];
     if (next !== undefined && e.hp - d <= e.maxHp * next) { const keep = e.hp - e.maxHp * next; this.bxMorph(e); return Math.max(0, keep); }
     if (e.hp - d <= 0 && S.state !== 'death' && S.state !== 'deathhold') { this.bxDie(e); return 0; }   // bxDie leaves it at 1 life while the death clip plays
@@ -315,8 +317,8 @@ export const BXF = {
   bxBar(e) {
     const S = e.bx;
     if (!S || !S.def) return null;
-    const F = S.B.finale, tag = S.state === 'finale' ? ` · ${F.name.toUpperCase()} ${Math.max(0, Math.ceil(F.dur - S.finT))}s` : S.broken ? ' · BROKEN' : '';
-    return { pips: F ? [...this.bxThresholds(e), F.at] : this.bxThresholds(e), phase: S.phase, name: S.def.phases[S.phase].name + (S.B.barTag ? S.B.barTag(this, e) : '') + tag, immune: ['intro', 'morph', 'death', 'deathhold', 'sleep', 'finale'].includes(S.state) };
+    const F = S.fin || S.B.finale, tag = S.state === 'finale' ? ` · ${F.name.toUpperCase()} ${Math.max(0, Math.ceil(F.dur - S.finT))}s` : S.broken ? ' · BROKEN' : '';
+    return { pips: S.B.finale ? [...this.bxThresholds(e), S.B.finale.at, ...(S.B.finale2 ? [S.B.finale2.at] : [])] : this.bxThresholds(e), phase: S.phase, name: S.def.phases[S.phase].name + (S.B.barTag ? S.B.barTag(this, e) : '') + tag, immune: ['intro', 'morph', 'death', 'deathhold', 'sleep', 'finale'].includes(S.state) };
   },
 };
 export function installBX(Game) { Object.assign(Game.prototype, BXF); }

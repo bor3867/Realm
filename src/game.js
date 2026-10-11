@@ -536,6 +536,7 @@ export class Game {
   toast(text) { this.events.push({ type: 'toast', text }); }
   // floating text: numbers and words that belong to someone ride above their head, not over their body
   float(x, y, text, color) {
+    if (typeof text === 'number' || /^[-+]?\d*\.\d+$/.test(text) || /^[-+]?\d+\.\d+$/.test(text)) text = (/^[-+]/.test(String(text)) ? String(text)[0] : '') + Math.round(Math.abs(parseFloat(text)));   // whole numbers only
     const who = this.floatOwner(x, y), n = who ? this.floaters.filter((f) => f.who === who && f.t < 0.3).length : 0;
     this.floaters.push({ x, y, text, color, t: 0, who, dx: who ? [0, -0.45, 0.45][n % 3] : 0 });
   }
@@ -1454,6 +1455,7 @@ export class Game {
     if (P.manashield && p.mp > 0) { const m = Math.min(p.mp, Math.round(d * P.manashield)); p.mp -= m; d -= m; }
     if (P.kintsugi) p.status.kintsugi = 3;
     if (P.emberthorns) for (const e of this.enemiesIn(p.x, p.y, 2.5)) this.ignite(e, P.emberthorns, 3);
+    d = Math.max(0, Math.round(d));                          // damage is always a whole number
     p.hp -= d;
     p.hitT = 0.15;
     this.sfx('hurt');

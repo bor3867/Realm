@@ -497,7 +497,7 @@ for (const [id, T] of Object.entries(TUNE)) {
 }
 // the three-phase bosses: their set piece as one more pattern (phase, which)
 export const BX_SP = {
-  glacius_frozen_wyrm: [2, 'glacier_cage'], mother_mycelia: [3, 'fairy_ring'], grand_orrery: [2, 'clockwork'], gilded_sphinx: [2, 'sand_riddle'],
+  glacius_frozen_wyrm: [2, 'glacier_cage'], mother_mycelia: [3, 'fairy_ring'], gilded_sphinx: [2, 'sand_riddle'],
   abyssal_kraken: [3, 'maelstrom'], thornheart_treant: [2, 'root_network'], count_vesper: [3, 'danse_macabre'], grinning_ringmaster: [3, 'grand_finale'],
   tidebound_lich: [2, 'drowning_clock'], forgeheart_colossus: [2, 'forge_pistons'],
 };

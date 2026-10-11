@@ -243,3 +243,11 @@
 - One fixed RotMG-style layout that never resizes itself: minimap, you, the bars, your equipment, one box for
   Backpack | Stats | Pet (the backpack by default), the potions, a reserved place for a bag (4x2) or a portal, then
   where you are. Short windows get one smaller fixed size. (ui.fitPanel no longer does anything.)
+
+## Whole numbers, a second survival
+- Damage is always a whole number, and so is every number that floats up (no more -60.000000001).
+- The Grand Orrery: the big singularity of its first survival uses the singularity sprite; wider openings in every
+  strand and ring of that survival; red warning circles where its debris will land; the Clockwork pattern is gone.
+- A second survival, SUPERNOVA, at 4%: the floor goes dark but for the light round you; the machine swells and burns
+  white and throws pulse after pulse (rings with openings), flare spirals with openings, meteors on red circles,
+  faster to the end (26 s). The boss framework allows a second finale (B.finale2).

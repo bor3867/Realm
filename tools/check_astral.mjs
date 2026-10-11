@@ -167,6 +167,14 @@ for (let s = 1; s <= seeds; s++) {
   if (upFrames / allFrames > 0.6) problems.push(`the eclipse is up ${Math.round(100 * upFrames / allFrames)}% of the fight (it should come and go)`);
   if (orr.bx.B.finale.dur < 30) problems.push('the finale is short: ' + orr.bx.B.finale.dur + 's');
   if (!(orr.bx.B.scaleFor(g, orr) >= 1.5)) problems.push('it does not grow in its Collapse');
+  // the second survival, the Supernova: at 4% the floor goes dark and it burns; you survive it, and it is back
+  { for (let f = 0; f < 60 * 3; f++) { p.hp = 1e6; g.update(1 / 60); }
+    g.damageEnemy(orr, Math.max(1, orr.hp - orr.maxHp * 0.03), orr.x, orr.y, true);
+    let dark = false, most = 0;
+    for (let f = 0; f < 60 * 28; f++) { p.x = L.cx + 0.5 + 9; p.y = L.cy + 0.5; p.hp = 1e6; p.dead = false; g.update(1 / 60); if (S.nova2 && S.nova2.dark > 0.9) dark = true; most = Math.max(most, g.projectiles.filter((b) => b.bxOf === orr).length); }
+    if (!S.finale2Done || !dark) problems.push('the Supernova never came');
+    if (S.state === 'finale') problems.push('the Supernova never ended');
+    console.log(`supernova: dark ${dark}, up to ${most} shots at once`); }
   // its death: the slow clip, a hold on the last frame, then rings of light that hurt no one
   g.damageEnemy(orr, orr.hp + 10, orr.x, orr.y, true);
   let held = 0, rings = 0;

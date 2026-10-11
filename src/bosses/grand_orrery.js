@@ -163,7 +163,7 @@ function infallShot(g, e, V) { const b = g.bxShot(e, V.x, V.y, angleTo(V.x, V.y,
 function debris(g, e) {
   const p = g.player, S = e.bx;
   S.debris = S.debris || [];
-  for (let k = 0; k < 6; k++) { const a = R() * TAU, d = k ? 1.2 + R() * 3.4 : 0; S.debris.push({ x: p.x + Math.cos(a) * d, y: p.y + Math.sin(a) * d, at: g.t + 0.8 }); }
+  for (let k = 0; k < 6; k++) { const a = R() * TAU, d = k ? 1.2 + R() * 3.4 : 0; S.debris.push({ x: p.x + Math.cos(a) * d, y: p.y + Math.sin(a) * d, at: g.t + 1, born: g.t }); }
   g.vx({ k: 'shake', amt: 4 });
 }
 
@@ -249,13 +249,57 @@ function tick(g, e, dt) {
   }
 }
 
+// ---------------------------------------------------------------- the second survival: SUPERNOVA (at 4%)
+// The floor goes dark; only you, the shots and the burning machine give light. It swells white-hot and throws pulse
+// after pulse, each a ring with openings; flare spirals join in; meteors fall on red circles round you; faster to the end.
+const NOVA_DUR = 26;
+const finale2 = {
+  at: 0.04, dur: NOVA_DUR, name: 'Supernova', say: 'the dark before the light',
+  start(g, e) { const S = e.bx; S.umbra = null; S.wells = []; S.nova2 = { pulse: 1.2, spiral: 0, rain: 3, a: R() * TAU, n: 0, dark: 0 }; },
+  update(g, e, dt, t) {
+    const S = e.bx, N = S.nova2, [ox, oy] = g.bxOrigin(e), p = g.player;
+    tick(g, e, dt);
+    N.dark = Math.min(1, N.dark + dt / 1.5);
+    const fast = t < 8 ? 1 : t < 17 ? 1.25 : 1.6;
+    if ((N.pulse -= dt) <= 0) {                                   // a pulse: a ring of light with openings
+      N.pulse = 1.7 / fast; N.n++;
+      const n = 44, a0 = R() * TAU, gaps = new Set();
+      for (let q = 0; q < 5; q++) { const at = Math.floor(R() * n); for (let j = 0; j < 4; j++) gaps.add((at + j) % n); }
+      for (let k = 0; k < n; k++) if (!gaps.has(k)) g.bxShot(e, ox, oy, a0 + (k / n) * TAU, { shot: N.n % 2 ? 'corona_flare' : 'eclipse_ring', speed: 4.4 + fast * 0.6, range: 20, dmg: 130 });
+      g.vx({ k: 'burst', x: ox, y: oy, n: 16, colors: ['#ffffff', '#ffd690'] });
+    }
+    if (t > 6 && (N.spiral -= dt) <= 0) {                        // flare spirals, five arms, openings along each
+      N.spiral = 0.14; N.a += 0.17 * (t > 17 ? -1 : 1); N.sn = (N.sn || 0) + 1;
+      for (let k = 0; k < 5; k++) if ((N.sn + k * 2) % 8 < 6) g.bxShot(e, ox, oy, N.a + (k / 5) * TAU, { shot: 'moon_shard', speed: 4, range: 18, dmg: 115 });
+    }
+    if (t > 10 && (N.rain -= dt) <= 0) { N.rain = 3.2 / fast; meteors(g, e, { n: 6 }); }   // red circles, then meteors
+    void p;
+  },
+  end(g, e) { e.bx.nova2 = null; },
+};
+// the dark floor of the Supernova: everything but a pool of light round you and the glare round the machine
+function supernovaGround(r, g, e) {
+  const N = e.bx.nova2, b = r.b, W = r.buf.width, H = r.buf.height;
+  const [px, py] = r.proj(g.player.x, g.player.y - 0.4), [bx, by] = r.proj(e.x, e.y - e.hitUp);
+  b.save();
+  b.globalAlpha = 0.88 * N.dark; b.fillStyle = '#020104';
+  b.beginPath(); b.rect(0, 0, W, H);
+  b.arc(Math.round(px), Math.round(py), 3.2 * 16, 0, TAU, true);   // your light
+  b.fill('evenodd');
+  b.restore();
+  const glow = 26 + Math.sin(g.t * 5) * 4;                        // the machine, burning white
+  b.globalAlpha = 0.35 * N.dark; b.fillStyle = '#ffd690'; b.beginPath(); b.arc(Math.round(bx), Math.round(by), glow * 1.6, 0, TAU); b.fill();
+  b.globalAlpha = 0.5 * N.dark; b.fillStyle = '#ffffff'; b.beginPath(); b.arc(Math.round(bx), Math.round(by), glow, 0, TAU); b.fill();
+  b.globalAlpha = 1;
+}
+
 // ---------------------------------------------------------------- the finale: SINGULARITY, then SUPERNOVA
 const CONSUME = 20, COLLAPSE = 22.5, DUR = 36;
 const finale = {
   at: 0.12, dur: DUR, name: 'Singularity', say: 'it swallows everything',
   start(g, e) {
     const [cx, cy] = centre(e), S = e.bx;
-    S.sing = { x: cx, y: cy, r: 1.2, phase: 'consume', arm: 0, debris: 2, small: 6, nova: 0, wave: 0, burn: 0, spin: 0 };
+    S.sing = { x: cx, y: cy, r: 1.2, phase: 'consume', arm: 0, debris: 2, small: 6, nova: 0, wave: 0, burn: 0, spin: 0, born: g.t };
     S.wells = []; S.debris = []; S.meteors = [];
     g.vx({ k: 'shake', amt: 8 });
   },
@@ -271,8 +315,8 @@ const finale = {
         Z.arm = 0.2; Z.armN = (Z.armN || 0) + 1;
         const turn = t * 0.35;
         // every strand has openings: two shots left out of every eight, at a different place on each arm
-        for (let k = 0; k < 3; k++) { if ((Z.armN + k * 3) % 8 >= 6) continue; const a = turn + (k / 3) * TAU, b = g.bxShot(e, Z.x + Math.cos(a) * 15, Z.y + Math.sin(a) * 15, a, { shot: k % 2 ? 'brass_shard' : 'star_bolt', speed: 0.01, range: 99, dmg: 120 }); b.asSpiral = { cx: Z.x, cy: Z.y, r: 15, a, w: 0.55, shrink: 2.4 }; }
-        if (t > 6) for (let k = 0; k < 2; k++) { if ((Z.armN + k * 4) % 7 >= 5) continue; const a = -turn * 1.3 + (k / 2) * TAU + 0.7, b = g.bxShot(e, Z.x + Math.cos(a) * 15, Z.y + Math.sin(a) * 15, a, { shot: 'moon_shard', speed: 0.01, range: 99, dmg: 120 }); b.asSpiral = { cx: Z.x, cy: Z.y, r: 15, a, w: -0.45, shrink: 2.1 }; }
+        for (let k = 0; k < 3; k++) { if ((Z.armN + k * 3) % 8 >= 5) continue; const a = turn + (k / 3) * TAU, b = g.bxShot(e, Z.x + Math.cos(a) * 15, Z.y + Math.sin(a) * 15, a, { shot: k % 2 ? 'brass_shard' : 'star_bolt', speed: 0.01, range: 99, dmg: 120 }); b.asSpiral = { cx: Z.x, cy: Z.y, r: 15, a, w: 0.55, shrink: 2.4 }; }
+        if (t > 6) for (let k = 0; k < 2; k++) { if ((Z.armN + k * 4) % 7 >= 4) continue; const a = -turn * 1.3 + (k / 2) * TAU + 0.7, b = g.bxShot(e, Z.x + Math.cos(a) * 15, Z.y + Math.sin(a) * 15, a, { shot: 'moon_shard', speed: 0.01, range: 99, dmg: 120 }); b.asSpiral = { cx: Z.x, cy: Z.y, r: 15, a, w: -0.45, shrink: 2.1 }; }
       }
       if ((Z.debris -= dt) <= 0) { Z.debris = 2.6; debris(g, e); }
     } else if (t < COLLAPSE) {                               // it collapses: everything falls in at once; the light gathers
@@ -285,12 +329,12 @@ const finale = {
       const nt = t - COLLAPSE;
       if (nt > 4.5 && (Z.spin -= dt) <= 0) {                 // from its middle on, a four-arm spiral turns out between the rings
         Z.spin = 0.16; Z.spinN = (Z.spinN || 0) + 1; Z.spinA = (Z.spinA || 0) + 0.15;
-        for (let k = 0; k < 4; k++) if ((Z.spinN + k * 2) % 9 < 7) g.bxShot(e, Z.x, Z.y, Z.spinA + (k / 4) * TAU, { shot: 'moon_shard', speed: 4.2, range: 18, dmg: 115 });   // gaps in each arm
+        for (let k = 0; k < 4; k++) if ((Z.spinN + k * 2) % 9 < 6) g.bxShot(e, Z.x, Z.y, Z.spinA + (k / 4) * TAU, { shot: 'moon_shard', speed: 4.2, range: 18, dmg: 115 });   // gaps in each arm
       }
       if ((Z.nova -= dt) <= 0) {
         Z.nova = nt > 4.5 ? 0.62 : 0.46; Z.wave++;
         const n = 36, a0 = R() * TAU, gaps = new Set();
-        for (let q = 0; q < 4; q++) { const at = Math.floor(R() * n); for (let j = 0; j < 3; j++) gaps.add((at + j) % n); }
+        for (let q = 0; q < 4; q++) { const at = Math.floor(R() * n); for (let j = 0; j < 4; j++) gaps.add((at + j) % n); }
         for (let k = 0; k < n; k++) if (!gaps.has(k)) g.bxShot(e, Z.x, Z.y, a0 + (k / n) * TAU, { shot: Z.wave % 2 ? 'corona_flare' : 'eclipse_ring', speed: 4.8, range: 18, dmg: 125 });
         for (let k = 0; k < 5; k++) g.bxShot(e, Z.x, Z.y, Z.wave * 0.33 + (k / 5) * TAU, { shot: 'star_bolt', speed: 7.5, range: 18, dmg: 115 });
       }
@@ -303,7 +347,8 @@ const finale = {
 export default {
   id: 'grand_orrery', name: 'The Grand Orrery', biome: 'dungeon', hp: 400000, def: 30, xp: 17000, r: 2.2, speed: 1.2, keep: 8, faces: false, spawnCentre: true,
   tempo: 0.68, dmgScale: 1.45, finale,
-  scaleFor: (g, e) => (e.bx.phase >= 3 ? 1.75 : 1),            // in its Collapse the machine swells to nearly twice its size
+  scaleFor: (g, e) => (e.bx.nova2 ? 2.1 + Math.sin(g.t * 6) * 0.08 : e.bx.phase >= 3 ? 1.75 : 1),   // it swells in its Collapse, and more as it burns
+  finale2,
   // its death: the clip at less than half speed, then it hangs on its last frame, shaking, and bursts in rings of light
   death: { speed: 0.4, hold: 3.2, burst(g, e) {
     const [ox, oy] = g.bxOrigin(e), a0 = R() * TAU;
@@ -379,11 +424,15 @@ export default {
       b.globalAlpha = 0.25 + 0.35 * k; b.fillStyle = '#ff4a5a'; b.beginPath(); b.ellipse(Math.round(x), Math.round(y), 16 * k, 12 * k, 0, 0, TAU); b.fill(); b.globalAlpha = 1;
       if (Md) r.drawDef(Md, Object.keys(Md.frames)[Math.floor(g.t * 10) % 2], Math.round(x + (1 - k) * 60), Math.round(y - (1 - k) * 140), { center: true, scale: 2, rot: Math.atan2(140, -60) });   // falling in from the sky
     }
-    for (const D of S.debris || []) {
-      const [x, y] = r.proj(D.x, D.y), k = Math.max(0, Math.min(1, 1 - (D.at - g.t) / 0.8));
-      b.globalAlpha = 0.25 + 0.4 * k; b.fillStyle = '#05040a'; b.beginPath(); b.ellipse(Math.round(x), Math.round(y), 3 + 7 * k, 2 + 4 * k, 0, 0, TAU); b.fill(); b.globalAlpha = 1;
+    for (const D of S.debris || []) {                          // where the brass will land: a red circle that fills as it comes
+      const [x, y] = r.proj(D.x, D.y), k = Math.max(0, Math.min(1, (g.t - (D.born || D.at - 1)) / Math.max(0.1, D.at - (D.born || D.at - 1)))), R0 = 0.9 * 16;
+      b.globalAlpha = 0.15 + 0.3 * k; b.fillStyle = '#ff2a3a'; b.beginPath(); b.ellipse(Math.round(x), Math.round(y), R0 * k, R0 * 0.75 * k, 0, 0, TAU); b.fill();
+      b.globalAlpha = 0.9; b.fillStyle = Math.floor(g.t * 10) % 2 ? '#ffffff' : '#ff4a5a';
+      for (let j = 0; j < 14; j++) { const a = (j / 14) * TAU; b.fillRect(Math.round(x + Math.cos(a) * R0) - 1, Math.round(y + Math.sin(a) * R0 * 0.75) - 1, 2, 2); }
+      b.globalAlpha = 1;
     }
-    if (S.sing) { const Z = S.sing; if (Z.phase === 'consume') blackHole(r, g, Z.x, Z.y, 1, Z.r / 1.1); }
+    if (S.sing) { const Z = S.sing; if (Z.phase === 'consume') r.singularity(g, Z.x, Z.y, 1, 1 + Z.r * 1.5, Z.born || 0); }   // the big singularity: its own sprite, growing
+    if (S.nova2) supernovaGround(r, g, e);                      // the second survival: the floor goes dark round the burning star
   },
   // over everything: the umbra blacks out its part of the floor, shots and all; its rim burns. The planets. The singularity's collapse and nova.
   drawTop(r, g, e) {
