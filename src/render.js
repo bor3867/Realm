@@ -24,7 +24,8 @@ const MINI = { 0: '#1e5078', 1: '#102c48', 2: '#d2b074', 3: '#3e6230', 4: '#4e41
   32: '#3a4a5c', 33: '#7486a0', 34: '#2a6c9c', 35: '#3c2a28', 36: '#6c524a', 37: '#ff8c1e', 38: '#8e1e30',
   39: '#a86e26', 40: '#e8c878', 41: '#ffc040', 42: '#7a4e28', 43: '#6a1224', 44: '#2e2e56', 45: '#8a6ad0', 46: '#8878bc', 47: '#d8d0f4', 48: '#0a0618', 49: '#d8a8e8', 50: '#98c0f0', 51: '#1a1236',
   52: '#5a5866', 53: '#c02a8a', 54: '#dceaf4', 55: '#9ad4f0', 56: '#2a6c9c', 57: '#4a5e86', 58: '#5a4a2e', 59: '#3e6a2a', 60: '#8a7a52', 61: '#2e3a22', 62: '#c8c0dc', 63: '#a87a3a', 64: '#0a0618', 65: '#4a3a7a', 66: '#e0c080', 67: '#a8885a', 68: '#8a6a3a', 69: '#6a4a2a', 70: '#4a4450', 71: '#8e1e30', 72: '#c8c0c8', 73: '#5a0a14', 74: '#2a2430', 75: '#3a3448', 76: '#c8a070', 77: '#8a6a48', 78: '#e8e0f0', 79: '#c83a8a', 80: '#6a1a3a' };   // cliff, rift, Frostveil snow, ice, frigid water, wall
-const DIRS = [[0, -1], [1, 0], [0, 1], [-1, 0]];          // N E S W (matches edge sheet order)
+const DIRS = [[0, -1], [1, 0], [0, 1], [-1, 0]];
+const GROUND_CHUNK = 8;                                   // the ground is drawn and cached in chunks of 8x8 tiles          // N E S W (matches edge sheet order)
 const WEATHER = {
   shore: { n: 36, color: ['#e8f6ff', '#a8d8f0'], vx: 9, vy: 2, size: 1, blink: false },
   fen: { n: 26, color: ['#d4ff5a', '#8db03a'], vx: 3, vy: -2, size: 1, blink: true },
@@ -241,51 +242,21 @@ export class Renderer {
   }
 
   // ------------------------------------------------------------ ground (rotates as one image)
+  // The ground, in cached chunks of 8x8 tiles: each chunk is drawn once (tile by tile, exactly as before) and redrawn
+  // only when something in it changes: its tiles, skins or explored state (a 1-tile border included, for the edge
+  // blends), or its animation frame if it has moving tiles. Then the light, then the fog (cached the same way, over the
+  // light, so the unexplored stays black). Drawing ~3700 tiles a frame cost 3-12 ms; this costs a fraction of one.
   drawGround(g) {
-    const m = g.map, gc = this.gctx, G = this.ground.width, W = this.W;
+    const m = g.map, gc = this.gctx, G = this.ground.width;
     const Px = Math.round(this.px * TS), Py = Math.round(this.py * TS);
     const ox = Px - G / 2, oy = Py - G / 2;
     gc.fillStyle = '#0a080c'; gc.fillRect(0, 0, G, G);
-    const tiles = this.A.img.tiles, cols = W.tilesCols, edges = W.edges, prio = W.priority;
     const tx0 = Math.floor(ox / TS), ty0 = Math.floor(oy / TS), n = Math.ceil(G / TS) + 1;
-    const cell = (i, x, y) => gc.drawImage(tiles, (i % cols) * TS, Math.floor(i / cols) * TS, TS, TS, x, y, TS, TS);
-    const name = (x, y) => (x < 0 || y < 0 || x >= m.w || y >= m.h ? 'void' : TILE_NAMES[m.tiles[y * m.w + x]]);
     const anim = Math.floor(g.t * 2.2);
     if (!m.decorAt && m.decor) { m.decorAt = new Map(); for (const d of m.decor) m.decorAt.set(d.y * m.w + d.x, d.name); }
-    // Realm Update ground skins (see SKINS in maps.js): native 8x8 art drawn at 2x, animated like the old tiles
-    const SA = m.skin ? this.skinArt() : null, sk = m.skin;
-    const skinned = (x, y) => { if (!sk || x < 0 || y < 0 || x >= m.w || y >= m.h) return false; const j = y * m.w + x, k = sk[j]; return k > 0 && SKIN_TID[k] === m.tiles[j]; };
-    for (let ty = ty0; ty < ty0 + n; ty++) {
-      for (let tx = tx0; tx < tx0 + n; tx++) {
-        const nm = name(tx, ty), T = W.tiles[nm];
-        const dx = tx * TS - ox, dy = ty * TS - oy;
-        const unseen = (x, y) => m.seen && (x < 0 || y < 0 || x >= m.w || y >= m.h || !m.seen[y * m.w + x]);
-        if (unseen(tx, ty)) { gc.fillStyle = '#000'; gc.fillRect(dx, dy, TS, TS); continue; }
-        const h = ((tx * 73856093) ^ (ty * 19349663)) >>> 0;
-        if (SA && skinned(tx, ty)) {
-          const A = SA[sk[ty * m.w + tx]], f = A.fr[A.fr.length > 1 ? (anim + ((tx * 7 + ty * 3) >> 2)) % A.fr.length : 0];
-          if (A.img) gc.drawImage(A.img, f.x, f.y, f.w, f.h, dx, dy, TS, TS);
-        } else if (T) {
-          const v = T.variants > 1 ? ((h >>> 4) ^ (h >>> 13)) % T.variants : 0;            // RotMG-style: variants scattered at random
-          cell(T.i + v * T.frames + (T.frames > 1 ? (anim + ((tx * 7 + ty * 3) >> 2)) % T.frames : 0), dx, dy);
-        }
-        const pm = prio[nm];
-        const water = nm === 'water' || nm === 'deep';
-        for (let d = 0; d < 4; d++) {
-          const nn = name(tx + DIRS[d][0], ty + DIRS[d][1]);
-          if (water) {
-            if (prio[nn] !== undefined) cell(edges.foam + (anim % 3) * 4 + d, dx, dy);   // shoreline foam
-          } else if (pm !== undefined && prio[nn] > pm && !skinned(tx + DIRS[d][0], ty + DIRS[d][1])) cell(edges[nn] + d, dx, dy);   // dithered biome blend (a skinned neighbour blends by its tiles instead)
-        }
-        if (m.decorAt) {
-          const dn = m.decorAt.get(ty * m.w + tx);
-          if (dn && (h >>> 9) % 3 === 0) {                     // RotMG ground is mostly bare: only a third of the clutter
-            const na = (W.decorAnim || {})[dn], k = W.decor[dn] + (na ? Math.floor(anim * 0.6 + tx * 0.7 + ty * 0.3) % na : 0), dc = W.decorCols;
-            gc.drawImage(this.A.img.decor, (k % dc) * TS, Math.floor(k / dc) * TS, TS, TS, dx, dy, TS, TS);
-          }
-        }
-      }
-    }
+    if (this.chunkMap !== m) { this.chunkMap = m; this.chunks = new Map(); this.fogs = new Map(); }
+    const C = GROUND_CHUNK, cx0 = Math.floor(tx0 / C), cy0 = Math.floor(ty0 / C), cx1 = Math.floor((tx0 + n) / C), cy1 = Math.floor((ty0 + n) / C);
+    for (let cy = cy0; cy <= cy1; cy++) for (let cx = cx0; cx <= cx1; cx++) gc.drawImage(this.groundChunk(g, m, cx, cy, anim).c, cx * C * TS - ox, cy * C * TS - oy);
     // ground light first, then the fog over it: the unexplored stays black, never tinted
     if (!this.settings || this.settings.groundLight !== false) {
       const L = this.lightFor(m);
@@ -293,19 +264,89 @@ export class Renderer {
       gc.drawImage(L, tx0 + 2, ty0 + 2, n, n, tx0 * TS - ox, ty0 * TS - oy, n * TS, n * TS);
       gc.imageSmoothingEnabled = false;
     }
-    if (m.seen) {                                          // the edge of the known world fades into the fog
-      gc.fillStyle = '#000';
-      for (let ty = ty0; ty < ty0 + n; ty++) for (let tx = tx0; tx < tx0 + n; tx++) if (tx < 0 || ty < 0 || tx >= m.w || ty >= m.h || !m.seen[ty * m.w + tx]) gc.fillRect(tx * TS - ox, ty * TS - oy, TS, TS);
-      for (let ty = ty0; ty < ty0 + n; ty++) for (let tx = tx0; tx < tx0 + n; tx++) {
-        if (tx < 0 || ty < 0 || tx >= m.w || ty >= m.h || !m.seen[ty * m.w + tx]) continue;
-        let k = 0;
-        for (let yy = -2; yy <= 2; yy++) for (let xx = -2; xx <= 2; xx++) {
-          const x = tx + xx, y = ty + yy;
-          if (x < 0 || y < 0 || x >= m.w || y >= m.h || !m.seen[y * m.w + x]) k = Math.max(k, 3 - Math.max(Math.abs(xx), Math.abs(yy)));
-        }
-        if (k) { gc.fillStyle = `rgba(0,0,0,${[0, 0.25, 0.5, 0.72][k]})`; gc.fillRect(tx * TS - ox, ty * TS - oy, TS, TS); }
+    if (m.seen) for (let cy = cy0; cy <= cy1; cy++) for (let cx = cx0; cx <= cx1; cx++) {   // the edge of the known world fades into the fog
+      const F = this.fogChunk(m, cx, cy);
+      if (F.any) gc.drawImage(F.c, cx * C * TS - ox, cy * C * TS - oy);
+    }
+  }
+  // what a chunk's look depends on, as one number (a 1-tile border for the blends; the fog's 2-tile reach for the fog)
+  chunkSig(m, cx, cy, pad, fog) {
+    const C = GROUND_CHUNK, sk = m.skin, sn = m.seen;
+    let h = fog ? 7 : 1;
+    for (let y = cy * C - pad; y < cy * C + C + pad; y++) for (let x = cx * C - pad; x < cx * C + C + pad; x++) {
+      const out = x < 0 || y < 0 || x >= m.w || y >= m.h, j = y * m.w + x;
+      const v = out ? -1 : fog ? (sn[j] ? 1 : 0) : m.tiles[j] * 4 + (sk ? sk[j] * 1024 : 0) + (sn && sn[j] ? 1 : 0);
+      h = (Math.imul(h, 31) + v) | 0;
+    }
+    return h;
+  }
+  keepChunk(cache, key, K) { cache.delete(key); cache.set(key, K); if (cache.size > 600) cache.delete(cache.keys().next().value); return K; }
+  groundChunk(g, m, cx, cy, anim) {
+    const key = cx * 65536 + cy, K0 = this.chunks.get(key), base = this.chunkSig(m, cx, cy, 1, false);
+    if (K0 && K0.base === base && (!K0.moving || K0.anim === anim)) return this.keepChunk(this.chunks, key, K0);
+    const C = GROUND_CHUNK, K = K0 || { c: Object.assign(document.createElement('canvas'), { width: C * TS, height: C * TS }) };
+    const ctx = K.c.getContext('2d'); ctx.imageSmoothingEnabled = false; ctx.clearRect(0, 0, C * TS, C * TS);
+    let moving = false;
+    for (let ty = cy * C; ty < cy * C + C; ty++) for (let tx = cx * C; tx < cx * C + C; tx++) moving = this.groundTile(ctx, m, tx, ty, (tx - cx * C) * TS, (ty - cy * C) * TS, anim) || moving;
+    K.base = base; K.moving = moving; K.anim = anim;
+    return this.keepChunk(this.chunks, key, K);
+  }
+  // one tile of ground, drawn at (dx, dy) of a chunk; true if it animates
+  groundTile(gc, m, tx, ty, dx, dy, anim) {
+    const W = this.W, tiles = this.A.img.tiles, cols = W.tilesCols, edges = W.edges, prio = W.priority;
+    const cell = (i, x, y) => gc.drawImage(tiles, (i % cols) * TS, Math.floor(i / cols) * TS, TS, TS, x, y, TS, TS);
+    const name = (x, y) => (x < 0 || y < 0 || x >= m.w || y >= m.h ? 'void' : TILE_NAMES[m.tiles[y * m.w + x]]);
+    // Realm Update ground skins (see SKINS in maps.js): native 8x8 art drawn at 2x, animated like the old tiles
+    const SA = m.skin ? this.skinArt() : null, sk = m.skin;
+    const skinned = (x, y) => { if (!sk || x < 0 || y < 0 || x >= m.w || y >= m.h) return false; const j = y * m.w + x, k = sk[j]; return k > 0 && SKIN_TID[k] === m.tiles[j]; };
+    const nm = name(tx, ty), T = W.tiles[nm];
+    if (m.seen && (tx < 0 || ty < 0 || tx >= m.w || ty >= m.h || !m.seen[ty * m.w + tx])) { gc.fillStyle = '#000'; gc.fillRect(dx, dy, TS, TS); return false; }
+    const h = ((tx * 73856093) ^ (ty * 19349663)) >>> 0;
+    let moving = false;
+    if (SA && skinned(tx, ty)) {
+      const A = SA[sk[ty * m.w + tx]], f = A.fr[A.fr.length > 1 ? (anim + ((tx * 7 + ty * 3) >> 2)) % A.fr.length : 0];
+      if (A.fr.length > 1) moving = true;
+      if (A.img) gc.drawImage(A.img, f.x, f.y, f.w, f.h, dx, dy, TS, TS);
+    } else if (T) {
+      const v = T.variants > 1 ? ((h >>> 4) ^ (h >>> 13)) % T.variants : 0;            // RotMG-style: variants scattered at random
+      if (T.frames > 1) moving = true;
+      cell(T.i + v * T.frames + (T.frames > 1 ? (anim + ((tx * 7 + ty * 3) >> 2)) % T.frames : 0), dx, dy);
+    }
+    const pm = prio[nm];
+    const water = nm === 'water' || nm === 'deep';
+    for (let d = 0; d < 4; d++) {
+      const nn = name(tx + DIRS[d][0], ty + DIRS[d][1]);
+      if (water) {
+        if (prio[nn] !== undefined) { cell(edges.foam + (anim % 3) * 4 + d, dx, dy); moving = true; }   // shoreline foam
+      } else if (pm !== undefined && prio[nn] > pm && !skinned(tx + DIRS[d][0], ty + DIRS[d][1])) cell(edges[nn] + d, dx, dy);   // dithered biome blend (a skinned neighbour blends by its tiles instead)
+    }
+    if (m.decorAt) {
+      const dn = m.decorAt.get(ty * m.w + tx);
+      if (dn && (h >>> 9) % 3 === 0) {                     // RotMG ground is mostly bare: only a third of the clutter
+        const na = (W.decorAnim || {})[dn], k = W.decor[dn] + (na ? Math.floor(anim * 0.6 + tx * 0.7 + ty * 0.3) % na : 0), dc = W.decorCols;
+        if (na) moving = true;
+        gc.drawImage(this.A.img.decor, (k % dc) * TS, Math.floor(k / dc) * TS, TS, TS, dx, dy, TS, TS);
       }
     }
+    return moving;
+  }
+  // the fog over a chunk: the unexplored black, the known world's edge fading into it
+  fogChunk(m, cx, cy) {
+    const key = cx * 65536 + cy, F0 = this.fogs.get(key), sig = this.chunkSig(m, cx, cy, 2, true);
+    if (F0 && F0.sig === sig) return this.keepChunk(this.fogs, key, F0);
+    const C = GROUND_CHUNK, F = F0 || { c: Object.assign(document.createElement('canvas'), { width: C * TS, height: C * TS }) };
+    const ctx = F.c.getContext('2d'); ctx.clearRect(0, 0, C * TS, C * TS);
+    const unseen = (x, y) => x < 0 || y < 0 || x >= m.w || y >= m.h || !m.seen[y * m.w + x];
+    let any = false;
+    for (let ty = cy * C; ty < cy * C + C; ty++) for (let tx = cx * C; tx < cx * C + C; tx++) {
+      const dx = (tx - cx * C) * TS, dy = (ty - cy * C) * TS;
+      if (unseen(tx, ty)) { ctx.fillStyle = '#000'; ctx.fillRect(dx, dy, TS, TS); any = true; continue; }
+      let k = 0;
+      for (let yy = -2; yy <= 2; yy++) for (let xx = -2; xx <= 2; xx++) if (unseen(tx + xx, ty + yy)) k = Math.max(k, 3 - Math.max(Math.abs(xx), Math.abs(yy)));
+      if (k) { ctx.fillStyle = `rgba(0,0,0,${[0, 0.25, 0.5, 0.72][k]})`; ctx.fillRect(dx, dy, TS, TS); any = true; }
+    }
+    F.sig = sig; F.any = any;
+    return this.keepChunk(this.fogs, key, F);
   }
   // RotMG-style walls: the wall's top is its tile (drawn with the ground); its face hangs below it on the camera's side,
   // over the floor in front, sorted so that anyone standing in front of the wall is drawn over the face
@@ -1972,13 +2013,15 @@ export class Renderer {
       this.miniBase = document.createElement('canvas');
       this.miniBase.width = m.w; this.miniBase.height = m.h;
       const x = this.miniBase.getContext('2d'), img = x.createImageData(m.w, m.h);
-      const realmFlat = m.kind === 'realm';
+      const realmFlat = m.kind === 'realm', rgb = new Map();          // (each colour parsed once: a realm has 1.6 million tiles)
+      const BIO = ['#b89a68', '#4a6a38', '#a8b4c4', '#544a50', '#e0c898', '#26341c', '#b8a050', '#6e9a40'];
       for (let i = 0; i < m.tiles.length; i++) {
         const t = m.tiles[i], b = realmFlat ? m.biome[i] : -2;
         const hex = !realmFlat ? MINI[t] || '#555060' : t === 1 ? '#0e2236' : t === 0 ? '#1d4466' : t === TID.cliff ? '#5a5866' : t === TID.rift ? '#c02a8a'
-          : (['#b89a68', '#4a6a38', '#a8b4c4', '#544a50', '#e0c898', '#26341c', '#b8a050', '#6e9a40'][b] || MINI[t]);
-        img.data[i * 4] = parseInt(hex.slice(1, 3), 16); img.data[i * 4 + 1] = parseInt(hex.slice(3, 5), 16);
-        img.data[i * 4 + 2] = parseInt(hex.slice(5, 7), 16); img.data[i * 4 + 3] = 255;
+          : (BIO[b] || MINI[t]);
+        let c = rgb.get(hex);
+        if (!c) { c = [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)]; rgb.set(hex, c); }
+        img.data[i * 4] = c[0]; img.data[i * 4 + 1] = c[1]; img.data[i * 4 + 2] = c[2]; img.data[i * 4 + 3] = 255;
       }
       if (!realmFlat) for (const o of m.objects) if (o.big) { const i = Math.floor(o.y) * m.w + Math.floor(o.x); img.data[i * 4] = img.data[i * 4 + 1] = img.data[i * 4 + 2] = 230; }
       x.putImageData(img, 0, 0);
@@ -1987,8 +2030,9 @@ export class Renderer {
       if (this.fogFor !== m) {
         this.fogFor = m;
         this.fogCv = document.createElement('canvas'); this.fogCv.width = m.w; this.fogCv.height = m.h;
-        const fx = this.fogCv.getContext('2d'); fx.fillStyle = '#05040a'; fx.fillRect(0, 0, m.w, m.h);
-        for (let i = 0; i < m.seen.length; i++) if (m.seen[i]) fx.clearRect(i % m.w, Math.floor(i / m.w), 1, 1);
+        const fx = this.fogCv.getContext('2d'), img = fx.createImageData(m.w, m.h);   // dark where unseen (one pass, not a call per tile)
+        for (let i = 0; i < m.seen.length; i++) if (!m.seen[i]) { img.data[i * 4] = 5; img.data[i * 4 + 1] = 4; img.data[i * 4 + 2] = 10; img.data[i * 4 + 3] = 255; }
+        fx.putImageData(img, 0, 0);
         m.fogNew.length = 0;
       } else if (m.fogNew.length) {
         const fx = this.fogCv.getContext('2d');
