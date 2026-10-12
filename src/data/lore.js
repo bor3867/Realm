@@ -132,6 +132,11 @@ export const QUEST_HUNTS = {
   fen: ['bell_taken', 'peat_saint', 'candle_mite', 'bog_toad', 'gas_bloat'],
   runeholt: ['frozen_executioner', 'cairn_crawler', 'frost_wraith', 'cairn_mender', 'wolf_shield'],
   godfall: ['hollow_thane', 'halo_eater', 'ash_harpy', 'gilded_lancer', 'reliquary_spider'],
+  // the newer lands (their altars run trials too: without these a trial there crashed the game)
+  dunes: ['glass_scarab', 'dune_lurker', 'salt_mummy', 'sand_skimmer'],
+  thornwood: ['thorn_sprite', 'bramble_wolf', 'spore_puff', 'briar_bee', 'bark_spider'],
+  steppe: ['crystal_golem', 'prism_hawk', 'shard_crawler', 'quartz_jackal'],
+  lowlands: ['field_rat', 'hedge_goblin', 'wild_boar', 'burrow_mole'],
 };
 export const FETCH_ITEMS = ['a waterlogged diary', 'a bag of very old teeth', 'the Peddler\'s spare hat', 'a jar of bottled lightning',
   'a love letter to the Astrolabe', 'a map with nothing on it', 'a sock (just one)', 'the deed to the Nexus'];

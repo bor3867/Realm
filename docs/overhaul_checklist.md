@@ -15,9 +15,13 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
 
 | Art | Wand shots were chunky diagonal slabs (12-16 px long, 4-5 px thick), heavier than sword cuts; bigger still once player shots stopped being shrunk | Old art | All 11 tiered wand bolts redrawn: a 10 px spark, diamond head with a 2 px bright core and a short tail, each tier in its own four main colours (`tools/art_wand_shots.mjs`; the old ones kept in art/world/_old_wand_bolts.png). Range and hitbox unchanged: a player shot hits by the item's `size`, not its art; no enemy uses these sprites | 8x crops; `audit_shots` passes all 11; only the 22 wand cells changed; hitbox check |
 | Art | The hay bale (Nexus, pet pen) looked like a hamburger; the vault strongbox had no outline and flat colours | Placeholder-quality art | Hay bale: an outlined bale of straw with two twine bands. Vault chest: an iron-bound, riveted strongbox with a heavy lock, clearly not the loot chest (`tools/art_objects.mjs`, which also holds the chest) | 8x crops; only the two cells changed; the rest of the objects atlas reviewed at 4x and found consistent |
+| Realm | Starting an altar trial in the dunes, thornwood, steppe or lowlands crashed the game (a TypeError in the update loop: the game froze) | Altars stand in all 8 biomes, but the trials' monster pools (`QUEST_HUNTS`) covered only the first 4 | Pools added for the 4 newer lands, from their own ordinary monsters (hunt quests, wells and dig spots only use the first 4, so they are unchanged) | `tools/check_dungeon_objects.mjs` (crashed on the old code) |
 | Tests | `check_remaster_ext` failed at random (about 1 run in 4) | Its realm monsters fire on unseeded randomness | Seeded | 3 of 3 identical runs |
 
 ## Found working (tested end to end)
+- Every talkable thing and chest in the realm and all 17 dungeons (`tools/check_dungeon_objects.mjs`): 279 talks
+  (journals, levers' masks and sigils, lore stones, wells, dig spots, altars, fishing, the cat, waypoints...) each do
+  something visible, and 196 chests open under fire and drop their bag.
 - Projectile lifecycle, every shooter but the Grand Orrery (`tools/check_shot_lifecycle.mjs`: 10 modular bosses and 194
   other enemies and elites): each fights, dies mid-attack, and is watched for 15 s. Nothing fires after death, none of
   its shots are left in the air, no shot of anyone's lives over 25 s, and nothing hurts you once its shots are gone.
@@ -34,7 +38,6 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
 ## To do (next sessions)
 - Projectile sizes across enemies and abilities against the art standard (the weapons are part of the item rework).
 - Sprite audit beyond the chest: loot bags, NPCs, dungeon styles, placeholder art.
-- Every NPC outside the Nexus (dungeon interactables, portals, waypoints).
 - Performance profiling in the heaviest bullet-hell fights.
 - Feel: movement, firing, camera, transitions.
 - Enemy movement and AI overhaul (requested 2026-10-12): audit every enemy's movement; reusable movement archetypes
