@@ -12,6 +12,13 @@
 //   phantom    where it strikes, a phantom blow lands on the same spot a moment later
 //   starfall   every fourth volley that hits calls a star onto the last enemy hit, which bursts into four sparks
 //   brand      hits brand an enemy; the third brand cracks it into two blades and heals you
+//   mirror     a hit sends a delayed echo through the enemy from the mirrored side
+//   whale      a harpoon that leaves a wake of still foam shards when it pierces, and an undertow where it ends
+//   comet      a converging pair every volley; every fifth volley calls one comet onto a marked spot
+//   choir      each enemy hit adds a voice; the third voice sets off a chord between them that returns mana
+//   witch      every third volley is an eye that marks; the next two hits on the mark burst it into a curse
+//   echo       a hit stores a beat: the next volley also repeats that shot from where it ended (once)
+//   page       a slow page flies out and back, splitting in two on the way home; both halves on one enemy expose it
 // A Legendary adds charge: accurate volleys fill it, and when full your next swing is its signature strike.
 import { R } from './util.js';
 const TAU = Math.PI * 2;
@@ -21,6 +28,8 @@ const THEME = {                                              // what a debuff do
   ice: { col: ['#cfffff', '#3bc8e8'], slow: 0.4 }, sea: { col: ['#7ae0e0', '#ffffff'], slow: 0.3 },
   rune: { col: ['#8a7aff', '#ffd650'], curse: 0.12 }, death: { col: ['#e8e0c8', '#6ad08a'], curse: 0.12 },
   astral: { col: ['#c8b8ff', '#fff2a8'], slow: 0.25 }, arcane: { col: ['#8a7aff', '#f0ead8'], curse: 0.1 }, nature: { col: ['#7ad04a', '#a86a3a'], slow: 0.2 },
+  time: { col: ['#e8c87a', '#8a6a3a'], slow: 0.3 }, storm: { col: ['#bfe8ff', '#5a8aff'], curse: 0.1 }, song: { col: ['#ffd6f0', '#c88aff'], slow: 0.2 },
+  honey: { col: ['#ffd650', '#c88a1a'], slow: 0.3 }, glass: { col: ['#e0f8ff', '#8ad0e8'], curse: 0.1 }, dawn: { col: ['#fff2a8', '#ffb84a'], curse: 0.1 },
 };
 
 const methods = {
@@ -67,6 +76,33 @@ const methods = {
         for (let k = 0; k < 3; k++) fire(ox, oy, a + (k - 1) * (M.arc || 0.12), Math.round(roll() * (k === 1 ? 1 : M.flankF)), { b: { center: k === 1 } });
         return true;
       }
+      case 'comet': {                                           // the V, every volley; every Nth a comet onto your cursor
+        const meet = W.range * 0.6, off = 0.4, perp = a + Math.PI / 2;
+        for (const s of [-1, 1]) {
+          const x = ox + Math.cos(perp) * off * s, y = oy + Math.sin(perp) * off * s;
+          fire(x, y, angleTo(x, y, ox + Math.cos(a) * meet, oy + Math.sin(a) * meet), roll());
+        }
+        if (n % M.every === 0) {
+          const I = this.input, d = Math.min(W.range, Math.hypot(I.aimX - p.x, I.aimY - p.y));
+          this.fx.push({ kind: 'star', x: p.x + Math.cos(a) * d, y: p.y + Math.sin(a) * d, t: 0, life: 1.1, delay: 0.75, r: M.r, dmg: Math.round(roll() * M.f), done: false });
+        }
+        return true;
+      }
+      case 'witch': {                                           // every third volley: the eye
+        const eye = n % 3 === 1;
+        for (let k = 0; k < cnt; k++) fire(ox, oy, a + spread(k), roll(), { b: { eye } });
+        return true;
+      }
+      case 'echo': {
+        for (let k = 0; k < cnt; k++) fire(ox, oy, a + spread(k), roll());
+        const E = p.mechEcho; p.mechEcho = null;
+        if (E && E.until > this.t) fire(E.x, E.y, E.a, roll(), { range: W.range * 0.6, b: { child: true } });   // the beat, repeated once
+        return true;
+      }
+      case 'page': {                                            // out slow and broad; it turns home and splits
+        fire(ox, oy, a, roll(), { size: (W.size || 0.45) * 1.3, b: { page: { a, back: false } } });
+        return true;
+      }
       case 'dart': { for (let k = 0; k < cnt; k++) fire(ox, oy, a + spread(k), roll(), { b: { dart: { at: M.at, hold: M.hold, s: M.s, f: M.f, t: 0 } } }); return true; }
       default: {                                                // follow, shards, glyph, phantom, starfall, brand: the usual volley
         for (let k = 0; k < cnt; k++) fire(ox, oy, a + spread(k), roll());
@@ -111,6 +147,15 @@ const methods = {
   },
   // ------------------------------------------------------------ in flight
   mechFlight(b, dt) {
+    if (b.page && !b.page.back && b.life < b.max * 0.5) {     // the page turns home and splits into two margins
+      b.page.back = true; b.life = 0;
+      const p = this.player, home = angleTo(b.x, b.y, p.x, p.y - 0.5), M = b.sp.mech;
+      for (const s of [-1, 1]) {
+        const c = this.shoot('p', b.x, b.y, home + s * 0.12, b.speed * 1.1, Math.hypot(b.x - p.x, b.y - p.y) + 0.5, Math.round(b.dmg * M.halfF), b.sprite, 0.4, true);
+        c.sp = b.sp; c.vol = b.vol; c.half = s; c.speed = b.speed;
+      }
+      return;
+    }
     if (b.curve) {                                              // a fixed bend
       const na = Math.atan2(b.vy, b.vx) + b.curve * dt, s = Math.hypot(b.vx, b.vy);
       b.vx = Math.cos(na) * s; b.vy = Math.sin(na) * s; b.a = na;
@@ -148,7 +193,7 @@ const methods = {
         break;
       }
       case 'glyph':
-        if (b.hitN === 1) { b.pierce = true; this.mechGlyph(b, M); }
+        if (b.hitN === 1) { b.pierce = true; if (!b.hit) b.hit = new Set([e]); this.mechGlyph(b, M); }   // (on through it, but never twice into it)
         else b.life = 0;                                          // (through the first enemy only)
         break;
       case 'center':
@@ -158,6 +203,50 @@ const methods = {
       case 'starfall':
         p.mechLast = e;
         if (p.starVol !== b.vol) { p.starVol = b.vol; if ((p.starN = (p.starN || 0) + 1) % M.every === 0) this.mechStar(e, b.dmg, M); }
+        break;
+      case 'mirror':
+        if (!b.echoed) {                                        // the echo: from the far side, back through it, a moment later
+          b.echoed = true;
+          const a = Math.atan2(b.vy, b.vx) + Math.PI, [hx, hy] = this.up(e.x, e.y, e.hitUp || 0.5);
+          this.fx.push({ kind: 'wecho', x: hx - Math.cos(a) * 2, y: hy - Math.sin(a) * 2, a, t: 0, life: M.delay + 0.05, delay: M.delay, dmg: Math.round(b.dmg * M.f), proj: b.sprite });
+        }
+        break;
+      case 'whale':
+        if (b.hitN === 1) {                                     // the wake: three still foam shards behind the harpoon
+          const a = Math.atan2(b.vy, b.vx);
+          for (let k = 1; k <= 3; k++) { const c = this.shoot('p', b.x - Math.cos(a) * k * 0.7, b.y - Math.sin(a) * k * 0.7, a, 0.01, 0.01, Math.round(b.dmg * M.foamF), M.foam || 'bubble', 0.4, true); c.life = 0.8; c.child = true; }
+        }
+        break;
+      case 'choir': {
+        p.voices = (p.voices || []).filter((v) => v.until > this.t && !v.e.dead && v.e !== e);
+        p.voices.push({ e, until: this.t + 3 });
+        e.wmark = { until: this.t + 3, col: T.col[0] };
+        if (p.voices.length >= 3) {                             // the chord: between the three, then home to you as mana
+          const L = p.voices.slice(-3).map((v) => v.e); p.voices = [];
+          for (let k = 0; k < L.length; k++) {
+            const A = L[k], B = L[(k + 1) % L.length];
+            this.vx({ k: 'zap', x0: A.x, y0: A.y - 0.5, x1: B.x, y1: B.y - 0.5 });
+            this.damageEnemy(A, Math.round(b.dmg * M.f), A.x, A.y - 0.5, true); A.wmark = null;
+          }
+          p.mp = Math.min(this.stat('mp'), p.mp + M.mana); this.float(p.x, p.y - 1.3, `+${M.mana}`, '#6a9aff');
+        }
+        break;
+      }
+      case 'witch':
+        if (b.eye) { e.witch = { n: 0, until: this.t + 4 }; e.wmark = { until: this.t + 4, col: T.col[0] }; }
+        else if (e.witch && e.witch.until > this.t && ++e.witch.n >= 2) {   // the second strike through the mark bursts it
+          e.witch = null; e.wmark = null;
+          for (const o of this.enemiesIn(e.x, e.y, M.r)) { this.damageEnemy(o, Math.round(b.dmg * M.f), o.x, o.y - 0.5, true); this.mechDebuff(o, M.theme, 3); }
+          this.vx({ k: 'burst', x: e.x, y: e.y - 0.5, n: 8, colors: T.col });
+          this.fx.push({ kind: 'ring', x: e.x, y: e.y - 0.3, t: 0, max: M.r, color: T.col[0] });
+        }
+        break;
+      case 'echo': p.mechEcho = { x: b.x, y: b.y, a: Math.atan2(b.vy, b.vx), until: this.t + 2.5 }; break;
+      case 'page':
+        if (b.half) {                                           // both halves on one enemy: exposed
+          if (e.pageHalf && e.pageHalf.vol === b.vol && e.pageHalf.k !== b.half) { e.curseF = Math.max(e.curseT > 0 ? e.curseF || 0 : 0, M.expose); e.curseT = Math.max(e.curseT || 0, 2.5); e.wmark = { until: this.t + 2.5, col: T.col[0] }; this.float(e.x, e.y - 1.2, 'EXPOSED', T.col[0]); }
+          e.pageHalf = { vol: b.vol, k: b.half };
+        }
         break;
       case 'brand': {
         e.wbrand = (e.wbrandT > this.t ? e.wbrand || 0 : 0) + 1; e.wbrandT = this.t + 3;
@@ -225,10 +314,15 @@ const methods = {
   mechEnd(b) {
     const M = b.sp.mech;
     if (M.kind === 'phantom' && !b.phantomDone && !b.child) this.mechPhantom(b.x, b.y, b.dmg, M);
+    if (M.kind === 'whale' && !b.child && b.hitN) this.mechPhantom(b.x, b.y, b.dmg, { ...M, f: M.underF });   // the undertow, where a harpoon that struck comes to rest
   },
   // ------------------------------------------------------------ every frame: phantom blows land, marks run out
   mechTick() {
     for (const f of this.fx) {
+      if (f.kind === 'wecho' && !f.done && f.t >= f.delay) {
+        f.done = true;
+        const c = this.shoot('p', f.x, f.y, f.a, 16, 4, f.dmg, f.proj, 0.45, true); c.child = true;
+      }
       if (f.kind === 'wphantom' && !f.done && f.t >= f.delay) {
         f.done = true;
         for (const e of this.enemiesIn(f.x, f.y - 0.3, f.r)) { this.damageEnemy(e, f.dmg, e.x, e.y - 0.5, true); if (f.stun && e !== this.boss && !e.rb) this.stun(e, f.stun); }

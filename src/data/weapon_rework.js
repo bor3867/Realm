@@ -30,6 +30,28 @@ export const WEAPON_REWORK = {
   hammer_that_never_fell: { stats: { rate: 0.62 }, mech: { kind: 'phantom', theme: 'sea', delay: 0.6, r: 1.4, f: 1.2, stun: 0.4 } },
   tallow_tongs: { stats: { dmg: [150, 205] }, mech: { kind: 'stack', theme: 'death', cash: 0.6 } },
   tidecaller_blade: { mech: { kind: 'stack', theme: 'sea', cash: 0.6 } },
+  // ---- daggers
+  the_feint: { stats: { dmg: [95, 138] }, mech: { kind: 'curve', theme: 'arcane', turn: 1.6 } },
+  glacial_fang: { mech: { kind: 'shards', theme: 'ice', f: 0.4, len: 1.6 } },
+  glassfencer_dirk: { mech: { kind: 'glyph', theme: 'glass', r: 1.2, f: 0.4 } },
+  jugglers_dagger: { stats: { dmg: [108, 158] }, mech: { kind: 'follow', theme: 'arcane', f: 0.2, r: 1.2 } },
+  melon_baller: { mech: { kind: 'glyph', theme: 'honey', r: 1.2, f: 0.25 } },
+  stringcutter: { stats: { count: 1, arc: 0, dmg: [125, 180] }, mech: { kind: 'glyph', theme: 'song', r: 1.2, f: 0.4 } },
+  crimson_rapier: { mech: { kind: 'shards', theme: 'blood', f: 0.4, len: 1.6 } },
+  the_last_reflection: { stats: { count: 1, arc: 0, dmg: [120, 170] }, mech: { kind: 'shards', theme: 'fire', f: 0.4, len: 1.8 } },
+  the_mirrorworld: { stats: { count: 1, arc: 0, dmg: [95, 132] }, mech: { kind: 'mirror', theme: 'glass', f: 0.7, delay: 0.25 } },
+  queens_stinger: { stats: { dmg: [130, 195] }, mech: { kind: 'converge', theme: 'honey', pairF: 0.62, meet: 0.55 } },
+  // ---- bows
+  batwing_bow: { stats: { count: 1, arc: 0, dmg: [185, 275] }, mech: { kind: 'dart', theme: 'blood', at: 0.7, hold: 0.12, s: 1.7, f: 1.2 } },
+  carousel_bow: { stats: { count: 1, arc: 0, dmg: [190, 290] }, mech: { kind: 'dart', theme: 'song', at: 0.7, hold: 0.12, s: 1.7, f: 1.2 } },
+  comet_bow: { stats: { dmg: [87, 137] }, mech: { kind: 'comet', theme: 'astral', every: 5, r: 1.3, f: 3 } },
+  heartwood_bow: { stats: { count: 1, arc: 0, dmg: [115, 185] }, mech: { kind: 'follow', theme: 'nature', f: 0.5, r: 1.2 } },
+  kraken_bane: { mech: { kind: 'stack', theme: 'sea', cash: 0.5 } },
+  leviathan_longbow: { stats: { dmg: [70, 101] }, mech: { kind: 'stack', theme: 'sea', cash: 0.4 } },
+  rimeheart_bow: { stats: { count: 1, arc: 0, dmg: [175, 280] }, mech: { kind: 'shards', theme: 'ice', f: 0.4, len: 1.8 } },
+  seedspitter_bow: { stats: { count: 3, dmg: [66, 107] }, mech: { kind: 'center', theme: 'nature', arc: 0.1, flankF: 0.6, mark: 0.2 } },
+  leviathan_tine: { stats: { dmg: [256, 351] }, mech: { kind: 'stack', theme: 'sea', cash: 0.5 } },
+  the_white_whale: { mech: { kind: 'whale', theme: 'sea', foam: 'bubble', foamF: 0.3, underF: 0.8, delay: 0.5, r: 1.5 } },
 };
 
 // one line for the tooltip
@@ -47,6 +69,13 @@ export function mechLine(M) {
     phantom: `Where it strikes, a phantom blow lands ${M.delay}s later (${pc(M.f)})`,
     starfall: `Every ${M.every}th volley that hits calls a star onto your target, which bursts into four sparks`,
     brand: `Hits brand an enemy; the third brand cracks into two blades and heals you (${pc(M.heal)} of the hit)`,
+    mirror: `A hit sends a mirrored echo back through the enemy ${M.delay}s later (${pc(M.f)})`,
+    whale: 'A harpoon: when it pierces, it leaves a wake of foam, and an undertow crashes where it comes to rest',
+    comet: `Fires a converging pair; every ${M.every}th volley calls a comet onto your cursor`,
+    choir: `Each enemy hit adds a voice; three voices sound a chord between them (${pc(M.f)}) and give you ${M.mana} Mana`,
+    witch: 'Every third volley is an eye that marks; two more hits on the mark burst it into a hex',
+    echo: 'A hit stores a beat: your next volley repeats that shot from where it ended',
+    page: 'A slow page flies out, then splits in two on its way back; both halves on one enemy expose it (+' + pc(M.expose) + ' damage taken)',
   }[M.kind];
   const C = M.charge;
   return C ? [L, `Legendary: ${C.need} volleys that hit charge ${C.name}, your next swing's signature strike`] : [L];
