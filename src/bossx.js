@@ -82,7 +82,7 @@ export const BXF = {
     S.pat = pat; S.fired = false;
     if (pat.special && S.B.specials[pat.special] && pat.instant) { S.B.specials[pat.special](this, e, pat, null); S.state = 'recover'; S.wait = (pat.recover || 0.4) * (S.B.tempo || 1); return; }
     // the windup frame (frame 0 of the attack clip) is held: that's the telegraph
-    S.state = 'windup'; S.wait = Math.max(0.45, (pat.windup || 0.6) * (S.B.tempo || 1));
+    S.state = 'windup'; S.wait = Math.max(0.45, (pat.windup || 0.6) * (S.B.tempo || 1) * (S.tempoK || 1));   // (tempoK: a boss's last stand runs faster)
     if (S.anim) { S.anim.play(e.bx.def.phases[S.phase].attack); S.anim.speed = 0; }
     if (pat.tell && S.B.specials[pat.tell]) S.B.specials[pat.tell](this, e, pat, null);
   },
@@ -92,12 +92,12 @@ export const BXF = {
     if (clip === ph[S.phase].attack) {
       if (!S.fired) this.bxRelease(e);
       S.anim.play(ph[S.phase].idle);
-      S.state = 'recover'; S.wait = ((S.pat && S.pat.recover) || 0.4) * (S.B.tempo || 1);
+      S.state = 'recover'; S.wait = ((S.pat && S.pat.recover) || 0.4) * (S.B.tempo || 1) * (S.tempoK || 1);
       return;
     }
     if (S.state === 'morph' && (clip === ph[S.phase].enter)) {
       S.anim.play(ph[S.phase].idle);
-      S.state = 'grace'; S.wait = 2.4; e.invulnT = 0;          // a breath after each change before it attacks
+      S.state = 'grace'; S.wait = S.B.morphGrace || 2.4; e.invulnT = 0;   // a breath after each change before it attacks (a boss may fill it with a transition)
       return;
     }
     if (S.state === 'death' && clip === S.def.death) {

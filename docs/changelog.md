@@ -289,3 +289,81 @@
   helices), each step announced; then THE DEATH OF A STAR: ring after ring in every direction (an opening aimed at
   you and one anywhere), spirals between, the screen shaking harder and a soft pulse of light on each wave, the star
   swelling, and a final blinding detonation.
+
+## The Grand Orrery rebuilt (phases 1-3): choreography over barrage
+- No background layers any more (no planet volleys, flares, debris or singularities on timers; no eclipse on a
+  timer): one choreographed attack at a time, each running its full course before the next.
+- Phase 1, The Celestial Dance (it glides a slow circle round the middle): Meridian Waltz (zigzag fans, the last
+  curving to cut off your escape), Armillary Spiral (four arms, one turn, a smooth stop, back again), Planetary
+  Alignment (the planets stream a swinging corridor, slow shots down its middle), Precession (rings whose two wide
+  openings step round, then a wave between them), Starfall (six meteors in an arc, one after another), Grand Rotation
+  (the planets close in and stream a widening double helix).
+  Its end: the planets line up, a gold beam, a great ring with four openings.
+- Phase 2, The Great Eclipse (the eclipse rises only for its attacks): Umbral Pursuit (it follows where you were,
+  turning slowly), Corona Dance (eight arms from its rim, alternate ones turning the other way), Syzygy (a wide beam on
+  the line to you, the planets sweeping shots across it), Penumbra (crescent waves from its edge; dimmed so the shots
+  show), Twilight Orbit (the planets circle you and fire in step; slow rings from the middle), Totality (three rings
+  round the machine whose openings line up into one passage, then let go).
+  Its end: the eclipse swallows it, the planets spin wild, pieces break off, a shockwave.
+- Phase 3, Gravitational Collapse: Accretion Dance (two singularities draw in turning spirals; you live between),
+  Tidal Fracture (four thick streams that bend toward the singularities), Falling Heavens (the planets sweep the
+  floor's edge leaving curved trails, then fire together), Spaghettification (curtains from opposite edges, each with
+  a gap, bending in), Orbital Decay (three rings close in, a warning, then fly off on their tangents), Event Horizon (a
+  ring gathers and closes in while you are drawn gently in, then bursts out with a second ring between its shots).
+
+## The Grand Orrery rebuilt (the survivals)
+- The Singularity (12%, 22 s; no supernova in it): every shot curves into the machine, the planets shatter, it crushes
+  into a compact singularity and draws you gently in. The Gathering (a wide clear corridor turning slowly through
+  shots spiralling in from the edge), Tidal Lock (two spirals turning opposite ways, a radial pulse with openings),
+  Terminal Infall (faster, two lanes clear, turning), The Silence (everything swallowed, stillness, a white ring
+  shrinking in, then a three-ring pressure wave with four aligned openings). A breath between each.
+- Then a short, fast last stand to 4% (its Collapse attacks at 0.72 of their pace).
+- The Supernova (4%): after the Event Horizon, six movements in turn: Stellar Ignition (rings whose openings walk
+  round), Solar Tempest (six arms that breathe), Coronal Ejection (four great comet streams shedding embers), Gamma
+  Horizon (two beams turning slowly, curtains trailing them with gaps), Shattered Constellation (planet rings breaking
+  into opposed sweeping fans), The Final Radiance (four spirals with rings pulsing through them, openings between the
+  arms; then the detonation).
+- check_astral measures how much of the floor stays clear through both survivals (at worst about a fifth).
+
+## The Grand Orrery, harder by choreography (and checked for fairness)
+- Phases 1-3: faster, tighter formations; a fourth waltz fan and stronger curves; five armillary arms with the
+  planets' crossfire (slow off the mark, then fast); a narrower alignment corridor with led shots down it; four
+  precession rings with tighter openings; a ring thrown through the starfall; a faster, tighter helix; a quicker
+  eclipse that turns harder; ten corona arms; fans across the syzygy beam; tighter crescents; five-shot twilight fans;
+  a fourth totality ring; faster accretion and tidal curves; the machine's bolts through the falling heavens; denser
+  curtains; faster orbital decay; a stronger pull in the event horizon; recovers 18% shorter (less downtime).
+- The Singularity: a narrower corridor turning faster, faster spirals, a faster pulse, faster infall, a four-ring
+  pressure wave whose openings drift ring by ring (step with them). The Supernova: eight ignition rings, seven
+  breathing tempest arms with slow counter-rings to cross, five comet streams, faster gamma beams, two shattered
+  constellations, a faster radiance.
+- Fairness: an Orrery shot born within 1.3 tiles of you is harmless (faint) until it has left you.
+  tools/check_orrery_fairness.mjs fights every section with an expert bot (reads every shot's motion and the beams'
+  marks, moves at 6.3 tiles/s), a strafer and a still player on the same seed: the expert gets through every section
+  (2-14 hits), the careless are cut down (16-190).
+
+## The Grand Orrery, phases 1-2 as sequences
+- Phase 1 is four long sequences, each one formation that evolves into the next shape: Clockwork Overture (zigzag
+  waltz -> a spiral that tightens -> splits into counter-turning pairs -> opens into four drifting corridors under the
+  planets' crossfire), The Alignment (a swinging corridor -> the planets swing half round as sweeping walls with gaps
+  -> precession rings opening where the corridor ended), Starfall Procession (meteor arcs whose shards walk along the
+  arc, rings through them, a second arc the other way, closing fans), Grand Rotation (a widening double helix that
+  slows, stops and reverses, then opens into rings aligned with its last gap).
+- Phase 2 is three, the eclipse carried through each: Eclipse Rising (it chases where you were, halts, blooms into
+  counter-turning corona arms), Syzygy (the beam with crossfire, then the eclipse slides down the beam line shedding
+  crescents), Twilight to Totality (the planets circle you, then four rings round the machine align into one passage).
+- The change to the Eclipse is an event (~8 s): the planets align and a gold beam sweeps round both ways with a gap
+  travelling out along it (cross through it), then three rings of brass lock and fly out staggered; the boss can be
+  hurt once its morph clip ends.
+- Old unused attacks removed from the code.
+
+## The Supernova rebuilt: no safe corner
+- Seven stages over about 56 s, each asking for a different position: Ignition (walking-gap rings), Crown (six rim
+  emitters turn and fire inward, so the edge is the danger), Stellar Wind (walls of planet chunks sweep across the
+  whole floor from its edge, the gap marked and shifting), Implosion (rings born at the rim close in and dissolve
+  short of the star, so you push inward through their openings), Crossfire (two turning gamma beams, and comets from
+  the rim aimed through where you stand, each line shown first), Crown Reversed, and Radiance (wind, implosion and
+  crown in turn, then the detonation).
+- Flare strikes: every 2.4 s (2 s in Radiance) a red mark where you stand, a second later a burst there. Standing still
+  is never safe.
+- Simulated over two seeds: every still position, a rim camper and circling players take 61-136 hits; a player who reads
+  the patterns takes 22-25.

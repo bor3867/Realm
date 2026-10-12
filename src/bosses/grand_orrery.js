@@ -18,51 +18,7 @@ const angleTo = (x0, y0, x1, y1) => Math.atan2(y1 - y0, x1 - x0);
 const centre = (e) => { const A = e.bx.arena; return A ? [A.x + A.w / 2, A.y + A.h / 2] : [e.x, e.y]; };
 // the eclipse's transits, per phase: its size, how long a crossing takes, the wait between crossings
 const UMBRA = { 1: { r: 3.2, T: 6.5, every: 15 }, 2: { r: 4.5, T: 7, every: 7 }, 3: { r: 4, T: 6, every: 11 } };
-// an eclipse transit: the path is marked across the floor (through `through`, or near the middle), then the umbra
-// slides along it from beyond one rim to beyond the other
-function transit(g, e, through) {
-  const S = e.bx, [cx, cy] = centre(e), U0 = UMBRA[S.phase] || UMBRA[3], a = R() * TAU;
-  const [px, py] = through || [cx + (R() - 0.5) * 6, cy + (R() - 0.5) * 6], L = 15;
-  const x0 = px - Math.cos(a) * L, y0 = py - Math.sin(a) * L, x1 = px + Math.cos(a) * L, y1 = py + Math.sin(a) * L;
-  S.umbra = { x: x0, y: y0, r: U0.r, path: { x0, y0, x1, y1, t: -1.2, T: U0.T } };
-  g.spMark({ kind: 'line', x: x0, y: y0, a, len: 2 * L, life: 1.2, color: '#ffb040' });
-  return S.umbra;
-}
-// the umbra turns: from where it is, through (x, y), on to beyond the rim, quickly (marked first)
-function redirect(g, e, x, y, speed = 4) {
-  const U = e.bx.umbra;
-  if (!U) { transit(g, e, [x, y]); return; }
-  const a = angleTo(U.x, U.y, x, y), L = Math.hypot(x - U.x, y - U.y) + 15;
-  U.path = { x0: U.x, y0: U.y, x1: U.x + Math.cos(a) * L, y1: U.y + Math.sin(a) * L, t: -0.6, T: L / speed };
-  U.lunge = true;
-  g.spMark({ kind: 'line', x: U.x, y: U.y, a, len: L, life: 0.6, color: '#c8a0ff' });
-}
 
-// ---------------------------------------------------------------- phase 1: Aligned
-// meridian: three aimed fans in quick succession, the middle one threaded between the others
-function meridian(g, e, V) {
-  [[0, 5, 0.62], [0.22, 4, 0.46], [0.44, 5, 0.62]].forEach(([t, count, spread]) => e.bx.vol.push({ t, V: { form: 'fan', shot: 'moon_shard', count, spread, speed: 7.5, range: 15, dmg: V.dmg || 120 } }));
-}
-// precession: three rings, each turned half a step from the last
-function precession(g, e, V) {
-  const a0 = R() * TAU, n = 20;
-  [0, 0.4, 0.8].forEach((t, k) => e.bx.vol.push({ t, V: { form: 'ring', shot: 'eclipse_ring', count: n, spiralAt: a0 + (k % 2) * (Math.PI / n), speed: 4.6, range: 18, dmg: V.dmg || 120 } }));
-}
-// armillary: a four-arm spiral from the machine, turning
-function armillary(g, e, V) { g.bxVolley(e, { form: 'spiral', shot: 'star_bolt', arms: V.arms || 4, dur: V.dur || 2.2, every: 0.11, turn: V.turn || 0.17, speed: 5.5, range: 16, dmg: V.dmg || 115 }); }
-// orbits: three rings wheeling round it, each its own way, each with two gaps; after a while they fly off on tangents
-function orbits(g, e, V) {
-  const [ox, oy] = g.bxOrigin(e), fast = V.fast || 1;
-  [[3, 'moon_shard', 10, 1.1], [5, 'star_bolt', 14, -0.8], [7, 'moon_shard', 18, 0.6]].forEach(([r, shot, n, w], ring) => {
-    const gap = Math.floor(R() * n);
-    for (let k = 0; k < n; k++) {
-      if (k === gap || k === (gap + 1) % n) continue;
-      const a = (k / n) * TAU;
-      const b = g.bxShot(e, ox + Math.cos(a) * r, oy + Math.sin(a) * r, a, { shot, speed: 0.01, range: 99, dmg: V.dmg || 120 });
-      b.asOrb = { cx: ox, cy: oy, r, a, w: w * fast, t: 3, ring };
-    }
-  });
-}
 // meteors: rune circles open on and round you; a second later the meteors land on them and burst into shards
 function meteors(g, e, V) {
   const p = g.player, S = e.bx, n = V.n || 7, [cx, cy] = centre(e);
@@ -72,55 +28,6 @@ function meteors(g, e, V) {
     if (Math.hypot(x - cx, y - cy) > 16) continue;
     S.meteors.push({ x, y, born: g.t, at: g.t + 1 + k * 0.08 });
   }
-}
-// planets: two planets wheel round the machine, opposite ways; each throws three bolts at you as it passes
-function planetVolley(g, e, V) {
-  const p = g.player;
-  for (const P of e.bx.planets || []) {
-    const a = angleTo(P.x, P.y, p.x, p.y);
-    for (const off of [-0.16, 0, 0.16]) g.bxShot(e, P.x, P.y, a + off, { shot: 'star_bolt', speed: 7, range: 16, dmg: V.dmg || 115 });
-  }
-}
-// ---------------------------------------------------------------- the eclipse, all fight long
-// corona flares: from the rim of the umbra, not from the machine
-function flares(g, e, V) {
-  const U = e.bx.umbra;
-  if (!U) return;
-  const n = V.n || 8, a0 = R() * TAU;
-  for (let k = 0; k < n; k++) { const a = a0 + (k / n) * TAU; g.bxShot(e, U.x + Math.cos(a) * U.r, U.y + Math.sin(a) * U.r, a, { shot: 'corona_flare', speed: 5.5, range: 10, dmg: V.dmg || 120 }); }
-}
-// corona burst (P2): two rings from the umbra's rim, the second between the first
-function coronaBurst(g, e, V) {
-  const U = e.bx.umbra;
-  if (!U) { transit(g, e); g.fvLater(2, () => { if (e.bx.umbra) coronaBurst(g, e, V); }); return; }   // none up: one rises, then bursts
-  const a0 = R() * TAU, n = 22;
-  [0, 0.35, 0.7].forEach((t, j) => g.fvLater(t, () => {
-    if (!e.bx.umbra || e.dead) return;
-    for (let k = 0; k < n; k++) { const a = a0 + ((k + (j % 2) * 0.5) / n) * TAU; g.bxShot(e, U.x + Math.cos(a) * U.r, U.y + Math.sin(a) * U.r, a, { shot: 'corona_flare', speed: 4.6, range: 14, dmg: V.dmg || 125 }); }
-  }));
-}
-// umbral lunge (P2): the eclipse turns and runs through where you stand (or, if none is up, one rises on that line)
-function lunge(g, e) {
-  const p = g.player;
-  redirect(g, e, p.x, p.y, 4.5);
-  g.spMark({ kind: 'circle', x: p.x, y: p.y, r: (e.bx.umbra && e.bx.umbra.r) || 4, life: 0.8, color: '#c8a0ff' });
-}
-// eclipse rings: two expanding rings, the second's gaps between the first's
-function eclipseRings(g, e, V) {
-  const n = 24, g0 = Math.floor(R() * n), gaps = (off) => new Set([0, 1, 8, 9, 16, 17].map((q) => (g0 + q + off) % n));
-  [[0, 0], [0.5, 4], [1, 0]].forEach(([t, off]) => e.bx.vol.push({ t, V: { form: 'special', name: 'ringOf', skip: gaps(off), n, dmg: V.dmg || 125 } }));
-}
-function ringOf(g, e, V) {
-  const [ox, oy] = g.bxOrigin(e);
-  for (let k = 0; k < V.n; k++) if (!V.skip.has(k)) g.bxShot(e, ox, oy, (k / V.n) * TAU, { shot: 'eclipse_ring', speed: 4, range: 18, dmg: V.dmg });
-}
-// syzygy (P2): the umbra slides onto the line between the machine and you, then a dense stream fires down that line
-function syzygy(g, e, V) {
-  const S = e.bx, p = g.player, [ox, oy] = g.bxOrigin(e);
-  if (S.umbra) redirect(g, e, (ox + p.x) / 2, (oy + p.y) / 2, 6);
-  const a = angleTo(ox, oy, p.x, p.y);
-  g.spMark({ kind: 'line', x: ox, y: oy, a, len: 16, life: 0.45, color: '#ffd690' });
-  for (let k = 0; k < 14; k++) S.vol.push({ t: 0.45 + k * 0.06, V: { form: 'fan', shot: 'eclipse_ring', count: 3, spread: 0.3, angle: a + Math.sin(k * 0.9) * 0.08, speed: 9.5, range: 20, dmg: V.dmg || 125 } });
 }
 // ---------------------------------------------------------------- phase 3: Collapse
 // small singularities open on the floor away from you (two or three at a time, three at most): they drift, pull you
@@ -134,32 +41,6 @@ function well(g, e, V = {}) {
     S.wells.push({ x, y, vx: Math.cos(va) * 0.5, vy: Math.sin(va) * 0.5, until: g.t + (V.life || 6), born: g.t, tick: 0, r: 1 }); n--;
   }
 }
-// accretion: a disk of shots round each black hole, winding in until it is swallowed
-function accretion(g, e, V) {
-  const S = e.bx;
-  if (!(S.wells || []).length) well(g, e);
-  for (const W of S.wells || []) for (const [r, n, w] of [[4.2, 16, 1.1], [2.8, 11, -1.5]]) {
-    const a0 = R() * TAU;
-    for (let k = 0; k < n; k++) { const a = a0 + (k / n) * TAU, b = g.bxShot(e, W.x + Math.cos(a) * r, W.y + Math.sin(a) * r, a, { shot: k % 2 ? 'star_bolt' : 'brass_shard', speed: 0.01, range: 99, dmg: V.dmg || 120 }); b.asSpiral = { cx: W.x, cy: W.y, r, a, w, shrink: 0.75, W }; }
-  }
-}
-// spaghettification: rings whose shots bend toward the nearest black hole
-function spaghetti(g, e, V) {
-  const [ox, oy] = g.bxOrigin(e), a0 = R() * TAU;
-  for (let k = 0; k < 24; k++) { const b = g.bxShot(e, ox, oy, a0 + (k / 24) * TAU, { shot: 'star_bolt', speed: 4.6, range: 20, dmg: V.dmg || 125 }); b.toWell = 2.2; b.life = 4.5; }
-}
-// infall: matter streams in from the rim of the floor toward the black holes
-function infall(g, e, V) {
-  const S = e.bx, [cx, cy] = centre(e), a0 = R() * TAU;
-  if (!(S.wells || []).length) return;
-  for (let k = 0; k < 12; k++) {
-    const a = a0 + (k / 12) * TAU, x = cx + Math.cos(a) * 15, y = cy + Math.sin(a) * 15;
-    let W = S.wells[0];
-    for (const q of S.wells) if (Math.hypot(q.x - x, q.y - y) < Math.hypot(W.x - x, W.y - y)) W = q;
-    for (let j = 0; j < 3; j++) S.vol.push({ t: j * 0.18, V: { form: 'special', name: 'infallShot', x, y, W, dmg: V.dmg || 115 } });
-  }
-}
-function infallShot(g, e, V) { const b = g.bxShot(e, V.x, V.y, angleTo(V.x, V.y, V.W.x, V.W.y), { shot: 'brass_shard', speed: 5, range: 18, dmg: V.dmg }); b.intoWell = V.W; }
 // debris: shadows grow under where the shards will land, then they land and skitter outward
 function debris(g, e) {
   const p = g.player, S = e.bx;
@@ -168,30 +49,337 @@ function debris(g, e) {
   g.vx({ k: 'shake', amt: 4 });
 }
 
+// ================================================================ PHASES 1-3, CHOREOGRAPHED
+// One attack at a time, each a formation with its own lanes: no background barrage under it. The planets and the
+// eclipse are instruments the attacks play, not timers. Every attack's recover covers its whole duration, so the next
+// begins as this one's last shots clear.
+const shotAt = (g, e, x, y, a, shot, speed, dmg, o = {}) => g.bxShot(e, x, y, a, { shot, speed, range: o.range || 20, dmg, ...o });
+const held = (g, e, x, y, a, shot, dmg) => { const b = g.bxShot(e, x, y, a, { shot, speed: 0.01, range: 99, dmg }); b.vx = 0; b.vy = 0; b.life = 99; return b; };
+const launch = (b, a, sp, life = 4) => { b.orc = null; b.vx = Math.cos(a) * sp; b.vy = Math.sin(a) * sp; b.a = a; b.life = life; };
+const later = (e, t, fn) => e.bx.vol.push({ t, V: { form: 'special', name: 'later', fn } });
+const aimAt = (g, x, y) => angleTo(x, y, g.player.x, g.player.y - 0.4);
+// the planets: where an attack wants them (P.goal), else wheeling round the machine
+function planetsTick(g, e, dt) {
+  const S = e.bx, [ox, oy] = g.bxOrigin(e);
+  for (const P of S.planets || []) {
+    if (P.goal) { const [tx, ty] = P.goal(g, e, P); const k = Math.min(1, dt * (P.ease || 5)); P.x += (tx - P.x) * k; P.y += (ty - P.y) * k; continue; }
+    P.a += P.w * (S.spin || 1) * dt; const r = P.rr || P.r;
+    const tx = ox + Math.cos(P.a) * r, ty = oy + Math.sin(P.a) * r * 0.85, k = Math.min(1, dt * 6);
+    P.x += (tx - P.x) * k; P.y += (ty - P.y) * k;
+  }
+}
+function planetsHome(S) { for (const P of S.planets || []) { P.goal = null; P.rr = null; } S.spin = 1; }
+
+// ---------------------------------------------------------------- PHASE 1: THE CELESTIAL DANCE (precise, symmetrical)
+// Four long sequences, each one formation that evolves; the shape one leaves is where the next begins.
+// [purpose of each piece in brackets]
+
+// CLOCKWORK OVERTURE (10.5 s): the waltz (zigzag fans, the last two curving to cut off the way you went) [sets the
+// rhythm: dodge side to side] -> its last fan's line becomes the first arm of a four-arm spiral that tightens (turns
+// faster, fires faster) [forces circling] -> the arms split into two counter-turning pairs [the lanes now open and close:
+// time your crossings] -> they stop turning and become four slow-drifting corridors, the planets lobbing triplets into
+// them that start slow and then rush [you hold a corridor and step out of the triplets' line]
+function overture(g, e, V) {
+  const S = e.bx, dmg = V.dmg || 125;
+  [[0, 0.2], [0.32, -0.2], [0.64, 0.2], [0.96, -0.1]].forEach(([t, off], k) => later(e, t, () => {
+    const [ox, oy] = g.bxOrigin(e), aim = aimAt(g, ox, oy) + off, p = g.player;
+    const side = k >= 2 ? Math.sign(Math.cos(aim) * (p.vel ? p.vel.y : 0) - Math.sin(aim) * (p.vel ? p.vel.x : 0)) || 1 : 0;
+    for (let j = 0; j < 7; j++) shotAt(g, e, ox, oy, aim + (j - 3) * 0.12, 'moon_shard', 8.4, dmg, side ? { mv: { curve: 0.55 * side } } : {});
+    if (k === 3) S.ov = { a: aim, pair: [1, 1, 1, 1] };
+  }));
+  let t = 1.4;
+  while (t < 9.4) {
+    const tt = t, step = tt < 4.4 ? 0.12 - (tt - 1.4) * 0.013 : 0.09;
+    later(e, tt, () => {
+      const O = S.ov, [ox, oy] = g.bxOrigin(e);
+      if (!O) return;
+      const u = tt - 1.4, w = u < 3 ? 0.7 + u * 0.45 : u < 3.5 ? 2.05 : u < 5.5 ? 1.7 : 0.15;   // tighten, hold, split, open
+      O.a += w * step;
+      if (u >= 3 && O.ref === undefined) O.ref = O.a;            // the moment of the split
+      for (let j = 0; j < 4; j++) {
+        const counter = u >= 3 && u < 5.5 && j % 2 ? -1 : 1, ang = (counter < 0 ? -O.a + 2 * O.ref : O.a) + (j / 4) * TAU;
+        shotAt(g, e, ox, oy, ang, 'star_bolt', u < 5.5 ? 5.2 : 4.6, dmg);
+      }
+      if (u >= 5.5 && Math.round(u / step) % 7 === 0) for (const P of S.planets || []) { const aim = aimAt(g, P.x, P.y); for (let q = -1; q <= 1; q++) shotAt(g, e, P.x, P.y, aim + q * 0.2, 'moon_shard', 2.5, dmg, { mv: { accel: 7, max: 3 } }); }
+    });
+    t += step;
+  }
+}
+// THE ALIGNMENT (10 s): the planets stop either side of it and stream a corridor down the line to you, swinging slowly,
+// the machine lobbing shots down it led ahead of you [stay in the corridor, keep adjusting] -> the planets swing round
+// it half a turn, still streaming: two walls sweep the floor, each with a pulse-gap every fifth shot [cross a wall
+// through its gap as it reaches you] -> where the corridor ended, three precession rings begin with their openings on
+// that line and step round [follow the openings round]
+function alignmentSweep(g, e, V) {
+  const S = e.bx, [ox, oy] = g.bxOrigin(e), A = { a: aimAt(g, ox, oy), swap: 0 }, dmg = V.dmg || 120;
+  (S.planets || []).forEach((P, k) => { P.ease = 4; P.goal = (g2, e2) => { const [x, y] = g2.bxOrigin(e2), n = A.a + (k ? -1 : 1) * Math.PI / 2 + A.swap; return [x + Math.cos(n) * 4.2, y + Math.sin(n) * 4.2]; }; });
+  g.spMark({ kind: 'line', x: ox, y: oy, a: A.a, len: 16, life: 0.6, color: '#ffd690' });
+  for (let i = 0; i < 70; i++) later(e, 0.6 + i * 0.095, () => {
+    const t = 0.6 + i * 0.095;
+    if (t < 4.6) { A.a += 0.028; for (const P of S.planets) shotAt(g, e, P.x, P.y, A.a, 'moon_shard', 7, dmg); if (i % 3 === 0) { const [x, y] = g.bxOrigin(e), lead = aimAt(g, x, y) + (g.player.vel ? Math.sign(g.player.vel.x + g.player.vel.y) * 0.08 : 0); shotAt(g, e, x, y, lead, 'eclipse_ring', 3.6, dmg); } }
+    else if (t < 7) { A.swap = Math.min(Math.PI, (t - 4.6) / 2.4 * Math.PI); if (i % 5) for (const [k, P] of S.planets.entries()) { const [x, y] = g.bxOrigin(e), out = angleTo(x, y, P.x, P.y); shotAt(g, e, P.x, P.y, out + (k ? 1 : -1) * Math.PI / 2, 'moon_shard', 5.6, dmg); } }
+  });
+  [0, 0.4, 0.8].forEach((t, k) => later(e, 7.2 + t, () => {
+    const [x, y] = g.bxOrigin(e), n = 30, open = A.a + A.swap + k * 0.5, gaps = [open, open + Math.PI];
+    for (let j = 0; j < n; j++) { const a = (j / n) * TAU; if (gaps.some((q) => Math.abs(Math.atan2(Math.sin(a - q), Math.cos(a - q))) < 0.27)) continue; shotAt(g, e, x, y, a, 'eclipse_ring', 4.8, 125); }
+    if (k === 2) planetsHome(S);
+  }));
+}
+// STARFALL PROCESSION (9 s): meteors land one by one along an arc through where you stand, their shards thrown along the
+// arc so a wave walks round [circle ahead of the wave] -> a slow ring with two openings rolls through it [find an
+// opening while circling] -> a second procession the other way, two tiles further out [cut back across] -> two closing
+// fans [punish standing in the last landing spot]
+function procession(g, e, V) {
+  const S = e.bx, dmg = V.dmg || 125;
+  const arc = (dir, extra) => {
+    const [ox, oy] = g.bxOrigin(e), p = g.player, d = Math.max(4, Math.hypot(p.x - ox, p.y - oy) + extra), a0 = angleTo(ox, oy, p.x, p.y);
+    S.meteors = S.meteors || [];
+    for (let k = 0; k < 8; k++) { const a = a0 + dir * (k - 1) * 0.28, at = g.t + 0.9 + k * 0.22; S.meteors.push({ x: ox + Math.cos(a) * d, y: oy + Math.sin(a) * d, born: g.t, at, along: a + dir * Math.PI / 2 }); }
+  };
+  const ring = () => { const [x, y] = g.bxOrigin(e), b0 = aimAt(g, x, y); for (let j = 0; j < 22; j++) if (j % 11 > 1) shotAt(g, e, x, y, b0 + ((j + 0.5) / 22) * TAU, 'eclipse_ring', 3.2, dmg); };
+  const dir = R() < 0.5 ? 1 : -1;
+  later(e, 0, () => arc(dir, 0)); later(e, 1.3, ring);
+  later(e, 3.6, () => arc(-dir, 2)); later(e, 4.9, ring);
+  [6.6, 6.95].forEach((t, k) => later(e, t, () => { const [x, y] = g.bxOrigin(e), aim = aimAt(g, x, y) + (k ? 0.18 : -0.18); for (let j = 0; j < 7; j++) shotAt(g, e, x, y, aim + (j - 3) * 0.12, 'moon_shard', 8, dmg); }));
+}
+// GRAND ROTATION (11 s): it anchors; the planets close in and spin, streaming a widening double helix [weave between
+// the arms] -> the spin slows to a stop and reverses [the arms you were riding now come back across you] -> the planets
+// fling out and stop, and the helix's last gap opens into two precession rings aligned with it [read the gap, take it]
+function rotation(g, e, V) {
+  const S = e.bx, dmg = V.dmg || 125;
+  S.anchor = true; S.spin = 3.8;
+  for (const P of S.planets) P.rr = 2.6;
+  for (let i = 0; i < 82; i++) later(e, i * 0.08, () => {
+    const t = i * 0.08;
+    S.spin = t < 3.6 ? 3.8 : t < 4.6 ? 3.8 * (1 - (t - 3.6) * 2) : -3.8;      // slow, stop, back
+    for (const [k, P] of S.planets.entries()) { P.rr = Math.min(6.4, 2.6 + t * 0.6); const [ox, oy] = g.bxOrigin(e), out = angleTo(ox, oy, P.x, P.y); shotAt(g, e, P.x, P.y, out + (i % 2 ? 0.2 : -0.2) * (k ? 1 : -1), 'moon_shard', 5, dmg); }
+  });
+  later(e, 6.7, () => { S.spin = 0; for (const P of S.planets) P.rr = 7.5; });
+  [7.1, 7.5].forEach((t) => later(e, t, () => {
+    const [x, y] = g.bxOrigin(e), P = S.planets[0], open = P ? angleTo(x, y, P.x, P.y) + Math.PI / 2 : 0, n = 30;
+    for (let j = 0; j < n; j++) { const a = (j / n) * TAU; if ([open, open + Math.PI].some((q) => Math.abs(Math.atan2(Math.sin(a - q), Math.cos(a - q))) < 0.27)) continue; shotAt(g, e, x, y, a, 'eclipse_ring', 4.6, dmg); }
+  }));
+  later(e, 8.6, () => { S.anchor = false; planetsHome(S); });
+}
+// THE ALIGNMENT OF ALL (the change to the Eclipse; ~8 s, you can still hurt it once the rings lock): the planets line up
+// with the machine and a gold beam runs out of it both ways and sweeps round; a gap travels out along the beam [cross
+// the beam through the gap as it passes you, or outrun it round the rim] -> the beam goes out; three rings of brass lock
+// round the machine, a beat, then fly out with their openings staggered [thread them] -> the eclipse begins to rise
+function finaleAligned(g, e) {
+  const S = e.bx, [ox, oy] = g.bxOrigin(e), a0 = aimAt(g, ox, oy) + Math.PI / 2, t0 = g.t;
+  (S.planets || []).forEach((P, k) => { P.ease = 3; P.goal = (g2, e2) => { const [x, y] = g2.bxOrigin(e2), a = a0 + (g2.t - t0 > 1.2 ? (g2.t - t0 - 1.2) * 0.55 : 0); return [x + Math.cos(a) * (k ? -7 : 7), y + Math.sin(a) * (k ? -7 : 7)]; }; });
+  for (const s of [0, Math.PI]) g.spMark({ kind: 'line', x: ox, y: oy, a: a0 + s, len: 16, life: 1.2, color: '#ffd690' });
+  for (const s of [0, Math.PI]) for (let k = 0; k < 15; k++) {                   // the beam: segments out from the machine
+    const r = 1.6 + k, b = held(g, e, ox, oy, 0, 'star_bolt', 150);
+    b.orc = (b2) => {
+      const t = g.t - t0, [x, y] = g.bxOrigin(e), a = a0 + s + Math.max(0, t - 1.2) * 0.55, gapR = 1.5 + Math.max(0, t - 1.2) * 3;
+      b2.x = x + Math.cos(a) * r; b2.y = y + Math.sin(a) * r; b2.a = a; b2.life = 99;
+      const open = t < 1.2 || Math.abs(r - gapR) < 1.3; b2.hidden = open; b2.ghost = open;   // not yet lit, or the travelling gap
+      if (t > 5.8) { b2.life = 0; return true; }
+      return false;
+    };
+  }
+  later(e, 6, () => {                                                               // the rings lock, a beat, and fly
+    const [x, y] = g.bxOrigin(e), t1 = g.t;
+    [[2.6, 14, 0], [4.2, 20, 0.5], [5.8, 26, 1]].forEach(([r, n, off]) => {
+      for (let j = 0; j < n; j++) {
+        const a = (j / n) * TAU; if (Math.abs(Math.atan2(Math.sin(a - off), Math.cos(a - off))) < (TAU / n) * 1.6) continue;
+        const b = held(g, e, x + Math.cos(a) * r, y + Math.sin(a) * r, a, 'brass_shard', 130);
+        b.orc = (b2) => { if (g.t - t1 > 0.9) { launch(b2, a, 4.4, 5); return true; } return false; };
+      }
+    });
+    g.vx({ k: 'shake', amt: 6 });
+  });
+  later(e, 7.4, () => planetsHome(S));
+}
+
+// ---------------------------------------------------------------- PHASE 2: THE GREAT ECLIPSE (light, shadow, space)
+// the eclipse as an instrument: risen where an attack needs it, moved by it, set when it ends
+function eclipseAt(g, e, x, y, r) {
+  const S = e.bx;
+  if (!S.umbra) S.umbra = { x, y, r: 0.5, rise: true };
+  S.umbra.goal = { x, y }; S.umbra.want = r; S.umbra.path = null; S.umbra.setting = false; S.umbra.chase = null;
+  return S.umbra;
+}
+function eclipseSet(e) { if (e.bx.umbra) e.bx.umbra.setting = true; }
+// ECLIPSE RISING (11 s): the eclipse rises at the machine and follows where you were a second ago, turning slowly, while
+// the machine's fans alternate side to side [lead the eclipse away while you dodge] -> it halts where it caught up, and
+// ten arms of flame spiral off its rim, every other one turning the other way [the gaps move: weave] -> it sets
+function eclipseRising(g, e, V) {
+  const S = e.bx, [ox, oy] = g.bxOrigin(e), dmg = V.dmg || 125;
+  const U = eclipseAt(g, e, ox, oy, 3.8); U.chase = { v: 3, a: aimAt(g, ox, oy) };
+  for (let k = 0; k < 8; k++) later(e, 0.5 + k * 0.62, () => { const [x, y] = g.bxOrigin(e), aim = aimAt(g, x, y) + (k % 2 ? 0.26 : -0.26); for (let j = 0; j < 5; j++) shotAt(g, e, x, y, aim + (j - 2) * 0.14, 'moon_shard', 7.6, dmg); });
+  later(e, 5.6, () => { if (S.umbra) { S.umbra.chase = null; S.umbra.goal = { x: S.umbra.x, y: S.umbra.y }; S.umbra.want = 3.2; } });   // it halts
+  const a0 = R() * TAU;
+  for (let i = 0; i < 34; i++) later(e, 6 + i * 0.12, () => {
+    const W = S.umbra; if (!W) return;
+    for (let k = 0; k < 10; k++) { const a = a0 + (k / 10) * TAU + (k % 2 ? 1 : -1) * i * 0.085; shotAt(g, e, W.x + Math.cos(a) * W.r, W.y + Math.sin(a) * W.r, a, 'corona_flare', 5, dmg); }
+  });
+  later(e, 10.2, () => eclipseSet(e));
+}
+// SYZYGY (10 s): machine and planets fall in line with you; a wide beam is marked and burns down the line while the
+// planets sweep shots across it and the machine fans at you [no standing still beside the beam] -> as the beam dies the
+// eclipse rises on the line and slides along it toward you, crescents rolling off its leading edge [move along the curves,
+// out of its path]
+function syzygyLine(g, e, V) {
+  const S = e.bx, [ox, oy] = g.bxOrigin(e), a = aimAt(g, ox, oy), nx = -Math.sin(a), ny = Math.cos(a), dmg = V.dmg || 125;
+  (S.planets || []).forEach((P, k) => { P.ease = 4; P.goal = (g2, e2) => { const [x, y] = g2.bxOrigin(e2), d = k ? 3 : 7; return [x + Math.cos(a) * d, y + Math.sin(a) * d]; }; });
+  for (const o of [-0.55, 0, 0.55]) g.fx.push({ kind: 'laser', x0: ox + nx * o, y0: oy + ny * o, a, len: 26, t: 0, tele: 1.3, act: 1.6, life: 3.1, dmg: g.bxDmg(e, 160), by: e.D.name, hit: false, col: '#ffd690' });
+  for (let i = 0; i < 12; i++) later(e, 1.3 + i * 0.15, () => {
+    for (const P of S.planets) for (const s of [1, -1]) shotAt(g, e, P.x, P.y, a + s * Math.PI / 2 + (i % 2 ? 0.1 : -0.1), 'star_bolt', 6, dmg);
+    if (i % 4 === 2) { const [x, y] = g.bxOrigin(e), aim = aimAt(g, x, y); for (let j = -2; j <= 2; j++) shotAt(g, e, x, y, aim + j * 0.18, 'moon_shard', 6.4, dmg); }
+  });
+  later(e, 3.3, () => { planetsHome(S); const [x, y] = g.bxOrigin(e); eclipseAt(g, e, x, y, 3.2); });
+  for (let k = 0; k < 9; k++) later(e, 3.6 + k * 0.5, () => {
+    const U = S.umbra; if (!U) return;
+    const [x, y] = g.bxOrigin(e); U.goal = { x: x + Math.cos(a) * Math.min(11, 2 + k * 1.1), y: y + Math.sin(a) * Math.min(11, 2 + k * 1.1) };   // sliding along the line
+    const c = aimAt(g, U.x, U.y) + [0, 0.6, -0.6][k % 3];
+    for (let j = -6; j <= 6; j++) { const b = c + j * 0.1; shotAt(g, e, U.x + Math.cos(b) * U.r, U.y + Math.sin(b) * U.r, b, 'eclipse_ring', 5, dmg); }
+  });
+  later(e, 8.4, () => eclipseSet(e));
+}
+// TWILIGHT TO TOTALITY (11 s): the planets wheel round YOU, firing five-shot fans in step, the machine sending slow rings
+// with two openings [turn with them, through the openings] -> the planets return; the eclipse settles over the machine;
+// four rings form round it, each with one opening, turning so the openings line up into one passage at you (shown), part
+// again, and the rings let go [be at the passage when they go]
+function twilightTotality(g, e, V) {
+  const S = e.bx, a0 = R() * TAU, dmg = V.dmg || 125;
+  (S.planets || []).forEach((P, k) => { P.ease = 3; P.t0 = g.t; P.goal = (g2) => { const a = a0 + k * Math.PI + (g2.t - P.t0) * 0.9; return [g2.player.x + Math.cos(a) * 5.5, g2.player.y + Math.sin(a) * 5.5]; }; });
+  for (let k = 0; k < 7; k++) later(e, 0.8 + k * 0.6, () => { for (const P of S.planets) { const aim = aimAt(g, P.x, P.y); for (let j = -2; j <= 2; j++) shotAt(g, e, P.x, P.y, aim + j * 0.2, 'moon_shard', 6.6, dmg); } });
+  for (let k = 0; k < 3; k++) later(e, 0.6 + k * 1.5, () => { const [x, y] = g.bxOrigin(e), a = R() * TAU; for (let j = 0; j < 18; j++) if (j % 9) shotAt(g, e, x, y, a + (j / 18) * TAU, 'eclipse_ring', 2.8, dmg); });
+  later(e, 5, () => planetsHome(S));
+  later(e, 5.4, () => {
+    const [ox, oy] = g.bxOrigin(e), star = aimAt(g, ox, oy), t0 = g.t;
+    eclipseAt(g, e, ox, oy, 2.2);
+    [[2.6, 14, 1.1], [4.1, 18, -0.75], [5.6, 22, 0.55], [7.1, 26, -0.4]].forEach(([r, n, w]) => {
+      for (let j = 0; j < n; j++) {
+        const rel = (j / n) * TAU; if (Math.abs(Math.atan2(Math.sin(rel), Math.cos(rel))) < (TAU / n) * 0.75) continue;
+        const b = held(g, e, ox, oy, 0, 'moon_shard', 130);
+        b.orc = (b2) => { const t = g.t - t0, open = star + w * (t - 2.4), aa = open + rel, [x, y] = g.bxOrigin(e); b2.x = x + Math.cos(aa) * r; b2.y = y + Math.sin(aa) * r; b2.a = aa + Math.PI / 2; b2.life = 99; if (t > 4.3) { launch(b2, aa, 4.4, 4); return true; } return false; };
+      }
+    });
+    later(e, 2.4, () => g.spMark({ kind: 'line', x: ox, y: oy, a: star, len: 8, life: 0.6, color: '#5ef08a' }));
+    later(e, 4.6, () => eclipseSet(e));
+  });
+}
+// (the change to the Collapse: finaleEclipse below)
+function finaleEclipse(g, e) {
+  const S = e.bx, [ox, oy] = g.bxOrigin(e);
+  eclipseAt(g, e, ox, oy, 6); S.spin = 5;
+  later(e, 1.2, () => { const [x, y] = g.bxOrigin(e), a0 = R() * TAU; for (let j = 0; j < 14; j++) shotAt(g, e, x, y, a0 + (j / 14) * TAU, 'brass_shard', 2.4, 120, { range: 8 }); });
+  later(e, 2, () => { const [x, y] = g.bxOrigin(e), n = 40, a0 = R() * TAU; for (let j = 0; j < n; j++) if (j % 20 > 2) shotAt(g, e, x, y, a0 + (j / n) * TAU, 'eclipse_ring', 5, 130); g.vx({ k: 'shake', amt: 9 }); eclipseSet(e); S.spin = 1; });
+}
+
+// ---------------------------------------------------------------- PHASE 3: GRAVITATIONAL COLLAPSE (failing, unstable)
+const wellAt = (g, e, x, y, life = 7) => { const S = e.bx; S.wells = (S.wells || []).filter((W) => g.t <= W.until); const W = { x, y, vx: 0, vy: 0, until: g.t + life, born: g.t, tick: 0, r: 1 }; S.wells.push(W); return W; };
+// Accretion Dance: two singularities either side; each draws streams of shots into turning spirals; you live between
+function accretionDance(g, e, V) {
+  const S = e.bx, [ox, oy] = g.bxOrigin(e), a = aimAt(g, ox, oy) + Math.PI / 2, W = [1, -1].map((s) => wellAt(g, e, ox + Math.cos(a) * 7 * s, oy + Math.sin(a) * 7 * s, 6.5));
+  for (let i = 0; i < 34; i++) later(e, 0.4 + i * 0.165, () => W.forEach((w, k) => {
+    for (const q of [0, Math.PI]) { const s = i * 0.5 + q + k, b = held(g, e, w.x + Math.cos(s) * 6, w.y + Math.sin(s) * 6, s, k ? 'brass_shard' : 'star_bolt', V.dmg || 125); b.asSpiral = { cx: w.x, cy: w.y, r: 6, a: s, w: k ? 1.3 : -1.3, shrink: 1.5, W: w }; }
+  }));
+}
+// Tidal Fracture: four thick streams north, south, east, west; each bends toward a singularity, so the straight lanes
+// curve as they go
+function tidalFracture(g, e, V) {
+  const S = e.bx, [ox, oy] = g.bxOrigin(e);
+  if (!(S.wells || []).filter((W) => g.t <= W.until).length) { const a = R() * TAU; [1, -1].forEach((s) => wellAt(g, e, ox + Math.cos(a) * 8 * s, oy + Math.sin(a) * 8 * s, 5)); }
+  const a0 = R() * Math.PI / 2;
+  for (let i = 0; i < 28; i++) later(e, 0.4 + i * 0.085, () => { const [x, y] = g.bxOrigin(e); for (let k = 0; k < 4; k++) for (const o of [-0.09, 0, 0.09]) { const b = shotAt(g, e, x, y, a0 + (k / 4) * TAU + o, 'moon_shard', 6, V.dmg || 125); b.toWell = 1.15; b.life = 4; } });
+}
+// Falling Heavens: the planets break orbit and sweep the floor's edge opposite ways, leaving curved trails of shards;
+// then they rejoin the machine and fire together
+function fallingHeavens(g, e, V) {
+  const S = e.bx, [cx, cy] = centre(e);
+  (S.planets || []).forEach((P, k) => { P.ease = 2.5; P.t0 = g.t; P.goal = (g2) => { const a = (k ? Math.PI : 0) + (k ? -1 : 1) * (g2.t - P.t0) * 1.3; return [cx + Math.cos(a) * 11, cy + Math.sin(a) * 11]; }; });
+  for (let k = 0; k < 6; k++) later(e, 0.9 + k * 0.7, () => { const [x, y] = g.bxOrigin(e), aim = aimAt(g, x, y); for (let j = -1; j <= 1; j++) shotAt(g, e, x, y, aim + j * 0.16, 'star_bolt', 7, V.dmg || 125); });   // the machine's aimed bolts while the planets sweep
+  for (let i = 0; i < 40; i++) later(e, 0.5 + i * 0.1, () => { for (const P of S.planets) { const b = shotAt(g, e, P.x, P.y, angleTo(cx, cy, P.x, P.y) + Math.PI, 'brass_shard', 0.9, V.dmg || 120, { range: 3 }); b.life = 3.2; } });
+  later(e, 4.8, () => planetsHome(S));
+  later(e, 5.6, () => { for (const P of S.planets) { const a0 = R() * TAU; for (let j = 0; j < 12; j++) shotAt(g, e, P.x, P.y, a0 + (j / 12) * TAU, 'moon_shard', 4.5, V.dmg || 125); } g.vx({ k: 'shake', amt: 4 }); });
+}
+// Spaghettification: curtains roll in from opposite edges, each with one gap, bending toward the machine as they come
+function spaghettiCurtains(g, e, V) {
+  const [cx, cy] = centre(e), a = R() * Math.PI, ux = Math.cos(a), uy = Math.sin(a), nx = -uy, ny = ux;
+  for (let i = 0; i < 11; i++) later(e, i * 0.36, () => {
+    for (const s of [1, -1]) {
+      const gap = Math.floor(R() * 8) - 4;
+      for (let j = -5; j <= 5; j++) {
+        if (j === gap || j === gap + 1) continue;
+        const x = cx - ux * 15 * s + nx * j * 2.1, y = cy - uy * 15 * s + ny * j * 2.1, b = shotAt(g, e, x, y, s > 0 ? a : a + Math.PI, 'star_bolt', 4.8, V.dmg || 125, { range: 30 });
+        b.toBoss = 0.32; b.life = 7;
+      }
+    }
+  });
+}
+// Orbital Decay: three rings orbit at different speeds and slowly close in; a ring of warning, then they fly off on
+// their tangents
+function orbitalDecay(g, e, V) {
+  const [ox, oy] = g.bxOrigin(e), t0 = g.t;
+  [[3.6, 14, 1.1], [5.6, 20, -0.8], [7.6, 26, 0.6]].forEach(([r0, n, w]) => {
+    const gap = Math.floor(R() * n);
+    for (let j = 0; j < n; j++) {
+      if (j === gap || j === (gap + 1) % n) continue;
+      const a0 = (j / n) * TAU, b = held(g, e, ox, oy, 0, 'moon_shard', V.dmg || 130);
+      b.orc = (b2) => { const t = g.t - t0, r = r0 - t * 0.55, a = a0 + w * 1.25 * t, [x, y] = g.bxOrigin(e); b2.x = x + Math.cos(a) * r; b2.y = y + Math.sin(a) * r; b2.a = a + Math.sign(w) * Math.PI / 2; if (t > 4.4) { launch(b2, b2.a, 5.6, 4); return true; } return false; };
+    }
+  });
+  later(e, 3.6, () => { const [x, y] = g.bxOrigin(e); g.spMark({ kind: 'ring', x, y, r: 6, life: 0.8, color: '#ffffff' }); });
+}
+// Event Horizon: a ring of shots gathers from far out and closes in (two openings) while you are gently drawn in; it
+// lets go as a spaced burst outward, a second ring between its shots
+function eventHorizon(g, e, V) {
+  const S = e.bx, [ox, oy] = g.bxOrigin(e), n = 34, a0 = R() * TAU, t0 = g.t;
+  S.draw = { until: g.t + 3.6, f: 1.3 };
+  for (let j = 0; j < n; j++) {
+    if (j % 17 < 2) continue;
+    const a = a0 + (j / n) * TAU, b = held(g, e, ox + Math.cos(a) * 12, oy + Math.sin(a) * 12, a, 'eclipse_ring', V.dmg || 130);
+    b.orc = (b2) => { const t = g.t - t0, r = Math.max(2.6, 12 - t * 2.6), aa = a + t * 0.3, [x, y] = g.bxOrigin(e); b2.x = x + Math.cos(aa) * r; b2.y = y + Math.sin(aa) * r; b2.a = aa; if (t > 3.8) { launch(b2, aa, 4.6, 4); return true; } return false; };
+  }
+  g.spMark({ kind: 'ring', x: ox, y: oy, r: 12, life: 3.6, color: '#c8a0ff' });
+  later(e, 4.1, () => { const [x, y] = g.bxOrigin(e); for (let j = 0; j < n; j++) if (j % 17 > 1) shotAt(g, e, x, y, a0 + 3.8 * 0.3 + ((j + 0.5) / n) * TAU, 'moon_shard', 3.4, V.dmg || 125); g.vx({ k: 'shake', amt: 5 }); });
+}
+
 // ---------------------------------------------------------------- what runs every frame, in the fight and in the finale
 function tick(g, e, dt) {
   const S = e.bx, p = g.player, [cx, cy] = centre(e);
-  if (S.planets) {                                           // the planets wheel round the machine
-    const [ox, oy] = g.bxOrigin(e);
-    for (const P of S.planets) { P.a += P.w * dt; P.x = ox + Math.cos(P.a) * P.r; P.y = oy + Math.sin(P.a) * P.r * 0.85; }
-  }
-  if (!S.umbra && !S.sing && !S.nova2 && S.transitT !== undefined && (S.transitT -= dt) <= 0) transit(g, e);   // the next eclipse
+  planetsTick(g, e, dt);                                     // the planets: wheeling round it, or where an attack puts them
+  S.trail = S.trail || []; S.trail.push([g.t, p.x, p.y]); while (S.trail.length && g.t - S.trail[0][0] > 1.2) S.trail.shift();   // where you were
+  if (S.draw && g.t < S.draw.until && !p.dead) { const [ox, oy] = g.bxOrigin(e), d = Math.hypot(ox - p.x, oy - p.y) || 1; g.moveCircle(p, ((ox - p.x) / d) * S.draw.f * dt, ((oy - p.y) / d) * S.draw.f * dt, 0.32); }
+  // (the eclipse rises only when an attack calls it)
   const U = S.umbra;
   if (U) {                                                   // the eclipse crosses on its path; burns whoever is in it
     if (S.sing) {                                            // the finale: the singularity swallows it
       U.x += (S.sing.x - U.x) * Math.min(1, dt * 1.5); U.y += (S.sing.y - U.y) * Math.min(1, dt * 1.5); U.r = Math.max(0, U.r - dt * 2.2);
       if (U.r <= 0.1) S.umbra = null;
+    } else if (U.setting) {                                  // it sets
+      U.r = Math.max(0, U.r - dt * 3); if (U.r <= 0.1) S.umbra = null;
+    } else if (U.chase) {                                    // it follows where you were a second ago, turning slowly
+      const tr = S.trail && S.trail[0], tx = tr ? tr[1] : p.x, ty = tr ? tr[2] : p.y, want = angleTo(U.x, U.y, tx, ty);
+      let da = ((want - U.chase.a + Math.PI * 3) % TAU) - Math.PI; U.chase.a += Math.max(-2 * dt, Math.min(2 * dt, da));
+      if (Math.hypot(tx - U.x, ty - U.y) > 0.4) { U.x += Math.cos(U.chase.a) * U.chase.v * dt; U.y += Math.sin(U.chase.a) * U.chase.v * dt; }
+      U.r += ((U.want || 3.5) - U.r) * Math.min(1, dt * 2);
+    } else if (U.goal) {                                     // it glides to where the attack wants it
+      const k = Math.min(1, dt * 2.5); U.x += (U.goal.x - U.x) * k; U.y += (U.goal.y - U.y) * k; U.r += ((U.want || 3.5) - U.r) * Math.min(1, dt * 2);
     } else if (U.path) {
       const P = U.path; P.t += dt;
       const k = Math.max(0, Math.min(1, P.t / P.T));
       U.x = P.x0 + (P.x1 - P.x0) * k; U.y = P.y0 + (P.y1 - P.y0) * k;
       if (k >= 1) { S.umbra = null; S.transitT = (UMBRA[S.phase] || UMBRA[3]).every; }
     }
-    const live = S.umbra && (!U.path || U.path.t >= 0) && !S.sing;
+    const live = S.umbra && (!U.path || U.path.t >= 0) && !S.sing && !U.setting && U.r > 1;
     if (live && !p.dead && Math.hypot(p.x - U.x, p.y - U.y) < U.r * 0.92 && (S.umbraT = (S.umbraT || 0) - dt) <= 0) { S.umbraT = 0.4; g.hurtPlayer(g.bxDmg(e, 70), 'the eclipse'); }
   }
   for (const b of g.projectiles) {
     if (b.bxOf !== e) continue;
+    if (b.fair === undefined) { b.fair = Math.hypot(b.x - p.x, b.y - (p.y - 0.45)) < 1.3; if (b.fair) b.ghost = true; }   // born on top of you: harmless (faint) until it has left you
+    else if (b.fair && Math.hypot(b.x - p.x, b.y - (p.y - 0.45)) > 1.9) { b.fair = false; b.ghost = false; }
+    if (b.orc && b.orc(b, dt)) b.orc = null;                 // a shot an attack steers (a formation), until it lets go
+    if (b.toBoss) {                                          // a curtain bending in toward the machine
+      const [ox, oy] = g.bxOrigin(e), cur = Math.atan2(b.vy, b.vx), want = angleTo(b.x, b.y, ox, oy), sp = Math.hypot(b.vx, b.vy);
+      let da = ((want - cur + Math.PI * 3) % TAU) - Math.PI; da = Math.max(-b.toBoss * dt, Math.min(b.toBoss * dt, da));
+      b.vx = Math.cos(cur + da) * sp; b.vy = Math.sin(cur + da) * sp; b.a = cur + da;
+      if (Math.hypot(b.x - ox, b.y - oy) < 1.2) b.life = 0;
+    }
     const O = b.asOrb;                                       // shots in orbit wheel round; when their time is up they fly off on the tangent
     if (O) {
       O.a += O.w * dt; O.t -= dt;
@@ -243,8 +431,8 @@ function tick(g, e, dt) {
     for (const M of S.meteors) if (g.t >= M.at && !M.done) {
       M.done = true;
       if (!p.dead && Math.hypot(p.x - M.x, p.y - M.y) < 1) g.hurtPlayer(g.bxDmg(e, 140), 'a falling meteor');
-      const a0 = R() * TAU;
-      for (let k = 0; k < 6; k++) g.bxShot(e, M.x, M.y, a0 + (k / 6) * TAU, { shot: 'brass_shard', speed: 4.8, range: 4, dmg: 110 });
+      if (M.along !== undefined) for (const s0 of [0, Math.PI]) for (const q of [-0.25, 0, 0.25]) g.bxShot(e, M.x, M.y, M.along + s0 + q, { shot: 'brass_shard', speed: 4.8, range: 4.5, dmg: 110 });   // along the arc: a wave that walks
+      else { const a0 = R() * TAU; for (let k = 0; k < 6; k++) g.bxShot(e, M.x, M.y, a0 + (k / 6) * TAU, { shot: 'brass_shard', speed: 4.8, range: 4, dmg: 110 }); }
       g.vx({ k: 'burst', x: M.x, y: M.y, n: 12, colors: ['#ff8a1f', '#ffd690', '#ffffff'] }); g.vx({ k: 'shake', amt: 2 });
     }
     S.meteors = S.meteors.filter((M) => !M.done);
@@ -264,82 +452,125 @@ function tick(g, e, dt) {
 // The floor is a starfield in the dark; only a pool of light round you (soft at its edge) and the burning star show,
 // and shots out in the dark are dim.
 const SN = (n) => `sn_shots/${n}`;
-const EH = 3, DEATH_AT = 27, NOVA_DUR = EH + DEATH_AT + 6.5;
-// six movements, in order; each cycle ends with a shock ring. As it burns on, layers join (chaos levels 2 and 3)
-const CYCLE = [['storm', 4], ['planets', 3], ['orrery', 3.5], ['comets', 3], ['constellation', 3.5], ['gamma', 3]];
-function novaPatterns(g, e, dt, tt, ox, oy) {
-  const S = e.bx, N = S.nova2, p = g.player, L = tt < 9 ? 1 : tt < 18 ? 2 : 3, fast = 1 + (L - 1) * 0.1;
-  const shot = (a, name, speed, dmg, o = {}) => g.bxShot(e, ox, oy, a, { sprite: SN(name), speed: speed * fast, range: 30, dmg, ...o });
-  if (tt >= DEATH_AT) return deathOfAStar(g, e, dt, tt - DEATH_AT, ox, oy);
-  if ((N.patT -= dt) <= 0) {                                    // the next movement
-    if (N.pat >= 0 && N.pat % CYCLE.length === CYCLE.length - 1) shockArc(g, e);
-    N.pat++; const [kind, len] = CYCLE[N.pat % CYCLE.length]; N.kind = kind; N.patT = len; N.sub = 0; N.sub2 = 0;
-    if (kind === 'storm') N.dir = -N.dir;
-    if (kind === 'gamma') gammaStart(g, e);
-    if (kind === 'orrery') orreryRings(g, e, ox, oy);
-    if (kind === 'constellation') constellation(g, e, ox, oy);
+const EH = 3;
+// the Supernova's six movements, one after another (s): each one's own formation, nothing piled on it
+// THE SUPERNOVA (after the Event Horizon): the whole floor matters. The attacks come from the star AND from the rim,
+// cross the floor, and change shape far out, so neither the middle, the back wall nor a steady circle is safe. Three
+// positioning demands alternate, under telegraphed strikes on wherever you stand:
+//   THE CROWN (outer)      rotating spokes fired inward from emitters on the rim; slow rings from the star: live in the
+//                          outer band between the spokes and turn with them
+//   STELLAR WIND (lateral) walls cross the whole floor from its edge, alternating sides, each with a gap that shifts:
+//                          move sideways to the gap, then back for the next
+//   IMPLOSION (inward)     rings form at the rim (faint for half a second), then close on the star and dissolve near it:
+//                          push in to the inner band, where the star's aimed fans keep you moving
+//   CROSSFIRE              two beams turn from the star while comets are fired from the rim straight through where you
+//                          stand (each line shown first): step off every line
+//   FLARE STRIKES          throughout: a red circle where you stand fills for a second, then bursts
+// THE FINAL RADIANCE mixes all of them, faster, and ends in the detonation.
+const NOVA = [['ignition', 4], ['crown', 8], ['wind', 8], ['implosion', 8], ['crossfire', 8], ['crown2', 7], ['radiance', 10]];
+const NOVA_LEN = NOVA.reduce((s, [, d]) => s + d, 0), NOVA_DUR = EH + NOVA_LEN + 0.5;
+const ARENA_R = 16.5;                                              // the floor's rim (36x36, round)
+function novaSequence(g, e, dt, tt, ox, oy) {
+  const S = e.bx, N = S.nova2, p = g.player, [cx, cy] = centre(e);
+  let at = 0, k = 0;
+  while (k < NOVA.length - 1 && tt >= at + NOVA[k][1]) { at += NOVA[k][1]; k++; }
+  if (N.k !== k) { N.k = k; N.kind = NOVA[k][0]; N.L = {}; if (k) { shockArc(g, e); g.banner({ crown: 'THE CROWN', crown2: 'THE CROWN', wind: 'STELLAR WIND', implosion: 'IMPLOSION', crossfire: 'CROSSFIRE', radiance: 'THE FINAL RADIANCE' }[N.kind] || '', 1300); } }
+  const lt = tt - at, L = N.L, kind = N.kind;
+  const fire = (x, y, a, name, speed, dmg, o = {}) => g.bxShot(e, x, y, a, { sprite: SN(name), speed, range: o.range || 24, dmg, ...o });
+  // ---- flare strikes: on wherever you stand (all but the ignition), faster as it burns on
+  if (kind !== 'ignition' && (N.strike = (N.strike === undefined ? 1 : N.strike) - dt) <= 0) {
+    N.strike = kind === 'radiance' ? 2 : 2.4;
+    const x = p.x, y = p.y;
+    g.spMark({ kind: 'circle', x, y, r: 1.4, life: 1, color: '#ff4a5a' });
+    later(e, 1, () => {
+      if (!p.dead && Math.hypot(p.x - x, p.y - y) < 1.4) g.hurtPlayer(g.bxDmg(e, 140), 'a solar flare');
+      const a0 = R() * TAU; for (let j = 0; j < 8; j++) fire(x, y - 0.4, a0 + (j / 8) * TAU, 'stellar_ember', 3.4, 115, { size: 0.35, range: 5 });
+      g.vx({ k: 'burst', x, y, n: 14, colors: ['#ff8a1f', '#ffd690', '#ffffff'] });
+    });
   }
-  if (N.kind === 'storm') {
-    if ((N.sub -= dt) <= 0) { N.sub = 1 / 6; N.a += (11 * Math.PI / 180) * N.dir; for (let k = 0; k < 4; k++) shot(N.a + (k / 4) * TAU, 'nova_spiral', 4.6, 135); }
-    if ((N.sub2 -= dt) <= 0) { N.sub2 = 0.8; const a0 = R() * TAU; for (let k = 0; k < 8; k++) shot(a0 + (k / 8) * TAU, 'helix_pair', 3.6, 130, { mv: { wave: { amp: 0.5, freq: 7 } } }); }
-  } else if (N.kind === 'planets') {
-    if ((N.sub -= dt) <= 0) {
-      N.sub = 0.55; N.chunk = (N.chunk + 1) % 3;
-      const kind = ['planet_chunk_ice', 'planet_chunk_rock', 'planet_chunk_violet'][N.chunk], a0 = R() * TAU;
-      for (let k = 0; k < 10; k++) { const b = shot(a0 + (k / 10) * TAU, kind, N.chunk === 1 ? 4.5 : 6, N.chunk === 1 ? 165 : 135, { size: N.chunk === 1 ? 0.55 : 0.45 }); b.snHang = { slow: 0.9, hang: 0.6, split: N.chunk === 2 }; }
+  const crown = (lt2, fast) => {                                  // rim emitters firing inward spokes, turning; slow rings from the star
+    if (L.c0 === undefined) L.c0 = R() * TAU;
+    const n = 6, turn = L.c0 + lt2 * (0.42 * fast);
+    if ((L.sp = (L.sp || 0) - dt) <= 0) {
+      L.sp = 0.11;
+      for (let j = 0; j < n; j++) { const a = turn + (j / n) * TAU, x = cx + Math.cos(a) * ARENA_R, y = cy + Math.sin(a) * ARENA_R; fire(x, y, a + Math.PI, 'nova_spiral', 6, 140, { range: 9.5 }); }
     }
-  } else if (N.kind === 'comets') {
-    if ((N.sub -= dt) <= 0) { N.sub = 1.5; const a0 = R() * TAU, dir = N.pat % 2 ? 1 : -1; for (let k = 0; k < 6; k++) { const b = shot(a0 + (k / 6) * TAU, 'plasma_comet', 4.2, 155, { size: 0.55, mv: { curve: 1.05 * dir } }); b.snEmber = 0.2; } }
-    if ((N.sub2 -= dt) <= 0) { N.sub2 = 1.1; const a0 = R() * TAU; for (let k = 0; k < 24; k++) shot(a0 + (k / 24) * TAU, 'stellar_ember', 3, 110, { size: 0.35 }); }
-  } else if (N.kind === 'gamma') gammaTick(g, e, dt, ox, oy);
-  // the layers that join as it burns: an ember drizzle (level 2), braided helices (level 3)
-  if (L >= 2 && (N.drz = (N.drz || 0) - dt) <= 0) { N.drz = 0.2; N.dA = (N.dA || 0) + 0.23; N.dn = (N.dn || 0) + 1; for (let k = 0; k < 3; k++) if ((N.dn + k * 3) % 9 < 7) shot(N.dA + (k / 3) * TAU, 'stellar_ember', 2.6, 110, { size: 0.35 }); }
-  if (L >= 3 && (N.hx = (N.hx || 0) - dt) <= 0) { N.hx = 1.3; const a0 = angleTo(ox, oy, p.x, p.y) + Math.PI / 8; for (let k = 0; k < 8; k++) shot(a0 + (k / 8) * TAU, 'helix_pair', 3.4, 130, { mv: { wave: { amp: 0.6, freq: 6 } } }); }
-  if (L !== N.lv) { if (N.lv) { g.banner(L === 2 ? 'IT BURNS HOTTER' : 'IT IS TEARING APART', 1600); g.vx({ k: 'shake', amt: 8 }); N.flash = 0.12; shockArc(g, e); } N.lv = L; }
-}
-// the orrery's last formation: three rings of shattered planets round the star, turning opposite ways as they spread out
-function orreryRings(g, e, ox, oy) {
-  [[2.2, 10, 0.7, 'planet_chunk_ice'], [3.4, 14, -0.6, 'planet_chunk_rock'], [4.6, 18, 0.5, 'planet_chunk_violet']].forEach(([r, n, w, name], ring) => {
-    const gap = Math.floor(R() * n), a0 = R() * TAU;
-    for (let k = 0; k < n; k++) {
-      if (k === gap || k === (gap + 1) % n) continue;
-      const a = a0 + (k / n) * TAU, b = g.bxShot(e, ox + Math.cos(a) * r, oy + Math.sin(a) * r, a, { sprite: SN(name), speed: 0.01, range: 99, dmg: 140 });
-      b.asSpiral = { cx: ox, cy: oy, r, a, w, shrink: -(1.6 + ring * 0.25), out: 22 };
+    if ((L.ring = (L.ring === undefined ? 1 : L.ring) - dt) <= 0) {
+      L.ring = 2.1; const a0 = R() * TAU;
+      for (let j = 0; j < 20; j++) if (j % 10 > 1) fire(ox, oy, a0 + (j / 20) * TAU, 'helix_pair', 2.8, 130);
     }
-  });
-  g.vx({ k: 'burst', x: ox, y: oy, n: 30, colors: ['#8af6ff', '#c8a0ff', '#ffd690'] });
-}
-// a constellation: three seeds of singularity orbit the star, each shedding embers away from it
-function constellation(g, e, ox, oy) {
-  const a0 = R() * TAU;
-  for (let k = 0; k < 3; k++) {
-    const a = a0 + (k / 3) * TAU, b = g.bxShot(e, ox + Math.cos(a) * 4.5, oy + Math.sin(a) * 4.5, a, { sprite: SN('singularity_seed'), speed: 0.01, range: 99, dmg: 160, size: 0.55 });
-    b.asSpiral = { cx: ox, cy: oy, r: 4.5, a, w: 0.9, shrink: 0, until: g.t + 3.5 }; b.snEmit = 0.45;
-  }
-}
-// DEATH OF A STAR (the last 6.5 s): ring after ring in every direction, each with an opening aimed at you and one
-// anywhere, star-arm spirals between, the screen shaking harder and flashing on every wave; then it blows
-function deathOfAStar(g, e, dt, dt0, ox, oy) {
-  const S = e.bx, N = S.nova2;
-  if (!N.dying) { N.dying = true; g.banner('THE DEATH OF A STAR', 2200); g.vx({ k: 'shake', amt: 12 }); N.flash = 0.2; N.wv = 0; N.dsp = 0; }
-  if (S.alt) S.alt.scale = 0.8 + Math.min(1, dt0 / 6) * 0.35;
-  if ((N.wvT = (N.wvT || 0) - dt) <= 0) {
-    N.wvT = Math.max(0.3, 0.5 - dt0 * 0.03); N.wv++;
-    const p = g.player, aim = angleTo(ox, oy, p.x, p.y - 0.4), n = N.wv % 2 ? 40 : 32, name = N.wv % 2 ? 'shock_arc' : 'nova_spiral';
-    const at = Math.round((((aim % TAU) + TAU) % TAU) / TAU * n), rnd = Math.floor(R() * n), off = N.wv % 2 ? 0 : 0.5;
-    for (let k = 0; k < n; k++) {
-      const near = (q) => Math.min((k - q + n) % n, (q - k + n) % n) <= 1;
-      if (near(at) || near(rnd)) continue;
-      g.bxShot(e, ox, oy, ((k + off) / n) * TAU, { sprite: SN(name), speed: 4.6 + dt0 * 0.2, range: 30, dmg: 150 });
+  };
+  const wind = (every) => {                                       // walls across the whole floor from its edge, alternating sides, the gap shifting
+    if ((L.w = (L.w === undefined ? 0.3 : L.w) - dt) <= 0) {
+      L.w = every; L.wn = (L.wn || 0) + 1;
+      if (L.base === undefined) { L.base = R() * Math.PI; L.gap = (R() - 0.5) * 8; }
+      if (L.wn % 4 === 1 && L.wn > 1) L.base += Math.PI / 6;     // every other pair, the wind veers
+      const d = L.base + (L.wn % 2 ? 0 : Math.PI), ux = Math.cos(d), uy = Math.sin(d), nx = -uy, ny = ux;
+      L.gap += (L.wn % 2 ? 2.6 : -1.4); if (Math.abs(L.gap) > 9) L.gap = -Math.sign(L.gap) * 6;
+      for (let o = -16; o <= 16; o += 1.05) {
+        if (Math.abs(o - L.gap) < 1.45) continue;                  // the gap: a little under three tiles
+        const x = cx - ux * 17 + nx * o, y = cy - uy * 17 + ny * o;
+        if (Math.hypot(x - cx, y - cy) > 24) continue;
+        fire(x, y, d, ['planet_chunk_ice', 'planet_chunk_rock', 'planet_chunk_violet'][L.wn % 3], 5.2, 145, { range: 36 });
+      }
+      g.spMark({ kind: 'line', x: cx - ux * 17 + nx * L.gap, y: cy - uy * 17 + ny * L.gap, a: d, len: 6, life: 0.5, color: '#5ef08a' });   // where the gap enters
     }
-    if (N.wv % 3 === 0) { const a0 = R() * TAU; for (let k = 0; k < 8; k++) { const b = g.bxShot(e, ox, oy, a0 + (k / 8) * TAU, { sprite: SN('planet_chunk_violet'), speed: 5, range: 30, dmg: 150 }); b.snHang = { slow: 0.8, hang: 0.4, split: true }; } }
-    N.soft = 0.1; g.vx({ k: 'shake', amt: 3 + dt0 });                // a soft pulse of light with each wave (no strobe)
+  };
+  const implosion = (every) => {                                  // rings form at the rim, close on the star, dissolve near it
+    if ((L.im = (L.im === undefined ? 0.2 : L.im) - dt) <= 0) {
+      L.im = every; L.ia = (L.ia === undefined ? R() * TAU : L.ia + 0.55);
+      const n = 60, t0 = g.t, gap = L.ia;
+      for (let j = 0; j < n; j++) {
+        const a = (j / n) * TAU; if ([gap, gap + Math.PI].some((q) => Math.abs(Math.atan2(Math.sin(a - q), Math.cos(a - q))) < 0.15)) continue;
+        const b = g.bxShot(e, cx + Math.cos(a) * ARENA_R, cy + Math.sin(a) * ARENA_R, a + Math.PI, { sprite: SN('shock_arc'), speed: 0.01, range: 99, dmg: 145 });
+        b.vx = 0; b.vy = 0; b.life = 99; b.ghost = true;
+        b.orc = (b2) => {
+          const t = g.t - t0, r = t < 0.5 ? ARENA_R : ARENA_R - (t - 0.5) * 3.6;
+          b2.ghost = t < 0.5; b2.x = cx + Math.cos(a) * r; b2.y = cy + Math.sin(a) * r; b2.a = a + Math.PI; b2.life = 99;
+          if (r < 6.5) { b2.life = 0; return true; }              // they dissolve short of the star: the inner band is the way through
+          return false;
+        };
+      }
+    }
+    if ((L.af = (L.af === undefined ? 1 : L.af) - dt) <= 0) {     // the star's aimed fans: the inner band is no rest
+      L.af = 1.1; const aim = aimAt(g, ox, oy);
+      for (let j = -1; j <= 1; j++) fire(ox, oy, aim + j * 0.24, 'nova_spiral', 6, 140, { range: 7.5 });
+    }
+  };
+  const crossfire = (lt2) => {                                    // turning beams from the star; comets from the rim through where you stand
+    if (L.ga === undefined) { L.ga = aimAt(g, ox, oy) + Math.PI / 2; L.rays = []; for (const s of [0, Math.PI]) g.spMark({ kind: 'line', x: ox, y: oy, a: L.ga + s, len: 13, life: 1, color: '#8af6ff' }); }
+    const a = L.ga + Math.max(0, lt2 - 1) * 0.5;
+    if (lt2 >= 1 && !L.rays.length) for (const s of [0, Math.PI]) for (let j = 0; j < 12; j++) { const b = g.bxShot(e, ox, oy, 0, { sprite: SN('gamma_ray'), speed: 0.01, range: 99, dmg: 165 }); b.gamma = { s, k: j }; L.rays.push(b); }
+    for (const b of L.rays) { const r = 1.2 + b.gamma.k * 0.95, aa = a + b.gamma.s; b.x = ox + Math.cos(aa) * r; b.y = oy + Math.sin(aa) * r; b.a = aa; b.vx = 0; b.vy = 0; b.life = lt2 < 7.6 ? 99 : 0; }
+    if (lt2 >= 7.6) L.rays = [];
+    if (lt2 > 1.5 && (L.cm = (L.cm || 0) - dt) <= 0) {
+      L.cm = 1.3; const pa = angleTo(cx, cy, p.x, p.y), tx = p.x, ty = p.y - 0.4;
+      for (const s of [1, -1]) {
+        const ra = pa + s * (1.1 + R() * 0.4), x = cx + Math.cos(ra) * ARENA_R, y = cy + Math.sin(ra) * ARENA_R, d = angleTo(x, y, tx, ty);
+        g.spMark({ kind: 'line', x, y, a: d, len: 30, life: 0.8, color: '#ff8a1f' });
+        for (let j = 0; j < 3; j++) later(e, 0.8 + j * 0.12, () => fire(x, y, d, 'plasma_comet', 9, 155, { size: 0.55, range: 34 }));
+      }
+    }
+  };
+  if (kind === 'ignition') {                                      // the star kindles: rings whose openings walk round (learn the rhythm)
+    if (L.a0 === undefined) { L.a0 = aimAt(g, ox, oy); L.n = 0; N.flash = 0.2; g.vx({ k: 'shake', amt: 12 }); }
+    if (L.n < 8 && lt >= L.n * 0.42) {
+      const n = 48, open = L.a0 + L.n * 0.38;
+      for (let j = 0; j < n; j++) { const a = (j / n) * TAU; if ([open, open + Math.PI].some((q) => Math.abs(Math.atan2(Math.sin(a - q), Math.cos(a - q))) < 0.21)) continue; fire(ox, oy, a, L.n % 2 ? 'nova_spiral' : 'shock_arc', 5.2, 145); }
+      L.n++; N.soft = 0.1; g.vx({ k: 'shake', amt: 4 });
+    }
+  } else if (kind === 'crown') crown(lt, 1);
+  else if (kind === 'wind') { wind(1.05); if ((L.sp = (L.sp || 0) - dt) <= 0) { L.sp = 0.16; L.sa = (L.sa || 0) + 0.21; for (let j = 0; j < 3; j++) fire(ox, oy, L.sa + (j / 3) * TAU, 'stellar_ember', 3, 115, { size: 0.35, range: 10 }); } }
+  else if (kind === 'implosion') implosion(1.25);
+  else if (kind === 'crossfire') crossfire(lt);
+  else if (kind === 'crown2') { crown(lt, -1.3); if (lt > 2) implosion(2.4); }   // the crown turns the other way, faster; rings close through it
+  else if (kind === 'radiance') {                                 // everything learned, at once and faster; then it blows
+    if (S.alt) S.alt.scale = 0.8 + Math.min(1, lt / 9) * 0.4;
+    if (lt < 3.3) wind(0.95); else if (lt < 6.6) implosion(1.15); else crown(lt, 1.5);
+    if ((L.sp = (L.sp || 0) - dt) <= 0) { L.sp = 0.1; L.sa = (L.sa || R() * TAU) + 0.12; L.sn = (L.sn || 0) + 1; for (let j = 0; j < 4; j++) if ((L.sn + j * 2) % 10 < 8) fire(ox, oy, L.sa + (j / 4) * TAU, 'nova_spiral', 4.4, 145, { range: 9 }); }
+    if ((L.pulse = (L.pulse || 0) - dt) <= 0) { L.pulse = 1.2; N.soft = 0.1; g.vx({ k: 'shake', amt: 3 + lt }); }
+    if (lt > 9.6 && !N.blown) { N.blown = true; N.flash = 0.5; g.vx({ k: 'shake', amt: 18 }); g.vx({ k: 'burst', x: ox, y: oy, n: 120, colors: ['#ffffff', '#ffd690', '#ff8a1f', '#8af6ff', '#c8a0ff'] }); }
   }
-  if ((N.dsp -= dt) <= 0) {
-    N.dsp = 0.12; N.dsA = (N.dsA || 0) + 0.19; N.dsn = (N.dsn || 0) + 1;
-    for (let k = 0; k < 6; k++) if ((N.dsn + k * 2) % 10 < 8) g.bxShot(e, ox, oy, N.dsA + (k / 6) * TAU, { sprite: SN('stellar_ember'), speed: 3.4, range: 30, dmg: 120, size: 0.35 });
-  }
-  if (dt0 > 6.1 && !N.blown) { N.blown = true; N.flash = 0.5; g.vx({ k: 'shake', amt: 18 }); g.vx({ k: 'burst', x: ox, y: oy, n: 120, colors: ['#ffffff', '#ffd690', '#ff8a1f', '#8af6ff', '#c8a0ff'] }); }
 }
 const finale2 = {
   at: 0.04, dur: NOVA_DUR, name: 'Supernova', say: 'the event horizon', after: 3.5,
@@ -371,7 +602,7 @@ const finale2 = {
     }
     if (S.alt && S.alt.anim.clip === 'p3_to_p4') { S.alt.anim.play('p4_idle', { speed: 1 }); g.banner('SUPERNOVA', 1800); }
     N.flash = Math.max(0, N.flash - dt); N.soft = Math.max(0, (N.soft || 0) - dt);
-    novaPatterns(g, e, dt, t - EH, ox, oy);
+    novaSequence(g, e, dt, t - EH, ox, oy);
     for (const b of g.projectiles) {                              // chunks that slow and hang (violet ones split), comets that drop embers
       if (b.bxOf !== e) continue;
       if (b.snHang) {
@@ -432,7 +663,7 @@ function supernovaDark(r, g, e) {
   if (c.width !== W || c.height !== H) { c.width = W; c.height = H; }
   const x = c.getContext('2d'), [px, py] = r.proj(g.player.x, g.player.y - 0.4), [bx, by] = r.proj(e.x, e.y - e.hitUp);
   x.globalCompositeOperation = 'source-over'; x.clearRect(0, 0, W, H);
-  x.fillStyle = `rgba(2,1,6,${0.82 * N.dark})`; x.fillRect(0, 0, W, H);
+  x.fillStyle = `rgba(2,1,6,${0.7 * N.dark})`; x.fillRect(0, 0, W, H);   // (dark, but what comes from the rim must still read)
   x.globalCompositeOperation = 'destination-out';
   const hole = (cx, cy, R0) => { const gr = x.createRadialGradient(cx, cy, R0 * 0.35, cx, cy, R0); gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = gr; x.beginPath(); x.arc(cx, cy, R0, 0, TAU); x.fill(); };
   hole(px, py, 3.6 * 16);                                           // your light, fading at its edge
@@ -465,83 +696,73 @@ function supernovaGround(r, g, e) {
   }
 }
 
-// sky beams: every 5 s of the swallowing, four beams of starlight are marked right across the floor (parallel, a random
-// way, with room between them), then burn down their lines
-function skyBeams(g, e) {
-  const [cx, cy] = centre(e), a = R() * Math.PI, nx = -Math.sin(a), ny = Math.cos(a), off0 = (R() - 0.5) * 3;
-  for (let k = 0; k < 4; k++) {
-    const o = off0 + (k - 1.5) * 4.2, x0 = cx + nx * o - Math.cos(a) * 17, y0 = cy + ny * o - Math.sin(a) * 17;
-    g.fx.push({ kind: 'laser', x0, y0, a, len: 34, t: 0, tele: 1.1, act: 0.4, life: 1.6, dmg: g.bxDmg(e, 150), by: e.D.name, hit: false, col: '#8af6ff' });
-  }
-  g.sfx('boss');
-}
 
 // ---------------------------------------------------------------- the finale: SINGULARITY, then SUPERNOVA
-const CONSUME = 20, COLLAPSE = 22.5, DUR = 36;
+// ---------------------------------------------------------------- the finale: THE SINGULARITY (at 12%, 22 s)
+// The Collapse ends: every shot curves into the machine, the planets shatter, and it crushes down into a compact
+// singularity that pulls you gently in. Then four movements, each with a way through:
+//   The Gathering (1.5-6.5)    shots spiral in from the floor's edge everywhere but a wide corridor that turns slowly
+//   Tidal Lock (6.5-12.5)      two spirals turning opposite ways (their crossings open and close); a radial pulse now and then
+//   Terminal Infall (12.5-18.5) the spiral speeds up; two lanes stay clear, turning
+//   The Silence (18.5-22)      everything is swallowed; stillness; a white ring shrinks in; a great pressure wave (aligned openings)
+// No supernova here: that is saved for the end.
+const SING = 22;
 const finale = {
-  at: 0.12, dur: DUR, name: 'Singularity', say: 'it swallows everything', keepShots: true, after: 3.5,   // its shots fly on as it comes out; immune a while
+  at: 0.12, dur: SING, name: 'Singularity', say: 'the machine collapses', keepShots: true, after: 3.5,
   start(g, e) {
     const [cx, cy] = centre(e), S = e.bx;
-    e.x = cx; e.y = cy + e.hitUp;                                 // it takes the middle of its floor: everything comes from it
-    S.sing = { x: e.x, y: e.y - e.hitUp, r: 1.2, phase: 'consume', arm: 0, debris: 2, small: 6, nova: 0, wave: 0, burn: 0, spin: 0, born: g.t, pulse: 3, rim: 4.5 };
-    S.wells = []; S.debris = []; S.meteors = [];
-    g.vx({ k: 'shake', amt: 8 });
+    e.x = cx; e.y = cy + e.hitUp;
+    S.sing = { x: e.x, y: e.y - e.hitUp, r: 1.4, phase: 'consume', stage: 'collapse', born: g.t, gather: 0, c0: R() * TAU, lock: 0, pulse: 2, a1: 0, a2: Math.PI / 4, infall: 0, burn: 0 };
+    S.wells = []; S.debris = []; S.meteors = []; S.umbra = null;
+    for (const b of g.projectiles) if (b.bxOf === e) { b.orc = null; b.asSpiral = null; b.asOrb = null; b.toBoss = 2.6; b.life = Math.min(b.life, 3); }   // every shot curves into it
+    for (const P of S.planets || []) g.vx({ k: 'burst', x: P.x, y: P.y, n: 26, colors: ['#ffd690', '#8af6ff', '#ffffff'] });   // the planets shatter
+    S.planetsSaved = S.planets; S.planets = null;
+    g.vx({ k: 'shake', amt: 10 });
   },
   update(g, e, dt, t) {
     const S = e.bx, Z = S.sing, p = g.player;
     tick(g, e, dt);
-    const d = Math.hypot(p.x - Z.x, p.y - Z.y);
-    if (t < CONSUME) {                                       // it swallows: matter spirals in on arms that wind tighter, and it pulls you
-      Z.r = 1.2 + (t / CONSUME) * 2.4;
-      if ((Z.small -= dt) <= 0) { Z.small = 5.5; well(g, e, { n: t > 10 ? 3 : 2, max: 3, life: 6 }); }   // small singularities break off it
-      if (!p.dead && d > 0.2) g.moveCircle(p, ((Z.x - p.x) / d) * 1.7 * dt, ((Z.y - p.y) / d) * 1.7 * dt, 0.32);
-      if ((Z.arm -= dt) <= 0) {
-        Z.arm = 0.2; Z.armN = (Z.armN || 0) + 1;
-        const turn = t * 0.35;
-        // every strand has openings: two shots left out of every eight, at a different place on each arm
-        for (let k = 0; k < 3; k++) { if ((Z.armN + k * 3) % 10 >= 8) continue; const a = turn + (k / 3) * TAU, b = g.bxShot(e, Z.x + Math.cos(a) * 15, Z.y + Math.sin(a) * 15, a, { shot: k % 2 ? 'brass_shard' : 'star_bolt', speed: 0.01, range: 99, dmg: 120 }); b.asSpiral = { cx: Z.x, cy: Z.y, r: 15, a, w: 0.55, shrink: 2.4 }; }
-        if (t > 6) for (let k = 0; k < 2; k++) { if ((Z.armN + k * 4) % 9 >= 7) continue; const a = -turn * 1.3 + (k / 2) * TAU + 0.7, b = g.bxShot(e, Z.x + Math.cos(a) * 15, Z.y + Math.sin(a) * 15, a, { shot: 'moon_shard', speed: 0.01, range: 99, dmg: 120 }); b.asSpiral = { cx: Z.x, cy: Z.y, r: 15, a, w: -0.45, shrink: 2.1 }; }
+    const d = Math.hypot(p.x - Z.x, p.y - Z.y), inward = (a, w, shrink) => { const b = held(g, e, Z.x + Math.cos(a) * 15, Z.y + Math.sin(a) * 15, a, w > 0 ? 'star_bolt' : 'moon_shard', 130); b.asSpiral = { cx: Z.x, cy: Z.y, r: 15, a, w, shrink }; return b; };
+    if (!p.dead && d > 0.3 && t < 18.5) g.moveCircle(p, ((Z.x - p.x) / d) * 1 * dt, ((Z.y - p.y) / d) * 1 * dt, 0.32);   // a gentle pull
+    if (!p.dead && d < Z.r && (Z.burn -= dt) <= 0) { Z.burn = 0.3; g.hurtPlayer(g.bxDmg(e, 90), 'the singularity'); }
+    if (t < 1.5) return;
+    if (t < 6.5) {                                               // The Gathering: a wide corridor that turns slowly
+      Z.stage = 'gather';
+      if (t < 5.7 && (Z.gather -= dt) <= 0) {                   // (it stops a moment early: a breath before the next)
+        Z.gather = 0.24; Z.gn = (Z.gn || 0) + 1; const c = Z.c0 + t * 0.3, n = 24;
+        for (let j = 0; j < n; j++) { const a = c + ((j + (Z.gn % 2) * 0.5) / n) * TAU, off = Math.atan2(Math.sin(a - c), Math.cos(a - c)); if (Math.abs(off) < 0.68) continue; inward(a, 0.3, 2.5); }
       }
-      if ((Z.debris -= dt) <= 0) { Z.debris = 2.6; debris(g, e); }
-      if (t > 2 && (Z.sky = (Z.sky === undefined ? 1 : Z.sky) - dt) <= 0) { Z.sky = 5; skyBeams(g, e); }   // beams of starlight across the whole floor
-      if (t > 3 && (Z.pulse -= dt) <= 0) {                       // tidal pulse: a ring thrown out of the hole, one narrow opening at you
-        Z.pulse = 3.2; const n = 22, aim = angleTo(Z.x, Z.y, p.x, p.y), a0 = aim + Math.PI / n;
-        for (let k = 1; k < n - 1; k++) g.bxShot(e, Z.x, Z.y, a0 + (k / n) * TAU, { shot: 'brass_shard', speed: 4.2, range: 16, dmg: 120 });
+    } else if (t < 12.5) {                                       // Tidal Lock: two spirals turning opposite ways; a pulse now and then
+      if (Z.stage !== 'lock') { Z.stage = 'lock'; g.banner('TIDAL LOCK', 1400); }
+      Z.a1 += 0.62 * dt; Z.a2 -= 0.62 * dt;
+      if (t > 7 && t < 11.7 && (Z.lock -= dt) <= 0) { Z.lock = 0.17; for (let j = 0; j < 4; j++) { inward(Z.a1 + (j / 4) * TAU, 0.6, 2.6); inward(Z.a2 + (j / 4) * TAU, -0.6, 2.6); } }
+      if (t > 7.4 && (Z.pulse -= dt) <= 0) { Z.pulse = 1.7; const n = 28, a0 = angleTo(Z.x, Z.y, p.x, p.y); for (let j = 0; j < n; j++) if (j % 14 > 2) g.bxShot(e, Z.x, Z.y, a0 + ((j + 0.5) / n) * TAU, { shot: 'brass_shard', speed: 4.6, range: 16, dmg: 125 }); }
+    } else if (t < 18.5) {                                       // Terminal Infall: faster, two lanes stay clear, turning
+      if (Z.stage !== 'infall') { Z.stage = 'infall'; g.banner('TERMINAL INFALL', 1400); }
+      if (t > 13 && t < 17.8 && (Z.infall -= dt) <= 0) {
+        Z.infall = 0.15; Z.in = (Z.in || 0) + 1; const c = Z.c0 + t * 0.45, n = 22;
+        for (let j = 0; j < n; j++) { const a = c + ((j + (Z.in % 2) * 0.5) / n) * TAU; if ([c, c + Math.PI].some((q) => Math.abs(Math.atan2(Math.sin(a - q), Math.cos(a - q))) < 0.5)) continue; inward(a, 0.55, 3.8); }
       }
-      if (t > 8 && (Z.rim -= dt) <= 0) {                         // crossfire: lasers from the rim of the floor, across where you stand
-        Z.rim = 4; const [ax, ay] = centre(e), a0 = R() * TAU;
-        for (let k = 0; k < 6; k++) { const a = a0 + (k / 6) * TAU, x = ax + Math.cos(a) * 15, y = ay + Math.sin(a) * 15, tgt = angleTo(x, y, p.x + (R() - 0.5) * 3, p.y + (R() - 0.5) * 3);
-          g.spMark({ kind: 'line', x, y, a: tgt, len: 20, life: 0.6, color: '#ff8af0' }); g.fvLater(0.6, () => { if (e.bx.sing) for (let j = 0; j < 3; j++) g.fvLater(j * 0.12, () => g.bxShot(e, x, y, tgt, { shot: 'star_bolt', speed: 9, range: 26, dmg: 125 })); }); }
-      }
-    } else if (t < COLLAPSE) {                               // it collapses: everything falls in at once; the light gathers
-      if (Z.phase !== 'collapse') { Z.phase = 'collapse'; S.wells = []; g.banner('SUPERNOVA', 2000); g.vx({ k: 'shake', amt: 6 }); for (const b of g.projectiles) if (b.asSpiral && b.bxOf === e) b.asSpiral.shrink = 9; }
-      Z.r = Math.max(0.3, Z.r - dt * 1.6);
-      g.spMark({ kind: 'ring', x: Z.x, y: Z.y, r: 3 + (t - CONSUME) * 6, life: 0.15, color: '#ffffff' });
-    } else {                                                 // SUPERNOVA: ring after ring, each with its gaps, spirals between; it pushes you out
-      if (Z.phase !== 'nova') { Z.phase = 'nova'; g.vx({ k: 'shake', amt: 12 }); g.vx({ k: 'burst', x: Z.x, y: Z.y, n: 60, colors: ['#ffffff', '#ffd690', '#ff8a1f', '#c8a0ff'] }); }
-      if (!p.dead && d > 0.2) g.moveCircle(p, ((p.x - Z.x) / d) * 0.8 * dt, ((p.y - Z.y) / d) * 0.8 * dt, 0.32);
-      const nt = t - COLLAPSE;
-      if (nt > 4.5 && (Z.spin -= dt) <= 0) {                 // from its middle on, a four-arm spiral turns out between the rings
-        Z.spin = 0.16; Z.spinN = (Z.spinN || 0) + 1; Z.spinA = (Z.spinA || 0) + 0.15;
-        for (let k = 0; k < 4; k++) if ((Z.spinN + k * 2) % 10 < 8) g.bxShot(e, Z.x, Z.y, Z.spinA + (k / 4) * TAU, { shot: 'moon_shard', speed: 4.2, range: 18, dmg: 115 });   // gaps in each arm
-      }
-      if ((Z.nova -= dt) <= 0) {
-        Z.nova = nt > 4.5 ? 0.62 : 0.46; Z.wave++;
-        const n = 36, a0 = R() * TAU, gaps = new Set();
-        for (let q = 0; q < 3; q++) { const at = Math.floor(R() * n); for (let j = 0; j < 3; j++) gaps.add((at + j) % n); }
-        for (let k = 0; k < n; k++) if (!gaps.has(k)) g.bxShot(e, Z.x, Z.y, a0 + (k / n) * TAU, { shot: Z.wave % 2 ? 'corona_flare' : 'eclipse_ring', speed: 4.8, range: 18, dmg: 125 });
-        for (let k = 0; k < 5; k++) g.bxShot(e, Z.x, Z.y, Z.wave * 0.33 + (k / 5) * TAU, { shot: 'star_bolt', speed: 7.5, range: 18, dmg: 115 });
+    } else {                                                     // The Silence, then the pressure wave
+      if (Z.stage !== 'silence') { Z.stage = 'silence'; for (const b of g.projectiles) if (b.asSpiral && b.bxOf === e) b.asSpiral.shrink = 9; g.vx({ k: 'shake', amt: 4 }); }
+      Z.warn = t >= 19 && t < 21.3 ? 14 - ((t - 19) / 2.3) * 12 : 0;   // a white ring shrinking in: the wave is coming
+      if (t >= 21.3 && !Z.waved) {
+        Z.waved = true; const o = R() * TAU;
+        [[5, 'corona_flare', 0], [4.3, 'eclipse_ring', 0.18], [3.6, 'corona_flare', 0.36], [3, 'eclipse_ring', 0.54]].forEach(([sp, shot, dl], ring) => g.fvLater(dl, () => {
+          if (!e.bx) return; const n = 48;
+          for (let j = 0; j < n; j++) { const a = (j / n) * TAU; if ([0, 1, 2, 3].some((q) => { const c = o + ring * 0.09 + q * Math.PI / 2; return Math.abs(Math.atan2(Math.sin(a - c), Math.cos(a - c))) < 0.17; })) continue; g.bxShot(e, Z.x, Z.y, a, { shot, speed: sp, range: 20, dmg: 135 }); }
+        }));
+        g.vx({ k: 'shake', amt: 14 }); g.vx({ k: 'burst', x: Z.x, y: Z.y, n: 60, colors: ['#ffffff', '#c8a0ff', '#ffd690'] });
       }
     }
-    if (!p.dead && d < Z.r && (Z.burn -= dt) <= 0) { Z.burn = 0.3; g.hurtPlayer(g.bxDmg(e, 90), 'the singularity'); }
   },
-  end(g, e) { e.bx.sing = null; },
+  end(g, e) { const S = e.bx; S.sing = null; S.planets = S.planetsSaved || S.planets; S.tempoK = 0.72; },   // then a short, fast last stand to 4%
 };
 
 export default {
   id: 'grand_orrery', name: 'The Grand Orrery', biome: 'dungeon', hp: 520000, def: 30, xp: 17000, r: 2.2, speed: 1.2, keep: 8, faces: false, spawnCentre: true,
-  tempo: 0.68, dmgScale: 1.6, finale,
-  scaleFor: (g, e) => (e.bx.phase >= 3 ? 1.75 : 1),            // in its Collapse the machine swells to nearly twice its size
+  tempo: 0.68, dmgScale: 1.6, finale, morphSpeed: 0.4, morphGrace: 6.5,
+  scaleFor: (g, e) => (e.bx.sing ? 1.1 : e.bx.phase >= 3 ? 1.75 : 1),   // swollen in its Collapse; crushed small as a singularity            // in its Collapse the machine swells to nearly twice its size
   finale2,
   // its death: the clip at less than half speed, then it hangs on its last frame, shaking, and bursts in rings of light
   death: { speed: 0.4, hold: 3.2, burst(g, e) {
@@ -553,36 +774,37 @@ export default {
     g.fvLater(0.8, () => ring(20, 'moon_shard', 3.6, Math.PI / 20));
     g.vx({ k: 'burst', x: ox, y: oy, n: 90, colors: ['#ffffff', '#ffd690', '#ff8a1f', '#c8a0ff', '#ff4af0'] }); g.vx({ k: 'shake', amt: 14 });
   } },
+  // one attack at a time; each recover covers its whole formation (so they flow into each other, never pile up)
   phases: {
-    1: { move: 'stations', pressure: [{ every: 1.3, special: 'planetVolley', delay: 1.2, dmg: 115 }, { every: 3.4, special: 'flares', delay: 2, n: 8 }], patterns: [
-      { name: 'meridian', windup: 0.6, recover: 0.5, special: 'meridian', dmg: 120 },
-      { name: 'precession', windup: 0.6, recover: 0.6, special: 'precession', dmg: 120 },
-      { name: 'armillary', windup: 0.5, recover: 2, special: 'armillary', dmg: 115 },
-      { name: 'meteors', windup: 0.5, recover: 0.4, special: 'meteors', n: 7 },
-      { name: 'meridian', windup: 0.5, recover: 0.4, special: 'meridian', dmg: 120 },
-      { name: 'orbits', windup: 0.6, recover: 0.6, special: 'orbits', dmg: 120 },
+    1: { move: 'glide', patterns: [                          // four long sequences, each one evolving formation
+      { name: 'clockwork overture', windup: 0.6, recover: 8.6, special: 'overture', dmg: 125 },
+      { name: 'the alignment', windup: 0.7, recover: 8.8, special: 'alignmentSweep', dmg: 120 },
+      { name: 'starfall procession', windup: 0.5, recover: 7.4, special: 'procession', dmg: 125 },
+      { name: 'grand rotation', windup: 0.7, recover: 8, special: 'rotation', dmg: 125, move: 'hold' },
     ] },
-    2: { move: 'stations', pressure: [{ every: 2, special: 'flares', n: 10 }, { every: 1.8, special: 'planetVolley', dmg: 115 }], patterns: [
-      { name: 'eclipse rings', windup: 0.7, recover: 0.6, special: 'eclipseRings', dmg: 125 },
-      { name: 'umbral lunge', windup: 0.5, recover: 0.3, special: 'lunge' },
-      { name: 'corona burst', windup: 0.6, recover: 0.8, special: 'coronaBurst', dmg: 125 },
-      { name: 'syzygy', windup: 0.7, recover: 0.6, special: 'syzygy', dmg: 125 },
-      { name: 'meteors', windup: 0.5, recover: 0.3, special: 'meteors', n: 9 },
-      { name: 'umbral lunge', windup: 0.5, recover: 0.3, special: 'lunge' },
-      { name: 'orbits', windup: 0.6, recover: 0.4, special: 'orbits', dmg: 120, fast: 1.2 },
+    2: { move: 'stations', patterns: [                        // three, the eclipse carried through each
+      { name: 'eclipse rising', windup: 0.6, recover: 9.6, special: 'eclipseRising', dmg: 125 },
+      { name: 'syzygy', windup: 0.7, recover: 8.2, special: 'syzygyLine', dmg: 125, move: 'hold' },
+      { name: 'twilight to totality', windup: 0.6, recover: 9.6, special: 'twilightTotality', dmg: 125 },
     ] },
-    3: { move: 'center', pressure: [{ every: 2.2, special: 'debris' }, { every: 4.2, special: 'well', delay: 0.3 }, { every: 2.4, special: 'flares', n: 10 }, { every: 1.6, special: 'planetVolley', dmg: 120 }], patterns: [
-      { name: 'accretion', windup: 0.6, recover: 1.2, special: 'accretion', dmg: 120 },
-      { name: 'spaghettification', windup: 0.6, recover: 0.5, special: 'spaghetti', dmg: 125 },
-      { name: 'infall', windup: 0.5, recover: 0.6, special: 'infall', dmg: 115 },
-      { name: 'orbits', windup: 0.5, recover: 0.4, special: 'orbits', dmg: 130, fast: 1.5 },
-      { name: 'armillary', windup: 0.5, recover: 1.4, special: 'armillary', dmg: 120, arms: 5, dur: 1.8, turn: -0.21 },
-      { name: 'meteors', windup: 0.5, recover: 0.3, special: 'meteors', n: 9 },
-      { name: 'spaghettification', windup: 0.5, recover: 0.5, special: 'spaghetti', dmg: 125 },
+    3: { move: 'center', patterns: [
+      { name: 'accretion dance', windup: 0.6, recover: 4.92, special: 'accretionDance', dmg: 125 },
+      { name: 'tidal fracture', windup: 0.6, recover: 2.79, special: 'tidalFracture', dmg: 125 },
+      { name: 'falling heavens', windup: 0.6, recover: 4.92, special: 'fallingHeavens', dmg: 125 },
+      { name: 'spaghettification', windup: 0.6, recover: 3.61, special: 'spaghettiCurtains', dmg: 125 },
+      { name: 'orbital decay', windup: 0.6, recover: 4.1, special: 'orbitalDecay', dmg: 130 },
+      { name: 'event horizon', windup: 0.7, recover: 4.1, special: 'eventHorizon', dmg: 130 },
     ] },
   },
-  specials: { meridian, precession, armillary, orbits, meteors, planetVolley, flares, coronaBurst, lunge, eclipseRings, ringOf, syzygy, well, accretion, spaghetti, infall, infallShot, debris },
+  specials: { later: (g, e, V) => V.fn(g, e), overture, alignmentSweep, procession, rotation, eclipseRising, syzygyLine, twilightTotality, accretionDance, tidalFracture, fallingHeavens, spaghettiCurtains, orbitalDecay, eventHorizon, meteors, well, debris },
   moves: {
+    glide(g, e, dt) {                                        // phase 1: a slow, smooth circle round the middle of its floor
+      const S = e.bx, [cx, cy] = centre(e);
+      if (S.anchor) return;
+      S.ga = (S.ga === undefined ? 0 : S.ga) + dt * 0.28;
+      const tx = cx + Math.cos(S.ga) * 3, ty = cy + 2 + Math.sin(S.ga) * 2.2, d = Math.hypot(tx - e.x, ty - e.y);
+      if (d > 0.05) g.moveCircle(e, ((tx - e.x) / d) * Math.min(d, 1.4 * dt), ((ty - e.y) / d) * Math.min(d, 1.4 * dt), 0.8);
+    },
     stations(g, e, dt) {                                     // between volleys it glides from one station to the next round its floor
       const S = e.bx, [cx, cy] = centre(e);
       if (!S.station || Math.hypot(S.station[0] - e.x, S.station[1] - e.y) < 0.4) {
@@ -595,11 +817,14 @@ export default {
   onWake(g, e) {
     const [cx, cy] = centre(e);
     e.bx.planets = [{ a: 0, w: 0.9, r: 6, x: cx, y: cy }, { a: Math.PI, w: -0.7, r: 7.5, x: cx, y: cy }];
-    e.bx.transitT = 5;                                       // the first eclipse crosses a few seconds in
+    e.bx.planets.forEach((P) => { P.x = cx; P.y = cy; });
   },
   update(g, e, dt) { tick(g, e, dt); },
   onPhase(g, e, ph) {
     for (const b of g.projectiles) if (b.asOrb) b.asOrb = null;
+    const S = e.bx; S.anchor = false; S.draw = null; S.umbraDim = false; planetsHome(S);
+    if (ph === 2) finaleAligned(g, e);                        // the planets align, a gold beam, a great ring: the eclipse is coming
+    if (ph === 3) finaleEclipse(g, e);                        // the eclipse swallows it, the planets spin wild, a shockwave
     if (ph === 3 && !e.bx.grown) { e.bx.grown = true; e.D = { ...e.D, r: e.D.r * 1.6 }; e.hitUp *= 1.75; }   // bigger body, bigger target
   },
   onDeath(g, e) { const S = e.bx; if (S.alt) S.alt.anim.play('p4_death', { speed: 0.4 }); S.umbra = null; S.wells = []; S.debris = []; S.meteors = []; S.planets = null; S.sing = null; },
@@ -627,7 +852,8 @@ export default {
       for (let j = 0; j < 14; j++) { const a = (j / 14) * TAU; b.fillRect(Math.round(x + Math.cos(a) * R0) - 1, Math.round(y + Math.sin(a) * R0 * 0.75) - 1, 2, 2); }
       b.globalAlpha = 1;
     }
-    if (S.sing) { const Z = S.sing; if (Z.phase === 'consume') r.singularity(g, Z.x, Z.y, 1, 1 + Z.r * 1.5, Z.born || 0); }   // the big singularity: its own sprite, growing
+    if (S.sing) { const Z = S.sing; if (Z.phase === 'consume') r.singularity(g, Z.x, Z.y, 1, 1 + Z.r * 1.5, Z.born || 0);
+      if (Z.warn > 0) { const [x, y] = r.proj(Z.x, Z.y); b.globalAlpha = 0.85; b.strokeStyle = '#ffffff'; b.lineWidth = 2; b.beginPath(); b.ellipse(Math.round(x), Math.round(y), Z.warn * 16, Z.warn * 12, 0, 0, TAU); b.stroke(); b.lineWidth = 1; b.globalAlpha = 1; } }   // the big singularity: its own sprite, growing
     if (S.nova2) supernovaGround(r, g, e);                      // the second survival: the floor goes dark round the burning star
   },
   // over everything: the umbra blacks out its part of the floor, shots and all; its rim burns. The planets. The singularity's collapse and nova.
@@ -640,7 +866,7 @@ export default {
     }
     if (U) {
       const [x, y] = r.proj(U.x, U.y), R0 = U.r * 16, pulse = Math.sin(g.t * 3) * 1.5, rising = U.path && U.path.t < 0;
-      b.globalAlpha = rising ? 0.35 : 0.78; b.fillStyle = '#04030a';                  // dark, but the shots inside still show through b.beginPath(); b.arc(Math.round(x), Math.round(y), R0, 0, TAU); b.fill();
+      b.globalAlpha = rising || S.umbraDim ? 0.4 : 0.7; b.fillStyle = '#04030a';                  // dark, but the shots inside still show through b.beginPath(); b.arc(Math.round(x), Math.round(y), R0, 0, TAU); b.fill();
       b.globalAlpha = 0.3; b.strokeStyle = '#ffb040'; b.lineWidth = 6; b.beginPath(); b.arc(Math.round(x), Math.round(y), R0 + 3 + pulse, 0, TAU); b.stroke();   // the corona
       b.globalAlpha = 0.95; b.strokeStyle = '#ffd690'; b.lineWidth = 2; b.beginPath(); b.arc(Math.round(x), Math.round(y), R0, 0, TAU); b.stroke(); b.lineWidth = 1;
       for (let k = 0; k < 28; k++) { const a = (k / 28) * TAU + g.t * 0.6, w = (k + Math.floor(g.t * 8)) % 4 === 0 ? 3 : 2, out = 1 + ((k * 7 + Math.floor(g.t * 10)) % 5); b.fillStyle = k % 3 ? '#ffd690' : '#ffffff'; b.fillRect(Math.round(x + Math.cos(a) * (R0 + out)) - 1, Math.round(y + Math.sin(a) * (R0 + out)) - 1, w, w); }

@@ -14,6 +14,14 @@ const { DUNGEONS } = await import('../src/data/enemies.js');
 const B0 = new URL('../art/bundle/', import.meta.url), J = (q) => JSON.parse(readFileSync(new URL(q, B0), 'utf8')), idx = J('index.json');
 const reg = buildRegistry(idx.atlases.map((a) => ({ pack: a.split('/')[0], json: J(a) })), J(idx.hover), (q) => q);
 let fail = 0;
+// how much of the floor round the machine is clear of shots (a spot is clear with no shot within 0.75 tiles): the
+// survivals must always leave room to stand
+const clearShare = (g, e, cx, cy) => {
+  const near = g.projectiles.filter((b) => b.bxOf === e && !b.harmless && Math.hypot(b.x - cx, b.y - cy) < 14);
+  let n = 0, ok = 0;
+  for (let y = -12; y <= 12; y += 1) for (let x = -12; x <= 12; x += 1) { if (x * x + y * y > 144 || x * x + y * y < 6) continue; n++; if (!near.some((b) => Math.abs(b.x - cx - x) < 0.75 && Math.abs(b.y - cy - y) < 0.75)) ok++; }
+  return ok / n;
+};
 const walk = (m, from) => {
   const seen = new Uint8Array(m.w * m.h), q = [from]; seen[from[1] * m.w + from[0]] = 1;
   while (q.length) { const [x, y] = q.pop(); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const X = x + dx, Y = y + dy, i = Y * m.w + X; if (!seen[i] && !m.solid[i] && m.tiles[i] !== TID.asvoid) { seen[i] = 1; q.push([X, Y]); } } }
@@ -62,7 +70,7 @@ for (let s = 1; s <= seeds; s++) {
   p.hp = g.stat('hp'); p.status.invuln = 0;
   // the guardians: every new monster is on the map; each ability lands
   g.enemies = g.map.enemies = allMobs; g.god = true;
-  const ids = new Set(g.enemies.map((e) => e.id));
+  const ids = new Set([...g.enemies.map((e) => e.id), ...m.rooms.flatMap((n) => (n.pending || []).map((q) => q[0]))]);   // (an ambush room's monsters wait to rise)
   for (const id of ['astrolabe_sentinel', 'comet_hound', 'nebula_weaver', 'vault_keeper', 'meteor_mite', 'lens_wisp']) if (!ids.has(id)) problems.push('no ' + id + ' in the dungeon');
   console.log(`monsters: ${g.enemies.filter((e) => !e.rb).length} (${[...ids].length} kinds)`);
   {
@@ -134,7 +142,10 @@ for (let s = 1; s <= seeds; s++) {
       if (g.projectiles.some((b) => b.bxOf === orr && b.mv && b.mv.hold)) flags.FROZE_SHOTS = 1;   // nothing may stop its shots and loose them at you
       if (S.umbra) flags[`umbra${phase}`] = 1;
       allFrames++; if (S.umbra) upFrames++;
-      if (S.umbra && S.umbra.lunge) flags.lunge = 1;
+      if (S.umbra && S.umbra.chase) flags.pursuit = 1;
+      if (g.projectiles.some((b) => b.orc)) flags[`formation${phase}`] = 1;
+      if (g.projectiles.some((b) => b.toBoss)) flags.curtains = 1;
+      if ((S.planets || []).some((P) => P.goal)) flags.planetsMove = 1;
       if ((S.meteors || []).length) flags.meteors = 1;
       if (g.projectiles.some((b) => b.asSpiral)) flags.accretion = 1;
       if (g.projectiles.some((b) => b.intoWell)) flags.infall = 1;
@@ -147,33 +158,40 @@ for (let s = 1; s <= seeds; s++) {
     if (phase < 3) { g.damageEnemy(orr, Math.ceil(orr.maxHp * 0.34) + 50, orr.x, orr.y, true); for (let k = 0; k < 60 * 5; k++) { p.hp = 1e6; g.update(1 / 60); } }
   }
   if (flags.FROZE_SHOTS) problems.push('it froze its shots and loosed them at you');
-  for (const k of ['orbit', 'umbra1', 'umbra2', 'umbra3', 'lunge', 'meteors', 'flares', 'rings', 'well', 'accretion', 'infall', 'debris', 'shards']) if (!flags[k]) problems.push('never saw ' + k);
-  if (pats.size < 15) problems.push('patterns ' + [...pats].join(', '));
+  for (const k of ['umbra2', 'pursuit', 'formation2', 'formation3', 'planetsMove', 'meteors', 'flares', 'rings', 'well', 'accretion', 'curtains', 'shards']) if (!flags[k]) problems.push('never saw ' + k);
+  if (flags.umbra1 || flags.umbra3) problems.push('the eclipse rose outside its own phase');
+  if (pats.size < 13) problems.push('patterns ' + [...pats].join(', '));
   console.log(`orrery: patterns ${pats.size} | ${Object.keys(flags).join(', ')}`);
   // the eclipse burns whoever stands in it
-  { if (!S.umbra) { S.B.specials.lunge(g, orr); step(1.5); } const U = S.umbra; p.x = U.x; p.y = U.y; S.umbraT = 0; const h0 = 1e6; p.hp = h0; g.god = false; p.status.invuln = 0; for (let k = 0; k < 30; k++) { p.x = S.umbra.x; p.y = S.umbra.y; g.update(1 / 60); } if (!(p.hp < h0)) problems.push('the eclipse did not burn'); g.god = true; }
+  { if (!S.umbra) { S.B.specials.eclipseRising(g, orr, {}); step(1.5); } const U = S.umbra; p.x = U.x; p.y = U.y; S.umbraT = 0; const h0 = 1e6; p.hp = h0; g.god = false; p.status.invuln = 0; for (let k = 0; k < 30; k++) { p.x = S.umbra.x; p.y = S.umbra.y; g.update(1 / 60); } if (!(p.hp < h0)) problems.push('the eclipse did not burn'); g.god = true; }
   // the finale: down to the threshold, then swallow, collapse, supernova
   g.damageEnemy(orr, Math.max(1, orr.hp - orr.maxHp * 0.11), orr.x, orr.y, true);
-  const seen = new Set(); let spiral = 0, nova = 0;
+  const seen = new Set(); let spiral = 0, nova = 0, minSing = 1, worstAt = "";
   for (let f = 0; f < 60 * 38; f++) {
     p.x = L.cx + 0.5 + 10; p.y = L.cy + 0.5; p.hp = 1e6; p.dead = false; g.update(1 / 60);
-    if (S.sing) seen.add(S.sing.phase);
+    if (S.sing) seen.add(S.sing.stage);
+    if (S.sing && f % 30 === 0) { const c = clearShare(g, orr, S.sing.x, S.sing.y); if (c < minSing) { minSing = c; worstAt = S.sing.stage + "@" + (S.finT || 0).toFixed(1); } }
     spiral = Math.max(spiral, g.projectiles.filter((b) => b.asSpiral).length);
     if (S.sing && S.sing.phase === 'nova') nova = Math.max(nova, g.projectiles.filter((b) => b.bxOf === orr).length);
   }
-  for (const k of ['consume', 'collapse', 'nova']) if (!seen.has(k)) problems.push('the finale never reached ' + k);
-  if (spiral < 60 || nova < 60) problems.push(`the finale is thin: ${spiral} spiralling in, ${nova} in the nova`);
+  for (const k of ['gather', 'lock', 'infall', 'silence']) if (!seen.has(k)) problems.push('the Singularity never reached ' + k);
+  if (spiral < 40) problems.push(`the Singularity is thin: ${spiral} spiralling in`);
+  if (minSing < 0.15) problems.push(`the Singularity left only ${Math.round(minSing * 100)}% of the floor clear at its worst`);
+  console.log(`singularity: at its worst ${Math.round(minSing * 100)}% of the floor near it is clear (${worstAt})`);
   if (!S.broken) problems.push('the finale never ended');
   if (upFrames / allFrames > 0.6) problems.push(`the eclipse is up ${Math.round(100 * upFrames / allFrames)}% of the fight (it should come and go)`);
-  if (orr.bx.B.finale.dur < 30) problems.push('the finale is short: ' + orr.bx.B.finale.dur + 's');
+  if (orr.bx.B.finale.dur < 18 || orr.bx.B.finale.dur > 24) problems.push('the Singularity should last 18-22 s: ' + orr.bx.B.finale.dur + 's');
   if (!(orr.bx.B.scaleFor(g, orr) >= 1.5)) problems.push('it does not grow in its Collapse');
   // the second survival, the Supernova: at 4% the floor goes dark and it burns; you survive it, and it is back
   { for (let f = 0; f < 60 * 4.5; f++) { p.hp = 1e6; g.update(1 / 60); }
     g.damageEnemy(orr, Math.max(1, orr.hp - orr.maxHp * 0.03), orr.x, orr.y, true);
-    let dark = false, most = 0;
-    for (let f = 0; f < 60 * 41; f++) { p.x = L.cx + 0.5 + 9; p.y = L.cy + 0.5; p.hp = 1e6; p.dead = false; g.update(1 / 60); if (S.nova2 && S.nova2.dark > 0.9) dark = true; most = Math.max(most, g.projectiles.filter((b) => b.bxOf === orr).length); }
+    let dark = false, most = 0, minNova = 1; const kinds = new Set();
+    for (let f = 0; f < 60 * Math.ceil(orr.bx.B.finale2.dur + 2); f++) { p.x = L.cx + 0.5 + 9; p.y = L.cy + 0.5; p.hp = 1e6; p.dead = false; g.update(1 / 60); if (S.nova2 && S.nova2.dark > 0.9) dark = true; if (S.nova2 && S.nova2.kind) kinds.add(S.nova2.kind); if (S.nova2 && S.nova2.kind && f % 30 === 0) { const [ox, oy] = g.bxOrigin(orr); minNova = Math.min(minNova, clearShare(g, orr, ox, oy)); } most = Math.max(most, g.projectiles.filter((b) => b.bxOf === orr).length); }
     if (!S.finale2Done || !dark) problems.push('the Supernova never came');
     if (S.state === 'finale') problems.push('the Supernova never ended');
+    if (kinds.size < 6) problems.push('the Supernova played only ' + [...kinds].join(', '));
+    if (minNova < 0.08) problems.push(`the Supernova left only ${Math.round(minNova * 100)}% of the floor clear at its worst`);
+    console.log(`supernova: at its worst ${Math.round(minNova * 100)}% of the floor near it is clear`);
     console.log(`supernova: dark ${dark}, up to ${most} shots at once`); }
   // its death: the slow clip, a hold on the last frame, then rings of light that hurt no one
   for (let f = 0; f < 60 * 4; f++) { p.hp = 1e6; g.update(1 / 60); }   // (immune a while as it comes out of the Supernova)
