@@ -40,7 +40,13 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   drift of Emily the Yapper is her waving wand, the Fallen Heart's bob its heartbeat. Open question: two pixel
   sizes on screen. The original enemy, champion, boss and player sheets and the townsfolk draw one screen pixel per
   art pixel; everything from the newer packs (72 creatures, 60 pets, 117 items, the elites and event bosses) and
-  the world's props draw two. Unifying means redrawing one side; it waits on a decision.
+  the world's props draw two. Decided (option 2): redraw the newer packs at the finer density, by hand (Scale2x was
+  tried: it barely changes 8x8 art). Pipeline: `tools/art_hd.mjs` (hand-drawn 16x16 grids per creature; the hurt
+  flash computed) writes art/bundle/hd; the registry swaps those frames in (same keys and frame names, `res: 2`, size
+  and feet kept in the old units) and `drawDef` draws them at half scale, so they are the same size on screen. Done:
+  the orc brute. To do, in order: the other 19 overworld creatures, the dungeon packs' creatures, pets, elites, the
+  modular bosses (the Grand Orrery left as it is). Items and props stay at the coarser density (RotMG's own icon
+  style; they are not beside the characters) unless the user asks otherwise.
 - Every talkable thing and chest in the realm and all 17 dungeons (`tools/check_dungeon_objects.mjs`): 279 talks
   (journals, levers' masks and sigils, lore stones, wells, dig spots, altars, fishing, the cat, waypoints...) each do
   something visible, and 196 chests open under fire and drop their bag.
