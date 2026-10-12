@@ -73,7 +73,9 @@ function mover(kind, F) {
 }
 // --nova: the Supernova alone, against every way of not really playing it: standing still (in the middle, half-way out,
 // against the back wall), camping the rim, circling, and the expert, from several places and on two seeds
-if (process.argv.includes('--nova')) {
+// --sing: the same, against the Singularity
+if (process.argv.includes('--nova') || process.argv.includes('--sing')) {
+  const FIN = process.argv.includes('--sing') ? 'finale' : 'finale2', LABEL = FIN === 'finale' ? 'Singularity' : 'Supernova';
   const rows = [];
   for (const seed of [4242, 917]) {
     const strategies = [
@@ -86,11 +88,11 @@ if (process.argv.includes('--nova')) {
       const toFight = () => { for (let k = 0; k < 60 * 12 && !['fight', 'windup', 'release', 'recover'].includes(o.bx.state); k++) { p.hp = 1e9; g.update(1 / 60); } };
       g.damageEnemy(o, Math.ceil(o.maxHp * 0.34) + 50, o.x, o.y, true); toFight();
       g.damageEnemy(o, Math.ceil(o.maxHp * 0.34) + 50, o.x, o.y, true); toFight();
-      g.projectiles = []; o.bx.finaleDone = true; o.hp = o.maxHp * 0.035; g.bxStartFinale(o, o.bx.B.finale2);
+      g.projectiles = []; if (FIN === 'finale2') o.bx.finaleDone = true; o.hp = o.maxHp * (FIN === 'finale' ? 0.11 : 0.035); g.bxStartFinale(o, o.bx.B[FIN]);
       p.x = cx + Math.cos(ang) * rad; p.y = cy + Math.sin(ang) * rad;
       const ex = kind === 'expert' ? mover('expert', F) : null;
       let a = ang, side = 1; F.reset();
-      for (let k = 0; k < 60 * (o.bx.B.finale2.dur + 0.5); k++) {
+      for (let k = 0; k < 60 * (o.bx.B[FIN].dur + 0.5); k++) {
         p.hp = 1e9; p.dead = false; p.status.invuln = 0;
         if (kind === 'circle') { a += (sp / rad) / 60; p.x += (cx + Math.cos(a) * rad - p.x) * 0.3; p.y += (cy + Math.sin(a) * rad - p.y) * 0.3; }
         if (kind === 'camp' && k % 120 === 0) side = -side;         // the camper shuffles along the wall a little, back and forth
@@ -99,12 +101,12 @@ if (process.argv.includes('--nova')) {
         g.update(1 / 60);
       }
       rows.push([seed, name, F.hits()]);
-      if (kind === 'expert' && process.argv.includes('--why')) console.log('  expert (seed ' + seed + ') was hit in:', Object.entries(F.tally).sort((x, y) => y[1] - x[1]).map(([k2, v]) => k2.split(' / ')[0] + ' ' + v).join(', '));
+      if ((kind === 'expert' || process.argv.includes('--whyall')) && process.argv.includes('--why')) console.log('  ' + name + ' (seed ' + seed + ') was hit in:', Object.entries(F.tally).sort((x, y) => y[1] - x[1]).map(([k2, v]) => k2.split(' / ')[0] + ' ' + v).join(', '));
     }
   }
   const by = {};
   for (const [, n, h] of rows) (by[n] = by[n] || []).push(h);
-  console.log('Supernova hits (seed 4242 / seed 917):');
+  console.log(LABEL + ' hits (seed 4242 / seed 917):');
   for (const [n, hs] of Object.entries(by)) console.log('  ' + n.padEnd(20) + hs.map((h) => String(h).padStart(5)).join(''));
   const exp = Math.max(...by.expert), lazy = Object.entries(by).filter(([n]) => n !== 'expert').map(([n, hs]) => [n, Math.min(...hs)]);
   const cheese = lazy.filter(([, h]) => h < Math.max(12, exp * 2));

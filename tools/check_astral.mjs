@@ -174,13 +174,13 @@ for (let s = 1; s <= seeds; s++) {
     spiral = Math.max(spiral, g.projectiles.filter((b) => b.asSpiral).length);
     if (S.sing && S.sing.phase === 'nova') nova = Math.max(nova, g.projectiles.filter((b) => b.bxOf === orr).length);
   }
-  for (const k of ['gather', 'lock', 'infall', 'silence']) if (!seen.has(k)) problems.push('the Singularity never reached ' + k);
+  for (const k of ['accretion', 'debris', 'infall', 'silence']) if (!seen.has(k)) problems.push('the Singularity never reached ' + k);
   if (spiral < 40) problems.push(`the Singularity is thin: ${spiral} spiralling in`);
   if (minSing < 0.15) problems.push(`the Singularity left only ${Math.round(minSing * 100)}% of the floor clear at its worst`);
   console.log(`singularity: at its worst ${Math.round(minSing * 100)}% of the floor near it is clear (${worstAt})`);
   if (!S.broken) problems.push('the finale never ended');
   if (upFrames / allFrames > 0.6) problems.push(`the eclipse is up ${Math.round(100 * upFrames / allFrames)}% of the fight (it should come and go)`);
-  if (orr.bx.B.finale.dur < 18 || orr.bx.B.finale.dur > 24) problems.push('the Singularity should last 18-22 s: ' + orr.bx.B.finale.dur + 's');
+  if (orr.bx.B.finale.dur < 18 || orr.bx.B.finale.dur > 26) problems.push('the Singularity should last 18-26 s: ' + orr.bx.B.finale.dur + 's');
   if (!(orr.bx.B.scaleFor(g, orr) >= 1.5)) problems.push('it does not grow in its Collapse');
   // the second survival, the Supernova: at 4% the floor goes dark and it burns; you survive it, and it is back
   { for (let f = 0; f < 60 * 4.5; f++) { p.hp = 1e6; g.update(1 / 60); }

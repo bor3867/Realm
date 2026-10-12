@@ -367,3 +367,17 @@
   is never safe.
 - Simulated over two seeds: every still position, a rim camper and circling players take 61-136 hits; a player who reads
   the patterns takes 22-25.
+
+## The Singularity rebuilt: a struggle against gravity
+- 24 s. The hole pulls you in (harder as it goes) and its core burns; everything in it obeys gravity, and each colour
+  has one job: gold falls in (arms spiralling into the hole), blue holds orbit (the shattered planets' debris), brass is
+  thrown out (tidal surges).
+- Accretion: four double gold arms with breaks, swinging ahead and back, so riding along with them doesn't work.
+- Tidal Debris: the debris bursts out into four orbit rings (the last on the floor's edge), inner rings faster. Each has
+  two openings, and the rings breathe in and out, out of step, so the channels between them pinch shut in turn. Gold
+  arms keep falling; a tidal surge every 1.6 s.
+- Terminal Infall: the rings decay inward, the pull strengthens, the arms turn faster, a surge every 1.25 s.
+- The Silence: everything swallowed, then the pressure wave (slightly wider openings).
+- The blue counter-spirals are gone.
+- Simulated over two seeds: every still position, a rim camper and circling players take 12-143 hits; a player who reads
+  it takes 4-6.
