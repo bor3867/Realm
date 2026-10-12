@@ -24,6 +24,7 @@ import { installRemaster } from './remaster.js';
 import { installSetpieces, wireBxSetpieces } from './setpieces.js';
 import { installBX } from './bossx.js';
 import { installWeaponMech } from './weaponmech.js';
+import { installHalos } from './halos.js';
 import { BX, bxEnemyDef } from './bosses/index.js';
 import { assignItemShots } from './data/uniques.js';
 import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUEST_HUNTS, FETCH_ITEMS } from './data/lore.js';
@@ -977,7 +978,8 @@ export class Game {
   updatePassives(dt) {
     const p = this.player, P = this.passive();
     this.updateOrbs(dt);
-    this.mechTick(dt);                                   // the reworked weapons' timed blows (src/weaponmech.js)                                 // whatever circles you (src/orbiters.js)
+    this.mechTick(dt);                                   // the reworked weapons' timed blows (src/weaponmech.js)
+    this.haloTick(dt);                                   // the special Halos' shapes (src/halos.js)                                 // whatever circles you (src/orbiters.js)
     if (P.lowregen && p.hp < this.stat('hp') * 0.35) p.hp = Math.min(this.stat('hp'), p.hp + P.lowregen * dt);
     if (P.aegis && !p.aegisUp) { p.aegisT = (p.aegisT || 0) - dt; if (p.aegisT <= 0) p.aegisUp = true; }
     if (P.cheatdeath) p.cheatT = Math.max(0, (p.cheatT || 0) - dt);
@@ -1062,6 +1064,8 @@ export class Game {
         this.fx.push({ kind: 'anvil', x: at.x, y: at.y, t: 0, life: 1.6, delay: 1.2, r: 3.2, dmg: Math.round(B.dmg * 4 * mult), stun: 2, done: false });
       } else anvil(at.x, at.y, 0.55);
       if (mod === 'aftershock') anvil(at.x, at.y, 1.2);
+    } else if (type === 'halo' && A.halo && this.haloCast(A, mult, aim, tgt)) {
+      // a special Halo: its own shape instead of the pillar (src/halos.js)
     } else if (type === 'halo') {
       // JUDGMENT OF NOON: a pillar of light falls on the target and burns everything inside it
       // a narrower pillar that falls at once: one heavy strike on everything under it, then a short burn
@@ -4258,6 +4262,7 @@ export class Game {
 installD4(Game);
 installBX(Game);
 installWeaponMech(Game);
+installHalos(Game);
 installMelon(Game);
 installRealmEvents(Game);
 installFrostveil(Game);

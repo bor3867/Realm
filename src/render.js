@@ -212,6 +212,7 @@ export class Renderer {
       else if (f.kind === 'hexzone') this.hexFx(f, g);
       else if (f.kind === 'lane') this.laneFx(f, g);
       else if (f.kind === 'wglyph' || f.kind === 'wphantom') this.mechFx(f, g);
+      else if (f.kind === 'halo') this.haloFx(f, g);
     }
     this.mechMarks(g);
     if (g.player.ward > 0 && !g.player.dead) this.wardFx(g);
@@ -1709,6 +1710,51 @@ export class Renderer {
     for (let i = 0; i < n; i++) { const a = (i / n) * Math.PI * 2 + (f.kind === 'wglyph' ? g.t * 0.6 : 0); b.fillRect(Math.round(sx + Math.cos(a) * r), Math.round(sy + Math.sin(a) * r * 0.7), 1, 1); }
     if (f.kind === 'wglyph') for (let i = -3; i <= 3; i++) { b.fillRect(Math.round(sx + i), Math.round(sy), 1, 1); b.fillRect(Math.round(sx), Math.round(sy + i * 0.7), 1, 1); }
     b.restore();
+  }
+  // the special Halos (src/halos.js): small, static pixel shapes, animated by position and size only
+  haloFx(f, g) {
+    const b = this.b, [sx0, sy0] = this.proj(f.x, f.y), sx = Math.round(sx0), sy = Math.round(sy0);
+    const dot = (x, y, c) => { b.fillStyle = c; b.fillRect(Math.round(x), Math.round(y), 1, 1); };
+    const ring = (r, c, n = 32, sq = 0.7, rot = 0) => { for (let i = 0; i < n; i++) { const a = (i / n) * Math.PI * 2 + rot; dot(sx + Math.cos(a) * r, sy + Math.sin(a) * r * sq, c); } };
+    const glyph = (rows, cols, x0, y0) => rows.forEach((row, j) => [...row].forEach((ch, i) => { if (ch !== '.') { b.fillStyle = cols[ch]; b.fillRect(x0 + i, y0 + j, 1, 1); } }));
+    switch (f.h) {
+      case 'sigil': {                                         // a little rising sun
+        if (f.done && f.t > f.at + 0.25) return;
+        glyph(['..o.o..', '.o...o.', 'o.ooo.o', '..oyo..', 'ooooooo'], { o: '#c98a22', y: '#fffdf0' }, sx - 3, sy - 6);
+        break;
+      }
+      case 'bell': {
+        const sw = Math.round(Math.sin(f.t * 18) * (f.t < 1.1 ? 1 : 0));
+        glyph(['..ooo..', '.oyyyo.', '.oyyyo.', '.oyyyo.', 'ooooooo', '...o...'], { o: '#6a4418', y: '#e8b04a' }, sx - 3 + sw, sy - 8);
+        break;
+      }
+      case 'rose': if (!f.done) { ring(5, '#ff5a6a', 12); ring(3, '#5a8aff', 8, 0.7, 0.4); ring(1.5, '#ffd650', 6); } break;
+      case 'aureole': {
+        if (f.done) return;
+        const k = 1 - Math.min(1, f.t / f.life), r = 4 + 10 * k, n = 20;
+        for (let i = 0; i < n; i++) { if (i % 7 === 3 || i % 7 === 4) continue; const a = (i / n) * Math.PI * 2 + g.t; dot(sx + Math.cos(a) * r, sy - 8 + Math.sin(a) * r * 0.6, i % 2 ? '#3a2a10' : '#c98a22'); }   // the bites
+        break;
+      }
+      case 'mote': if (!f.done && f.t >= (f.delay || 0)) { b.fillStyle = f.gold ? '#ffd650' : '#9aff9a'; b.fillRect(sx - 1, sy - 1, 2, 2); dot(sx, sy - 2, '#ffffff'); } break;
+      case 'horizon': {                                       // a line of daylight, across your aim, moving out
+        const ca = Math.cos(f.a), sa = Math.sin(f.a), [hx, hy] = this.proj(f.x + ca * f.d, f.y + sa * f.d), half = (f.w / 2) * 16, n = Math.round(half * 2);
+        const [px, py] = this.proj(f.x + ca * f.d - sa, f.y + sa * f.d + ca), ux = (px - hx), uy = (py - hy), ul = Math.hypot(ux, uy) || 1;
+        for (let i = 0; i <= n; i++) { const o = -half + i; dot(hx + (ux / ul) * o, hy + (uy / ul) * o, i % 3 === 0 ? '#fffdf0' : '#ffeb8f'); }
+        break;
+      }
+      case 'sun': {
+        b.fillStyle = '#1a1018'; b.fillRect(sx - 3, sy - 13, 7, 7); b.fillStyle = '#ffd650';
+        for (const [x, y] of [[0, -14], [0, -6], [-4, -10], [4, -10], [-3, -13], [3, -13], [-3, -7], [3, -7]]) b.fillRect(sx + x, sy + y, 1, 1);
+        for (const P of f.pulses) { if (f.t < P.t0) continue; const r = (f.t - P.t0) * 5 * 16; if (r < 3.6 * 16) { ring(r, '#ffd650', 48); ring(r - 2, '#3a2030', 40); } }
+        break;
+      }
+      case 'wick': {
+        b.fillStyle = '#e8e0c8'; b.fillRect(sx - 1, sy - 5, 3, 5); b.fillStyle = '#3a2a10'; b.fillRect(sx, sy - 6, 1, 1);
+        b.fillStyle = Math.floor(g.t * 8) % 2 ? '#ffd650' : '#ff8a2a'; b.fillRect(sx, sy - 8, 1, 2);
+        if (f.warm) { b.save(); b.globalAlpha = 0.35; ring(2.5 * 16, '#ffb84a', 40); b.restore(); }
+        break;
+      }
+    }
   }
   mechMarks(g) {
     const b = this.b;

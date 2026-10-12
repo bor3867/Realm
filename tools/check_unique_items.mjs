@@ -17,7 +17,7 @@ g.newCharacter('priest'); g.persist = () => {}; g.enter('realm'); g.enemies = g.
 let fail = 0;
 const bad = (m) => { console.log('  PROBLEM:', m); fail++; };
 const S = Object.values(ITEMS).filter((it) => !it.base && (it.ut || it.mythic || it.legendary) && !it.admin);
-const eff = (it) => it.slot === 'weapon' ? JSON.stringify(it.weapon.special || {}) : it.slot === 'ability' ? (it.ability.mod || '') + '|' + JSON.stringify(it.ability.sig ? { ...it.ability.sig, proj: 0 } : {}) + '|' + JSON.stringify(it.passive || {}) : JSON.stringify(it.passive || {});
+const eff = (it) => it.slot === 'weapon' ? JSON.stringify(it.weapon.special || {}) : it.slot === 'ability' ? (it.ability.mod || '') + (it.ability.halo ? JSON.stringify(it.ability.halo) : '') + '|' + JSON.stringify(it.ability.sig ? { ...it.ability.sig, proj: 0 } : {}) + '|' + JSON.stringify(it.passive || {}) : JSON.stringify(it.passive || {});
 const empty = S.filter((it) => /^\{\}$|^\|\{\}\|\{\}$/.test(eff(it)));
 if (empty.length) bad('no effect: ' + empty.map((i) => i.id).join(', '));
 const seen = {};

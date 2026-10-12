@@ -99,7 +99,7 @@ for (const [id, E] of Object.entries(EFFECTS)) {
   if (!it) continue;
   if (E.weapon && it.weapon && !it.reworked) it.weapon.special = { ...(it.weapon.special || {}), ...E.weapon };   // (a reworked weapon keeps its one hook: src/data/weapon_rework.js)
   if (E.passive) it.passive = { ...(it.passive || {}), ...E.passive };
-  if (E.sig && it.ability) it.ability.sig = { ...E.sig };
+  if (E.sig && it.ability && !(it.reworked && it.ability.halo && !it.ability.halo.keepSig)) it.ability.sig = { ...E.sig };   // (a reworked Halo has its own shape instead)
 }
 // every special ability of a type that draws its own effect gets a signature, if the table above gave it none: a shape
 // and a size of its own (no two the same)
@@ -108,7 +108,7 @@ for (const [id, E] of Object.entries(EFFECTS)) {
   for (const it of Object.values(ITEMS)) if (it.ability && it.ability.sig) taken.add(it.ability.sig.kind + it.ability.sig.n);
   let k = 0;
   for (const it of Object.values(ITEMS)) {
-    if (it.base || it.admin || !(it.ut || it.mythic || it.legendary) || !it.ability || it.ability.sig || !DRAWS_OWN.has(it.type)) continue;
+    if (it.base || it.admin || !(it.ut || it.mythic || it.legendary) || !it.ability || it.ability.sig || it.ability.halo || !DRAWS_OWN.has(it.type)) continue;
     let sig;
     for (let tries = 0; tries < 60; tries++, k++) { const kind = KINDS[k % 6], n = 4 + (Math.floor(k / 6) % 9); if (!taken.has(kind + n)) { sig = { kind, n, dmg: 120 + (k % 5) * 15 }; taken.add(kind + n); k++; break; } }
     it.ability.sig = sig;
