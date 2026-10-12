@@ -2090,7 +2090,7 @@ export class Game {
     if (M.boomer && !b.back && b.t > M.boomer) { b.back = true; b.ha += Math.PI; b.life = Math.max(b.life, M.boomer + 0.2); }
     if (M.split && b.t >= M.split.at) {
       const n = M.split.n;
-      for (let k = 0; k < n; k++) this.shoot('e', b.x, b.y, b.ha + (k / n) * TAU, M.split.speed || 4, M.split.range || 3.5, Math.round(b.dmg * 0.6), M.split.proj || b.sprite, 0.3, false, b.by);
+      for (let k = 0; k < n; k++) this.shoot('e', b.x, b.y, b.ha + (k / n) * TAU, M.split.speed || 4, M.split.range || 3.5, Math.round(b.dmg * 0.6), M.split.proj || b.sprite, 0.3, false, b.by).shard = true;   // (a shot's own pieces: shards)
       this.vx({ k: 'burst', x: b.x, y: b.y, n: 5, colors: ['#ffffff'] });
       return true;
     }
@@ -2109,7 +2109,7 @@ export class Game {
       (this.hitVols = this.hitVols || new Map()).set(`${this.frameN || 0}:${b.by}`, this.t);   // its shards are the same blow
     }
     if (L.onLand) { L.onLand(this, b); return; }
-    for (let k = 0; k < L.n; k++) { const s = this.shoot('e', L.x1, L.y1, (k / L.n) * TAU + L.t, L.ss, 3, Math.round(b.dmg * 0.5), L.sprite || b.sprite, 0.3, false, b.by); if (L.bxOf) s.bxOf = L.bxOf; }
+    for (let k = 0; k < L.n; k++) { const s = this.shoot('e', L.x1, L.y1, (k / L.n) * TAU + L.t, L.ss, 3, Math.round(b.dmg * 0.5), L.sprite || b.sprite, 0.3, false, b.by); s.shard = true; if (L.bxOf) s.bxOf = L.bxOf; }   // (shards of a shot already thrown: they land even if the thrower has died)
     this.vx({ k: 'burst', x: L.x1, y: L.y1, n: 12, colors: ['#ffffff', '#c8c0b0', '#8d88a0'] });
   }
   // lobbed volley: aimed lobs land on and around you; radial lobs land in a ring around the thrower
@@ -3316,7 +3316,7 @@ export class Game {
           b.a = Math.atan2(b.vy, b.vx); b.bounce--;
         }
         if (b.burst && b.life <= dt * 1.5) {              // a seeker's end: it bursts
-          for (let k = 0; k < b.burst.n; k++) this.shoot('e', b.x, b.y, (k / b.burst.n) * TAU, 4, 4, b.burst.dmg, b.burst.proj, 0.4, false, b.by);
+          for (let k = 0; k < b.burst.n; k++) this.shoot('e', b.x, b.y, (k / b.burst.n) * TAU, 4, 4, b.burst.dmg, b.burst.proj, 0.4, false, b.by).shard = true;
           b.burst = null;
         }
       }

@@ -4,6 +4,7 @@
 //   node tools/check_remaster_ext.mjs
 import { readFileSync } from 'node:fs';
 globalThis.localStorage = { getItem: () => null, setItem: () => {} };
+let RNG = 11; Math.random = () => ((RNG = (RNG * 1103515245 + 12345) % 2147483648) / 2147483648);   // seeded: the same run every time (its monsters fire on chance)
 const { buildRegistry } = await import('../src/registry.js');
 const { Game } = await import('../src/game.js');
 const { RX_BOSSES } = await import('../src/remaster.js');

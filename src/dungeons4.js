@@ -588,12 +588,12 @@ export const D4 = {
     if (M.blink) { const c = b.t % (M.blink[0] + M.blink[1]); b.ghost = c > M.blink[0]; }
     if (M.refract && b.t >= M.refract && !b.bent) {      // it hits an invisible facet and splits at right angles
       b.bent = true;
-      for (const s of [-1, 1]) { const c = this.shoot('e', b.x, b.y, b.ha + s * Math.PI / 2, b.hs, 6, b.dmg, b.sprite, 0.36, false, b.by); c.cs = s; }
+      for (const s of [-1, 1]) { const c = this.shoot('e', b.x, b.y, b.ha + s * Math.PI / 2, b.hs, 6, b.dmg, b.sprite, 0.36, false, b.by); c.cs = s; c.shard = true; }
       this.vx({ k: 'burst', x: b.x, y: b.y, n: 4, colors: ['#ffffff', '#c8a0ff'] });
     }
     if (M.disperse && b.t >= M.disperse) {               // white light breaks into its colours
       const n = M.fan || 7;
-      for (let k = 0; k < n; k++) this.shoot('e', b.x, b.y, b.ha + (k / (n - 1) - 0.5) * 1.3, b.hs * 0.85, 9, Math.round(b.dmg * 0.8), SPECTRUM[k % SPECTRUM.length], 0.36, false, b.by);
+      for (let k = 0; k < n; k++) this.shoot('e', b.x, b.y, b.ha + (k / (n - 1) - 0.5) * 1.3, b.hs * 0.85, 9, Math.round(b.dmg * 0.8), SPECTRUM[k % SPECTRUM.length], 0.36, false, b.by).shard = true;
       this.vx({ k: 'burst', x: b.x, y: b.y, n: 10, colors: ['#ff4a5a', '#ffd650', '#7aff9a', '#6ab4ff', '#c88aff'] });
       return true;
     }
