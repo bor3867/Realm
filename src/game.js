@@ -23,6 +23,7 @@ import { installElites } from './elites.js';
 import { installRemaster } from './remaster.js';
 import { installSetpieces, wireBxSetpieces } from './setpieces.js';
 import { installBX } from './bossx.js';
+import { installWeaponMech } from './weaponmech.js';
 import { BX, bxEnemyDef } from './bosses/index.js';
 import { assignItemShots } from './data/uniques.js';
 import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUEST_HUNTS, FETCH_ITEMS } from './data/lore.js';
@@ -956,7 +957,7 @@ export class Game {
       this.vx({ k: 'muzzle', x: ox + Math.cos(a) * 0.5, y: oy + Math.sin(a) * 0.5, proj: W.proj });
       this.sfx('shoot', p.cls);
       const sp = W.special || null;
-      const cnt = W.count || 1;                              // a weapon that names no count fires one shot (some relics left it out and fired nothing)
+      const cnt = sp && sp.mech && this.mechVolley(W, sp, ox, oy, a, mult) ? 0 : W.count || 1;   // a reworked weapon fires its own volley (src/weaponmech.js); one that names no count fires one shot
       for (let k = 0; k < cnt; k++) {
         const off = cnt > 1 ? (k / (cnt - 1) - 0.5) * (W.arc || 0) : 0;
         const dmg = Math.round((W.dmg[0] + R() * (W.dmg[1] - W.dmg[0])) * mult);
@@ -975,7 +976,8 @@ export class Game {
   // armour / ring effects that tick every frame
   updatePassives(dt) {
     const p = this.player, P = this.passive();
-    this.updateOrbs(dt);                                 // whatever circles you (src/orbiters.js)
+    this.updateOrbs(dt);
+    this.mechTick(dt);                                   // the reworked weapons' timed blows (src/weaponmech.js)                                 // whatever circles you (src/orbiters.js)
     if (P.lowregen && p.hp < this.stat('hp') * 0.35) p.hp = Math.min(this.stat('hp'), p.hp + P.lowregen * dt);
     if (P.aegis && !p.aegisUp) { p.aegisT = (p.aegisT || 0) - dt; if (p.aegisT <= 0) p.aegisUp = true; }
     if (P.cheatdeath) p.cheatT = Math.max(0, (p.cheatT || 0) - dt);
@@ -1209,7 +1211,8 @@ export class Game {
         if (f.dmg) for (const e of this.enemiesIn(f.x, f.y, f.r)) this.damageEnemy(e, f.dmg, e.x, e.y - 0.5);
         this.vx({ k: 'burst', x: f.x, y: f.y, n: 30, colors: ['#ffffff', '#8af6ff', '#3bc8e8'] });
         this.fx.push({ kind: 'ring', x: f.x, y: f.y, t: 0, max: f.r + 0.4, color: '#8af6ff' });
-        this.vx({ k: 'shake', amt: 3 });
+        if (f.sparks) this.starSparks(f);
+        this.vx({ k: 'shake', amt: f.sparks ? 1 : 3 });
       }
       if (f.kind === 'beam' && f.t >= f.delay && f.strike && !f.struck) {   // the moment it lands: the heavy blow
         f.struck = true; f.tick = 0.25;
@@ -2163,6 +2166,7 @@ export class Game {
     const { dmg, crit } = this.hitDamage(e, base, sp);
     const dealt = this.damageEnemy(e, dmg, b.x, b.y, false, crit);
     if (!sp || !dealt) return;
+    if (sp.mech) { if (b.sig) this.mechSigHit(e, b, dealt); else this.mechHit(e, b, dealt); }
     const p = this.player;
     if (sp.lifesteal) p.hp = Math.min(this.stat('hp'), p.hp + dealt * sp.lifesteal);
     if (sp.burn) this.ignite(e, sp.burn.dps, sp.burn.t);
@@ -3455,6 +3459,7 @@ export class Game {
         }
       }
       if (sp && b.from === 'p') {
+        if (sp.mech) this.mechFlight(b, dt);
         if (sp.homing) {                                 // steer toward the nearest enemy ahead
           let best = null, bd = 36;
           for (const e of targets) {
@@ -3494,6 +3499,7 @@ export class Game {
       if (b.life <= 0 || onBreakable || (!b.back && !b.orb && shotBlocked(m, b.x, b.y + 0.3))) {
         if (b.from === 'p' && b.life > 0 && m.kind !== 'nexus') this.hitObject(b.x, b.y + 0.3, b.dmg);
         if (sp && sp.split && sp.split.onEnd && !b.child && b.from === 'p') this.splitShot(b, sp.split);
+        if (sp && sp.mech && b.from === 'p') this.mechEnd(b);
         continue;
       }
       let alive = true;
@@ -4251,6 +4257,7 @@ export class Game {
 }
 installD4(Game);
 installBX(Game);
+installWeaponMech(Game);
 installMelon(Game);
 installRealmEvents(Game);
 installFrostveil(Game);

@@ -97,7 +97,7 @@ export const EFFECTS = {
 for (const [id, E] of Object.entries(EFFECTS)) {
   const it = ITEMS[id];
   if (!it) continue;
-  if (E.weapon && it.weapon) it.weapon.special = { ...(it.weapon.special || {}), ...E.weapon };
+  if (E.weapon && it.weapon && !it.reworked) it.weapon.special = { ...(it.weapon.special || {}), ...E.weapon };   // (a reworked weapon keeps its one hook: src/data/weapon_rework.js)
   if (E.passive) it.passive = { ...(it.passive || {}), ...E.passive };
   if (E.sig && it.ability) it.ability.sig = { ...E.sig };
 }

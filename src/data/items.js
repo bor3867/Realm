@@ -2,6 +2,7 @@
 import { R } from '../util.js';
 import { STATS, STAT_NAMES, CLASSES } from './classes.js';
 import { applyDungeonItems, orbitLine } from './dungeon_items.js';
+import { applyWeaponRework, mechLine } from './weapon_rework.js';
 
 const METAL = ['Rust', 'Iron', 'Bronze', 'Steel', 'Verdigris', 'Cobalt', 'Crimson', 'Violet', 'Sunforged', 'Obsidian', 'Rune-White', 'Bloodgold'];
 const NAMES = {
@@ -860,6 +861,7 @@ export function specialLines(it) {
   if (sg && sg.kind === 'orbit') L.push(orbitLine(sg.sets, sg.life));
   else if (sg) L.push({ nova: `Signature: a ring of ${sg.n} shots bursts from you`, rain: `Signature: ${sg.n} shots rain onto the cursor`, mines: `Signature: ${sg.n} mines at the cursor, which burst`,
     wave: `Signature: a wall of ${sg.n} shots sweeps forward`, spiral: `Signature: a ${sg.n}-armed spiral turns out from you`, lance: `Signature: ${sg.n} heavy piercing lances` }[sg.kind] + ` (${sg.dmg} each)`);
+  if (w && w.mech) L.push(...mechLine(w.mech));
   if (w) {
     if (w.chain) L.push(`Arcs to ${w.chain.n} more enemies (${Math.round(w.chain.f * 100)}%)`);
     if (w.explode) L.push(`Explodes on hit (${w.explode.r} tiles, ${Math.round(w.explode.f * 100)}%)`);
@@ -1309,3 +1311,5 @@ for (const it of Object.values(BASE_ITEMS)) {
 
 // the dungeons' own items: their names, their orbiters; and no item seeks (src/data/dungeon_items.js)
 applyDungeonItems(ITEMS);
+// the item rework, last of all: each special weapon's one hook (src/data/weapon_rework.js)
+applyWeaponRework(ITEMS);

@@ -12,3 +12,6 @@ __pycache__/
 .claude/
 .devshots/
 realm_astral*/
+
+# exported files for outside review (tools/export_item_sprites.mjs)
+exports/

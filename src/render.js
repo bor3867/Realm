@@ -211,7 +211,9 @@ export class Renderer {
       else if (f.kind === 'scorch') this.scorchFx(f, g);
       else if (f.kind === 'hexzone') this.hexFx(f, g);
       else if (f.kind === 'lane') this.laneFx(f, g);
+      else if (f.kind === 'wglyph' || f.kind === 'wphantom') this.mechFx(f, g);
     }
+    this.mechMarks(g);
     if (g.player.ward > 0 && !g.player.dead) this.wardFx(g);
     const darkFirst = g.map.lights && g.map.kind === 'dungeon';     // in a dungeon the dark falls under the bullets: shots always read
     if (darkFirst) { b.save(); b.setTransform(this.scale, 0, 0, this.scale, 0, 0); this.dusk(g); b.restore(); }   // the screen's own scale, without the shake
@@ -1694,6 +1696,28 @@ export class Renderer {
       b.fillStyle = (j + Math.floor(g.t * 20)) % 2 ? '#ffd84a' : '#ff8c1e';
       b.fillRect(Math.round(sx) - 3, Math.round(sy) - 3, 6, 6);
       b.fillStyle = '#fff6c8'; b.fillRect(Math.round(sx) - 1, Math.round(sy) - 1, 2, 2);
+    }
+  }
+  // the reworked weapons (src/weaponmech.js): a glyph on the ground, a phantom blow's mark, marks and stacks on enemies.
+  // Ground marks are 1 px lines at under half opacity, in the weapon's colour (docs/projectile_art_standard.md)
+  mechFx(f, g) {
+    const b = this.b, [sx, sy] = this.proj(f.x, f.y), col = f.kind === 'wglyph' ? f.col : f.col[0];
+    const k = f.kind === 'wphantom' ? 1 - Math.min(1, f.t / f.delay) * 0.6 : 1, r = f.r * TS * k;
+    if (f.kind === 'wphantom' && f.done) return;
+    b.save(); b.globalAlpha = f.kind === 'wglyph' ? 0.42 : 0.3 + 0.15 * Math.min(1, f.t / f.delay); b.fillStyle = col;
+    const n = Math.max(16, Math.round(r * 1.6));
+    for (let i = 0; i < n; i++) { const a = (i / n) * Math.PI * 2 + (f.kind === 'wglyph' ? g.t * 0.6 : 0); b.fillRect(Math.round(sx + Math.cos(a) * r), Math.round(sy + Math.sin(a) * r * 0.7), 1, 1); }
+    if (f.kind === 'wglyph') for (let i = -3; i <= 3; i++) { b.fillRect(Math.round(sx + i), Math.round(sy), 1, 1); b.fillRect(Math.round(sx), Math.round(sy + i * 0.7), 1, 1); }
+    b.restore();
+  }
+  mechMarks(g) {
+    const b = this.b;
+    for (const e of g.active || g.enemies) {
+      const m = e.wmark && e.wmark.until > g.t ? e.wmark : null, st = e.wstack && e.wstack.until > g.t ? e.wstack : null;
+      if ((!m && !st) || e.dead) continue;
+      const [sx, sy0] = this.proj(e.x, e.y), sy = Math.round(sy0 - (e.D.r || 0.5) * TS * 2 - 6);
+      if (m) { b.fillStyle = '#05040a'; b.fillRect(Math.round(sx) - 2, sy - 2, 5, 5); b.fillStyle = m.col; b.fillRect(Math.round(sx) - 1, sy - 1, 3, 3); b.fillStyle = '#05040a'; b.fillRect(Math.round(sx), sy, 1, 1); }
+      if (st) for (let i = 0; i < st.n; i++) { const x = Math.round(sx) - 3 + i * 4 + (m ? 6 : 0); b.fillStyle = '#05040a'; b.fillRect(x - 1, sy - 1, 3, 3); b.fillStyle = st.col; b.fillRect(x, sy, 1, 1); }
     }
   }
   ringFx(f) {
