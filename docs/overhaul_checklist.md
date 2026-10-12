@@ -47,6 +47,15 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
 - Projectile sizes across enemies and abilities against the art standard (the weapons are part of the item rework).
 - Sprite audit beyond the chest: loot bags, NPCs, dungeon styles, placeholder art.
 - Feel: movement, firing, camera, transitions.
+- Enemy movement, audit so far (`tools/audit_movement.mjs`, 189 monster types in open ground while you circle,
+  alone and in groups of 8). Already smooth: no frame-to-frame reversals anywhere, heading turn rates under 1.3 rad/s
+  for every type except one (1.7), in/out wobble under 1 per second for all but 3, almost no stacking (4% at worst).
+  Real findings: 3 skitterers (candle_mite, slag_imp, tomb_scarab) overshoot their distance and back off 1-1.6 times
+  a second; bursts well above listed speed to be checked for telegraphs (wild_boar and mountain_ram charges 4.2x,
+  comet_hound 5x and abyss_hound 4.7x, storm_gryphon's dive 4.2x, rock_troll 2.4x); fallen_choirmaster (float) makes
+  no progress 18% of the time. Not yet measured: walls, corridors and doorways (the likely home of stuck and
+  straight-line chasing), which needs a dungeon-layout test. Then: per-enemy weight (today every monster eases its
+  velocity at the same rate), the archetypes, group roles, boss movement.
 - Enemy movement and AI overhaul (requested 2026-10-12): audit every enemy's movement; reusable movement archetypes
   (pursuer, orbiter, skirmisher, ambusher, charger, flanker, defender, erratic, formation, stationary guardian) with
   per-enemy weight (acceleration, turning); smooth, frame-rate independent steering, wall sliding, unsticking;
