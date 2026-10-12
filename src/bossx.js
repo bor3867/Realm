@@ -308,8 +308,10 @@ export const BXF = {
         if (m.solid[i] || m.tiles[i] === TID.asvoid) continue;      // the doors are where a way comes in: not the open void
         const o = { sprite: 'seal_gate', x: x + 0.5, y: y + 0.5, solid: true, arenaLock: true };
         m.objects.push(o); m.solid[i] = 1; e.bx.locks.push(o);
-        const p = this.player;
-        if (Math.floor(p.x) === x && Math.floor(p.y) === y) { p.x = A.x + A.w / 2; p.y = A.y + A.h - 2; }
+      }
+      const p = this.player;                                     // just through the doorway: step clear of the gates (a body touching one can't move)
+      if (p.x > A.x - 1 && p.x < A.x + A.w + 1 && p.y > A.y - 1 && p.y < A.y + A.h + 1) {
+        p.x = Math.max(A.x + 1, Math.min(A.x + A.w - 1, p.x)); p.y = Math.max(A.y + 1.2, Math.min(A.y + A.h - 1, p.y));
       }
     } else for (const o of e.bx.locks || []) {
       o.sprite = 'gate_open'; o.solid = false; m.solid[Math.floor(o.y) * m.w + Math.floor(o.x)] = 0;

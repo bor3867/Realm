@@ -1398,7 +1398,7 @@ export class Game {
   }
   unstick(o, r = PLAYER_R) {
     if (!this.blockedAt(o.x, o.y, r)) return false;
-    const m = this.map, bad = (x, y) => { const t = m.tiles[Math.floor(y) * m.w + Math.floor(x)]; return t === TID.lava || t === TID.emberlava; };
+    const m = this.map, bad = (x, y) => { const t = m.tiles[Math.floor(y) * m.w + Math.floor(x)]; return t === TID.lava || t === TID.emberlava || t === TID.asvoid; };   // (never onto the void: it would only send you back)
     for (let d = 1; d <= 24; d++) {
       for (let k = 0; k < 8 * d; k++) {
         const a = (k / (8 * d)) * TAU, x = Math.floor(o.x + Math.cos(a) * d) + 0.5, y = Math.floor(o.y + Math.sin(a) * d) + 0.5;
