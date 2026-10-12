@@ -38,25 +38,17 @@ const p = g.player;
   console.log('legendary bag:', b.kind, b.legend ? 'marked' : 'unmarked', '| plain bag:', n.kind, n.legend ? 'marked' : 'unmarked');
   if (!b.legend || b.kind !== 'starfall' || n.legend) bad('bag marking');
 }
-{                                                          // the Tidewraith Staff: fire once into empty ground
-  g.enemies = g.map.enemies = []; g.projectiles.length = 0;
+{                                                          // the Tidewraith Staff (item rework): a hit leaves a glyph, the next volley detonates it,
+  g.enemies = g.map.enemies = []; g.projectiles.length = 0; g.fx.length = 0;   // and ten volleys that hit charge its signature
   p.equip[0] = 'tidewraith_staff';
-  g.input = g.input || {}; Object.assign(g.input, { fire: true, aimX: p.x + 5, aimY: p.y }); p.fireCd = 0;
-  g.update(1 / 60); g.input.fire = false;
-  const bolts = g.projectiles.filter((b) => b.from === 'p');
-  if (!bolts.length) bad('the staff fired nothing');
-  else {
-    const b = bolts[0], a0 = Math.atan2(b.vy, b.vx);
-    let turned = 0, back = false;
-    for (let f = 0; f < 120 && g.projectiles.includes(b); f++) {
-      g.update(1 / 60);
-      if (!b.back) turned = Math.atan2(b.vy, b.vx) - a0;
-      if (b.back) back = true;
-    }
-    console.log(`tidewraith bolt: turned ${turned.toFixed(2)} rad before turning home, came back: ${back}`);
-    if (!(turned > 0.25)) bad('the bolt did not bend');
-    if (!back) bad('the bolt did not come back');
-  }
+  const e = g.addEnemy('training_dummy', p.x + 3, p.y); e.seen = true;
+  Object.assign(g.input = g.input || {}, { fire: true, aimX: e.x, aimY: e.y - 0.5 }); p.fireCd = 0;
+  let glyph = 0, sig = 0; const sg = g.mechSignature.bind(g); g.mechSignature = (...a) => { sig++; return sg(...a); };
+  for (let f = 0; f < 60 * 14; f++) { e.hp = 1e9; p.hp = 1e9; g.update(1 / 60); if (g.fx.some((x) => x.kind === 'wglyph')) glyph++; }
+  g.input.fire = false;
+  console.log(`tidewraith staff: glyph on the ground ${(glyph / 60).toFixed(1)} s of 14, signature strikes: ${sig}`);
+  if (!glyph) bad('the staff left no glyph');
+  if (!sig) bad('the staff never charged its signature');
 }
 console.log(fail ? `${fail} problem(s)` : 'all OK');
 process.exit(fail ? 1 : 0);

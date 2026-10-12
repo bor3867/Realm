@@ -147,7 +147,7 @@ const methods = {
   },
   // ------------------------------------------------------------ in flight
   mechFlight(b, dt) {
-    if (b.page && !b.page.back && b.life < b.max * 0.5) {     // the page turns home and splits into two margins
+    if (b.page && !b.page.back && b.life < b.max * 0.3) {     // the page turns home (most of the way out) and splits into two margins
       b.page.back = true; b.life = 0;
       const p = this.player, home = angleTo(b.x, b.y, p.x, p.y - 0.5), M = b.sp.mech;
       for (const s of [-1, 1]) {
@@ -187,7 +187,10 @@ const methods = {
         if (e.wstack.n === 2) this.mechDebuff(e, M.theme, 2.5);
         if (e.wstack.n >= 3) {                                   // cashed in
           e.wstack = null;
-          this.damageEnemy(e, Math.round(b.dmg * M.cash), e.x, e.y - 0.6, true);
+          if (M.strike) {                                         // a thunderstrike: straight down onto it, catching its neighbours
+            for (const o of this.enemiesIn(e.x, e.y, M.strike).slice(0, 4)) this.damageEnemy(o, Math.round(b.dmg * M.cash), o.x, o.y - 0.6, true);
+            this.vx({ k: 'zap', x0: e.x, y0: e.y - 6, x1: e.x, y1: e.y - 0.5 });
+          } else this.damageEnemy(e, Math.round(b.dmg * M.cash), e.x, e.y - 0.6, true);
           this.vx({ k: 'burst', x: e.x, y: e.y - 0.5, n: 6, colors: T.col });
         }
         break;
