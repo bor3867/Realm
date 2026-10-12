@@ -11,7 +11,7 @@ const centre = (e) => { const A = e.bx.arena; return A ? [A.x + A.w / 2, A.y + A
 const drums = (g, e) => g.map.hmDrums || (() => { const [cx, cy] = centre(e); return Array.from({ length: 8 }, (_, k) => { const a = -Math.PI / 2 + (k / 8) * TAU; return [cx + Math.cos(a) * 14, cy + Math.sin(a) * 16]; }); })();
 
 function cards(g, e, V) {                           // three fans of cards, each offset half a card
-  for (let k = 0; k < 3; k++) e.bx.vol.push({ t: k * 0.3, V: { form: 'fan', shot: 'playing_card', count: 7, spread: 1.2, offset: k % 2 ? 0.1 : 0, speed: 7, range: 14, dmg: V.dmg || 115 } });
+  for (let k = 0; k < 3; k++) e.bx.vol.push({ t: k * 0.3, V: { form: 'fan', shot: 'playing_card', count: 7, spread: 1.2, offset: k % 2 ? 0.1 : 0, speed: 7, range: 22, dmg: V.dmg || 115 } });
 }
 function leap(g, e) {                               // to another drum, in a high arc; the landing rings out a cane-star burst
   const D = drums(g, e), S = e.bx, p = g.player;

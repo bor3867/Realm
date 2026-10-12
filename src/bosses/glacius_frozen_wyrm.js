@@ -22,9 +22,9 @@ function lances(g, e, V) {
   const p = g.player, [ox, oy] = g.bxOrigin(e), aim = angleTo(ox, oy, p.x, p.y);
   for (const off of [-0.35, 0, 0.35]) {
     const a = aim + off;
-    for (let j = 0; j < 5; j++) g.bxShot(e, ox, oy, a, { shot: 'ice_lance', speed: 9 + j * 0.9, range: 9, dmg: V.dmg || 110 });
+    for (let j = 0; j < 5; j++) g.bxShot(e, ox, oy, a, { shot: 'ice_lance', speed: 9 + j * 0.9, range: 15, dmg: V.dmg || 110 });   // (across the lake: 9 left its far shore safe)
     let L = 0;
-    while (L < 9 && !g.map.solid[Math.floor(oy + Math.sin(a) * (L + 0.5)) * g.map.w + Math.floor(ox + Math.cos(a) * (L + 0.5))]) L += 0.5;
+    while (L < 15 && !g.map.solid[Math.floor(oy + Math.sin(a) * (L + 0.5)) * g.map.w + Math.floor(ox + Math.cos(a) * (L + 0.5))]) L += 0.5;
     g.fvLater(L / 13, () => g.fvFreeze(ox + Math.cos(a) * L, oy + Math.sin(a) * L, 1, 6));
   }
 }
