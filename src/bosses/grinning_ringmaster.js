@@ -111,8 +111,9 @@ export default {
       e.x = L.x0 + (L.x1 - L.x0) * k; e.y = L.y0 + (L.y1 - L.y0) * k; S.leapZ = Math.sin(Math.PI * k) * 46;
       if (k >= 1) {
         S.leap = null; S.leapZ = 0;
-        const [ox, oy] = g.bxOrigin(e), a0 = R() * TAU;
-        for (let j = 0; j < 14; j++) g.bxShot(e, ox, oy, a0 + (j / 14) * TAU, { shot: 'cane_star', speed: 5, range: 12, dmg: 120 });
+        // the landing rings out into the ring, not the wall behind his drum: 14 cane-stars in a fan facing the middle
+        const [ox, oy] = g.bxOrigin(e), A = e.bx.arena, mid = A ? angleTo(ox, oy, A.x + A.w / 2, A.y + A.h / 2) : R() * TAU, spread = (200 * Math.PI) / 180;
+        for (let j = 0; j < 14; j++) g.bxShot(e, ox, oy, mid + (j / 13 - 0.5) * spread, { shot: 'cane_star', speed: 5, range: 20, dmg: 120 });
         g.vx({ k: 'shake', amt: 4 });
       }
     }
