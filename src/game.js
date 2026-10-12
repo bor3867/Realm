@@ -1512,12 +1512,12 @@ export class Game {
     if (free(o.x + dx, o.y)) o.x += dx;
     else if (o !== this.player && Math.abs(dx) > Math.abs(dy) * 0.5) {   // a monster caught on a corner slides toward the gap: centre it on its row
       const c = Math.floor(o.y) + 0.5 - o.y, s = Math.sign(c) * Math.min(Math.abs(c), Math.abs(dx));
-      if (s && free(o.x, o.y + s) && free(o.x + dx, o.y + s)) o.y += s;
+      if (s && free(o.x, o.y + s)) o.y += s;                 // (step by step toward the centre, until the way ahead opens)
     }
     if (free(o.x, o.y + dy)) o.y += dy;
     else if (o !== this.player && Math.abs(dy) > Math.abs(dx) * 0.5) {   // ... or on its column
       const c = Math.floor(o.x) + 0.5 - o.x, s = Math.sign(c) * Math.min(Math.abs(c), Math.abs(dy));
-      if (s && free(o.x + s, o.y) && free(o.x + s, o.y + dy)) o.x += s;
+      if (s && free(o.x + s, o.y)) o.x += s;
     }
   }
 
@@ -1782,7 +1782,7 @@ export class Game {
         const dx = b.x - a.x, dy = b.y - a.y, d2 = dx * dx + dy * dy, min = (a.D.r + b.D.r) * 0.75;
         if (d2 > 0.0001 && d2 < min * min) {
           const d = Math.sqrt(d2), push = (min - d) * 0.25 / d;
-          this.moveCircle(a, -dx * push, -dy * push, 0.3); this.moveCircle(b, dx * push, dy * push, 0.3);
+          this.moveCircle(a, -dx * push, -dy * push, 0.35); this.moveCircle(b, dx * push, dy * push, 0.35);   // (the same body as it walks with: a smaller one shoved it into corners it then could not leave)
         }
       }
     }
@@ -1821,7 +1821,7 @@ export class Game {
         const crowd = () => { let push = 0; for (const o of this.active) { if (o === e || o.dead || o.rb || !o.D.speed || dist2(o.x, o.y, p.x, p.y) > 36) continue; const da = Math.atan2(Math.sin(a - angleTo(p.x, p.y, o.x, o.y)), Math.cos(a - angleTo(p.x, p.y, o.x, o.y))); if (Math.abs(da) < 1.6) push += Math.sign(da || 1) * (1.6 - Math.abs(da)); } return push; };
         if (!e.side) { const c = crowd(); e.side = Math.abs(c) > 0.3 ? Math.sign(c) : R() < 0.5 ? 1 : -1; }
         if ((e.flipT = (e.flipT === undefined ? 3 + R() * 3 : e.flipT) - dt) <= 0) { e.flipT = 3 + R() * 3; const c = crowd(); e.side = Math.abs(c) > 0.3 ? Math.sign(c) : -e.side; }
-        const b = a + e.side * (1.2 + 0.3 * Math.sin(this.t * 0.8 + e.phase)) + this.packSpread(e, p, a, dt) * 0.7, k3 = Math.max(2.5, keep);   // (spaced round you with the rest of its pack)
+        const b = a + e.side * (0.6 + 0.3 * Math.sin(this.t * 0.8 + e.phase)) + this.packSpread(e, p, a, dt), k3 = Math.max(2.5, keep);   // (spaced round you with the rest of its pack)
         tx = p.x + Math.cos(b) * k3; ty = p.y + Math.sin(b) * k3; sp *= 1.15;
       } else if (ai === 'swoop') {
         if (e.dive) {                                     // the dive: straight through where you were

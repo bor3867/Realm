@@ -3,7 +3,8 @@
 // (one whose aggro reaches that far) stands at one, you at the other, standing still. It should come round and reach you (get within its fighting
 // distance) and never stand stalled for long. Walkers that chase are used (shamble, flank, zigzag, kite, swoop,
 // orbit), since flyers and burrowers go their own way.
-//   node tools/check_navigation.mjs [dungeon ...]    --verbose for every chase; --moving: you walk a small circle instead
+//   node tools/check_navigation.mjs [dungeon ...]    --verbose for every chase; --moving: you walk a small circle instead; --group: six of each
+//   monster come at once (it passes when the last of them reaches you, none stalled 3 s on the way)
 import { readFileSync } from 'node:fs';
 globalThis.localStorage = { getItem: () => null, setItem: () => {} };
 let CLOCK = 1.7e12; Date.now = () => CLOCK;                      // (dungeons are generated from the clock: pinned, so a run repeats)
@@ -17,7 +18,7 @@ const B0 = new URL('../art/bundle/', import.meta.url), J = (q) => JSON.parse(rea
 const reg = buildRegistry(idx.atlases.map((a) => ({ pack: a.split('/')[0], json: J(a) })), J(idx.hover), (q) => q);
 const WALKERS = ['shamble', 'flank', 'zigzag', 'kite', 'swoop', 'orbit'];
 const pool = Object.entries(ENEMIES).filter(([, D]) => WALKERS.includes(D.ai) && !D.fly && !D.noclip && !D.bx && !D.rb && !D.dummy && D.speed > 0 && !D.leash).map(([id]) => id);
-const only = process.argv.slice(2).filter((a) => !a.startsWith('--')), verbose = process.argv.includes('--verbose'), moving = process.argv.includes('--moving');
+const only = process.argv.slice(2).filter((a) => !a.startsWith('--')), verbose = process.argv.includes('--verbose'), moving = process.argv.includes('--moving'), group = process.argv.includes('--group');
 // the length of the walkable route (4-connected tiles) between two points, or -1
 function route(m, a, b, max = 30) {
   const dist = new Int16Array(m.w * m.h).fill(-1), q = [Math.floor(a[1]) * m.w + Math.floor(a[0])], goal = Math.floor(b[1]) * m.w + Math.floor(b[0]);
@@ -55,25 +56,38 @@ for (const where of Object.keys(DUNGEONS)) {
     const D = ENEMIES[id];
     g.enemies = g.map.enemies = []; g.projectiles = [];
     p.x = Bp[0]; p.y = Bp[1];
-    const e = g.addEnemy(id, A[0], A[1]); if (!e) continue; e.seen = true;
-    const reach = (D.keep || 1.2) + 2.5, start = Math.hypot(e.x - p.x, e.y - p.y);
-    let t = 0, got = null, stall = 0, worstStall = 0, last = [e.x, e.y], lastT = 0;
+    const n = group ? 6 : 1, es = [];                       // --group: six of it, crowding through together
+    for (let k = 0; k < n; k++) {
+      const q = g.addEnemy(id, A[0] + (k ? Math.cos(k * 2.1) * 1.2 : 0), A[1] + (k ? Math.sin(k * 2.1) * 1.2 : 0));
+      if (!q) continue;
+      q.seen = true; if (k) g.unstick(q, 0.45);
+      if (k && Math.hypot(q.x - A[0], q.y - A[1]) > 3) { q.dead = true; continue; }   // (no room beside it: one fewer)
+      es.push(q);
+    }
+    if (!es.length) continue;
+    const e = es[0], reach = (D.keep || 1.2) + 2.5, start = Math.hypot(e.x - p.x, e.y - p.y);
+    let t = 0, got = null, worstStall = 0;
+    const S = es.map((q) => ({ q, stall: 0, last: [q.x, q.y], at: null }));
+    let lastT = 0;
     for (let f = 0; f < 60 * 25 && got === null; f++) {
       t += 1 / 60; p.hp = 1e9; p.dead = false;
       if (moving) { const a = t * 1.5, tx = Bp[0] + Math.cos(a) * 2, ty = Bp[1] + Math.sin(a) * 2; g.moveCircle(p, (tx - p.x) * 0.15, (ty - p.y) * 0.15, 0.32); }   // --moving: you walk a small circle (walls stop you)
       else { p.x = Bp[0]; p.y = Bp[1]; }                     // (held still: the forge's conveyors would carry you off)
-      g.enemies = g.map.enemies = g.enemies.filter((q) => q === e);
+      g.enemies = g.map.enemies = g.enemies.filter((q) => es.includes(q));
       g.update(1 / 60);
-      if (e.dead) break;
-      if (Math.hypot(e.x - p.x, e.y - p.y) < reach) got = t;
-      if ((process.env.TRACE === id || process.env.TRACE === '*') && f % 60 === 0) console.log(t.toFixed(1), e.state, 'sees', g.seesFoe(e, p), 'step', JSON.stringify(g.flowStep(e)), 'at', e.x.toFixed(1), e.y.toFixed(1), 'cd', (e.cds || []).map((c) => c.toFixed(1)).join('/'), 'd', Math.hypot(e.x - p.x, e.y - p.y).toFixed(1), 'aggro', e.D.aggro, 'you', p.x, p.y, 'lure', !!e.lureTo, 'el', JSON.stringify(e.elState && { k: e.elState.kind, t: +e.elState.t.toFixed(1) }), 'abil', JSON.stringify(e.abil), 'under', !!e.under, 'wide', g.seesFoe(e, p, true), 'R', e.D.r);
-      if (t - lastT >= 1) { const moved = Math.hypot(e.x - last[0], e.y - last[1]); if (moved < 0.3) stall += 1; else stall = 0; worstStall = Math.max(worstStall, stall); last = [e.x, e.y]; lastT = t; }
+      for (const s2 of S) if (s2.at === null && !s2.q.dead && Math.hypot(s2.q.x - p.x, s2.q.y - p.y) < reach) s2.at = t;
+      if (S.every((s2) => s2.at !== null || s2.q.dead)) got = t;
+      if ((process.env.TRACE === id || process.env.TRACE === '*') && f % 60 === 0) console.log(t.toFixed(1), es.map((q) => `${q.state} ${q.x.toFixed(1)},${q.y.toFixed(1)} step ${JSON.stringify(g.flowStep(q))} wide ${g.seesFoe(q, p, true)} d ${Math.hypot(q.x - p.x, q.y - p.y).toFixed(1)} mv ${(q.mvx || 0).toFixed(1)},${(q.mvy || 0).toFixed(1)}`).join(" | "), "you", p.x, p.y);
+      if (t - lastT >= 1) {
+        lastT = t;
+        for (const s2 of S) { if (s2.at !== null || s2.q.dead) continue; const moved = Math.hypot(s2.q.x - s2.last[0], s2.q.y - s2.last[1]); s2.stall = moved < 0.3 ? s2.stall + 1 : 0; worstStall = Math.max(worstStall, s2.stall); s2.last = [s2.q.x, s2.q.y]; }
+      }
     }
-    rows.push({ where, id, ai: D.ai, start, path: L, got, worstStall });
+    rows.push({ where, id, ai: D.ai, start, path: L, got, worstStall, n: es.length });
   }
 }
 const bad = rows.filter((r) => r.got === null || r.worstStall >= 3);
-for (const r of verbose ? rows : bad) console.log(`${r.where.padEnd(11)} ${r.id.padEnd(22)} ${r.ai.padEnd(8)} ${r.start.toFixed(0)} tiles away, ${r.path} round: ${r.got === null ? 'NEVER reached you in 25 s' : `reached you in ${r.got.toFixed(1)} s`}${r.worstStall >= 2 ? `, stalled ${r.worstStall} s` : ''}`);
+for (const r of verbose ? rows : bad) console.log(`${r.where.padEnd(11)} ${r.id.padEnd(22)} ${r.ai.padEnd(8)} ${r.start.toFixed(0)} tiles away, ${r.path} round: ${r.n > 1 ? r.n + ' of them, ' : ''}${r.got === null ? 'NEVER all reached you in 25 s' : `${r.n > 1 ? 'the last ' : ''}reached you in ${r.got.toFixed(1)} s`}${r.worstStall >= 2 ? `, stalled ${r.worstStall} s` : ''}`);
 const ok = rows.filter((r) => r.got !== null);
 console.log(`${rows.length} chases round a wall in ${new Set(rows.map((r) => r.where)).size} dungeons: ${ok.length} reached you (median ${(ok.map((r) => r.got).sort((a, b) => a - b)[ok.length >> 1] || 0).toFixed(1)} s); ${bad.length} failed or stalled 3 s or more`);
 process.exit(bad.length ? 1 : 0);

@@ -55,7 +55,7 @@ for (const [id, D] of Object.entries(ENEMIES)) {
   const p = g.player, e = g.addEnemy(id, p.x + 5, p.y);
   if (!e) { results.push({ id, kind: 'enemy', note: 'did not spawn' }); continue; }
   e.seen = true;
-  const r = watch(g, e, (b) => b.from === 'e' && b.by === D.name && !g.enemies.some((q) => q !== e && !q.dead && q.D.name === D.name), 5 + Math.random() * 4, () => g.damageEnemy(e, e.hp + 1e7, e.x, e.y, true));
+  const r = watch(g, e, (b) => b.from === 'e' && b.by === D.name && !g.enemies.some((q) => q !== e && !q.dead && q.D.name === D.name), 5 + Math.random() * 4, () => { e.bulwarkT = 0; e.invulnT = 0; e.wardT = 0; for (let k = 0; k < 5 && !e.dead; k++) g.damageEnemy(e, e.hp + 1e7, e.x, e.y, true); });   // (dead for sure: a shield up at that moment, like the reef golem's bulwark, would turn the blow)
   results.push({ id, kind: D.elite ? 'elite' : 'enemy', ...r });
 }
 const bad = results.filter((r) => r.note || r.after > 0 || r.left > 0 || r.oldest > 25 || r.hazard > 0);
