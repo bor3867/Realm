@@ -2129,9 +2129,9 @@ export class Renderer {
     if (g.boss && g.boss.state !== 'dead') mark(g.boss.x, g.boss.y, 'skull', blink ? '#ff2a2a' : '#ff8a8a', '#05040a', true);
     // player + a tick showing which way "up" on screen points
     const ux = -Math.sin(g.camAngle), uy = -Math.cos(g.camAngle);
-    mc.fillStyle = '#f2c14e';
+    mc.fillStyle = '#ffe060';
     for (let j = 2; j < 9; j++) mc.fillRect(Math.round((p.x - x0) * k + ux * j * 1.4), Math.round((p.y - y0) * k + uy * j * 1.4), 2, 2);
-    mark(p.x, p.y, 'player', '#ffffff', '#3befff');
+    mark(p.x, p.y, 'star', '#ffe060', '#ffffff', false, 2);    // you: a yellow star, as in RotMG
   }
   // item icons, drawn the RotMG way: the 8x8 art (stored doubled in the sheet) loses its baked outer outline,
   // is scaled up 5x, then gets a thin crisp black outline and a soft drop shadow so it pops off any background

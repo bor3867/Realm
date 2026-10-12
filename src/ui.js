@@ -2,6 +2,7 @@
 import { CLASSES, STATS, STAT_NAMES, xpToNext, MAX_LEVEL, FAME_GOALS } from './data/classes.js';
 import { outlinedFrame } from './outline.js';
 import { ITEMS, itemLabel, specialLines, canEquip, SETS, SET_PIECES } from './data/items.js';
+import { POT_STACK } from './game.js';
 import { ACTIONS, MINI_STEPS, keyLabel, resetSettings, keyName, keyParen } from './settings.js';
 import { PET_KINDS, RARITY, RARITY_ORDER, ABILITIES, PET_TICK, SHIELD_TICK, PET_MAX, petHeal, petMagic, petShield, petXpToNext, petCap, petMaxed, feedCost, feedValue, canMorph, FUSE_GOLD, petSprite, petName, abilityOrder, mainMaxed, petLevel } from './data/pets.js';
 import { loadAccounts, saveAccounts, saveKeyFor, hashPassword, loadSave } from './save.js';
@@ -10,6 +11,17 @@ const $ = (id) => document.getElementById(id);
 const SLOT_HINT = ['WPN', 'ABL', 'ARM', 'RNG'];
 const TIER_COL = ['#d48a4a', '#aeb8d0', '#eab04a', '#b8d4f0', '#6ee0b0', '#78a8ff', '#ff5e78', '#b888ff', '#ffd650', '#ff7a1a', '#38f0ff', '#ffbe40'];
 const POT_COL = { pot_hp: '#ff4a5a', pot_mp: '#5a8aff' };
+// the HUD's white pixel icons (RotMG-style), 12x12, drawn as crisp SVG
+const HUD_ICON = {
+  stats: ['............', '.........##.', '.........##.', '.........##.', '.....##..##.', '.....##..##.', '.....##..##.', '.##..##..##.', '.##..##..##.', '.##..##..##.', '.##..##..##.', '............'],
+  pet: ['............', '.#.......#..', '.##.....##..', '.#########..', '.#########..', '.##.###.##..', '.#########..', '.####.####..', '..#######...', '...#####....', '............', '............'],
+  gear: ['............', '.....##.....', '..#.####.#..', '..########..', '...##..##...', '.###....###.', '.###....###.', '...##..##...', '..########..', '..#.####.#..', '.....##.....', '............'],
+  bag: ['............', '....####....', '...#....#...', '...######...', '..########..', '.##########.', '.###.##.###.', '.##########.', '.##########.', '.##########.', '..########..', '............'],
+  pouch: ['............', '............', '...######...', '..#......#..', '.##########.', '.##########.', '.####..####.', '.####..####.', '.##########.', '.##########.', '............', '............'],
+};
+const hudIcon = (k) => { const G = HUD_ICON[k]; let r = '';
+  G.forEach((row, y) => [...row].forEach((c, x) => { if (c === '#') r += `<rect x="${x}" y="${y}" width="1" height="1"/>`; }));
+  return `<svg viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`; };
 export function rarityColor(it) {
   if (it.admin) return '#ff4af0';
   if (it.mythic) return '#8af6ff';
@@ -34,6 +46,12 @@ export class UI {
     $('baglootall').onclick = () => { this.g.lootAll(); this.refreshSlots(); $('baglootall').blur(); };   // for mouse players: everything that fits, in one click
     $('miniIn').onclick = () => this.miniZoom && this.miniZoom(-1);
     $('miniOut').onclick = () => this.miniZoom && this.miniZoom(1);
+    document.querySelectorAll('#panel [data-icon]').forEach((b) => { b.innerHTML = hudIcon(b.dataset.icon); });
+    // the icon row opens Stats or Pet in the backpack's box (a second press goes back); the box's tabs are the backpacks
+    document.querySelectorAll('#iconrow [data-t]').forEach((b) => { b.onclick = () => { this.statTab = this.statTab === b.dataset.t ? 'inv' : b.dataset.t; this.petKey = null; b.blur(); }; });
+    document.querySelectorAll('#stattabs [data-pg]').forEach((b) => { b.onclick = () => {
+      if (b.classList.contains('off')) return;
+      this.statTab = 'inv'; this.invPage = +b.dataset.pg; this.refreshSlots(); b.blur(); }; });
   }
   overlayOpen() { return !$('overlay').classList.contains('hidden'); }
 
@@ -472,7 +490,7 @@ export class UI {
           ico.classList.toggle('sweep', !own && name !== 'pots');
           if (!own) { ico.style.setProperty('--m', `url(${this.r.icon(id)})`); ico.style.setProperty('--d', `${-((sn * 0.77) % 6).toFixed(2)}s`); }
           sn++;
-          tier.textContent = name === 'pots' ? '×' + this.g.pots()[i].n : it.admin ? 'ADMIN' : it.mythic ? 'M' : it.legendary ? 'L' : it.ut ? 'UT' : it.use && it.use.egg ? RARITY[it.use.egg].name[0] : it.tier === null ? '' : 'T' + it.tier;
+          if (name === 'pots') { const n = this.g.pots()[i].n; tier.innerHTML = `<b class="${n >= POT_STACK ? 'full' : ''}">${n}</b>/${POT_STACK}`; } else tier.textContent = it.admin ? 'ADMIN' : it.mythic ? 'M' : it.legendary ? 'L' : it.ut ? 'UT' : it.use && it.use.egg ? RARITY[it.use.egg].name[0] : it.tier === null ? '' : 'T' + it.tier;
           tier.className = 'tier' + (it.ut ? ' ut' : '');
           el.style.setProperty('--rc', rarityColor(it));
           el.classList.add('has'); el.classList.remove('ghost'); el.classList.toggle('mythic', !!it.mythic); el.classList.toggle('ut', !!it.ut && !it.mythic && !it.admin);
@@ -480,9 +498,9 @@ export class UI {
         } else {
           ico.classList.remove('sweep');
           const C = name === 'equip' && this.g.player ? CLASSES[this.g.player.cls] : null;
-          const ghost = C ? [`${C.weapon}_t0`, `${C.ability}_t0`, `${C.armor}_t0`, 'ring_hp_t0'][i] : null;
+          const ghost = C ? [`${C.weapon}_t0`, `${C.ability}_t0`, `${C.armor}_t0`, 'ring_hp_t0'][i] : null || (name === 'pots' ? ['pot_hp', 'pot_mp'][i] : null);   // an empty potion button shows its potion, dimmed
           ico.style.backgroundImage = ghost ? `url(${this.r.icon(ghost)})` : ''; ico.style.backgroundSize = '100% 100%';
-          tier.textContent = ''; el.classList.remove('has', 'mythic', 'ut', 'admin', 'ench', 'legend'); el.classList.toggle('ghost', !!ghost);
+          tier.innerHTML = name === 'pots' ? `<b class="none">0</b>/${POT_STACK}` : ''; el.classList.remove('has', 'mythic', 'ut', 'admin', 'ench', 'legend'); el.classList.toggle('ghost', !!ghost);
         }
       });
     }
@@ -491,11 +509,8 @@ export class UI {
     // the second backpack shows 8 slots at a time, like RotMG's: a switch beside the label flips between them
     const pg = big ? (this.invPage || 0) : 0;
     this.slots.inv.forEach((el, i) => el.classList.toggle('hidden', big ? (i >= 8) !== (pg === 1) : i >= 8));
-    const ic = $('invcount');
-    if (big) {
-      ic.innerHTML = `<span class="pg${pg ? '' : ' on'}" data-pg="0">1</span><span class="pg${pg ? ' on' : ''}" data-pg="1">2</span>`;
-      ic.querySelectorAll('[data-pg]').forEach((s) => { s.onclick = () => { this.invPage = +s.dataset.pg; this.refreshSlots(); }; });
-    } else ic.textContent = '';
+    const inv = (this.statTab || 'inv') === 'inv';
+    document.querySelectorAll('#stattabs [data-pg]').forEach((b) => { b.classList.toggle('on', inv && +b.dataset.pg === pg); b.classList.toggle('off', !big && b.dataset.pg === '1'); });
     const g = this.g;
     const show = g.nearVault || g.nearBag;
     $('groundwrap').classList.toggle('off', !show);
@@ -504,7 +519,7 @@ export class UI {
     $('ground').classList.toggle('vault', !!V);
     $('baglootall').classList.toggle('off', !(g.nearBag && !V && g.nearBag.items && g.nearBag.items.some(Boolean)));
     $('baglootall').textContent = `Take all${keyParen('lootAll')}`;
-    $('groundlabel').textContent = V ? `Your vault · ${V.filter(Boolean).length}/${V.length} slots (buy Vault Chests to grow it)` : g.nearBag && g.nearBag.soulbound ? 'Soulbound loot (yours alone)' : 'Loot bag';
+    $('groundlabel').title = V ? 'Buy Vault Chests to grow your vault' : ''; $('groundlabel').textContent = V ? `Vault ${V.filter(Boolean).length}/${V.length}` : g.nearBag && g.nearBag.soulbound ? 'Soulbound loot (yours alone)' : 'Loot bag';
   }
   // ---- the item tooltip: a header, the item's story, its numbers in tidy rows, then what's special about it
   showTip(name, i, ev) {
@@ -735,28 +750,29 @@ export class UI {
     this.fitPanel();
     this.acc = 0;
     const p = g.player, C = CLASSES[p.cls];
-    $('cname').textContent = g.account && g.account.name ? `${g.account.name} · ${C.name}` : C.name;   // your account name beside your character
+    $('cname').textContent = g.account && g.account.name ? g.account.name : C.name;   // your name in the nearby list, RotMG-style
+    $('cname').parentElement.title = `${C.name}, level ${p.level}`;
     if (this.portraitFor !== p.cls) this.drawPortrait(p.cls);
     $('clevel').textContent = p.level >= MAX_LEVEL ? `Level ${p.level} · ✦ ${p.fame || 0} fame` : `Level ${p.level}`;
     const hpM = g.stat('hp'), mpM = g.stat('mp');
     $('hpfill').style.width = (100 * Math.max(0, p.hp) / hpM) + '%';
     $('hpfill').parentElement.classList.toggle('low', p.hp / hpM < 0.3);
-    $('hptext').textContent = `${Math.ceil(Math.max(0, p.hp))} / ${hpM}`;
+    const plus = (k, M) => { const b = M - (p.base[k] || M); return b ? ` <em>(${b > 0 ? '+' : ''}${b})</em>` : ''; };
+    $('hptext').innerHTML = `${Math.ceil(Math.max(0, p.hp))}/${hpM}${plus('hp', hpM)}`;
     $('mpfill').style.width = (100 * p.mp / mpM) + '%';
-    $('mptext').textContent = `${Math.floor(p.mp)} / ${mpM}`;
+    $('mptext').innerHTML = `${Math.floor(p.mp)}/${mpM}${plus('mp', mpM)}`;
     if (p.level >= MAX_LEVEL) {                           // at 20 the bar tracks fame toward the next fame goal
       const f = p.fame || 0, goal = FAME_GOALS.find((x) => x > f), prev = [...FAME_GOALS].reverse().find((x) => x <= f) || 0;
       $('xpfill').style.width = (goal ? 100 * (f - prev) / (goal - prev) : 100) + '%';
-      $('xptext').textContent = goal ? `Fame ${f} · next goal ${goal}` : `Fame ${f}`;
+      $('xplabel').textContent = 'Fame'; $('xptext').textContent = goal ? `${f} / ${goal}` : `${f}`;
       $('xpfill').parentElement.classList.add('fame');
     } else {
       $('xpfill').style.width = (100 * p.xp / xpToNext(p.level)) + '%';
-      $('xptext').textContent = `XP ${p.xp} / ${xpToNext(p.level)}`;
+      $('xplabel').textContent = `Lvl ${p.level}`; $('xptext').textContent = `${p.xp}/${xpToNext(p.level)}`;
       $('xpfill').parentElement.classList.remove('fame');
     }
-    const tabs = $('stattabs');
-    if (tabs && !tabs.wired) { tabs.wired = true; tabs.querySelectorAll('button').forEach((b) => { b.onclick = () => { this.statTab = b.dataset.t; this.petKey = null; $('panel').dataset.tab = b.dataset.t; }; }); }
-    if (tabs) tabs.querySelectorAll('button').forEach((b) => b.classList.toggle('on', (this.statTab || 'inv') === b.dataset.t));
+    document.querySelectorAll('#iconrow [data-t]').forEach((b) => b.classList.toggle('on', this.statTab === b.dataset.t));
+    this.nearbyLine();
     $('panel').dataset.tab = this.statTab || 'inv';      // Backpack | Stats | Pet share one fixed box under the equipment
     if (this.statTab === 'pet') { this.petPanel(); $('where').textContent = g.where || ''; $('hfame').textContent = g.save.fame; $('hgold').textContent = g.save.gold || 0; $('hess').textContent = g.save.essence || 0; this.refreshSlots(); return; }
     $('stats').classList.remove('petview'); this.petKey = null;
@@ -768,6 +784,13 @@ export class UI {
     $('where').textContent = g.where || '';
     $('hfame').textContent = g.save.fame; $('hgold').textContent = g.save.gold || 0; $('hess').textContent = g.save.essence || 0;
     this.refreshSlots();
+  }
+  // under the backpack: where you are, then who is with you (you, and your pet), each with a tiny portrait
+  nearbyLine() {
+    const P = this.g.activePet(), el = $('petname'), key = P ? `${P.id}:${P.rarity}:${petSprite(P)}` : '';
+    if (el.dataset.k === key) return;
+    el.dataset.k = key;
+    el.innerHTML = P ? `<i class="ico pet" style="background-image:url(${this.petIcon(petSprite(P))})"></i><span>${petName(P)}</span>` : '';
   }
   // the sidebar's Pet tab: your companion at a glance (abilities, levels, what it does, when it next acts)
   petPanel() {

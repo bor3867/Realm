@@ -93,23 +93,15 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   early in flight are under 10% for every attack but three: the Sphinx's riddle (41%: its glyphs dart at you past
   the obelisks, which are cover by design: kept), Vesper's blood bolts (11%, from his promenade by the throne: kept),
   and the Ringmaster's leap (13%: fixed, below).
-- HUD to match the user's own Realm of the Mad God HUD more closely (requested; screenshot received 2026-10-12). From
-  top to bottom it has:
-  - minimap: a large black square, + and - zoom buttons stacked at its top right; you a yellow star, others as
-    coloured triangles, loot as yellow diamonds
-  - a row of white pixel icons: stats (bars), pet (cat), options, guild flag, a greyed sword, vault (bank), settings
-    (gear)
-  - three bars, rounded, with a dark border and outlined pixel text: Fame (orange, the label left and the number
-    centred), HP (green: the value in yellow, its bonus in blue, e.g. 725/725 (+25)), MP (blue: the value in green,
-    bonuses in blue)
-  - four equipment slots in a row, light grey frames, the tier (T4, T6) in the bottom right of each in outlined white
-  - two icon tabs (backpack, and a second pouch), then 8 slots in 4x2; empty slots show their number large in grey
-  - two wide potion buttons: a red potion with its count (3/6, the 3 in orange), a blue one (6/6, the 6 in green)
-  - the realm's name and its player count (Realm of the Mad God (48/85)), then nearby players in two columns, each
-    with a tiny portrait and their name in green
-  - throughout: a chunky outlined pixel font, dark grey panels, tight even spacing.
-  Keep the fixed layout rule (the HUD never resizes itself); our extra panels (Stats, Pet) become tabs or icon-row
-  buttons as in RotMG.
+- HUD matched to the user's RotMG screenshot (2026-10-12), done: black minimap as wide as the panel with + and -
+  stacked top right, you a yellow star; white pixel icon row (Stats and Pet open in the backpack box, Settings);
+  square outlined bars (Lvl/Fame left, value centred; HP green with a yellow value, MP blue with a green value,
+  bonuses blue); equipment in a light frame with outlined tiers; two pouch tabs over 4x2 slots (empty ones show their
+  number); two wide potion buttons (3/10, green when full, a dim icon when empty); the place name and who is with you
+  (you and your pet) at the bottom, which a bag, portal card or vault covers. Pixel font (Pixelify Sans) outlined in
+  black. Fixed layout: the panel is 9 slots + 288 px tall and the window height alone picks the slot size (30 to 76 px);
+  fits checked at 600 to 1080 px tall. The key-hint line is hidden (RotMG has none; Settings lists the keys).
+  Still to match: RotMG's triangle markers for others and diamonds for loot on the minimap.
 - Enemy movement and AI overhaul (requested 2026-10-12): audit every enemy's movement; reusable movement archetypes
   (pursuer, orbiter, skirmisher, ambusher, charger, flanker, defender, erratic, formation, stationary guardian) with
   per-enemy weight (acceleration, turning); smooth, frame-rate independent steering, wall sliding, unsticking;

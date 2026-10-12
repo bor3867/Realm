@@ -701,3 +701,121 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #app #panel #interact { flex: none; position: relative; height: calc(26px + var(--slot) * 2 + 6px); }
 #app #panel #interact > div { position: absolute; left: 0; right: 0; top: 0; }
 #app #panel #where { margin-top: auto !important; }
+
+/* ==== THE HUD, RotMG-style (matched to the user's own RotMG screenshot). One fixed layout, it never resizes itself:
+   only the window height picks one of a few fixed sizes. Top to bottom: a black minimap as wide as the panel with
+   + and - stacked at its top right; a row of white pixel icons (Stats, Pet, Settings); the Lvl/Fame, HP and MP bars
+   (square, dark-edged, label left, value centred: the HP value yellow, the MP value green, bonuses blue); the four
+   equipment slots in a light frame; the backpack box with its two pouch tabs, 4x2 slots (empty ones show their
+   number) and the two wide potion buttons; then where you are and who is with you, which a bag or portal covers. ==== */
+:root { --r-pane: #363636; --r-dark: #2a2a2a; --r-slot: #545454; --r-slot2: #4a4a4a; --r-frame: #9a9a9a; --r-num: #6c6c6c;
+  --r-font: 'Pixelify Sans', 'Source Sans 3', system-ui, sans-serif;
+  --r-ol: 1px 0 0 #000, -1px 0 0 #000, 0 1px 0 #000, 0 -1px 0 #000, 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; }
+body #app #panel { --slot: 60px; width: calc(var(--slot) * 4 + 40px) !important; padding: 8px !important; gap: 6px !important;
+  background: var(--r-pane) !important; border-left: 2px solid #1a1a1a !important; box-shadow: none !important; font-family: var(--r-font); overflow: hidden !important; }
+body #app #panel::before, body #app #panel::after { display: none; }
+/* the panel is 9 slots + 288px tall: each window height gets the biggest slot that fits */
+@media (min-height: 1000px) { body #app #panel { --slot: 68px; } }
+@media (min-height: 1100px) { body #app #panel { --slot: 76px; } }
+@media (max-height: 860px) { body #app #panel { --slot: 54px; } }
+@media (max-height: 790px) { body #app #panel { --slot: 48px; } }
+@media (max-height: 736px) { body #app #panel { --slot: 42px; } }
+@media (max-height: 680px) { body #app #panel { --slot: 36px; } }
+@media (max-height: 620px) { body #app #panel { --slot: 30px; } }
+body #app #panel > * { flex: none; }
+body #app #panel .label { font-family: var(--r-font); text-transform: none; letter-spacing: 0; border: 0; padding: 0; color: #c8c8c8 !important; text-shadow: var(--r-ol); }
+
+/* minimap */
+body #app #panel #miniwrap { width: 100% !important; height: calc(var(--slot) * 4 + 24px) !important; background: #000 !important; border-radius: 0 !important;
+  padding: 0 !important; box-shadow: none !important; display: flex; justify-content: center; align-items: center; position: relative; overflow: hidden; }
+body #app #panel #minimap { width: 100% !important; height: 100% !important; border-radius: 0 !important; border: 0 !important; box-shadow: none !important; }
+body #app #panel #minibtns { position: absolute; top: 4px; right: 4px; bottom: auto; left: auto; display: flex; flex-direction: column; gap: 4px; }
+body #app #panel #minibtns button { width: 28px; height: 28px; padding: 0; border-radius: 0 !important; border: 0 !important; background: #8a8a8acc !important;
+  color: #fff; font: 700 24px/26px var(--r-font); text-shadow: none; }
+body #app #panel #minibtns button:hover { background: #b0b0b0dd !important; }
+body #app #panel #minilabel { position: absolute; left: 4px; bottom: 4px; font: 500 11px var(--r-font); color: #9a9a9a; background: none; text-shadow: var(--r-ol); pointer-events: none; }
+
+/* the icon row */
+body #app #panel #iconrow { display: flex; align-items: center; gap: 2px; height: 26px; }
+body #app #panel #iconrow .sp { flex: 1; }
+body #app #panel #iconrow button, body #app #panel #gear { width: 30px !important; height: 26px !important; padding: 2px 4px !important; background: none !important; border: 0 !important;
+  border-radius: 3px !important; color: #fff; cursor: pointer; box-shadow: none !important; }
+body #app #panel #iconrow svg { width: 22px; height: 22px; fill: currentColor; display: block; filter: drop-shadow(1px 1px 0 #000); }
+body #app #panel #iconrow button:hover, body #app #panel #iconrow button.on { background: #4e4e4e !important; }
+body #app #panel #iconrow button.on { color: #ffe060; }
+
+/* the bars */
+body #app #panel .bar { height: 22px !important; border-radius: 3px !important; border: 2px solid #1a1a1a !important; background: #1e1e1e !important; box-shadow: none !important; overflow: hidden; }
+body #app #panel .bar i { border-radius: 0 !important; box-shadow: inset 0 2px 0 #ffffff30, inset 0 -2px 0 #00000030 !important; transition: width .15s ease-out; }
+body #app #panel .bar.hp i { background: #5ab030 !important; }
+body #app #panel .bar.mp i { background: #4a6ae0 !important; }
+body #app #panel .bar.xp i { background: #3a9a3a !important; }
+body #app #panel .bar.xp.fame i { background: #e07a1a !important; }
+body #app #panel .bar.hp.low i { background: #c83a2a !important; }
+body #app #panel .bar b { position: absolute !important; inset: 0; display: flex !important; align-items: center; padding: 0 6px; font: 600 15px/18px var(--r-font) !important;
+  color: #fff; text-shadow: var(--r-ol) !important; letter-spacing: 0; white-space: nowrap; }
+body #app #panel .bar .bl { width: 42px; flex: none; }
+body #app #panel .bar .bv { flex: 1; text-align: center; margin-right: 42px; overflow: hidden; }
+body #app #panel .bar.hp .bv { color: #ffd84a; } body #app #panel .bar.mp .bv { color: #6af06a; }
+body #app #panel .bar .bv em { font-style: normal; color: #7ab8ff; }
+
+/* equipment */
+body #app #panel #equipbox { background: var(--r-slot2); border: 2px solid var(--r-frame); padding: 4px; }
+body #app #panel .slots:not(#pots) { grid-template-columns: repeat(4, var(--slot)) !important; gap: 4px !important; justify-content: center; margin: 0 !important; width: auto !important; }
+body #app #panel .slot { width: var(--slot) !important; height: var(--slot) !important; border-radius: 0 !important; background: var(--r-slot) !important;
+  border: 2px solid #3a3a3a !important; box-shadow: none !important; transform: none !important; }
+body #app #panel .slot:hover { border-color: #d0d0d0 !important; }
+body #app #panel .slot.has { border-color: #3a3a3a !important; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--rc) 45%, transparent) !important; }
+body #app #panel .slot.has:hover { border-color: #d0d0d0 !important; }
+body #app #panel .slot .ico { width: calc(var(--slot) * 0.78) !important; height: calc(var(--slot) * 0.78) !important; }
+body #app #panel .slot .tier { font: 500 calc(var(--slot) * 0.27)/1 var(--r-font) !important; color: #fff !important; text-shadow: var(--r-ol) !important; right: 3px !important; bottom: 2px !important; }
+body #app #panel .slot .tier.ut { color: #ffd84a !important; }
+body #app #panel .slot .hint { font: 500 calc(var(--slot) * 0.5)/1 var(--r-font) !important; color: var(--r-num) !important; left: 0 !important; right: 0; top: 50% !important;
+  transform: translateY(-50%); text-align: center; }
+body #app #panel #equip .slot .hint { display: none; }
+
+/* the backpack box */
+body #app #panel #invbox { background: var(--r-dark); padding: 0 4px 4px; }
+body #app #panel #stattabs { display: flex !important; gap: 0; margin: 0 -4px 4px !important; height: 26px; }
+body #app #panel #stattabs button { flex: 1; display: grid; place-items: center; padding: 0; border: 0; border-radius: 0; background: #4a4a4a; color: #fff; cursor: pointer; }
+body #app #panel #stattabs button.on { background: var(--r-dark); }
+body #app #panel #stattabs button.off { color: #6a6a6a; cursor: default; }
+body #app #panel #stattabs svg { width: 18px; height: 18px; fill: currentColor; filter: drop-shadow(1px 1px 0 #000); }
+body #app #panel #tabbody { height: calc(var(--slot) * 2 + 4px) !important; padding: 0 !important; background: none !important; border-radius: 0 !important; overflow: hidden auto; }
+body #app #panel #tabbody #stats { background: #1e1e1e !important; height: 100%; padding: 6px 10px !important; border-radius: 0; font-family: var(--r-font); font-size: 15px !important; align-content: start; }
+body #app #panel #tabbody #stats .st { font-family: var(--r-font); font-weight: 500; text-shadow: var(--r-ol); }
+body #app #panel #pots.slots { display: grid; grid-template-columns: 1fr 1fr !important; gap: 4px !important; margin: 4px 0 0 !important; }
+body #app #panel #pots .slot { width: auto !important; height: 34px !important; aspect-ratio: auto !important; display: flex; align-items: center; justify-content: center; gap: 4px; background: #424242 !important; }
+body #app #panel #pots .slot .hint { display: none; }
+body #app #panel #pots .slot .ico { width: 26px !important; height: 26px !important; flex: none; }
+body #app #panel #pots .slot.ghost .ico { opacity: .35; filter: grayscale(1); }
+body #app #panel #pots .slot .tier { position: static; font: 500 13px/1 var(--r-font) !important; color: #fff !important; }
+body #app #panel #pots .slot .tier b { font-size: 20px; font-weight: 600; color: #ff8a2a; }
+body #app #panel #pots .slot .tier b.full { color: #4af04a; } body #app #panel #pots .slot .tier b.none { color: #8a8a8a; }
+
+/* where you are, who is with you; a bag or a portal covers it */
+body #app #panel #bottom { position: relative; height: calc(var(--slot) * 2 + 34px); }
+body #app #panel #nearby { height: 100%; overflow: hidden; }
+body #app #panel #where { margin: 0 !important; font: 500 17px/22px var(--r-font) !important; color: #a8a8a8 !important; text-shadow: var(--r-ol) !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+body #app #panel #who { display: grid !important; grid-template-columns: 1fr 1fr; gap: 2px 8px !important; margin-top: 4px; }
+body #app #panel #who .np { display: flex; align-items: center; gap: 4px; min-width: 0; font: 500 14px var(--r-font); color: #4ac08a; text-shadow: var(--r-ol); white-space: nowrap; overflow: hidden; }
+body #app #panel #who .np span { overflow: hidden; text-overflow: ellipsis; }
+body #app #panel #who #portrait { width: 22px !important; height: 22px !important; flex: none; border-radius: 0 !important; box-shadow: none !important; background: none !important; }
+body #app #panel #who .ico.pet { width: 20px; height: 20px; flex: none; background-size: 100% 100%; image-rendering: pixelated; }
+body #app #panel #cname { font: 500 14px var(--r-font) !important; color: #4ac08a !important; text-shadow: var(--r-ol) !important; letter-spacing: 0; }
+body #app #panel #quests { margin-top: 6px; gap: 2px; }
+body #app #panel #quests .q { font: 500 13px var(--r-font); background: #2a2a2a !important; border-radius: 0; padding: 2px 6px; }
+body #app #panel #interact { position: absolute !important; inset: 0; height: auto !important; }
+body #app #panel #interact:has(> div:not(.off)) { background: var(--r-pane); }
+body #app #panel #interact > div { position: absolute; inset: 0 0 auto 0; }
+body #app #panel #interact .label { display: flex; align-items: center; gap: 6px; height: 26px; margin: 0 0 4px !important; font: 500 15px var(--r-font) !important; }
+body #app #panel #interact .label .btn { margin-left: auto; font-family: var(--r-font); border-radius: 0; background: #4a4a4a; border: 2px solid #222; }
+body #app #panel #interact .label .btn + .btn { margin-left: 0; }
+body #app #panel #interact .label > span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+body #app #panel #interact .label .btn.off { display: none; }
+body #app #panel #interact .label .btn { white-space: nowrap; flex: none; padding: 2px 8px; font-size: 13px; }
+body #app #panel #ground.vault { grid-template-columns: repeat(8, 1fr) !important; max-height: calc(var(--slot) * 2 + 4px); }
+body #app #panel #ground.vault .slot { width: auto !important; height: auto !important; aspect-ratio: 1; }
+body #app #panel #ground.vault .slot .ico { width: 78% !important; height: 78% !important; }
+body #app #panel .portalcard { border-radius: 0 !important; background: #2a2a2a; }
+body #app #panel .portalcard .btn { border-radius: 0; font-family: var(--r-font); }
