@@ -230,7 +230,7 @@ export class Game {
     this.arena = null;
     this.darkUntil = 0;
     if (p) { p.hook = null; p.pull = null; p.dash = null; }
-    this.bags = this.map.bags || (this.map.bags = []);
+    this.bags = this.map.bags = (this.map.bags || []).filter((b) => b.until === undefined || b.until > this.t);   // (bags that ran out while you were away are gone)
     this.enemies = this.map.enemies || (this.map.enemies = []);
     this.boss = null;
     p.x = this.map.spawn.x; p.y = this.map.spawn.y;
@@ -430,7 +430,7 @@ export class Game {
     return true;
   }
   dropBag() {
-    const bag = { x: this.player.x, y: this.player.y + 0.3, items: Array(8).fill(null), kind: 'brown', life: 90 };
+    const bag = { x: this.player.x, y: this.player.y + 0.3, items: Array(8).fill(null), kind: 'brown', life: 90, until: this.t + 90 };
     this.bags.push(bag);
     this.nearBag = bag;
     return bag;
@@ -2142,7 +2142,7 @@ export class Game {
       const kind = bagFor(chunk.map((id) => ITEMS[id]));
       const rare = BAG_ORDER.indexOf(kind) >= BAG_ORDER.indexOf('white');
       const legend = chunk.some((id) => ITEMS[id] && ITEMS[id].legendary);
-      made = { x: x + (k ? 0.6 : 0), y, items: it, kind, rare, legend, life: rare ? 180 : 90 };
+      made = { x: x + (k ? 0.6 : 0), y, items: it, kind, rare, legend, life: rare ? 180 : 90, until: this.t + (rare ? 180 : 90) };
       this.bags.push(made);
       if (legend) this.banner('A LEGENDARY drops!', 3600);
       else if (rare) this.banner(`${BAG_NAMES[kind] || "A rare bag"} drops!`, 2800);
@@ -3417,8 +3417,10 @@ export class Game {
     this.updateAbilityFx(dt);
     this.fx = this.fx.filter((f) => f.t < (f.life || 0.45));
     // bags
-    for (const b of this.bags) b.life -= dt;
-    this.bags = this.map.bags = this.bags.filter((b) => b.life > 0 || b === this.nearBag);
+    // a bag lasts its time on the game's clock, which runs wherever you are: one left in the realm while you are in a
+    // dungeon keeps counting down (the realm map is kept, so bags there used to wait for you for ever)
+    for (const b of this.bags) { if (b.until === undefined) b.until = this.t + (b.life || 90); b.life = b.until - this.t; }
+    this.bags = this.map.bags = this.bags.filter((b) => b.until > this.t || b === this.nearBag);
     let best = null, bd = 1.2;
     for (const b of this.bags) { const d = dist(b.x, b.y, p.x, p.y); if (d < bd) { bd = d; best = b; } }
     if (best !== this.nearBag) { this.nearBag = best; this.events.push({ type: 'ground' }); }
@@ -3526,6 +3528,8 @@ export class Game {
     if (this.interactAstral(o)) return;
     const p = this.player, say = (t, c) => this.bubble(o, t, c);
     switch (o.interact) {
+      case 'shop': case 'forge': case 'board': case 'petyard':  // the menus: the UI opens them (the talk key and the button both come here)
+        this.events.push({ type: 'npc', which: o.interact }); break;
       case 'journal': {                                    // a page of the dungeon's story
         const D = this.map.def, S = (D && D.story) || [];
         this.events.push({ type: 'npc', which: 'journal', title: D.storyTitle || D.name, page: o.page, of: S.length, text: S[o.page] || '' });
@@ -4086,8 +4090,7 @@ export class Game {
     if (this.player.dead) return;
     if (!this.nearPortal && this.nearNPC) {
       const o = this.nearNPC;
-      if (o.interact === 'shop' || o.interact === 'forge' || o.interact === 'board' || o.interact === 'petyard') this.events.push({ type: 'npc', which: o.interact });
-      else this.interact(o);
+      this.interact(o);
       return;
     }
     if (!this.nearPortal) return;

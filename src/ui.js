@@ -673,12 +673,8 @@ export class UI {
     const g = this.g;
     if (g.mode !== 'play' || this.overlayOpen()) return;
     const o = g.nearNPC;
-    if (o && !g.nearPortal) {
-      if (o.interact === 'shop') this.openShop();
-      else if (o.interact === 'forge') this.openForge();
-      else if (o.interact === 'board') this.openBoard();
-      else g.interact(o);
-    } else g.usePortal();
+    if (o && !g.nearPortal) g.interact(o);                 // (menus come back as an 'npc' event, opened below in tick)
+    else g.usePortal();
     this.refreshPortal();
   }
   refreshPortal() {
