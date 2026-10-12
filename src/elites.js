@@ -77,7 +77,7 @@ const methods = {
         break;
       }
       case 'dive': e.elState = { kind: 'dive', t: 0, a: e.abil.dir, hit: false, trail: [] }; break;
-      case 'dash': e.elState = { kind: 'dash', t: 0, a: angleTo(e.x, e.y, p.x, p.y), hit: false, trail: [] }; break;
+      case 'dash': e.elState = { kind: 'dash', t: 0, a: e.abil && e.abil.dir !== undefined ? e.abil.dir : angleTo(e.x, e.y, p.x, p.y), hit: false, trail: [] }; break;   // the line it showed
       case 'burrow': e.under = true; e.elState = { kind: 'burrow', t: 0 }; this.vx({ k: 'burst', x: e.x, y: e.y, n: 16, colors: ['#5a4e44', '#8a7e6a'] }); break;
       case 'blink': {
         for (let k = 0; k < 16; k++) {

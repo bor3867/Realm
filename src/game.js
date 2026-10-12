@@ -1930,8 +1930,10 @@ export class Game {
     if (e.restT > 0) return;
     const dd = dist(e.x, e.y, tx, ty);
     if (dd < 0.3 || sp <= 0) return;
-    const a = angleTo(e.x, e.y, tx, ty) + (R() - 0.5) * 1.4, s2 = sp * 3.2;
-    e.sk = { vx: Math.cos(a) * s2, vy: Math.sin(a) * s2, t: 0.16 + R() * 0.1 };
+    const s2 = sp * 3.2, near = dd < 0.8;
+    // a dart toward its spot, never past it; once there, a sideways dart (it skitters round you, not in and out)
+    const a = near ? angleTo(e.x, e.y, tx, ty) + (R() < 0.5 ? 1 : -1) * (Math.PI / 2 + (R() - 0.5) * 0.6) : angleTo(e.x, e.y, tx, ty) + (R() - 0.5) * 1.4;
+    e.sk = { vx: Math.cos(a) * s2, vy: Math.sin(a) * s2, t: near ? 0.12 + R() * 0.06 : Math.min(0.16 + R() * 0.1, dd / s2) };
   }
   firePattern(e, A, isWave = false) {
     A = this.rxAlt(e, A);                                // now and then a monster's new shot (src/remaster.js)

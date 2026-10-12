@@ -1123,9 +1123,13 @@ export class Renderer {
       b.beginPath(); b.ellipse(Math.round(x), Math.round(y), 96, 68, 0, 0, Math.PI * 2); b.fill();
       b.globalAlpha = 0.8; b.strokeStyle = '#e8ffff'; b.beginPath(); b.ellipse(Math.round(x), Math.round(y), 96, 68, 0, 0, Math.PI * 2); b.stroke(); b.globalAlpha = 1;
     }
-    if (e.abil && e.D.ability.kind === 'dive' && e.abil.dir !== undefined) {   // the dive's line, flashing as the clip plays
+    // a dive's or a dash's line, flashing, wherever its direction is already chosen: through the clip when it is picked
+    // as the telegraph starts, and through the last crouch for every dash (a dash at 17 tiles a second must show its path)
+    const lineDir = e.abil && !e.abil.done && !S && (e.D.ability.kind === 'dive' || e.D.ability.kind === 'dash') && e.abil.dir !== undefined ? e.abil.dir
+      : S && S.kind === 'dash' && S.t < 0.25 && S.a !== undefined ? S.a : null;
+    if (lineDir !== null) {
       b.fillStyle = Math.floor(g.t * 14) % 2 ? '#ffffff' : '#8af6ff'; b.globalAlpha = 0.7;
-      for (let d = 1; d < 9; d += 0.5) { const [qx, qy] = this.proj(e.x + Math.cos(e.abil.dir) * d, e.y + Math.sin(e.abil.dir) * d); b.fillRect(Math.round(qx) - 1, Math.round(qy) - 1, 2, 2); }
+      for (let d = 1; d < (S && S.kind === 'dash' ? 7 : 9); d += 0.5) { const [qx, qy] = this.proj(e.x + Math.cos(lineDir) * d, e.y + Math.sin(lineDir) * d); b.fillRect(Math.round(qx) - 1, Math.round(qy) - 1, 2, 2); }
       b.globalAlpha = 1;
     }
     if (S && S.trail) for (const q of S.trail) {               // after-images, fading
