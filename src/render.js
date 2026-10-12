@@ -429,8 +429,8 @@ export class Renderer {
   drawDef(def, frame, x, y, o = {}) {
     const f = def.frames[frame] || def.frames[Object.keys(def.frames)[0]];
     if (!f) return;
-    const b = this.b, RS = def.res || 1, K = (2 * (o.scale || 1)) / RS, U = this.U || 1;   // (a finer redraw, res 2: twice the pixels, drawn at half the scale)
-    const ax = o.center || o.rot !== undefined ? f.w / 2 : def.foot[0] * RS, ay = o.center || o.rot !== undefined ? f.h / 2 : def.foot[1] * RS;
+    const b = this.b, K = 2 * (o.scale || 1), U = this.U || 1;
+    const ax = o.center || o.rot !== undefined ? f.w / 2 : def.foot[0], ay = o.center || o.rot !== undefined ? f.h / 2 : def.foot[1];
     let I, pad = 0;
     if (o.flash) I = this.white(def.img, f.x, f.y, f.w, f.h);
     else if (def.outline) { I = outlinedFrame(def.img, f.x, f.y, f.w, f.h, U * K); pad = I.pad / U; }

@@ -200,18 +200,16 @@ function footFromPixels(def) {
   for (let y = f.h - 1; y >= 0; y--) {
     let x0 = -1, x1 = -1;
     for (let xx = 0; xx < f.w; xx++) if (px[(y * f.w + xx) * 4 + 3] > 40) { if (x0 < 0) x0 = xx; x1 = xx; }
-    if (x0 >= 0) return [f.w / 2 / (def.res || 1), (y + 1) / (def.res || 1)];   // centred on the position (bundle rule), standing on its lowest row (in the sprite's own units)
+    if (x0 >= 0) return [f.w / 2, y + 1];             // centred on the position (bundle rule), standing on its lowest row
   }
-  return [f.w / 2 / (def.res || 1), f.h / (def.res || 1)];
+  return [f.w / 2, f.h];
 }
 
 // build a registry from atlas JSON (used by the browser loader and by headless checks: img is any function)
 export function buildRegistry(atlases, hover, img = () => null) {
   const R = new Registry();
-  const hd = [];
   for (const { pack, json } of atlases) {
     const im = (rel) => img(`${pack}/${rel}`);
-    if (json.hd) { hd.push({ json, im }); continue; }       // finer redraws: applied once everything else is in
     if (json.bosses && json.meta && /^Realm Remaster/.test(json.meta.name)) fromRemaster(R, pack, json, im);
     else if (json.bosses) fromBosses(R, pack, json, im);
     else if (json.boss && json.clips && json.phase) fromOrrerySupernova(R, pack, json, im);
@@ -219,17 +217,9 @@ export function buildRegistry(atlases, hover, img = () => null) {
     else if (json.items) fromItems(R, pack, json, im);
     else fromSheets(R, pack, json, im);
   }
-  // the finer redraws (art/bundle/hd, made by tools/art_hd.mjs): the same sprite, same frame names, twice the pixels.
-  // Its size and feet stay in its old units; res tells the renderer to draw it at half the scale (same size on screen)
-  for (const { json, im } of hd) for (const [key, S] of Object.entries(json.hd.sprites)) {
-    const d = R.defs.get(key);
-    if (!d) continue;
-    d.img = im(json.hd.image); d.res = S.res || 2;
-    d.frames = { ...d.frames, ...S.frames };
-  }
   buildRedirects(R);
   if (hover) applyHover(R, hover);
-  for (const d of R.defs.values()) d.outline = !NO_OUTLINE(d) && !d.res;   // (a finer redraw carries its own 1 px outline, like the original sheets)
+  for (const d of R.defs.values()) d.outline = !NO_OUTLINE(d);
   return R;
 }
 
