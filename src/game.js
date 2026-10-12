@@ -1363,6 +1363,20 @@ export class Game {
     }
     return e[k];
   }
+  // a pack's spacing round you: how far to shift its bearing (from you) away from its allies'. Every ally near you pushes,
+  // the nearer in bearing the harder, so the only arrangement at rest is an even ring: a pack closes in from all sides.
+  // Local and cheap (its own neighbours, rechecked every 0.3 s), no central plan.
+  packSpread(e, p, a0, dt) {
+    if ((e.slotT = (e.slotT || 0) - dt) > 0) return e.slotOff || 0;
+    e.slotT = 0.3;
+    let push = 0;
+    for (const o of this.active) {
+      if (o === e || o.dead || o.rb || !o.D.speed || dist2(o.x, o.y, p.x, p.y) > 36) continue;
+      const ao = angleTo(p.x, p.y, o.x, o.y), da = Math.atan2(Math.sin(a0 - ao), Math.cos(a0 - ao));
+      push += (da === 0 ? (e.phase > Math.PI ? 1 : -1) : Math.sign(da)) * (1 - Math.abs(da) / Math.PI);
+    }
+    return (e.slotOff = Math.max(-2.35, Math.min(2.35, push * 1.2)));
+  }
   // where to walk to come round to you: the furthest tile down the flow it can see (null if you are out of reach)
   flowStep(e) {
     const F = this.flowField(), m = this.map, w = m.w;
@@ -1803,9 +1817,11 @@ export class Game {
       else if (ai === 'drift' || ai === 'float') { e.phase += dt * 2; tx = p.x + Math.cos(a + Math.sin(e.phase)) * keep; ty = p.y + Math.sin(a + Math.sin(e.phase)) * keep; }
       else if (ai === 'kite' || ai === 'charge' || ai === 'blink' || ai === 'hop' || ai === 'skitter') { const k2 = Math.max(keep, ai === 'hop' || ai === 'skitter' ? 1.6 : keep); tx = p.x + Math.cos(a) * k2; ty = p.y + Math.sin(a) * k2; }
       else if (ai === 'flank') {
-        if (!e.side) e.side = R() < 0.5 ? 1 : -1;
-        if ((e.flipT = (e.flipT === undefined ? 3 + R() * 3 : e.flipT) - dt) <= 0) { e.flipT = 3 + R() * 3; e.side *= -1; }
-        const b = a + e.side * (1.2 + 0.3 * Math.sin(this.t * 0.8 + e.phase)), k3 = Math.max(2.5, keep);
+        // its side: away from where its allies near you already are (a pack takes both sides); left alone, it switches now and then
+        const crowd = () => { let push = 0; for (const o of this.active) { if (o === e || o.dead || o.rb || !o.D.speed || dist2(o.x, o.y, p.x, p.y) > 36) continue; const da = Math.atan2(Math.sin(a - angleTo(p.x, p.y, o.x, o.y)), Math.cos(a - angleTo(p.x, p.y, o.x, o.y))); if (Math.abs(da) < 1.6) push += Math.sign(da || 1) * (1.6 - Math.abs(da)); } return push; };
+        if (!e.side) { const c = crowd(); e.side = Math.abs(c) > 0.3 ? Math.sign(c) : R() < 0.5 ? 1 : -1; }
+        if ((e.flipT = (e.flipT === undefined ? 3 + R() * 3 : e.flipT) - dt) <= 0) { e.flipT = 3 + R() * 3; const c = crowd(); e.side = Math.abs(c) > 0.3 ? Math.sign(c) : -e.side; }
+        const b = a + e.side * (1.2 + 0.3 * Math.sin(this.t * 0.8 + e.phase)) + this.packSpread(e, p, a, dt) * 0.7, k3 = Math.max(2.5, keep);   // (spaced round you with the rest of its pack)
         tx = p.x + Math.cos(b) * k3; ty = p.y + Math.sin(b) * k3; sp *= 1.15;
       } else if (ai === 'swoop') {
         if (e.dive) {                                     // the dive: straight through where you were
@@ -1852,7 +1868,13 @@ export class Game {
         return;
       } else if (ai === 'rooted') { sp = 0; }
       else if (ai === 'flee') { sp *= 1.1; tx = e.x + Math.cos(angleTo(p.x, p.y, e.x, e.y) + Math.sin(this.t * 2 + e.phase) * 0.6) * 4; ty = e.y + Math.sin(angleTo(p.x, p.y, e.x, e.y) + Math.sin(this.t * 2 + e.phase) * 0.6) * 4; }
-      else { tx = p.x; ty = p.y; if (d < 1.2) sp = 0; }
+      else {                                              // a plain chaser: it comes at you from its own side of the pack
+        // (a local rule: the bearings of its allies already near you push its own bearing away from theirs, so a pack
+        // closes in from several sides instead of one; far off it arcs toward its side, close in it takes its place)
+        const a0 = angleTo(p.x, p.y, e.x, e.y), so = this.packSpread(e, p, a0, dt), r = d < 2.5 ? 1.0 : Math.min(d - 0.5, 3);
+        tx = p.x + Math.cos(a0 + so) * r; ty = p.y + Math.sin(a0 + so) * r;
+        if (d < 1.2 && Math.abs(so) < 0.25) sp = 0;
+      }
       if (ai === 'blink') {
         if (e.blinkTo) {                                  // the warning: it shimmers here while a mark glows there
           e.blinkTo.t -= dt;
