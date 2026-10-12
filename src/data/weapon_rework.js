@@ -42,7 +42,7 @@ export const WEAPON_REWORK = {
   the_mirrorworld: { stats: { count: 1, arc: 0, dmg: [95, 132] }, mech: { kind: 'mirror', theme: 'glass', f: 0.7, delay: 0.25 } },
   queens_stinger: { stats: { dmg: [130, 195] }, mech: { kind: 'converge', theme: 'honey', pairF: 0.62, meet: 0.55 } },
   // ---- bows
-  batwing_bow: { stats: { count: 1, arc: 0, dmg: [185, 275] }, mech: { kind: 'dart', theme: 'blood', at: 0.7, hold: 0.12, s: 1.7, f: 1.2 } },
+  batwing_bow: { stats: { count: 1, arc: 0, dmg: [185, 275] }, mech: { kind: 'dart', theme: 'blood', at: 0.6, hold: 0.15, s: 2.1, f: 1.15 } },
   carousel_bow: { stats: { count: 1, arc: 0, dmg: [190, 290] }, mech: { kind: 'dart', theme: 'song', at: 0.7, hold: 0.12, s: 1.7, f: 1.2 } },
   comet_bow: { stats: { dmg: [87, 137] }, mech: { kind: 'comet', theme: 'astral', every: 5, r: 1.3, f: 3 } },
   heartwood_bow: { stats: { count: 1, arc: 0, dmg: [115, 185] }, mech: { kind: 'follow', theme: 'nature', f: 0.5, r: 1.2 } },
@@ -50,7 +50,7 @@ export const WEAPON_REWORK = {
   leviathan_longbow: { stats: { dmg: [70, 101] }, mech: { kind: 'stack', theme: 'sea', cash: 0.4 } },
   rimeheart_bow: { stats: { count: 1, arc: 0, dmg: [175, 280] }, mech: { kind: 'shards', theme: 'ice', f: 0.4, len: 1.8 } },
   seedspitter_bow: { stats: { count: 3, dmg: [66, 107] }, mech: { kind: 'center', theme: 'nature', arc: 0.1, flankF: 0.6, mark: 0.2 } },
-  leviathan_tine: { stats: { dmg: [256, 351] }, mech: { kind: 'stack', theme: 'sea', cash: 0.5 } },
+  leviathan_tine: { stats: { dmg: [240, 330] }, mech: { kind: 'stack', theme: 'sea', cash: 0.7 } },
   the_white_whale: { mech: { kind: 'whale', theme: 'sea', foam: 'bubble', foamF: 0.3, underF: 0.8, delay: 0.5, r: 1.5 } },
 };
 
