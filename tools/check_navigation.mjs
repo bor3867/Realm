@@ -3,7 +3,7 @@
 // (one whose aggro reaches that far) stands at one, you at the other, standing still. It should come round and reach you (get within its fighting
 // distance) and never stand stalled for long. Walkers that chase are used (shamble, flank, zigzag, kite, swoop,
 // orbit), since flyers and burrowers go their own way.
-//   node tools/check_navigation.mjs [dungeon ...]    --verbose for every chase
+//   node tools/check_navigation.mjs [dungeon ...]    --verbose for every chase; --moving: you walk a small circle instead
 import { readFileSync } from 'node:fs';
 globalThis.localStorage = { getItem: () => null, setItem: () => {} };
 let CLOCK = 1.7e12; Date.now = () => CLOCK;                      // (dungeons are generated from the clock: pinned, so a run repeats)
@@ -17,7 +17,7 @@ const B0 = new URL('../art/bundle/', import.meta.url), J = (q) => JSON.parse(rea
 const reg = buildRegistry(idx.atlases.map((a) => ({ pack: a.split('/')[0], json: J(a) })), J(idx.hover), (q) => q);
 const WALKERS = ['shamble', 'flank', 'zigzag', 'kite', 'swoop', 'orbit'];
 const pool = Object.entries(ENEMIES).filter(([, D]) => WALKERS.includes(D.ai) && !D.fly && !D.noclip && !D.bx && !D.rb && !D.dummy && D.speed > 0 && !D.leash).map(([id]) => id);
-const only = process.argv.slice(2).filter((a) => !a.startsWith('--')), verbose = process.argv.includes('--verbose');
+const only = process.argv.slice(2).filter((a) => !a.startsWith('--')), verbose = process.argv.includes('--verbose'), moving = process.argv.includes('--moving');
 // the length of the walkable route (4-connected tiles) between two points, or -1
 function route(m, a, b, max = 30) {
   const dist = new Int16Array(m.w * m.h).fill(-1), q = [Math.floor(a[1]) * m.w + Math.floor(a[0])], goal = Math.floor(b[1]) * m.w + Math.floor(b[0]);
@@ -59,7 +59,9 @@ for (const where of Object.keys(DUNGEONS)) {
     const reach = (D.keep || 1.2) + 2.5, start = Math.hypot(e.x - p.x, e.y - p.y);
     let t = 0, got = null, stall = 0, worstStall = 0, last = [e.x, e.y], lastT = 0;
     for (let f = 0; f < 60 * 25 && got === null; f++) {
-      t += 1 / 60; p.hp = 1e9; p.dead = false; p.x = Bp[0]; p.y = Bp[1];   // (held still: the forge's conveyors would carry you off)
+      t += 1 / 60; p.hp = 1e9; p.dead = false;
+      if (moving) { const a = t * 1.5, tx = Bp[0] + Math.cos(a) * 2, ty = Bp[1] + Math.sin(a) * 2; g.moveCircle(p, (tx - p.x) * 0.15, (ty - p.y) * 0.15, 0.32); }   // --moving: you walk a small circle (walls stop you)
+      else { p.x = Bp[0]; p.y = Bp[1]; }                     // (held still: the forge's conveyors would carry you off)
       g.enemies = g.map.enemies = g.enemies.filter((q) => q === e);
       g.update(1 / 60);
       if (e.dead) break;

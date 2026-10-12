@@ -1340,7 +1340,7 @@ export class Game {
     const k = wide ? 'walkLine' : 'sight';
     if (e[k + 'T'] > this.t) return e[k];
     e[k + 'T'] = this.t + 0.2 + ((e.x * 7 + e.y * 3) % 1) * 0.1;
-    const m = this.map, dx = p.x - e.x, dy = p.y - e.y, L = Math.hypot(dx, dy), w = wide ? 0.42 : 0, nx = (-dy / (L || 1)) * w, ny = (dx / (L || 1)) * w;
+    const m = this.map, dx = p.x - e.x, dy = p.y - e.y, L = Math.hypot(dx, dy), w = wide ? 0.42 * ((Math.abs(dx) + Math.abs(dy)) / (L || 1)) : 0, nx = (-dy / (L || 1)) * w, ny = (dx / (L || 1)) * w;   // (a body is a square: going diagonally it sweeps wider)
     e[k] = true;
     for (let s = 0.3; s < L - 0.3 && e[k]; s += 0.3) {
       const x = e.x + (dx * s) / L, y = e.y + (dy * s) / L;
@@ -1354,7 +1354,7 @@ export class Game {
     let i = Math.floor(e.y) * w + Math.floor(e.x);
     if (F.gen[i] !== F.g) return null;
     const clear = (x, y) => {                              // a line its body can walk (0.42 either side: the widest monster body)
-      const dx = x - e.x, dy = y - e.y, L = Math.hypot(dx, dy) || 1, nx = (-dy / L) * 0.42, ny = (dx / L) * 0.42;
+      const dx = x - e.x, dy = y - e.y, L = Math.hypot(dx, dy) || 1, w = 0.42 * ((Math.abs(dx) + Math.abs(dy)) / L), nx = (-dy / L) * w, ny = (dx / L) * w;
       for (let s = 0.2; s < L; s += 0.25) { const px = e.x + (dx * s) / L, py = e.y + (dy * s) / L; if (isSolid(m, px, py) || isSolid(m, px + nx, py + ny) || isSolid(m, px - nx, py - ny)) return false; }
       return true;
     };
@@ -1686,7 +1686,10 @@ export class Game {
         continue;
       }
       if (D.contact && !p.dead && !e.under && (e.contactT = (e.contactT || 0) - dt) <= 0 && d2 < 0.7) { e.contactT = 0.6; this.hurtPlayer(D.contact, D.name); }
-      const aggro = d < D.aggro && !p.dead && this.map.kind !== 'nexus';
+      // engaged: within its aggro range, or chasing you still (4 s of memory, out to 1.6x the range: a detour round a
+      // wall can take it further from you than where it started, and it must not lose interest halfway round)
+      if (d < D.aggro) e.engagedUntil = this.t + 4;
+      const aggro = (d < D.aggro || (e.engagedUntil > this.t && d < D.aggro * 1.6)) && !p.dead && this.map.kind !== 'nexus';
       e.st -= dt;
       if (aggro && D.heal && (e.healT = (e.healT === undefined ? D.heal.every : e.healT) - dt) <= 0) {   // menders mend
         e.healT = D.heal.every;
