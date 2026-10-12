@@ -10,6 +10,10 @@
 //   node tools/check_orrery_fairness.mjs
 import { readFileSync } from 'node:fs';
 globalThis.localStorage = { getItem: () => null, setItem: () => {} };
+// one seeded generator for everything, installed before the game loads (modules keep their own reference to Math.random,
+// and src/util.js seeds itself from the clock); setup() re-seeds it, so every run of a seed is the same fight
+let RNG = 1; Math.random = () => ((RNG = (RNG * 1103515245 + 12345) % 2147483648) / 2147483648);
+let CLOCK = 1.7e12; Date.now = () => CLOCK;
 const { buildRegistry } = await import('../src/registry.js');
 const { Game, HITBOX } = await import('../src/game.js');
 const B0 = new URL('../art/bundle/', import.meta.url), J = (q) => JSON.parse(readFileSync(new URL(q, B0), 'utf8')), idx = J('index.json');
@@ -17,7 +21,7 @@ const reg = buildRegistry(idx.atlases.map((a) => ({ pack: a.split('/')[0], json:
 const SPEED = 6.3, TAU = Math.PI * 2;
 
 function setup(seed) {
-  let s = seed; Math.random = () => ((s = (s * 1103515245 + 12345) % 2147483648) / 2147483648);   // the same fight every time
+  RNG = seed; CLOCK = 1.7e12 + seed * 1000;                  // the same fight every time (the dungeon is generated from the clock)
   const g = new Game({ reg }, { fame: 0, gold: 0, essence: 0, vaults: [[]], graveyard: [], chars: [], slots: 8, bestLevel: 0 });
   g.newCharacter('priest'); g.persist = () => {}; g.enter('astral');
   const m = g.map, L = m.rooms[m.rooms.length - 1], p = g.player;
@@ -28,8 +32,8 @@ function setup(seed) {
   const tally = {};
   g.hurtPlayer = (d, by, x) => { if (by) { hits++; const S = o.bx || {}, k = (S.sing ? 'sing:' + S.sing.stage : S.nova2 ? 'nova:' + (S.nova2.kind || 'horizon') : S.pat ? S.pat.name : S.state) + ' / ' + by; tally[k] = (tally[k] || 0) + 1; } hurt(d, by, x); };
   p.x = L.cx + 0.5; p.y = L.cy + 8;
-  for (let k = 0; k < 60 * 4; k++) { p.hp = 1e9; g.update(1 / 60); }
-  return { g, o, L, p, tally, hits: () => hits, reset: () => { hits = 0; } };
+  for (let k = 0; k < 60 * 4; k++) { p.hp = 1e9; p.dead = false; g.update(1 / 60); }
+  return { g, o, L, p, tally, hits: () => hits, reset: () => { hits = 0; for (const k in tally) delete tally[k]; } };
 }
 // the three players' moves (called every frame; they move the player themselves)
 function mover(kind, F) {
@@ -58,6 +62,10 @@ function mover(kind, F) {
           for (const W of (o.bx && o.bx.wells) || []) { const dw = Math.hypot(px - W.x, py + 0.45 - W.y); if (dw < 1.6) score += 3; }
           const U = o.bx && o.bx.umbra; if (U && U.r > 1 && Math.hypot(px - U.x, py + 0.45 - U.y) < U.r) score += 2;
           const Z = o.bx && o.bx.sing; if (Z && Math.hypot(px - Z.x, py + 0.45 - Z.y) < Z.r + 0.6) score += 3;
+          for (const m of g.spMarks || []) if (m.lane && g.t < m.until) {   // a marked lane: it heads for it (it reads the floor, as a player does)
+            const dx = Math.cos(m.a), dy = Math.sin(m.a), u = (px - m.x) * dx + (py - m.y) * dy, dl = Math.hypot(px - m.x - dx * u, py - m.y - dy * u);
+            score += Math.max(0, dl - 0.5) * 0.25;
+          }
           for (const f of g.fx) if (f.kind === 'laser' && !f.hit && f.t + T > f.tele - 0.1 && f.t + T < f.tele + f.act) {   // a marked beam: out of its line before it burns
             const dx = Math.cos(f.a), dy = Math.sin(f.a), u = Math.max(0, Math.min(f.len, (px - f.x0) * dx + (py - f.y0) * dy));
             if (Math.hypot(px - f.x0 - dx * u, py - f.y0 - dy * u) < 0.9) score += 4;
@@ -74,8 +82,9 @@ function mover(kind, F) {
 // --nova: the Supernova alone, against every way of not really playing it: standing still (in the middle, half-way out,
 // against the back wall), camping the rim, circling, and the expert, from several places and on two seeds
 // --sing: the same, against the Singularity
-if (process.argv.includes('--nova') || process.argv.includes('--sing')) {
-  const FIN = process.argv.includes('--sing') ? 'finale' : 'finale2', LABEL = FIN === 'finale' ? 'Singularity' : 'Supernova';
+// --p3: the same, against 32 s of phase 3 (all three of its sequences)
+if (['--nova', '--sing', '--p3'].some((f) => process.argv.includes(f))) {
+  const FIN = process.argv.includes('--sing') ? 'finale' : process.argv.includes('--p3') ? 'p3' : 'finale2', LABEL = { finale: 'Singularity', finale2: 'Supernova', p3: 'Phase 3' }[FIN];
   const rows = [];
   for (const seed of [4242, 917]) {
     const strategies = [
@@ -85,23 +94,25 @@ if (process.argv.includes('--nova') || process.argv.includes('--sing')) {
     ];
     for (const [name, kind, ang, rad, sp] of strategies) {
       const F = setup(seed), { g, o, L, p } = F, cx = L.cx + 0.5, cy = L.cy + 0.5;
-      const toFight = () => { for (let k = 0; k < 60 * 12 && !['fight', 'windup', 'release', 'recover'].includes(o.bx.state); k++) { p.hp = 1e9; g.update(1 / 60); } };
+      const toFight = () => { for (let k = 0; k < 60 * 12 && !['fight', 'windup', 'release', 'recover'].includes(o.bx.state); k++) { p.hp = 1e9; p.dead = false; g.update(1 / 60); } };
       g.damageEnemy(o, Math.ceil(o.maxHp * 0.34) + 50, o.x, o.y, true); toFight();
       g.damageEnemy(o, Math.ceil(o.maxHp * 0.34) + 50, o.x, o.y, true); toFight();
-      g.projectiles = []; if (FIN === 'finale2') o.bx.finaleDone = true; o.hp = o.maxHp * (FIN === 'finale' ? 0.11 : 0.035); g.bxStartFinale(o, o.bx.B[FIN]);
+      if (FIN === 'p3') o.hp = o.maxHp * 0.3;                    // (in phase 3 already: its sequences as they come)
+      else { g.projectiles = []; if (FIN === 'finale2') o.bx.finaleDone = true; o.hp = o.maxHp * (FIN === 'finale' ? 0.11 : 0.035); g.bxStartFinale(o, o.bx.B[FIN]); }
       p.x = cx + Math.cos(ang) * rad; p.y = cy + Math.sin(ang) * rad;
       const ex = kind === 'expert' ? mover('expert', F) : null;
       let a = ang, side = 1; F.reset();
-      for (let k = 0; k < 60 * (o.bx.B[FIN].dur + 0.5); k++) {
+      for (let k = 0; k < 60 * (FIN === 'p3' ? 32 : o.bx.B[FIN].dur + 0.5); k++) {
         p.hp = 1e9; p.dead = false; p.status.invuln = 0;
         if (kind === 'circle') { a += (sp / rad) / 60; p.x += (cx + Math.cos(a) * rad - p.x) * 0.3; p.y += (cy + Math.sin(a) * rad - p.y) * 0.3; }
         if (kind === 'camp' && k % 120 === 0) side = -side;         // the camper shuffles along the wall a little, back and forth
         if (kind === 'camp') { a += side * 0.6 / 60 / rad * 3; p.x += (cx + Math.cos(a) * rad - p.x) * 0.3; p.y += (cy + Math.sin(a) * rad - p.y) * 0.3; }
         if (ex) ex(1 / 60);
         g.update(1 / 60);
+        if (process.env.PROBE && name === process.env.PROBE && seed === 4242 && k % 30 === 0) { const cs = g.projectiles.filter((b) => b.curtain); if (cs.length) { let md = 99, gh = 0; for (const b of cs) { const d = Math.hypot(b.x - p.x, b.y - (p.y - 0.45)); if (d < md) md = d; if (b.ghost) gh++; } console.log((k / 60).toFixed(1), 'curtain shots', cs.length, 'nearest', md.toFixed(2), 'ghosts', gh, 'pos', (p.x - cx).toFixed(1), (p.y - cy).toFixed(1), 'state', o.bx.state, o.bx.pat && o.bx.pat.name); } }
       }
       rows.push([seed, name, F.hits()]);
-      if ((kind === 'expert' || process.argv.includes('--whyall')) && process.argv.includes('--why')) console.log('  ' + name + ' (seed ' + seed + ') was hit in:', Object.entries(F.tally).sort((x, y) => y[1] - x[1]).map(([k2, v]) => k2.split(' / ')[0] + ' ' + v).join(', '));
+      if ((kind === 'expert' || process.argv.includes('--whyall')) && process.argv.includes('--why')) console.log('  ' + name + ' (seed ' + seed + ') was hit in:', Object.entries(F.tally).sort((x, y) => y[1] - x[1]).map(([k2, v]) => (process.env.FULL ? k2 : k2.split(' / ')[0]) + ' ' + v).join(', '));
     }
   }
   const by = {};
@@ -118,7 +129,7 @@ const results = {};
 for (const kind of ['expert', 'strafer', 'still']) {
   const F = setup(4242), { g, o, p } = F, move = mover(kind, F), row = {};
   const run = (sec) => { for (let k = 0; k < sec * 60; k++) { p.hp = 1e9; p.dead = false; p.status.invuln = 0; move(1 / 60); g.update(1 / 60); } };
-  const toFight = () => { for (let k = 0; k < 60 * 12 && !['fight', 'windup', 'release', 'recover'].includes(o.bx.state); k++) { p.hp = 1e9; move(1 / 60); g.update(1 / 60); } };
+  const toFight = () => { for (let k = 0; k < 60 * 12 && !['fight', 'windup', 'release', 'recover'].includes(o.bx.state); k++) { p.hp = 1e9; p.dead = false; move(1 / 60); g.update(1 / 60); } };
   const section = (name, sec, prep) => { if (prep) prep(); F.reset(); run(sec); row[name] = F.hits(); };
   section('phase 1', 30);
   g.damageEnemy(o, Math.ceil(o.maxHp * 0.34) + 50, o.x, o.y, true); toFight();

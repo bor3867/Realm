@@ -381,3 +381,17 @@
 - The blue counter-spirals are gone.
 - Simulated over two seeds: every still position, a rim camper and circling players take 12-143 hits; a player who reads
   it takes 4-6.
+
+## Phase 3 rebuilt: three sequences that reach the whole floor
+- The change to it is a 6 s event: the eclipse swallows the machine and bursts, two black holes tear open and drink its
+  debris, then a shockwave with four openings.
+- Binary Collapse: two black holes orbit the machine winding arms of shots into themselves; the machine's streams bend
+  toward them; three times the edge breaks off, a ring falling in from beyond the floor with three openings; the holes
+  spiral into the machine, which answers with a ring and a fan.
+- Tidal Curtains: walls as wide as the floor roll in from beyond opposite edges, shots close enough that only the lane
+  gets you through. The lane opens at least five slots from where you stand and is marked on the floor with a steady
+  green line. Then the same across the other axis, while the planets sweep the floor's edge leaving trails.
+- Decaying Orbits: three rings close in and fly off on their tangents; then a ring gathers from beyond the edge while you
+  are drawn in, and bursts outward.
+- Simulated over two seeds: every still position, a rim camper and circling players take 28-117 hits; a player who reads
+  it takes 5.

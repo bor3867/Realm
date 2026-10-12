@@ -144,7 +144,7 @@ for (let s = 1; s <= seeds; s++) {
       allFrames++; if (S.umbra) upFrames++;
       if (S.umbra && S.umbra.chase) flags.pursuit = 1;
       if (g.projectiles.some((b) => b.orc)) flags[`formation${phase}`] = 1;
-      if (g.projectiles.some((b) => b.toBoss)) flags.curtains = 1;
+      if (g.projectiles.some((b) => b.toBoss || b.curtain)) flags.curtains = 1;
       if ((S.planets || []).some((P) => P.goal)) flags.planetsMove = 1;
       if ((S.meteors || []).length) flags.meteors = 1;
       if (g.projectiles.some((b) => b.asSpiral)) flags.accretion = 1;
@@ -160,7 +160,7 @@ for (let s = 1; s <= seeds; s++) {
   if (flags.FROZE_SHOTS) problems.push('it froze its shots and loosed them at you');
   for (const k of ['umbra2', 'pursuit', 'formation2', 'formation3', 'planetsMove', 'meteors', 'flares', 'rings', 'well', 'accretion', 'curtains', 'shards']) if (!flags[k]) problems.push('never saw ' + k);
   if (flags.umbra1 || flags.umbra3) problems.push('the eclipse rose outside its own phase');
-  if (pats.size < 13) problems.push('patterns ' + [...pats].join(', '));
+  if (pats.size < 10) problems.push('patterns ' + [...pats].join(', '));
   console.log(`orrery: patterns ${pats.size} | ${Object.keys(flags).join(', ')}`);
   // the eclipse burns whoever stands in it
   { if (!S.umbra) { S.B.specials.eclipseRising(g, orr, {}); step(1.5); } const U = S.umbra; p.x = U.x; p.y = U.y; S.umbraT = 0; const h0 = 1e6; p.hp = h0; g.god = false; p.status.invuln = 0; for (let k = 0; k < 30; k++) { p.x = S.umbra.x; p.y = S.umbra.y; g.update(1 / 60); } if (!(p.hp < h0)) problems.push('the eclipse did not burn'); g.god = true; }

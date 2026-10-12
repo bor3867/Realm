@@ -262,57 +262,84 @@ function twilightTotality(g, e, V) {
     later(e, 4.6, () => eclipseSet(e));
   });
 }
-// (the change to the Collapse: finaleEclipse below)
+// (the change to the Collapse, 6 s: the eclipse swallows the machine and bursts; two black holes tear open and drink
+// its debris; a shockwave with four openings)
 function finaleEclipse(g, e) {
-  const S = e.bx, [ox, oy] = g.bxOrigin(e);
-  eclipseAt(g, e, ox, oy, 6); S.spin = 5;
+  const S = e.bx, [ox, oy] = g.bxOrigin(e), [cx, cy] = centre(e);
+  eclipseAt(g, e, ox, oy, 6); S.spin = 5; g.banner('GRAVITATIONAL COLLAPSE', 1800);
   later(e, 1.2, () => { const [x, y] = g.bxOrigin(e), a0 = R() * TAU; for (let j = 0; j < 14; j++) shotAt(g, e, x, y, a0 + (j / 14) * TAU, 'brass_shard', 2.4, 120, { range: 8 }); });
   later(e, 2, () => { const [x, y] = g.bxOrigin(e), n = 40, a0 = R() * TAU; for (let j = 0; j < n; j++) if (j % 20 > 2) shotAt(g, e, x, y, a0 + (j / n) * TAU, 'eclipse_ring', 5, 130); g.vx({ k: 'shake', amt: 9 }); eclipseSet(e); S.spin = 1; });
+  later(e, 3, () => {                                        // two black holes tear open; the eclipse's debris spirals into them
+    const a = R() * TAU, W = [1, -1].map((s) => wellAt(g, e, cx + Math.cos(a) * 9 * s, cy + Math.sin(a) * 9 * s, 3.2));
+    for (let i = 0; i < 14; i++) later(e, i * 0.12, () => W.forEach((w, k) => { const s = i * 0.7 + k * Math.PI, b = held(g, e, w.x + Math.cos(s) * 5, w.y + Math.sin(s) * 5, s, 'brass_shard', 120); b.asSpiral = { cx: w.x, cy: w.y, r: 5, a: s, w: k ? 1.2 : -1.2, shrink: 1.6, W: w }; }));
+  });
+  later(e, 5.6, () => { const [x, y] = g.bxOrigin(e), n = 40, a0 = R() * TAU; for (let j = 0; j < n; j++) if (j % 10 > 1) shotAt(g, e, x, y, a0 + (j / n) * TAU, 'corona_flare', 4.4, 130); g.vx({ k: 'shake', amt: 8 }); });
 }
 
 // ---------------------------------------------------------------- PHASE 3: GRAVITATIONAL COLLAPSE (failing, unstable)
+// Three long sequences, each bringing the danger to every part of the floor (the edge included):
+//   Binary Collapse   two black holes orbit the machine, winding arms of shots into themselves [move with them, or
+//                     between] -> the machine's streams bend toward them [the straight lanes curve] -> three times the
+//                     edge breaks off, a ring falling in toward them with three openings [the rim is no refuge] -> they spiral into the machine, which
+//                     answers with a ring and a fan
+//   Tidal Curtains    walls roll in from beyond opposite edges, their gaps lined up into one lane that opens five slots
+//                     from where you stand [go to it] ->
+//                     the same across the other axis [turn ninety degrees] -> all the while the planets sweep the
+//                     floor's edge leaving trails -> they come home and burst
+//   Decaying Orbits   three rings orbit and close in, then fly off on their tangents -> a ring gathers from beyond
+//                     the edge and closes in while you are drawn in -> it bursts outward, a second ring between
 const wellAt = (g, e, x, y, life = 7) => { const S = e.bx; S.wells = (S.wells || []).filter((W) => g.t <= W.until); const W = { x, y, vx: 0, vy: 0, until: g.t + life, born: g.t, tick: 0, r: 1 }; S.wells.push(W); return W; };
-// Accretion Dance: two singularities either side; each draws streams of shots into turning spirals; you live between
-function accretionDance(g, e, V) {
-  const S = e.bx, [ox, oy] = g.bxOrigin(e), a = aimAt(g, ox, oy) + Math.PI / 2, W = [1, -1].map((s) => wellAt(g, e, ox + Math.cos(a) * 7 * s, oy + Math.sin(a) * 7 * s, 6.5));
-  for (let i = 0; i < 34; i++) later(e, 0.4 + i * 0.165, () => W.forEach((w, k) => {
+function binaryCollapse(g, e, V) {
+  const S = e.bx, [ox, oy] = g.bxOrigin(e), [cx, cy] = centre(e), a = aimAt(g, ox, oy) + Math.PI / 2, dir = R() < 0.5 ? 1 : -1;
+  const W = [0, Math.PI].map((q) => { const w = wellAt(g, e, ox + Math.cos(a + q) * 7, oy + Math.sin(a + q) * 7, 7.3); w.orbit = { a: a + q, r: 7, w: 0.32 * dir }; return w; });
+  for (let i = 0; i < 32; i++) later(e, 0.4 + i * 0.17, () => W.forEach((w, k) => {   // each winds two arms into itself
     for (const q of [0, Math.PI]) { const s = i * 0.5 + q + k, b = held(g, e, w.x + Math.cos(s) * 6, w.y + Math.sin(s) * 6, s, k ? 'brass_shard' : 'star_bolt', V.dmg || 125); b.asSpiral = { cx: w.x, cy: w.y, r: 6, a: s, w: k ? 1.3 : -1.3, shrink: 1.5, W: w }; }
   }));
-}
-// Tidal Fracture: four thick streams north, south, east, west; each bends toward a singularity, so the straight lanes
-// curve as they go
-function tidalFracture(g, e, V) {
-  const S = e.bx, [ox, oy] = g.bxOrigin(e);
-  if (!(S.wells || []).filter((W) => g.t <= W.until).length) { const a = R() * TAU; [1, -1].forEach((s) => wellAt(g, e, ox + Math.cos(a) * 8 * s, oy + Math.sin(a) * 8 * s, 5)); }
-  const a0 = R() * Math.PI / 2;
-  for (let i = 0; i < 28; i++) later(e, 0.4 + i * 0.085, () => { const [x, y] = g.bxOrigin(e); for (let k = 0; k < 4; k++) for (const o of [-0.09, 0, 0.09]) { const b = shotAt(g, e, x, y, a0 + (k / 4) * TAU + o, 'moon_shard', 6, V.dmg || 125); b.toWell = 1.15; b.life = 4; } });
-}
-// Falling Heavens: the planets break orbit and sweep the floor's edge opposite ways, leaving curved trails of shards;
-// then they rejoin the machine and fire together
-function fallingHeavens(g, e, V) {
-  const S = e.bx, [cx, cy] = centre(e);
-  (S.planets || []).forEach((P, k) => { P.ease = 2.5; P.t0 = g.t; P.goal = (g2) => { const a = (k ? Math.PI : 0) + (k ? -1 : 1) * (g2.t - P.t0) * 1.3; return [cx + Math.cos(a) * 11, cy + Math.sin(a) * 11]; }; });
-  for (let k = 0; k < 6; k++) later(e, 0.9 + k * 0.7, () => { const [x, y] = g.bxOrigin(e), aim = aimAt(g, x, y); for (let j = -1; j <= 1; j++) shotAt(g, e, x, y, aim + j * 0.16, 'star_bolt', 7, V.dmg || 125); });   // the machine's aimed bolts while the planets sweep
-  for (let i = 0; i < 40; i++) later(e, 0.5 + i * 0.1, () => { for (const P of S.planets) { const b = shotAt(g, e, P.x, P.y, angleTo(cx, cy, P.x, P.y) + Math.PI, 'brass_shard', 0.9, V.dmg || 120, { range: 3 }); b.life = 3.2; } });
-  later(e, 4.8, () => planetsHome(S));
-  later(e, 5.6, () => { for (const P of S.planets) { const a0 = R() * TAU; for (let j = 0; j < 12; j++) shotAt(g, e, P.x, P.y, a0 + (j / 12) * TAU, 'moon_shard', 4.5, V.dmg || 125); } g.vx({ k: 'shake', amt: 4 }); });
-}
-// Spaghettification: curtains roll in from opposite edges, each with one gap, bending toward the machine as they come
-function spaghettiCurtains(g, e, V) {
-  const [cx, cy] = centre(e), a = R() * Math.PI, ux = Math.cos(a), uy = Math.sin(a), nx = -uy, ny = ux;
-  for (let i = 0; i < 11; i++) later(e, i * 0.36, () => {
-    for (const s of [1, -1]) {
-      const gap = Math.floor(R() * 8) - 4;
-      for (let j = -5; j <= 5; j++) {
-        if (j === gap || j === gap + 1) continue;
-        const x = cx - ux * 15 * s + nx * j * 2.1, y = cy - uy * 15 * s + ny * j * 2.1, b = shotAt(g, e, x, y, s > 0 ? a : a + Math.PI, 'star_bolt', 4.8, V.dmg || 125, { range: 30 });
-        b.toBoss = 0.32; b.life = 7;
-      }
-    }
+  const a0 = R() * Math.PI / 2;                              // the machine's four triple streams, bending toward the holes
+  for (let i = 0; i < 24; i++) later(e, 2.4 + i * 0.09, () => { const [x, y] = g.bxOrigin(e); for (let k = 0; k < 4; k++) for (const o of [-0.09, 0, 0.09]) { const b = shotAt(g, e, x, y, a0 + i * 0.012 + (k / 4) * TAU + o, 'moon_shard', 6, V.dmg || 125); b.toWell = 1.15; b.life = 4; } });
+  for (const T of [1.2, 3.2, 5.2]) later(e, T, () => {      // the edge breaks off: a ring from beyond the floor falls in toward the holes, three openings
+    const c = R() * TAU, n = 44;
+    for (let j = 0; j < n; j++) { if (j % 15 < 2) continue; const q = c + (j / n) * TAU, b = shotAt(g, e, cx + Math.cos(q) * 17.5, cy + Math.sin(q) * 17.5, q + Math.PI, 'brass_shard', 3.4, V.dmg || 120, { range: 24 }); b.toWell = 0.5; b.life = 6; }
+  });
+  later(e, 5.8, () => W.forEach((w) => { w.orbit.collapse = true; w.until = g.t + 1.3; }));   // they spiral into the machine
+  later(e, 7.1, () => {
+    const [x, y] = g.bxOrigin(e), n = 32, b0 = R() * TAU, aim = aimAt(g, x, y);
+    for (let j = 0; j < n; j++) if (j % 16 > 2) shotAt(g, e, x, y, b0 + (j / n) * TAU, 'eclipse_ring', 4.6, V.dmg || 130);
+    for (let j = -2; j <= 2; j++) shotAt(g, e, x, y, aim + j * 0.14, 'star_bolt', 7.5, V.dmg || 125);
+    g.vx({ k: 'shake', amt: 7 }); g.vx({ k: 'burst', x, y, n: 30, colors: ['#c8a0ff', '#ffffff'] });
   });
 }
-// Orbital Decay: three rings orbit at different speeds and slowly close in; a ring of warning, then they fly off on
-// their tangents
+function tidalCurtains(g, e, V) {
+  const S = e.bx, [cx, cy] = centre(e), a = R() * Math.PI;
+  const curtain = (ang, t0, rows) => {                       // rows from both ends of an axis, one shared gap
+    const ux = Math.cos(ang), uy = Math.sin(ang), nx = -uy, ny = ux, C = {}, SL = 1.15;   // (a slot: 1.15 tiles; the lane three slots)
+    for (let i = 0; i < rows; i++) later(e, t0 + i * 0.38, () => {
+      const jp = Math.round(((g.player.x - cx) * nx + (g.player.y - cy) * ny) / SL);   // your slot across the axis
+      if (C.G === undefined) {                               // the lane opens at least five slots from where you stand: you go to it
+        const ok = []; for (let q = -11; q <= 9; q++) if (q - jp >= 5 || jp - (q + 2) >= 5) ok.push(q);
+        C.G = ok[Math.floor(R() * ok.length)];
+        const off = (C.G + 1) * SL;                          // the lane marked on the floor, steady green, until the last row has passed
+        g.spMark({ kind: 'line', x: cx - ux * 17.5 + nx * off, y: cy - uy * 17.5 + ny * off, a: ang, len: 35, life: (rows - i) * 0.38 + 3.6, color: '#5ef08a', steady: true, lane: true });
+      }                                                      // (it holds: both ends' gaps line up into one straight lane)
+      const gap = C.G;
+      for (const s of [1, -1]) for (let j = -14; j <= 14; j++) {          // (wide as the floor, the shots close enough that only the lane is a way through)
+        if (j >= gap && j <= gap + 2) continue;
+        const b = shotAt(g, e, cx - ux * 17.5 * s + nx * j * SL, cy - uy * 17.5 * s + ny * j * SL, s > 0 ? ang : ang + Math.PI, 'star_bolt', 4.6, V.dmg || 125, { range: 36 });
+        b.life = 8; b.curtain = true;
+      }
+    });
+  };
+  curtain(a, 0.3, 10); curtain(a + Math.PI / 2, 4.7, 10);
+  (S.planets || []).forEach((P, k) => { P.ease = 2.5; P.t0 = g.t; P.goal = (g2) => { const q = (k ? Math.PI : 0) + (k ? -1 : 1) * (g2.t - P.t0) * 1.1; return [cx + Math.cos(q) * 14, cy + Math.sin(q) * 14]; }; });   // the planets sweep the edge
+  for (let i = 0; i < 70; i++) later(e, 0.6 + i * 0.11, () => { for (const P of S.planets || []) { const b = shotAt(g, e, P.x, P.y, angleTo(cx, cy, P.x, P.y) + Math.PI, 'brass_shard', 0.9, V.dmg || 120, { range: 3 }); b.life = 3.2; } });
+  later(e, 8.6, () => planetsHome(S));
+  later(e, 9.3, () => { for (const P of S.planets || []) { const a1 = R() * TAU; for (let j = 0; j < 12; j++) shotAt(g, e, P.x, P.y, a1 + (j / 12) * TAU, 'moon_shard', 4.5, V.dmg || 125); } g.vx({ k: 'shake', amt: 4 }); });
+}
+function decayingOrbits(g, e, V) {
+  orbitalDecay(g, e, V);
+  later(e, 5, () => eventHorizon(g, e, V));
+}
+// (its parts) three rings orbit at different speeds and slowly close in; a ring of warning, then they fly off on their tangents
 function orbitalDecay(g, e, V) {
   const [ox, oy] = g.bxOrigin(e), t0 = g.t;
   [[3.6, 14, 1.1], [5.6, 20, -0.8], [7.6, 26, 0.6]].forEach(([r0, n, w]) => {
@@ -325,18 +352,18 @@ function orbitalDecay(g, e, V) {
   });
   later(e, 3.6, () => { const [x, y] = g.bxOrigin(e); g.spMark({ kind: 'ring', x, y, r: 6, life: 0.8, color: '#ffffff' }); });
 }
-// Event Horizon: a ring of shots gathers from far out and closes in (two openings) while you are gently drawn in; it
-// lets go as a spaced burst outward, a second ring between its shots
+// a ring gathers from beyond the floor's edge and closes in (two openings) while you are drawn in; it lets go as a spaced
+// burst outward, a second ring between its shots
 function eventHorizon(g, e, V) {
-  const S = e.bx, [ox, oy] = g.bxOrigin(e), n = 34, a0 = R() * TAU, t0 = g.t;
-  S.draw = { until: g.t + 3.6, f: 1.3 };
+  const S = e.bx, [ox, oy] = g.bxOrigin(e), n = 40, a0 = R() * TAU, t0 = g.t;
+  S.draw = { until: g.t + 3.9, f: 1.3 };
   for (let j = 0; j < n; j++) {
-    if (j % 17 < 2) continue;
-    const a = a0 + (j / n) * TAU, b = held(g, e, ox + Math.cos(a) * 12, oy + Math.sin(a) * 12, a, 'eclipse_ring', V.dmg || 130);
-    b.orc = (b2) => { const t = g.t - t0, r = Math.max(2.6, 12 - t * 2.6), aa = a + t * 0.3, [x, y] = g.bxOrigin(e); b2.x = x + Math.cos(aa) * r; b2.y = y + Math.sin(aa) * r; b2.a = aa; if (t > 3.8) { launch(b2, aa, 4.6, 4); return true; } return false; };
+    if (j % 20 < 2) continue;
+    const a = a0 + (j / n) * TAU, b = held(g, e, ox + Math.cos(a) * 18, oy + Math.sin(a) * 18, a, 'eclipse_ring', V.dmg || 130);
+    b.orc = (b2) => { const t = g.t - t0, r = Math.max(2.6, 18 - t * 3.9), aa = a + t * 0.3, [x, y] = g.bxOrigin(e); b2.x = x + Math.cos(aa) * r; b2.y = y + Math.sin(aa) * r; b2.a = aa; if (t > 4.1) { launch(b2, aa, 4.6, 4); return true; } return false; };
   }
-  g.spMark({ kind: 'ring', x: ox, y: oy, r: 12, life: 3.6, color: '#c8a0ff' });
-  later(e, 4.1, () => { const [x, y] = g.bxOrigin(e); for (let j = 0; j < n; j++) if (j % 17 > 1) shotAt(g, e, x, y, a0 + 3.8 * 0.3 + ((j + 0.5) / n) * TAU, 'moon_shard', 3.4, V.dmg || 125); g.vx({ k: 'shake', amt: 5 }); });
+  g.spMark({ kind: 'ring', x: ox, y: oy, r: 15, life: 3.9, color: '#c8a0ff' });
+  later(e, 4.4, () => { const [x, y] = g.bxOrigin(e); for (let j = 0; j < n; j++) if (j % 20 > 1) shotAt(g, e, x, y, a0 + 4.1 * 0.3 + ((j + 0.5) / n) * TAU, 'moon_shard', 3.4, V.dmg || 125); g.vx({ k: 'shake', amt: 5 }); });
 }
 
 // ---------------------------------------------------------------- what runs every frame, in the fight and in the finale
@@ -410,7 +437,10 @@ function tick(g, e, dt) {
   if (S.wells) S.wells = S.wells.filter((W) => g.t <= W.until);
   for (const W of S.wells || []) {                           // each singularity drifts (off the rim), pulls, and burns at its core
     if (W.seed && !p.dead) { const q = Math.hypot(p.x - W.x, p.y - W.y) || 1; W.vx = ((p.x - W.x) / q) * 1; W.vy = ((p.y - W.y) / q) * 1; }   // a seed drifts after you, slowly
-    W.x += (W.vx || 0) * dt; W.y += (W.vy || 0) * dt;
+    if (W.orbit) {                                           // a black hole in orbit round the machine (closing in when it collapses)
+      const O = W.orbit, [bx, by] = g.bxOrigin(e); O.a += O.w * dt; if (O.collapse) O.r = Math.max(0, O.r - 6 * dt);
+      W.x = bx + Math.cos(O.a) * O.r; W.y = by + Math.sin(O.a) * O.r;
+    } else { W.x += (W.vx || 0) * dt; W.y += (W.vy || 0) * dt; }
     if (Math.hypot(W.x - cx, W.y - cy) > 13) { W.vx = -W.vx; W.vy = -W.vy; }
     if (p.dead) continue;
     const d = Math.hypot(W.x - p.x, W.y - p.y), k = Math.max(0, 1 - d / 3.5);
@@ -819,16 +849,13 @@ export default {
       { name: 'syzygy', windup: 0.7, recover: 8.2, special: 'syzygyLine', dmg: 125, move: 'hold' },
       { name: 'twilight to totality', windup: 0.6, recover: 9.6, special: 'twilightTotality', dmg: 125 },
     ] },
-    3: { move: 'center', patterns: [
-      { name: 'accretion dance', windup: 0.6, recover: 4.92, special: 'accretionDance', dmg: 125 },
-      { name: 'tidal fracture', windup: 0.6, recover: 2.79, special: 'tidalFracture', dmg: 125 },
-      { name: 'falling heavens', windup: 0.6, recover: 4.92, special: 'fallingHeavens', dmg: 125 },
-      { name: 'spaghettification', windup: 0.6, recover: 3.61, special: 'spaghettiCurtains', dmg: 125 },
-      { name: 'orbital decay', windup: 0.6, recover: 4.1, special: 'orbitalDecay', dmg: 130 },
-      { name: 'event horizon', windup: 0.7, recover: 4.1, special: 'eventHorizon', dmg: 130 },
+    3: { move: 'center', patterns: [                          // three, each bringing the danger to the whole floor
+      { name: 'binary collapse', windup: 0.6, recover: 12, special: 'binaryCollapse', dmg: 125 },
+      { name: 'tidal curtains', windup: 0.6, recover: 14.5, special: 'tidalCurtains', dmg: 125 },
+      { name: 'decaying orbits', windup: 0.7, recover: 14, special: 'decayingOrbits', dmg: 130 },
     ] },
   },
-  specials: { later: (g, e, V) => V.fn(g, e), overture, alignmentSweep, procession, rotation, eclipseRising, syzygyLine, twilightTotality, accretionDance, tidalFracture, fallingHeavens, spaghettiCurtains, orbitalDecay, eventHorizon, meteors, well, debris },
+  specials: { later: (g, e, V) => V.fn(g, e), overture, alignmentSweep, procession, rotation, eclipseRising, syzygyLine, twilightTotality, binaryCollapse, tidalCurtains, decayingOrbits, meteors, well, debris },
   moves: {
     glide(g, e, dt) {                                        // phase 1: a slow, smooth circle round the middle of its floor
       const S = e.bx, [cx, cy] = centre(e);

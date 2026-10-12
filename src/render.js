@@ -575,7 +575,7 @@ export class Renderer {
         b.globalAlpha = 0.6 * (1 - k); b.strokeStyle = m.color || '#ffffff'; b.lineWidth = 2;
         b.beginPath(); b.ellipse(Math.round(x), Math.round(y), m.r * TS * (0.4 + 0.6 * k), m.r * TS * 0.75 * (0.4 + 0.6 * k), 0, 0, T2); b.stroke(); b.lineWidth = 1;
       } else if (m.kind === 'line') {
-        b.globalAlpha = 0.85; b.fillStyle = blink ? '#ffffff' : m.color || '#ff4a5a';
+        b.globalAlpha = m.steady ? 0.55 : 0.85; b.fillStyle = blink && !m.steady ? '#ffffff' : m.color || '#ff4a5a';   // (a steady line: a lane to hold, no blinking)
         for (let d = 0.6; d < m.len; d += 0.45) { const [qx, qy] = this.proj(m.x + Math.cos(m.a) * d, m.y + Math.sin(m.a) * d); b.fillRect(Math.round(qx) - 1, Math.round(qy) - 1, 2, 2); }
       } else if (m.kind === 'wedge') {                     // the way out: a green wedge
         b.globalAlpha = 0.28; b.fillStyle = '#5ef08a';
