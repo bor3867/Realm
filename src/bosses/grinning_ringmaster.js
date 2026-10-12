@@ -57,7 +57,7 @@ function juggle(g, e, V) {
 }
 // the grin (P3 pressure): cards fly from the tent's mouth, a little fan straight at you
 function grinCards(g, e, V) {
-  const p = g.player, [ox, oy] = g.bxOrigin(e), a = angleTo(ox, oy, p.x, p.y);
+  const p = g.player, [ox, oy] = g.bxOrigin(e), a = g.bxAim(e, ox, oy);
   for (const off of [-0.18, 0, 0.18]) g.bxShot(e, ox, oy, a + off, { shot: 'playing_card', speed: 8, range: 16, dmg: V.dmg || 110 });
 }
 // stitches come three at a time in the Puppeteer
@@ -66,6 +66,7 @@ function stitches3(g, e, V) {
 }
 
 export default {
+  lead: true,                                     // aimed volleys alternate: at you, then where you are going (a steady circle is not safe)
   id: 'grinning_ringmaster', name: 'The Grinning Ringmaster', biome: 'dungeon', hp: 240000, def: 32, xp: 15000, r: 2.2, speed: 1.2, keep: 8, faces: true, shotSheet: 'bx2_shots',
   tempo: 0.9, dmgScale: 1.0,                         // his needle walls were already the hardest thing in the update
   phases: {

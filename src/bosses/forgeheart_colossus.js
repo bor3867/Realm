@@ -11,7 +11,7 @@ const centre = (e) => { const A = e.bx.arena; return A ? [A.x + A.w / 2, A.y + A
 const vents = (g, e) => g.map.cvVents || [];
 
 function slam(g, e, V) {                            // a half-ring of sparks toward you, then another half a spark over
-  const p = g.player, [ox, oy] = g.bxOrigin(e), a = angleTo(ox, oy, p.x, p.y);
+  const p = g.player, [ox, oy] = g.bxOrigin(e), a = g.bxAim(e, ox, oy);
   [[0, 0], [0.3, 0.5]].forEach(([t, half]) => e.bx.vol.push({ t, V: { form: 'special', name: 'halfRing', a, half, dmg: V.dmg || 115 } }));
   g.vx({ k: 'shake', amt: 5 });
 }
@@ -20,7 +20,7 @@ function halfRing(g, e, V) {
   for (let k = 0; k < n; k++) g.bxShot(e, ox, oy, V.a - Math.PI / 2 + ((k + V.half) / (n - 1)) * Math.PI, { shot: 'hammer_spark', speed: 5.5, range: 11, dmg: V.dmg });
 }
 function rivets(g, e, V) {                          // a line of rivets at you, each ricocheting once off a wall
-  const p = g.player, [ox, oy] = g.bxOrigin(e), a = angleTo(ox, oy, p.x, p.y);
+  const p = g.player, [ox, oy] = g.bxOrigin(e), a = g.bxAim(e, ox, oy);
   for (let k = 0; k < 8; k++) e.bx.vol.push({ t: k * 0.09, V: { form: 'special', name: 'rivet', a, dmg: V.dmg || 120 } });
 }
 function rivet(g, e, V) { const [ox, oy] = g.bxOrigin(e), b = g.bxShot(e, ox, oy, V.a, { shot: 'iron_rivet', speed: 9, range: 22, dmg: V.dmg }); b.bounce = 1; }
@@ -48,7 +48,7 @@ function flames(g, e, V) {                          // some vents glow, then roa
   S.glow = pick.map((v) => ({ x: v[0], y: v[1], at: g.t + 1, until: g.t + 2.5, a: angleTo(v[0], v[1], cx, cy), tick: 0 }));
 }
 function magma(g, e, V) {                           // big orbs that roll after you, leaving lava behind them
-  const [ox, oy] = g.bxOrigin(e), p = g.player, a = angleTo(ox, oy, p.x, p.y);
+  const [ox, oy] = g.bxOrigin(e), p = g.player, a = g.bxAim(e, ox, oy);
   for (const off of [-0.7, 0, 0.7]) {
     const b = g.bxShot(e, ox, oy + 0.6, a + off, { shot: 'magma_orb', speed: 2.4, range: 99, dmg: V.dmg || 130, size: 0.7, mv: { seek: 0.9 } });
     b.roll = { drop: 0 }; b.life = 7;
@@ -61,7 +61,7 @@ function quake(g, e, V) {                           // three rings, each faster 
 
 // loose rivets (P1 pressure): one rivet at you that ricochets three times: the forge fills up with them
 function looseRivet(g, e, V) {
-  const p = g.player, [ox, oy] = g.bxOrigin(e), b = g.bxShot(e, ox, oy, angleTo(ox, oy, p.x, p.y), { shot: 'iron_rivet', speed: 8, range: 40, dmg: V.dmg || 115 });
+  const p = g.player, [ox, oy] = g.bxOrigin(e), b = g.bxShot(e, ox, oy, g.bxAim(e, ox, oy), { shot: 'iron_rivet', speed: 8, range: 40, dmg: V.dmg || 115 });
   b.bounce = 3; b.life = 5;
 }
 // flail (P1): a chain of sparks swings through a half-circle in front of it, then lets go
@@ -116,6 +116,7 @@ const finale = {
 };
 
 export default {
+  lead: true,                                     // aimed volleys alternate: at you, then where you are going (a steady circle is not safe)
   id: 'forgeheart_colossus', name: 'The Forgeheart Colossus', biome: 'dungeon', hp: 520000, def: 40, xp: 20000, r: 2, speed: 1.1, keep: 6, faces: true,
   tempo: 0.64, dmgScale: 1.6, finale,
   phases: {

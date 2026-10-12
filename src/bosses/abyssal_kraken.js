@@ -23,7 +23,7 @@ function ink(g, e, V) {
 }
 // barbed tentacles: each arm is six hooks on one heading at six speeds, all bending the same way
 function tentacles(g, e, V) {
-  const p = g.player, [ox, oy] = g.bxOrigin(e), a0 = angleTo(ox, oy, p.x, p.y) + TAU / (V.arms * 2), dir = R() < 0.5 ? 1 : -1;
+  const p = g.player, [ox, oy] = g.bxOrigin(e), a0 = g.bxAim(e, ox, oy) + TAU / (V.arms * 2), dir = R() < 0.5 ? 1 : -1;
   for (let k = 0; k < V.arms; k++) {
     const a = a0 + (k / V.arms) * TAU;
     for (let j = 0; j < 6; j++) g.bxShot(e, ox, oy, a, { shot: 'barbed_hook', speed: V.s0 + ((V.s1 - V.s0) * j) / 5, dmg: V.dmg, range: 13, mv: { curve: V.curve * dir } });
@@ -69,6 +69,7 @@ function spout(g, e, V) {
 }
 
 export default {
+  lead: true,                                     // aimed volleys alternate: at you, then where you are going (a steady circle is not safe)
   id: 'abyssal_kraken', name: 'The Abyssal Kraken', biome: 'shore', hp: 36000, def: 18, xp: 3600, r: 2.2, speed: 0.8, keep: 6, faces: false, noShadow: true,
   tempo: 0.85, dmgScale: 1.15,
   phases: {

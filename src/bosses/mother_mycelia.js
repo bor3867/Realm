@@ -9,7 +9,7 @@ const centre = (e) => { const A = e.bx.arena; return A ? [A.x + A.w / 2, A.y + A
 
 // spore clouds: puffs that slow, stop 3-5 tiles out and hang there for a while (touch one: it hurts and poisons)
 function clouds(g, e, V) {
-  const p = g.player, [ox, oy] = g.bxOrigin(e), aim = angleTo(ox, oy, p.x, p.y), n = V.n || 5;
+  const p = g.player, [ox, oy] = g.bxOrigin(e), aim = g.bxAim(e, ox, oy), n = V.n || 5;
   for (let k = 0; k < n; k++) {
     const a = aim + (k / (n - 1) - 0.5) * 2.2, d = 3 + R() * 2;
     const b = g.bxShot(e, ox, oy, a, { shot: 'spore_puff', speed: 4, range: 99, dmg: V.dmg || 70, size: 0.6, mv: { wave: { amp: 0.25, freq: 2 } } });
@@ -73,6 +73,7 @@ function seeds(g, e, V) {
 }
 
 export default {
+  lead: true,                                     // aimed volleys alternate: at you, then where you are going (a steady circle is not safe)
   id: 'mother_mycelia', name: 'Mother Mycelia', biome: 'dungeon', hp: 95000, def: 14, xp: 5800, r: 2.0, speed: 1.4, keep: 7, faces: true,
   tempo: 0.9, dmgScale: 1.0,                      // her clouds linger and poison: she needs less on top (docs/design/08_boss_rework.md)
   phases: {

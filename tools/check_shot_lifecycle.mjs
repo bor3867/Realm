@@ -5,16 +5,19 @@
 //   node tools/check_shot_lifecycle.mjs [id ...]      --verbose to print every enemy, not only the problems
 import { readFileSync } from 'node:fs';
 globalThis.localStorage = { getItem: () => null, setItem: () => {} };
+Date.now = () => 1.7e12;                                    // (dungeons are generated from the clock: pinned, so a run repeats)
 let RNG = 7; Math.random = () => ((RNG = (RNG * 1103515245 + 12345) % 2147483648) / 2147483648);
 const { buildRegistry } = await import('../src/registry.js');
 const { Game } = await import('../src/game.js');
 const { BX } = await import('../src/bosses/index.js');
 const { ENEMIES } = await import('../src/data/enemies.js');
+const { R: GR } = await import('../src/util.js');
 const B0 = new URL('../art/bundle/', import.meta.url), J = (q) => JSON.parse(readFileSync(new URL(q, B0), 'utf8')), idx = J('index.json');
 const reg = buildRegistry(idx.atlases.map((a) => ({ pack: a.split('/')[0], json: J(a) })), J(idx.hover), (q) => q);
 const SKIP = new Set(['grand_orrery']);
 const only = process.argv.slice(2).filter((a) => !a.startsWith('--')), verbose = process.argv.includes('--verbose');
-const fresh = () => { const g = new Game({ reg }, { fame: 0, gold: 0, essence: 0, vaults: [[]], graveyard: [], chars: [], slots: 8, bestLevel: 0 }); g.newCharacter('priest'); g.persist = () => {}; g.god = false; const hurt = g.hurtPlayer.bind(g); g.hurts = []; g.hurtPlayer = (d, by, x) => { g.hurts.push(by); return hurt(d, by, x); }; return g; };
+let SEED = 0;
+const fresh = () => { RNG = 7 + SEED * 13; GR.seed(101 + SEED++); const g = new Game({ reg }, { fame: 0, gold: 0, essence: 0, vaults: [[]], graveyard: [], chars: [], slots: 8, bestLevel: 0 }); g.newCharacter('priest'); g.persist = () => {}; g.god = false; const hurt = g.hurtPlayer.bind(g); g.hurts = []; g.hurtPlayer = (d, by, x) => { g.hurts.push(by); return hurt(d, by, x); }; return g; };
 const results = [];
 function watch(g, e, owns, fightFor, kill) {
   const p = g.player, born = new WeakMap(), oldest = { age: 0, sprite: '' };

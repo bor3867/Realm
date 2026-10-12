@@ -34,6 +34,10 @@ export const BXF = {
     S.t += dt; S.hurtT = Math.max(0, S.hurtT - dt); S.flashT = Math.max(0, S.flashT - dt);
     if (e.invulnT > 0 && e.invulnT < 50) e.invulnT = Math.max(0, e.invulnT - dt);   // a timed immunity (after a finale) wears off; a morph's (99) is cleared by its clip
     if (S.anim) S.anim.update(dt);
+    if (dt > 0) {                                           // how you are moving (from where you are, frame to frame: for the shots that lead you)
+      const vx = S.plx === undefined ? 0 : (p.x - S.plx) / dt, vy = S.ply === undefined ? 0 : (p.y - S.ply) / dt, k = Math.min(1, dt * 6), jump = Math.hypot(vx, vy) > 30;
+      S.pvx = jump ? 0 : (S.pvx || 0) + (vx - (S.pvx || 0)) * k; S.pvy = jump ? 0 : (S.pvy || 0) + (vy - (S.pvy || 0)) * k; S.plx = p.x; S.ply = p.y;
+    }
     if (S.state === 'sleep' || e.state === 'sleep') {
       const R0 = e.room;
       if (!R0 || (p.x > R0.x && p.x < R0.x + R0.w && p.y > R0.y && p.y < R0.y + R0.h)) this.bxWake(e);
@@ -164,9 +168,19 @@ export const BXF = {
     if (extra) Object.assign(b, extra);
     return b;
   },
+  // where a boss aims an aimed attack: at you, or, for a boss that leads (B.lead), one time in three (from over 4 tiles) at where you will be
+  // when the shot arrives (your movement times its flight, at most 1.2 s): a steady run round it is no longer a free
+  // pass, while a change of pace or direction still dodges it
+  bxAim(e, ox, oy, speed = 7) {
+    const S = e.bx, p = this.player;
+    const far = Math.hypot(p.x - ox, p.y - oy) > 4;             // (only at range: up close there is no time to read it)
+    if (!S.B.lead || !far || ((S.leadN = (S.leadN || 0) + 1) % 3)) return angleTo(ox, oy, p.x, p.y - 0.4);
+    const T = Math.min(1.2, Math.hypot(p.x - ox, p.y - oy) / Math.max(1, speed));
+    return angleTo(ox, oy, p.x + (S.pvx || 0) * T, p.y - 0.4 + (S.pvy || 0) * T);
+  },
   bxVolley(e, V) {
     const S = e.bx, p = this.player, [ox, oy] = V.from ? V.from(this, e) : this.bxOrigin(e);
-    const aim = V.angle !== undefined ? V.angle : angleTo(ox, oy, p.x, p.y - 0.4);
+    const aim = V.angle !== undefined ? V.angle : V.form === 'fan' || V.form === 'wall' ? this.bxAim(e, ox, oy, V.speed || 5) : angleTo(ox, oy, p.x, p.y - 0.4);
     const gaps = (n, k) => V.gaps && ((k + (V.gapAt || 0)) % n) < V.gaps;
     switch (V.form) {
       case 'fan': {

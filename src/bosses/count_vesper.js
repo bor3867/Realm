@@ -18,7 +18,7 @@ function boltVolley(g, e, V) {
   for (const off of [-0.12, 0, 0.12]) g.bxShot(e, ox, oy, a + off, { shot: 'blood_bolt', speed: 8, range: 13, dmg: V.dmg });
 }
 function hedge(g, e, V) {                           // a row of thorns roots between him and you, then flies apart sideways
-  const p = g.player, [ox, oy] = g.bxOrigin(e), a = angleTo(ox, oy, p.x, p.y), L = Math.hypot(p.x - ox, p.y - oy);
+  const p = g.player, [ox, oy] = g.bxOrigin(e), a = g.bxAim(e, ox, oy), L = Math.hypot(p.x - ox, p.y - oy);
   for (let k = 0; k < 9; k++) {
     const u = 2 + (k / 8) * Math.max(2, L - 1), x = ox + Math.cos(a) * u, y = oy + Math.sin(a) * u, side = k % 2 ? 1 : -1;
     g.bxShot(e, x, y, a + side * Math.PI / 2, { shot: 'rose_thorn', speed: 6, range: 10, dmg: V.dmg || 105, mv: { hold: 0.8 } });
@@ -34,11 +34,11 @@ function bats(g, e, V) {                            // fans of bats that weave, 
   for (let k = 0; k < 3; k++) e.bx.vol.push({ t: k * 0.35, V: { form: 'special', name: 'batFan', dmg: V.dmg || 100 } });
 }
 function batFan(g, e, V) {
-  const p = g.player, [ox, oy] = g.bxOrigin(e), a = angleTo(ox, oy, p.x, p.y);
+  const p = g.player, [ox, oy] = g.bxOrigin(e), a = g.bxAim(e, ox, oy);
   for (let k = 0; k < 7; k++) { const b = g.bxShot(e, ox, oy, a + (k / 6 - 0.5) * 1.3, { shot: 'bat_swarm', speed: 5.5, range: 12, dmg: V.dmg, mv: { wave: { amp: 0.6 + R() * 0.6, freq: 5 + R() * 4 } } }); b.cs = R() < 0.5 ? -1 : 1; }
 }
 function scythes(g, e, V) {                         // four great scythes thrown wide; they stop, and wheel back to him
-  const p = g.player, [ox, oy] = g.bxOrigin(e), a = angleTo(ox, oy, p.x, p.y);
+  const p = g.player, [ox, oy] = g.bxOrigin(e), a = g.bxAim(e, ox, oy);
   for (const off of [-0.9, -0.3, 0.3, 0.9]) g.bxShot(e, ox, oy, a + off, { shot: 'blood_scythe', speed: 6.5, range: 99, dmg: V.dmg || 115, size: 0.6, mv: { boomer: 1.0 }, life: 2.4 });
 }
 function rain(g, e, V) {                            // three patches darken, rain blood, and leave a pool
@@ -73,6 +73,7 @@ function poolsBoil(g, e, V) {
 }
 
 export default {
+  lead: true,                                     // aimed volleys alternate: at you, then where you are going (a steady circle is not safe)
   id: 'count_vesper', name: 'Count Vesper, the Crimson Count', biome: 'dungeon', hp: 200000, def: 26, xp: 11000, r: 2.2, speed: 1.6, keep: 7, faces: true, shotSheet: 'bx2_shots',
   tempo: 0.78, dmgScale: 1.1,
   phases: {
