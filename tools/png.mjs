@@ -1,5 +1,5 @@
 // A small PNG reader for the headless tools (8-bit grey, RGB, RGBA and palette images, not interlaced):
-//   readPng(path) -> { w, h, a(x, y) }  where a() is the alpha (0..255) of a pixel
+//   readPng(path) -> { w, h, a(x, y), rgb(x, y) }  where a() is the alpha (0..255) of a pixel and rgb() its [r, g, b]
 import { readFileSync } from 'node:fs';
 import { inflateSync } from 'node:zlib';
 
@@ -36,5 +36,12 @@ export function readPng(path) {
     if (type === 3) return trns && px[i] < trns.length ? trns[px[i]] : 255;
     return 255;
   };
-  return { w, h, a: alpha };
+  const rgb = (x, y) => {
+    if (x < 0 || y < 0 || x >= w || y >= h) return [0, 0, 0];
+    const i = y * stride + x * ch;
+    if (type === 3) { const k = px[i] * 3; return [pal[k], pal[k + 1], pal[k + 2]]; }
+    if (type === 0 || type === 4) return [px[i], px[i], px[i]];
+    return [px[i], px[i + 1], px[i + 2]];
+  };
+  return { w, h, a: alpha, rgb };
 }

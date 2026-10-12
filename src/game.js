@@ -74,8 +74,8 @@ export function shotScale(sprite, size, from) {
   const key = sprite + '|' + size + '|' + from;
   let k = kCache.get(key);
   if (k === undefined) {
-    const B = SHOT_OVERRIDE[sprite] || SHOT_BOXES[sprite], want = (size || 0.4) * 16 * (from === 'e' ? 2.4 : 2.2);
-    k = B ? Math.min(1, want / Math.max(B[0], B[1], 1)) : 1;
+    const B = SHOT_OVERRIDE[sprite] || SHOT_BOXES[sprite], want = (size || 0.4) * 16 * 2.4;
+    k = from === 'p' ? (B && B[6] >= 1 ? 0.5 : 1) : B ? Math.min(1, want / Math.max(B[0], B[1], 1)) : 1;   // a player's shot: one art pixel to one screen pixel (pack art is stored at two), drawn and hit at that size
     kCache.set(key, k);
   }
   return k;

@@ -1707,7 +1707,7 @@ export class Renderer {
         }
       }
       const k0 = this.W.projectiles[pr.sprite] ?? 0, nf = this.W.projFrames || 1;
-      const k = k0 + (nf > 1 ? Math.floor(g.t * 12 + (pr.x + pr.y) * 2) % nf : 0);
+      const k = k0 + (nf > 1 && pr.from === 'e' ? Math.floor(g.t * 12 + (pr.x + pr.y) * 2) % nf : 0);   // (a player's shot is one still frame: docs/projectile_art_standard.md)
       const [sx0, sy0] = this.proj(pr.x, pr.y);
       let sx = Math.round(sx0), sy = Math.round(sy0);
       if (pr.lob) {                                          // a mortar: marker on the ground, the shot arcing over
@@ -1720,14 +1720,14 @@ export class Renderer {
       }
       if (pr.frozen) { b.globalAlpha = 0.55; }
       if (sx < -12 || sy < -12 || sx > BW + 12 || sy > BH + 12) continue;
-      if (Math.random() < trailP) {
+      if (pr.from === 'e' && Math.random() < trailP) {          // (no trails behind a player's shots)
         const cols = this.colorsOf('p:' + pr.sprite, PI, (k % pc) * PS, Math.floor(k / pc) * PS, PS, PS);
         this.parts.push({ x: pr.x, y: pr.y, z: 0, vx: 0, vy: 0, vz: 0, g: 0, life: 0.18, max: 0.18, color: cols[Math.floor(Math.random() * Math.min(2, cols.length))] });
       }
       // RotMG-style shots: 8x8 art at the characters' scale. Pointed shots turn to their flight (the long ones are drawn
       // on the diagonal), stars and wheels spin, the big slow ones are drawn a size up. Enemy shots sit on a faint dark halo.
       const S = this.shotSets || (this.shotSets = { rot: new Set(this.W.projRot || []), diag: new Set(this.W.projDiag || []), spin: new Set(this.W.projSpin || []), big: new Set(this.W.projBig || []) });
-      const Q = (pr.from === 'e' ? 1 : 0.875) * (S.big.has(pr.sprite) ? 1.3 : 1) * (pr.k || 1), QS = PS * Q, qh = half * Q;
+      const Q = pr.from === 'e' ? (S.big.has(pr.sprite) ? 1.3 : 1) * (pr.k || 1) : 1, QS = PS * Q, qh = half * Q;   // a player's shot: exactly 1:1, never resized
       if (pr.from === 'e') { const H = this.haloStamp(qh * 0.66); b.drawImage(H, sx - H.width / 2, sy - H.height / 2); }
       if (S.rot.has(pr.sprite) || S.spin.has(pr.sprite)) {
         const ang = S.spin.has(pr.sprite) ? g.t * 9 + (pr.x + pr.y) : pr.a + this.th + (S.diag.has(pr.sprite) ? Math.PI / 4 : 0);
