@@ -19,6 +19,7 @@ export function rng(seed) {
   r.int = (a, b) => a + Math.floor(r() * (b - a + 1));
   r.pick = (arr) => arr[Math.floor(r() * arr.length)];
   r.chance = (p) => r() < p;
+  r.seed = (v) => { s = v >>> 0; };                          // (the headless checks restart it, so a run repeats)
   return r;
 }
 export const R = rng((Date.now() ^ 0x9e3779b9) >>> 0);

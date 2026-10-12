@@ -105,7 +105,11 @@ const methods = {
       return true;
     }
     if (S.kind === 'burrow') {                                // a mound under you, then the eruption
-      if (S.t < 2) { const dd = Math.hypot(p.x - e.x, p.y - e.y); if (dd > 0.3) this.moveCircle(e, ((p.x - e.x) / dd) * 3.6 * dt, ((p.y - e.y) / dd) * 3.6 * dt, 0.4); e.rumble = 0; return true; }
+      if (S.t < 2) {                                          // the mound runs at you, round walls rather than into them
+        const w = this.seesFoe(e, p, true) ? null : this.flowStep(e), tx = w ? w[0] : p.x, ty = w ? w[1] : p.y, dd = Math.hypot(tx - e.x, ty - e.y);
+        if (dd > 0.3) this.moveCircle(e, ((tx - e.x) / dd) * 3.6 * dt, ((ty - e.y) / dd) * 3.6 * dt, 0.4);
+        e.rumble = 0; return true;
+      }
       if (S.t < 2.8) { e.rumble = 1; e.burT = 2.8 - S.t; return true; }
       e.rumble = 0; e.under = false; e.born = this.t; e.dusted = false; e.elState = null;
       if (!p.dead && Math.hypot(e.x - p.x, e.y - p.y) < 1.6) this.hurtPlayer(A.dmg || 70, D.name);

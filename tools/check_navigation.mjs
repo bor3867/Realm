@@ -12,6 +12,7 @@ const { buildRegistry } = await import('../src/registry.js');
 const { Game } = await import('../src/game.js');
 const { ENEMIES, DUNGEONS } = await import('../src/data/enemies.js');
 const { isSolid, TID } = await import('../src/world/maps.js');
+const { R: GR } = await import('../src/util.js');
 const B0 = new URL('../art/bundle/', import.meta.url), J = (q) => JSON.parse(readFileSync(new URL(q, B0), 'utf8')), idx = J('index.json');
 const reg = buildRegistry(idx.atlases.map((a) => ({ pack: a.split('/')[0], json: J(a) })), J(idx.hover), (q) => q);
 const WALKERS = ['shamble', 'flank', 'zigzag', 'kite', 'swoop', 'orbit'];
@@ -34,11 +35,11 @@ const open = (m, x, y) => { for (let dy = -1; dy <= 1; dy++) for (let dx = -1; d
 const rows = [];
 for (const where of Object.keys(DUNGEONS)) {
   if (only.length && !only.includes(where)) continue;
-  RNG = 13 + Object.keys(DUNGEONS).indexOf(where) * 101; CLOCK = 1.7e12 + Object.keys(DUNGEONS).indexOf(where) * 1000;           // (each dungeon its own seed: run one alone and it is the same chase)
+  RNG = 13 + Object.keys(DUNGEONS).indexOf(where) * 101; CLOCK = 1.7e12 + Object.keys(DUNGEONS).indexOf(where) * 1000; GR.seed(77 + Object.keys(DUNGEONS).indexOf(where));           // (each dungeon its own seed: run one alone and it is the same chase)
   const g = new Game({ reg }, { fame: 0, gold: 0, essence: 0, vaults: [[]], graveyard: [], chars: [], slots: 8, bestLevel: 0 });
   g.newCharacter('priest'); g.persist = () => {}; g.god = true; g.enter(where);
   const m = g.map, p = g.player, pairs = [];
-  for (let k = 0; k < 40000 && pairs.length < 4; k++) {
+  for (let k = 0; k < 40000 && pairs.length < 8; k++) {
     const ax = 2 + Math.floor(Math.random() * (m.w - 4)) + 0.5, ay = 2 + Math.floor(Math.random() * (m.h - 4)) + 0.5;
     if (!open(m, ax, ay)) continue;
     const an = Math.random() * Math.PI * 2, dd = 5 + Math.random() * 4, bx = Math.floor(ax + Math.cos(an) * dd) + 0.5, by = Math.floor(ay + Math.sin(an) * dd) + 0.5;
@@ -46,10 +47,11 @@ for (const where of Object.keys(DUNGEONS)) {
     const L = route(m, [ax, ay], [bx, by]); if (L < 0) continue;
     pairs.push([[ax, ay], [bx, by], L]);
   }
-  for (const [A, Bp, L] of pairs) {
+  for (const [pi, [A, Bp, L]] of pairs.entries()) {
+    const base = Object.keys(DUNGEONS).indexOf(where) * 8 + pi;   // (which monster: fixed by dungeon and pair, so a run repeats)
     const dAB = Math.hypot(Bp[0] - A[0], Bp[1] - A[1]);
-    let id = pool[(rows.length * 7) % pool.length];                 // a monster whose aggro reaches you (it would notice you)
-    for (let k = 1; ENEMIES[id].aggro < dAB + 1 && k < pool.length; k++) id = pool[(rows.length * 7 + k) % pool.length];
+    let id = pool[(base * 7) % pool.length];                 // a monster whose aggro reaches you (it would notice you)
+    for (let k = 1; ENEMIES[id].aggro < dAB + 1 && k < pool.length; k++) id = pool[(base * 7 + k) % pool.length];
     const D = ENEMIES[id];
     g.enemies = g.map.enemies = []; g.projectiles = [];
     p.x = Bp[0]; p.y = Bp[1];
@@ -57,12 +59,12 @@ for (const where of Object.keys(DUNGEONS)) {
     const reach = (D.keep || 1.2) + 2.5, start = Math.hypot(e.x - p.x, e.y - p.y);
     let t = 0, got = null, stall = 0, worstStall = 0, last = [e.x, e.y], lastT = 0;
     for (let f = 0; f < 60 * 25 && got === null; f++) {
-      t += 1 / 60; p.hp = 1e9; p.dead = false;
+      t += 1 / 60; p.hp = 1e9; p.dead = false; p.x = Bp[0]; p.y = Bp[1];   // (held still: the forge's conveyors would carry you off)
       g.enemies = g.map.enemies = g.enemies.filter((q) => q === e);
       g.update(1 / 60);
       if (e.dead) break;
       if (Math.hypot(e.x - p.x, e.y - p.y) < reach) got = t;
-      if ((process.env.TRACE === id || process.env.TRACE === '*') && f % 60 === 0) console.log(t.toFixed(1), e.state, 'sees', g.seesFoe(e, p), 'step', JSON.stringify(g.flowStep(e)), 'at', e.x.toFixed(1), e.y.toFixed(1), 'cd', (e.cds || []).map((c) => c.toFixed(1)).join('/'));
+      if ((process.env.TRACE === id || process.env.TRACE === '*') && f % 60 === 0) console.log(t.toFixed(1), e.state, 'sees', g.seesFoe(e, p), 'step', JSON.stringify(g.flowStep(e)), 'at', e.x.toFixed(1), e.y.toFixed(1), 'cd', (e.cds || []).map((c) => c.toFixed(1)).join('/'), 'd', Math.hypot(e.x - p.x, e.y - p.y).toFixed(1), 'aggro', e.D.aggro, 'you', p.x, p.y, 'lure', !!e.lureTo, 'el', JSON.stringify(e.elState && { k: e.elState.kind, t: +e.elState.t.toFixed(1) }), 'abil', JSON.stringify(e.abil), 'under', !!e.under, 'wide', g.seesFoe(e, p, true), 'R', e.D.r);
       if (t - lastT >= 1) { const moved = Math.hypot(e.x - last[0], e.y - last[1]); if (moved < 0.3) stall += 1; else stall = 0; worstStall = Math.max(worstStall, stall); last = [e.x, e.y]; lastT = t; }
     }
     rows.push({ where, id, ai: D.ai, start, path: L, got, worstStall });

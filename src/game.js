@@ -1334,21 +1334,30 @@ export class Game {
     }
     return F;
   }
-  // can it see you (a clear straight line)? asked a few times a second, not every frame
-  seesFoe(e, p) {
-    if (e.sightT > this.t) return e.sight;
-    e.sightT = this.t + 0.2 + ((e.x * 7 + e.y * 3) % 1) * 0.1;
-    const m = this.map, dx = p.x - e.x, dy = p.y - e.y, L = Math.hypot(dx, dy);
-    e.sight = true;
-    for (let s = 0.4; s < L; s += 0.4) if (isSolid(m, e.x + (dx * s) / L, e.y + (dy * s) / L)) { e.sight = false; break; }
-    return e.sight;
+  // can it see you (a clear straight line: enough for a shot)? And, wide, could it walk that line (its body's width
+  // clear the whole way: a line that only grazes a corner is not a way through)? Asked a few times a second.
+  seesFoe(e, p, wide = false) {
+    const k = wide ? 'walkLine' : 'sight';
+    if (e[k + 'T'] > this.t) return e[k];
+    e[k + 'T'] = this.t + 0.2 + ((e.x * 7 + e.y * 3) % 1) * 0.1;
+    const m = this.map, dx = p.x - e.x, dy = p.y - e.y, L = Math.hypot(dx, dy), w = wide ? 0.42 : 0, nx = (-dy / (L || 1)) * w, ny = (dx / (L || 1)) * w;
+    e[k] = true;
+    for (let s = 0.3; s < L - 0.3 && e[k]; s += 0.3) {
+      const x = e.x + (dx * s) / L, y = e.y + (dy * s) / L;
+      if (isSolid(m, x, y) || (wide && (isSolid(m, x + nx, y + ny) || isSolid(m, x - nx, y - ny)))) e[k] = false;
+    }
+    return e[k];
   }
   // where to walk to come round to you: the furthest tile down the flow it can see (null if you are out of reach)
   flowStep(e) {
     const F = this.flowField(), m = this.map, w = m.w;
     let i = Math.floor(e.y) * w + Math.floor(e.x);
     if (F.gen[i] !== F.g) return null;
-    const clear = (x, y) => { const dx = x - e.x, dy = y - e.y, L = Math.hypot(dx, dy); for (let s = 0.3; s < L; s += 0.3) { const px = e.x + (dx * s) / L, py = e.y + (dy * s) / L; if (isSolid(m, px, py) || isSolid(m, px + 0.3, py) || isSolid(m, px - 0.3, py) || isSolid(m, px, py + 0.3) || isSolid(m, px, py - 0.3)) return false; } return true; };
+    const clear = (x, y) => {                              // a line its body can walk (0.42 either side: the widest monster body)
+      const dx = x - e.x, dy = y - e.y, L = Math.hypot(dx, dy) || 1, nx = (-dy / L) * 0.42, ny = (dx / L) * 0.42;
+      for (let s = 0.2; s < L; s += 0.25) { const px = e.x + (dx * s) / L, py = e.y + (dy * s) / L; if (isSolid(m, px, py) || isSolid(m, px + nx, py + ny) || isSolid(m, px - nx, py - ny)) return false; }
+      return true;
+    };
     let best = null;
     for (let step = 0; step < 6; step++) {
       const x = i % w, y = (i / w) | 0;
@@ -1472,7 +1481,15 @@ export class Game {
     const vd = (x, y) => nv && m.tiles[Math.floor(y) * m.w + Math.floor(x)] === TID.asvoid;
     const free = (x, y) => !isSolid(m, x - r, y - r) && !isSolid(m, x + r, y - r) && !isSolid(m, x - r, y + r) && !isSolid(m, x + r, y + r) && !(nv && (vd(x - r, y - r) || vd(x + r, y - r) || vd(x - r, y + r) || vd(x + r, y + r)));
     if (free(o.x + dx, o.y)) o.x += dx;
+    else if (o !== this.player && Math.abs(dx) > Math.abs(dy) * 0.5) {   // a monster caught on a corner slides toward the gap: centre it on its row
+      const c = Math.floor(o.y) + 0.5 - o.y, s = Math.sign(c) * Math.min(Math.abs(c), Math.abs(dx));
+      if (s && free(o.x, o.y + s) && free(o.x + dx, o.y + s)) o.y += s;
+    }
     if (free(o.x, o.y + dy)) o.y += dy;
+    else if (o !== this.player && Math.abs(dy) > Math.abs(dx) * 0.5) {   // ... or on its column
+      const c = Math.floor(o.x) + 0.5 - o.x, s = Math.sign(c) * Math.min(Math.abs(c), Math.abs(dy));
+      if (s && free(o.x + s, o.y) && free(o.x + s, o.y + dy)) o.x += s;
+    }
   }
 
   shoot(from, x, y, a, speed, range, dmg, sprite, size = 0.4, pierce = false, by = null) {
@@ -1806,7 +1823,7 @@ export class Game {
         if (e.under && e.rumble) sp = 0;                   // the mound stops and trembles: it's about to come up here
         else if (e.under) { sp = D.speed * 2; const b = a + Math.sin(this.t * 2 + e.phase) * 0.9; tx = p.x + Math.cos(b) * 2.2; ty = p.y + Math.sin(b) * 2.2; }
         else { sp = D.speed * 0.6; tx = p.x + Math.cos(a) * 3; ty = p.y + Math.sin(a) * 3; }
-      } else if (ai === 'zigzag' && !(p === this.player && !D.noclip && !this.seesFoe(e, p))) {
+      } else if (ai === 'zigzag' && !(p === this.player && !D.noclip && !this.seesFoe(e, p, true))) {
         e.phase += dt * 6;
         if (d > 1.3) {
           const to = angleTo(e.x, e.y, p.x, p.y), w = Math.sin(e.phase) * 1.2;
@@ -1850,7 +1867,7 @@ export class Game {
     }
     // a wall between you: come round it (by the flow field) instead of pressing into it. Kiters do too, until they
     // have a clear shot again; rooted things, burrowers underground, divers mid-dive and ghosts that pass walls don't
-    if (aggro && p === this.player && sp > 0 && !D.noclip && !e.under && !e.dive && ai !== 'rooted' && ai !== 'flee' && !e.lureTo && !this.seesFoe(e, p)) {
+    if (aggro && p === this.player && sp > 0 && !D.noclip && !e.under && !e.dive && ai !== 'rooted' && ai !== 'flee' && !e.lureTo && !this.seesFoe(e, p, true)) {   // (wide: a line its body can walk)
       const w = this.flowStep(e);
       if (w) { tx = w[0]; ty = w[1]; sp = D.speed; }
     }

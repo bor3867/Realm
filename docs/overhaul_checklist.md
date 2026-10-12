@@ -18,7 +18,7 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
 | Realm | Starting an altar trial in the dunes, thornwood, steppe or lowlands crashed the game (a TypeError in the update loop: the game froze) | Altars stand in all 8 biomes, but the trials' monster pools (`QUEST_HUNTS`) covered only the first 4 | Pools added for the 4 newer lands, from their own ordinary monsters (hunt quests, wells and dig spots only use the first 4, so they are unchanged) | `tools/check_dungeon_objects.mjs` (crashed on the old code) |
 | Performance | Drawing a frame took 14 ms in the Nexus (most of a 60 fps frame) and 8 ms in the realm; the ground alone was 12 ms / 3 ms | `drawGround` redrew every ground tile (about 3,700, plus biome-edge blends, plus a 25-cell fog scan per tile) every frame | The ground and its fog are drawn in cached 8x8-tile chunks, redrawn only when their tiles, skins, explored state or (for moving tiles) animation frame change; the fog stays over the ground light | Pixel-identical to the old renderer (0 differing bytes) in the Nexus, the realm (animated shore included) and 4 dungeons; whole draw now 1.9 ms (Nexus) and 2.8 ms (realm) |
 | Performance | A 160 ms stall the first time the realm is drawn | The minimap parsed a colour string three times per tile (1.6 million tiles) and cleared its fog one call per explored tile | Colours parsed once each; both pictures written straight into pixel arrays | Identical minimap (0 differing bytes); rebuild 162 ms to 41 ms |
-| Enemies | Monsters with a wall between them and you pressed into the wall (a quarter of chases round a wall never got there), and monsters in range fired aimed shots into the wall instead of coming round | Every walker aimed straight at your spot; attacks needed only range, not a clear line | A shared flow field (walking distance from your tile, out to 40 steps, rebuilt when you change tile, the void excluded); a monster that cannot see you follows it, heading for the furthest point down the path it can see (smooth corners); kiters too, until they have a clear shot. Aimed attacks (aimed, shotgun, wall, beam, burst, cage) wait for a clear line; mortars lob over; rings from the monster's own body still fire | `tools/check_navigation.mjs`: chases round a wall in 14 dungeons, 75% reached you before, about 96% now |
+| Enemies | Monsters with a wall between them and you pressed into the wall (a quarter of chases round a wall never got there), and monsters in range fired aimed shots into the wall instead of coming round | Every walker aimed straight at your spot; attacks needed only range, not a clear line | A shared flow field (walking distance from your tile, out to 40 steps, rebuilt when you change tile, the void excluded); a monster that cannot see you follows it, heading for the furthest point down the path it can see (smooth corners); kiters too, until they have a clear shot. Aimed attacks (aimed, shotgun, wall, beam, burst, cage) wait for a clear line; mortars lob over; rings from the monster's own body still fire | `tools/check_navigation.mjs`: chases round a wall in 14 dungeons, 75% reached you before; now 103 of 104 |
 | Tests | `check_remaster_ext` failed at random (about 1 run in 4) | Its realm monsters fire on unseeded randomness | Seeded | 3 of 3 identical runs |
 
 ## Found working (tested end to end)
@@ -57,9 +57,15 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   no progress 18% of the time. Not yet measured: walls, corridors and doorways (the likely home of stuck and
   straight-line chasing), which needs a dungeon-layout test. Then: per-enemy weight (today every monster eases its
   velocity at the same rate), the archetypes, group roles, boss movement.
-- Navigation left to do: a few chases still stall 3-11 s before getting round, and the longest routes (20-28 tiles
-  round) can fail within 25 s; the navigation check is not yet fully repeatable (the game's own random generator
-  carries over between dungeons).
+- Navigation, pass 2: the check is now fully repeatable (dungeon layouts, the game's own generator and the choice of
+  monster are all fixed per dungeon; `R.seed()` added to src/util.js for it). Found and fixed: a monster that could
+  "see" you along a line that only grazed a corner walked into the corner (walking now needs a line as wide as its
+  body, 0.42 either side, both for walking straight and for choosing how far down the path to aim); a monster caught
+  on a corner in a one-tile corridor was refused the move instead of sliding in (monsters now slide toward the
+  centre of their row or column when blocked; your own movement is unchanged); an elite burrowing toward you tunnelled
+  straight into walls (it follows the path too). 8 chases per dungeon, 104 in all: 103 reach you (median 0.8 s).
+  Left: the Drowned Thrall's 28-tile detour in the Theatre (it should take ~14 s and doesn't arrive in 25 s), and a
+  3 s pause in one Rock Troll chase.
 - Enemy movement and AI overhaul (requested 2026-10-12): audit every enemy's movement; reusable movement archetypes
   (pursuer, orbiter, skirmisher, ambusher, charger, flanker, defender, erratic, formation, stationary guardian) with
   per-enemy weight (acceleration, turning); smooth, frame-rate independent steering, wall sliding, unsticking;
