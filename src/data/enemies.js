@@ -90,7 +90,7 @@ const MYTHIC = (p) => ['the_unbroken_oath', 'oathbreaker', 'the_thirteenth_page'
 Object.assign(ENEMIES, {
   salt_widow: {
     name: 'Salt Widow', biome: 'shore', hp: 140, def: 2, speed: 0.6, xp: 12, r: 0.45, ai: 'kite', keep: 5, aggro: 8,
-    attacks: [{ pattern: 'aimed', proj: 'salt', count: 5, arc: 0.8, dmg: 18, speed: 6, range: 7, cd: 2.0, tell: 500 }],
+    attacks: [{ pattern: 'aimed', proj: 'salt', count: 3, arc: 0.5, dmg: 18, speed: 6, range: 7, cd: 2.6, tell: 500 }],
     loot: L([0, 2], [0, 2], [0, 1], [0, 1], 0.005, [{ id: 'salt_widows_veil', p: 0.004 }]),
   },
   trap_hound: {
@@ -194,8 +194,8 @@ Object.assign(ENEMIES, {
   rime_herald: {
     name: 'The Rime Herald', biome: 'runeholt', sheet: 'champions', herald: true, hp: 12000, def: 18, speed: 0.8, xp: 2500, r: 0.8, ai: 'kite', keep: 6, aggro: 12,
     attacks: [
-      { pattern: 'radial', proj: 'rimeflag', count: 4, turn: 0.3, waves: 12, gap: 0.1, dmg: 80, speed: 5, range: 8, cd: 3.2, tell: 700 },
-      { pattern: 'aimed', proj: 'hailstone', count: 3, arc: 0.5, dmg: 95, speed: 7, range: 9, cd: 1.4, tell: 300 },
+      { pattern: 'radial', proj: 'rimeflag', count: 4, turn: 0.3, waves: 10, gap: 0.12, dmg: 80, speed: 5, range: 8, cd: 3.2, tell: 700 },
+      { pattern: 'aimed', proj: 'hailstone', count: 3, arc: 0.62, dmg: 95, speed: 7, range: 9, cd: 1.4, tell: 300 },
     ],
     escort: [['prayer_monk', 2], ['antlered_hush', 2], ['cairn_crawler', 2]],
     loot: HL([6, 8], [6, 9], [3, 4], [3, 4], 'the_turning_verse'),
@@ -245,7 +245,7 @@ ENEMIES.rune_warden.children = ['cairn_crawler'];
 // Stats derive from the child; each gets its own signature attack.
 const EVOLVED = {
   lighthouse_jelly: ['lantern_jelly', 'The Lighthouse Jelly', { pattern: 'radial', proj: 'beacon', count: 12, turn: 0.26, waves: 2, gap: 0.3 }],
-  salt_matriarch: ['salt_widow', 'Salt Matriarch', { pattern: 'radial', proj: 'saltcrystal', count: 10, turn: 0.31 }],
+  salt_matriarch: ['salt_widow', 'Salt Matriarch', { pattern: 'radial', proj: 'saltcrystal', count: 9, turn: 0.31 }],
   trap_hound_alpha: ['trap_hound', 'Trap-Hound Alpha', { pattern: 'aimed', proj: 'snapjaw', count: 3, arc: 0.5, waves: 2, gap: 0.15 }],
   anchor_titan: ['anchor_bearer', 'Anchor Titan', { pattern: 'radial', proj: 'anchorhead', count: 10, turn: 0.31, waves: 2, gap: 0.4 }],
   moth_queen: ['lens_moth', 'Lens Moth Queen', { pattern: 'radial', proj: 'mothdust', count: 16, turn: 0.2 }],
@@ -254,7 +254,7 @@ const EVOLVED = {
   mire_chorus: ['mire_choir', 'The Mire Chorus', { pattern: 'radial', proj: 'chorusnote', count: 20, turn: 0.16, waves: 2, gap: 0.3 }],
   twin_lamp_heron: ['lantern_heron', 'Twin-Lamp Heron', { pattern: 'aimed', proj: 'twinwisp', count: 2, arc: 0.25, waves: 3, gap: 0.12 }],
   tallow_matron: ['candle_mite', 'Tallow Matron', { pattern: 'radial', proj: 'tallowdrop', count: 12, turn: 0.26 }],
-  elder_willow: ['mourning_willow', 'Elder Willow', { pattern: 'radial', proj: 'thornseed', count: 14, turn: 0.22, waves: 2, gap: 0.4 }],
+  elder_willow: ['mourning_willow', 'Elder Willow', { pattern: 'radial', proj: 'thornseed', count: 12, turn: 0.22, waves: 2, gap: 0.4 }],
   leech_prime: ['grave_leech', 'Leech Prime', { pattern: 'aimed', proj: 'leechspit', count: 4, arc: 0.45, waves: 2, gap: 0.14 }],
   glacier_headsman: ['frozen_executioner', 'Glacier Headsman', { pattern: 'radial', proj: 'glacierchunk', count: 14, turn: 0.22, waves: 2, gap: 0.35 }],
   wheel_abbot: ['prayer_monk', 'Prayer-Wheel Abbot', { pattern: 'radial', proj: 'wheelglyph', count: 6, turn: 0.3, waves: 12, gap: 0.1 }],
@@ -1170,7 +1170,7 @@ Object.assign(ENEMIES, {
   sand_skimmer: { name: 'Sand Skimmer', biome: 'dunes', hp: 90, def: 0, speed: 4.2, xp: 9, r: 0.4, ai: 'zigzag', aggro: 10, fly: true, contact: 12,
     attacks: [{ pattern: 'aimed', proj: 'ember', count: 1, dmg: 12, speed: 8, range: 6, cd: 1.6, tell: 200, mv: { curve: 1.4, alt: true } }], loot: LD },
   glass_sphinx: { name: 'The Glass Sphinx', biome: 'dunes', sheet: 'champions', hp: 800, def: 6, speed: 1.8, xp: 90, r: 0.75, ai: 'kite', keep: 5, aggro: 11,
-    attacks: [{ pattern: 'radial', proj: 'lensflare', count: 10, turn: 0.3, waves: 2, gap: 0.3, dmg: 20, speed: 4, range: 8, cd: 3, tell: 600 }],
+    attacks: [{ pattern: 'radial', proj: 'lensflare', count: 9, turn: 0.3, waves: 2, gap: 0.3, dmg: 20, speed: 4, range: 8, cd: 3, tell: 600 }],
     children: ['glass_scarab', 'salt_mummy', 'dune_lurker'], cap: 6, every: 9, loot: L([1, 3], [1, 3], [0, 2], [0, 2], 0.02), lootLuck: 2 },
   mirage_caller: { name: 'Mirage Caller', biome: 'dunes', sheet: 'champions', hp: 700, def: 4, speed: 2.0, xp: 80, r: 0.75, ai: 'kite', keep: 6, aggro: 11,
     attacks: [{ pattern: 'aimed', proj: 'wisp', count: 3, arc: 0.6, waves: 2, gap: 0.2, dmg: 18, speed: 6, range: 8, cd: 2.4, tell: 450, mv: { wave: { amp: 1.6, freq: 7 } } }],
@@ -1188,7 +1188,7 @@ Object.assign(ENEMIES, {
     attacks: [{ pattern: 'radial', proj: 'splinter', count: 12, turn: 0.26, waves: 2, gap: 0.3, dmg: 44, speed: 5, range: 7, cd: 2.8, tell: 600 }],
     children: ['bramble_wolf', 'thorn_sprite'], cap: 6, every: 10, loot: L([3, 5], [3, 5], [1, 3], [1, 3], 0.04), lootLuck: 2 },
   witch_of_briars: { name: 'The Witch of Briars', biome: 'thornwood', sheet: 'champions', hp: 2100, def: 8, speed: 1.6, xp: 220, r: 0.75, ai: 'kite', keep: 6, aggro: 11,
-    attacks: [{ pattern: 'aimed', proj: 'thornseed', count: 4, arc: 0.7, waves: 2, gap: 0.25, dmg: 42, speed: 6, range: 8, cd: 2.6, tell: 500, mv: { split: { at: 0.55, n: 3 } } }],
+    attacks: [{ pattern: 'aimed', proj: 'thornseed', count: 4, arc: 0.7, waves: 2, gap: 0.25, dmg: 42, speed: 6, range: 8, cd: 3.4, tell: 500, mv: { split: { at: 0.55, n: 3 } } }],
     children: ['spore_puff', 'thorn_sprite'], cap: 6, every: 10, loot: L([3, 5], [3, 5], [1, 3], [1, 3], 0.04), lootLuck: 2 },
   // ---- the Crystal Steppe
   crystal_golem: { name: 'Crystal Golem', biome: 'steppe', hp: 1500, def: 16, speed: 1.6, xp: 95, r: 0.6, ai: 'shamble', aggro: 10,
@@ -1204,7 +1204,7 @@ Object.assign(ENEMIES, {
     attacks: [{ pattern: 'radial', proj: 'shard', count: 14, turn: 0.22, waves: 2, gap: 0.35, dmg: 70, speed: 4.5, range: 8, cd: 3, tell: 700, mv: { split: { at: 0.6, n: 2 } } }],
     children: ['crystal_golem', 'shard_crawler'], cap: 5, every: 11, loot: L([5, 7], [5, 7], [2, 4], [2, 4], 0.06), lootLuck: 2 },
   skyglass_seer: { name: 'The Skyglass Seer', biome: 'steppe', sheet: 'champions', hp: 5200, def: 18, speed: 2.0, xp: 480, r: 0.75, ai: 'kite', keep: 6, aggro: 12, fly: true,
-    attacks: [{ pattern: 'aimed', proj: 'starbeam', count: 3, arc: 0.4, waves: 3, gap: 0.15, dmg: 75, speed: 9, range: 9, cd: 2.4, tell: 400 },
+    attacks: [{ pattern: 'aimed', proj: 'starbeam', count: 3, arc: 0.4, waves: 2, gap: 0.15, dmg: 75, speed: 9, range: 9, cd: 2.4, tell: 400 },
       { pattern: 'radial', proj: 'lensflare', count: 12, dmg: 60, speed: 3.5, range: 8, cd: 4, tell: 700, mv: { accel: 10, max: 2.5 } }],
     children: ['prism_hawk', 'shard_crawler'], cap: 5, every: 11, loot: L([5, 7], [5, 7], [2, 4], [2, 4], 0.06), lootLuck: 2 },
 });

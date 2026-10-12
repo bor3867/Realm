@@ -42,3 +42,11 @@ A Legendary is not drawn bigger to look important; it is drawn better. Rarity sh
 - Marks, glyphs and zones on the ground: 1 px lines, at most 45% opacity, in the shot's palette.
 - No screen flashes, no shake from player weapons.
 - Player shots never carry the dark halo that marks enemy shots; enemies keep it, so the two never read alike.
+
+## 7. Enemy shots
+- Drawn at a whole scale only: one or two screen pixels to each art pixel (pack art, stored at two, at 0.5x or 1x;
+  the original sheet's "big" shots are boxed at 1.3x and scaled back to a whole size). An attack's `size` asks for a
+  length of about 2.4 times its radius; the scale snaps to the nearest whole one (`shotScale` in src/game.js).
+- The hit shape is the drawn art at that same scale, so a shot hits exactly where it shows.
+- `node tools/audit_enemy_shots.mjs` checks every shot enemies and bosses actually fire (`--grow` lists the ones the
+  snap moved 30% or more from their attack's size).

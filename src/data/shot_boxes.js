@@ -724,3 +724,5 @@ export const SHOT_BOXES = {
   "yap": [16,14,0,-1,"f","9fH38fnx+/H98f/xAfED8QXxB/EJ8QvxDfEP8fXz9/P58/vz/fP/8wHzA/MF8wfzCfML8w3zD/Px9fP19fX39fn1+/X99f/1AfUD9QX1B/UJ9Qv1DfUP9fH38/f19/f3+ff79/33//cB9wP3BfcH9wn3C/cN9w/38fnz+fX59/n5+fv5/fn/+QH5A/kF+Qf5CfkL+Q35D/nx+/P79fv3+/n7+/v9+//7AfsD+wX7B/sJ+wv7DfsP+/H98/31/ff9+f37/f39//0B/QP9Bf0H/Qn9C/0N/Q/98f/z//X/9//5//v//f///wH/A/8F/wf/Cf8L/w3/D//1AfcB+QH7Af0B/wEBAQMBBQEHAQkBCwH1A/cD+QP7A/0D/wMBAwMDBQMHAwkDCwP1BfcF+QX7BfUH9wf5B/sH8QnzCfUJ9wnxC/ML9Qv3Cw==",0.5],
   "zzz": [14,14,-1,-1,"f","8fXz9fX19/X59fv1/fX/9QH1A/UF9Qf18ffz9/X39/f59/v3/ff/9wH3A/cF9wf3AfkD+QX5B/kB+wP7BfsH+/39//0B/QP9/f///wH/A//5AfsB/QH/AQkBCwH5A/sD/QP/AwkDCwP1BfcF+QX7BQUFBwUJBQsF9Qf3B/kH+wcFBwcHCQcLB/EJ8wn1CfcJ+Qn7Cf0J/wkBCQMJBQkHCfEL8wv1C/cL+Qv7C/0L/wsBCwMLBQsHCwXxB/EJ8QvxBfMH8wnzC/MJ9Qv1CfcL9/35//n9+//7+f37/fn/+//1AfcB9QP3A/EF8wXxB/MH",0.5],
 };
+// the original sheet's shots boxed (and drawn) at 1.3x
+export const SHOT_BIG = new Set(["anchorhead","bellpearl","bellwave","glacierchunk","gluttonhalo","greattoll","molten","mournbell","organblast","pj_godfist","pj_unstruck","pj_whitewhale","quake","shieldboss","slag","smoke","tallow"]);

@@ -7,7 +7,7 @@ import { ENEMIES, PACKS, CAMP_LOOT, BIOME_SPAWNS, BOSS, REALM_BOSSES, PARENTS, H
 import { nexus, vaultRoom, realm, dungeon, isSolid, shotBlocked, biomeAt, randomTileInBiome, BIOMES, BIOME_RING, BIOME_LABEL, TID } from './world/maps.js';
 import { writeSave } from './save.js';
 import { keyParen } from './settings.js';
-import { SHOT_BOXES } from './data/shot_boxes.js';
+import { SHOT_BOXES, SHOT_BIG } from './data/shot_boxes.js';
 import { installD4 } from './dungeons4.js';
 import { installMelon } from './melon.js';
 import { installRealmEvents } from './realmevents.js';
@@ -67,15 +67,27 @@ export function shotTouches(S, bx, by, ca, sa, cx, cy, ux, uy, fx, fy, hx, hy, k
   }
   return false;
 }
-// how big a shot is drawn: the attack's own size (its "size", a radius in tiles) sets how long the shot may look:
-// about 2.4 (enemy) or 2.2 (yours) times that radius. Art bigger than that is drawn smaller; nothing is drawn bigger.
+// how big a shot is drawn (and hits: the hit shape is its art at the same scale). A player's shot: one art pixel to one
+// screen pixel (pack art is stored at two). An enemy's: the attack's own size (its "size", a radius in tiles) asks
+// for about 2.4 times that radius, then the scale snaps to a whole one, one or two screen pixels to each art pixel,
+// so the pixel art stays even (docs/projectile_art_standard.md). The original sheet's "big" shots are boxed at 1.3x.
 const kCache = new Map();
+export function shotScaleRaw(sprite, size) {             // the scale the attack's size asks for, before the snap
+  const B = SHOT_OVERRIDE[sprite] || SHOT_BOXES[sprite], want = (size || 0.4) * 16 * 2.4;
+  return B ? Math.min(1, want / Math.max(B[0], B[1], 1)) : 1;
+}
+export function shotPx(sprite) {                          // screen pixels per art pixel at scale 1
+  const B = SHOT_OVERRIDE[sprite] || SHOT_BOXES[sprite];
+  return sprite.includes('/') ? (B && B[6] >= 1 ? 2 : 1) : SHOT_BIG.has(sprite) ? 1.3 : 1;
+}
 export function shotScale(sprite, size, from) {
   const key = sprite + '|' + size + '|' + from;
   let k = kCache.get(key);
   if (k === undefined) {
-    const B = SHOT_OVERRIDE[sprite] || SHOT_BOXES[sprite], want = (size || 0.4) * 16 * 2.4;
-    k = from === 'p' ? (B && B[6] >= 1 ? 0.5 : 1) : B ? Math.min(1, want / Math.max(B[0], B[1], 1)) : 1;   // a player's shot: one art pixel to one screen pixel (pack art is stored at two), drawn and hit at that size
+    const px = shotPx(sprite);
+    if (from === 'p') k = px >= 2 ? 0.5 : 1;
+    else if (SHOT_OVERRIDE[sprite]) k = shotScaleRaw(sprite, size);        // (drawn as light, not pixels)
+    else k = (px * shotScaleRaw(sprite, size) >= 1.5 ? 2 : 1) / px;
     kCache.set(key, k);
   }
   return k;

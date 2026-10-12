@@ -12,6 +12,7 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
 | Loot | Realm loot bags could last for ever | Bags counted down only while you were on their map; the realm map is kept while you are in a dungeon or the Nexus, so its bags froze | Bags expire on the game clock (`until`), which runs on every map; expired bags are dropped on map entry too | `tools/check_loot.mjs` (fails on the old code) |
 | Art | The treasure chest looked like a hamburger (rounded bun lid, a yellow "cheese" band, no outline or planks) | Placeholder-quality art | Redrawn closed and open: outlined plank chest, metal straps, lock plate with keyhole; the open one shows coins (`tools/art_chest.mjs`) | 8x crops; only the two chest cells of the atlas changed |
 | Art | Every player shot was resampled (drawn at 0.875x, "big" ones 1.3x), cycled two frames, and left trail pixels | Renderer | Player shots drawn 1:1, one still frame, no trail (docs/projectile_art_standard.md) | Test tab; hitbox check |
+| Art | 294 of the 322 kinds of shot enemies and bosses fire were drawn at a fraction of their art (0.5x to 1.9x), so their pixels came out uneven | Each shot was resized to fit its attack's size | Enemy shots snap to a whole scale (1 or 2 screen pixels per art pixel); the hit shape follows, so they still hit where they show. Seven enemies whose shots grew most were re-tuned (fewer shots per ring, a slower ring or a longer cooldown) back to within about 20% of the hits a strafing player took before | tools/audit_enemy_shots.mjs (0 uneven); hits for a strafing player, before and after, 8 seeds each |
 
 | Art | Wand shots were chunky diagonal slabs (12-16 px long, 4-5 px thick), heavier than sword cuts; bigger still once player shots stopped being shrunk | Old art | All 11 tiered wand bolts redrawn: a 10 px spark, diamond head with a 2 px bright core and a short tail, each tier in its own four main colours (`tools/art_wand_shots.mjs`; the old ones kept in art/world/_old_wand_bolts.png). Range and hitbox unchanged: a player shot hits by the item's `size`, not its art; no enemy uses these sprites | 8x crops; `audit_shots` passes all 11; only the 22 wand cells changed; hitbox check |
 | Art | The hay bale (Nexus, pet pen) looked like a hamburger; the vault strongbox had no outline and flat colours | Placeholder-quality art | Hay bale: an outlined bale of straw with two twine bands. Vault chest: an iron-bound, riveted strongbox with a heavy lock, clearly not the loot chest (`tools/art_objects.mjs`, which also holds the chest) | 8x crops; only the two cells changed; the rest of the objects atlas reviewed at 4x and found consistent |
@@ -65,7 +66,7 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   your inventory.
 
 ## To do (next sessions)
-- Projectile sizes across enemies and abilities against the art standard (the weapons are part of the item rework).
+- Ability shots: player shots, already drawn 1:1; their art sizes are part of the item rework (with the weapons).
 - Feel: movement, firing, camera, transitions.
 - Enemy movement, audit so far (`tools/audit_movement.mjs`, 189 monster types in open ground while you circle,
   alone and in groups of 8). Already smooth: no frame-to-frame reversals anywhere, heading turn rates under 1.3 rad/s

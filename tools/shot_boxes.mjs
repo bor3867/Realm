@@ -65,5 +65,7 @@ writeFileSync(new URL('../src/data/shot_boxes.js', import.meta.url), `// Generat
 export const SHOT_BOXES = {
 ${body}
 };
+// the original sheet's shots boxed (and drawn) at 1.3x
+export const SHOT_BIG = new Set(${JSON.stringify([...big].sort())});
 `);
 console.log(`shot boxes: ${Object.keys(out).length}`);
