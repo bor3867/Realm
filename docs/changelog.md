@@ -395,3 +395,12 @@
   are drawn in, and bursts outward.
 - Simulated over two seeds: every still position, a rim camper and circling players take 28-117 hits; a player who reads
   it takes 5.
+
+## Singularity and Phase 2 tightened against circling
+- Singularity: five double arms in Accretion swinging further; the infall arms swing too; the debris rings breathe
+  2 tiles so each channel closes completely in turn; the tidal surges' two openings are a quarter turn from where you
+  stand. Simulated: passive strategies 15-152 hits, a reading player 3-5.
+- Phase 2: the sequences no longer overlap (their recovers now cover them). Twilight's planets wheel round where you
+  stood instead of following you, with three-shot fans. Totality's openings line up at the moment the rings let go,
+  40 degrees to one side of you, marked on the floor 1.7 s ahead. Every other fan in Eclipse Rising leads you, so steady
+  circling no longer outruns it. Simulated: passive strategies 15-65 hits, a reading player 6-7 (Totality 1-2, was 12).

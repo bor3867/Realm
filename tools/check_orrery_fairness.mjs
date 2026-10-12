@@ -30,7 +30,7 @@ function setup(seed) {
   let hits = 0;
   const hurt = g.hurtPlayer.bind(g);
   const tally = {};
-  g.hurtPlayer = (d, by, x) => { if (by) { hits++; const S = o.bx || {}, k = (S.sing ? 'sing:' + S.sing.stage : S.nova2 ? 'nova:' + (S.nova2.kind || 'horizon') : S.pat ? S.pat.name : S.state) + ' / ' + by; tally[k] = (tally[k] || 0) + 1; } hurt(d, by, x); };
+  g.hurtPlayer = (d, by, x) => { if (by) { hits++; const S = o.bx || {}, k = (S.sing ? 'sing:' + S.sing.stage : S.nova2 ? 'nova:' + (S.nova2.kind || 'horizon') : S.pat ? S.pat.name : S.state) + ' / ' + by; tally[k] = (tally[k] || 0) + 1; if (process.env.TWHEN && S.pat && S.pat.name === process.env.TWHEN) { console.log(globalThis.CUR + '  hit at +' + (g.t - S.twT).toFixed(1) + 's of ' + S.pat.name); } } hurt(d, by, x); };
   p.x = L.cx + 0.5; p.y = L.cy + 8;
   for (let k = 0; k < 60 * 4; k++) { p.hp = 1e9; p.dead = false; g.update(1 / 60); }
   return { g, o, L, p, tally, hits: () => hits, reset: () => { hits = 0; for (const k in tally) delete tally[k]; } };
@@ -82,9 +82,9 @@ function mover(kind, F) {
 // --nova: the Supernova alone, against every way of not really playing it: standing still (in the middle, half-way out,
 // against the back wall), camping the rim, circling, and the expert, from several places and on two seeds
 // --sing: the same, against the Singularity
-// --p3: the same, against 32 s of phase 3 (all three of its sequences)
-if (['--nova', '--sing', '--p3'].some((f) => process.argv.includes(f))) {
-  const FIN = process.argv.includes('--sing') ? 'finale' : process.argv.includes('--p3') ? 'p3' : 'finale2', LABEL = { finale: 'Singularity', finale2: 'Supernova', p3: 'Phase 3' }[FIN];
+// --p2 / --p3: the same, against 32 s of phase 2 or 3 (all of its sequences)
+if (['--nova', '--sing', '--p2', '--p3'].some((f) => process.argv.includes(f))) {
+  const FIN = process.argv.includes('--sing') ? 'finale' : process.argv.includes('--p3') ? 'p3' : process.argv.includes('--p2') ? 'p2' : 'finale2', LABEL = { finale: 'Singularity', finale2: 'Supernova', p2: 'Phase 2', p3: 'Phase 3' }[FIN];
   const rows = [];
   for (const seed of [4242, 917]) {
     const strategies = [
@@ -96,19 +96,22 @@ if (['--nova', '--sing', '--p3'].some((f) => process.argv.includes(f))) {
       const F = setup(seed), { g, o, L, p } = F, cx = L.cx + 0.5, cy = L.cy + 0.5;
       const toFight = () => { for (let k = 0; k < 60 * 12 && !['fight', 'windup', 'release', 'recover'].includes(o.bx.state); k++) { p.hp = 1e9; p.dead = false; g.update(1 / 60); } };
       g.damageEnemy(o, Math.ceil(o.maxHp * 0.34) + 50, o.x, o.y, true); toFight();
-      g.damageEnemy(o, Math.ceil(o.maxHp * 0.34) + 50, o.x, o.y, true); toFight();
-      if (FIN === 'p3') o.hp = o.maxHp * 0.3;                    // (in phase 3 already: its sequences as they come)
+      if (FIN !== 'p2') { g.damageEnemy(o, Math.ceil(o.maxHp * 0.34) + 50, o.x, o.y, true); toFight(); }
+      if (FIN === 'p2') o.hp = o.maxHp * 0.6;
+      else if (FIN === 'p3') o.hp = o.maxHp * 0.3;                    // (in phase 3 already: its sequences as they come)
       else { g.projectiles = []; if (FIN === 'finale2') o.bx.finaleDone = true; o.hp = o.maxHp * (FIN === 'finale' ? 0.11 : 0.035); g.bxStartFinale(o, o.bx.B[FIN]); }
       p.x = cx + Math.cos(ang) * rad; p.y = cy + Math.sin(ang) * rad;
       const ex = kind === 'expert' ? mover('expert', F) : null;
+      globalThis.CUR = name;
       let a = ang, side = 1; F.reset();
-      for (let k = 0; k < 60 * (FIN === 'p3' ? 32 : o.bx.B[FIN].dur + 0.5); k++) {
+      for (let k = 0; k < 60 * (FIN === 'p3' || FIN === 'p2' ? 32 : o.bx.B[FIN].dur + 0.5); k++) {
         p.hp = 1e9; p.dead = false; p.status.invuln = 0;
         if (kind === 'circle') { a += (sp / rad) / 60; p.x += (cx + Math.cos(a) * rad - p.x) * 0.3; p.y += (cy + Math.sin(a) * rad - p.y) * 0.3; }
         if (kind === 'camp' && k % 120 === 0) side = -side;         // the camper shuffles along the wall a little, back and forth
         if (kind === 'camp') { a += side * 0.6 / 60 / rad * 3; p.x += (cx + Math.cos(a) * rad - p.x) * 0.3; p.y += (cy + Math.sin(a) * rad - p.y) * 0.3; }
         if (ex) ex(1 / 60);
         g.update(1 / 60);
+        if (o.bx.pat && o.bx.pat !== o.bx.twPat) { o.bx.twPat = o.bx.pat; o.bx.twT = g.t; }   // (when each attack began: for TWHEN)
         if (process.env.PROBE && name === process.env.PROBE && seed === 4242 && k % 30 === 0) { const cs = g.projectiles.filter((b) => b.curtain); if (cs.length) { let md = 99, gh = 0; for (const b of cs) { const d = Math.hypot(b.x - p.x, b.y - (p.y - 0.45)); if (d < md) md = d; if (b.ghost) gh++; } console.log((k / 60).toFixed(1), 'curtain shots', cs.length, 'nearest', md.toFixed(2), 'ghosts', gh, 'pos', (p.x - cx).toFixed(1), (p.y - cy).toFixed(1), 'state', o.bx.state, o.bx.pat && o.bx.pat.name); } }
       }
       rows.push([seed, name, F.hits()]);
@@ -130,7 +133,7 @@ for (const kind of ['expert', 'strafer', 'still']) {
   const F = setup(4242), { g, o, p } = F, move = mover(kind, F), row = {};
   const run = (sec) => { for (let k = 0; k < sec * 60; k++) { p.hp = 1e9; p.dead = false; p.status.invuln = 0; move(1 / 60); g.update(1 / 60); } };
   const toFight = () => { for (let k = 0; k < 60 * 12 && !['fight', 'windup', 'release', 'recover'].includes(o.bx.state); k++) { p.hp = 1e9; p.dead = false; move(1 / 60); g.update(1 / 60); } };
-  const section = (name, sec, prep) => { if (prep) prep(); F.reset(); run(sec); row[name] = F.hits(); };
+  const section = (name, sec, prep) => { if (prep) prep(); F.reset(); run(sec); row[name] = F.hits(); (row.why = row.why || {})[name] = { ...F.tally }; };
   section('phase 1', 30);
   g.damageEnemy(o, Math.ceil(o.maxHp * 0.34) + 50, o.x, o.y, true); toFight();
   section('phase 2', 30);
@@ -142,7 +145,7 @@ for (const kind of ['expert', 'strafer', 'still']) {
   g.damageEnemy(o, Math.max(1, o.hp - o.maxHp * 0.03), o.x, o.y, true);
   section('supernova', o.bx.B.finale2.dur + 0.5);
   results[kind] = row;
-  if (kind === 'expert' && process.argv.includes('--why')) console.log('expert was hit by:', Object.entries(F.tally).sort((x, y) => y[1] - x[1]).slice(0, 12));
+  if (kind === 'expert' && process.argv.includes('--why')) console.log('expert was hit by:', JSON.stringify(row.why));
 }
 console.log('hits per section (one hit = one shot or hazard that touched you)');
 console.log('section'.padEnd(13) + ['expert', 'strafer', 'still'].map((k) => k.padStart(9)).join(''));
