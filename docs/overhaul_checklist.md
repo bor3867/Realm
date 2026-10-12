@@ -44,10 +44,8 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   tried: it barely changes 8x8 art). Pipeline: `tools/art_hd.mjs` (hand-drawn 16x16 grids per creature; the hurt
   flash computed) writes art/bundle/hd; the registry swaps those frames in (same keys and frame names, `res: 2`, size
   and feet kept in the old units) and `drawDef` draws them at half scale, so they are the same size on screen. Done:
-  14 overworld creatures (orc brute, shore crab, driftwood bandit, tide slime, gull, field rat, hedge goblin, wild boar,
-  scarecrow, bark spider, forest druid, mossback turtle, stone harpy, mountain ram); redraws carry their own 1 px
-  outline (the renderer's added outline is skipped for them). To do, in order: the last 6 overworld creatures (crag
-  ogre, cave bat, rift wraith, blood maw, fallen knight, gazer), the dungeon packs' creatures, pets, elites, the
+  all 20 overworld creatures (the art audit now finds none of ow_enemies at the coarse density); redraws carry their
+  own 1 px outline (the renderer's added outline is skipped for them). To do, in order: the dungeon packs' creatures, pets, elites, the
   modular bosses (the Grand Orrery left as it is). Items and props stay at the coarser density (RotMG's own icon
   style; they are not beside the characters) unless the user asks otherwise.
 - Every talkable thing and chest in the realm and all 17 dungeons (`tools/check_dungeon_objects.mjs`): 279 talks
@@ -101,9 +99,23 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   early in flight are under 10% for every attack but three: the Sphinx's riddle (41%: its glyphs dart at you past
   the obelisks, which are cover by design: kept), Vesper's blood bolts (11%, from his promenade by the throne: kept),
   and the Ringmaster's leap (13%: fixed, below).
-- HUD to match the user's own Realm of the Mad God HUD more closely (requested): tabs, font, spacing, minimap and the
-  rest. **Blocked:** the reference screenshot did not come through. Keep the fixed layout rule (docs: the HUD never
-  resizes itself).
+- HUD to match the user's own Realm of the Mad God HUD more closely (requested; screenshot received 2026-10-12). From
+  top to bottom it has:
+  - minimap: a large black square, + and - zoom buttons stacked at its top right; you a yellow star, others as
+    coloured triangles, loot as yellow diamonds
+  - a row of white pixel icons: stats (bars), pet (cat), options, guild flag, a greyed sword, vault (bank), settings
+    (gear)
+  - three bars, rounded, with a dark border and outlined pixel text: Fame (orange, the label left and the number
+    centred), HP (green: the value in yellow, its bonus in blue, e.g. 725/725 (+25)), MP (blue: the value in green,
+    bonuses in blue)
+  - four equipment slots in a row, light grey frames, the tier (T4, T6) in the bottom right of each in outlined white
+  - two icon tabs (backpack, and a second pouch), then 8 slots in 4x2; empty slots show their number large in grey
+  - two wide potion buttons: a red potion with its count (3/6, the 3 in orange), a blue one (6/6, the 6 in green)
+  - the realm's name and its player count (Realm of the Mad God (48/85)), then nearby players in two columns, each
+    with a tiny portrait and their name in green
+  - throughout: a chunky outlined pixel font, dark grey panels, tight even spacing.
+  Keep the fixed layout rule (the HUD never resizes itself); our extra panels (Stats, Pet) become tabs or icon-row
+  buttons as in RotMG.
 - Enemy movement and AI overhaul (requested 2026-10-12): audit every enemy's movement; reusable movement archetypes
   (pursuer, orbiter, skirmisher, ambusher, charger, flanker, defender, erratic, formation, stationary guardian) with
   per-enemy weight (acceleration, turning); smooth, frame-rate independent steering, wall sliding, unsticking;
