@@ -229,7 +229,7 @@ export function buildRegistry(atlases, hover, img = () => null) {
   }
   buildRedirects(R);
   if (hover) applyHover(R, hover);
-  for (const d of R.defs.values()) d.outline = !NO_OUTLINE(d);
+  for (const d of R.defs.values()) d.outline = !NO_OUTLINE(d) && !d.res;   // (a finer redraw carries its own 1 px outline, like the original sheets)
   return R;
 }
 

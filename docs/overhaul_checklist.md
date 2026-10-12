@@ -44,7 +44,10 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   tried: it barely changes 8x8 art). Pipeline: `tools/art_hd.mjs` (hand-drawn 16x16 grids per creature; the hurt
   flash computed) writes art/bundle/hd; the registry swaps those frames in (same keys and frame names, `res: 2`, size
   and feet kept in the old units) and `drawDef` draws them at half scale, so they are the same size on screen. Done:
-  the orc brute. To do, in order: the other 19 overworld creatures, the dungeon packs' creatures, pets, elites, the
+  14 overworld creatures (orc brute, shore crab, driftwood bandit, tide slime, gull, field rat, hedge goblin, wild boar,
+  scarecrow, bark spider, forest druid, mossback turtle, stone harpy, mountain ram); redraws carry their own 1 px
+  outline (the renderer's added outline is skipped for them). To do, in order: the last 6 overworld creatures (crag
+  ogre, cave bat, rift wraith, blood maw, fallen knight, gazer), the dungeon packs' creatures, pets, elites, the
   modular bosses (the Grand Orrery left as it is). Items and props stay at the coarser density (RotMG's own icon
   style; they are not beside the characters) unless the user asks otherwise.
 - Every talkable thing and chest in the realm and all 17 dungeons (`tools/check_dungeon_objects.mjs`): 279 talks
@@ -98,6 +101,9 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   early in flight are under 10% for every attack but three: the Sphinx's riddle (41%: its glyphs dart at you past
   the obelisks, which are cover by design: kept), Vesper's blood bolts (11%, from his promenade by the throne: kept),
   and the Ringmaster's leap (13%: fixed, below).
+- HUD to match the user's own Realm of the Mad God HUD more closely (requested): tabs, font, spacing, minimap and the
+  rest. **Blocked:** the reference screenshot did not come through. Keep the fixed layout rule (docs: the HUD never
+  resizes itself).
 - Enemy movement and AI overhaul (requested 2026-10-12): audit every enemy's movement; reusable movement archetypes
   (pursuer, orbiter, skirmisher, ambusher, charger, flanker, defender, erratic, formation, stationary guardian) with
   per-enemy weight (acceleration, turning); smooth, frame-rate independent steering, wall sliding, unsticking;
