@@ -26,6 +26,10 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   something visible, and 196 chests open under fire and drop their bag.
 - The simulation (`tools/bench.mjs`): 1-2 ms per update on average in a crowd of 60, travelling the realm and every
   modular boss fight; 0.1 ms for the Supernova's 389 shots. Its only slow frame is the first one after entering a map.
+- Drawing in the densest fights (browser, after the ground fix): Glacius 2.4 ms a frame with 223 shots, Tidebound Lich
+  1.8, Forgeheart Colossus 1.8, the Supernova 6.2 with 388 shots, a crowd of 60 monsters 4.8 with 771 particles.
+  Sustained play: 0 of 900 crowd frames and 0 of 1,200 realm frames over the 16.7 ms budget (update and draw
+  together: 99th percentile 9.7 ms). The only slow frames are the first ones in newly seen ground.
 - Projectile lifecycle, every shooter but the Grand Orrery (`tools/check_shot_lifecycle.mjs`: 10 modular bosses and 194
   other enemies and elites): each fights, dies mid-attack, and is watched for 15 s. Nothing fires after death, none of
   its shots are left in the air, no shot of anyone's lives over 25 s, and nothing hurts you once its shots are gone.
@@ -42,8 +46,6 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
 ## To do (next sessions)
 - Projectile sizes across enemies and abilities against the art standard (the weapons are part of the item rework).
 - Sprite audit beyond the chest: loot bags, NPCs, dungeon styles, placeholder art.
-- Performance: the renderer in boss fights with hundreds of shots (the ground is fixed; shots, particles and
-  enemies still to be measured in the browser during the densest fights).
 - Feel: movement, firing, camera, transitions.
 - Enemy movement and AI overhaul (requested 2026-10-12): audit every enemy's movement; reusable movement archetypes
   (pursuer, orbiter, skirmisher, ambusher, charger, flanker, defender, erratic, formation, stationary guardian) with
