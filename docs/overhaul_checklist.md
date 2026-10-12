@@ -13,6 +13,7 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
 | Art | The treasure chest looked like a hamburger (rounded bun lid, a yellow "cheese" band, no outline or planks) | Placeholder-quality art | Redrawn closed and open: outlined plank chest, metal straps, lock plate with keyhole; the open one shows coins (`tools/art_chest.mjs`) | 8x crops; only the two chest cells of the atlas changed |
 | Art | Every player shot was resampled (drawn at 0.875x, "big" ones 1.3x), cycled two frames, and left trail pixels | Renderer | Player shots drawn 1:1, one still frame, no trail (docs/projectile_art_standard.md) | Test tab; hitbox check |
 
+| Art | Wand shots were chunky diagonal slabs (12-16 px long, 4-5 px thick), heavier than sword cuts; bigger still once player shots stopped being shrunk | Old art | All 11 tiered wand bolts redrawn: a 10 px spark, diamond head with a 2 px bright core and a short tail, each tier in its own four main colours (`tools/art_wand_shots.mjs`; the old ones kept in art/world/_old_wand_bolts.png). Range and hitbox unchanged: a player shot hits by the item's `size`, not its art; no enemy uses these sprites | 8x crops; `audit_shots` passes all 11; only the 22 wand cells changed; hitbox check |
 | Tests | `check_remaster_ext` failed at random (about 1 run in 4) | Its realm monsters fire on unseeded randomness | Seeded | 3 of 3 identical runs |
 
 ## Found working (tested end to end)
@@ -30,7 +31,7 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   your inventory.
 
 ## To do (next sessions)
-- Wand shots too large; projectile sizes across enemies and abilities against the art standard.
+- Projectile sizes across enemies and abilities against the art standard (the weapons are part of the item rework).
 - Sprite audit beyond the chest: loot bags, NPCs, dungeon styles, placeholder art.
 - Every NPC outside the Nexus (dungeon interactables, portals, waypoints).
 - Performance profiling in the heaviest bullet-hell fights.

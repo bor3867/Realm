@@ -48,7 +48,7 @@ if (process.argv[1] && process.argv[1].endsWith('audit_shots.mjs')) {
     else {
       if (A.scale !== 1) probs.push(`drawn at ${A.scale}x then resized (uneven pixels)`);
       if (A.soft > 2) probs.push(`${A.soft} soft-alpha pixels (glow/blur)`);
-      if (A.frames > 1) probs.push(`${A.frames}-frame animation`);
+      if (A.frames > 1 && A.src === 'pack') probs.push(`${A.frames}-frame animation`);   // (atlas shots: the renderer draws a player's on one still frame)
       if (Math.max(A.w, A.h) > RULES[r].max) probs.push(`${A.w}x${A.h} px, over ${RULES[r].max} for ${r}`);
       if (A.colours > RULES.colours) probs.push(`${A.colours} colours`);
     }
