@@ -29,10 +29,18 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
 | Bosses | Standing at the south edge of Glacius's lake took 26 hits a minute (58-78 elsewhere); the Ringmaster's north edge 4 | Their aimed attacks fell short of their own arenas: Glacius's ice lances flew 9 tiles while it circles the north half of the lake; the Ringmaster's card fans 14 tiles from drums at the edge of a wide ring | Lances reach 15 tiles (their ice still forms where each line stops), cards 22; patterns, speed and damage unchanged | `tools/check_boss_safespots.mjs` (each boss vs six standing spots, edge circling and a reading player): Glacius south 26 to 53; Ringmaster north 4 to 8 |
 | Bosses | Circling the arena's edge at a steady pace was a cheap way through five bosses (hits a minute: Kraken 7, Ringmaster 6, Mycelia 15, Colossus 24, Vesper 26; a reading player 16, 2, 30, 29, 17) | Their aimed attacks always aimed where you were, never where you were going | (Chosen by the user: option 2.) `bxAim` in src/bossx.js: a boss with `lead: true` aims one aimed volley in three, from over 4 tiles, at where you will be when it arrives (your actual movement, frame to frame, times its flight, at most 1.2 s). Set for those five; fans and walls go through it, and each boss's own aimed attacks call it | `check_boss_safespots`: circling now Kraken 30, Ringmaster 8, Mycelia 34, Colossus 36, Vesper 22, never cheaper than reading play (5, 2, 37, 28, 17). Boss, pressure, Hollowmoon, Keep, Mirerot and Crypt checks pass |
 | Bosses | The Ringmaster's leap landing threw a full ring of cane-stars from a drum at the arena's edge, half of it into the wall behind him | A ring whatever the spot | It throws its 14 stars in a 200-degree fan facing the ring's middle (denser where you are), reaching 20 tiles | `audit_boss_positioning`: wasted on walls 13% to 5%; Hollowmoon and boss checks pass |
+| Art | The new chest, open chest, hay bale and vault strongbox (drawn in earlier passes) used finer pixels than the props round them | They were drawn at 16 px detail; the atlas's props are 8x8 art in 2x2 blocks | Redrawn as 8x8 props (`tools/art_objects.mjs`), same designs | `tools/audit_art.mjs`; side by side with the crate and barrel |
 | Tests | `check_shot_lifecycle` failed once at random | Dungeons generated from the clock, the game's generator not reseeded | Clock pinned, generator reseeded per shooter | repeated runs |
 | Tests | `check_remaster_ext` failed at random (about 1 run in 4) | Its realm monsters fire on unseeded randomness | Seeded | 3 of 3 identical runs |
 
 ## Found working (tested end to end)
+- Sprites (`tools/audit_art.mjs`, 857 character, monster, boss, pet, item and object sprites, plus the 98 regular
+  enemies and the objects atlas reviewed by eye): no empty frames, no misaligned loops, and the few soft-edged
+  sprites are on purpose (the puppets' faint strings, the watermelon's baked shadow, elites' attack effects); the
+  drift of Emily the Yapper is her waving wand, the Fallen Heart's bob its heartbeat. Open question: two pixel
+  sizes on screen. The original enemy, champion, boss and player sheets and the townsfolk draw one screen pixel per
+  art pixel; everything from the newer packs (72 creatures, 60 pets, 117 items, the elites and event bosses) and
+  the world's props draw two. Unifying means redrawing one side; it waits on a decision.
 - Every talkable thing and chest in the realm and all 17 dungeons (`tools/check_dungeon_objects.mjs`): 279 talks
   (journals, levers' masks and sigils, lore stones, wells, dig spots, altars, fishing, the cat, waypoints...) each do
   something visible, and 196 chests open under fire and drop their bag.
@@ -57,7 +65,6 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
 
 ## To do (next sessions)
 - Projectile sizes across enemies and abilities against the art standard (the weapons are part of the item rework).
-- Sprite audit beyond the chest: loot bags, NPCs, dungeon styles, placeholder art.
 - Feel: movement, firing, camera, transitions.
 - Enemy movement, audit so far (`tools/audit_movement.mjs`, 189 monster types in open ground while you circle,
   alone and in groups of 8). Already smooth: no frame-to-frame reversals anywhere, heading turn rates under 1.3 rad/s
