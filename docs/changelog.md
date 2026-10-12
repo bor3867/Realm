@@ -404,3 +404,12 @@
   stood instead of following you, with three-shot fans. Totality's openings line up at the moment the rings let go,
   40 degrees to one side of you, marked on the floor 1.7 s ahead. Every other fan in Eclipse Rising leads you, so steady
   circling no longer outruns it. Simulated: passive strategies 15-65 hits, a reading player 6-7 (Totality 1-2, was 12).
+
+## Readable lanes; no overlapping sequences in phase 1
+- Lanes to make for are marked as soft green stripes on the floor: the Tidal Curtains' lane (now five to eight slots
+  from you, on the floor and clear of the machine; rows a little further apart), Totality's passage, and the Event
+  Horizon's two openings (the ring no longer turns as it closes, and it bursts back out through the same openings).
+- The Supernova's Implosion: each ring's openings now overlap the last ring's, a gap that walks instead of jumping.
+- Phase 1's four sequences no longer run into each other (they overlapped by 3-4 s, as phase 2's did).
+- Simulated over the whole fight: a reading player is hit 2-19 times per section, a strafer 27-121, a still player
+  37-154; every phase and both finales pass the camping tests.

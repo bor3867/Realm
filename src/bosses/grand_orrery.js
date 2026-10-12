@@ -264,7 +264,7 @@ function twilightTotality(g, e, V) {
         b.orc = (b2) => { const t = g.t - t0, open = star + w * (t - 4.3), aa = open + rel, [x, y] = g.bxOrigin(e); b2.x = x + Math.cos(aa) * r; b2.y = y + Math.sin(aa) * r; b2.a = aa + Math.PI / 2; b2.life = 99; if (t > 4.3) { launch(b2, aa, 4.4, 4); return true; } return false; };
       }
     });
-    later(e, 2.6, () => { const [x, y] = g.bxOrigin(e); g.spMark({ kind: 'line', x, y, a: star, len: 16, life: 2.2, color: '#5ef08a', steady: true, lane: true }); });   // where they will line up, marked ahead
+    later(e, 2.6, () => { const [x, y] = g.bxOrigin(e); g.spMark({ kind: 'line', x, y, a: star, len: 16, life: 2.2, color: '#5ef08a', steady: true, lane: true, band: 1.8 }); });   // where they will line up, marked ahead
     later(e, 4.6, () => eclipseSet(e));
   });
 }
@@ -288,8 +288,8 @@ function finaleEclipse(g, e) {
 //                     between] -> the machine's streams bend toward them [the straight lanes curve] -> three times the
 //                     edge breaks off, a ring falling in toward them with three openings [the rim is no refuge] -> they spiral into the machine, which
 //                     answers with a ring and a fan
-//   Tidal Curtains    walls roll in from beyond opposite edges, their gaps lined up into one lane that opens five slots
-//                     from where you stand [go to it] ->
+//   Tidal Curtains    walls roll in from beyond opposite edges, their gaps lined up into one lane that opens five to
+//                     eight slots from where you stand [go to it; the two curtains cross: be where their lanes meet] ->
 //                     the same across the other axis [turn ninety degrees] -> all the while the planets sweep the
 //                     floor's edge leaving trails -> they come home and burst
 //   Decaying Orbits   three rings orbit and close in, then fly off on their tangents -> a ring gathers from beyond
@@ -319,13 +319,15 @@ function tidalCurtains(g, e, V) {
   const S = e.bx, [cx, cy] = centre(e), a = R() * Math.PI;
   const curtain = (ang, t0, rows) => {                       // rows from both ends of an axis, one shared gap
     const ux = Math.cos(ang), uy = Math.sin(ang), nx = -uy, ny = ux, C = {}, SL = 1.15;   // (a slot: 1.15 tiles; the lane three slots)
-    for (let i = 0; i < rows; i++) later(e, t0 + i * 0.38, () => {
+    for (let i = 0; i < rows; i++) later(e, t0 + i * 0.48, () => {
       const jp = Math.round(((g.player.x - cx) * nx + (g.player.y - cy) * ny) / SL);   // your slot across the axis
-      if (C.G === undefined) {                               // the lane opens at least five slots from where you stand: you go to it
-        const ok = []; for (let q = -11; q <= 9; q++) if (q - jp >= 5 || jp - (q + 2) >= 5) ok.push(q);
+      if (C.G === undefined) {                               // the lane opens five to eight slots from where you stand: you go to it
+        const lanes = []; for (let q = -8; q <= 6; q++) if (Math.abs(q + 1) >= 4) lanes.push(q);   // (on the floor, clear of the machine in the middle)
+        const far = (q) => Math.min(Math.abs(q - jp), Math.abs(q + 2 - jp));
+        let ok = lanes.filter((q) => far(q) >= 5 && far(q) <= 8); if (!ok.length) ok = lanes.filter((q) => far(q) >= 4); if (!ok.length) ok = lanes;
         C.G = ok[Math.floor(R() * ok.length)];
         const off = (C.G + 1) * SL;                          // the lane marked on the floor, steady green, until the last row has passed
-        g.spMark({ kind: 'line', x: cx - ux * 17.5 + nx * off, y: cy - uy * 17.5 + ny * off, a: ang, len: 35, life: (rows - i) * 0.38 + 3.6, color: '#5ef08a', steady: true, lane: true });
+        g.spMark({ kind: 'line', x: cx - ux * 17.5 + nx * off, y: cy - uy * 17.5 + ny * off, a: ang, len: 35, life: (rows - i) * 0.48 + 3.6, color: '#5ef08a', steady: true, lane: true, band: 3 * SL });
       }                                                      // (it holds: both ends' gaps line up into one straight lane)
       const gap = C.G;
       for (const s of [1, -1]) for (let j = -14; j <= 14; j++) {          // (wide as the floor, the shots close enough that only the lane is a way through)
@@ -335,7 +337,7 @@ function tidalCurtains(g, e, V) {
       }
     });
   };
-  curtain(a, 0.3, 10); curtain(a + Math.PI / 2, 4.7, 10);
+  curtain(a, 0.3, 8); curtain(a + Math.PI / 2, 4.7, 8);
   (S.planets || []).forEach((P, k) => { P.ease = 2.5; P.t0 = g.t; P.goal = (g2) => { const q = (k ? Math.PI : 0) + (k ? -1 : 1) * (g2.t - P.t0) * 1.1; return [cx + Math.cos(q) * 14, cy + Math.sin(q) * 14]; }; });   // the planets sweep the edge
   for (let i = 0; i < 70; i++) later(e, 0.6 + i * 0.11, () => { for (const P of S.planets || []) { const b = shotAt(g, e, P.x, P.y, angleTo(cx, cy, P.x, P.y) + Math.PI, 'brass_shard', 0.9, V.dmg || 120, { range: 3 }); b.life = 3.2; } });
   later(e, 8.6, () => planetsHome(S));
@@ -358,18 +360,19 @@ function orbitalDecay(g, e, V) {
   });
   later(e, 3.6, () => { const [x, y] = g.bxOrigin(e); g.spMark({ kind: 'ring', x, y, r: 6, life: 0.8, color: '#ffffff' }); });
 }
-// a ring gathers from beyond the floor's edge and closes in (two openings) while you are drawn in; it lets go as a spaced
-// burst outward, a second ring between its shots
+// a ring gathers from beyond the floor's edge and closes in while you are drawn in; its two openings hold still, marked
+// on the floor as green spokes [be on one]; it lets go outward through the same spokes, a second ring between its shots
 function eventHorizon(g, e, V) {
   const S = e.bx, [ox, oy] = g.bxOrigin(e), n = 40, a0 = R() * TAU, t0 = g.t;
   S.draw = { until: g.t + 3.9, f: 1.3 };
   for (let j = 0; j < n; j++) {
     if (j % 20 < 2) continue;
     const a = a0 + (j / n) * TAU, b = held(g, e, ox + Math.cos(a) * 18, oy + Math.sin(a) * 18, a, 'eclipse_ring', V.dmg || 130);
-    b.orc = (b2) => { const t = g.t - t0, r = Math.max(2.6, 18 - t * 3.9), aa = a + t * 0.3, [x, y] = g.bxOrigin(e); b2.x = x + Math.cos(aa) * r; b2.y = y + Math.sin(aa) * r; b2.a = aa; if (t > 4.1) { launch(b2, aa, 4.6, 4); return true; } return false; };
+    b.orc = (b2) => { const t = g.t - t0, r = Math.max(2.6, 18 - t * 3.9), aa = a, [x, y] = g.bxOrigin(e); b2.x = x + Math.cos(aa) * r; b2.y = y + Math.sin(aa) * r; b2.a = aa; if (t > 4.1) { launch(b2, aa, 4.6, 4); return true; } return false; };
   }
   g.spMark({ kind: 'ring', x: ox, y: oy, r: 15, life: 3.9, color: '#c8a0ff' });
-  later(e, 4.4, () => { const [x, y] = g.bxOrigin(e); for (let j = 0; j < n; j++) if (j % 20 > 1) shotAt(g, e, x, y, a0 + 4.1 * 0.3 + ((j + 0.5) / n) * TAU, 'moon_shard', 3.4, V.dmg || 125); g.vx({ k: 'shake', amt: 5 }); });
+  for (const q of [0, Math.PI]) { const c = a0 + q + (0.5 / n) * TAU; g.spMark({ kind: 'line', x: ox + Math.cos(c) * 2.6, y: oy + Math.sin(c) * 2.6, a: c, len: 14, life: 5.2, color: '#5ef08a', steady: true, lane: true, band: 1.6 }); }   // its two openings, marked: the way in, and out again
+  later(e, 4.4, () => { const [x, y] = g.bxOrigin(e); for (let j = 0; j < n; j++) if (j % 20 > 1) shotAt(g, e, x, y, a0 + ((j + 0.5) / n) * TAU, 'moon_shard', 3.4, V.dmg || 125); g.vx({ k: 'shake', amt: 5 }); });
 }
 
 // ---------------------------------------------------------------- what runs every frame, in the fight and in the finale
@@ -554,7 +557,7 @@ function novaSequence(g, e, dt, tt, ox, oy) {
   };
   const implosion = (every) => {                                  // rings form at the rim, close on the star, dissolve near it
     if ((L.im = (L.im === undefined ? 0.2 : L.im) - dt) <= 0) {
-      L.im = every; L.ia = (L.ia === undefined ? R() * TAU : L.ia + 0.55);
+      L.im = every; L.ia = (L.ia === undefined ? R() * TAU : L.ia + 0.25);   // (each ring's openings overlap the last: a gap that walks, you walk with it)
       const n = 60, t0 = g.t, gap = L.ia;
       for (let j = 0; j < n; j++) {
         const a = (j / n) * TAU; if ([gap, gap + Math.PI].some((q) => Math.abs(Math.atan2(Math.sin(a - q), Math.cos(a - q))) < 0.15)) continue;
@@ -844,11 +847,11 @@ export default {
   } },
   // one attack at a time; each recover covers its whole formation (so they flow into each other, never pile up)
   phases: {
-    1: { move: 'glide', patterns: [                          // four long sequences, each one evolving formation
-      { name: 'clockwork overture', windup: 0.6, recover: 8.6, special: 'overture', dmg: 125 },
-      { name: 'the alignment', windup: 0.7, recover: 8.8, special: 'alignmentSweep', dmg: 120 },
-      { name: 'starfall procession', windup: 0.5, recover: 7.4, special: 'procession', dmg: 125 },
-      { name: 'grand rotation', windup: 0.7, recover: 8, special: 'rotation', dmg: 125, move: 'hold' },
+    1: { move: 'glide', patterns: [                          // four long sequences, each one evolving formation (recovers x tempo 0.68 cover each)
+      { name: 'clockwork overture', windup: 0.6, recover: 15.2, special: 'overture', dmg: 125 },
+      { name: 'the alignment', windup: 0.7, recover: 14.5, special: 'alignmentSweep', dmg: 120 },
+      { name: 'starfall procession', windup: 0.5, recover: 13.2, special: 'procession', dmg: 125 },
+      { name: 'grand rotation', windup: 0.7, recover: 16, special: 'rotation', dmg: 125, move: 'hold' },
     ] },
     2: { move: 'stations', patterns: [                        // three, the eclipse carried through each (recovers x tempo 0.68 cover each whole sequence)
       { name: 'eclipse rising', windup: 0.6, recover: 16, special: 'eclipseRising', dmg: 125 },

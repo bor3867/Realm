@@ -575,6 +575,11 @@ export class Renderer {
         b.globalAlpha = 0.6 * (1 - k); b.strokeStyle = m.color || '#ffffff'; b.lineWidth = 2;
         b.beginPath(); b.ellipse(Math.round(x), Math.round(y), m.r * TS * (0.4 + 0.6 * k), m.r * TS * 0.75 * (0.4 + 0.6 * k), 0, 0, T2); b.stroke(); b.lineWidth = 1;
       } else if (m.kind === 'line') {
+        if (m.band) {                                      // a lane: a soft stripe on the floor, as wide as the opening
+          const nx = -Math.sin(m.a) * m.band / 2, ny = Math.cos(m.a) * m.band / 2, ex = Math.cos(m.a) * m.len, ey = Math.sin(m.a) * m.len;
+          const P = [[m.x + nx, m.y + ny], [m.x + ex + nx, m.y + ey + ny], [m.x + ex - nx, m.y + ey - ny], [m.x - nx, m.y - ny]].map(([qx, qy]) => this.proj(qx, qy));
+          b.globalAlpha = 0.2; b.fillStyle = m.color || '#5ef08a'; b.beginPath(); b.moveTo(P[0][0], P[0][1]); for (const q of P.slice(1)) b.lineTo(q[0], q[1]); b.closePath(); b.fill();
+        }
         b.globalAlpha = m.steady ? 0.55 : 0.85; b.fillStyle = blink && !m.steady ? '#ffffff' : m.color || '#ff4a5a';   // (a steady line: a lane to hold, no blinking)
         for (let d = 0.6; d < m.len; d += 0.45) { const [qx, qy] = this.proj(m.x + Math.cos(m.a) * d, m.y + Math.sin(m.a) * d); b.fillRect(Math.round(qx) - 1, Math.round(qy) - 1, 2, 2); }
       } else if (m.kind === 'wedge') {                     // the way out: a green wedge

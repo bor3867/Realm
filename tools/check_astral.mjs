@@ -133,7 +133,7 @@ for (let s = 1; s <= seeds; s++) {
   const S = orr.bx, flags = {}, pats = new Set();
   let upFrames = 0, allFrames = 0;
   for (let phase = 1; phase <= 3; phase++) {
-    for (let f = 0; f < 60 * 30; f++) {
+    for (let f = 0; f < 60 * 50; f++) {
       const t = f / 60;
       p.x = L.cx + 0.5 + Math.cos(t * 0.5) * 9; p.y = L.cy + 0.5 + Math.sin(t * 0.5) * 9; p.hp = 1e6; p.dead = false;
       g.update(1 / 60);
