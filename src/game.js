@@ -111,6 +111,7 @@ const HATCH_BURST = 8 / 6;
 const EGG_LAND_TIER = { shore: 0, dunes: 0, lowlands: 1, fen: 1, thornwood: 2, runeholt: 3, steppe: 3, godfall: 4 };
 const EGG_LAND_FAMILIES = { shore: ['aquatic', 'reptile'], dunes: ['reptile', 'exotic'], lowlands: ['woodland', 'canine'], fen: ['spooky', 'reptile'],
   thornwood: ['feline', 'insect'], runeholt: ['avian', 'automaton'], steppe: ['avian', 'automaton'], godfall: ['spooky', 'exotic'] };
+const AIMED = new Set(['aimed', 'shotgun', 'wall', 'beam', 'burst', 'cage']);   // attacks aimed at you, which want a clear line
 const TALKY = new Set(['scope', 'mask', 'maskstand', 'mirror', 'sigil', 'alarm', 'journal', 'petyard', 'shop', 'forge', 'board', 'talk', 'lore', 'wish', 'altar', 'dig', 'fish', 'cat', 'bard', 'fortune', 'waypoint', 'riddle', 'mystery']);
 const VILLAGER_LINES = ['Lovely evening.', 'Did you hear the bells last night?', 'Mind the cat. She bites.', 'The Peddler overcharged me again.',
   'My cousin went into the realm. He came back a toad.', 'Is it always dusk here? Huh.', 'Watch out for the Golden Duck. It\'s a scam.',
@@ -1307,6 +1308,62 @@ export class Game {
     this.decoys = this.decoys.filter((d) => d.t > 0);
   }
   // who an enemy is after: the nearest reflection if one is up, else you
+  // ---- finding a way round walls. While a monster can see you it steers straight at its spot (its own style); once a
+  // wall stands between, it follows the flow field: every open tile's walking distance from yours (out to 40 steps),
+  // worked out once each time you step onto a new tile and shared by every monster. It heads for the furthest point
+  // down that path it can see, so it rounds corners in one smooth line instead of tile by tile.
+  flowField() {
+    const m = this.map, p = this.player, n = m.w * m.h, at = Math.floor(p.y) * m.w + Math.floor(p.x);
+    let F = m.flow;
+    if (F && F.at === at && this.t - F.t < 2) return F;     // (and refreshed every 2 s, for doors that open)
+    if (!F || F.n !== n) F = m.flow = { n, d: new Int16Array(n), gen: new Int32Array(n), g: 0, q: new Int32Array(16384) };
+    F.g++; F.at = at; F.t = this.t;
+    const { d, gen, q } = F, walk = (x, y) => x >= 0 && y >= 0 && x < m.w && y < m.h && !isSolid(m, x + 0.5, y + 0.5) && !(m.hasVoid && m.tiles[y * m.w + x] === TID.asvoid);   // (the void is no road: walkers won't step on it)
+    let head = 0, tail = 0;
+    if (at < 0 || at >= n) return F;
+    q[tail++] = at; d[at] = 0; gen[at] = F.g;
+    while (head < tail) {
+      const i = q[head++], x = i % m.w, y = (i / m.w) | 0;
+      if (d[i] >= 40) continue;
+      for (let k = 0; k < 4; k++) {
+        const nx = x + (k === 0 ? 1 : k === 1 ? -1 : 0), ny = y + (k === 2 ? 1 : k === 3 ? -1 : 0), j = ny * m.w + nx;
+        if (j < 0 || j >= n || gen[j] === F.g || !walk(nx, ny)) continue;
+        gen[j] = F.g; d[j] = d[i] + 1;
+        if (tail < q.length) q[tail++] = j;
+      }
+    }
+    return F;
+  }
+  // can it see you (a clear straight line)? asked a few times a second, not every frame
+  seesFoe(e, p) {
+    if (e.sightT > this.t) return e.sight;
+    e.sightT = this.t + 0.2 + ((e.x * 7 + e.y * 3) % 1) * 0.1;
+    const m = this.map, dx = p.x - e.x, dy = p.y - e.y, L = Math.hypot(dx, dy);
+    e.sight = true;
+    for (let s = 0.4; s < L; s += 0.4) if (isSolid(m, e.x + (dx * s) / L, e.y + (dy * s) / L)) { e.sight = false; break; }
+    return e.sight;
+  }
+  // where to walk to come round to you: the furthest tile down the flow it can see (null if you are out of reach)
+  flowStep(e) {
+    const F = this.flowField(), m = this.map, w = m.w;
+    let i = Math.floor(e.y) * w + Math.floor(e.x);
+    if (F.gen[i] !== F.g) return null;
+    const clear = (x, y) => { const dx = x - e.x, dy = y - e.y, L = Math.hypot(dx, dy); for (let s = 0.3; s < L; s += 0.3) { const px = e.x + (dx * s) / L, py = e.y + (dy * s) / L; if (isSolid(m, px, py) || isSolid(m, px + 0.3, py) || isSolid(m, px - 0.3, py) || isSolid(m, px, py + 0.3) || isSolid(m, px, py - 0.3)) return false; } return true; };
+    let best = null;
+    for (let step = 0; step < 6; step++) {
+      const x = i % w, y = (i / w) | 0;
+      let next = -1, nd = F.d[i];
+      for (let k = 0; k < 4; k++) {
+        const j = (y + (k === 2 ? 1 : k === 3 ? -1 : 0)) * w + x + (k === 0 ? 1 : k === 1 ? -1 : 0);
+        if (F.gen[j] === F.g && F.d[j] < nd) { nd = F.d[j]; next = j; }
+      }
+      if (next < 0) break;
+      const tx = (next % w) + 0.5, ty = ((next / w) | 0) + 0.5;
+      if (step > 0 && !clear(tx, ty)) break;              // as far down the path as it can see
+      best = [tx, ty]; i = next;
+    }
+    return best;
+  }
   foe(e) {
     let best = this.player, bd = 81;
     for (const d of this.decoys || []) { const k = dist2(e.x, e.y, d.x, d.y); if (k < bd) { bd = k; best = d; } }
@@ -1656,7 +1713,7 @@ export class Game {
           e.cds[k] -= dt * (1 - (e.slowF || 0) * 0.6) * (e.enraged ? 1.6 : 1) * (e.cuedUntil > this.t ? 1.6 : 1);
           const A = D.attacks[k];
           if (A.when && (A.when === 'hot') !== (e.hp < e.maxHp * 0.35)) continue;    // the scorpion's split stinger waits for it to run hot
-          if (e.cds[k] <= 0 && d < A.range + 1) {
+          if (e.cds[k] <= 0 && d < A.range + 1 && (!AIMED.has(A.pattern) || (A.mv && A.mv.lob) || this.foe(e) !== p || D.noclip || this.seesFoe(e, p))) {   // (no shot aimed at you through a wall: it comes round first; mortars lob over)
             e.cds[k] = A.cd * (0.85 + R() * 0.3);
             e.atk = k; e.state = 'tell'; e.st = A.tell / 1000;
             break;
@@ -1749,7 +1806,7 @@ export class Game {
         if (e.under && e.rumble) sp = 0;                   // the mound stops and trembles: it's about to come up here
         else if (e.under) { sp = D.speed * 2; const b = a + Math.sin(this.t * 2 + e.phase) * 0.9; tx = p.x + Math.cos(b) * 2.2; ty = p.y + Math.sin(b) * 2.2; }
         else { sp = D.speed * 0.6; tx = p.x + Math.cos(a) * 3; ty = p.y + Math.sin(a) * 3; }
-      } else if (ai === 'zigzag') {
+      } else if (ai === 'zigzag' && !(p === this.player && !D.noclip && !this.seesFoe(e, p))) {
         e.phase += dt * 6;
         if (d > 1.3) {
           const to = angleTo(e.x, e.y, p.x, p.y), w = Math.sin(e.phase) * 1.2;
@@ -1790,6 +1847,12 @@ export class Game {
       }
       if (pa && dist(e.x, e.y, pa.x, pa.y) > 7) { e.wx = pa.x; e.wy = pa.y; sp = D.speed; }
       if (ai === 'rooted') sp = 0;
+    }
+    // a wall between you: come round it (by the flow field) instead of pressing into it. Kiters do too, until they
+    // have a clear shot again; rooted things, burrowers underground, divers mid-dive and ghosts that pass walls don't
+    if (aggro && p === this.player && sp > 0 && !D.noclip && !e.under && !e.dive && ai !== 'rooted' && ai !== 'flee' && !e.lureTo && !this.seesFoe(e, p)) {
+      const w = this.flowStep(e);
+      if (w) { tx = w[0]; ty = w[1]; sp = D.speed; }
     }
     if (aggro && e.parent && !e.parent.dead && dist(e.x, e.y, e.parent.x, e.parent.y) > 13) { tx = e.parent.x; ty = e.parent.y; }
     if (e.lureTo && this.t < e.lureTo.until) { tx = e.lureTo.x; ty = e.lureTo.y; sp = D.speed * 1.2; }   // the striker's bell calls them
