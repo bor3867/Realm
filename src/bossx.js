@@ -223,7 +223,25 @@ export const BXF = {
   },
 
   // ---------------------------------------------------------------- movement between and during patterns
+  // a boss's movement, smoothed: its mode says where it wants to be this frame (its own path, unchanged), and the boss
+  // gets there with eased velocity, so it starts, stops and turns with weight instead of snapping to full speed. A
+  // dash eases faster (still sharp); a jump of over a tile is a designed teleport and passes as it is. (The Grand
+  // Orrery moves as it always has.)
   bxMove(e, dt, how) {
+    const S = e.bx;
+    if (e.D.bx === 'grand_orrery' || dt <= 0) return this.bxMoveRaw(e, dt, how);
+    const x0 = e.x, y0 = e.y;
+    this.bxMoveRaw(e, dt, how);
+    const dx = e.x - x0, dy = e.y - y0, jump = Math.hypot(dx, dy);
+    if (jump > 1) { S.mvx = 0; S.mvy = 0; return; }
+    e.x = x0; e.y = y0;
+    const wx = dx / dt, wy = dy / dt, k = Math.min(1, dt * (Math.hypot(wx, wy) > 6 || Math.hypot(S.mvx || 0, S.mvy || 0) > 6 ? 14 : 5));
+    S.mvx = (S.mvx || 0) + (wx - (S.mvx || 0)) * k; S.mvy = (S.mvy || 0) + (wy - (S.mvy || 0)) * k;
+    const nx = e.x + S.mvx * dt, ny = e.y + S.mvy * dt;
+    if (this.blockedAt(x0 + dx, y0 + dy, 0.8)) { e.x = nx; e.y = ny; }   // it was going over walls (it flies): so does the eased step
+    else this.moveCircle(e, S.mvx * dt, S.mvy * dt, 0.8);
+  },
+  bxMoveRaw(e, dt, how) {
     const p = this.player, D = e.D, S = e.bx, A = S.arena;
     const step = (tx, ty, sp) => { const dd = dist(e.x, e.y, tx, ty); if (dd > 0.2) this.moveCircle(e, ((tx - e.x) / dd) * Math.min(dd, sp * dt), ((ty - e.y) / dd) * Math.min(dd, sp * dt), 0.8); };
     if (how === 'hold') return;
@@ -263,7 +281,7 @@ export const BXF = {
   },
   bxMorph(e) {
     const S = e.bx, def = S.def;
-    S.phase++; S.state = 'morph'; S.patIdx = 0; S.pat = null; S.vol = [];
+    S.phase++; S.state = 'morph'; S.patIdx = 0; S.pat = null; S.vol = []; S.mvx = 0; S.mvy = 0;   // (a change of form starts from rest)
     e.invulnT = 99;
     this.bxClearBullets(e);
     const ph = def.phases[S.phase];
