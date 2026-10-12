@@ -111,6 +111,21 @@ const HATCH_BURST = 8 / 6;
 const EGG_LAND_TIER = { shore: 0, dunes: 0, lowlands: 1, fen: 1, thornwood: 2, runeholt: 3, steppe: 3, godfall: 4 };
 const EGG_LAND_FAMILIES = { shore: ['aquatic', 'reptile'], dunes: ['reptile', 'exotic'], lowlands: ['woodland', 'canine'], fen: ['spooky', 'reptile'],
   thornwood: ['feline', 'insect'], runeholt: ['avian', 'automaton'], steppe: ['avian', 'automaton'], godfall: ['spooky', 'exotic'] };
+// How a monster carries its weight: how quickly its velocity follows where it wants to go (per second). Heavy things
+// gather speed slowly, carry momentum and turn wide; beasts are snappy; spectres glide and drift. Top speed is its own,
+// unchanged. A monster's data may name its weight; otherwise it is read from what it is.
+export const WEIGHT = { heavy: 2.6, normal: 8, agile: 11, glide: 1.8 };
+export function weightOf(D) {
+  if (D.wk) return D.wk;
+  const n = D.name.toLowerCase(), ai = D.ai;
+  let w = D.weight || (ai === 'flee' ? 'normal' : null);   // (a fleeing critter's escape wobbles on purpose: nimble steering would twitch on it)
+  if (!w && (ai === 'float' || ai === 'drift' || /wraith|wisp|ghoul|jelly|ghost|spectre|specter|phantom/.test(n))) w = 'glide';
+  if (!w && /hound|wolf|jackal|boar|\bram\b|\brat\b|\bbat\b|\bbee\b|mite|hornet|hawk|harpy|gull|\bimp\b|stalker|\bmare\b|gryphon/.test(n)) w = 'agile';
+  // heavy: armoured or stone things, and big walkers (a big flyer or a caster that keeps its distance stays nimble)
+  if (!w && (/golem|titan|knight|armou?r|ogre|troll|bear|turtle|engine|sentinel|warden|keeper|jarl|shieldwall|executioner|headsman|mummy/.test(n) || (D.r >= 0.7 && !D.fly && ai !== 'kite'))) w = 'heavy';
+  if (!w && D.speed >= 3.4) w = 'agile';
+  return (D.wk = WEIGHT[w || 'normal'] || WEIGHT.normal);
+}
 const AIMED = new Set(['aimed', 'shotgun', 'wall', 'beam', 'burst', 'cage']);   // attacks aimed at you, which want a clear line
 const TALKY = new Set(['scope', 'mask', 'maskstand', 'mirror', 'sigil', 'alarm', 'journal', 'petyard', 'shop', 'forge', 'board', 'talk', 'lore', 'wish', 'altar', 'dig', 'fish', 'cat', 'bard', 'fortune', 'waypoint', 'riddle', 'mystery']);
 const VILLAGER_LINES = ['Lovely evening.', 'Did you hear the bells last night?', 'Mind the cat. She bites.', 'The Peddler overcharged me again.',
@@ -1885,7 +1900,7 @@ export class Game {
     const dd = dist(e.x, e.y, tx, ty);
     let dvx = 0, dvy = 0;
     if (dd > 0.2 && sp > 0) { const v = Math.min(sp, dd * 3); dvx = ((tx - e.x) / dd) * v; dvy = ((ty - e.y) / dd) * v; }
-    const ease = Math.min(1, dt * (aggro ? 8 : 5));
+    const ease = Math.min(1, dt * weightOf(D) * (aggro ? 1 : 0.62));   // its weight (src: WEIGHT); a little lazier while it wanders
     e.mvx = (e.mvx || 0) + (dvx - (e.mvx || 0)) * ease; e.mvy = (e.mvy || 0) + (dvy - (e.mvy || 0)) * ease;
     if (Math.abs(e.mvx) + Math.abs(e.mvy) > 0.02) { if (D.noclip) { e.x += e.mvx * dt; e.y += e.mvy * dt; } else this.moveCircle(e, e.mvx * dt, e.mvy * dt, 0.35); }   // balloon ghouls float over the canvas
   }

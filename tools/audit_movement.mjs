@@ -55,7 +55,7 @@ function run(id, n) {
       const rx = p.x - e.x, ry = p.y - e.y, rl = Math.hypot(rx, ry) || 1, vr = (vx * rx + vy * ry) / rl;
       if (Math.abs(vr) > 0.3) { if (prevVr && Math.sign(vr) !== Math.sign(prevVr)) M.inout++; prevVr = vr; }
     } else prev = null;
-    const wants = D.speed > 0 && D.ai !== 'rooted' && Math.hypot(p.x - e.x, p.y - e.y) > (D.keep || 1.2) + 1.5 && e.state === 'move' && !e.under;
+    const wants = D.speed > 0 && D.ai !== 'rooted' && D.ai !== 'flee' && Math.hypot(p.x - e.x, p.y - e.y) > (D.keep || 1.2) + 1.5 && e.state === 'move' && !e.under;
     trail.push([e.x, e.y]); if (trail.length > 90) trail.shift();
     if (wants && trail.length === 90 && Math.hypot(e.x - trail[0][0], e.y - trail[0][1]) < D.speed * 0.25) M.stuck++;
     if (n > 1) { let hit = false; for (let i = 0; i < es.length && !hit; i++) for (let j = i + 1; j < es.length && !hit; j++) { const a = es[i], b = es[j]; if (!a.dead && !b.dead && Math.hypot(a.x - b.x, a.y - b.y) < (a.D.r + b.D.r) * 0.5) hit = true; } if (hit) M.stack++; }
