@@ -27,6 +27,7 @@ import { installWeaponMech } from './weaponmech.js';
 import { installHalos } from './halos.js';
 import { installSigils } from './sigils.js';
 import { installMythics } from './mythics.js';
+import { installGearMech } from './gearmech.js';
 import { BX, bxEnemyDef } from './bosses/index.js';
 import { assignItemShots } from './data/uniques.js';
 import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUEST_HUNTS, FETCH_ITEMS } from './data/lore.js';
@@ -359,6 +360,7 @@ export class Game {
     const p = this.player, P = this.passive();
     let m = 1;
     if (P.momentum && p.moving) m += P.momentum;
+    m += this.gearDamageBonus();                         // a Motion ring's empowered window
     if (P.rage) m += P.rage * (1 - p.hp / this.stat('hp'));
     if (P.kintsugi && p.status.kintsugi > 0) m += P.kintsugi;
     if (p.status.bless > 0 && p.blessKind === 'runeholt') m += 0.25;
@@ -983,7 +985,8 @@ export class Game {
     this.mechTick(dt);                                   // the reworked weapons' timed blows (src/weaponmech.js)
     this.haloTick(dt);
     this.sigilTick(dt);                                  // the ability sigils' queued beats (src/sigils.js)
-    this.mythTick(dt);                                   // the Mythic abilities (src/mythics.js)                                   // the special Halos' shapes (src/halos.js)                                 // whatever circles you (src/orbiters.js)
+    this.mythTick(dt);                                   // the Mythic abilities (src/mythics.js)
+    this.gearTick(dt);                                   // armour and ring mechanics (src/gearmech.js)                                   // the special Halos' shapes (src/halos.js)                                 // whatever circles you (src/orbiters.js)
     if (P.lowregen && p.hp < this.stat('hp') * 0.35) p.hp = Math.min(this.stat('hp'), p.hp + P.lowregen * dt);
     if (P.aegis && !p.aegisUp) { p.aegisT = (p.aegisT || 0) - dt; if (p.aegisT <= 0) p.aegisUp = true; }
     if (P.cheatdeath) p.cheatT = Math.max(0, (p.cheatT || 0) - dt);
@@ -1157,6 +1160,7 @@ export class Game {
       this.vx({ k: 'shake', amt: 9 });
     }
     if (A.sigil) this.sigilPlace(A, mult, tgt(7));        // a UT's sigil: press again to set it off (src/sigils.js)
+    this.gearOnAbility();                                  // rings that ride on your abilities (src/gearmech.js)
   }
   // enemies (and the dungeon boss) inside a circle
   enemiesIn(x, y, r) {
@@ -1598,12 +1602,16 @@ export class Game {
       }
       if (d <= 0) return;
     }
+    d = this.gearPreHurt(d);                                 // armour and rings: barriers, sanctuary, counters (src/gearmech.js)
+    if (d <= 0) return;
     if (p.status.armored) d = Math.ceil(d * 0.5);
     if (P.manashield && p.mp > 0) { const m = Math.min(p.mp, Math.round(d * P.manashield)); p.mp -= m; d -= m; }
     if (P.kintsugi) p.status.kintsugi = 3;
     if (P.emberthorns) for (const e of this.enemiesIn(p.x, p.y, 2.5)) this.ignite(e, P.emberthorns, 3);
     d = Math.max(0, Math.round(d));                          // damage is always a whole number
+    const hp0 = p.hp;
     p.hp -= d;
+    this.gearPostHurt(d, hp0);
     p.hitT = 0.15;
     this.sfx('hurt');
     this.vx({ k: 'hurt', amt: Math.min(4, 1 + d / 60) });
@@ -2122,6 +2130,7 @@ export class Game {
       e.dead = true; e.deadT = 0;
       if (e.soulT) this.sigilOnKill(e);                         // a soul-marked kill gives Mana back (src/sigils.js)
       if (e.page13 === 1) this.mythPageDeath(e);                // the Thirteenth Page passes its hex on (src/mythics.js)
+      this.gearOnKill(e);                                       // rings and armour that answer a kill (src/gearmech.js)
       if (e.cloneOf) { this.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 30, colors: ['#ffffff', '#8af6ff'] }); this.bubble(e, 'An echo shatters.', '#cfffff'); return d; }
       this.player.kills++;
       this.speak(e, 'die', e.rb ? 1 : 0.04);
@@ -2182,6 +2191,7 @@ export class Game {
     const { dmg, crit } = this.hitDamage(e, base, sp);
     const dealt = this.damageEnemy(e, dmg, b.x, b.y, false, crit);
     if (dealt && this.player.runeSigil) this.sigilOnHit(e);   // a rune sigil answers your hits inside it
+    if (dealt && b.from === 'p') this.gearOnHit(e, b, dealt);   // armour and rings that count your hits (src/gearmech.js)
     if (!sp || !dealt) return;
     if (sp.mech) { if (b.sig) this.mechSigHit(e, b, dealt); else this.mechHit(e, b, dealt); }
     const p = this.player;
@@ -4278,6 +4288,7 @@ installWeaponMech(Game);
 installHalos(Game);
 installSigils(Game);
 installMythics(Game);
+installGearMech(Game);
 installMelon(Game);
 installRealmEvents(Game);
 installFrostveil(Game);

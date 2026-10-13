@@ -10,6 +10,9 @@ const STATUS = {};                                       // id: 'done' | 'kept' 
 const { WEAPON_REWORK } = await import('../src/data/weapon_rework.js');
 for (const [id, R] of Object.entries(WEAPON_REWORK)) STATUS[id] = `done: ${R.mech.kind}${R.mech.charge ? ' + charge' : ''}`;
 const { HALO_REWORK, SIGIL_REWORK, MYTHIC_REWORK } = await import('../src/data/ability_rework.js');
+const { GEAR_REWORK } = await import('../src/data/gear_rework.js');
+for (const [id, G] of Object.entries(GEAR_REWORK)) STATUS[id] = `done: ${G.kind}`;
+for (const it of Object.values(ITEMS)) { if ((it.slot === 'armor' || it.slot === 'ring') && typeof it.tier === 'number') STATUS[it.id] = 'kept (tiered: stats only)'; if (it.slot === 'consumable' || it.slot === 'backpack' || it.type === 'backpack') STATUS[it.id] = 'kept (the blueprint keeps consumables as they are; art only)'; if (it.admin) STATUS[it.id] = 'kept (admin debug item)'; }
 for (const [id, M] of Object.entries(MYTHIC_REWORK)) STATUS[id] = `done: mythic ${M.kind}`;
 for (const [id, S] of Object.entries(SIGIL_REWORK)) STATUS[id] = `done: sigil ${S.theme}`;
 for (const it of Object.values(ITEMS)) if (it.slot === 'ability' && typeof it.tier === 'number' && it.type !== 'halo') STATUS[it.id] = 'kept (tiered: the class ability, plain)';

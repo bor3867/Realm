@@ -4,6 +4,7 @@ import { STATS, STAT_NAMES, CLASSES } from './classes.js';
 import { applyDungeonItems, orbitLine } from './dungeon_items.js';
 import { applyWeaponRework, mechLine } from './weapon_rework.js';
 import { applyAbilityRework, HALO_TEXT, sigilLine, MYTHIC_TEXT } from './ability_rework.js';
+import { applyGearRework, gearLine } from './gear_rework.js';
 
 const METAL = ['Rust', 'Iron', 'Bronze', 'Steel', 'Verdigris', 'Cobalt', 'Crimson', 'Violet', 'Sunforged', 'Obsidian', 'Rune-White', 'Bloodgold'];
 const NAMES = {
@@ -881,6 +882,7 @@ export function specialLines(it) {
   if (it.ability && it.ability.halo) L.push(HALO_TEXT[it.ability.halo.kind]);
   if (it.ability && it.ability.sigil) L.push(sigilLine(it.ability.sigil));
   if (it.ability && it.ability.myth) L.push(MYTHIC_TEXT[it.ability.myth.kind]);
+  if (it.gear) L.push(gearLine(it.gear));
   if (p) {
     if (p.orbit) L.push(orbitLine(p.orbit));
     if (p.aura) L.push(p.aura.dps ? `Aura: ${p.aura.dps}/s to enemies within ${p.aura.r} tiles${p.aura.slow ? ', slowing them' : ''}` : `Frost aura: slows enemies within ${p.aura.r} tiles`);
@@ -1318,3 +1320,4 @@ applyDungeonItems(ITEMS);
 // the item rework, last of all: each special weapon's one hook (src/data/weapon_rework.js)
 applyWeaponRework(ITEMS);
 applyAbilityRework(ITEMS);
+applyGearRework(ITEMS);

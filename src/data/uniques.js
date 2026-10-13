@@ -98,7 +98,7 @@ for (const [id, E] of Object.entries(EFFECTS)) {
   const it = ITEMS[id];
   if (!it) continue;
   if (E.weapon && it.weapon && !it.reworked) it.weapon.special = { ...(it.weapon.special || {}), ...E.weapon };   // (a reworked weapon keeps its one hook: src/data/weapon_rework.js)
-  if (E.passive) it.passive = { ...(it.passive || {}), ...E.passive };
+  if (E.passive && !it.gear) it.passive = { ...(it.passive || {}), ...E.passive };   // (reworked armour and rings have their one mechanic: src/data/gear_rework.js)
   if (E.sig && it.ability && !(it.reworked && (it.ability.halo || it.ability.sigil || it.ability.myth) && E.sig.kind !== 'orbit')) it.ability.sig = { ...E.sig };   // (a reworked ability has its own shape or sigil instead; orbiters stay)
 }
 // every special ability of a type that draws its own effect gets a signature, if the table above gave it none: a shape

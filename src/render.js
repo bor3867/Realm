@@ -215,6 +215,7 @@ export class Renderer {
       else if (f.kind === 'halo') this.haloFx(f, g);
       else if (f.kind === 'sigil' || f.kind === 'sigilq') this.sigilFx(f, g);
       else if (f.kind === 'myth') this.mythFx(f, g);
+      else if (f.kind === 'gear') this.gearFx(f, g);
     }
     this.mechMarks(g);
     if (g.player.ward > 0 && !g.player.dead) this.wardFx(g);
@@ -1791,6 +1792,19 @@ export class Renderer {
         for (const R of f.runes) { if (R.hp <= 0) continue; const [x, y] = P(p.x + Math.cos(R.a + f.rot) * 1.3, p.y - 0.4 + Math.sin(R.a + f.rot) * 1.3); b.fillStyle = '#05040a'; b.fillRect(x - 2, y - 2, 5, 5); b.fillStyle = R.hp > 1 ? '#46f5d6' : '#d63a4a'; b.fillRect(x - 1, y - 1, 3, 3); if (prev) { b.save(); b.globalAlpha = 0.35; b.fillStyle = '#46f5d6'; for (let i = 1; i < 8; i++) b.fillRect(Math.round(prev[0] + (x - prev[0]) * i / 8), Math.round(prev[1] + (y - prev[1]) * i / 8), 1, 1); b.restore(); } prev = [x, y]; }
         break; }
     }
+  }
+  // armour and ring mechanics (src/gearmech.js): a hazard patch, a mushroom patch, spore pods, a sanctuary
+  gearFx(f, g) {
+    const b = this.b;
+    if (f.h === 'sanct') { const p = g.player, [sx, sy] = this.proj(p.x, p.y); b.save(); b.globalAlpha = 0.45; b.fillStyle = f.col; for (let i = 0; i < 24; i++) { const a = (i / 24) * Math.PI * 2 + g.t; b.fillRect(Math.round(sx + Math.cos(a) * 12), Math.round(sy - 8 + Math.sin(a) * 12), 1, 1); } b.restore(); return; }
+    const [sx0, sy0] = this.proj(f.x, f.y), sx = Math.round(sx0), sy = Math.round(sy0);
+    if (f.h === 'hazard' || f.h === 'mushroom') {
+      b.save(); b.globalAlpha = 0.4; b.fillStyle = f.h === 'hazard' ? f.col : '#9aff9a';
+      const r = f.r * 16; for (let i = 0; i < 28; i++) { const a = (i / 28) * Math.PI * 2; b.fillRect(Math.round(sx + Math.cos(a) * r), Math.round(sy + Math.sin(a) * r * 0.7), 1, 1); }
+      b.restore();
+      if (f.h === 'mushroom') { b.fillStyle = '#e8e0c8'; b.fillRect(sx, sy - 2, 1, 2); b.fillStyle = '#9aff9a'; b.fillRect(sx - 2, sy - 4, 5, 2); }
+    }
+    if (f.h === 'pod' && !f.done) { b.fillStyle = '#3a5a1a'; b.fillRect(sx - 2, sy - 4, 5, 4); b.fillStyle = '#7ad04a'; b.fillRect(sx - 1, sy - 5, 3, 1); b.fillRect(sx - 1, sy - 3, 1, 1); }
   }
   mechMarks(g) {
     const b = this.b;
