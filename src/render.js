@@ -214,6 +214,7 @@ export class Renderer {
       else if (f.kind === 'wglyph' || f.kind === 'wphantom') this.mechFx(f, g);
       else if (f.kind === 'halo') this.haloFx(f, g);
       else if (f.kind === 'sigil' || f.kind === 'sigilq') this.sigilFx(f, g);
+      else if (f.kind === 'myth') this.mythFx(f, g);
     }
     this.mechMarks(g);
     if (g.player.ward > 0 && !g.player.dead) this.wardFx(g);
@@ -1774,6 +1775,22 @@ export class Renderer {
     b.globalAlpha = 0.3; b.fillStyle = G.col[0];
     const r = (G.S.r || 2.5) * 16; for (let i = 0; i < 36; i++) { if (i % 3 === 2) continue; const a = (i / 36) * Math.PI * 2 + g.t * 0.4; b.fillRect(Math.round(sx + Math.cos(a) * r), Math.round(sy + Math.sin(a) * r * 0.7), 1, 1); }
     b.restore();
+  }
+  // the Mythic abilities (src/mythics.js)
+  mythFx(f, g) {
+    const b = this.b, P = (x, y) => this.proj(x, y).map(Math.round), dot = (x, y, c) => { b.fillStyle = c; b.fillRect(Math.round(x), Math.round(y), 1, 1); };
+    const ring = (sx, sy, r, c, n = 32, rot = 0) => { for (let i = 0; i < n; i++) { const a = (i / n) * Math.PI * 2 + rot; dot(sx + Math.cos(a) * r, sy + Math.sin(a) * r * 0.7, c); } };
+    switch (f.h) {
+      case 'print': { const [sx, sy] = P(f.x, f.y); b.fillStyle = Math.floor(g.t * 6) % 2 ? '#ff8a2a' : '#ffd650'; b.fillRect(sx - 3, sy - 1, 7, 1); b.fillRect(sx - 2, sy - 2, 5, 1); b.fillRect(sx - 1, sy, 3, 1); break; }
+      case 'jaw': if (!f.done) { const [sx, sy] = P(f.x, f.y + 0.5); b.fillStyle = '#e8e0c8'; for (let i = -4; i <= 4; i += 2) { b.fillRect(sx + i, sy - 4, 1, 3); b.fillRect(sx + i, sy + 1, 1, 3); } b.fillStyle = '#3a8a9a'; b.fillRect(sx - 5, sy - 1, 11, 2); } break;
+      case 'eye': { const [sx, sy] = P(f.x, f.y); b.save(); b.globalAlpha = 0.35; ring(sx, sy, f.calm * 16, '#bfe8ff', 40, g.t * 0.3); b.restore();
+        for (let k = 0; k < 3; k++) { const a = f.rot + (k / 3) * Math.PI * 2, x = sx + Math.cos(a) * f.ring * 16, y = sy + Math.sin(a) * f.ring * 16 * 0.7; b.fillStyle = '#ffffff'; b.fillRect(Math.round(x), Math.round(y) - 6, 1, 3); b.fillRect(Math.round(x) + 1, Math.round(y) - 3, 1, 3); b.fillStyle = '#5a8aff'; b.fillRect(Math.round(x) - 1, Math.round(y), 3, 1); }
+        break; }
+      case 'spring': if (!f.done) { const [sx, sy] = P(f.x, f.y); ring(sx, sy, f.r * 16 * (1 - f.t / f.hold * 0.5), '#e8c87a', 36, -g.t * 3); b.fillStyle = '#8a6a3a'; for (let i = 0; i < 4; i++) b.fillRect(sx - 2 + (i % 2), sy - 10 + i * 2, 4, 1); } break;
+      case 'oath': { const p = g.player; let prev = null;
+        for (const R of f.runes) { if (R.hp <= 0) continue; const [x, y] = P(p.x + Math.cos(R.a + f.rot) * 1.3, p.y - 0.4 + Math.sin(R.a + f.rot) * 1.3); b.fillStyle = '#05040a'; b.fillRect(x - 2, y - 2, 5, 5); b.fillStyle = R.hp > 1 ? '#46f5d6' : '#d63a4a'; b.fillRect(x - 1, y - 1, 3, 3); if (prev) { b.save(); b.globalAlpha = 0.35; b.fillStyle = '#46f5d6'; for (let i = 1; i < 8; i++) b.fillRect(Math.round(prev[0] + (x - prev[0]) * i / 8), Math.round(prev[1] + (y - prev[1]) * i / 8), 1, 1); b.restore(); } prev = [x, y]; }
+        break; }
+    }
   }
   mechMarks(g) {
     const b = this.b;

@@ -26,6 +26,7 @@ import { installBX } from './bossx.js';
 import { installWeaponMech } from './weaponmech.js';
 import { installHalos } from './halos.js';
 import { installSigils } from './sigils.js';
+import { installMythics } from './mythics.js';
 import { BX, bxEnemyDef } from './bosses/index.js';
 import { assignItemShots } from './data/uniques.js';
 import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUEST_HUNTS, FETCH_ITEMS } from './data/lore.js';
@@ -981,7 +982,8 @@ export class Game {
     this.updateOrbs(dt);
     this.mechTick(dt);                                   // the reworked weapons' timed blows (src/weaponmech.js)
     this.haloTick(dt);
-    this.sigilTick(dt);                                  // the ability sigils' queued beats (src/sigils.js)                                   // the special Halos' shapes (src/halos.js)                                 // whatever circles you (src/orbiters.js)
+    this.sigilTick(dt);                                  // the ability sigils' queued beats (src/sigils.js)
+    this.mythTick(dt);                                   // the Mythic abilities (src/mythics.js)                                   // the special Halos' shapes (src/halos.js)                                 // whatever circles you (src/orbiters.js)
     if (P.lowregen && p.hp < this.stat('hp') * 0.35) p.hp = Math.min(this.stat('hp'), p.hp + P.lowregen * dt);
     if (P.aegis && !p.aegisUp) { p.aegisT = (p.aegisT || 0) - dt; if (p.aegisT <= 0) p.aegisUp = true; }
     if (P.cheatdeath) p.cheatT = Math.max(0, (p.cheatT || 0) - dt);
@@ -1050,7 +1052,9 @@ export class Game {
     };
     const type = ITEMS[id].type;
     if (A.sig) this.abilitySig(A.sig, mult, aim, tgt);   // the item's own signature, whatever its type (src/data/uniques.js)
-    if (type === 'bellows') {
+    if (A.myth && this.mythCast(A, mult, aim, tgt)) {
+      // a Mythic's own mechanic in place of the class ability (src/mythics.js)
+    } else if (type === 'bellows') {
       // BELLOWS CHARGE: an untouchable dash that batters everything in its path, then an ember blast
       const len = 4.2 + (B.range - 3) * 0.6;
       p.dash = { vx: Math.cos(aim) * len / 0.22, vy: Math.sin(aim) * len / 0.22, t: 0.22, dmg: Math.round(B.dmg * 1.3 * mult), hit: new Set(), B, mult, mod, trailT: 0 };
@@ -1494,14 +1498,16 @@ export class Game {
       if (dist(a.x, a.y, p.x, p.y) > 11) { tx = p.x; ty = p.y; }
       const d = dist(a.x, a.y, tx, ty);
       a.moving = d > 0.12;
-      if (a.moving) { const s = Math.min(d, 7.5 * dt); a.x += ((tx - a.x) / d) * s; a.y += ((ty - a.y) / d) * s; a.face = tx < a.x; }
+      if (a.moving) { const s = Math.min(d, (a.speed || 7.5) * dt); a.x += ((tx - a.x) / d) * s; a.y += ((ty - a.y) / d) * s; a.face = tx < a.x; }
       a.atkT = Math.max(0, (a.atkT || 0) - dt);
       a.cd -= dt;
       if (T && a.cd <= 0 && dist2(a.x, a.y, T.x, T.y) < 0.9 * 0.9) {               // on it: CLAW
         a.cd = 0.5; a.atkT = 0.3; a.face = T.x < a.x;
         const hits = a.cleave ? this.enemiesIn(T.x, T.y, 1.3) : [T];
-        for (const e of hits) this.damageEnemy(e, Math.round(a.dmg * (e === T ? 1.3 : 0.7)), e.x, e.y - 0.5, e !== T);
+        const crown = a.crown > this.t ? (a.crown = 0, 3) : 1;   // a crowned king's one far stronger blow (src/mythics.js)
+        for (const e of hits) this.damageEnemy(e, Math.round(a.dmg * crown * (e === T ? 1.3 : 0.7)), e.x, e.y - 0.5, e !== T);
         this.vx({ k: 'slash', x: T.x, y: T.y - 0.5 });
+        if (a.king) this.mythKingHit(a, T);
       }
       keep.push(a);
     }
@@ -2115,6 +2121,7 @@ export class Game {
       if (e === this.boss) { this.killBoss(); return d; }
       e.dead = true; e.deadT = 0;
       if (e.soulT) this.sigilOnKill(e);                         // a soul-marked kill gives Mana back (src/sigils.js)
+      if (e.page13 === 1) this.mythPageDeath(e);                // the Thirteenth Page passes its hex on (src/mythics.js)
       if (e.cloneOf) { this.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 30, colors: ['#ffffff', '#8af6ff'] }); this.bubble(e, 'An echo shatters.', '#cfffff'); return d; }
       this.player.kills++;
       this.speak(e, 'die', e.rb ? 1 : 0.04);
@@ -4270,6 +4277,7 @@ installBX(Game);
 installWeaponMech(Game);
 installHalos(Game);
 installSigils(Game);
+installMythics(Game);
 installMelon(Game);
 installRealmEvents(Game);
 installFrostveil(Game);

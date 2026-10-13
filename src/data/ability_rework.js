@@ -71,6 +71,29 @@ export const SIGIL_REWORK = {
   trick_deck: { theme: 'rune', t: 6, n: 4, r: 3, f: 1.4 },
   melon_orb: { theme: 'align', f: 1.5, r: 2.2 },
 };
+// the Mythics: a mechanic of their own each (src/mythics.js); it replaces their old twist (ability.mod) too
+export const MYTHIC_REWORK = {
+  the_unbroken_bellows: { kind: 'footprints', f: 2.6, r: 1.4 },
+  the_first_anvil: { kind: 'greatanvil', f: 5, r: 2.4, warn: 1.4, pin: 1.6 },
+  the_grave_of_kings: { kind: 'kings', f: 1.6, life: 9, speed: 4.5 },
+  the_leviathans_maw: { kind: 'jaw', f: 0.65, r: 3, range: 9, fly: 0.55 },
+  the_infinite_reflection: { kind: 'twins', f: 2 },
+  the_eye_of_the_storm: { kind: 'stormeye', f: 1.2, life: 8, calm: 1.7, ring: 2.6 },
+  the_unwound_spring: { kind: 'spring', f: 6, r: 4, hold: 0.6, cap: 12 },
+  the_unbroken_oath: { kind: 'oathrunes', f: 1.4, life: 8, soak: 3, slashes: 9 },
+  the_thirteenth_page: { kind: 'page13' },
+};
+export const MYTHIC_TEXT = {
+  footprints: 'Your charge leaves three glowing anvil prints; if it strikes anything, all three burst at once',
+  greatanvil: 'A colossal anvil\'s shadow falls on the cursor; after a long warning it strikes, pins what it lands on, and throws four cross-shards',
+  kings: 'Two slow ancestral knights rise; when one makes a kill, the other is crowned for one far stronger blow',
+  jaw: 'Throw a great jaw in an arc: where it lands it closes, drags the small things in, and sprays a cone of seafoam',
+  twins: 'Your step leaves two reflections; the first shot that strikes each one comes back at its shooter, mirrored',
+  stormeye: 'Plant a storm eye: shots die in its calm centre while three bolts wheel round it (recast to move it)',
+  spring: 'A broken spring swallows the enemy shots around you (up to 12), then fires one clock-hand back for each',
+  oathrunes: 'Three linked oath runes circle you and soak shots (3 each); when the last breaks, a broad counter-slash',
+  page13: 'An enemy that dies under this hex passes it on, once, to up to three enemies near it',
+};
 export const SIGIL_TEXT = {
   encore: (S) => ({ ring: 'its sigil sends out a ring of shots', alternate: 'its sigil sends out two rings, one after the other', heavy: 'its sigil lands one heavy encore blow' })[S.pattern],
   undertow: () => 'its sigil drags the small things near it into its centre, then crashes',
@@ -94,6 +117,14 @@ export function applyAbilityRework(ITEMS) {
     const A = { ...it.ability, halo: { ...H }, heal: 0 };
     delete A.mod;
     if (!H.keepSig) delete A.sig;
+    it.ability = A; it.reworked = true;
+  }
+  for (const [id, M] of Object.entries(MYTHIC_REWORK)) {
+    const it = ITEMS[id];
+    if (!it || !it.ability) continue;
+    const A = { ...it.ability, myth: { ...M } };
+    delete A.mod;
+    if (A.sig && A.sig.kind !== 'orbit') delete A.sig;
     it.ability = A; it.reworked = true;
   }
   for (const [id, S] of Object.entries(SIGIL_REWORK)) {

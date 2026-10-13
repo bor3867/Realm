@@ -17,7 +17,7 @@ g.newCharacter('priest'); g.persist = () => {}; g.enter('realm'); g.enemies = g.
 let fail = 0;
 const bad = (m) => { console.log('  PROBLEM:', m); fail++; };
 const S = Object.values(ITEMS).filter((it) => !it.base && (it.ut || it.mythic || it.legendary) && !it.admin);
-const eff = (it) => it.slot === 'weapon' ? JSON.stringify(it.weapon.special || {}) : it.slot === 'ability' ? (it.ability.mod || '') + (it.ability.halo ? JSON.stringify(it.ability.halo) : '') + (it.ability.sigil ? JSON.stringify(it.ability.sigil) : '') + '|' + JSON.stringify(it.ability.sig ? { ...it.ability.sig, proj: 0 } : {}) + '|' + JSON.stringify(it.passive || {}) : JSON.stringify(it.passive || {});
+const eff = (it) => it.slot === 'weapon' ? JSON.stringify(it.weapon.special || {}) : it.slot === 'ability' ? (it.ability.mod || '') + (it.ability.halo ? JSON.stringify(it.ability.halo) : '') + (it.ability.sigil ? JSON.stringify(it.ability.sigil) : '') + (it.ability.myth ? JSON.stringify(it.ability.myth) : '') + '|' + JSON.stringify(it.ability.sig ? { ...it.ability.sig, proj: 0 } : {}) + '|' + JSON.stringify(it.passive || {}) : JSON.stringify(it.passive || {});
 const empty = S.filter((it) => /^\{\}$|^\|\{\}\|\{\}$/.test(eff(it)));
 if (empty.length) bad('no effect: ' + empty.map((i) => i.id).join(', '));
 const seen = {};
@@ -50,7 +50,8 @@ for (const it of S) {
       const e0 = g.addEnemy('brine_pilgrim', p.x + 4, p.y + 3); e0.hp = e0.maxHp = 1e7; e0.seen = true;   // something for hooks and kites to find
       g.useAbility(); used++;
       const own = projs(it);
-      if (own.length && !watch(420, own)) bad(`${it.id}: its own shot never appeared (${own.join(', ')})`);
+      const onTrigger = it.ability.myth && ['oathrunes', 'spring'].includes(it.ability.myth.kind);   // (fires only once shots are soaked: src/mythics.js)
+      if (own.length && !onTrigger && !watch(420, own)) bad(`${it.id}: its own shot never appeared (${own.join(', ')})`);
       e0.dead = true; g.enemies = g.map.enemies = [];
     }
   } catch (err) { bad(`${it.id} threw: ${err.message}`); }
