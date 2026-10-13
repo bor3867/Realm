@@ -70,10 +70,7 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   the game (the vault grid itself moves into it, so dragging, tooltips and double-click all work), with Type / Tier / Rarity
   / Name sorting and a scrolling grid; double-click a backpack item to store it; Esc or x closes it (the panel label reopens
   it); stepping off closes it. The gear opens a RotMG-style dropdown: Options, Nexus, Character select, Switch account.
-- Item sprite redraws (2026-10-12): ChatGPT's redesigned sheets arrived as WebP previews (1254 px wide, resampled, 500-960
-  colours per sprite, no 8x8 grid), so they cannot be imported exactly. Waiting on native 8x8 files (PNG, or each sprite
-  as 8 rows of 8 hex colours) to import and check against docs/projectile_art_standard.md; the shot concept sheet is a
-  style reference only.
+- Item sprite redraws: dropped (2026-10-12). The user did not like ChatGPT's redesigns; the items keep their current art.
 - Ability shots: player shots, already drawn 1:1; their art sizes are part of the item rework (with the weapons).
 - Feel: movement, firing, camera, transitions.
 - Enemy movement, audit so far (`tools/audit_movement.mjs`, 189 monster types in open ground while you circle,
