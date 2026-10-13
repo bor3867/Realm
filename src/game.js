@@ -1,6 +1,6 @@
 // Game simulation: maps, player, enemies, projectiles, loot, portals, boss.
 // Pure state + update(); rendering and DOM live elsewhere.
-import { R, rng, clamp, dist, dist2, angleTo, TAU } from './util.js';
+import { R, rng, clamp, dist, dist2, angleTo, TAU, CAM, lift, liftO, liftA, liftB, angleUp } from './util.js';
 import { CLASSES, START_KIT, STATS, MAX_LEVEL, FAME_XP, FAME_GOALS, xpToNext, moveSpeed, fireRate, dmgMult, hpRegen, mpRegen, mitigate } from './data/classes.js';
 import { ITEMS, SETS, rollLoot, bagFor, canEquip, TYPE_SLOT, BAG_ORDER, BAG_NAMES, WEAPON_TYPES, ARMOR_TYPES, ABILITY_TYPES, ADMIN_SET } from './data/items.js';
 import { ENEMIES, PACKS, CAMP_LOOT, BIOME_SPAWNS, BOSS, REALM_BOSSES, PARENTS, HERALDS, BIOME_BOSS, EVENTS_TO_BOSS, GROUPS, DUNGEONS, DUNGEON_BOSSES, FIRECAMP_BANDS, portalDrop2 as portalDrop } from './data/enemies.js';
@@ -181,6 +181,8 @@ export class Game {
   }
   // world offset of something `d` tiles "up the screen" from a point (chest height of an upright sprite)
   up(x, y, d) { return [x - d * Math.sin(this.camAngle), y - d * Math.cos(this.camAngle)]; }
+  get camAngle() { return this._cam || 0; }
+  set camAngle(v) { this._cam = v; CAM.a = v; }   // (shared with lift() in src/util.js)
   rotateCam(dir, dt) { this.camTarget = null; this.camAngle = (this.camAngle + dir * 1.9 * dt) % (Math.PI * 2); }
   resetCam() { this.camTarget = Math.round(this.camAngle / (Math.PI * 2)) * Math.PI * 2; }
   snapCam() {                              // nearest 90° step
@@ -519,7 +521,7 @@ export class Game {
         const a = R() * TAU;
         this.openPortal(it.use.key, this.player.x + Math.cos(a) * 1.6, this.player.y + Math.sin(a) * 1.6, 120);
         this.banner(`The ${it.name} turns. ${DUNGEONS[it.use.key].name} opens for you.`, 2800);
-        this.vx({ k: 'burst', x: this.player.x, y: this.player.y - 0.6, n: 30, colors: ['#3befff', '#ffffff', '#ffd650'] });
+        this.vx({ k: 'burst', ...liftO(this.player.x, this.player.y, 0.6), n: 30, colors: ['#3befff', '#ffffff', '#ffd650'] });
         this.sfx('portal'); this.cleanBags(); this.events.push({ type: 'ground' }); this.persist();
         return;
       }
@@ -557,7 +559,7 @@ export class Game {
         const s = it.use.stat, cap = CLASSES[p.cls].max[s];
         if (p.base[s] >= cap) { this.toast(`${s.toUpperCase()} is already maxed.`); return; }
         p.base[s] = Math.min(cap, p.base[s] + (s === 'hp' || s === 'mp' ? 5 : 1));
-        this.float(p.x, p.y - 1.2, `+${s.toUpperCase()}`, '#f2c14e');
+        this.float(...lift(p.x, p.y, 1.2), `+${s.toUpperCase()}`, '#f2c14e');
       }
       C[i] = null;
       this.cleanBags();
@@ -995,7 +997,7 @@ export class Game {
       if (p.auraT <= 0) {
         p.auraT = 0.5;
         for (const e of this.enemiesIn(p.x, p.y, P.aura.r)) {
-          if (P.aura.dps) this.damageEnemy(e, Math.round(P.aura.dps * 0.5), e.x, e.y - 0.5, true);
+          if (P.aura.dps) this.damageEnemy(e, Math.round(P.aura.dps * 0.5), ...lift(e.x, e.y, 0.5), true);
           if (P.aura.slow && e !== this.boss) { e.slowT = 0.7; e.slowF = Math.max(e.slowF || 0, P.aura.slow); }
         }
         if (P.aura.dps) this.vx({ k: 'aura', x: p.x, y: p.y, r: P.aura.r, cold: !!P.aura.slow });
@@ -1021,7 +1023,7 @@ export class Game {
       for (let k = 0; k < n; k++) { const o = (k - (n - 1) / 2) * 0.55; this.shoot('p', ox + Math.cos(perp) * o, oy + Math.sin(perp) * o, aim, 9, 9, dmg, proj, 0.5, true); }
     } else if (S.kind === 'mines') {
       const at = tgt(8);
-      for (let k = 0; k < n; k++) { const a = (k / n) * TAU, b = this.shoot('p', at.x + Math.cos(a) * 1.2, at.y - 0.5 + Math.sin(a) * 1.2, a, 6, 3.2, dmg, proj, 0.5, true); b.mv = { hold: 0.55 }; b.t = 0; }
+      for (let k = 0; k < n; k++) { const a = (k / n) * TAU, b = this.shoot('p', lift(at.x, at.y, 0.5)[0] + Math.cos(a) * 1.2, lift(at.x, at.y, 0.5)[1] + Math.sin(a) * 1.2, a, 6, 3.2, dmg, proj, 0.5, true); b.mv = { hold: 0.55 }; b.t = 0; }
     } else if (S.kind === 'rain') {
       const at = tgt(9);
       for (let k = 0; k < n; k++) this.fvLater(k * 0.07, () => { const x = at.x + (R() - 0.5) * 3, y = at.y + (R() - 0.5) * 2.4; this.shoot('p', x, y - 5, Math.PI / 2, 12, 5, dmg, proj, 0.5, true); });
@@ -1045,7 +1047,7 @@ export class Game {
     if (A.berserk) p.status.berserk = A.berserk;
     if (A.armored) p.status.armored = A.armored;
     if (A.invuln) p.status.invuln = A.invuln;
-    if (A.heal) { const h = Math.min(A.heal, this.stat('hp') - p.hp); p.hp += h; if (h > 0) this.float(p.x, p.y - 1.4, `+${Math.round(h)}`, '#3ac85a'); }
+    if (A.heal) { const h = Math.min(A.heal, this.stat('hp') - p.hp); p.hp += h; if (h > 0) this.float(...lift(p.x, p.y, 1.4), `+${Math.round(h)}`, '#3ac85a'); }
     const B = A.burst, mult = dmgMult(this.stat('att')), I = this.input, mod = A.mod;
     const [cx0, cy0] = this.up(p.x, p.y, 0.5);
     const aim = angleTo(cx0, cy0, I.aimX, I.aimY);
@@ -1094,8 +1096,8 @@ export class Game {
         this.allies.push({ kind: 'thrall', sprite: A.summon || 'thrall', x: p.x + Math.cos(a) * 1.2, y: p.y + Math.sin(a) * 1.2, life: A.life, max: A.life, cd: 0.3 + k * 0.12,
           dmg: Math.round(B.dmg * mult), cleave: mod === 'thrallfan' || mod === 'kings' || B.count > 1, burst: mod === 'thrallburst' || mod === 'kings', ph: R() * TAU, born: this.t });
       }
-      this.vx({ k: 'burst', x: p.x, y: p.y - 0.5, n: 24, colors: ['#e8e0c8', '#8af6ff', '#5ef0c8'] });
-      this.fx.push({ kind: 'ring', x: p.x, y: p.y - 0.4, t: 0, max: 2.4, color: '#8af6ff' });
+      this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.5), n: 24, colors: ['#e8e0c8', '#8af6ff', '#5ef0c8'] });
+      this.fx.push({ kind: 'ring', ...liftO(p.x, p.y, 0.4), t: 0, max: 2.4, color: '#8af6ff' });
     } else if (type === 'hookline') {
       // GRAPPLE LINE: the hook flies to the cursor. A monster gets reeled in and stunned;
       // a boss reels YOU in; nothing at all and the line hauls you to where it landed.
@@ -1117,10 +1119,10 @@ export class Game {
         const ox = k || ring ? Math.cos(a) * rr : 0, oy = k || ring ? Math.sin(a) * rr : 0;
         this.decoys.push({ x: p.x + ox, y: p.y + oy, t: A.decoy, max: A.decoy, dmg: Math.round(B.dmg * mult), n: B.count, range: B.range, flip: p.dir === 'left', dir: p.dir, twice: ring });
       }
-      this.vx({ k: 'burst', x: p.x, y: p.y - 0.5, n: 20, colors: ['#ffffff', '#cfe8ff', '#8ab4d8'] });
+      this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.5), n: 20, colors: ['#ffffff', '#cfe8ff', '#8ab4d8'] });
       { const sx0 = p.x, sy0 = p.y; p.x = sx0; p.y = sy0; for (let i = 0; i < 26; i++) this.moveCircle(p, (x - sx0) / 26, (y - sy0) / 26, PLAYER_R); }
       p.status.invuln = Math.max(p.status.invuln, 0.3);
-      this.vx({ k: 'burst', x: p.x, y: p.y - 0.5, n: 20, colors: ['#ffffff', '#cfe8ff', '#8ab4d8'] });
+      this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.5), n: 20, colors: ['#ffffff', '#cfe8ff', '#8ab4d8'] });
     } else if (type === 'kite') {
       // STORM KITE: a kite turret, anchored where you aim, that rains lightning on anything near it
       const follow = mod === 'squall' || mod === 'eye', at = follow ? { x: p.x, y: p.y } : tgt(7), n = mod === 'twinkite' ? 2 : mod === 'eye' ? 3 : 1;
@@ -1133,8 +1135,8 @@ export class Game {
       // RUNE WARD: runes close around you and soak up the next blows; rune-slashes cut a ring outward
       p.ward = Math.max(p.ward || 0, A.ward); p.wardMax = p.ward; p.wardT = 6;
       for (let k = 0; k < B.count; k++) this.shoot('p', cx0, cy0, aim + (k / B.count) * TAU, 9, B.range, Math.round(B.dmg * mult), B.proj, 0.5, !!B.pierce);
-      this.fx.push({ kind: 'ring', x: p.x, y: p.y - 0.5, t: 0, max: 2.2, color: '#46f5d6' });
-      this.vx({ k: 'burst', x: p.x, y: p.y - 0.6, n: 24, colors: ['#46f5d6', '#eef8ff', '#d63a4a'] });
+      this.fx.push({ kind: 'ring', ...liftO(p.x, p.y, 0.5), t: 0, max: 2.2, color: '#46f5d6' });
+      this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.6), n: 24, colors: ['#46f5d6', '#eef8ff', '#d63a4a'] });
     } else if (type === 'hex') {
       // HEX: a curse thrown at the cursor. Everything inside takes more damage and slows; hex-bolts burst from it
       const at = tgt(7.5), C = A.curse;
@@ -1144,19 +1146,19 @@ export class Game {
         if (mod === 'ashcurse') this.ignite(e, Math.round(120 * mult), C.t);
         if (e !== this.boss && !e.rb) { e.slowT = Math.max(e.slowT || 0, C.t); e.slowF = Math.max(e.slowF || 0, 0.3); }
       }
-      for (let k = 0; k < B.count; k++) this.shoot('p', at.x, at.y - 0.5, (k / B.count) * TAU, 8, B.range, Math.round(B.dmg * mult), B.proj, 0.45, false);
-      this.vx({ k: 'burst', x: at.x, y: at.y - 0.5, n: 30, colors: ['#ab82f2', '#7af4ff', '#e6ffff'] });
+      for (let k = 0; k < B.count; k++) this.shoot('p', ...lift(at.x, at.y, 0.5), (k / B.count) * TAU, 8, B.range, Math.round(B.dmg * mult), B.proj, 0.45, false);
+      this.vx({ k: 'burst', ...liftO(at.x, at.y, 0.5), n: 30, colors: ['#ab82f2', '#7af4ff', '#e6ffff'] });
     } else if (type === 'stopwatch') {
       // STOP TIME: everything inside the dial freezes. You don't.
       this.timeStop = { x: p.x, y: p.y, r: B.range, t: A.stop, dur: A.stop, rewind: mod === 'rewind' || mod === 'unwind',
         slow: mod === 'slowfield', unwind: mod === 'unwind' ? Math.round((A.unwind || 0) * mult) : 0 };
-      this.fx.push({ kind: 'ring', x: p.x, y: p.y - 0.4, t: 0, max: B.range, color: '#e3b95a' });
-      this.vx({ k: 'burst', x: p.x, y: p.y - 0.5, n: 30, colors: ['#e3b95a', '#fff6c8', '#8d88a0'] });
+      this.fx.push({ kind: 'ring', ...liftO(p.x, p.y, 0.4), t: 0, max: B.range, color: '#e3b95a' });
+      this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.5), n: 30, colors: ['#e3b95a', '#fff6c8', '#8d88a0'] });
       this.vx({ k: 'shake', amt: 3 });
     } else if (type === 'godability') {
-      for (const e of this.enemiesIn(p.x, p.y, B.range)) this.damageEnemy(e, B.dmg, e.x, e.y - 0.5, true);
-      this.fx.push({ kind: 'ring', x: p.x, y: p.y - 0.5, t: 0, max: 16, color: '#ff4af0' });
-      this.vx({ k: 'burst', x: p.x, y: p.y - 0.5, n: 90, colors: ['#ff4af0', '#8af6ff', '#ffffff', '#ffd650'] });
+      for (const e of this.enemiesIn(p.x, p.y, B.range)) this.damageEnemy(e, B.dmg, ...lift(e.x, e.y, 0.5), true);
+      this.fx.push({ kind: 'ring', ...liftO(p.x, p.y, 0.5), t: 0, max: 16, color: '#ff4af0' });
+      this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.5), n: 90, colors: ['#ff4af0', '#8af6ff', '#ffffff', '#ffd650'] });
       this.vx({ k: 'shake', amt: 9 });
     }
     if (A.sigil) this.sigilPlace(A, mult, tgt(7));        // a UT's sigil: press again to set it off (src/sigils.js)
@@ -1180,10 +1182,10 @@ export class Game {
       const D = p.dash;
       D.t -= dt;
       this.moveCircle(p, D.vx * dt, D.vy * dt, PLAYER_R);
-      if (Math.random() < 0.9) this.vx({ k: 'burst', x: p.x, y: p.y - 0.4, n: 2, colors: ['#ff8a1f', '#ffe45c', '#d8341a'] });
-      for (const e of this.enemiesIn(p.x, p.y - 0.4, 0.9)) {
+      if (Math.random() < 0.9) this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.4), n: 2, colors: ['#ff8a1f', '#ffe45c', '#d8341a'] });
+      for (const e of this.enemiesIn(...lift(p.x, p.y, 0.4), 0.9)) {
         if (D.hit.has(e)) continue;
-        D.hit.add(e); this.damageEnemy(e, D.dmg, e.x, e.y - 0.5);
+        D.hit.add(e); this.damageEnemy(e, D.dmg, ...lift(e.x, e.y, 0.5));
       }
       if (D.mod === 'vortex') {                         // the conch drags everything along behind you
         for (const e of this.enemiesIn(p.x, p.y, 2.6)) if (e !== this.boss && !e.rb && !(e.D && e.D.dummy)) this.moveCircle(e, D.vx * dt * 0.85, D.vy * dt * 0.85, 0.35);
@@ -1216,7 +1218,7 @@ export class Game {
     for (const f of this.fx) {
       if (f.kind === 'anvil' && !f.done && f.t >= f.delay) {
         f.done = true;
-        for (const e of this.enemiesIn(f.x, f.y, f.r)) { this.damageEnemy(e, f.dmg, e.x, e.y - 0.5); this.stun(e, f.stun); }
+        for (const e of this.enemiesIn(f.x, f.y, f.r)) { this.damageEnemy(e, f.dmg, ...lift(e.x, e.y, 0.5)); this.stun(e, f.stun); }
         this.vx({ k: 'shake', amt: 7 });
         this.vx({ k: 'burst', x: f.x, y: f.y, n: 40, colors: f.frost ? ['#cfffff', '#3befff', '#a6acc4', '#ffffff'] : ['#ffc94a', '#f2641a', '#a6acc4', '#fff6c8'] });
         this.fx.push({ kind: 'ring', x: f.x, y: f.y, t: 0, max: f.r + 0.6, color: f.frost ? '#3befff' : '#ffc94a' });
@@ -1224,7 +1226,7 @@ export class Game {
       }
       if (f.kind === 'star' && !f.done && f.t >= f.delay) {
         f.done = true;
-        if (f.dmg) for (const e of this.enemiesIn(f.x, f.y, f.r)) this.damageEnemy(e, f.dmg, e.x, e.y - 0.5);
+        if (f.dmg) for (const e of this.enemiesIn(f.x, f.y, f.r)) this.damageEnemy(e, f.dmg, ...lift(e.x, e.y, 0.5));
         this.vx({ k: 'burst', x: f.x, y: f.y, n: 30, colors: ['#ffffff', '#8af6ff', '#3bc8e8'] });
         this.fx.push({ kind: 'ring', x: f.x, y: f.y, t: 0, max: f.r + 0.4, color: '#8af6ff' });
         if (f.sparks) this.starSparks(f);
@@ -1232,7 +1234,7 @@ export class Game {
       }
       if (f.kind === 'beam' && f.t >= f.delay && f.strike && !f.struck) {   // the moment it lands: the heavy blow
         f.struck = true; f.tick = 0.25;
-        for (const e of this.enemiesIn(f.x, f.y, f.r)) this.damageEnemy(e, f.strike, e.x, e.y - 0.5);
+        for (const e of this.enemiesIn(f.x, f.y, f.r)) this.damageEnemy(e, f.strike, ...lift(e.x, e.y, 0.5));
         this.vx({ k: 'burst', x: f.x, y: f.y, n: 24, colors: ['#ffffff', '#ffeb8f', '#f2c14e'] }); this.vx({ k: 'shake', amt: 2 });
       }
       if (f.kind === 'beam' && f.t >= f.delay) {
@@ -1244,9 +1246,9 @@ export class Game {
         if (f.tick <= 0 && f.t < f.life - 0.15) {
           f.tick = 0.2;
           for (const e of this.enemiesIn(f.x, f.y, f.r)) {
-            this.damageEnemy(e, f.dmg, e.x, e.y - 0.5);
+            this.damageEnemy(e, f.dmg, ...lift(e.x, e.y, 0.5));
             if (f.ignite) this.ignite(e, f.ignite, 3);
-            if (f.devour && e.dead) { p.hp = Math.min(this.stat('hp'), p.hp + this.stat('hp') * 0.08); this.float(p.x, p.y - 1.4, 'DEVOUR', '#3ac85a'); }
+            if (f.devour && e.dead) { p.hp = Math.min(this.stat('hp'), p.hp + this.stat('hp') * 0.08); this.float(...lift(p.x, p.y, 1.4), 'DEVOUR', '#3ac85a'); }
           }
           this.vx({ k: 'burst', x: f.x, y: f.y, n: 10, colors: ['#ffeb8f', '#fffdf0', '#f2c14e'] });
         }
@@ -1260,7 +1262,7 @@ export class Game {
         f.tick -= dt;
         if (f.tick <= 0) {
           f.tick = 0.3;
-          for (const e of this.enemiesIn(f.x, f.y, f.r)) this.damageEnemy(e, f.dmg, e.x, e.y - 0.5, true);
+          for (const e of this.enemiesIn(f.x, f.y, f.r)) this.damageEnemy(e, f.dmg, ...lift(e.x, e.y, 0.5), true);
         }
       }
       if (f.kind === 'zone' && !f.done && f.t >= f.delay) {   // boss ground slams: telegraphed, then they hurt
@@ -1279,7 +1281,7 @@ export class Game {
       H.x += H.vx * dt; H.y += H.vy * dt; H.flown += s;
       for (const e of this.enemiesIn(H.x, H.y + 0.4, 0.45)) {
         if (H.caught.includes(e)) continue;
-        this.damageEnemy(e, H.dmg, e.x, e.y - 0.5);
+        this.damageEnemy(e, H.dmg, ...lift(e.x, e.y, 0.5));
         if (e === this.boss || e.rb || e.dead || (e.D && e.D.dummy)) {   // too big to move: the line hauls you to it instead
           H.state = 'done';
           p.pull = { x: e.x - Math.cos(H.a) * 2, y: e.y - Math.sin(H.a) * 2, t: 0.9 };
@@ -1306,12 +1308,12 @@ export class Game {
         if (d > 1.3) { all = false; const s = Math.min(d - 1.2, 18 * dt); this.moveCircle(e, ((p.x - e.x) / d) * s, ((p.y - e.y) / d) * s, 0.3); e.stunT = Math.max(e.stunT || 0, 0.6); }
       }
       const lead = H.caught.find((e) => !e.dead);
-      if (lead) { H.x = lead.x; H.y = lead.y - 0.5; }
+      if (lead) [H.x, H.y] = lift(lead.x, lead.y, 0.5);
       if (all || !lead) {
         if (H.shock) {
-          for (const e of this.enemiesIn(p.x, p.y, 2.2)) this.damageEnemy(e, Math.round(H.dmg * 0.6), e.x, e.y - 0.5);
-          this.fx.push({ kind: 'ring', x: p.x, y: p.y - 0.4, t: 0, max: 2.4, color: '#8af6ff' });
-          this.vx({ k: 'burst', x: p.x, y: p.y - 0.4, n: 30, colors: ['#8af6ff', '#ffffff', '#3befff'] });
+          for (const e of this.enemiesIn(p.x, p.y, 2.2)) this.damageEnemy(e, Math.round(H.dmg * 0.6), ...lift(e.x, e.y, 0.5));
+          this.fx.push({ kind: 'ring', ...liftO(p.x, p.y, 0.4), t: 0, max: 2.4, color: '#8af6ff' });
+          this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.4), n: 30, colors: ['#8af6ff', '#ffffff', '#3befff'] });
           this.vx({ k: 'shake', amt: 5 });
         }
         for (const e of H.caught) if (!e.dead) this.stun(e, 1.4);
@@ -1334,9 +1336,9 @@ export class Game {
       .sort((u, v) => dist2(u.x, u.y, a.x, a.y) - dist2(v.x, v.y, a.x, a.y));
     if (!tgt.length) return true;
     const [e1, e2] = tgt;
-    this.damageEnemy(e1, a.dmg, e1.x, e1.y - 0.5, true);
-    this.vx({ k: 'zap', x0: a.x, y0: a.y - 1.8, x1: e1.x, y1: e1.y - 0.5 });
-    if (e2) { this.damageEnemy(e2, Math.round(a.dmg * 0.6), e2.x, e2.y - 0.5, true); this.vx({ k: 'zap', x0: e1.x, y0: e1.y - 0.5, x1: e2.x, y1: e2.y - 0.5 }); }
+    this.damageEnemy(e1, a.dmg, ...lift(e1.x, e1.y, 0.5), true);
+    this.vx({ k: 'zap', ...liftA(a.x, a.y, 1.8), ...liftB(e1.x, e1.y, 0.5) });
+    if (e2) { this.damageEnemy(e2, Math.round(a.dmg * 0.6), ...lift(e2.x, e2.y, 0.5), true); this.vx({ k: 'zap', ...liftA(e1.x, e1.y, 0.5), ...liftB(e2.x, e2.y, 0.5) }); }
     this.sfx('zap');
     return true;
   }
@@ -1348,7 +1350,7 @@ export class Game {
       const [ox, oy] = this.up(d.x, d.y, 0.5);
       for (let k = 0; k < d.n; k++) this.shoot('p', ox, oy, (k / d.n) * TAU, 10, d.range, d.dmg, 'pj_glass', 0.4, true);
       if (d.twice) { d.twice = false; d.t = 0.6; d.n = Math.max(4, Math.round(d.n * 0.75)); this.sfx('glass'); continue; }   // The Infinite Reflection: it shatters again
-      this.vx({ k: 'burst', x: d.x, y: d.y - 0.5, n: 26, colors: ['#ffffff', '#cfe8ff', '#8ab4d8', '#3a5a7a'] });
+      this.vx({ k: 'burst', ...liftO(d.x, d.y, 0.5), n: 26, colors: ['#ffffff', '#cfe8ff', '#8ab4d8', '#3a5a7a'] });
       this.sfx('glass');
     }
     this.decoys = this.decoys.filter((d) => d.t > 0);
@@ -1460,11 +1462,11 @@ export class Game {
     if (T.slow || T.unwind) {                           // the time you stopped comes back for them
       for (const e of this.enemiesIn(T.x, T.y, T.r)) {
         if (T.slow && e !== this.boss && !e.rb) { e.slowT = 3; e.slowF = Math.max(e.slowF || 0, 0.5); }
-        if (T.unwind) this.damageEnemy(e, T.unwind, e.x, e.y - 0.5, true);
+        if (T.unwind) this.damageEnemy(e, T.unwind, ...lift(e.x, e.y, 0.5), true);
       }
-      if (T.unwind) { this.fx.push({ kind: 'ring', x: T.x, y: T.y - 0.4, t: 0, max: T.r, color: '#fff6c8' }); this.vx({ k: 'shake', amt: 5 }); }
+      if (T.unwind) { this.fx.push({ kind: 'ring', ...liftO(T.x, T.y, 0.4), t: 0, max: T.r, color: '#fff6c8' }); this.vx({ k: 'shake', amt: 5 }); }
     }
-    this.vx({ k: 'burst', x: T.x, y: T.y - 0.5, n: 16, colors: ['#e3b95a', '#fff6c8'] });
+    this.vx({ k: 'burst', ...liftO(T.x, T.y, 0.5), n: 16, colors: ['#e3b95a', '#fff6c8'] });
   }
   // ---- summoned thralls
   updateAllies(dt) {
@@ -1474,10 +1476,10 @@ export class Game {
       a.life -= dt; a.ph += dt * 3;
       if (a.life <= 0) {
         if (a.burst) {
-          for (const e of this.enemiesIn(a.x, a.y, 2.2)) this.damageEnemy(e, a.dmg * 3, e.x, e.y - 0.5);
+          for (const e of this.enemiesIn(a.x, a.y, 2.2)) this.damageEnemy(e, a.dmg * 3, ...lift(e.x, e.y, 0.5));
           this.vx({ k: 'boom', x: a.x, y: a.y, r: 2.2 });
         }
-        this.vx({ k: 'burst', x: a.x, y: a.y - 0.4, n: 10, colors: ['#e8e0c8', '#8af6ff'] });
+        this.vx({ k: 'burst', ...liftO(a.x, a.y, 0.4), n: 10, colors: ['#e8e0c8', '#8af6ff'] });
         continue;
       }
       // climb onto the nearest enemy and claw at it; with nothing to hunt, heel at your side
@@ -1509,8 +1511,8 @@ export class Game {
         a.cd = 0.5; a.atkT = 0.3; a.face = T.x < a.x;
         const hits = a.cleave ? this.enemiesIn(T.x, T.y, 1.3) : [T];
         const crown = a.crown > this.t ? (a.crown = 0, 3) : 1;   // a crowned king's one far stronger blow (src/mythics.js)
-        for (const e of hits) this.damageEnemy(e, Math.round(a.dmg * crown * (e === T ? 1.3 : 0.7)), e.x, e.y - 0.5, e !== T);
-        this.vx({ k: 'slash', x: T.x, y: T.y - 0.5 });
+        for (const e of hits) this.damageEnemy(e, Math.round(a.dmg * crown * (e === T ? 1.3 : 0.7)), ...lift(e.x, e.y, 0.5), e !== T);
+        this.vx({ k: 'slash', ...liftO(T.x, T.y, 0.5) });
         if (a.king) this.mythKingHit(a, T);
       }
       keep.push(a);
@@ -1578,23 +1580,23 @@ export class Game {
     const p = this.player;
     if (p.dead || p.status.invuln > 0 || this.map.kind === 'nexus' || this.god) return;
     const P = this.passive();
-    if (P.dodge && R() < P.dodge) { this.float(p.x, p.y - 1.2, 'DODGE', '#8af6ff'); return; }
+    if (P.dodge && R() < P.dodge) { this.float(...lift(p.x, p.y, 1.2), 'DODGE', '#8af6ff'); return; }
     if (P.aegis && p.aegisUp) {
       p.aegisUp = false; p.aegisT = P.aegis;
-      this.float(p.x, p.y - 1.2, 'BLOCKED', '#f2c14e');
-      this.fx.push({ kind: 'ring', x: p.x, y: p.y - 0.5, t: 0, max: 1.2, color: '#f2c14e' });
+      this.float(...lift(p.x, p.y, 1.2), 'BLOCKED', '#f2c14e');
+      this.fx.push({ kind: 'ring', ...liftO(p.x, p.y, 0.5), t: 0, max: 1.2, color: '#f2c14e' });
       return;
     }
     if (!ignoreDef) dmg = Math.round(dmg * this.danger());
     let d = mitigate(dmg, this.stat('def'), ignoreDef);
     if (p.ward > 0) {                                        // the Runeblade's ward drinks the blow first
       const w = Math.min(p.ward, d); p.ward -= w; d -= w;
-      this.float(p.x, p.y - 1.2, `-${w}`, '#46f5d6');
+      this.float(...lift(p.x, p.y, 1.2), `-${w}`, '#46f5d6');
       if (p.ward <= 0) {
-        this.vx({ k: 'burst', x: p.x, y: p.y - 0.6, n: 16, colors: ['#46f5d6', '#ffffff'] }); this.sfx('hit');
+        this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.6), n: 16, colors: ['#46f5d6', '#ffffff'] }); this.sfx('hit');
         if (this.abilityMod() === 'wardnova') {               // the Unbroken Oath: a broken ward answers with a ring of runes
           const A = ITEMS[p.equip[1]].ability, mult = dmgMult(this.stat('att'));
-          for (let k = 0; k < A.burst.count; k++) this.shoot('p', p.x, p.y - 0.5, (k / A.burst.count) * TAU, 9, A.burst.range, Math.round(A.burst.dmg * mult), A.burst.proj, 0.5, true);
+          for (let k = 0; k < A.burst.count; k++) this.shoot('p', ...lift(p.x, p.y, 0.5), (k / A.burst.count) * TAU, 9, A.burst.range, Math.round(A.burst.dmg * mult), A.burst.proj, 0.5, true);
           p.status.invuln = Math.max(p.status.invuln || 0, 0.8);
           this.vx({ k: 'shake', amt: 3 });
           return;
@@ -1615,11 +1617,11 @@ export class Game {
     p.hitT = 0.15;
     this.sfx('hurt');
     this.vx({ k: 'hurt', amt: Math.min(4, 1 + d / 60) });
-    this.float(p.x, p.y - 1.2, `-${d}`, '#e2546a');
+    this.float(...lift(p.x, p.y, 1.2), `-${d}`, '#e2546a');
     if (p.hp <= 0 && P.cheatdeath && !p.cheatT) {
       p.cheatT = P.cheatdeath; p.hp = this.stat('hp') * 0.4; p.status.invuln = 1.5;
       this.banner('Cheated death!', 1600);
-      this.vx({ k: 'burst', x: p.x, y: p.y - 0.5, n: 30, colors: ['#f2c14e', '#fff6c8'] });
+      this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.5), n: 30, colors: ['#f2c14e', '#fff6c8'] });
       return;
     }
     if (p.hp <= 0) this.killPlayer(by);
@@ -1661,9 +1663,9 @@ export class Game {
       let got = 0;
       while (p.fameXp >= FAME_XP) { p.fameXp -= FAME_XP; p.fame = (p.fame || 0) + 1; got++; }
       if (got) {
-        this.float(p.x, p.y - 1.9, `+${got} fame`, '#ffb84a');
+        this.float(...lift(p.x, p.y, 1.9), `+${got} fame`, '#ffb84a');
         const goal = FAME_GOALS.find((f) => p.fame - got < f && p.fame >= f);
-        if (goal) { this.banner(`Fame goal reached: ${goal}`, 2200); this.sfx('level'); this.fx.push({ kind: 'ring', x: p.x, y: p.y - 0.5, t: 0, max: 3, color: '#ffb84a' }); }
+        if (goal) { this.banner(`Fame goal reached: ${goal}`, 2200); this.sfx('level'); this.fx.push({ kind: 'ring', ...liftO(p.x, p.y, 0.5), t: 0, max: 3, color: '#ffb84a' }); }
       }
       return;
     }
@@ -1674,10 +1676,10 @@ export class Game {
       const C = CLASSES[p.cls];
       for (const s of STATS) p.base[s] = Math.min(C.max[s], p.base[s] + R.int(...C.grow[s]));
       p.hp = this.stat('hp'); p.mp = this.stat('mp');
-      this.float(p.x, p.y - 1.6, 'LEVEL UP', '#f2c14e');
+      this.float(...lift(p.x, p.y, 1.6), 'LEVEL UP', '#f2c14e');
       this.sfx('level');
-      this.fx.push({ kind: 'ring', x: p.x, y: p.y - 0.5, t: 0, max: 3, color: '#f2c14e' });
-      this.vx({ k: 'levelup', x: p.x, y: p.y - 0.5 });
+      this.fx.push({ kind: 'ring', ...liftO(p.x, p.y, 0.5), t: 0, max: 3, color: '#f2c14e' });
+      this.vx({ k: 'levelup', ...liftO(p.x, p.y, 0.5) });
       this.banner(`Level ${p.level}`, 1400);
     }
     if (p.level >= MAX_LEVEL) { p.xp = 0; this.banner('Level 20! From now on, every kill earns fame.', 3200); }
@@ -1732,15 +1734,15 @@ export class Game {
       const D = e.D, d = Math.sqrt(d2);
       if (e.shellT > 0) {                                // the conch hermit, shut in its shell: then it pops out squirting
         e.shellT -= dt;
-        if (e.shellT <= 0) { e.cds[0] = 0; this.vx({ k: 'burst', x: e.x, y: e.y - 0.4, n: 8, colors: ['#c8e8ff', '#ffffff', '#f2b8c8'] }); }
+        if (e.shellT <= 0) { e.cds[0] = 0; this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.4), n: 8, colors: ['#c8e8ff', '#ffffff', '#f2b8c8'] }); }
         continue;
       }
       if (e.fuseT !== undefined) {                       // a bomber, swelling: then BOOM
         e.fuseT -= dt;
         if (e.fuseT <= 0) {
           if (!p.dead && dist2(e.x, e.y, p.x, p.y) < D.bomb.r * D.bomb.r) this.hurtPlayer(D.bomb.dmg, D.name);
-          for (let k = 0; k < 10; k++) this.shoot('e', e.x, e.y - 0.4, (k / 10) * TAU, 5, 3, Math.round(D.bomb.dmg * 0.4), 'gasbubble', 0.35, false, D.name);
-          this.vx({ k: 'boom', x: e.x, y: e.y - 0.4, r: D.bomb.r }); this.vx({ k: 'shake', amt: 4 });
+          for (let k = 0; k < 10; k++) this.shoot('e', ...lift(e.x, e.y, 0.4), (k / 10) * TAU, 5, 3, Math.round(D.bomb.dmg * 0.4), 'gasbubble', 0.35, false, D.name);
+          this.vx({ k: 'boom', ...liftO(e.x, e.y, 0.4), r: D.bomb.r }); this.vx({ k: 'shake', amt: 4 });
           if (D.bombCloud) this.mrCloud(e.x, e.y);                   // a sporeling leaves its spores behind
           e.fuseT = undefined; this.damageEnemy(e, 1e9, e.x, e.y, true);
         }
@@ -1762,8 +1764,8 @@ export class Game {
         for (const o of this.enemiesIn(e.x, e.y, D.heal.r)) {
           if (o === e || o === this.boss || o.dead || o.hp >= o.maxHp) continue;
           o.hp = Math.min(o.maxHp, o.hp + o.maxHp * D.heal.pct);
-          this.vx({ k: 'heal', x0: e.x, y0: e.y - 0.6, x1: o.x, y1: o.y - 0.6 });
-          this.float(o.x, o.y - 1.2, '+', '#7aff9a');
+          this.vx({ k: 'heal', ...liftA(e.x, e.y, 0.6), ...liftB(o.x, o.y, 0.6) });
+          this.float(...lift(o.x, o.y, 1.2), '+', '#7aff9a');
         }
       }
       // queued burst waves
@@ -1793,7 +1795,7 @@ export class Game {
         e.seen = true;
         if (D.enrage && !e.enraged && e.hp < e.maxHp * 0.4) {        // ENRAGE: faster, angrier
           e.enraged = true; this.speak(e, 'hurt', 1);
-          this.vx({ k: 'burst', x: e.x, y: e.y - 0.8, n: 16, colors: ['#ff2a3a', '#ff7a1a'] });
+          this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.8), n: 16, colors: ['#ff2a3a', '#ff7a1a'] });
         }
         for (let k = 0; k < D.attacks.length; k++) {
           e.cds[k] -= dt * (1 - (e.slowF || 0) * 0.6) * (e.enraged ? 1.6 : 1) * (e.cuedUntil > this.t ? 1.6 : 1);
@@ -1874,7 +1876,7 @@ export class Game {
             e.diveWarn = undefined;
             const da = angleTo(e.x, e.y, p.x, p.y), sv = D.speed * 3;
             e.dive = { vx: Math.cos(da) * sv, vy: Math.sin(da) * sv, t: (d + 3) / sv };
-            this.vx({ k: 'burst', x: e.x, y: e.y - 0.8, n: 6, colors: ['#ffffff'] });
+            this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.8), n: 6, colors: ['#ffffff'] });
           }
           return;
         }
@@ -1916,9 +1918,9 @@ export class Game {
         if (e.blinkTo) {                                  // the warning: it shimmers here while a mark glows there
           e.blinkTo.t -= dt;
           if (e.blinkTo.t <= 0) {
-            this.vx({ k: 'burst', x: e.x, y: e.y - 0.5, n: 12, colors: ['#ffffff', '#b888ff', '#3a3048'] });
+            this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.5), n: 12, colors: ['#ffffff', '#b888ff', '#3a3048'] });
             e.x = e.blinkTo.x; e.y = e.blinkTo.y; e.blinked = this.t; e.blinkTo = null;
-            this.vx({ k: 'burst', x: e.x, y: e.y - 0.5, n: 12, colors: ['#ffffff', '#b888ff', '#3a3048'] });
+            this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.5), n: 12, colors: ['#ffffff', '#b888ff', '#3a3048'] });
           }
           return;
         }
@@ -2096,7 +2098,7 @@ export class Game {
     if (e.reflectUntil > this.t) {                             // the Colossus's blazing core: your shot comes back
       if (!this.reflectCd || this.reflectCd < this.t) {
         this.reflectCd = this.t + 0.12;
-        const p = this.player, a = angleTo(e.x, e.y - 1, p.x, p.y - 0.4);
+        const p = this.player, a = angleTo(e.x, e.y - 1, ...lift(p.x, p.y, 0.4));
         this.shoot('e', e.x, e.y - 1, a + (R() - 0.5) * 0.3, 8, 12, e.reflectDmg, e.reflectProj, 0.45, false, e.D.name);
       }
       if (!quiet) this.float(x, y - 0.8, 'REFLECTED', '#ffffff');
@@ -2135,7 +2137,7 @@ export class Game {
       this.player.kills++;
       this.speak(e, 'die', e.rb ? 1 : 0.04);
       if (e.D.confetti) { this.vx({ k: 'regfx', key: 'd2_effects/hollowmoon.confetti_pop', x: e.x, y: e.y - 0.6, fps: 10 }); const g0 = 3 + Math.floor(R() * 4); this.save.gold = (this.save.gold || 0) + g0; this.float(e.x, e.y - 1.4, `+${g0}g`, '#f2c14e'); }
-      if (e.D.deathBurst) { const B = e.D.deathBurst, a0 = R() * TAU; for (let k = 0; k < B.n; k++) this.shoot('e', e.x, e.y - 0.4, a0 + (k / B.n) * TAU, B.speed, B.range, B.dmg, B.proj, 0.35, false, e.D.name); }
+      if (e.D.deathBurst) { const B = e.D.deathBurst, a0 = R() * TAU; for (let k = 0; k < B.n; k++) this.shoot('e', ...lift(e.x, e.y, 0.4), a0 + (k / B.n) * TAU, B.speed, B.range, B.dmg, B.proj, 0.35, false, e.D.name); }
       if (e.D.asDeath) this.asDeath(e);                       // a meteor mite's ring of embers; the Vault Keeper's fall (src/astral.js)
       if (e.D.split) for (let k = 0; k < e.D.split.n; k++) {   // splitters burst into smaller copies
         const a = (k / e.D.split.n) * TAU, x = e.x + Math.cos(a) * 0.7, y = e.y + Math.sin(a) * 0.7;
@@ -2146,7 +2148,7 @@ export class Game {
       if (P.manaonkill) this.player.mp = Math.min(this.stat('mp'), this.player.mp + P.manaonkill);
       if (P.killburst) {
         const n = 8, dm = Math.round(e.maxHp * 0.08 * P.killburst + 40 * P.killburst);
-        for (let k = 0; k < n; k++) this.shoot('p', e.x, e.y - 0.5, (k / n) * TAU, 8, 3.5, Math.min(dm, 4000), 'tombshard', 0.4, false);
+        for (let k = 0; k < n; k++) this.shoot('p', ...lift(e.x, e.y, 0.5), (k / n) * TAU, 8, 3.5, Math.min(dm, 4000), 'tombshard', 0.4, false);
       }
       if (e.thrallOf) e.thrallOf = null;
       this.vx({ k: 'death', e, big: !!e.rb });
@@ -2154,7 +2156,7 @@ export class Game {
       this.sfx(e.rb || e.herald ? 'bigkill' : 'kill');
       const gold = Math.max(1, Math.round(e.D.xp / 6));
       this.save.gold = (this.save.gold || 0) + gold;
-      if (gold >= 20) this.float(e.x, e.y - 1.6, `+${gold}g`, '#f2c14e');
+      if (gold >= 20) this.float(...lift(e.x, e.y, 1.6), `+${gold}g`, '#f2c14e');
       if (e.rb) this.vx({ k: 'shake', amt: 6 });
       this.gainXp(e.D.xp);
       if (e.rb) {
@@ -2200,7 +2202,7 @@ export class Game {
     if (sp.slow && e !== this.boss && !e.rb) { e.slowT = sp.slow.t; e.slowF = sp.slow.f; }
     if (sp.curse) { e.curseF = Math.max(e.curseT > 0 ? e.curseF || 0 : 0, sp.curse.f); e.curseT = Math.max(e.curseT || 0, sp.curse.t); }
     if (sp.explode) {
-      for (const o of this.enemiesIn(b.x, b.y, sp.explode.r)) if (o !== e) this.damageEnemy(o, Math.round(b.dmg * sp.explode.f), o.x, o.y - 0.5, true);
+      for (const o of this.enemiesIn(b.x, b.y, sp.explode.r)) if (o !== e) this.damageEnemy(o, Math.round(b.dmg * sp.explode.f), ...lift(o.x, o.y, 0.5), true);
       this.vx({ k: 'boom', x: b.x, y: b.y, r: sp.explode.r });
     }
     if (sp.chain) {
@@ -2209,8 +2211,8 @@ export class Game {
         const nx = this.enemiesIn(from.x, from.y, 4.5).filter((o) => !seen.has(o)).sort((a, c) => dist2(a.x, a.y, from.x, from.y) - dist2(c.x, c.y, from.x, from.y))[0];
         if (!nx) break;
         seen.add(nx);
-        this.vx({ k: 'zap', x0: from.x, y0: from.y - 0.5, x1: nx.x, y1: nx.y - 0.5 });
-        this.damageEnemy(nx, Math.round(b.dmg * sp.chain.f), nx.x, nx.y - 0.5, true);
+        this.vx({ k: 'zap', ...liftA(from.x, from.y, 0.5), ...liftB(nx.x, nx.y, 0.5) });
+        this.damageEnemy(nx, Math.round(b.dmg * sp.chain.f), ...lift(nx.x, nx.y, 0.5), true);
         from = nx;
       }
     }
@@ -2239,7 +2241,7 @@ export class Game {
     if (M.hold && b.t < M.hold) { b.vx = 0; b.vy = 0; b.life += dt; return false; }   // hangs, glinting, then moves
     if (M.d4 || M.jerk || M.serp || M.refract || M.disperse || M.blink) { const got = this.steerD4(b, dt, M); if (got !== undefined) return got; }
     if (M.seek) {                                      // a seeker: it turns to follow you
-      const f = this.foe({ x: b.x, y: b.y }), want = angleTo(b.x, b.y, f.x, f.y - 0.4);
+      const f = this.foe({ x: b.x, y: b.y }), want = angleTo(b.x, b.y, ...lift(f.x, f.y, 0.4));
       let da = ((want - b.ha + Math.PI * 3) % TAU) - Math.PI;
       b.ha += Math.max(-M.seek * dt, Math.min(M.seek * dt, da));
     }
@@ -2249,7 +2251,7 @@ export class Game {
       b.hs = Math.max(0.15, b.hs - b.hs * 7 * dt);       // stops dead in the air...
       if (b.t > M.brake + 0.35) {                        // ...then snaps toward you
         const f = this.foe({ x: b.x, y: b.y });
-        b.re = true; b.ha = angleTo(b.x, b.y, f.x, f.y - 0.4); b.hs = M.re || b.s0 * 1.6; b.life = Math.max(b.life, 2.2);
+        b.re = true; b.ha = angleTo(b.x, b.y, ...lift(f.x, f.y, 0.4)); b.hs = M.re || b.s0 * 1.6; b.life = Math.max(b.life, 2.2);
       }
     }
     if (M.boomer && !b.back && b.t > M.boomer) { b.back = true; b.ha += Math.PI; b.life = Math.max(b.life, M.boomer + 0.2); }
@@ -2296,7 +2298,7 @@ export class Game {
     if (e.curseT > 0) { e.curseT -= dt; if (e.curseT <= 0) e.curseF = 0; }
     if (e.burn && e.burn.t > 0) {
       e.burn.t -= dt; e.burn.acc += dt;
-      if (e.burn.acc >= 0.5) { e.burn.acc -= 0.5; this.damageEnemy(e, Math.round(e.burn.dps * 0.5), e.x, e.y - 0.8, true); }
+      if (e.burn.acc >= 0.5) { e.burn.acc -= 0.5; this.damageEnemy(e, Math.round(e.burn.dps * 0.5), ...lift(e.x, e.y, 0.8), true); }
     }
   }
   addBag(x, y, items) {
@@ -2487,7 +2489,7 @@ export class Game {
       if (Dd.D.trail && Dd.acc <= 0) {
         Dd.acc = Dd.D.trail.every || 0.12;
         const a0 = Math.atan2(Dd.vy, Dd.vx);
-        for (const s0 of [-1, 1]) this.shoot('e', e.x, e.y - 0.8, a0 + s0 * Math.PI / 2, Dd.D.trail.speed || 3, Dd.D.trail.range || 5, Dd.D.trail.dmg, Dd.D.trail.proj, 0.4, false, D.name);
+        for (const s0 of [-1, 1]) this.shoot('e', ...lift(e.x, e.y, 0.8), a0 + s0 * Math.PI / 2, Dd.D.trail.speed || 3, Dd.D.trail.range || 5, Dd.D.trail.dmg, Dd.D.trail.proj, 0.4, false, D.name);
       }
       if (dist2(e.x, e.y, p.x, p.y) < (D.r + 0.4) ** 2 && !Dd.hitP) { Dd.hitP = true; this.hurtPlayer(Dd.D.dmg || 100, D.name); }
       const stuck = Math.abs(e.x - ox) + Math.abs(e.y - oy) < 1e-4;
@@ -2495,7 +2497,7 @@ export class Game {
         Dd.n++; Dd.hitP = false;
         const a = angleTo(e.x, e.y, p.x, p.y) + (R() - 0.5) * 0.5, sp0 = Math.hypot(Dd.vx, Dd.vy);
         Dd.vx = Math.cos(a) * sp0; Dd.vy = Math.sin(a) * sp0; Dd.t = Math.max(Dd.t, 0.6);
-        this.vx({ k: 'burst', x: e.x, y: e.y - 0.5, n: 16, colors: ['#ffffff', '#a8e2ff'] }); this.vx({ k: 'shake', amt: 3 });
+        this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.5), n: 16, colors: ['#ffffff', '#a8e2ff'] }); this.vx({ k: 'shake', amt: 3 });
       } else if (Dd.t <= 0 || stuck) {
         if (Dd.D.slam) this.bossZones(e, { ...Dd.D.slam, at: 'self' });
         e.dashing = null;
@@ -2854,7 +2856,7 @@ export class Game {
           o.ventT = 3.2 + R() * 1.6;
           const a0 = R() * Math.PI;
           for (let k = 0; k < 8; k++) this.shoot('e', o.x, o.y, a0 + k * Math.PI / 4, 5.5, 4.5, 80, 'slag_shard', 0.4, false, 'an ember vent');
-          this.vx({ k: 'burst', x: o.x, y: o.y - 0.3, n: 14, colors: ['#ff6a1a', '#ffd84a', '#ffffff'] });
+          this.vx({ k: 'burst', ...liftO(o.x, o.y, 0.3), n: 14, colors: ['#ff6a1a', '#ffd84a', '#ffffff'] });
         }
       }
     }
@@ -2875,7 +2877,7 @@ export class Game {
     this.banner(`${msg} The last seal breaks. The way to the boss is open!`, 3600);
     for (const g of m.gates) {
       g.sprite = 'gate_open'; g.solid = false; m.solid[Math.floor(g.y) * m.w + Math.floor(g.x)] = 0;
-      this.vx({ k: 'burst', x: g.x, y: g.y - 0.5, n: 20, colors: ['#ff4a5a', '#ffd650', '#ffffff'] });
+      this.vx({ k: 'burst', ...liftO(g.x, g.y, 0.5), n: 20, colors: ['#ff4a5a', '#ffd650', '#ffffff'] });
     }
     this.vx({ k: 'shake', amt: 6 }); this.sfx('boss');
   }
@@ -3023,7 +3025,7 @@ export class Game {
       if (!this.activePet()) { this.save.activePet = pet.id; this.pet = null; this.petAt = { x: H.x, y: H.y }; }
       this.petJoy(pet);
       this.banner(`The egg hatches: a ${RARITY[H.rarity].name} ${petName(pet)}!${this.save.activePet === pet.id ? ' It follows you now.' : ' Visit the Pet Yard to choose your companion.'}`, 3400);
-      this.vx({ k: 'burst', x: H.x, y: H.y - 0.4, n: 36, colors: [RARITY[H.rarity].color, '#ffffff', '#fff6c8'] });
+      this.vx({ k: 'burst', ...liftO(H.x, H.y, 0.4), n: 36, colors: [RARITY[H.rarity].color, '#ffffff', '#fff6c8'] });
       this.sfx('rare'); this.persist();
     }
     if (H.t >= HATCH_BURST + 0.5) this.hatching = null;
@@ -3079,12 +3081,12 @@ export class Game {
     q.tick = PET_TICK;
     if (this.map.kind === 'nexus') return;
     const hp = this.stat('hp'), mp = this.stat('mp');
-    if (p.hp < hp) { const h = Math.min(petHeal(P), hp - p.hp); p.hp += h; this.float(p.x - 0.4, p.y - 1.5, `+${h}`, '#5ef08a'); this.vx({ k: 'heal', x0: q.x, y0: q.y - 0.4, x1: p.x, y1: p.y - 0.6 }); }
+    if (p.hp < hp) { const h = Math.min(petHeal(P), hp - p.hp); p.hp += h; this.float(p.x - 0.4, p.y - 1.5, `+${h}`, '#5ef08a'); this.vx({ k: 'heal', ...liftA(q.x, q.y, 0.4), ...liftB(p.x, p.y, 0.6) }); }
     if (p.mp < mp) { const m = Math.min(petMagic(P), mp - p.mp); p.mp += m; this.float(p.x + 0.4, p.y - 1.5, `+${m}`, '#6ab4ff'); }
     if (P.ab.shield && (q.shieldT = (q.shieldT ?? 2) - PET_TICK) <= 0) {   // the shield: a ward that soaks the next blows
       q.shieldT = SHIELD_TICK;
       const w = petShield(P);
-      if ((p.ward || 0) < w) { p.ward = w; p.wardMax = w; p.wardT = SHIELD_TICK; this.float(p.x, p.y - 1.9, `ward ${w}`, '#46f5d6'); }
+      if ((p.ward || 0) < w) { p.ward = w; p.wardMax = w; p.wardT = SHIELD_TICK; this.float(...lift(p.x, p.y, 1.9), `ward ${w}`, '#46f5d6'); }
     }
   }
   // feed your companion an item, paying gold or fame. The meal is split between its abilities (see pets.js).
@@ -3118,7 +3120,7 @@ export class Game {
     L.splice(L.indexOf(a), 1); L.splice(L.indexOf(b), 1); L.push(c);
     this.save.activePet = c.id; this.pet = null; this.petJoy(c, 1.8);
     this.banner(`Fused! A ${RARITY[c.rarity].name} ${petName(c)} (cap ${petCap(c)})`, 3200);
-    this.vx({ k: 'burst', x: this.player.x, y: this.player.y - 0.6, n: 40, colors: [RARITY[c.rarity].color, '#ffffff', '#fff6c8'] });
+    this.vx({ k: 'burst', ...liftO(this.player.x, this.player.y, 0.6), n: 40, colors: [RARITY[c.rarity].color, '#ffffff', '#fff6c8'] });
     this.sfx('rare'); this.persist();
     return `Your pets fused into one ${RARITY[c.rarity].name} ${petName(c)}. Its abilities can now reach level ${petCap(c)}.`;
   }
@@ -3151,11 +3153,11 @@ export class Game {
     if (m.kind !== 'realm') return 'Waypoints only work in the realm.';
     const w = m.objects.find((o) => o.interact === 'waypoint' && o.name === name);
     if (!w || !(p.waypoints || []).includes(name)) return 'You have not found that waypoint yet.';
-    this.vx({ k: 'burst', x: p.x, y: p.y - 0.6, n: 30, colors: ['#8af0ff', '#ffffff'] });
+    this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.6), n: 30, colors: ['#8af0ff', '#ffffff'] });
     p.x = w.x; p.y = w.y + 1.4; p.hook = null; p.pull = null; p.dash = null;
     this.unstick(p);
     this.revealAt(p.x, p.y, 16);
-    this.vx({ k: 'burst', x: p.x, y: p.y - 0.6, n: 40, colors: ['#8af0ff', '#ffffff', '#3befff'] });
+    this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.6), n: 40, colors: ['#8af0ff', '#ffffff', '#3befff'] });
     p.status.invuln = Math.max(p.status.invuln || 0, 1.5);
     this.sfx('portal');
     this.banner(`Travelled to ${name}`, 1800);
@@ -3178,12 +3180,12 @@ export class Game {
   // a cracked wall in a dungeon: shoot it enough and it gives way to a secret room
   hitWeak(o) {
     const m = this.map, xi = Math.floor(o.x), yi = Math.floor(o.y);
-    this.vx({ k: 'burst', x: o.x, y: o.y - 0.5, n: 4, colors: ['#9a96b0', '#5e5a72'] });   // dust: the only clue the wall is hollow
+    this.vx({ k: 'burst', ...liftO(o.x, o.y, 0.5), n: 4, colors: ['#9a96b0', '#5e5a72'] });   // dust: the only clue the wall is hollow
     if (--o.hp > 0) return;
     m.objects.splice(m.objects.indexOf(o), 1); m.ogridDirty = true;
     m.solid[yi * m.w + xi] = 0;
     m.tiles[yi * m.w + xi] = TID[m.def.floor];
-    this.vx({ k: 'burst', x: o.x, y: o.y - 0.5, n: 30, colors: ['#9a96b0', '#ffd650', '#ffffff'] });
+    this.vx({ k: 'burst', ...liftO(o.x, o.y, 0.5), n: 30, colors: ['#9a96b0', '#ffd650', '#ffffff'] });
     this.vx({ k: 'shake', amt: 3 });
     this.banner('The cracked wall gives way... a hidden passage!', 2600);
     this.sfx('rare');
@@ -3191,7 +3193,7 @@ export class Game {
   // the mystery altar: you never know what it wants
   mystery(o) {
     const m = this.map, p = this.player, roll = R();
-    this.vx({ k: 'burst', x: o.x, y: o.y - 0.6, n: 36, colors: ['#b888ff', '#5a2a8a', '#ffffff'] });
+    this.vx({ k: 'burst', ...liftO(o.x, o.y, 0.6), n: 36, colors: ['#b888ff', '#5a2a8a', '#ffffff'] });
     if (roll < 0.25) {
       p.hp = this.stat('hp'); p.mp = this.stat('mp'); p.status.bless = 45; p.blessKind = 'runeholt';
       this.banner('The altar whispers a blessing: fully restored, +25% damage for 45s.', 3200); this.sfx('level');
@@ -3233,8 +3235,8 @@ export class Game {
     const what = { shore: ['Blessing of the Tide', '+25% speed'], fen: ['Blessing of the Mire', 'regenerate 25 Life/s'],
       runeholt: ['Blessing of the Runes', '+25% damage'], godfall: ['Blessing of Gold', '+15 Defense'] }[b];
     this.banner(`${what[0]}: ${what[1]} for 30s`, 2400);
-    this.fx.push({ kind: 'ring', x: o.x, y: o.y - 0.5, t: 0, max: 3, color: { shore: '#3bc8e8', fen: '#8db03a', runeholt: '#b888ff', godfall: '#f2641a' }[b] });
-    this.vx({ k: 'burst', x: p.x, y: p.y - 0.6, n: 26, colors: ['#ffffff', { shore: '#3bc8e8', fen: '#d4ff5a', runeholt: '#b888ff', godfall: '#ffc94a' }[b]] });
+    this.fx.push({ kind: 'ring', ...liftO(o.x, o.y, 0.5), t: 0, max: 3, color: { shore: '#3bc8e8', fen: '#8db03a', runeholt: '#b888ff', godfall: '#f2641a' }[b] });
+    this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.6), n: 26, colors: ['#ffffff', { shore: '#3bc8e8', fen: '#d4ff5a', runeholt: '#b888ff', godfall: '#ffc94a' }[b]] });
     this.sfx('level');
   }
   // treasure: walk into a chest to crack it open
@@ -3277,8 +3279,8 @@ export class Game {
     if (o.guards && o.guards.some((g) => !g.dead)) { if (o.starVault) this.asVaultHit(o); this.float(o.x, o.y - 1, 'GUARDED', '#8d88a0'); return; }
     if (!o.maxHp) o.hp = o.maxHp = this.chestHp(o);
     o.hp -= dmg; o.mine = (o.mine || 0) + dmg; o.hurtT = this.t;
-    this.float(o.x, o.y - 0.9, `${Math.round(dmg)}`, '#ffd650');
-    this.vx({ k: 'burst', x: o.x, y: o.y - 0.4, n: 3, colors: ['#c98a44', '#ffd650'] });
+    this.float(...lift(o.x, o.y, 0.9), `${Math.round(dmg)}`, '#ffd650');
+    this.vx({ k: 'burst', ...liftO(o.x, o.y, 0.4), n: 3, colors: ['#c98a44', '#ffd650'] });
     if (o.hp <= 0) this.breakChest(o);
   }
   adminLoot() {
@@ -3302,7 +3304,7 @@ export class Game {
     const bag = this.addBag(o.x, o.y + 0.8, o.admin ? this.adminLoot() : rollLoot(o.starLoot || (o.loot ? CAMP_LOOT[o.loot] : (this.map.def.chestLoot || [])), o.secret ? 2.5 : 1));
     if (bag) bag.soulbound = true;
     this.banner('The chest breaks open! Soulbound loot.', 1800);
-    this.vx({ k: 'burst', x: o.x, y: o.y - 0.4, n: 36, colors: ['#ffd650', '#fff6c8', '#8a5a30'] });
+    this.vx({ k: 'burst', ...liftO(o.x, o.y, 0.4), n: 36, colors: ['#ffd650', '#fff6c8', '#8a5a30'] });
     this.vx({ k: 'shake', amt: 3 });
     this.sfx('rare');
   }
@@ -3515,9 +3517,9 @@ export class Game {
         }
         if (sp.boomerang && !b.back && b.life < b.max * 0.5) { b.back = true; if (b.hit) b.hit.clear(); }
         if (b.back) {                                    // fly home
-          const a = Math.atan2(p.y - 0.5 - b.y, p.x - b.x), s = b.speed;
+          const a = angleUp(b.x, b.y, p.x, p.y, 0.5), s = b.speed;
           b.vx = Math.cos(a) * s; b.vy = Math.sin(a) * s; b.a = a;
-          if (dist2(b.x, b.y, p.x, p.y - 0.5) < 0.4) b.life = 0;
+          if (dist2(b.x, b.y, ...lift(p.x, p.y, 0.5)) < 0.4) b.life = 0;
         }
       }
       if (!b.orb) { b.x += b.vx * dt; b.y += b.vy * dt; }
@@ -3541,7 +3543,7 @@ export class Game {
             if (e.D && e.D.guard && e.state === 'move' && !e.stunT) {
               const fa = angleTo(e.x, e.y, p.x, p.y), sa = Math.atan2(-b.vy, -b.vx);
               if (Math.abs(((fa - sa + Math.PI * 3) % TAU) - Math.PI) < 1.2) {   // came from the front: blocked
-                this.float(b.x, b.y - 0.6, 'BLOCK', '#a8b8d8');
+                this.float(...lift(b.x, b.y, 0.6), 'BLOCK', '#a8b8d8');
                 this.vx({ k: 'burst', x: b.x, y: b.y, n: 4, colors: ['#ffffff', '#a8b8d8'] });
                 alive = false; break;
               }
@@ -3671,7 +3673,7 @@ export class Game {
       if (!hit) continue;
       q.have++;
       if (q.have >= q.n) this.completeQuest(q);
-      else this.float(p.x, p.y - 1.8, `${q.have}/${q.n}`, '#7ad0a8');
+      else this.float(...lift(p.x, p.y, 1.8), `${q.have}/${q.n}`, '#7ad0a8');
     }
   }
   completeQuest(q) {
@@ -3682,8 +3684,8 @@ export class Game {
     this.save.fame += R0.fame || 0;
     if (R0.item) { const f = p.inv.indexOf(null); if (f >= 0) p.inv[f] = R0.item; else this.addBag(p.x, p.y + 0.4, [R0.item]); }
     this.banner(`Quest complete! +${R0.gold || 0} gold, +${R0.essence || 0} essence${R0.item ? ', and a gift' : ''}`, 3200);
-    this.fx.push({ kind: 'ring', x: p.x, y: p.y - 0.5, t: 0, max: 3, color: '#7aff9a' });
-    this.vx({ k: 'burst', x: p.x, y: p.y - 0.6, n: 30, colors: ['#7aff9a', '#ffd650', '#ffffff'] });
+    this.fx.push({ kind: 'ring', ...liftO(p.x, p.y, 0.5), t: 0, max: 3, color: '#7aff9a' });
+    this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.6), n: 30, colors: ['#7aff9a', '#ffd650', '#ffffff'] });
     this.sfx('level');
     p.quests = p.quests.filter((x) => x !== q);
     this.events.push({ type: 'ground' });
@@ -3796,7 +3798,7 @@ export class Game {
       case 'bard': {
         say(R.pick(BARD_SONGS), '#ffe8a8');
         if (!(p.status.inspired > 30)) { p.status.inspired = 180; this.banner('Inspired: +10% damage for 3 minutes', 2200); }
-        this.vx({ k: 'hearts', x: o.x, y: o.y - 0.8 });
+        this.vx({ k: 'hearts', ...liftO(o.x, o.y, 0.8) });
         break;
       }
       case 'fortune': {
@@ -3812,7 +3814,7 @@ export class Game {
       case 'cat': {
         p.petted = (p.petted || 0) + 1;
         say(R.pick(['Purrrr.', '*slow blink*', 'Mrrp.', '*the cat allows it*', 'Prrrrrrt!']), '#ffd6e8');
-        this.vx({ k: 'hearts', x: o.x, y: o.y - 0.6 });
+        this.vx({ k: 'hearts', ...liftO(o.x, o.y, 0.6) });
         if (p.petted % 10 === 0) { say('The cat brings you something. It is... a gift?', '#ffd6e8'); this.addBag(o.x, o.y + 1, [R.pick(['river_fish', 'old_boot', 'pot_hp', 'stat_' + R.pick(STATS)])]); }
         break;
       }

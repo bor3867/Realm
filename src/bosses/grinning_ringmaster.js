@@ -4,6 +4,7 @@
 // that he re-strings after you cut them, and whose loss leaves him exposed; pins that arc the way their puppet
 // faces; stitches of needles; a tent whose lantern eyes light and go dark as his weak point; confetti bombs; crossing
 // dart fans from the bunting.
+import { lift, liftO } from '../util.js';
 const TAU = Math.PI * 2, R = Math.random;
 const SHOT = (n) => `bx2_shots/grinning_ringmaster.${n}`;
 const angleTo = (x0, y0, x1, y1) => Math.atan2(y1 - y0, x1 - x0);
@@ -131,7 +132,7 @@ export default {
   onPhase(g, e, ph) {
     const S = e.bx;
     S.leap = null; S.leapZ = 0;
-    if (ph === 3) for (const q of S.puppets || []) if (q && !q.dead) { q.dead = true; q.deadT = 0; g.vx({ k: 'regfx', key: 'd2_effects/hollowmoon.confetti_pop', x: q.x, y: q.y - 0.6, fps: 10 }); }
+    if (ph === 3) for (const q of S.puppets || []) if (q && !q.dead) { q.dead = true; q.deadT = 0; g.vx({ k: 'regfx', key: 'd2_effects/hollowmoon.confetti_pop', ...liftO(q.x, q.y, 0.6), fps: 10 }); }
   },
   onDeath(g, e) { const S = e.bx; S.leap = null; for (const q of S.puppets || []) if (q && !q.dead) { q.dead = true; q.deadT = 9; } },
   drawGround(r, g, e) {                              // his shadow racing ahead to where he'll land
@@ -144,7 +145,7 @@ export default {
     const S = e.bx, b = r.b;
     if (S.phase === 2) for (const q of S.puppets || []) {
       if (!q || q.dead) continue;
-      const [hx, hy] = r.proj(e.x + q.side * 1.2, e.y - e.hitUp - 0.6), [px, py] = r.proj(q.x, q.y - 1.2);
+      const [hx, hy] = r.proj(e.x + q.side * 1.2, e.y - e.hitUp - 0.6), [px, py] = r.proj(...lift(q.x, q.y, 1.2));
       b.globalAlpha = 0.7; b.strokeStyle = '#fff6d8'; b.lineWidth = 1;
       for (const off of [-3, 3]) { b.beginPath(); b.moveTo(hx, hy); b.lineTo(px + off, py); b.stroke(); }
       b.globalAlpha = 1;

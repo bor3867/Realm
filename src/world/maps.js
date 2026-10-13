@@ -2028,7 +2028,7 @@ export function dungeon(seed, def) {
     'ex_decor/mirerot_glowshroom_cluster': [4.2, '#8aff6a', 0], 'ex_decor/mirerot_spore_pod': [1.6, '#c8ff8a', 0],
     'd2_decor/crimson_keep_candelabra': [3.4, '#ffb060', 1], 'd2_decor/hollowmoon_lamp_post': [4.5, '#ffe090', 1], 'd2_decor/hollowmoon_popcorn_cart': [2.4, '#fff0a0', 0],
     'ex_decor/astral_floating_crystal': [3.6, '#c8a0ff', 0], 'ex_decor/astral_star_globe': [4, '#fff6c8', 0], 'ex_decor/astral_rune_circle': [2.6, '#8af6ff', 0], 'ex_decor/astral_brass_pillar': [2.4, '#ffd690', 0] };
-  m.lights = m.objects.filter((o) => LIGHT[o.sprite] && !o.unlit).map((o) => { const L = LIGHT[o.sprite]; return (o.light = { x: o.x, y: o.y - 0.4, r: L[0] * 16, col: L[1], fire: !!L[2] }); });
+  m.lights = m.objects.filter((o) => LIGHT[o.sprite] && !o.unlit).map((o) => { const L = LIGHT[o.sprite]; return (o.light = { x: o.x, y: o.y, h: 0.4, r: L[0] * 16, col: L[1], fire: !!L[2] }); });
   if (def.style === 'frostveil') {                                    // the ice: snow in slow patches, ice, frigid water, the wall tops
     const pv = noise2(seed ^ 0x51f15e);
     for (let i = 0; i < m.tiles.length; i++) {

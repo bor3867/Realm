@@ -1,5 +1,14 @@
 // Small shared helpers.
 export const TAU = Math.PI * 2;
+// the camera's turn (radians), kept current by the game (Game.camAngle). A point at height h above (x, y) sits up the
+// SCREEN, not up the map, so with the camera turned it is not (x, y - h): lift() gives the right world point.
+export const CAM = { a: 0 };
+export const lift = (x, y, h) => [x - h * Math.sin(CAM.a), y - h * Math.cos(CAM.a)];
+export const liftO = (x, y, h) => ({ x: x - h * Math.sin(CAM.a), y: y - h * Math.cos(CAM.a) });
+export const liftA = (x, y, h) => ({ x0: x - h * Math.sin(CAM.a), y0: y - h * Math.cos(CAM.a) });   // a beam's two ends
+export const liftB = (x, y, h) => ({ x1: x - h * Math.sin(CAM.a), y1: y - h * Math.cos(CAM.a) });
+// the angle from (x, y) to the point at height h above (tx, ty): aiming at someone's chest, whatever the camera
+export const angleUp = (x, y, tx, ty, h) => { const [ux, uy] = [tx - h * Math.sin(CAM.a), ty - h * Math.cos(CAM.a)]; return Math.atan2(uy - y, ux - x); };
 export const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
 export const lerp = (a, b, t) => a + (b - a) * t;
 export const dist2 = (ax, ay, bx, by) => (ax - bx) ** 2 + (ay - by) ** 2;

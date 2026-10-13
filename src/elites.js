@@ -5,7 +5,7 @@
 import { BIOMES, isSolid, randomTileInBiome } from './world/maps.js';
 import { ENEMIES, BIOME_SPAWNS, ELITES } from './data/enemies.js';
 
-import { R } from './util.js';                                   // the game's random: R(), R.int, R.pick
+import { R, lift, liftO, liftB } from './util.js';                                   // the game's random: R(), R.int, R.pick
 const TAU = Math.PI * 2;
 const angleTo = (x0, y0, x1, y1) => Math.atan2(y1 - y0, x1 - x0);
 const GOBLINS = new Set(['hedge_goblin', 'goblin_shaman']), ORCS = new Set(['orc_brute', 'orc_warlord']);
@@ -73,7 +73,7 @@ const methods = {
           s.hp = s.maxHp = Math.round(s.maxHp * 0.4); s.seen = true; s.born = this.t; s.D = { ...s.D, scale: 0.75, name: 'Spiderling', xp: Math.round(s.D.xp * 0.3) };
           e.brood.push(s);
         }
-        this.vx({ k: 'burst', x: e.x, y: e.y - 0.6, n: 14, colors: ['#e8e0c8', '#6a5a3a'] });
+        this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.6), n: 14, colors: ['#e8e0c8', '#6a5a3a'] });
         break;
       }
       case 'dive': e.elState = { kind: 'dive', t: 0, a: e.abil.dir, hit: false, trail: [] }; break;
@@ -113,7 +113,7 @@ const methods = {
       if (S.t < 2.8) { e.rumble = 1; e.burT = 2.8 - S.t; return true; }
       e.rumble = 0; e.under = false; e.born = this.t; e.dusted = false; e.elState = null;
       if (!p.dead && Math.hypot(e.x - p.x, e.y - p.y) < 1.6) this.hurtPlayer(A.dmg || 70, D.name);
-      for (let k = 0; k < 12; k++) this.shoot('e', e.x, e.y - 0.4, (k / 12) * TAU, 5, 5, Math.round((A.dmg || 70) * 0.7), `el_shots/${e.id}.rock_shard`, 0.4, false, D.name);
+      for (let k = 0; k < 12; k++) this.shoot('e', ...lift(e.x, e.y, 0.4), (k / 12) * TAU, 5, 5, Math.round((A.dmg || 70) * 0.7), `el_shots/${e.id}.rock_shard`, 0.4, false, D.name);
       this.vx({ k: 'burst', x: e.x, y: e.y, n: 20, colors: ['#5a4e44', '#8a7e6a', '#c8b890'] }); this.vx({ k: 'shake', amt: 4 });
       return true;
     }
@@ -121,9 +121,9 @@ const methods = {
       if (!e.blinkTo) { e.elState = null; return false; }
       e.blinkTo.t -= dt;
       if (e.blinkTo.t <= 0) {
-        this.vx({ k: 'burst', x: e.x, y: e.y - 0.6, n: 14, colors: ['#c03aff', '#ffffff', '#3a1a4a'] });
+        this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.6), n: 14, colors: ['#c03aff', '#ffffff', '#3a1a4a'] });
         e.x = e.blinkTo.x; e.y = e.blinkTo.y; e.blinkTo = null; e.elState = null;
-        this.vx({ k: 'burst', x: e.x, y: e.y - 0.6, n: 14, colors: ['#c03aff', '#ffffff', '#3a1a4a'] });
+        this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.6), n: 14, colors: ['#c03aff', '#ffffff', '#3a1a4a'] });
       }
       return true;
     }
@@ -138,7 +138,7 @@ const methods = {
       if (e.songT > this.t && !p.dead && Math.hypot(e.x - p.x, e.y - p.y) < 6) { p.dragUntil = this.t + 0.1; p.dragF = 0.6; }   // wider than she keeps her distance
       if (e.id === 'spirit_totem' && (e.healT -= dt) <= 0) {
         e.healT = 1.5;
-        for (const o of this.active) if (!o.dead && GOBLINS.has(o.id) && o.hp < o.maxHp && Math.hypot(o.x - e.x, o.y - e.y) < 6) { o.hp = Math.min(o.maxHp, o.hp + o.maxHp * 0.05); this.vx({ k: 'heal', x0: e.x, y0: e.y - 1, x1: o.x, y1: o.y - 0.6 }); }
+        for (const o of this.active) if (!o.dead && GOBLINS.has(o.id) && o.hp < o.maxHp && Math.hypot(o.x - e.x, o.y - e.y) < 6) { o.hp = Math.min(o.maxHp, o.hp + o.maxHp * 0.05); this.vx({ k: 'heal', x0: e.x, y0: e.y - 1, ...liftB(o.x, o.y, 0.6) }); }
       }
       if (e.id === 'war_banner') for (const o of this.active) if (!o.dead && ORCS.has(o.id) && Math.hypot(o.x - e.x, o.y - e.y) < 7) o.rallyUntil = this.t + 0.3;
     }

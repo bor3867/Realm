@@ -2,6 +2,7 @@
 // style for each original boss. A set piece is a script that runs for a few seconds: it places telegraphs on the
 // ground, spawns bullets it can steer itself (formations that rotate, expand, hold and then let go), moves its boss,
 // and gets harder in later phases (P.lv = the boss's phase, 1-3). Mixed into Game like elites.js.
+import { lift } from './util.js';
 import { REALM_BOSSES, DUNGEON_BOSSES } from './data/enemies.js';
 import { isSolid } from './world/maps.js';
 
@@ -201,8 +202,8 @@ export const SP = {
       if (!P.hit && Math.hypot(p.x - e.x, p.y - e.y) < 1.5) { P.hit = true; g.hurtPlayer(g.spDmg(e, 1.4), e.D.name); }
       if (P.pt <= 0) {
         P.n++; P.phase = 'aim'; P.pt = 0.35;
-        g.spRing(e, e.x, e.y - 0.8, 18 + 4 * P.lv, R() * 0.3, 4.6, 12, RX('penitent_colossus', 'gold_shard'), { gap: ang(e.x, e.y, p.x, p.y) + Math.PI, gapW: 0.5 });
-        for (let k = 0; k < 3; k++) g.spShot(e, e.x, e.y - 0.8, ang(e.x, e.y, p.x, p.y) + (k - 1) * 0.7, 3.5, 8, RX('penitent_colossus', 'marble_chunk'), { mv: { split: { at: 0.6, n: 6, speed: 4, range: 4 } } });
+        g.spRing(e, ...lift(e.x, e.y, 0.8), 18 + 4 * P.lv, R() * 0.3, 4.6, 12, RX('penitent_colossus', 'gold_shard'), { gap: ang(e.x, e.y, p.x, p.y) + Math.PI, gapW: 0.5 });
+        for (let k = 0; k < 3; k++) g.spShot(e, ...lift(e.x, e.y, 0.8), ang(e.x, e.y, p.x, p.y) + (k - 1) * 0.7, 3.5, 8, RX('penitent_colossus', 'marble_chunk'), { mv: { split: { at: 0.6, n: 6, speed: 4, range: 4 } } });
         g.vx({ k: 'shake', amt: 6 });
       }
     }
@@ -212,8 +213,8 @@ export const SP = {
   yap_storm: { dur: 6.6, say: 'Emily takes a deep breath...', start(g, e, P) { const A = g.spArena(e); P.pts = [[A.x + 3, A.y + 3], [A.x + A.w - 3, A.y + A.h - 3], [A.x + A.w - 3, A.y + 3], [A.x + 3, A.y + A.h - 3]]; P.k = 0; P.rot = 0; }, tick(g, e, P, dt) {
     const T = P.pts[P.k % 4], dd = Math.hypot(T[0] - e.x, T[1] - e.y);
     if (dd > 0.4) g.moveCircle(e, ((T[0] - e.x) / dd) * Math.min(dd, 13 * dt), ((T[1] - e.y) / dd) * Math.min(dd, 13 * dt), 0.6);
-    else { P.k++; const a = ang(e.x, e.y, g.player.x, g.player.y); for (let i = 0; i < 5; i++) g.spShot(e, e.x, e.y - 0.8, a + (i - 2) * 0.16, 7.5, 13, RX('emily_the_yapper', 'megayap')); }
-    if (every(P, 'r', dt, 0.42 - 0.05 * P.lv)) { P.rot += 0.55; g.spRing(e, e.x, e.y - 0.8, 14, P.rot, 3.6, 9, RX('emily_the_yapper', 'sound_ring'), { gap: P.rot, gapW: 0.45 }); }
+    else { P.k++; const a = ang(e.x, e.y, g.player.x, g.player.y); for (let i = 0; i < 5; i++) g.spShot(e, ...lift(e.x, e.y, 0.8), a + (i - 2) * 0.16, 7.5, 13, RX('emily_the_yapper', 'megayap')); }
+    if (every(P, 'r', dt, 0.42 - 0.05 * P.lv)) { P.rot += 0.55; g.spRing(e, ...lift(e.x, e.y, 0.8), 14, P.rot, 3.6, 9, RX('emily_the_yapper', 'sound_ring'), { gap: P.rot, gapW: 0.45 }); }
   } },
   // the Fallen Star: the supernova countdown. Three rings fall inward on it, each with a gap you're shown; then it pulls
   // you in, a safe wedge lights, and the nova comes, a dense ring with one way out

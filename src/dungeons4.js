@@ -6,6 +6,7 @@
 //                             real inside the lens light, her spectrum bolts, sunbeam, glass rain, helix and images
 //   The Sleeper's Dream       bridges that fade; nightmare trials; drowsiness; dream-shift, dream-logic, sheep,
 //                             lullabies, blinking stars, crescent tides, and the alarms that wake it
+import { lift, liftO, liftB } from './util.js';
 import { TID, isSolid } from './world/maps.js';
 import { ENEMIES } from './data/enemies.js';
 
@@ -31,7 +32,7 @@ export const D4 = {
     for (const e of this.enemies) if (e.id === 'brood_cell' && !e.dead && (e.hatchT -= dt) <= 0) {
       e.dead = true; e.deadT = 0;
       const kid = this.addEnemy(e.kid || 'worker_bee', e.x, e.y); kid.seen = true;
-      this.vx({ k: 'burst', x: e.x, y: e.y - 0.4, n: 14, colors: ['#ffd650', '#fff6c8', '#5a3a10'] });
+      this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.4), n: 14, colors: ['#ffd650', '#fff6c8', '#5a3a10'] });
     }
     // honey puddles from the Queen's rain set, then dry
     for (const P of S.puddles) if ((P.t -= dt) <= 0) for (const [i, t0] of P.tiles) if (m.tiles[i] === TID.honey) m.tiles[i] = t0;
@@ -64,8 +65,8 @@ export const D4 = {
         e.x = 2 * cx - p.x; e.y = 2 * cy - p.y; e.face = p.x > cx;
         if (p.lastShot && p.lastShot !== MP.last && !p.dead) {
           MP.last = p.lastShot;
-          const a = angleTo(e.x, e.y - 0.5, p.x, p.y - 0.4);
-          this.shoot('e', e.x, e.y - 0.5, a, 8, 14, MP.dmg, 'puppet_string', 0.35, false, 'your mirror-puppet');
+          const a = angleTo(...lift(e.x, e.y, 0.5), ...lift(p.x, p.y, 0.4));
+          this.shoot('e', ...lift(e.x, e.y, 0.5), a, 8, 14, MP.dmg, 'puppet_string', 0.35, false, 'your mirror-puppet');
         }
       }
       if (MP.t <= 0 || !MP.e || MP.e.dead) { if (MP.e) { MP.e.dead = true; MP.e.deadT = 0; } S.mimic = null; }
@@ -76,7 +77,7 @@ export const D4 = {
     const B = this.d4Boss();
     if (B && B.D.drowsy && B.state !== 'sleep' && !p.dead) {
       p.drowsy = Math.max(0, Math.min(1, (p.drowsy || 0) + (p.moving ? -0.22 : 0.3) * dt));
-      if (p.drowsy >= 1) { p.drowsy = 0; p.status.asleep = 1.5; this.banner('You fall asleep!', 1400); this.float(p.x, p.y - 1.4, 'Zzz', '#c8b0ff'); }
+      if (p.drowsy >= 1) { p.drowsy = 0; p.status.asleep = 1.5; this.banner('You fall asleep!', 1400); this.float(...lift(p.x, p.y, 1.4), 'Zzz', '#c8b0ff'); }
     } else if (p.drowsy) p.drowsy = Math.max(0, p.drowsy - dt);
     if (B && B.D.prismatic) this.updateLens(B, dt);
   },
@@ -148,7 +149,7 @@ export const D4 = {
       if (!o.sentry || Math.abs(o.x - p.x) > 14 || Math.abs(o.y - p.y) > 14) continue;
       o.ang = (o.ang ?? R() * TAU) + 0.55 * dt;
       o.cool = Math.max(0, (o.cool || 0) - dt);
-      const want = angleTo(o.x, o.y - 0.5, p.x, p.y - 0.4), d = dist(o.x, o.y, p.x, p.y);
+      const want = angleTo(...lift(o.x, o.y, 0.5), ...lift(p.x, p.y, 0.4)), d = dist(o.x, o.y, p.x, p.y);
       const off = Math.abs(((want - o.ang + Math.PI * 3) % TAU) - Math.PI);
       let seen = !p.dead && d < 10 && off < 0.16 && !o.cool;
       if (seen) for (let k = 1; k < d * 3; k++) { const t = k / (d * 3); if (isSolid(m, o.x + (p.x - o.x) * t, o.y + (p.y - o.y) * t)) { seen = false; break; } }
@@ -156,8 +157,8 @@ export const D4 = {
       if (seen) o.ang = want;                            // it has you: it tracks
       if (o.lock > 0.45) {
         o.lock = 0; o.cool = 1.8;
-        for (let k = -1; k <= 1; k++) this.shoot('e', o.x, o.y - 0.6, want + k * 0.12, 11, 11, 95, 'lensbolt', 0.4, false, 'a lens sentry');
-        this.vx({ k: 'burst', x: o.x, y: o.y - 0.6, n: 8, colors: ['#ffffff', '#fffbe0'] });
+        for (let k = -1; k <= 1; k++) this.shoot('e', ...lift(o.x, o.y, 0.6), want + k * 0.12, 11, 11, 95, 'lensbolt', 0.4, false, 'a lens sentry');
+        this.vx({ k: 'burst', ...liftO(o.x, o.y, 0.6), n: 8, colors: ['#ffffff', '#fffbe0'] });
       }
     }
   },
@@ -179,7 +180,7 @@ export const D4 = {
         const L2 = (tx - ax) ** 2 + (ty - ay) ** 2, t = Math.max(0, Math.min(1, ((im.x - ax) * (tx - ax) + (im.y - 1 - ay) * (ty - ay)) / L2));
         if (dist(ax + (tx - ax) * t, ay + (ty - ay) * t, im.x, im.y - 1) < 1.3 && dist(ax, ay, im.x, im.y) < dist(ax, ay, e.x, e.y)) target = im;
       }
-      P.beam = { x0: ax, y0: ay, x1: target.x, y1: target.y - 1.2 };
+      P.beam = { x0: ax, y0: ay, ...liftB(target.x, target.y, 1.2) };
       if (target === e) exposedNow = true;
       else if ((target.burnT = (target.burnT || 0) + dt) > 0.8) { target.dead = true; target.deadT = 0; this.vx({ k: 'burst', x: target.x, y: target.y - 1, n: 30, colors: ['#ffffff', '#c8a0ff', '#8af6ff'] }); this.float(target.x, target.y - 2, 'SHATTERED', '#ffffff'); }
       if (P.heat >= 1) { P.heat = 0; P.cool = 7; this.banner('The lens overheats! Find another.', 1400); }
@@ -190,7 +191,7 @@ export const D4 = {
       const ph = e.D.phases[e.phaseIdx];
       if (ph && ph.overcharge && e.exposedFor > 2.2) {    // held too long: she drinks the light and throws it back
         e.exposedFor = 0;
-        for (let k = 0; k < 28; k++) this.shoot('e', e.x, e.y - 1.2, (k / 28) * TAU, 5 + (k % 2), 12, 130, SPECTRUM[k % 6], 0.4, false, e.D.name);
+        for (let k = 0; k < 28; k++) this.shoot('e', ...lift(e.x, e.y, 1.2), (k / 28) * TAU, 5 + (k % 2), 12, 130, SPECTRUM[k % 6], 0.4, false, e.D.name);
         this.banner('OVERCHARGE! She throws the light back!', 1400); this.vx({ k: 'shake', amt: 6 });
       }
     } else e.exposedFor = Math.max(0, (e.exposedFor || 0) - dt * 2);
@@ -250,7 +251,7 @@ export const D4 = {
     const m = this.map, p = this.player;
     if (o.interact === 'mirror') {
       o.state = 1 - o.state; o.sprite = o.state ? 'mirror_b' : 'mirror_a';
-      this.vx({ k: 'burst', x: o.x, y: o.y - 0.5, n: 6, colors: ['#ffffff', '#c8e8ff'] }); this.sfx('coin');
+      this.vx({ k: 'burst', ...liftO(o.x, o.y, 0.5), n: 6, colors: ['#ffffff', '#c8e8ff'] }); this.sfx('coin');
       return true;
     }
     if (o.interact === 'mask') {
@@ -265,7 +266,7 @@ export const D4 = {
       const S = m.d4 || (m.d4 = { timers: [], puddles: [] });
       S.masks = (S.masks || 0) + 1; p.carry = null;
       o.sprite = S.masks >= 3 ? 'mask_stand_full' : 'mask_stand';
-      this.vx({ k: 'burst', x: o.x, y: o.y - 0.8, n: 24, colors: ['#ffd650', '#ffffff', '#c83a5a'] });
+      this.vx({ k: 'burst', ...liftO(o.x, o.y, 0.8), n: 24, colors: ['#ffd650', '#ffffff', '#c83a5a'] });
       this.breakSeal('The mask returns to its stand.');
       return true;
     }
@@ -273,7 +274,7 @@ export const D4 = {
     if (o.interact === 'alarm') {
       if (o.rung) return true;
       o.rung = true; o.sprite = 'alarm_ringing';
-      this.vx({ k: 'burst', x: o.x, y: o.y - 0.6, n: 24, colors: ['#ffd650', '#ffffff'] }); this.vx({ k: 'shake', amt: 4 }); this.sfx('boss');
+      this.vx({ k: 'burst', ...liftO(o.x, o.y, 0.6), n: 24, colors: ['#ffd650', '#ffffff'] }); this.vx({ k: 'shake', amt: 4 }); this.sfx('boss');
       const left = m.objects.filter((q) => q.interact === 'alarm' && !q.rung).length;
       const e = this.d4Boss();
       if (!left && e) {
@@ -296,7 +297,7 @@ export const D4 = {
   d4LinkHit(e, dmg) {                                     // the nightmare passes its wounds to the sleeper
     if (e.id !== 'sleepers_nightmare') return false;
     const B = this.d4Boss();
-    if (B) { const was = this.map.d4.shift; this.map.d4.shift = null; this.damageEnemy(B, dmg, B.x, B.y - 1.4, true); this.map.d4.shift = was; }
+    if (B) { const was = this.map.d4.shift; this.map.d4.shift = null; this.damageEnemy(B, dmg, ...lift(B.x, B.y, 1.4), true); this.map.d4.shift = was; }
     return true;
   },
 
@@ -333,7 +334,7 @@ export const D4 = {
         e.x = H.x; e.y = H.y; e.hidden = false; e.trap = null; e.st = 0.8; e.state = 'idle';
         const B = T.burst, [ox, oy] = this.up(e.x, e.y, 1.4), a0 = R() * TAU;
         for (let k = 0; k < B.n; k++) { const b = this.shoot('e', ox, oy, a0 + k * TAU / B.n, B.speed, 11, B.dmg, B.proj, 0.36, false, e.D.name); b.mv = { d4: true, serp: 2.2 }; }
-        this.vx({ k: 'burst', x: e.x, y: e.y - 0.6, n: 20, colors: ['#ffd650', '#c83a5a', '#ffffff'] }); this.vx({ k: 'shake', amt: 4 });
+        this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.6), n: 20, colors: ['#ffd650', '#c83a5a', '#ffffff'] }); this.vx({ k: 'shake', amt: 4 });
         (this.map.d4 = this.map.d4 || { timers: [], puddles: [] }).hatches = [];
       }
       return true;
@@ -355,7 +356,7 @@ export const D4 = {
   bossD4Move(e, M) {
     const m = this.map, p = this.player, by = e.D.name, box = this.d4Box(e), [ox, oy] = this.up(e.x, e.y, 1.4);
     const S = m.d4 || (m.d4 = { timers: [], puddles: [] });
-    const aim = angleTo(ox, oy, p.x, p.y - 0.4);
+    const aim = angleTo(ox, oy, ...lift(p.x, p.y, 0.4));
     // ---- the Queen
     if (M.hexburst) {                                     // stings from six points of a hexagon, ring after ring
       const H = M.hexburst;
@@ -370,7 +371,7 @@ export const D4 = {
     if (M.swarm) {                                        // a stream of little bees, jittering, nosing toward you
       const W = M.swarm;
       for (let k = 0; k < W.n; k++) this.later(k * W.every + 0.001, () => {
-        const b = this.shoot('e', ox, oy, angleTo(ox, oy, p.x, p.y - 0.4) + (R() - 0.5) * 0.8, W.speed, 14, W.dmg, W.proj, 0.32, false, by);
+        const b = this.shoot('e', ox, oy, angleTo(ox, oy, ...lift(p.x, p.y, 0.4)) + (R() - 0.5) * 0.8, W.speed, 14, W.dmg, W.proj, 0.32, false, by);
         b.mv = { d4: true, swarm: W };
       });
     }
@@ -409,7 +410,7 @@ export const D4 = {
         x = Math.max(box.x + 2, Math.min(box.x + box.w - 2, x)); y = Math.max(box.y + 2, Math.min(box.y + box.h - 2, y));
         hatches.push({ x, y, at: this.t + (k + 1) * (Tr.hide / (Tr.n + 0.5)) });
       }
-      this.vx({ k: 'burst', x: e.x, y: e.y - 0.4, n: 16, colors: ['#5a3a22', '#2a1a10', '#ffd650'] });
+      this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.4), n: 16, colors: ['#5a3a22', '#2a1a10', '#ffd650'] });
       e.hidden = true; e.trap = { until: this.t + Tr.hide, hatches, burst: Tr.burst };
       (this.map.d4 = this.map.d4 || { timers: [], puddles: [] }).hatches = hatches;
       this.banner('He drops through a trapdoor! Watch the hatches...', 1800);
@@ -553,7 +554,7 @@ export const D4 = {
     if (M.swarm) {                                        // jitter, and nose toward you
       const W = M.swarm, f = this.player;
       b.ha += (R() - 0.5) * W.jitter * dt * 6;
-      const want = angleTo(b.x, b.y, f.x, f.y - 0.4); let da = ((want - b.ha + Math.PI * 3) % TAU) - Math.PI;
+      const want = angleTo(b.x, b.y, ...lift(f.x, f.y, 0.4)); let da = ((want - b.ha + Math.PI * 3) % TAU) - Math.PI;
       b.ha += Math.max(-W.seek * dt, Math.min(W.seek * dt, da));
     }
     if (M.fig) {                                          // the figure-eight, then away

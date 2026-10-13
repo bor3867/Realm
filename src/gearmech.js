@@ -11,6 +11,7 @@
 //          glyph (surviving a heavy blow drops a glyph that stops one shot), tempo (an ability right after a hit refunds Mana
 //          and fires a small shot), and the Mythic and Legendary rings' own: satellite, openhand, coronation, stillwater,
 //          aurora, firstflame, starspear, blight, conductor, glowcap, mask, tideeye
+import { lift, liftO, angleUp } from './util.js';
 import { ITEMS } from './data/items.js';
 import { dmgMult } from './data/classes.js';
 const TAU = Math.PI * 2;
@@ -38,20 +39,20 @@ const methods = {
   gearPreHurt(d) {
     const G = this.gear(), S = this.gst(), p = this.player;
     if (S.barrier) {                                         // stride / open hand / coronation: the next blow breaks it
-      const w = Math.min(d, S.barrier.cap); d -= w; this.float(p.x, p.y - 1.2, 'BARRIER', S.barrier.col); this.glyphAt(p.x, p.y, S.barrier.col);
+      const w = Math.min(d, S.barrier.cap); d -= w; this.float(...lift(p.x, p.y, 1.2), 'BARRIER', S.barrier.col); this.glyphAt(p.x, p.y, S.barrier.col);
       if (S.barrier.then) S.barrier.then(); S.barrier = null;
     }
     if (S.sanct && S.sanct.until > this.t && S.sanct.left > 0) { const w = Math.min(d, S.sanct.left); S.sanct.left -= w; d -= w; }
     if (S.damp && S.damp > this.t) { d = Math.round(d * 0.5); S.damp = 0; }
     if (G.counter && (S.n.counter || 0) >= G.counter.cap) {   // a stored counter: softened, and a shot straight back
       S.n.counter = 0; d = Math.round(d * (1 - G.counter.soften));
-      this.gshot(p.x, p.y - 0.5, this.aimAngle(), Math.round(G.counter.dmg * this.gmult()), 'rune_slash', 13, 6);
-      this.float(p.x, p.y - 1.4, 'COUNTER', '#d8d0e8');
+      this.gshot(...lift(p.x, p.y, 0.5), this.aimAngle(), Math.round(G.counter.dmg * this.gmult()), 'rune_slash', 13, 6);
+      this.float(...lift(p.x, p.y, 1.4), 'COUNTER', '#d8d0e8');
     }
     if (G.coronation && S.crown && this.ready('crown')) {      // the Crown of the Unstruck: a golden barrier and a strike
       S.crown = false; this.cool('crown', G.coronation.cd); const w = Math.min(d, G.coronation.cap); d -= w;
-      const a = this.aimAngle(); for (const s of [-1, 1]) this.gshot(p.x, p.y - 0.5, a + s * Math.PI / 2, Math.round(G.coronation.dmg * this.gmult()), 'goldshard', 12, 5);
-      this.float(p.x, p.y - 1.5, 'CROWNED', '#ffd650'); this.glyphAt(p.x, p.y, '#ffd650');
+      const a = this.aimAngle(); for (const s of [-1, 1]) this.gshot(...lift(p.x, p.y, 0.5), a + s * Math.PI / 2, Math.round(G.coronation.dmg * this.gmult()), 'goldshard', 12, 5);
+      this.float(...lift(p.x, p.y, 1.5), 'CROWNED', '#ffd650'); this.glyphAt(p.x, p.y, '#ffd650');
     }
     return Math.max(0, d);
   },
@@ -62,19 +63,19 @@ const methods = {
     if (G.bigpulse && d >= max * G.bigpulse.at && this.ready('bigpulse')) {
       this.cool('bigpulse', G.bigpulse.cd);
       for (const e of this.enemiesIn(p.x, p.y, G.bigpulse.r)) {
-        this.damageEnemy(e, Math.round(G.bigpulse.dmg * this.gmult()), e.x, e.y - 0.5, true);
+        this.damageEnemy(e, Math.round(G.bigpulse.dmg * this.gmult()), ...lift(e.x, e.y, 0.5), true);
         e.curseF = Math.max(e.curseT > 0 ? e.curseF || 0 : 0, 0.15); e.curseT = Math.max(e.curseT || 0, 3);
         if (e !== this.boss && !e.rb) { e.slowT = Math.max(e.slowT || 0, 2); e.slowF = Math.max(e.slowF || 0, 0.3); }
       }
-      this.fx.push({ kind: 'ring', x: p.x, y: p.y - 0.4, t: 0, max: G.bigpulse.r, color: G.bigpulse.col || '#ffb04a' });
+      this.fx.push({ kind: 'ring', ...liftO(p.x, p.y, 0.4), t: 0, max: G.bigpulse.r, color: G.bigpulse.col || '#ffb04a' });
     }
     if (G.sanctuary && hp0 >= max * G.sanctuary.below && p.hp < max * G.sanctuary.below && p.hp > 0 && this.ready('sanct')) {
       this.cool('sanct', G.sanctuary.cd); S.sanct = { until: this.t + G.sanctuary.t, left: Math.round(max * G.sanctuary.absorb) };
-      this.float(p.x, p.y - 1.5, 'SANCTUARY', '#fff2a8');
+      this.float(...lift(p.x, p.y, 1.5), 'SANCTUARY', '#fff2a8');
       this.fx.push({ kind: 'gear', h: 'sanct', t: 0, life: G.sanctuary.t, col: G.sanctuary.col || '#fff2a8' });
     }
     if (G.hazard && this.ready('hazard')) { this.cool('hazard', G.hazard.cd); this.fx.push({ kind: 'gear', h: 'hazard', x: p.x, y: p.y, t: 0, life: G.hazard.t, r: G.hazard.r, dps: Math.round(G.hazard.dps * this.gmult()), tick: 0, col: G.hazard.col || '#ff8a2a' }); }
-    if (G.glyph && d >= max * G.glyph.at && p.hp > 0 && this.ready('glyph')) { this.cool('glyph', G.glyph.cd); S.glyph = { until: this.t + G.glyph.life, col: G.glyph.col || '#cfe8ff' }; this.float(p.x, p.y - 1.4, 'GLYPH', S.glyph.col); }
+    if (G.glyph && d >= max * G.glyph.at && p.hp > 0 && this.ready('glyph')) { this.cool('glyph', G.glyph.cd); S.glyph = { until: this.t + G.glyph.life, col: G.glyph.col || '#cfe8ff' }; this.float(...lift(p.x, p.y, 1.4), 'GLYPH', S.glyph.col); }
     if (G.glowcap && (S.spores ?? G.glowcap.max) > 0) {
       S.spores = (S.spores ?? G.glowcap.max) - 1;
       this.fx.push({ kind: 'gear', h: 'mushroom', x: p.x, y: p.y, t: 0, life: G.glowcap.t, r: 1.3, heal: G.glowcap.heal });
@@ -98,10 +99,10 @@ const methods = {
     }
     if (G.accuracy || G.firstflame || G.tideeye) {
       e.acc = (e.accT > this.t - 2 ? e.acc || 0 : 0) + 1; e.accT = this.t;
-      if (G.accuracy && e.acc % G.accuracy.need === 0) { this.damageEnemy(e, Math.round(G.accuracy.dmg * m), e.x, e.y - 0.6); this.vx({ k: 'burst', x: e.x, y: e.y - 0.5, n: 6, colors: [G.accuracy.col || '#ffd650', '#ffffff'] }); }
+      if (G.accuracy && e.acc % G.accuracy.need === 0) { this.damageEnemy(e, Math.round(G.accuracy.dmg * m), ...lift(e.x, e.y, 0.6)); this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.5), n: 6, colors: [G.accuracy.col || '#ffd650', '#ffffff'] }); }
       if (G.firstflame && e.acc % 3 === 0 && this.ready('flame')) {
         this.cool('flame', G.firstflame.cd); const a = this.aimAngle();
-        for (let k = -2; k <= 2; k++) { const s = this.gshot(p.x, p.y - 0.5, a + k * 0.08, Math.round(G.firstflame.dmg * m), 'ember', 12, 5); s.sp = { burn: { dps: Math.round(60 * m), t: 2 } }; }
+        for (let k = -2; k <= 2; k++) { const s = this.gshot(...lift(p.x, p.y, 0.5), a + k * 0.08, Math.round(G.firstflame.dmg * m), 'ember', 12, 5); s.sp = { burn: { dps: Math.round(60 * m), t: 2 } }; }
       }
       if (G.tideeye && e.acc >= G.tideeye.need) { S.tide = e; e.wmark = { until: this.t + 4, col: '#7ae0e0' }; }
     }
@@ -117,8 +118,8 @@ const methods = {
     if (G.conductor && S.beatSrc !== 'w') { S.beatSrc = 'w'; S.beat = (S.beat || 0) + 1; this.conductorBeat(G.conductor); }
     if (G.stillwater && S.pool && S.pool.moved) {             // moved on from a charged pool: the ripple at the old spot
       const P0 = S.pool; S.pool = null;
-      for (const o of this.enemiesIn(P0.x, P0.y, 2.2)) { this.damageEnemy(o, Math.round(G.stillwater.dmg * m), o.x, o.y - 0.5, true); if (o !== this.boss && !o.rb) { o.slowT = Math.max(o.slowT || 0, 2); o.slowF = Math.max(o.slowF || 0, 0.4); } }
-      this.fx.push({ kind: 'ring', x: P0.x, y: P0.y - 0.3, t: 0, max: 2.2, color: '#9ad8ff' });
+      for (const o of this.enemiesIn(P0.x, P0.y, 2.2)) { this.damageEnemy(o, Math.round(G.stillwater.dmg * m), ...lift(o.x, o.y, 0.5), true); if (o !== this.boss && !o.rb) { o.slowT = Math.max(o.slowT || 0, 2); o.slowF = Math.max(o.slowF || 0, 0.4); } }
+      this.fx.push({ kind: 'ring', ...liftO(P0.x, P0.y, 0.3), t: 0, max: 2.2, color: '#9ad8ff' });
     }
     void dealt;
   },
@@ -126,8 +127,8 @@ const methods = {
     const S = this.gst();
     if (S.beat >= 3) {
       S.beat = 0; const p = this.player;
-      this.gshot(p.x, p.y - 0.5, this.aimAngle(), Math.round(C.dmg * this.gmult()), 'zap', 16, 9);
-      this.float(p.x, p.y - 1.4, '♪', '#bfe8ff');
+      this.gshot(...lift(p.x, p.y, 0.5), this.aimAngle(), Math.round(C.dmg * this.gmult()), 'zap', 16, 9);
+      this.float(...lift(p.x, p.y, 1.4), '♪', '#bfe8ff');
     }
   },
   // ------------------------------------------------------------ a kill
@@ -135,33 +136,33 @@ const methods = {
     const G = this.gear(), p = this.player, m = this.gmult();
     if (G.killshard) {
       const n = this.enemiesIn(e.x, e.y, G.killshard.range).filter((o) => o !== e && !o.dead).sort((u, v) => dist(u.x, u.y, e.x, e.y) - dist(v.x, v.y, e.x, e.y))[0];
-      if (n) this.gshot(e.x, e.y - 0.5, Math.atan2(n.y - e.y, n.x - e.x), Math.round(G.killshard.dmg * m), 'thornseed', 12, G.killshard.range, false);
+      if (n) this.gshot(...lift(e.x, e.y, 0.5), Math.atan2(n.y - e.y, n.x - e.x), Math.round(G.killshard.dmg * m), 'thornseed', 12, G.killshard.range, false);
     }
     if (G.markkill && e.youHitT > this.t - 3) {
       if (G.markkill.hp) p.hp = Math.min(this.stat('hp'), p.hp + G.markkill.hp);
       if (G.markkill.mp) p.mp = Math.min(this.stat('mp'), p.mp + G.markkill.mp);
-      for (const o of this.enemiesIn(e.x, e.y, 2)) if (o !== e) this.damageEnemy(o, Math.round(G.markkill.dmg * m), o.x, o.y - 0.5, true);
-      this.fx.push({ kind: 'ring', x: e.x, y: e.y - 0.3, t: 0, max: 2, color: G.markkill.col || '#8af6ff' });
+      for (const o of this.enemiesIn(e.x, e.y, 2)) if (o !== e) this.damageEnemy(o, Math.round(G.markkill.dmg * m), ...lift(o.x, o.y, 0.5), true);
+      this.fx.push({ kind: 'ring', ...liftO(e.x, e.y, 0.3), t: 0, max: 2, color: G.markkill.col || '#8af6ff' });
     }
   },
   // ------------------------------------------------------------ a cast
   gearOnAbility() {
     const G = this.gear(), S = this.gst(), p = this.player, m = this.gmult(), a = this.aimAngle(), [ox, oy] = this.up(p.x, p.y, 0.5);
     if (G.tempo && S.lastHit > this.t - G.tempo.window) {
-      p.mp = Math.min(this.stat('mp'), p.mp + G.tempo.mana); this.float(p.x, p.y - 1.3, `+${G.tempo.mana}`, '#6a9aff');
+      p.mp = Math.min(this.stat('mp'), p.mp + G.tempo.mana); this.float(...lift(p.x, p.y, 1.3), `+${G.tempo.mana}`, '#6a9aff');
       this.gshot(ox, oy, a, Math.round(G.tempo.dmg * m), G.tempo.proj || 'spark', 13, 6);
     }
-    if (G.motion && S.charge > 0.05) { S.empower = { until: this.t + 2.5, f: G.motion.bonus * S.charge }; S.charge = 0; this.float(p.x, p.y - 1.4, 'EMPOWERED', '#ffd6f0'); }
+    if (G.motion && S.charge > 0.05) { S.empower = { until: this.t + 2.5, f: G.motion.bonus * S.charge }; S.charge = 0; this.float(...lift(p.x, p.y, 1.4), 'EMPOWERED', '#ffd6f0'); }
     if (G.openhand && S.stance >= G.openhand.need) {          // the open palm: a pushing wave, and a barrier for one blow
       S.stance = 0;
       for (const e of this.enemiesIn(p.x, p.y, 3.5)) if (e !== this.boss && !e.rb && !(e.D && e.D.dummy)) { const d = dist(e.x, e.y, p.x, p.y) || 1; this.moveCircle(e, ((e.x - p.x) / d) * 2, ((e.y - p.y) / d) * 2, 0.35); }
       S.barrier = { cap: Math.round(this.stat('hp') * 0.3), col: '#fff2a8' };
-      this.fx.push({ kind: 'ring', x: p.x, y: p.y - 0.4, t: 0, max: 3.5, color: '#fff2a8' });
+      this.fx.push({ kind: 'ring', ...liftO(p.x, p.y, 0.4), t: 0, max: 3.5, color: '#fff2a8' });
     }
     if (G.aurora && S.aurora) {
       S.aurora = false; S.glyph = { until: this.t + 4, col: '#a8ffe0' };
       const L = this.enemiesIn(p.x, p.y, 8).sort((u, v) => dist(u.x, u.y, p.x, p.y) - dist(v.x, v.y, p.x, p.y)).slice(0, 3);
-      L.forEach((e, k) => this.gshot(ox, oy, Math.atan2(e.y - 0.5 - oy, e.x - ox), Math.round(G.aurora.dmg * m), ['ember', 'frostshard', 'starbeam'][k], 12, 8));
+      L.forEach((e, k) => this.gshot(ox, oy, angleUp(ox, oy, e.x, e.y, 0.5), Math.round(G.aurora.dmg * m), ['ember', 'frostshard', 'starbeam'][k], 12, 8));
     }
     if (G.starspear && S.frags > 0) {
       for (let k = 0; k < S.frags; k++) this.gshot(ox, oy, a + (k - (S.frags - 1) / 2) * 0.04, Math.round(G.starspear.dmg * m), 'starbeam', 15, 9);
@@ -180,7 +181,7 @@ const methods = {
     if (G.tideeye && S.tide && !S.tide.dead) {
       const e = S.tide; S.tide = null; e.acc = 0;
       if (e !== this.boss && !e.rb && !(e.D && e.D.dummy)) { const d = dist(e.x, e.y, p.x, p.y) || 1; this.moveCircle(e, ((p.x - e.x) / d) * 1.5, ((p.y - e.y) / d) * 1.5, 0.35); }
-      const aa = Math.atan2(e.y - 0.5 - oy, e.x - ox);
+      const aa = angleUp(ox, oy, e.x, e.y, 0.5);
       for (let k = -1; k <= 1; k++) this.gshot(ox, oy, aa + k * 0.1, Math.round(G.tideeye.dmg * m), 'tide_wave', 12, 8);
     }
   },
@@ -206,27 +207,27 @@ const methods = {
     if (G.nebula || G.aurora) {
       for (const b of this.projectiles) {
         if (b.from !== 'e' || b.harmless) continue;
-        const d = dist(b.x, b.y, p.x, p.y - 0.5);
+        const d = dist(b.x, b.y, ...lift(p.x, p.y, 0.5));
         if (d < 0.9) b.nearP = true;
         else if (b.nearP && d > 1.4 && !b.nearDone) {
           b.nearDone = true;
-          if (G.nebula && this.ready('nebula')) { this.cool('nebula', G.nebula.cd); S.damp = this.t + 2; for (const e of this.enemiesIn(p.x, p.y, 1.8)) this.damageEnemy(e, Math.round(G.nebula.dmg * this.gmult()), e.x, e.y - 0.5, true); this.glyphAt(p.x, p.y, '#c8b8ff'); }
-          if (G.aurora && !S.aurora && (S.near = (S.near || 0) + 1) >= G.aurora.need) { S.near = 0; S.aurora = true; this.float(p.x, p.y - 1.4, 'AURORA', '#a8ffe0'); }
+          if (G.nebula && this.ready('nebula')) { this.cool('nebula', G.nebula.cd); S.damp = this.t + 2; for (const e of this.enemiesIn(p.x, p.y, 1.8)) this.damageEnemy(e, Math.round(G.nebula.dmg * this.gmult()), ...lift(e.x, e.y, 0.5), true); this.glyphAt(p.x, p.y, '#c8b8ff'); }
+          if (G.aurora && !S.aurora && (S.near = (S.near || 0) + 1) >= G.aurora.need) { S.near = 0; S.aurora = true; this.float(...lift(p.x, p.y, 1.4), 'AURORA', '#a8ffe0'); }
         }
       }
     }
     // a glyph or veil that stops one shot
     if (S.glyph && S.glyph.until > this.t) {
-      const b = this.projectiles.find((q) => q.from === 'e' && !q.harmless && q.life > 0 && dist(q.x, q.y, p.x, p.y - 0.5) < 0.9);
+      const b = this.projectiles.find((q) => q.from === 'e' && !q.harmless && q.life > 0 && dist(q.x, q.y, ...lift(p.x, p.y, 0.5)) < 0.9);
       if (b) { b.life = -1; this.glyphAt(p.x, p.y, S.glyph.col); S.glyph = null; }
     }
     for (const f of this.fx) {
       if (f.kind !== 'gear') continue;
-      if (f.h === 'hazard') { f.tick -= dt; if (f.tick <= 0) { f.tick = 0.5; for (const e of this.enemiesIn(f.x, f.y, f.r).slice(0, 3)) this.damageEnemy(e, Math.round(f.dps * 0.5), e.x, e.y - 0.5, true); } }
+      if (f.h === 'hazard') { f.tick -= dt; if (f.tick <= 0) { f.tick = 0.5; for (const e of this.enemiesIn(f.x, f.y, f.r).slice(0, 3)) this.damageEnemy(e, Math.round(f.dps * 0.5), ...lift(e.x, e.y, 0.5), true); } }
       if (f.h === 'mushroom' && dist(p.x, p.y, f.x, f.y) < f.r) p.hp = Math.min(this.stat('hp'), p.hp + f.heal * dt);
       if (f.h === 'pod' && !f.done) {
         const e = this.enemiesIn(f.x, f.y, 1.2)[0];
-        if (e) { f.done = true; f.life = 0; for (const o of this.enemiesIn(f.x, f.y, 1.6)) this.damageEnemy(o, o === this.boss || o.rb ? Math.round(f.dmg * 0.5) : f.dmg, o.x, o.y - 0.5); this.vx({ k: 'burst', x: f.x, y: f.y, n: 10, colors: ['#7ad04a', '#a86a3a'] }); }
+        if (e) { f.done = true; f.life = 0; for (const o of this.enemiesIn(f.x, f.y, 1.6)) this.damageEnemy(o, o === this.boss || o.rb ? Math.round(f.dmg * 0.5) : f.dmg, ...lift(o.x, o.y, 0.5)); this.vx({ k: 'burst', x: f.x, y: f.y, n: 10, colors: ['#7ad04a', '#a86a3a'] }); }
       }
     }
   },

@@ -3,6 +3,7 @@
 // a breath that sweeps, lances that freeze the ground where they stop, blizzard orbs that drift and burst, a wing beat
 // whose gust sends you sliding, a glide that leaves a fence of lances, rings whose gaps spiral, a rippling aurora,
 // and braziers it puts out one by one. Frost shots add chill (src/frostveil.js).
+import { lift, liftO } from '../util.js';
 const TAU = Math.PI * 2, R = Math.random;
 const angleTo = (x0, y0, x1, y1) => Math.atan2(y1 - y0, x1 - x0);
 const centre = (e) => { const A = e.bx.arena; return A ? [A.x + A.w / 2, A.y + A.h / 2] : [e.x, e.y]; };
@@ -70,7 +71,7 @@ function mazeRow(g, e, V) {
 function frostWake(g, e, V) {
   if (e.bx.glideTo) return;
   const [cx, cy] = centre(e), a = angleTo(e.x, e.y, cx, cy);
-  for (const off of [-0.22, 0.22]) g.bxShot(e, e.x, e.y - 0.3, a + off, { shot: 'ice_lance', speed: 4.2, range: 27, dmg: V.dmg || 95 });
+  for (const off of [-0.22, 0.22]) g.bxShot(e, ...lift(e.x, e.y, 0.3), a + off, { shot: 'ice_lance', speed: 4.2, range: 27, dmg: V.dmg || 95 });
 }
 // heart shards (P3 pressure): three quick shards from the bare heart, straight at you
 function heartShards(g, e, V) {
@@ -98,7 +99,7 @@ function beat(g, e, V) {
   }
   const a = angleTo(e.x, e.y, p.x, p.y);
   p.gust = { vx: Math.cos(a) * 6, vy: Math.sin(a) * 6, until: g.t + 0.8 };
-  g.vx({ k: 'burst', x: p.x, y: p.y - 0.5, n: 10, colors: ['#ffffff', '#cfffff', '#8ad8ff'] });
+  g.vx({ k: 'burst', ...liftO(p.x, p.y, 0.5), n: 10, colors: ['#ffffff', '#cfffff', '#8ad8ff'] });
 }
 // glide: it dives across the lake straight through where you stand, dropping a fence of lances behind it
 function glide(g, e) {
@@ -197,7 +198,7 @@ export default {
       if (!S.glideHit && !p.dead && Math.hypot(p.x - e.x, p.y - e.y) < 1.4) { S.glideHit = true; g.hurtPlayer(g.bxDmg(e, 120), e.D.name); }   // caught by the dive
       if ((S.dropT -= dt) <= 0) {
         S.dropT = 0.15;
-        const b = g.bxShot(e, e.x, e.y - 0.3, Math.PI / 2, { shot: 'ice_lance', speed: 0.01, range: 1, dmg: 95, mv: { hold: 1.5 } });
+        const b = g.bxShot(e, ...lift(e.x, e.y, 0.3), Math.PI / 2, { shot: 'ice_lance', speed: 0.01, range: 1, dmg: 95, mv: { hold: 1.5 } });
         b.life = 1.6;
       }
     },

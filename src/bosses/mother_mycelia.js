@@ -2,6 +2,7 @@
 // Her arena is the Mire: an island of mud in a ring of bog, spore pods round its edge. Her own mechanics: spore
 // clouds that hang where they stop, needles that poison, acid that pools where it lands, a lunge that ends in a
 // short bite, seeds that sprout into sporelings unless shot, and toxic orbs that curl outward and gather speed.
+import { lift } from '../util.js';
 const TAU = Math.PI * 2, R = Math.random;
 const SHOT = (n) => `bx_shots/mother_mycelia.${n}`;
 const angleTo = (x0, y0, x1, y1) => Math.atan2(y1 - y0, x1 - x0);
@@ -57,7 +58,7 @@ function sproutNeedles(g, e, V) {
   for (const q of g.enemies) {
     if (q.id !== 'glowcap_sprout' || q.dead) continue;
     const a = angleTo(q.x, q.y, p.x, p.y);
-    for (const off of [-0.2, 0, 0.2]) g.bxShot(e, q.x, q.y - 0.4, a + off, { shot: 'poison_needle', speed: 7, range: 12, dmg: V.dmg || 70, poison: 1.2 });
+    for (const off of [-0.2, 0, 0.2]) g.bxShot(e, ...lift(q.x, q.y, 0.4), a + off, { shot: 'poison_needle', speed: 7, range: 12, dmg: V.dmg || 70, poison: 1.2 });
   }
 }
 // glowcap seeds: lobbed round the island; each lands as a sprout that bursts into a sporeling unless it's shot

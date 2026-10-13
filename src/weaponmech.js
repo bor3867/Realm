@@ -20,7 +20,7 @@
 //   echo       a hit stores a beat: the next volley also repeats that shot from where it ended (once)
 //   page       a slow page flies out and back, splitting in two on the way home; both halves on one enemy expose it
 // A Legendary adds charge: accurate volleys fill it, and when full your next swing is its signature strike.
-import { R } from './util.js';
+import { R, lift, liftO, liftA, liftB } from './util.js';
 const TAU = Math.PI * 2;
 const angleTo = (x0, y0, x1, y1) => Math.atan2(y1 - y0, x1 - x0);
 const THEME = {                                              // what a debuff does, by the weapon's theme
@@ -122,16 +122,16 @@ const methods = {
           const b = this.shoot('p', hx - Math.cos(a) * 1.6, hy - Math.sin(a) * 1.6, a, W.speed, 3.2, Math.round(avg * M.f), W.proj, W.size, true);
           b.child = true;
         } else {
-          for (const o of this.enemiesIn(e.x, e.y, M.r || 1.2)) { this.damageEnemy(o, Math.round(avg * M.f), o.x, o.y - 0.5, true); this.mechDebuff(o, M.theme, 1.5); }
-          this.vx({ k: 'burst', x: e.x, y: e.y - 0.5, n: 6, colors: T.col });
-          this.fx.push({ kind: 'ring', x: e.x, y: e.y - 0.3, t: 0, max: M.r || 1.2, color: T.col[0] });
+          for (const o of this.enemiesIn(e.x, e.y, M.r || 1.2)) { this.damageEnemy(o, Math.round(avg * M.f), ...lift(o.x, o.y, 0.5), true); this.mechDebuff(o, M.theme, 1.5); }
+          this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.5), n: 6, colors: T.col });
+          this.fx.push({ kind: 'ring', ...liftO(e.x, e.y, 0.3), t: 0, max: M.r || 1.2, color: T.col[0] });
         }
       }
     }
     if (M.kind === 'glyph' && this.fx.some((f) => f.kind === 'wglyph' && f.own === W)) {
       for (const f of this.fx) if (f.kind === 'wglyph' && f.own === W && !f.done) {
         f.done = true; f.life = 0;
-        for (const o of this.enemiesIn(f.x, f.y, M.r)) { this.damageEnemy(o, Math.round(avg * M.f), o.x, o.y - 0.5, true); this.mechDebuff(o, M.theme, 2); }
+        for (const o of this.enemiesIn(f.x, f.y, M.r)) { this.damageEnemy(o, Math.round(avg * M.f), ...lift(o.x, o.y, 0.5), true); this.mechDebuff(o, M.theme, 2); }
         this.vx({ k: 'burst', x: f.x, y: f.y, n: 6, colors: T.col });
         this.fx.push({ kind: 'ring', x: f.x, y: f.y, t: 0, max: M.r, color: T.col[0] });
       }
@@ -149,7 +149,7 @@ const methods = {
   mechFlight(b, dt) {
     if (b.page && !b.page.back && b.life < b.max * 0.3) {     // the page turns home (most of the way out) and splits into two margins
       b.page.back = true; b.life = 0;
-      const p = this.player, home = angleTo(b.x, b.y, p.x, p.y - 0.5), M = b.sp.mech;
+      const p = this.player, home = angleTo(b.x, b.y, ...lift(p.x, p.y, 0.5)), M = b.sp.mech;
       for (const s of [-1, 1]) {
         const c = this.shoot('p', b.x, b.y, home + s * 0.12, b.speed * 1.1, Math.hypot(b.x - p.x, b.y - p.y) + 0.5, Math.round(b.dmg * M.halfF), b.sprite, 0.4, true);
         c.sp = b.sp; c.vol = b.vol; c.half = s; c.speed = b.speed;
@@ -188,10 +188,10 @@ const methods = {
         if (e.wstack.n >= 3) {                                   // cashed in
           e.wstack = null;
           if (M.strike) {                                         // a thunderstrike: straight down onto it, catching its neighbours
-            for (const o of this.enemiesIn(e.x, e.y, M.strike).slice(0, 4)) this.damageEnemy(o, Math.round(b.dmg * M.cash), o.x, o.y - 0.6, true);
-            this.vx({ k: 'zap', x0: e.x, y0: e.y - 6, x1: e.x, y1: e.y - 0.5 });
-          } else this.damageEnemy(e, Math.round(b.dmg * M.cash), e.x, e.y - 0.6, true);
-          this.vx({ k: 'burst', x: e.x, y: e.y - 0.5, n: 6, colors: T.col });
+            for (const o of this.enemiesIn(e.x, e.y, M.strike).slice(0, 4)) this.damageEnemy(o, Math.round(b.dmg * M.cash), ...lift(o.x, o.y, 0.6), true);
+            this.vx({ k: 'zap', x0: e.x, y0: e.y - 6, ...liftB(e.x, e.y, 0.5) });
+          } else this.damageEnemy(e, Math.round(b.dmg * M.cash), ...lift(e.x, e.y, 0.6), true);
+          this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.5), n: 6, colors: T.col });
         }
         break;
       }
@@ -228,10 +228,10 @@ const methods = {
           const L = p.voices.slice(-3).map((v) => v.e); p.voices = [];
           for (let k = 0; k < L.length; k++) {
             const A = L[k], B = L[(k + 1) % L.length];
-            this.vx({ k: 'zap', x0: A.x, y0: A.y - 0.5, x1: B.x, y1: B.y - 0.5 });
-            this.damageEnemy(A, Math.round(b.dmg * M.f), A.x, A.y - 0.5, true); A.wmark = null;
+            this.vx({ k: 'zap', ...liftA(A.x, A.y, 0.5), ...liftB(B.x, B.y, 0.5) });
+            this.damageEnemy(A, Math.round(b.dmg * M.f), ...lift(A.x, A.y, 0.5), true); A.wmark = null;
           }
-          p.mp = Math.min(this.stat('mp'), p.mp + M.mana); this.float(p.x, p.y - 1.3, `+${M.mana}`, '#6a9aff');
+          p.mp = Math.min(this.stat('mp'), p.mp + M.mana); this.float(...lift(p.x, p.y, 1.3), `+${M.mana}`, '#6a9aff');
         }
         break;
       }
@@ -239,15 +239,15 @@ const methods = {
         if (b.eye) { e.witch = { n: 0, until: this.t + 4 }; e.wmark = { until: this.t + 4, col: T.col[0] }; }
         else if (e.witch && e.witch.until > this.t && ++e.witch.n >= 2) {   // the second strike through the mark bursts it
           e.witch = null; e.wmark = null;
-          for (const o of this.enemiesIn(e.x, e.y, M.r)) { this.damageEnemy(o, Math.round(b.dmg * M.f), o.x, o.y - 0.5, true); this.mechDebuff(o, M.theme, 3); }
-          this.vx({ k: 'burst', x: e.x, y: e.y - 0.5, n: 8, colors: T.col });
-          this.fx.push({ kind: 'ring', x: e.x, y: e.y - 0.3, t: 0, max: M.r, color: T.col[0] });
+          for (const o of this.enemiesIn(e.x, e.y, M.r)) { this.damageEnemy(o, Math.round(b.dmg * M.f), ...lift(o.x, o.y, 0.5), true); this.mechDebuff(o, M.theme, 3); }
+          this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.5), n: 8, colors: T.col });
+          this.fx.push({ kind: 'ring', ...liftO(e.x, e.y, 0.3), t: 0, max: M.r, color: T.col[0] });
         }
         break;
       case 'echo': p.mechEcho = { x: b.x, y: b.y, a: Math.atan2(b.vy, b.vx), until: this.t + 2.5 }; break;
       case 'page':
         if (b.half) {                                           // both halves on one enemy: exposed
-          if (e.pageHalf && e.pageHalf.vol === b.vol && e.pageHalf.k !== b.half) { e.curseF = Math.max(e.curseT > 0 ? e.curseF || 0 : 0, M.expose); e.curseT = Math.max(e.curseT || 0, 2.5); e.wmark = { until: this.t + 2.5, col: T.col[0] }; this.float(e.x, e.y - 1.2, 'EXPOSED', T.col[0]); }
+          if (e.pageHalf && e.pageHalf.vol === b.vol && e.pageHalf.k !== b.half) { e.curseF = Math.max(e.curseT > 0 ? e.curseF || 0 : 0, M.expose); e.curseT = Math.max(e.curseT || 0, 2.5); e.wmark = { until: this.t + 2.5, col: T.col[0] }; this.float(...lift(e.x, e.y, 1.2), 'EXPOSED', T.col[0]); }
           e.pageHalf = { vol: b.vol, k: b.half };
         }
         break;
@@ -258,7 +258,7 @@ const methods = {
           e.wbrand = 0; e.wmark = null;
           this.mechShards(b, M, e);
           p.hp = Math.min(this.stat('hp'), p.hp + Math.round(dealt * M.heal));
-          this.float(p.x, p.y - 1.3, `+${Math.round(dealt * M.heal)}`, '#5ae07a');
+          this.float(...lift(p.x, p.y, 1.3), `+${Math.round(dealt * M.heal)}`, '#5ae07a');
         }
         break;
       }
@@ -287,7 +287,7 @@ const methods = {
     const p = this.player;
     if (p.charge >= M.charge.need) return;
     p.charge = (p.charge || 0) + 1;
-    if (p.charge >= M.charge.need) { this.float(p.x, p.y - 1.5, M.charge.name.toUpperCase(), (THEME[M.theme] || THEME.fire).col[0]); this.vx({ k: 'burst', x: p.x, y: p.y - 0.6, n: 8, colors: (THEME[M.theme] || THEME.fire).col }); }
+    if (p.charge >= M.charge.need) { this.float(...lift(p.x, p.y, 1.5), M.charge.name.toUpperCase(), (THEME[M.theme] || THEME.fire).col[0]); this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.6), n: 8, colors: (THEME[M.theme] || THEME.fire).col }); }
   },
   // a Legendary's signature: the swing it saved up for
   mechSignature(W, sp, M, ox, oy, a, roll, fire) {
@@ -296,7 +296,7 @@ const methods = {
       const off = S.n > 1 ? (k / (S.n - 1) - 0.5) * S.arc : 0;
       fire(ox, oy, a + off, Math.round(roll() * S.f), { pierce: true, size: (W.size || 0.5) * 1.2, b: { sig: true, sigMax: S.cap, sigHits: 0 } });
     }
-    this.vx({ k: 'burst', x: p.x, y: p.y - 0.6, n: 10, colors: T.col });
+    this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.6), n: 10, colors: T.col });
     this.vx({ k: 'shake', amt: 2 });
   },
   // a signature shot's own hit (capped: it can't clear a room or delete a boss phase)
@@ -304,12 +304,12 @@ const methods = {
     const M = b.sp.mech, S = M.charge, p = this.player;
     if ((b.sigHits = (b.sigHits || 0) + 1) > S.cap) { b.life = 0; return; }
     if (S.blast) {
-      for (const o of this.enemiesIn(e.x, e.y, S.blast.r).slice(0, S.blast.max)) if (o !== e) this.damageEnemy(o, Math.round(b.dmg * S.blast.f), o.x, o.y - 0.5, true);
+      for (const o of this.enemiesIn(e.x, e.y, S.blast.r).slice(0, S.blast.max)) if (o !== e) this.damageEnemy(o, Math.round(b.dmg * S.blast.f), ...lift(o.x, o.y, 0.5), true);
       this.vx({ k: 'boom', x: e.x, y: e.y, r: S.blast.r });
     }
     if (M.theme) this.mechDebuff(e, M.theme, 3);
     if (S.heal && (b.healN = (b.healN || 0) + 1) <= S.heal.max) {
-      const h = Math.round(this.stat('hp') * S.heal.f); p.hp = Math.min(this.stat('hp'), p.hp + h); this.float(p.x, p.y - 1.3, `+${h}`, '#5ae07a');
+      const h = Math.round(this.stat('hp') * S.heal.f); p.hp = Math.min(this.stat('hp'), p.hp + h); this.float(...lift(p.x, p.y, 1.3), `+${h}`, '#5ae07a');
     }
     void dealt;
   },
@@ -328,16 +328,16 @@ const methods = {
       }
       if (f.kind === 'wphantom' && !f.done && f.t >= f.delay) {
         f.done = true;
-        for (const e of this.enemiesIn(f.x, f.y - 0.3, f.r)) { this.damageEnemy(e, f.dmg, e.x, e.y - 0.5, true); if (f.stun && e !== this.boss && !e.rb) this.stun(e, f.stun); }
-        this.vx({ k: 'burst', x: f.x, y: f.y - 0.3, n: 12, colors: f.col });
-        this.fx.push({ kind: 'ring', x: f.x, y: f.y - 0.3, t: 0, max: f.r, color: f.col[0] });
+        for (const e of this.enemiesIn(...lift(f.x, f.y, 0.3), f.r)) { this.damageEnemy(e, f.dmg, ...lift(e.x, e.y, 0.5), true); if (f.stun && e !== this.boss && !e.rb) this.stun(e, f.stun); }
+        this.vx({ k: 'burst', ...liftO(f.x, f.y, 0.3), n: 12, colors: f.col });
+        this.fx.push({ kind: 'ring', ...liftO(f.x, f.y, 0.3), t: 0, max: f.r, color: f.col[0] });
         this.vx({ k: 'shake', amt: 2 });
       }
     }
   },
   // a falling star's four sparks (Starfall Blade): called where the star lands
   starSparks(f) {
-    for (let k = 0; k < f.sparks; k++) { const c = this.shoot('p', f.x, f.y - 0.4, (k / f.sparks) * TAU + Math.PI / 4, 8, 2.4, f.sparkDmg, f.sparkProj || 'star', 0.4, true); c.child = true; }
+    for (let k = 0; k < f.sparks; k++) { const c = this.shoot('p', ...lift(f.x, f.y, 0.4), (k / f.sparks) * TAU + Math.PI / 4, 8, 2.4, f.sparkDmg, f.sparkProj || 'star', 0.4, true); c.child = true; }
   },
 };
 export function installWeaponMech(Game) { Object.assign(Game.prototype, methods); }

@@ -8,6 +8,7 @@
 //              nebula weaver's Star Veil, a meteor mite's ring of embers
 //   star vault the Vault Keeper sleeps by the chest; strike either and it wakes, seals the vault (Lockdown) and the
 //              trap plates fire in turn until it falls; then the vault opens and the chest gives up its loot
+import { lift, liftO } from './util.js';
 import { TID, SK, clockTiles } from './world/maps.js';
 
 export const ASTRAL = { fall: 0.12, grace: 1, click: 4, warn: 1, swirl: 0.6 };
@@ -25,11 +26,11 @@ const methods = {
     if (!p.dead) {
       if (!this.asVoidAt(p.x, p.y)) p.asSafe = { x: p.x, y: p.y };
       else if (p.asSafe && !(p.asRune > 0)) {
-        this.vx({ k: 'regfx', key: 'ex_effects/star_burst', x: p.x, y: p.y - 0.4, fps: 12 });
+        this.vx({ k: 'regfx', key: 'ex_effects/star_burst', ...liftO(p.x, p.y, 0.4), fps: 12 });
         p.x = p.asSafe.x; p.y = p.asSafe.y; p.vel = { x: 0, y: 0 }; p.gust = null;
         this.hurtPlayer(Math.round(this.stat('hp') * ASTRAL.fall), 'the void', true);
         p.status.invuln = Math.max(p.status.invuln || 0, ASTRAL.grace);
-        this.vx({ k: 'regfx', key: 'ex_effects/star_burst', x: p.x, y: p.y - 0.4, fps: 12 });
+        this.vx({ k: 'regfx', key: 'ex_effects/star_burst', ...liftO(p.x, p.y, 0.4), fps: 12 });
         this.toast('You fell into the void.');
       }
     }
@@ -39,9 +40,9 @@ const methods = {
     if (p.asRune > 0) {
       p.asRune -= dt;
       if (p.asRune <= 0 && p.asRuneTo) {
-        this.vx({ k: 'regfx', key: 'ex_effects/star_burst', x: p.x, y: p.y - 0.4, fps: 12 });
+        this.vx({ k: 'regfx', key: 'ex_effects/star_burst', ...liftO(p.x, p.y, 0.4), fps: 12 });
         p.x = p.asRuneTo.x; p.y = p.asRuneTo.y; p.asRuneTo = null; p.asRuneCd = true; p.asSafe = { x: p.x, y: p.y };
-        this.vx({ k: 'regfx', key: 'ex_effects/star_burst', x: p.x, y: p.y - 0.4, fps: 12 }); this.sfx('portal');
+        this.vx({ k: 'regfx', key: 'ex_effects/star_burst', ...liftO(p.x, p.y, 0.4), fps: 12 }); this.sfx('portal');
       }
     } else if (on && !p.asRuneCd && !p.dead) { p.asRune = ASTRAL.swirl; p.asRuneTo = on.to; p.asRuneAt = on; }
     if (!on) p.asRuneCd = false;
@@ -70,7 +71,7 @@ const methods = {
     if (o.interact !== 'scope') return false;
     const m = this.map, D = m.asDais;
     o.dir = (o.dir + 1) % 8;
-    this.vx({ k: 'burst', x: o.x, y: o.y - 0.8, n: 5, colors: ['#ffd690', '#ffffff'] }); this.sfx('coin');
+    this.vx({ k: 'burst', ...liftO(o.x, o.y, 0.8), n: 5, colors: ['#ffd690', '#ffffff'] }); this.sfx('coin');
     if (!D || o.found) return true;
     const want = Math.round(((Math.atan2(D.globe.y - o.y, D.globe.x - o.x) + TAU) % TAU) / (Math.PI / 4)) % 8;
     if (o.dir === want) {
@@ -124,7 +125,7 @@ const methods = {
       e.elState = { kind: 'dash', t: 0, a: Math.atan2(p.y - e.y, p.x - e.x), hit: false, trail: [] }; e.asLastFire = null;
     } else if (A.kind === 'veil') {                             // star-dust: hides it, slows you
       (m.asVeils = m.asVeils || []).push({ x: e.x, y: e.y, r: 3, until: this.t + 3, born: this.t, e });
-      this.vx({ k: 'burst', x: e.x, y: e.y - 0.8, n: 20, colors: ['#c8a0ff', '#8af6ff', '#ffffff'] });
+      this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.8), n: 20, colors: ['#c8a0ff', '#8af6ff', '#ffffff'] });
     } else if (A.kind === 'lockdown') {                         // a ring of seal glyphs that hang, then fly out; the plates arm faster
       ring(16, AP('vault_keeper.seal_glyph'), 5.5, 110, 9, Math.random() * TAU, { hold: 0.5 });
       m.asTrapT = 0;
@@ -157,7 +158,7 @@ const methods = {
   },
   asDeath(e) {
     const m = this.map, D = e.D.asDeath;
-    if (D && D.ring) { const a0 = Math.random() * TAU; for (let k = 0; k < D.ring; k++) this.shoot('e', e.x, e.y - 0.3, a0 + (k / D.ring) * TAU, 5, 4.5, D.dmg, D.proj, 0.35, false, e.D.name); }
+    if (D && D.ring) { const a0 = Math.random() * TAU; for (let k = 0; k < D.ring; k++) this.shoot('e', ...lift(e.x, e.y, 0.3), a0 + (k / D.ring) * TAU, 5, 4.5, D.dmg, D.proj, 0.35, false, e.D.name); }
     if (e === m.asKeeper) {                                      // the vault opens; the chest gives up its loot
       m.asSealed = false;
       if (m.asVault) for (const i of m.asVault.mouth) m.solid[i] = 0;

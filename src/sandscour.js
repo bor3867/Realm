@@ -3,6 +3,7 @@
 //   urns        shoot one open: a third hold a swarm of scarabs, the rest a little gold or a potion
 //   sarcophagi  a sealed one opens as you pass, and a mummy steps out
 //   the vault   a wall of sand across its door crumbles when the burial chamber's last mummy falls
+import { liftO } from './util.js';
 import { TID, SK } from './world/maps.js';
 
 export const SAND = { pull: 1.1, drag: 0.55, sarcR: 3, sarcRise: 0.5, urnScarabs: 1 / 3 };
@@ -22,7 +23,7 @@ const methods = {
     for (const o of m.sdSarcs) {
       if (o.openT === undefined) {
         const reach = o.burial ? SAND.sarcR + 1.5 : SAND.sarcR;          // the burial chamber's wake from its lanes
-        if (!p.dead && Math.hypot(o.x - p.x, o.y - p.y) < reach) { o.openT = this.t; this.vx({ k: 'regfx', key: 'ex_effects/sand_puff', x: o.x, y: o.y - 0.4, fps: 10 }); }
+        if (!p.dead && Math.hypot(o.x - p.x, o.y - p.y) < reach) { o.openT = this.t; this.vx({ k: 'regfx', key: 'ex_effects/sand_puff', ...liftO(o.x, o.y, 0.4), fps: 10 }); }
       } else if (!o.risen && this.t - o.openT > SAND.sarcRise) {
         o.risen = true;
         const e = this.addEnemy('sand_mummy', o.x, o.y + 0.9);
@@ -45,10 +46,10 @@ const methods = {
   hitUrn(o) {
     const m = this.map;
     o.hp = (o.hp || 3) - 1; o.cracked = true;
-    this.vx({ k: 'burst', x: o.x, y: o.y - 0.4, n: 4, colors: ['#c89a5a', '#8a6a3a'] });
+    this.vx({ k: 'burst', ...liftO(o.x, o.y, 0.4), n: 4, colors: ['#c89a5a', '#8a6a3a'] });
     if (o.hp > 0) return;
     m.objects.splice(m.objects.indexOf(o), 1); m.solid[Math.floor(o.y) * m.w + Math.floor(o.x)] = 0; m.ogridDirty = true;
-    this.vx({ k: 'regfx', key: 'ex_effects/sand_puff', x: o.x, y: o.y - 0.3, fps: 10 });
+    this.vx({ k: 'regfx', key: 'ex_effects/sand_puff', ...liftO(o.x, o.y, 0.3), fps: 10 });
     if (Math.random() < SAND.urnScarabs) {                     // trapped: a swarm pours out
       for (let k = 0; k < 4; k++) { const e = this.addEnemy('tomb_scarab', o.x + (Math.random() - 0.5), o.y + (Math.random() - 0.5)); e.hp = e.maxHp = Math.round(e.hp * (m.def.mobHp || 1)); e.seen = true; }
       this.float(o.x, o.y - 1, 'SCARABS!', '#ffd650');

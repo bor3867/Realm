@@ -6,6 +6,7 @@
 // (immune, a survival sequence of its own, then broken: +50% damage taken for the rest of the fight).
 // Patterns are data (src/bosses/<boss>.js): windup frame held as the telegraph, volleys on the release frame,
 // a recover pause after the clip's 'ended' event. Signature mechanics live in each boss's own file as 'specials'.
+import { lift, angleUp } from './util.js';
 import { Anim } from './anim.js';
 import { BX } from './bosses/index.js';
 import { isSolid, TID } from './world/maps.js';
@@ -174,13 +175,13 @@ export const BXF = {
   bxAim(e, ox, oy, speed = 7) {
     const S = e.bx, p = this.player;
     const far = Math.hypot(p.x - ox, p.y - oy) > 4;             // (only at range: up close there is no time to read it)
-    if (!S.B.lead || !far || ((S.leadN = (S.leadN || 0) + 1) % 3)) return angleTo(ox, oy, p.x, p.y - 0.4);
+    if (!S.B.lead || !far || ((S.leadN = (S.leadN || 0) + 1) % 3)) return angleTo(ox, oy, ...lift(p.x, p.y, 0.4));
     const T = Math.min(1.2, Math.hypot(p.x - ox, p.y - oy) / Math.max(1, speed));
-    return angleTo(ox, oy, p.x + (S.pvx || 0) * T, p.y - 0.4 + (S.pvy || 0) * T);
+    return angleUp(ox, oy, p.x + (S.pvx || 0) * T, p.y + (S.pvy || 0) * T, 0.4);
   },
   bxVolley(e, V) {
     const S = e.bx, p = this.player, [ox, oy] = V.from ? V.from(this, e) : this.bxOrigin(e);
-    const aim = V.angle !== undefined ? V.angle : V.form === 'fan' || V.form === 'wall' ? this.bxAim(e, ox, oy, V.speed || 5) : angleTo(ox, oy, p.x, p.y - 0.4);
+    const aim = V.angle !== undefined ? V.angle : V.form === 'fan' || V.form === 'wall' ? this.bxAim(e, ox, oy, V.speed || 5) : angleTo(ox, oy, ...lift(p.x, p.y, 0.4));
     const gaps = (n, k) => V.gaps && ((k + (V.gapAt || 0)) % n) < V.gaps;
     switch (V.form) {
       case 'fan': {

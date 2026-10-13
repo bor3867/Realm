@@ -6,6 +6,7 @@
 //   the gallery  opening its chest wakes three of its stands at once
 //   the crypt    once you step in, its coffins open one after another
 //   blood pools  slow you and drain you
+import { liftO } from './util.js';
 import { TID } from './world/maps.js';
 
 export const KEEP = { light: 3, coffinR: 3, statueNear: 2.5, statueFar: 4, ledgeR: 4, cryptEvery: 1.2, bloodDmg: 6, bloodTick: 0.5 };
@@ -22,7 +23,7 @@ const methods = {
   // a thrall in the light takes double damage
   ckDamage(e, d) {
     if (!THRALLS.has(e.id) || !this.map.ckCandles || !this.ckLit(e.x, e.y)) return d;
-    if (Math.random() < 0.5) this.vx({ k: 'burst', x: e.x, y: e.y - 0.6, n: 3, colors: ['#5a4a4a', '#c8b0a0'] });
+    if (Math.random() < 0.5) this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.6), n: 3, colors: ['#5a4a4a', '#c8b0a0'] });
     return d * 2;
   },
   ckSpawn(id, x, y) {
@@ -33,14 +34,14 @@ const methods = {
   ckOpen(o) {
     if (o.openT !== undefined) return;
     o.openT = this.t;
-    this.vx({ k: 'burst', x: o.x, y: o.y - 0.6, n: 10, colors: ['#3a1a20', '#8e1e30', '#c8b0a0'] });
+    this.vx({ k: 'burst', ...liftO(o.x, o.y, 0.6), n: 10, colors: ['#3a1a20', '#8e1e30', '#c8b0a0'] });
     this.fvLater(0.6, () => this.ckSpawn('blood_thrall', o.x, o.y + 1));
   },
   ckWake(o) {
     const m = this.map;
     m.objects.splice(m.objects.indexOf(o), 1); m.solid[Math.floor(o.y) * m.w + Math.floor(o.x)] = 0; m.ogridDirty = true;
     this.ckSpawn(o.ckStatue === 'gargoyle' ? 'gargoyle' : 'haunted_armor', o.x, o.y + 0.2);
-    this.vx({ k: 'burst', x: o.x, y: o.y - 0.6, n: 14, colors: ['#8a8a9a', '#c8c8d8', '#3a3a4a'] });
+    this.vx({ k: 'burst', ...liftO(o.x, o.y, 0.6), n: 14, colors: ['#8a8a9a', '#c8c8d8', '#3a3a4a'] });
   },
   updateKeep(dt) {
     const m = this.map, p = this.player;

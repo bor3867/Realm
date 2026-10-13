@@ -2,6 +2,7 @@
 // Its arena is the Sanctum: a square hall, a raised dais with four obelisks for cover. Its own mechanics: crossing
 // fans of curved crescents; riddle glyphs that hang and then dart at you; pinwheel sunbursts; feather fans that
 // narrow to a spear; a sandstorm haze; dust devils that wander and throw you; scarabs bursting from the sand.
+import { lift } from '../util.js';
 const TAU = Math.PI * 2, R = Math.random;
 const SHOT = (n) => `bx_shots/gilded_sphinx.${n}`;
 const angleTo = (x0, y0, x1, y1) => Math.atan2(y1 - y0, x1 - x0);
@@ -139,7 +140,7 @@ export default {
   },
   drawTop(r, g, e) {                                 // the sandstorm: a haze over everything far from you, sand streaming across
     if (!e.bx.storm) return;
-    const b = r.b, BW = r.buf.width, BH = r.buf.height, [px, py] = r.proj(g.player.x, g.player.y - 0.5), R0 = 7 * 16;
+    const b = r.b, BW = r.buf.width, BH = r.buf.height, [px, py] = r.proj(...lift(g.player.x, g.player.y, 0.5)), R0 = 7 * 16;
     b.save(); b.setTransform(1, 0, 0, 1, 0, 0); b.scale(r.hi.width / BW, r.hi.height / BH);
     const grad = b.createRadialGradient(px, py, R0 * 0.55, px, py, R0 * 1.25);
     grad.addColorStop(0, 'rgba(200,160,96,0)'); grad.addColorStop(1, 'rgba(176,136,72,0.88)');

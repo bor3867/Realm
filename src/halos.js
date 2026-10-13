@@ -10,6 +10,7 @@
 //   orrery    (the item's orbiting planets) and a healing pulse at the end of each orbit
 //   sun       a black sun pulses eclipse rings that scorch enemies and heal and shield you; then a corona
 //   wick      a planted flame turns out three tongues of fire; standing near it warms you back to health
+import { lift, liftO } from './util.js';
 const TAU = Math.PI * 2;
 const dist = (ax, ay, bx, by) => Math.hypot(ax - bx, ay - by);
 
@@ -34,7 +35,7 @@ const methods = {
       case 'horizon': {
         const [hx, hy] = [cx, cy];
         add({ h: 'horizon', x: hx, y: hy, a: aim, w: H.w, d: 0, speed: 9, range: H.range, life: H.range / 9 + 0.2, hit: new Set(), dmg });
-        const h = Math.min(H.heal, this.stat('hp') - p.hp); p.hp += h; if (h > 0) this.float(p.x, p.y - 1.4, `+${Math.round(h)}`, '#3ac85a');
+        const h = Math.min(H.heal, this.stat('hp') - p.hp); p.hp += h; if (h > 0) this.float(...lift(p.x, p.y, 1.4), `+${Math.round(h)}`, '#3ac85a');
         p.abilityT = Math.max(p.abilityT, H.lock || 0);       // its longer recovery
         break;
       }
@@ -49,7 +50,7 @@ const methods = {
   haloHeal(n, x, y) {
     const p = this.player, h = Math.min(n, this.stat('hp') - p.hp);
     if (h <= 0) return;
-    p.hp += h; this.float(p.x, p.y - 1.4, `+${Math.round(h)}`, '#3ac85a');
+    p.hp += h; this.float(...lift(p.x, p.y, 1.4), `+${Math.round(h)}`, '#3ac85a');
     this.fx.push({ kind: 'ring', x: x ?? p.x, y: (y ?? p.y) - 0.3, t: 0, max: 1.2, color: '#9aff9a' });
   },
   // every frame: each Halo's shape plays out
@@ -62,17 +63,17 @@ const methods = {
           if (!f.done && f.t >= f.at) {
             f.done = true;
             if (near(f, 3)) this.haloHeal(f.heal, f.x, f.y);
-            this.fx.push({ kind: 'ring', x: f.x, y: f.y - 0.3, t: 0, max: 3, color: '#ffeb8f' });
+            this.fx.push({ kind: 'ring', ...liftO(f.x, f.y, 0.3), t: 0, max: 3, color: '#ffeb8f' });
             const [ox, oy] = this.up(f.x, f.y, 0.5);
             const b = this.shoot('p', ox, oy, f.a, 11, 6, f.dmg, f.proj || 'pj_dawnray', 0.5, true); b.child = true;
           }
           break;
         case 'bell':
-          if (!f.rang1 && f.t >= 0.35) { f.rang1 = true; this.fx.push({ kind: 'ring', x: f.x, y: f.y - 0.3, t: 0, max: f.r, color: '#9aff9a' }); if (near(f, f.r)) this.haloHeal(f.heal, f.x, f.y); }
+          if (!f.rang1 && f.t >= 0.35) { f.rang1 = true; this.fx.push({ kind: 'ring', ...liftO(f.x, f.y, 0.3), t: 0, max: f.r, color: '#9aff9a' }); if (near(f, f.r)) this.haloHeal(f.heal, f.x, f.y); }
           if (!f.rang2 && f.t >= 0.95) {
-            f.rang2 = true; this.fx.push({ kind: 'ring', x: f.x, y: f.y - 0.3, t: 0, max: f.r + 0.5, color: '#e8b04a' });
+            f.rang2 = true; this.fx.push({ kind: 'ring', ...liftO(f.x, f.y, 0.3), t: 0, max: f.r + 0.5, color: '#e8b04a' });
             for (const e of this.enemiesIn(f.x, f.y, f.r + 0.5)) {
-              this.damageEnemy(e, f.dmg, e.x, e.y - 0.5, true);
+              this.damageEnemy(e, f.dmg, ...lift(e.x, e.y, 0.5), true);
               e.curseF = Math.max(e.curseT > 0 ? e.curseF || 0 : 0, 0.15); e.curseT = Math.max(e.curseT || 0, 4);
               if (e !== this.boss && !e.rb) this.stun(e, 0.6);
             }
@@ -92,7 +93,7 @@ const methods = {
           const e = f.e;
           if (e && !e.dead && f.t < f.life) {
             f.x = e.x; f.y = e.y; f.tick -= dt;
-            if (f.tick <= 0) { f.tick = 0.25; this.damageEnemy(e, f.dmg, e.x, e.y - 0.5, true); }
+            if (f.tick <= 0) { f.tick = 0.25; this.damageEnemy(e, f.dmg, ...lift(e.x, e.y, 0.5), true); }
           }
           if (!f.done && (!e || e.dead || f.t >= f.life - 0.05)) {   // it ends: the fragments fly home
             f.done = true; f.life = f.t + 0.05;
@@ -102,9 +103,9 @@ const methods = {
         }
         case 'mote': {                                          // a healing fragment flying back to you
           if (f.t < (f.delay || 0)) break;
-          const d = dist(f.x, f.y, p.x, p.y - 0.5), s = Math.min(d, 9 * dt);
+          const d = dist(f.x, f.y, ...lift(p.x, p.y, 0.5)), s = Math.min(d, 9 * dt);
           if (d < 0.35) { if (!f.done) { f.done = true; f.life = 0; this.haloHeal(f.heal); if (f.gold) p.status.invuln = Math.max(p.status.invuln || 0, 0.5); } break; }
-          f.x += ((p.x - f.x) / d) * s; f.y += ((p.y - 0.5 - f.y) / d) * s;
+          const [hx, hy] = lift(p.x, p.y, 0.5); f.x += ((hx - f.x) / d) * s; f.y += ((hy - f.y) / d) * s;
           break;
         }
         case 'horizon': {
@@ -115,7 +116,7 @@ const methods = {
             const dx = e.x - f.x, dy = e.y - 0.5 - f.y, along = dx * ca + dy * sa, side = -dx * sa + dy * ca;
             if (Math.abs(along - f.d) < 0.6 && Math.abs(side) <= f.w / 2) {
               f.hit.add(e);
-              this.damageEnemy(e, f.dmg, e.x, e.y - 0.5);
+              this.damageEnemy(e, f.dmg, ...lift(e.x, e.y, 0.5));
               e.curseF = Math.max(e.curseT > 0 ? e.curseF || 0 : 0, 0.2); e.curseT = Math.max(e.curseT || 0, 4);   // judged
             }
           }
@@ -123,14 +124,14 @@ const methods = {
         }
         case 'orrery':
           f.x = p.x; f.y = p.y; f.next -= dt;
-          if (f.next <= 0) { f.next = f.every; this.fx.push({ kind: 'ring', x: p.x, y: p.y - 0.3, t: 0, max: f.r, color: '#e8c87a' }); this.haloHeal(f.heal); }
+          if (f.next <= 0) { f.next = f.every; this.fx.push({ kind: 'ring', ...liftO(p.x, p.y, 0.3), t: 0, max: f.r, color: '#e8c87a' }); this.haloHeal(f.heal); }
           break;
         case 'sun':
           for (const P of f.pulses) {
             if (f.t < P.t0) continue;
             const r = (f.t - P.t0) * 5;
             if (r > 3.6) continue;
-            for (const e of this.enemiesIn(f.x, f.y, r)) if (!P.hit.has(e)) { P.hit.add(e); this.damageEnemy(e, f.dmg, e.x, e.y - 0.5, true); this.ignite(e, f.burn, 2); }
+            for (const e of this.enemiesIn(f.x, f.y, r)) if (!P.hit.has(e)) { P.hit.add(e); this.damageEnemy(e, f.dmg, ...lift(e.x, e.y, 0.5), true); this.ignite(e, f.burn, 2); }
             if (!P.healed && dist(p.x, p.y, f.x, f.y) <= r) { P.healed = true; this.haloHeal(f.heal); p.status.armored = Math.max(p.status.armored || 0, 1.2); }
           }
           if (!f.corona && f.t >= 2.5) {                         // the corona: one ring of shots outward

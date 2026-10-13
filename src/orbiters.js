@@ -6,6 +6,7 @@
 //     slow, burn, heal   what a touch does besides damage }
 // From a ring or armour (passive.orbit) they are always there; from an ability (signature kind 'orbit') for `life` s.
 // Nothing they fire turns after it leaves (no seeking).
+import { lift, liftO, angleUp } from './util.js';
 import { ITEMS } from './data/items.js';
 import { dmgMult } from './data/classes.js';
 
@@ -30,7 +31,7 @@ const methods = {
   orbSummon(S) {                                   // an ability's signature: its orbiters come for `life` seconds
     const p = this.player;
     p.orbCast = [...(p.orbCast || []), ...this.orbMake(S.sets, S.life || 8)];
-    this.vx({ k: 'burst', x: p.x, y: p.y - 0.6, n: 20, colors: ['#ffd690', '#c8a0ff', '#ffffff'] });
+    this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.6), n: 20, colors: ['#ffd690', '#c8a0ff', '#ffffff'] });
   },
   updateOrbs(dt) {
     const p = this.player;
@@ -40,15 +41,15 @@ const methods = {
       const O = set.O, n = set.bodies.length;
       for (const B of set.bodies) {
         const a = set.a0 + this.t * (O.w || 2) + (B.k / n) * TAU;
-        B.x = p.x + Math.cos(a) * O.r; B.y = p.y - 0.5 + Math.sin(a) * O.r; B.a = a + (O.w < 0 ? -1 : 1) * Math.PI / 2;
+        const [ocx, ocy] = lift(p.x, p.y, 0.5); B.x = ocx + Math.cos(a) * O.r; B.y = ocy + Math.sin(a) * O.r;   // round your chest, whatever the camera B.a = a + (O.w < 0 ? -1 : 1) * Math.PI / 2;
         B.rest = Math.max(0, B.rest - dt);
         live.push({ B, O, set });
         if (B.rest > 0) continue;
         // a touch: damage (and what else it does), each monster at most every 0.4 s
-        for (const e of this.enemiesIn(B.x, B.y + 0.5, O.kind === 'hole' ? 0.8 : 0.6)) {
+        for (const e of this.enemiesIn(...lift(B.x, B.y, -0.5), O.kind === 'hole' ? 0.8 : 0.6)) {
           if (e.dead || (B.hit.get(e) || 0) > this.t) continue;
           B.hit.set(e, this.t + 0.4);
-          this.damageEnemy(e, Math.round((O.dmg || 80) * mult), e.x, e.y - 0.5, false);
+          this.damageEnemy(e, Math.round((O.dmg || 80) * mult), ...lift(e.x, e.y, 0.5), false);
           if (O.slow && e !== this.boss) { e.slowT = 1; e.slowF = Math.max(e.slowF || 0, O.slow); }
           if (O.burn) this.ignite(e, Math.round(O.burn * mult), 2);
           if (O.heal) p.hp = Math.min(this.stat('hp'), p.hp + O.heal);
@@ -76,7 +77,7 @@ const methods = {
           let best = null, bd = O.fire.range || 6;
           for (const e of this.enemiesIn(B.x, B.y, bd)) { const d = Math.hypot(e.x - B.x, e.y - B.y); if (!e.dead && d < bd) { bd = d; best = e; } }
           if (best) {
-            const a0 = Math.atan2(best.y - 0.5 - B.y, best.x - B.x), k = O.fire.n || 1;
+            const a0 = angleUp(B.x, B.y, best.x, best.y, 0.5), k = O.fire.n || 1;
             for (let j = 0; j < k; j++) this.shoot('p', B.x, B.y, a0 + (j - (k - 1) / 2) * 0.18, O.fire.speed || 10, O.fire.range || 6, Math.round(O.fire.dmg * mult), O.fire.proj, 0.42, false);
           }
         }

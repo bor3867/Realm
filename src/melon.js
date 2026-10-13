@@ -4,7 +4,7 @@
 //   lasts   10 minutes, then rots away
 //   breaks  cracked at 66% and 33%, bursts at 0, and the loot lands on the burst's last frame; the two halves
 //           lie in their juice for 20 s
-import { rng } from './util.js';
+import { rng, liftO } from './util.js';
 import { BIOMES, TID, randomTileInBiome, isSolid } from './world/maps.js';
 import { ITEMS } from './data/items.js';
 
@@ -61,7 +61,7 @@ const methods = {
     const e = this.melonAlive();
     if (e && this.t > e.melonUntil) {                        // rotted: it just sinks away
       e.dead = true; e.deadT = 9; e.rotted = true;
-      this.vx({ k: 'burst', x: e.x, y: e.y - 0.4, n: 20, colors: ['#4a6a2a', '#8a6a3a', '#3a3a2a'] });
+      this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.4), n: 20, colors: ['#4a6a2a', '#8a6a3a', '#3a3a2a'] });
     }
     for (const d of m.melonDrops || []) if (!d.done && this.t >= d.at) { d.done = true; this.addBag(d.x, d.y + 0.6, d.items); }
     if (m.melonDrops) m.melonDrops = m.melonDrops.filter((d) => !d.done);

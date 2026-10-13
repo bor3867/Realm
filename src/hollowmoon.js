@@ -5,6 +5,7 @@
 //   crates       some are jack-in-the-boxes: shoot one and it springs out
 //   the carousel its horses ride round the hub until you step into the ring; then they break off and charge
 //   ghouls       balloon ghouls drift through the canvas and pop into confetti and coins
+import { lift, liftO } from './util.js';
 export const FAIR = { cannonEvery: 4, cannonTell: 1.2, cannonR: 16, lure: 14, lureT: 4 };
 const TAU = Math.PI * 2;
 
@@ -18,15 +19,15 @@ const methods = {
       C.t -= dt;
       if (C.aim === null || C.aim === undefined) { if (C.t <= FAIR.cannonTell) C.aim = Math.atan2(p.y - o.y, p.x - o.x); }
       else if (C.t <= 0) {
-        const b = this.shoot('e', o.x, o.y - 0.4, C.aim, 9, 15, 110, 'd2_projectiles/hollowmoon.boxing_glove', 0.5, false, 'a circus cannon');
+        const b = this.shoot('e', ...lift(o.x, o.y, 0.4), C.aim, 9, 15, 110, 'd2_projectiles/hollowmoon.boxing_glove', 0.5, false, 'a circus cannon');
         b.bounce = 1; C.aim = null; C.t = FAIR.cannonEvery;
-        this.vx({ k: 'regfx', key: 'd2_effects/hollowmoon.smoke_puff', x: o.x + Math.cos(b.a) * 0.6, y: o.y - 0.4 + Math.sin(b.a) * 0.6, fps: 12 });
+        this.vx({ k: 'regfx', key: 'd2_effects/hollowmoon.smoke_puff', x: lift(o.x, o.y, 0.4)[0] + Math.cos(b.a) * 0.6, y: lift(o.x, o.y, 0.4)[1] + Math.sin(b.a) * 0.6, fps: 12 });
       }
     }
     const H = m.hmCarousel;                                    // the carousel: step into the ring and the horses break off
     if (H && !H.on && Math.hypot(p.x - H.cx, p.y - H.cy) < H.r + 4) {
       H.on = true;
-      for (const e of this.enemies) if (e.id === 'carousel_horse' && !e.dead && Math.hypot(e.x - H.cx, e.y - H.cy) < 12) { e.loose = true; this.vx({ k: 'burst', x: e.x, y: e.y - 0.8, n: 6, colors: ['#ffd650', '#ffffff'] }); }
+      for (const e of this.enemies) if (e.id === 'carousel_horse' && !e.dead && Math.hypot(e.x - H.cx, e.y - H.cy) < 12) { e.loose = true; this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.8), n: 6, colors: ['#ffd650', '#ffffff'] }); }
       this.banner('The horses break off their poles!', 2000); this.sfx('boss');
     }
   },
@@ -36,17 +37,17 @@ const methods = {
     if (o.hmStriker) {
       if (this.t - (o.ringT || -9) < 1) return;
       o.ringT = this.t;
-      this.float(o.x, o.y - 2.2, 'DING!', '#ffd650'); this.sfx('rare');
+      this.float(...lift(o.x, o.y, 2.2), 'DING!', '#ffd650'); this.sfx('rare');
       for (const e of this.enemies) if (!e.dead && !e.rb && Math.hypot(e.x - o.x, e.y - o.y) < FAIR.lure) { e.lureTo = { x: o.x, y: o.y + 1, until: this.t + FAIR.lureT }; e.seen = true; }
       return;
     }
     m.objects.splice(m.objects.indexOf(o), 1); m.solid[Math.floor(o.y) * m.w + Math.floor(o.x)] = 0; m.ogridDirty = true;
     if (o.jack) {
-      this.vx({ k: 'regfx', key: 'd2_effects/hollowmoon.smoke_puff', x: o.x, y: o.y - 0.4, fps: 12 });
+      this.vx({ k: 'regfx', key: 'd2_effects/hollowmoon.smoke_puff', ...liftO(o.x, o.y, 0.4), fps: 12 });
       const e = this.addEnemy('jack_in_the_box', o.x, o.y); e.hp = e.maxHp = Math.round(e.hp * (m.def.mobHp || 1)); e.seen = true; e.born = this.t;
-      this.float(o.x, o.y - 1.2, 'SURPRISE!', '#ff8fbf');
+      this.float(...lift(o.x, o.y, 1.2), 'SURPRISE!', '#ff8fbf');
     } else {
-      this.vx({ k: 'burst', x: o.x, y: o.y - 0.4, n: 8, colors: ['#8a6a48', '#5a4030', '#c8a070'] });
+      this.vx({ k: 'burst', ...liftO(o.x, o.y, 0.4), n: 8, colors: ['#8a6a48', '#5a4030', '#c8a070'] });
       if (Math.random() < 0.35) { const g0 = 4 + Math.floor(Math.random() * 8); this.save.gold = (this.save.gold || 0) + g0; this.float(o.x, o.y - 1, `+${g0}g`, '#f2c14e'); this.sfx('coin'); }
     }
   },

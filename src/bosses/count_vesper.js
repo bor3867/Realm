@@ -3,6 +3,7 @@
 // throne and heal him (and burn in the candlelight); a hedge of thorns that flies apart sideways; weaving bat fans;
 // scythes that go out and wheel back; a dash with an afterimage; blood rain on marked patches that leaves pools;
 // staggered nova rings.
+import { liftA } from '../util.js';
 import { TID, SK } from '../world/maps.js';
 const TAU = Math.PI * 2, R = Math.random;
 const angleTo = (x0, y0, x1, y1) => Math.atan2(y1 - y0, x1 - x0);
@@ -127,7 +128,7 @@ export default {
     const S = e.bx, p = g.player, m = g.map;
     if (S.kneelers && S.kneelers.some((t) => !t.dead) && (S.healT -= dt) <= 0) {   // the thralls feed him
       S.healT = 2;
-      for (const t of S.kneelers) if (!t.dead) { e.hp = Math.min(e.maxHp * (S.phase === 1 ? 1 : 0.66), e.hp + e.maxHp * 0.01); g.vx({ k: 'heal', x0: t.x, y0: t.y - 0.6, x1: e.x, y1: e.y - e.hitUp }); }
+      for (const t of S.kneelers) if (!t.dead) { e.hp = Math.min(e.maxHp * (S.phase === 1 ? 1 : 0.66), e.hp + e.maxHp * 0.01); g.vx({ k: 'heal', ...liftA(t.x, t.y, 0.6), x1: e.x, y1: e.y - e.hitUp }); }
     }
     if (S.trail) S.trail = S.trail.filter((q) => g.t - q.t < 0.35);
     for (const P of S.rain || []) {                  // the rain falls on its patch, then leaves a pool

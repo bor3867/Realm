@@ -3,6 +3,7 @@
 // shots come back: e.reflectUntil, handled where damage lands) and gains the brief's three phases: half-ring slams,
 // rivets that ricochet, slag that skips, vent columns that pick vents and say which, rolling magma that leaves lava,
 // and quake rings that catch each other up.
+import { lift } from '../util.js';
 import { TID } from '../world/maps.js';
 const TAU = Math.PI * 2, R = Math.random;
 const SHOT = (n) => `bx_shots/forgeheart_colossus.${n}`;
@@ -152,7 +153,7 @@ export default {
     }
     for (const G of S.glow || []) {                  // the vents' columns
       if (g.t < G.at || g.t > G.until) continue;
-      if ((G.tick -= dt) <= 0) { G.tick = 0.1; g.bxShot(e, G.x, G.y - 0.3, G.a + (R() - 0.5) * 0.12, { shot: 'vent_flame', speed: 10, range: 15, dmg: 125 }); }
+      if ((G.tick -= dt) <= 0) { G.tick = 0.1; g.bxShot(e, ...lift(G.x, G.y, 0.3), G.a + (R() - 0.5) * 0.12, { shot: 'vent_flame', speed: 10, range: 15, dmg: 125 }); }
     }
     if (S.glow) S.glow = S.glow.filter((G) => g.t <= G.until);
     for (const b of g.projectiles) {                 // rolling magma leaves lava that cools after a while

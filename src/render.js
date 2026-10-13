@@ -3,6 +3,7 @@
 // an integer factor, so every pixel stays crisp. The camera can rotate: the
 // GROUND layer (tiles, biome edges, foam, decor) rotates as one image, while
 // every sprite stays upright at its rotated position, like classic tiny-MMO cameras.
+import { lift } from './util.js';
 import { rxFrame } from './remaster.js';
 import { TILE_NAMES, BIOMES, biomeAt, objectsIn, SKINS, SKIN_TID, TID, FLAT, WALL_FACE } from './world/maps.js';
 import { hoverY } from './registry.js';
@@ -109,6 +110,8 @@ export class Renderer {
     this.look = (this.look || 0) + ((this.settings && this.settings.lookAhead ? 1 : 0) - (this.look || 0)) * 0.12;
     this.cx = Math.floor(this.buf.width / 2); this.cy = Math.floor(this.buf.height / 2) + 5 + Math.round(this.look * this.buf.height * LOOK);
   }
+  // a point at height h above (x, y): its ground point projected, then straight up the screen
+  projUp(x, y, h) { const [sx, sy] = this.proj(x, y); return [sx, sy - h * TS]; }
   proj(x, y) {
     const dx = (x - this.px) * TS, dy = (y - this.py) * TS;
     return [this.cx + dx * this.cs - dy * this.sn, this.cy + dx * this.sn + dy * this.cs];
@@ -168,7 +171,7 @@ export class Renderer {
     for (const e of drawn || g.enemies) add(e.x, e.y, (sx, sy) => this.enemy(g, e, sx, sy));
     if (g.boss) add(g.boss.x, g.boss.y, (sx, sy) => this.boss(g, g.boss, sx, sy));
     add(g.player.x, g.player.y, (sx, sy) => this.player(g, g.player, sx, sy));
-    for (const L of g.player.orbsLive || []) add(L.B.x, L.B.y + 0.5, () => this.orbiter(g, L));   // what circles you (src/orbiters.js)
+    for (const L of g.player.orbsLive || []) add(...lift(L.B.x, L.B.y, -0.5), () => this.orbiter(g, L));   // what circles you (src/orbiters.js)
     for (const a of g.allies || []) add(a.x, a.y, (sx, sy) => (a.kind === 'kite' ? this.kiteSpr(g, a, sx, sy) : this.ally(g, a, sx, sy)));
     for (const d of g.decoys || []) add(d.x, d.y, (sx, sy) => this.decoy(g, d, sx, sy));
     for (const v of m.villagers || []) add(v.x, v.y, (sx, sy) => this.villager(g, v, sx, sy));
@@ -883,7 +886,7 @@ export class Renderer {
     // lens sentries: a thin sight-line, red when it has you
     for (const o of m.objects) {
       if (!o.sentry || o.ang === undefined || Math.abs(o.x - p.x) > 14 || Math.abs(o.y - p.y) > 14) continue;
-      const [x0, y0] = P(o.x, o.y - 0.6), [x1, y1] = P(o.x + Math.cos(o.ang) * 10, o.y - 0.6 + Math.sin(o.ang) * 10);
+      const [x0, y0] = this.projUp(o.x, o.y, 0.6), [x1, y1] = this.projUp(o.x + Math.cos(o.ang) * 10, o.y + Math.sin(o.ang) * 10, 0.6);
       b.strokeStyle = o.lock > 0 ? `rgba(255,74,90,${0.5 + o.lock})` : 'rgba(255,251,224,0.28)'; b.lineWidth = 1;
       b.setLineDash([3, 3]); b.beginPath(); b.moveTo(x0, y0); b.lineTo(x1, y1); b.stroke(); b.setLineDash([]);
     }
@@ -973,9 +976,9 @@ export class Renderer {
     x.fillStyle = g.map.ambient || 'rgba(16,10,44,0.42)'; x.fillRect(0, 0, BW, BH);
     x.globalCompositeOperation = 'destination-out';
     const flick = 0.92 + Math.sin(g.t * 13) * 0.04 + Math.sin(g.t * 7.3) * 0.04;
-    const src = g.map.kind === 'dungeon' && !g.player.dead ? [...g.map.lights, { x: g.player.x, y: g.player.y - 0.5, r: 92, col: '#fff0d0' }] : g.map.lights;   // in a dungeon you carry a light
-    const lights = [];
-    for (const L of src) { if (!g.seen(L.x, L.y)) continue; const [lx, ly] = this.proj(L.x, L.y); if (lx < -L.r || ly < -L.r || lx > BW + L.r || ly > BH + L.r) continue; lights.push({ lx, ly, R: L.r * (L.fire ? flick + Math.sin(g.t * 9 + L.x) * 0.03 : 1), fire: L.fire, col: L.col }); }
+    const src = g.map.kind === 'dungeon' && !g.player.dead ? [...g.map.lights, { x: g.player.x, y: g.player.y, h: 0.5, r: 92, col: '#fff0d0' }] : g.map.lights;   // in a dungeon you carry a light
+    const lights = [];                                     // (a lamp's light sits up the screen, at its height: projUp)
+    for (const L of src) { if (!g.seen(L.x, L.y)) continue; const [lx, ly] = this.projUp(L.x, L.y, L.h || 0); if (lx < -L.r || ly < -L.r || lx > BW + L.r || ly > BH + L.r) continue; lights.push({ lx, ly, R: L.r * (L.fire ? flick + Math.sin(g.t * 9 + L.x) * 0.03 : 1), fire: L.fire, col: L.col }); }
     for (const L of lights) {
       if (L.lx < -L.R || L.ly < -L.R || L.lx > BW + L.R || L.ly > BH + L.R) continue;
       const gr = x.createRadialGradient(L.lx, L.ly, 0, L.lx, L.ly, L.R);
@@ -1337,7 +1340,7 @@ export class Renderer {
       }
       for (const m of e.shieldBy) {                        // tethers from the guards to the boss
         if (m.dead) continue;
-        const [mx, my] = this.proj(m.x, m.y - 0.5);
+        const [mx, my] = this.projUp(m.x, m.y, 0.5);
         for (let t = 0; t < 1; t += 0.08) { b.fillStyle = '#3befff'; b.fillRect(Math.round(sx + (mx - sx) * t), Math.round(sy - 20 + (my - sy + 20) * t), 1, 1); }
       }
     }
@@ -1663,7 +1666,7 @@ export class Renderer {
   }
   // the Lich's darkness: everything but a small circle around you goes black
   darkFx(g) {
-    const b = this.b, [sx, sy] = this.proj(g.player.x, g.player.y - 0.5), r = (g.darkR || 3) * TS;
+    const b = this.b, [sx, sy] = this.projUp(g.player.x, g.player.y, 0.5), r = (g.darkR || 3) * TS;
     const BW = this.buf.width, BH = this.buf.height;
     const left = g.darkUntil - g.t, fade = Math.min(1, left / 0.6, (g.t - (g.darkStart || 0)) / 0.6);
     const grad = b.createRadialGradient(sx, sy, r * 0.55, sx, sy, r);
@@ -1950,7 +1953,7 @@ export class Renderer {
           cols = this.colorsOf('e:' + e.id, S.img, 0, row * 16, 16, 16);
         } else cols = ['#ffffff', '#c8c0d8', '#8a8098'];                 // anything without art on the old sheets: a plain burst, never a crash
         const champ = e.D.sheet === 'champions';
-        if (!e.rb) this.sprFx('death_poof', e.x, e.y - 0.5, 12);
+        if (!e.rb) this.sprFx('death_poof', ...lift(e.x, e.y, 0.5), 12);
         this.spray(e.x, e.y, v.big ? 70 : champ ? 30 : 16, cols, v.big ? 9 : champ ? 7 : 5, v.big ? 1.1 : 0.8, v.big ? 30 : champ ? 16 : 8);
       }
     }

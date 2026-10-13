@@ -4,6 +4,7 @@
 //   gust     Glacius' wing beat pushes you; on ice, you keep going
 //   freeze   ground that turns to ice for a while (Glacius' lances), then thaws back to what it was
 //   the Hall of the Frozen: crossing its middle wakes the statues that were really sentinels
+import { liftO } from './util.js';
 import { TID, SK, SKIN_TID } from './world/maps.js';
 
 export const CHILL = { water: 40, drain: 6, warm: 35, warmR: 2.5, slow: 0.35, freezeT: 1.2, after: 40 };
@@ -15,7 +16,7 @@ const methods = {
     p.chill = Math.min(100, (p.chill || 0) + n);
     if (p.chill >= 100 && !P.nofreeze) {                       // frozen solid: then you shatter out of it
       p.frozenUntil = this.t + CHILL.freezeT; p.chill = CHILL.after;
-      this.vx({ k: 'burst', x: p.x, y: p.y - 0.5, n: 16, colors: ['#ffffff', '#cfffff', '#8ad8ff'] });
+      this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.5), n: 16, colors: ['#ffffff', '#cfffff', '#8ad8ff'] });
       this.banner('Frozen solid!', 1200); this.sfx('hurt');
     }
   },
@@ -27,7 +28,7 @@ const methods = {
   },
   updateChill(dt) {
     const p = this.player, m = this.map;
-    if (p.frozenUntil && this.t >= p.frozenUntil && !p.thawed) { p.thawed = true; this.vx({ k: 'burst', x: p.x, y: p.y - 0.5, n: 12, colors: ['#ffffff', '#cfffff'] }); }
+    if (p.frozenUntil && this.t >= p.frozenUntil && !p.thawed) { p.thawed = true; this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.5), n: 12, colors: ['#ffffff', '#cfffff'] }); }
     if (p.frozenUntil > this.t) p.thawed = false;
     const under = m.tiles[Math.floor(p.y) * m.w + Math.floor(p.x)];
     if (under === TID.fvwater && !p.dead) this.addChill(CHILL.water * dt);
@@ -50,7 +51,7 @@ const methods = {
         m.solid[Math.floor(o.y) * m.w + Math.floor(o.x)] = 0;
         const e = this.addEnemy('glacial_sentinel', o.x, o.y + 0.6);
         e.hp = e.maxHp = Math.round(e.hp * (m.def.mobHp || 1)); e.seen = true;
-        this.vx({ k: 'burst', x: o.x, y: o.y - 0.6, n: 18, colors: ['#ffffff', '#cfffff', '#8ad8ff', '#4e6670'] });
+        this.vx({ k: 'burst', ...liftO(o.x, o.y, 0.6), n: 18, colors: ['#ffffff', '#cfffff', '#8ad8ff', '#4e6670'] });
       }
       m.ogridDirty = true;
       this.banner('The statues are moving!', 2200); this.vx({ k: 'shake', amt: 4 }); this.sfx('boss');
@@ -76,7 +77,7 @@ const methods = {
     o.lit = false; o.unlit = true;
     if (o.light && m.lights) m.lights = m.lights.filter((L) => L !== o.light);
     m.lightsDirty = true;
-    this.vx({ k: 'burst', x: o.x, y: o.y - 0.6, n: 14, colors: ['#ffffff', '#cfffff', '#3a3a4a'] });
+    this.vx({ k: 'burst', ...liftO(o.x, o.y, 0.6), n: 14, colors: ['#ffffff', '#cfffff', '#3a3a4a'] });
   },
 };
 

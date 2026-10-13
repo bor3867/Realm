@@ -10,6 +10,7 @@
 //   spring      (stopwatch) a broken spring swallows the shots around you, then fires one back for each (capped)
 //   oathrunes   (runeward)  three linked runes soak shots; when the last one breaks, a broad counter-slash
 //   page13      (hex)       the hex as always; a hexed enemy that dies passes it on once, to up to three near it
+import { lift, liftO, liftA, liftB, angleUp } from './util.js';
 const TAU = Math.PI * 2;
 const dist = (ax, ay, bx, by) => Math.hypot(ax - bx, ay - by);
 
@@ -31,9 +32,9 @@ const methods = {
           this.allies.push({ kind: 'thrall', sprite: A.summon || 'thrall_gilded', x: p.x + Math.cos(a) * 1.2, y: p.y + Math.sin(a) * 1.2, life: M.life, max: M.life, cd: 0.4 + k * 0.2,
             dmg, cleave: true, ph: k * 3, born: this.t, king: true, speed: M.speed });
         }
-        this.fx.push({ kind: 'ring', x: p.x, y: p.y - 0.4, t: 0, max: 2, color: '#ffd650' });
+        this.fx.push({ kind: 'ring', ...liftO(p.x, p.y, 0.4), t: 0, max: 2, color: '#ffd650' });
         return true;
-      case 'jaw': { const at = tgt(M.range); add({ h: 'jaw', x: cx, y: cy, x0: cx, y0: cy, x1: at.x, y1: at.y - 0.5, life: M.fly + 0.2, at: M.fly, a: aim, dmg, r: M.r }); return true; }
+      case 'jaw': { const at = tgt(M.range); add({ h: 'jaw', x: cx, y: cy, x0: cx, y0: cy, ...liftB(at.x, at.y, 0.5), life: M.fly + 0.2, at: M.fly, a: aim, dmg, r: M.r }); return true; }
       case 'twins': {
         const sx = p.x, sy = p.y, at = tgt(6.5);
         let x = sx, y = sy;
@@ -42,7 +43,7 @@ const methods = {
         for (const [dx, dy] of [[0, 0], [Math.cos(perp) * 2, Math.sin(perp) * 2]]) {
           this.decoys.push({ x: sx + dx, y: sy + dy, t: A.decoy, max: A.decoy, dmg: Math.round(B.dmg * mult), n: B.count, range: B.range, flip: p.dir === 'left', dir: p.dir, mirror: { ready: true, dmg } });
         }
-        this.vx({ k: 'burst', x: p.x, y: p.y - 0.5, n: 20, colors: ['#ffffff', '#cfe8ff', '#8ab4d8'] });
+        this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.5), n: 20, colors: ['#ffffff', '#cfe8ff', '#8ab4d8'] });
         for (let i = 0; i < 26; i++) this.moveCircle(p, (x - sx) / 26, (y - sy) / 26, 0.32);
         p.status.invuln = Math.max(p.status.invuln, 0.3);
         return true;
@@ -73,7 +74,7 @@ const methods = {
         if (F.prints.length < 3 && k >= (F.prints.length + 1) * 0.25) { const pr = { kind: 'myth', h: 'print', x: p.x, y: p.y, t: 0, life: 2.5 }; F.prints.push(pr); this.fx.push(pr); }
         if (!p.dash) {                                                  // the charge is over
           if (F.D.hit.size) for (const pr of F.prints) {                // it struck home: the forge-front, all at once
-            for (const e of this.enemiesIn(pr.x, pr.y, F.r)) this.damageEnemy(e, F.dmg, e.x, e.y - 0.5);
+            for (const e of this.enemiesIn(pr.x, pr.y, F.r)) this.damageEnemy(e, F.dmg, ...lift(e.x, e.y, 0.5));
             this.vx({ k: 'boom', x: pr.x, y: pr.y, r: F.r }); pr.life = 0;
           }
           p.mythFoot = null;
@@ -85,7 +86,7 @@ const methods = {
       if (f.kind !== 'myth') continue;
       switch (f.h) {
         case 'cross':
-          if (!f.done && f.t >= f.at) { f.done = true; for (let k = 0; k < 4; k++) { const b = this.shoot('p', f.x, f.y - 0.5, f.a + k * Math.PI / 2, 9, 3, f.dmg, 'hammerlet', 0.45, true); b.child = true; } }
+          if (!f.done && f.t >= f.at) { f.done = true; for (let k = 0; k < 4; k++) { const b = this.shoot('p', ...lift(f.x, f.y, 0.5), f.a + k * Math.PI / 2, 9, 3, f.dmg, 'hammerlet', 0.45, true); b.child = true; } }
           break;
         case 'jaw': {
           const k = Math.min(1, f.t / f.at);
@@ -95,7 +96,7 @@ const methods = {
             const x = f.x1, y = f.y1 + 0.5;
             for (const e of this.enemiesIn(x, y, f.r)) {
               if (e !== this.boss && !e.rb && !(e.D && e.D.dummy)) { const d = dist(e.x, e.y, x, y) || 1, s = Math.min(d - 0.4, 2.4); if (s > 0) this.moveCircle(e, ((x - e.x) / d) * s, ((y - e.y) / d) * s, 0.35); }
-              this.damageEnemy(e, Math.round(f.dmg * 0.5), e.x, e.y - 0.5);
+              this.damageEnemy(e, Math.round(f.dmg * 0.5), ...lift(e.x, e.y, 0.5));
             }
             for (let j = 0; j < 7; j++) { const b = this.shoot('p', x, y - 0.5, f.a + (j - 3) * 0.16, 10, 4, Math.round(f.dmg * 0.6), 'bubble', 0.45, true); b.child = true; }
             this.vx({ k: 'burst', x, y, n: 18, colors: ['#7ae0e0', '#ffffff', '#3a8a9a'] }); this.vx({ k: 'shake', amt: 3 });
@@ -103,33 +104,33 @@ const methods = {
           break;
         }
         case 'eye':
-          for (const b of shotsNear(f.x, f.y - 0.5, f.calm)) { b.life = -1; this.vx({ k: 'burst', x: b.x, y: b.y, n: 2, colors: ['#bfe8ff'] }); }   // the calm
+          for (const b of shotsNear(...lift(f.x, f.y, 0.5), f.calm)) { b.life = -1; this.vx({ k: 'burst', x: b.x, y: b.y, n: 2, colors: ['#bfe8ff'] }); }   // the calm
           f.rot += 1.6 * dt; f.cd -= dt;
           if (f.cd <= 0) {
             f.cd = 0.25;
             for (let k = 0; k < 3; k++) {
               const a = f.rot + (k / 3) * TAU, x = f.x + Math.cos(a) * f.ring, y = f.y + Math.sin(a) * f.ring;
-              for (const e of this.enemiesIn(x, y, 0.7)) { this.damageEnemy(e, f.dmg, e.x, e.y - 0.5, true); this.vx({ k: 'zap', x0: x, y0: y - 2, x1: e.x, y1: e.y - 0.5 }); }
+              for (const e of this.enemiesIn(x, y, 0.7)) { this.damageEnemy(e, f.dmg, ...lift(e.x, e.y, 0.5), true); this.vx({ k: 'zap', x0: x, y0: y - 2, ...liftB(e.x, e.y, 0.5) }); }
             }
           }
           break;
         case 'spring':
-          if (f.t < f.hold) for (const b of shotsNear(f.x, f.y - 0.5, f.r)) { if (f.n >= f.cap) break; b.life = -1; f.n++; }   // swallowed
+          if (f.t < f.hold) for (const b of shotsNear(...lift(f.x, f.y, 0.5), f.r)) { if (f.n >= f.cap) break; b.life = -1; f.n++; }   // swallowed
           else if (!f.done) {
             f.done = true;
             const L = this.enemiesIn(f.x, f.y, 9).sort((u, v) => dist(u.x, u.y, f.x, f.y) - dist(v.x, v.y, f.x, f.y));
             for (let k = 0; k < f.n; k++) {                              // one clock-hand back for each, aimed now (never steered)
-              const e = L[k % Math.max(1, L.length)], a = e ? Math.atan2(e.y - 0.5 - (f.y - 0.5), e.x - f.x) + ((k / Math.max(1, L.length)) | 0) * 0.08 : (k / f.n) * TAU;
-              const b = this.shoot('p', f.x, f.y - 0.5, a, 12, 8, f.dmg, 'pj_eleventh', 0.4, false); b.child = true;
+              const e = L[k % Math.max(1, L.length)], a = e ? angleUp(f.x, f.y, e.x, e.y, 0) + ((k / Math.max(1, L.length)) | 0) * 0.08 : (k / f.n) * TAU;
+              const b = this.shoot('p', ...lift(f.x, f.y, 0.5), a, 12, 8, f.dmg, 'pj_eleventh', 0.4, false); b.child = true;
             }
-            this.fx.push({ kind: 'ring', x: f.x, y: f.y - 0.4, t: 0, max: f.r, color: '#e8c87a' });
+            this.fx.push({ kind: 'ring', ...liftO(f.x, f.y, 0.4), t: 0, max: f.r, color: '#e8c87a' });
           }
           break;
         case 'oath': {
           f.x = p.x; f.y = p.y; f.rot += dt;
           for (const R of f.runes) {
             if (R.hp <= 0) continue;
-            const x = p.x + Math.cos(R.a + f.rot) * 1.3, y = p.y - 0.4 + Math.sin(R.a + f.rot) * 1.3;
+            const [rcx, rcy] = lift(p.x, p.y, 0.4), x = rcx + Math.cos(R.a + f.rot) * 1.3, y = rcy + Math.sin(R.a + f.rot) * 1.3;
             for (const b of shotsNear(x, y, 0.6)) { if (R.hp <= 0) break; b.life = -1; R.hp--; this.vx({ k: 'burst', x, y, n: 3, colors: ['#46f5d6', '#ffffff'] }); }
           }
           if (!f.done && f.runes.every((R) => R.hp <= 0)) {                // the last rune breaks: the counter-slash
@@ -144,7 +145,7 @@ const methods = {
     }
     for (const d of this.decoys) {                                       // the Infinite Reflection's mirrors answer once each
       if (!d.mirror || !d.mirror.ready) continue;
-      const b = shotsNear(d.x, d.y - 0.5, 0.6)[0];
+      const b = shotsNear(...lift(d.x, d.y, 0.5), 0.6)[0];
       if (!b) continue;
       d.mirror.ready = false; b.life = -1;
       const back = Math.atan2(-b.vy, -b.vx), [ox, oy] = this.up(d.x, d.y, 0.5), D = d.mirror.dmg;
@@ -156,7 +157,7 @@ const methods = {
   mythKingHit(a, T) {
     if (!T.dead) return;
     const other = this.allies.find((o) => o.king && o !== a && o.life > 0);
-    if (other && !(other.crown > this.t)) { other.crown = this.t + 4; this.float(other.x, other.y - 1.3, 'CROWNED', '#ffd650'); }
+    if (other && !(other.crown > this.t)) { other.crown = this.t + 4; this.float(...lift(other.x, other.y, 1.3), 'CROWNED', '#ffd650'); }
   },
   // the Thirteenth Page: a hexed death passes the hex on, once
   mythPageDeath(e) {
@@ -167,7 +168,7 @@ const methods = {
       o.page13 = 2;                                                       // (passed on: it goes no further)
       o.curseT = Math.max(o.curseT || 0, 5); o.curseF = Math.max(o.curseF && o.curseT > 0 ? o.curseF : 0, e.curseF || 0.3);
       if (o !== this.boss && !o.rb) { o.slowT = Math.max(o.slowT || 0, 5); o.slowF = Math.max(o.slowF || 0, 0.3); }
-      this.vx({ k: 'zap', x0: e.x, y0: e.y - 0.5, x1: o.x, y1: o.y - 0.5 });
+      this.vx({ k: 'zap', ...liftA(e.x, e.y, 0.5), ...liftB(o.x, o.y, 0.5) });
     }
   },
 };

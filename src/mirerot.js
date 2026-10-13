@@ -4,6 +4,7 @@
 //   poison   inside a cloud, or hit by Mycelia's needles: damage every half second, past your Defense
 //   puddles  Mycelia's acid, where her globs land
 //   sprouts  her glowcap seeds: shoot them before they burst into sporelings
+import { liftO } from './util.js';
 export const MIRE = { podR: 1.6, podFuse: 0.4, cloudR: 1.8, cloudT: 4, poisonDmg: 8, poisonTick: 0.5, linger: 2, puddleR: 1.2, puddleT: 6, puddleDmg: 14 };
 
 const methods = {
@@ -22,7 +23,7 @@ const methods = {
     m.objects.splice(m.objects.indexOf(o), 1); m.ogridDirty = true;
     if (o.light && m.lights) m.lights = m.lights.filter((L) => L !== o.light);
     this.mrCloud(o.x, o.y);
-    this.vx({ k: 'burst', x: o.x, y: o.y - 0.4, n: 16, colors: ['#c8ff8a', '#7ac83a', '#5a3a6a'] });
+    this.vx({ k: 'burst', ...liftO(o.x, o.y, 0.4), n: 16, colors: ['#c8ff8a', '#7ac83a', '#5a3a6a'] });
   },
   // every frame, everywhere: poison ticks; clouds and puddles hurt whoever stands in them
   updatePoison(dt) {
@@ -38,7 +39,7 @@ const methods = {
     if (p.poisonUntil > this.t && !p.dead) {
       p.poisonT = (p.poisonT || 0) - dt;
       if (p.poisonT <= 0) { p.poisonT = MIRE.poisonTick; this.hurtPlayer(MIRE.poisonDmg, 'poison', true); }
-      if (Math.random() < dt * 6) this.vx({ k: 'burst', x: p.x, y: p.y - 0.7, n: 1, colors: ['#8aff6a'] });
+      if (Math.random() < dt * 6) this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.7), n: 1, colors: ['#8aff6a'] });
     } else p.poisonT = 0;
   },
   // ---------------------------------------------------------------- per frame in the grotto
@@ -59,7 +60,7 @@ const methods = {
     for (const e of this.enemies) if (e.id === 'glowcap_sprout' && !e.dead && (e.sproutT -= dt) <= 0) {
       e.dead = true; e.deadT = 9;
       const s = this.addEnemy('sporeling', e.x, e.y); s.hp = s.maxHp = Math.round(s.hp * (m.def.mobHp || 1)); s.seen = true;
-      this.vx({ k: 'burst', x: e.x, y: e.y - 0.4, n: 12, colors: ['#c8ff8a', '#ffd650', '#5a3a6a'] });
+      this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.4), n: 12, colors: ['#c8ff8a', '#ffd650', '#5a3a6a'] });
     }
   },
 };
