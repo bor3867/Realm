@@ -4,6 +4,7 @@
 // GROUND layer (tiles, biome edges, foam, decor) rotates as one image, while
 // every sprite stays upright at its rotated position, like classic tiny-MMO cameras.
 import { lift } from './util.js';
+import { installWalls } from './walls.js';
 import { rxFrame } from './remaster.js';
 import { TILE_NAMES, BIOMES, biomeAt, objectsIn, SKINS, SKIN_TID, TID, FLAT, WALL_FACE } from './world/maps.js';
 import { hoverY } from './registry.js';
@@ -140,6 +141,7 @@ export class Renderer {
     const G = this.ground.width;
     b.drawImage(this.ground, -G / 2 - (this.px * TS - Math.round(this.px * TS)), -G / 2 - (this.py * TS - Math.round(this.py * TS)));
     b.restore();
+    this.drawWallTops();                                    // every seen wall's top, one tile up the screen (src/walls.js)
     // sprites, sorted by screen y
     const m = g.map, list = [];
     // each thing is drawn at whole buffer pixels (so its shadow, bar and sprite line up), then the whole group is
@@ -158,7 +160,7 @@ export class Renderer {
       add(o.x, o.y, (sx, sy) => this.obj(o, sx, sy));
       if (list.length > n0 && FLAT.has(o.sprite)) list[n0].sy -= 12;               // flat clutter lies under whoever stands on it
     }
-    if (m.skin) this.wallFaces(g, m, add, list, VR);                // skinned walls stand up: their faces hang toward the camera
+    this.addWalls(g, m, list, VR);                                  // walls stand up: border walls sort with everyone (src/walls.js)
     for (const pt of m.portals) add(pt.x, pt.y, (sx, sy) => this.portal(g, pt, sx, sy));
     for (const bag of g.bags) {                                // a bag on a portal is drawn in front of it, never hidden inside
       const onPortal = m.portals.some((pt) => Math.abs(pt.x - bag.x) < 1.8 && Math.abs(pt.y - bag.y) < 1.8);
@@ -266,6 +268,7 @@ export class Renderer {
     if (this.chunkMap !== m) { this.chunkMap = m; this.chunks = new Map(); this.fogs = new Map(); }
     const C = GROUND_CHUNK, cx0 = Math.floor(tx0 / C), cy0 = Math.floor(ty0 / C), cx1 = Math.floor((tx0 + n) / C), cy1 = Math.floor((ty0 + n) / C);
     for (let cy = cy0; cy <= cy1; cy++) for (let cx = cx0; cx <= cx1; cx++) gc.drawImage(this.groundChunk(g, m, cx, cy, anim).c, cx * C * TS - ox, cy * C * TS - oy);
+    this.composeWallTops(g, m, ox, oy, cx0, cy0, cx1, cy1, anim);   // the walls' tops, lifted over all this (src/walls.js)
     // ground light first, then the fog over it: the unexplored stays black, never tinted
     if (!this.settings || this.settings.groundLight !== false) {
       const L = this.lightFor(m);
@@ -2324,3 +2327,6 @@ export class Renderer {
   }
 
 }
+
+// RotMG-style 2.5D walls (src/walls.js)
+installWalls(Renderer);
