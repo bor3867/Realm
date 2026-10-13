@@ -9,7 +9,9 @@ const inBp = new Set(existsSync(bp) ? [...readFileSync(bp, 'utf8').matchAll(/^##
 const STATUS = {};                                       // id: 'done' | 'kept' (deliberately unchanged) | note
 const { WEAPON_REWORK } = await import('../src/data/weapon_rework.js');
 for (const [id, R] of Object.entries(WEAPON_REWORK)) STATUS[id] = `done: ${R.mech.kind}${R.mech.charge ? ' + charge' : ''}`;
-const { HALO_REWORK } = await import('../src/data/ability_rework.js');
+const { HALO_REWORK, SIGIL_REWORK } = await import('../src/data/ability_rework.js');
+for (const [id, S] of Object.entries(SIGIL_REWORK)) STATUS[id] = `done: sigil ${S.theme}`;
+for (const it of Object.values(ITEMS)) if (it.slot === 'ability' && typeof it.tier === 'number' && it.type !== 'halo') STATUS[it.id] = 'kept (tiered: the class ability, plain)';
 for (const [id, H] of Object.entries(HALO_REWORK)) STATUS[id] = `done: halo ${H.kind}`;
 for (const it of Object.values(ITEMS)) if (it.type === 'halo' && typeof it.tier === 'number') STATUS[it.id] = 'kept (tiered: the gold-white pillar)';
 for (const it of Object.values(ITEMS)) if (it.slot === 'weapon' && typeof it.tier === 'number' && !it.admin) STATUS[it.id] = 'kept (tiered: plain by design)';

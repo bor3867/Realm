@@ -25,6 +25,7 @@ import { installSetpieces, wireBxSetpieces } from './setpieces.js';
 import { installBX } from './bossx.js';
 import { installWeaponMech } from './weaponmech.js';
 import { installHalos } from './halos.js';
+import { installSigils } from './sigils.js';
 import { BX, bxEnemyDef } from './bosses/index.js';
 import { assignItemShots } from './data/uniques.js';
 import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUEST_HUNTS, FETCH_ITEMS } from './data/lore.js';
@@ -979,7 +980,8 @@ export class Game {
     const p = this.player, P = this.passive();
     this.updateOrbs(dt);
     this.mechTick(dt);                                   // the reworked weapons' timed blows (src/weaponmech.js)
-    this.haloTick(dt);                                   // the special Halos' shapes (src/halos.js)                                 // whatever circles you (src/orbiters.js)
+    this.haloTick(dt);
+    this.sigilTick(dt);                                  // the ability sigils' queued beats (src/sigils.js)                                   // the special Halos' shapes (src/halos.js)                                 // whatever circles you (src/orbiters.js)
     if (P.lowregen && p.hp < this.stat('hp') * 0.35) p.hp = Math.min(this.stat('hp'), p.hp + P.lowregen * dt);
     if (P.aegis && !p.aegisUp) { p.aegisT = (p.aegisT || 0) - dt; if (p.aegisT <= 0) p.aegisUp = true; }
     if (P.cheatdeath) p.cheatT = Math.max(0, (p.cheatT || 0) - dt);
@@ -1029,6 +1031,7 @@ export class Game {
     const id = p.equip[1];
     if (!id) return;
     const A = ITEMS[id].ability;
+    if (A.sigil && p.abilityT <= 0 && p.sigil && p.sigil.S === A.sigil && this.sigilTrigger()) return;   // the second press sets the sigil off (src/sigils.js)
     if (p.mp < A.cost) { this.toast('Not enough mana.'); return; }
     if (p.abilityT > 0 || p.hook) return;
     p.mp -= A.cost;
@@ -1149,6 +1152,7 @@ export class Game {
       this.vx({ k: 'burst', x: p.x, y: p.y - 0.5, n: 90, colors: ['#ff4af0', '#8af6ff', '#ffffff', '#ffd650'] });
       this.vx({ k: 'shake', amt: 9 });
     }
+    if (A.sigil) this.sigilPlace(A, mult, tgt(7));        // a UT's sigil: press again to set it off (src/sigils.js)
   }
   // enemies (and the dungeon boss) inside a circle
   enemiesIn(x, y, r) {
@@ -2110,6 +2114,7 @@ export class Game {
     if (e.hp <= 0 && !e.dead) {
       if (e === this.boss) { this.killBoss(); return d; }
       e.dead = true; e.deadT = 0;
+      if (e.soulT) this.sigilOnKill(e);                         // a soul-marked kill gives Mana back (src/sigils.js)
       if (e.cloneOf) { this.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 30, colors: ['#ffffff', '#8af6ff'] }); this.bubble(e, 'An echo shatters.', '#cfffff'); return d; }
       this.player.kills++;
       this.speak(e, 'die', e.rb ? 1 : 0.04);
@@ -2169,6 +2174,7 @@ export class Game {
     if (sp && sp.accel) base = Math.round(base * (0.55 + 0.9 * Math.min(1, Math.hypot(b.vx, b.vy) / 22)));   // speed is damage
     const { dmg, crit } = this.hitDamage(e, base, sp);
     const dealt = this.damageEnemy(e, dmg, b.x, b.y, false, crit);
+    if (dealt && this.player.runeSigil) this.sigilOnHit(e);   // a rune sigil answers your hits inside it
     if (!sp || !dealt) return;
     if (sp.mech) { if (b.sig) this.mechSigHit(e, b, dealt); else this.mechHit(e, b, dealt); }
     const p = this.player;
@@ -4263,6 +4269,7 @@ installD4(Game);
 installBX(Game);
 installWeaponMech(Game);
 installHalos(Game);
+installSigils(Game);
 installMelon(Game);
 installRealmEvents(Game);
 installFrostveil(Game);

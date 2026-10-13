@@ -213,6 +213,7 @@ export class Renderer {
       else if (f.kind === 'lane') this.laneFx(f, g);
       else if (f.kind === 'wglyph' || f.kind === 'wphantom') this.mechFx(f, g);
       else if (f.kind === 'halo') this.haloFx(f, g);
+      else if (f.kind === 'sigil' || f.kind === 'sigilq') this.sigilFx(f, g);
     }
     this.mechMarks(g);
     if (g.player.ward > 0 && !g.player.dead) this.wardFx(g);
@@ -1755,6 +1756,24 @@ export class Renderer {
         break;
       }
     }
+  }
+  // ability sigils (src/sigils.js): a small rune on the ground that blinks as it runs out; a forge-blow's warning ring
+  sigilFx(f, g) {
+    const b = this.b, [sx0, sy0] = this.proj(f.x, f.y), sx = Math.round(sx0), sy = Math.round(sy0);
+    if (f.kind === 'sigilq') {
+      if (f.warn && !f.done) { b.fillStyle = '#ff8a2a'; const r = f.warn * 16 * (1 - 0.5 * f.t / f.at); for (let i = 0; i < 28; i++) { const a = (i / 28) * Math.PI * 2; b.fillRect(Math.round(sx + Math.cos(a) * r), Math.round(sy + Math.sin(a) * r * 0.7), 1, 1); } }
+      if (f.star !== undefined && !f.done) { const a = g.t * 6 + f.star * 2.1; b.fillStyle = '#fff2a8'; b.fillRect(Math.round(sx + Math.cos(a) * 10), Math.round(sy - 8 + Math.sin(a) * 6), 2, 2); }
+      return;
+    }
+    const G = f.sg, left = f.life - f.t;
+    if (G.used || (left < 1 && Math.floor(g.t * 8) % 2)) return;   // it blinks in its last second
+    b.save(); b.globalAlpha = 0.85;
+    b.fillStyle = '#05040a'; b.fillRect(sx - 4, sy - 3, 9, 7);
+    b.fillStyle = G.col[0]; for (const [x, y] of [[0, -2], [-3, 0], [3, 0], [0, 2], [-1, -1], [1, 1], [1, -1], [-1, 1]]) b.fillRect(sx + x, sy + y, 1, 1);
+    b.fillStyle = G.col[1]; b.fillRect(sx, sy, 1, 1);
+    b.globalAlpha = 0.3; b.fillStyle = G.col[0];
+    const r = (G.S.r || 2.5) * 16; for (let i = 0; i < 36; i++) { if (i % 3 === 2) continue; const a = (i / 36) * Math.PI * 2 + g.t * 0.4; b.fillRect(Math.round(sx + Math.cos(a) * r), Math.round(sy + Math.sin(a) * r * 0.7), 1, 1); }
+    b.restore();
   }
   mechMarks(g) {
     const b = this.b;

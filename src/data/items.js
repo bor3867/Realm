@@ -3,7 +3,7 @@ import { R } from '../util.js';
 import { STATS, STAT_NAMES, CLASSES } from './classes.js';
 import { applyDungeonItems, orbitLine } from './dungeon_items.js';
 import { applyWeaponRework, mechLine } from './weapon_rework.js';
-import { applyAbilityRework, HALO_TEXT } from './ability_rework.js';
+import { applyAbilityRework, HALO_TEXT, sigilLine } from './ability_rework.js';
 
 const METAL = ['Rust', 'Iron', 'Bronze', 'Steel', 'Verdigris', 'Cobalt', 'Crimson', 'Violet', 'Sunforged', 'Obsidian', 'Rune-White', 'Bloodgold'];
 const NAMES = {
@@ -879,6 +879,7 @@ export function specialLines(it) {
   }
   if (it.ability && it.ability.mod) L.push(MOD_TEXT[it.ability.mod]);
   if (it.ability && it.ability.halo) L.push(HALO_TEXT[it.ability.halo.kind]);
+  if (it.ability && it.ability.sigil) L.push(sigilLine(it.ability.sigil));
   if (p) {
     if (p.orbit) L.push(orbitLine(p.orbit));
     if (p.aura) L.push(p.aura.dps ? `Aura: ${p.aura.dps}/s to enemies within ${p.aura.r} tiles${p.aura.slow ? ', slowing them' : ''}` : `Frost aura: slows enemies within ${p.aura.r} tiles`);

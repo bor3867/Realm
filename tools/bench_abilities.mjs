@@ -35,7 +35,11 @@ function run(id, scene, d, cast = true) {
   p.mp = g.stat('mp'); p.hp = Math.round(g.stat('hp') * 0.3); p.abilityT = 0;
   const hp0 = p.hp;
   if (cast) g.useAbility();
-  for (let f = 0; f < 8 * 60; f++) { for (const e of dum) e.hp = e.maxHp = 1e9; g.update(1 / 60); }
+  for (let f = 0; f < 8 * 60; f++) {
+    for (const e of dum) e.hp = e.maxHp = 1e9;
+    if (cast && f === 40 && p.sigil) g.useAbility();          // a UT's sigil: the second press, two thirds of a second later
+    g.update(1 / 60);
+  }
   return { dealt, healed: p.hp - hp0 };
 }
 const rows = [];
