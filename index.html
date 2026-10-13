@@ -16,6 +16,11 @@
     <div id="fade"></div>
     <div id="seals" class="hidden"></div>
     <div id="hud"><span class="h-fame" title="Account fame">✦ <b id="hfame">0</b></span><span class="h-gold" title="Gold">● <b id="hgold">0</b></span><span class="h-ess" title="Essence">◆ <b id="hess">0</b></span></div>
+    <div id="vaultwin" class="hidden" role="dialog" aria-label="Your vault">
+      <div class="vwhead"><b>Your vault</b><small id="vwcount"></small><span class="sp"></span><span class="vwsort">Sort: <button data-sort="type">Type</button><button data-sort="tier">Tier</button><button data-sort="rarity">Rarity</button><button data-sort="name">Name</button></span><button id="vwclose" title="Close (Esc)">×</button></div>
+      <div id="vwbody"></div>
+      <div class="vwfoot">Drag items between the vault and your backpack, or double-click one to move it across.</div>
+    </div>
     <div id="chat"><div id="chatlog" aria-live="polite"></div><input id="chatin" class="hidden" maxlength="160" autocomplete="off" spellcheck="false" placeholder="Say something, or /help for commands"></div>
   </main>
   <aside id="panel" data-tab="inv">
@@ -24,7 +29,8 @@
       <div id="minibtns"><button id="miniIn" title="Zoom in (+)">+</button><button id="miniOut" title="Zoom out (−)">−</button></div>
       <span id="minilabel"></span>
     </div>
-    <div id="iconrow"><button data-t="stats" data-icon="stats" title="Stats"></button><button data-t="pet" data-icon="pet" title="Pet"></button><span class="sp"></span><button id="gear" data-icon="gear" title="Settings (Esc)" aria-label="Settings"></button></div>
+    <div id="iconrow"><button data-t="stats" data-icon="stats" title="Stats"></button><button data-t="pet" data-icon="pet" title="Pet"></button><span class="sp"></span><button id="gear" data-icon="gear" title="Menu" aria-label="Menu" aria-haspopup="menu"></button></div>
+    <div id="gearmenu" class="hidden" role="menu"><button data-m="options" role="menuitem">Options</button><button data-m="nexus" role="menuitem">Nexus</button><button data-m="chars" role="menuitem">Character select</button><button data-m="account" role="menuitem">Switch account</button></div>
     <div class="bar xp"><i id="xpfill"></i><b><span class="bl" id="xplabel">Lvl</span><span class="bv" id="xptext"></span></b></div>
     <div class="bar hp"><i id="hpfill"></i><b><span class="bl">HP</span><span class="bv" id="hptext"></span></b></div>
     <div class="bar mp"><i id="mpfill"></i><b><span class="bl">MP</span><span class="bv" id="mptext"></span></b></div>

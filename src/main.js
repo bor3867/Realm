@@ -87,7 +87,7 @@ async function boot() {
   const HELD = new Set(['up', 'down', 'left', 'right', 'rotL', 'rotR']);
   // one place that turns an action into what it does, for keys and mouse buttons alike
   const doAction = (act, code, e) => {
-    if (act === 'settings') { e.preventDefault(); if (ui.modal) ui.closeModal(); else ui.toggleSettings(); return; }
+    if (act === 'settings') { e.preventDefault(); if (!document.getElementById('gearmenu').classList.contains('hidden')) document.getElementById('gearmenu').classList.add('hidden'); else if (ui.vaultOpen) ui.closeVault(true); else if (ui.modal) ui.closeModal(); else ui.toggleSettings(); return; }
     if (game.mode !== 'play' || ui.overlayOpen()) return;
     if (act === 'chat' || act === 'command') {
       e.preventDefault();

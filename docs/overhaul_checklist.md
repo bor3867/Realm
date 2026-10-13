@@ -66,11 +66,10 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   your inventory.
 
 ## To do (next sessions)
-- Vault window (requested 2026-10-12): standing on your vault chest opens a large pop-up window in the middle of the
-  screen (not the small grid at the bottom right of the panel), where you can scroll through everything stored and sort it
-  (by type, tier, rarity, name).
-- Settings dropdown (requested 2026-10-12): the HUD's gear button opens a small RotMG-style dropdown menu (Options, Home /
-  back to the Nexus, Character select, Log out...) instead of the full settings page you have to scroll to the bottom of.
+- Vault window and settings dropdown (requested 2026-10-12), done: standing on your vault chest opens a big window over
+  the game (the vault grid itself moves into it, so dragging, tooltips and double-click all work), with Type / Tier / Rarity
+  / Name sorting and a scrolling grid; double-click a backpack item to store it; Esc or x closes it (the panel label reopens
+  it); stepping off closes it. The gear opens a RotMG-style dropdown: Options, Nexus, Character select, Switch account.
 - Item sprite redraws (2026-10-12): ChatGPT's redesigned sheets arrived as WebP previews (1254 px wide, resampled, 500-960
   colours per sprite, no 8x8 grid), so they cannot be imported exactly. Waiting on native 8x8 files (PNG, or each sprite
   as 8 rows of 8 hex colours) to import and check against docs/projectile_art_standard.md; the shot concept sheet is a

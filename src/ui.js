@@ -40,7 +40,13 @@ export class UI {
     this.tip = $('tooltip');
     this.bannerT = 0;
     this.capturing = null;
-    $('gear').onclick = () => this.toggleSettings();
+    $('gear').onclick = (ev) => { ev.stopPropagation(); this.toggleGearMenu(); };
+    // the gear's dropdown (RotMG-style): options, home, character select, switch account
+    $('gearmenu').querySelectorAll('[data-m]').forEach((b) => { b.onclick = (ev) => { ev.stopPropagation(); this.gearMenu(b.dataset.m); }; });
+    document.addEventListener('pointerdown', (ev) => { if (!$('gearmenu').classList.contains('hidden') && !ev.target.closest('#gearmenu, #gear')) $('gearmenu').classList.add('hidden'); });
+    // the vault window: opens when you stand on your vault chest
+    $('vwclose').onclick = () => { this.closeVault(true); };
+    $('vaultwin').querySelectorAll('[data-sort]').forEach((b) => { b.onclick = () => { this.sortVault(b.dataset.sort); b.blur(); }; });
     $('portalgo').onclick = () => { this.enterNear(); $('portalgo').blur(); };
     $('bagportal').onclick = () => { this.g.usePortal(); this.refreshPortal(); $('bagportal').blur(); };
     $('baglootall').onclick = () => { this.g.lootAll(); this.refreshSlots(); $('baglootall').blur(); };   // for mouse players: everything that fits, in one click
@@ -374,7 +380,11 @@ export class UI {
         const now = performance.now();
         if (this.lastDown && this.lastDown.name === name && this.lastDown.i === i && now - this.lastDown.t < 380) {
           this.lastDown = null;
-          this.g.useSlot(name, i); this.refreshSlots();
+          if (this.vaultOpen && name === 'inv' && this.g.nearVault) {          // with the vault open: into the vault
+            const V = this.g.container('vault'), free = V ? V.indexOf(null) : -1;
+            if (free >= 0) this.g.moveItem('inv', i, 'ground', free); else this.g.toast('Your vault is full.');
+          } else this.g.useSlot(name, i);
+          this.refreshSlots();
         } else this.lastDown = { name, i, t: now };
       });
       el.addEventListener('contextmenu', (ev) => { ev.preventDefault(); this.g.useNow(name, i); this.refreshSlots(); this.hideTip(); });
@@ -519,7 +529,9 @@ export class UI {
     $('ground').classList.toggle('vault', !!V);
     $('baglootall').classList.toggle('off', !(g.nearBag && !V && g.nearBag.items && g.nearBag.items.some(Boolean)));
     $('baglootall').textContent = `Take all${keyParen('lootAll')}`;
-    $('groundlabel').title = V ? 'Buy Vault Chests to grow your vault' : ''; $('groundlabel').textContent = V ? `Vault ${V.filter(Boolean).length}/${V.length}` : g.nearBag && g.nearBag.soulbound ? 'Soulbound loot (yours alone)' : 'Loot bag';
+    if (V && $('vwcount')) $('vwcount').textContent = `${V.filter(Boolean).length} / ${V.length} slots · buy Vault Chests to grow it`;
+    $('groundlabel').onclick = V && !this.vaultOpen ? () => this.openVault() : null; $('groundlabel').style.cursor = V && !this.vaultOpen ? 'pointer' : '';
+    $('groundlabel').title = V ? 'Buy Vault Chests to grow your vault' : ''; $('groundlabel').textContent = V && !this.vaultOpen ? `Vault ${V.filter(Boolean).length}/${V.length} · open` : V ? `Vault ${V.filter(Boolean).length}/${V.length}` : g.nearBag && g.nearBag.soulbound ? 'Soulbound loot (yours alone)' : 'Loot bag';
   }
   // ---- the item tooltip: a header, the item's story, its numbers in tidy rows, then what's special about it
   showTip(name, i, ev) {
@@ -745,6 +757,8 @@ export class UI {
     this.acc = (this.acc || 0) + dt;
     if (this.acc < 0.1 || g.mode !== 'play') { if (g.mode !== 'play') $('portalwrap').classList.add('off'); return; }
     this.refreshPortal();
+    if (g.nearVault && !this.vaultOpen && !this.vaultShut && !this.overlayOpen()) this.openVault();   // on the chest: the vault window
+    if (!g.nearVault) { this.vaultShut = false; if (this.vaultOpen) this.closeVault(); }
     this.refreshQuests();
     this.refreshSeals();
     this.fitPanel();
@@ -791,6 +805,59 @@ export class UI {
     if (el.dataset.k === key) return;
     el.dataset.k = key;
     el.innerHTML = P ? `<i class="ico pet" style="background-image:url(${this.petIcon(petSprite(P))})"></i><span>${petName(P)}</span>` : '';
+  }
+  // ---- the gear's dropdown
+  toggleGearMenu() {
+    const m = $('gearmenu'), open = m.classList.contains('hidden'), g = this.g;
+    m.querySelector('[data-m="nexus"]').classList.toggle('hidden', g.mode !== 'play' || g.map.kind === 'nexus');
+    m.querySelector('[data-m="chars"]').classList.toggle('hidden', g.mode !== 'play');
+    const gb = $('gear'); m.style.top = (gb.offsetTop + gb.offsetHeight + 2) + 'px';   // right under the gear
+    m.classList.toggle('hidden', !open);
+  }
+  gearMenu(what) {
+    const g = this.g;
+    $('gearmenu').classList.add('hidden');
+    if (what === 'options') { if (!this.settingsOpen) this.toggleSettings(); }
+    else if (what === 'nexus') { if (g.mode === 'play') g.toNexus(); }
+    else if (what === 'chars') { this.settingsOpen = false; this.closeVault(); g.leaveToMenu(); this.titleScreen(); }
+    else if (what === 'account') {
+      this.settingsOpen = false; this.closeVault();
+      if (g.mode === 'play') g.leaveToMenu();
+      const A = loadAccounts(); A.keep = null; saveAccounts(A); g.account = null; this.loginScreen();
+    }
+  }
+  // ---- the vault window: the vault's grid, moved out of the panel into a big window over the game while you stand
+  // on the chest (so its drag, tooltips and double-click all still work), and put back when you leave
+  openVault() {
+    if (this.vaultOpen) return;
+    this.vaultOpen = true;
+    $('vwbody').appendChild($('ground'));
+    $('vaultwin').classList.remove('hidden');
+    this.refreshSlots();
+  }
+  closeVault(byHand = false) {
+    if (!this.vaultOpen) return;
+    this.vaultOpen = false; if (byHand) this.vaultShut = true;   // (closed by hand: it stays shut until you step off)
+    $('groundwrap').appendChild($('ground'));
+    $('vaultwin').classList.add('hidden');
+    this.refreshSlots();
+  }
+  sortVault(mode) {
+    const g = this.g, V = g.container('vault');
+    if (!V) return;
+    const RANK = (it) => (it.admin ? 6 : it.mythic ? 5 : it.legendary ? 4 : it.ut ? 3 : it.slot === 'consumable' ? 0 : 1 + (it.tier || 0) / 20);
+    const TYPE = ['weapon', 'ability', 'armor', 'ring', 'consumable'];
+    const key = {
+      type: (it) => [TYPE.indexOf(it.slot) < 0 ? 9 : TYPE.indexOf(it.slot), it.type || '', -(typeof it.tier === 'number' ? it.tier : 99), it.name],
+      tier: (it) => [-(typeof it.tier === 'number' ? it.tier : it.ut || it.mythic || it.legendary ? 99 : -1), it.name],
+      rarity: (it) => [-RANK(it), it.name],
+      name: (it) => [it.name],
+    }[mode];
+    const items = V.filter(Boolean).sort((a, b) => { const A = key(ITEMS[a]), B = key(ITEMS[b]); for (let k = 0; k < A.length; k++) { if (A[k] < B[k]) return -1; if (A[k] > B[k]) return 1; } return 0; });
+    for (let k = 0; k < V.length; k++) V[k] = items[k] || null;
+    g.persist();
+    this.refreshSlots();
+    g.toast(`Vault sorted by ${mode}`);
   }
   // the sidebar's Pet tab: your companion at a glance (abilities, levels, what it does, when it next acts)
   petPanel() {
