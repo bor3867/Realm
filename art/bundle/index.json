@@ -11,7 +11,8 @@
   "orrery_supernova/atlas_orrery_supernova.json",
   "overworld/atlas_overworld.json",
   "pets_v2/atlas_pets_v2.json",
-  "remaster/atlas_remaster_ext.json"
+  "remaster/atlas_remaster_ext.json",
+  "realmforge/atlas_rf.json"
  ],
  "hover": "HOVER.json",
  "manifest": "MANIFEST.json"

@@ -69,10 +69,18 @@ export const LEGACY_TYPE = { gauntlet: 'sword', tongs: 'sword', sunrod: 'wand', 
   harpoon: 'bow', rapier: 'dagger', plate: 'heavy', coat: 'heavy', oilskin: 'leather', glassmail: 'leather',
   vestment: 'robe', shroud: 'robe', stormcloak: 'robe', brasscoat: 'robe' };
 export const legacyId = (id) => {
+  const r = typeof id === 'string' && /^ring_([a-z]+)_t([45])(~.*)?$/.exec(id);   // the old ladder's top rings: the new top ring
+  if (r) return `ring_${r[1]}_t3${r[3] || ''}`;
   const m = typeof id === 'string' && /^([a-z]+)_t(\d+)(~.*)?$/.exec(id);
   return m && LEGACY_TYPE[m[1]] ? `${LEGACY_TYPE[m[1]]}_t${m[2]}${m[3] || ''}` : id;
 };
 const RING_BONUS = { hp: 20, mp: 20, att: 1, def: 1, spd: 1, dex: 1, vit: 1, wis: 1 };
+// the user's Realmforge ladders replace our tiered weapons, armour and rings (docs/realmforge_port.md)
+import { RF_WEAPONS, RF_ARMOR, RF_RINGS } from './rf_items_data.js';
+export const TIER_CAP = { weapon: 13, armor: 13, ring: 3, ability: 5 };
+const OLD_CAP = { weapon: 10, armor: 11, ring: 5, ability: 5 };
+// a tier written for the old ladders (loot tables, shops), on the new one
+export const ladderTier = (slot, t) => Math.max(0, Math.min(TIER_CAP[slot], Math.round((t * TIER_CAP[slot]) / OLD_CAP[slot])));
 
 const BASE_ITEMS = {};
 // enchanted items are ids like 'gauntlet_t5~att2.crit1' (base~enchant+grade, dot-separated); the proxy builds them on demand,
@@ -145,18 +153,23 @@ function armor(type, t) {
   return { def: r1(2 + 0.9 * t), mp: 10 + 5 * t, wis: Math.floor(t / 2) };
 }
 
-for (const type of WEAPON_TYPES) {
-  for (let t = 0; t <= 10; t++) add({ id: `${type}_t${t}`, type, slot: 'weapon', tier: t, name: NAMES[type][t], weapon: weapon(type, t) });
+for (const type of WEAPON_TYPES) {                      // our family's feel (rate, spread, piercing, size), Realmforge's numbers and art
+  for (let t = 0; t <= TIER_CAP.weapon; t++) {
+    const F = RF_WEAPONS[type][t], W = weapon(type, Math.min(10, t));
+    add({ id: `${type}_t${t}`, type, slot: 'weapon', tier: t, name: F.name, desc: F.desc, reg: `rf_items/${type}_t${t}`,
+      weapon: { ...W, dmg: F.dmg, count: F.count, range: F.range, speed: F.speed, proj: `rf_shots/${type}_t${t}` } });
+  }
 }
 for (const type of ABILITY_TYPES) {
   for (let t = 0; t <= 5; t++) add({ id: `${type}_t${t}`, type, slot: 'ability', tier: t, name: NAMES[type][t], ability: ability(type, t) });
 }
 for (const type of ARMOR_TYPES) {
-  for (let t = 0; t <= 11; t++) add({ id: `${type}_t${t}`, type, slot: 'armor', tier: t, name: NAMES[type][t], bonus: armor(type, t) });
+  for (let t = 0; t <= TIER_CAP.armor; t++) { const F = RF_ARMOR[type][t]; add({ id: `${type}_t${t}`, type, slot: 'armor', tier: t, name: F.name, desc: F.desc, reg: `rf_items/${type}_t${t}`, bonus: { ...F.bonus } }); }
 }
 for (const s of STATS) {
-  for (let t = 0; t <= 5; t++) {
-    add({ id: `ring_${s}_t${t}`, type: 'ring', slot: 'ring', tier: t, name: `${METAL[t]} Band of ${STAT_NAMES[s]}`, bonus: { [s]: RING_BONUS[s] * (t + 1) } });
+  for (let t = 0; t <= TIER_CAP.ring; t++) {
+    const F = RF_RINGS[s][t];
+    add({ id: `ring_${s}_t${t}`, type: 'ring', slot: 'ring', tier: t, name: F.name, desc: F.desc, reg: `rf_items/ring_${s}_t${t}`, bonus: { ...F.bonus } });
   }
 }
 // consumables
@@ -1042,11 +1055,10 @@ export function rollLoot(table, luck = 1) {
     else if (e.stat) out.push(`stat_${R.pick(STATS)}`);
     else {
       const t = R.int(e.tiers[0], e.tiers[1]);
-      if (e.slot === 'ring') out.push(maybeEnchant(`ring_${R.pick(STATS)}_t${Math.min(5, t)}`));
+      if (e.slot === 'ring') out.push(maybeEnchant(`ring_${R.pick(STATS)}_t${ladderTier('ring', t)}`));   // (tables were written for the old ladders)
       else {
         const type = R.pick(SLOT_TYPES[e.slot]);
-        const cap = e.slot === 'weapon' ? 10 : e.slot === 'ability' ? 5 : 11;
-        out.push(maybeEnchant(`${type}_t${Math.min(cap, t)}`));
+        out.push(maybeEnchant(`${type}_t${ladderTier(e.slot, t)}`));
       }
     }
   }

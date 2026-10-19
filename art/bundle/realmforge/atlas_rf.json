@@ -1,0 +1,2664 @@
+{
+ "meta": {
+  "name": "Realmforge",
+  "version": 1,
+  "notes": "The user's Realmforge project (tools/rf_build_items.py). Native 1px = 1 art pixel; shots point right."
+ },
+ "rf": true,
+ "sheets": {
+  "rf_items": {
+   "image": "rf_items.png",
+   "kind": "item",
+   "sprites": {
+    "sword_t0": {
+     "frames": {
+      "0": [
+       0,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Copper Shortsword"
+     }
+    },
+    "dagger_t0": {
+     "frames": {
+      "0": [
+       16,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Copper Shiv"
+     }
+    },
+    "wand_t0": {
+     "frames": {
+      "0": [
+       32,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Copper-Capped Wand"
+     }
+    },
+    "staff_t0": {
+     "frames": {
+      "0": [
+       48,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Apprentice's Staff"
+     }
+    },
+    "bow_t0": {
+     "frames": {
+      "0": [
+       64,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Copper-Tipped Shortbow"
+     }
+    },
+    "sword_t1": {
+     "frames": {
+      "0": [
+       80,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Iron Broadsword"
+     }
+    },
+    "dagger_t1": {
+     "frames": {
+      "0": [
+       96,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Iron Dirk"
+     }
+    },
+    "wand_t1": {
+     "frames": {
+      "0": [
+       112,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Ironbark Wand"
+     }
+    },
+    "staff_t1": {
+     "frames": {
+      "0": [
+       128,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Ironbound Staff"
+     }
+    },
+    "bow_t1": {
+     "frames": {
+      "0": [
+       144,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Iron Recurve"
+     }
+    },
+    "sword_t2": {
+     "frames": {
+      "0": [
+       160,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Steel Longsword"
+     }
+    },
+    "dagger_t2": {
+     "frames": {
+      "0": [
+       176,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Steel Stiletto"
+     }
+    },
+    "wand_t2": {
+     "frames": {
+      "0": [
+       192,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Wand of Sapphire Sparks"
+     }
+    },
+    "staff_t2": {
+     "frames": {
+      "0": [
+       208,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Staff of Sapphire Light"
+     }
+    },
+    "bow_t2": {
+     "frames": {
+      "0": [
+       224,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Steel Longbow"
+     }
+    },
+    "sword_t3": {
+     "frames": {
+      "0": [
+       240,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Cobalt Saber"
+     }
+    },
+    "dagger_t3": {
+     "frames": {
+      "0": [
+       0,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Cobalt Kris"
+     }
+    },
+    "wand_t3": {
+     "frames": {
+      "0": [
+       16,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Cobalt Focus"
+     }
+    },
+    "staff_t3": {
+     "frames": {
+      "0": [
+       32,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Cobalt Stormstaff"
+     }
+    },
+    "bow_t3": {
+     "frames": {
+      "0": [
+       48,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Cobalt Flatbow"
+     }
+    },
+    "sword_t4": {
+     "frames": {
+      "0": [
+       64,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Verdant Edge"
+     }
+    },
+    "dagger_t4": {
+     "frames": {
+      "0": [
+       80,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Verdant Fang"
+     }
+    },
+    "wand_t4": {
+     "frames": {
+      "0": [
+       96,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Wand of the Greenwood"
+     }
+    },
+    "staff_t4": {
+     "frames": {
+      "0": [
+       112,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Verdant Rootstaff"
+     }
+    },
+    "bow_t4": {
+     "frames": {
+      "0": [
+       128,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Verdant Greatbow"
+     }
+    },
+    "sword_t5": {
+     "frames": {
+      "0": [
+       144,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Crimson Claymore"
+     }
+    },
+    "dagger_t5": {
+     "frames": {
+      "0": [
+       160,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Crimson Ripper"
+     }
+    },
+    "wand_t5": {
+     "frames": {
+      "0": [
+       176,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Bloodstone Wand"
+     }
+    },
+    "staff_t5": {
+     "frames": {
+      "0": [
+       192,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Bloodstone Staff"
+     }
+    },
+    "bow_t5": {
+     "frames": {
+      "0": [
+       208,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Crimson Warbow"
+     }
+    },
+    "sword_t6": {
+     "frames": {
+      "0": [
+       224,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Sunforged Blade"
+     }
+    },
+    "dagger_t6": {
+     "frames": {
+      "0": [
+       240,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Sunforged Misericorde"
+     }
+    },
+    "wand_t6": {
+     "frames": {
+      "0": [
+       0,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Sunpriest's Wand"
+     }
+    },
+    "staff_t6": {
+     "frames": {
+      "0": [
+       16,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Sunforged Staff"
+     }
+    },
+    "bow_t6": {
+     "frames": {
+      "0": [
+       32,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Sunforged Bow"
+     }
+    },
+    "sword_t7": {
+     "frames": {
+      "0": [
+       48,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Abyssal Brand"
+     }
+    },
+    "dagger_t7": {
+     "frames": {
+      "0": [
+       64,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Abyssal Needle"
+     }
+    },
+    "wand_t7": {
+     "frames": {
+      "0": [
+       80,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Wand of the Deep Dark"
+     }
+    },
+    "staff_t7": {
+     "frames": {
+      "0": [
+       96,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Abyssal Staff"
+     }
+    },
+    "bow_t7": {
+     "frames": {
+      "0": [
+       112,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Abyssal Bow"
+     }
+    },
+    "sword_t8": {
+     "frames": {
+      "0": [
+       128,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Magmacore Greatsword"
+     }
+    },
+    "dagger_t8": {
+     "frames": {
+      "0": [
+       144,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Magmacore Sliver"
+     }
+    },
+    "wand_t8": {
+     "frames": {
+      "0": [
+       160,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Cinderglass Wand"
+     }
+    },
+    "staff_t8": {
+     "frames": {
+      "0": [
+       176,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Magmacore Staff"
+     }
+    },
+    "bow_t8": {
+     "frames": {
+      "0": [
+       192,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Magmacore Bow"
+     }
+    },
+    "sword_t9": {
+     "frames": {
+      "0": [
+       208,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Celestine Sword"
+     }
+    },
+    "dagger_t9": {
+     "frames": {
+      "0": [
+       224,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Celestine Kiss"
+     }
+    },
+    "wand_t9": {
+     "frames": {
+      "0": [
+       240,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Celestine Wand"
+     }
+    },
+    "staff_t9": {
+     "frames": {
+      "0": [
+       0,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Celestine Staff"
+     }
+    },
+    "bow_t9": {
+     "frames": {
+      "0": [
+       16,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Celestine Bow"
+     }
+    },
+    "sword_t10": {
+     "frames": {
+      "0": [
+       32,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Stormglass Longsword"
+     }
+    },
+    "dagger_t10": {
+     "frames": {
+      "0": [
+       48,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Stormglass Shard"
+     }
+    },
+    "wand_t10": {
+     "frames": {
+      "0": [
+       64,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Stormglass Wand"
+     }
+    },
+    "staff_t10": {
+     "frames": {
+      "0": [
+       80,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Stormglass Staff"
+     }
+    },
+    "bow_t10": {
+     "frames": {
+      "0": [
+       96,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Stormglass Bow"
+     }
+    },
+    "sword_t11": {
+     "frames": {
+      "0": [
+       112,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Rosequartz Blade"
+     }
+    },
+    "dagger_t11": {
+     "frames": {
+      "0": [
+       128,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Rosequartz Thorn"
+     }
+    },
+    "wand_t11": {
+     "frames": {
+      "0": [
+       144,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Rosequartz Wand"
+     }
+    },
+    "staff_t11": {
+     "frames": {
+      "0": [
+       160,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Rosequartz Staff"
+     }
+    },
+    "bow_t11": {
+     "frames": {
+      "0": [
+       176,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Rosequartz Bow"
+     }
+    },
+    "sword_t12": {
+     "frames": {
+      "0": [
+       192,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Nightsteel Executioner"
+     }
+    },
+    "dagger_t12": {
+     "frames": {
+      "0": [
+       208,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Nightsteel Fang"
+     }
+    },
+    "wand_t12": {
+     "frames": {
+      "0": [
+       224,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Nightsteel Wand"
+     }
+    },
+    "staff_t12": {
+     "frames": {
+      "0": [
+       240,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Nightsteel Staff"
+     }
+    },
+    "bow_t12": {
+     "frames": {
+      "0": [
+       0,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Nightsteel Bow"
+     }
+    },
+    "sword_t13": {
+     "frames": {
+      "0": [
+       16,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Duskforged Blade"
+     }
+    },
+    "dagger_t13": {
+     "frames": {
+      "0": [
+       32,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Duskforged Stiletto"
+     }
+    },
+    "wand_t13": {
+     "frames": {
+      "0": [
+       48,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Duskforged Wand"
+     }
+    },
+    "staff_t13": {
+     "frames": {
+      "0": [
+       64,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Duskforged Staff"
+     }
+    },
+    "bow_t13": {
+     "frames": {
+      "0": [
+       80,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Duskforged Bow"
+     }
+    },
+    "heavy_t0": {
+     "frames": {
+      "0": [
+       96,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Copper Breastplate"
+     }
+    },
+    "leather_t0": {
+     "frames": {
+      "0": [
+       112,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Copperstitch Vest"
+     }
+    },
+    "robe_t0": {
+     "frames": {
+      "0": [
+       128,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Copper-Hemmed Robe"
+     }
+    },
+    "heavy_t1": {
+     "frames": {
+      "0": [
+       144,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Iron Mail"
+     }
+    },
+    "leather_t1": {
+     "frames": {
+      "0": [
+       160,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Studded Leather"
+     }
+    },
+    "robe_t1": {
+     "frames": {
+      "0": [
+       176,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Iron-Grey Robe"
+     }
+    },
+    "heavy_t2": {
+     "frames": {
+      "0": [
+       192,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Steel Cuirass"
+     }
+    },
+    "leather_t2": {
+     "frames": {
+      "0": [
+       208,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Steelweave Jerkin"
+     }
+    },
+    "robe_t2": {
+     "frames": {
+      "0": [
+       224,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Robe of Silver Thread"
+     }
+    },
+    "heavy_t3": {
+     "frames": {
+      "0": [
+       240,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Cobalt Plate"
+     }
+    },
+    "leather_t3": {
+     "frames": {
+      "0": [
+       0,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Cobalt Drakehide"
+     }
+    },
+    "robe_t3": {
+     "frames": {
+      "0": [
+       16,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Cobalt Mage Robe"
+     }
+    },
+    "heavy_t4": {
+     "frames": {
+      "0": [
+       32,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Verdant Scale Armor"
+     }
+    },
+    "leather_t4": {
+     "frames": {
+      "0": [
+       48,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Verdant Ranger Leather"
+     }
+    },
+    "robe_t4": {
+     "frames": {
+      "0": [
+       64,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Verdant Druid Robe"
+     }
+    },
+    "heavy_t5": {
+     "frames": {
+      "0": [
+       80,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Crimson Warplate"
+     }
+    },
+    "leather_t5": {
+     "frames": {
+      "0": [
+       96,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Crimson Duelist's Coat"
+     }
+    },
+    "robe_t5": {
+     "frames": {
+      "0": [
+       112,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Crimson Robe of the Pyre"
+     }
+    },
+    "heavy_t6": {
+     "frames": {
+      "0": [
+       128,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Sunforged Plate"
+     }
+    },
+    "leather_t6": {
+     "frames": {
+      "0": [
+       144,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Sunforged Hide"
+     }
+    },
+    "robe_t6": {
+     "frames": {
+      "0": [
+       160,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Sunforged Vestments"
+     }
+    },
+    "heavy_t7": {
+     "frames": {
+      "0": [
+       176,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Abyssal Carapace"
+     }
+    },
+    "leather_t7": {
+     "frames": {
+      "0": [
+       192,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Abyssal Shadowhide"
+     }
+    },
+    "robe_t7": {
+     "frames": {
+      "0": [
+       208,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Abyssal Robe"
+     }
+    },
+    "heavy_t8": {
+     "frames": {
+      "0": [
+       224,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Magmacore Plate"
+     }
+    },
+    "leather_t8": {
+     "frames": {
+      "0": [
+       240,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Salamander Hide"
+     }
+    },
+    "robe_t8": {
+     "frames": {
+      "0": [
+       0,
+       96,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Magmacore Robe"
+     }
+    },
+    "heavy_t9": {
+     "frames": {
+      "0": [
+       16,
+       96,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Celestine Aegis"
+     }
+    },
+    "leather_t9": {
+     "frames": {
+      "0": [
+       32,
+       96,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Celestine Windleather"
+     }
+    },
+    "robe_t9": {
+     "frames": {
+      "0": [
+       48,
+       96,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Celestine Robe"
+     }
+    },
+    "heavy_t10": {
+     "frames": {
+      "0": [
+       64,
+       96,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Stormglass Plate"
+     }
+    },
+    "leather_t10": {
+     "frames": {
+      "0": [
+       80,
+       96,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Stormglass Leather"
+     }
+    },
+    "robe_t10": {
+     "frames": {
+      "0": [
+       96,
+       96,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Stormglass Robe"
+     }
+    },
+    "heavy_t11": {
+     "frames": {
+      "0": [
+       112,
+       96,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Rosequartz Plate"
+     }
+    },
+    "leather_t11": {
+     "frames": {
+      "0": [
+       128,
+       96,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Rosequartz Leather"
+     }
+    },
+    "robe_t11": {
+     "frames": {
+      "0": [
+       144,
+       96,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Rosequartz Robe"
+     }
+    },
+    "heavy_t12": {
+     "frames": {
+      "0": [
+       160,
+       96,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Nightsteel Warplate"
+     }
+    },
+    "leather_t12": {
+     "frames": {
+      "0": [
+       176,
+       96,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Nightsteel Leather"
+     }
+    },
+    "robe_t12": {
+     "frames": {
+      "0": [
+       192,
+       96,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Nightsteel Robe"
+     }
+    },
+    "heavy_t13": {
+     "frames": {
+      "0": [
+       208,
+       96,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Duskforged Plate"
+     }
+    },
+    "leather_t13": {
+     "frames": {
+      "0": [
+       224,
+       96,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Duskforged Leather"
+     }
+    },
+    "robe_t13": {
+     "frames": {
+      "0": [
+       240,
+       96,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Duskforged Robe"
+     }
+    },
+    "ring_att_t0": {
+     "frames": {
+      "0": [
+       0,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Copper Band of Might"
+     }
+    },
+    "ring_def_t0": {
+     "frames": {
+      "0": [
+       16,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Copper Band of the Bulwark"
+     }
+    },
+    "ring_spd_t0": {
+     "frames": {
+      "0": [
+       32,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Copper Band of Haste"
+     }
+    },
+    "ring_dex_t0": {
+     "frames": {
+      "0": [
+       48,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Copper Band of Precision"
+     }
+    },
+    "ring_vit_t0": {
+     "frames": {
+      "0": [
+       64,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Copper Band of Vigor"
+     }
+    },
+    "ring_wis_t0": {
+     "frames": {
+      "0": [
+       80,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Copper Band of Insight"
+     }
+    },
+    "ring_hp_t0": {
+     "frames": {
+      "0": [
+       96,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Copper Band of Life"
+     }
+    },
+    "ring_mp_t0": {
+     "frames": {
+      "0": [
+       112,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Copper Band of Mana"
+     }
+    },
+    "ring_att_t1": {
+     "frames": {
+      "0": [
+       128,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Silver Ring of Might"
+     }
+    },
+    "ring_def_t1": {
+     "frames": {
+      "0": [
+       144,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Silver Ring of the Bulwark"
+     }
+    },
+    "ring_spd_t1": {
+     "frames": {
+      "0": [
+       160,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Silver Ring of Haste"
+     }
+    },
+    "ring_dex_t1": {
+     "frames": {
+      "0": [
+       176,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Silver Ring of Precision"
+     }
+    },
+    "ring_vit_t1": {
+     "frames": {
+      "0": [
+       192,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Silver Ring of Vigor"
+     }
+    },
+    "ring_wis_t1": {
+     "frames": {
+      "0": [
+       208,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Silver Ring of Insight"
+     }
+    },
+    "ring_hp_t1": {
+     "frames": {
+      "0": [
+       224,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Silver Ring of Life"
+     }
+    },
+    "ring_mp_t1": {
+     "frames": {
+      "0": [
+       240,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Silver Ring of Mana"
+     }
+    },
+    "ring_att_t2": {
+     "frames": {
+      "0": [
+       0,
+       128,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Gold Signet of Might"
+     }
+    },
+    "ring_def_t2": {
+     "frames": {
+      "0": [
+       16,
+       128,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Gold Signet of the Bulwark"
+     }
+    },
+    "ring_spd_t2": {
+     "frames": {
+      "0": [
+       32,
+       128,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Gold Signet of Haste"
+     }
+    },
+    "ring_dex_t2": {
+     "frames": {
+      "0": [
+       48,
+       128,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Gold Signet of Precision"
+     }
+    },
+    "ring_vit_t2": {
+     "frames": {
+      "0": [
+       64,
+       128,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Gold Signet of Vigor"
+     }
+    },
+    "ring_wis_t2": {
+     "frames": {
+      "0": [
+       80,
+       128,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Gold Signet of Insight"
+     }
+    },
+    "ring_hp_t2": {
+     "frames": {
+      "0": [
+       96,
+       128,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Gold Signet of Life"
+     }
+    },
+    "ring_mp_t2": {
+     "frames": {
+      "0": [
+       112,
+       128,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Gold Signet of Mana"
+     }
+    },
+    "ring_att_t3": {
+     "frames": {
+      "0": [
+       128,
+       128,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Duskforged Seal of Might"
+     }
+    },
+    "ring_def_t3": {
+     "frames": {
+      "0": [
+       144,
+       128,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Duskforged Seal of the Bulwark"
+     }
+    },
+    "ring_spd_t3": {
+     "frames": {
+      "0": [
+       160,
+       128,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Duskforged Seal of Haste"
+     }
+    },
+    "ring_dex_t3": {
+     "frames": {
+      "0": [
+       176,
+       128,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Duskforged Seal of Precision"
+     }
+    },
+    "ring_vit_t3": {
+     "frames": {
+      "0": [
+       192,
+       128,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Duskforged Seal of Vigor"
+     }
+    },
+    "ring_wis_t3": {
+     "frames": {
+      "0": [
+       208,
+       128,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Duskforged Seal of Insight"
+     }
+    },
+    "ring_hp_t3": {
+     "frames": {
+      "0": [
+       224,
+       128,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Duskforged Seal of Life"
+     }
+    },
+    "ring_mp_t3": {
+     "frames": {
+      "0": [
+       240,
+       128,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Duskforged Seal of Mana"
+     }
+    }
+   }
+  },
+  "rf_shots": {
+   "image": "rf_shots.png",
+   "kind": "shot",
+   "sprites": {
+    "sword_t0": {
+     "frames": {
+      "0": [
+       0,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "dagger_t0": {
+     "frames": {
+      "0": [
+       16,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "wand_t0": {
+     "frames": {
+      "0": [
+       32,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "staff_t0": {
+     "frames": {
+      "0": [
+       48,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "bow_t0": {
+     "frames": {
+      "0": [
+       64,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "sword_t1": {
+     "frames": {
+      "0": [
+       80,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "dagger_t1": {
+     "frames": {
+      "0": [
+       96,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "wand_t1": {
+     "frames": {
+      "0": [
+       112,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "staff_t1": {
+     "frames": {
+      "0": [
+       128,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "bow_t1": {
+     "frames": {
+      "0": [
+       144,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "sword_t2": {
+     "frames": {
+      "0": [
+       160,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "dagger_t2": {
+     "frames": {
+      "0": [
+       176,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "wand_t2": {
+     "frames": {
+      "0": [
+       192,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "staff_t2": {
+     "frames": {
+      "0": [
+       208,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "bow_t2": {
+     "frames": {
+      "0": [
+       224,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "sword_t3": {
+     "frames": {
+      "0": [
+       240,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "dagger_t3": {
+     "frames": {
+      "0": [
+       0,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "wand_t3": {
+     "frames": {
+      "0": [
+       16,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "staff_t3": {
+     "frames": {
+      "0": [
+       32,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "bow_t3": {
+     "frames": {
+      "0": [
+       48,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "sword_t4": {
+     "frames": {
+      "0": [
+       64,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "dagger_t4": {
+     "frames": {
+      "0": [
+       80,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "wand_t4": {
+     "frames": {
+      "0": [
+       96,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "staff_t4": {
+     "frames": {
+      "0": [
+       112,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "bow_t4": {
+     "frames": {
+      "0": [
+       128,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "sword_t5": {
+     "frames": {
+      "0": [
+       144,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "dagger_t5": {
+     "frames": {
+      "0": [
+       160,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "wand_t5": {
+     "frames": {
+      "0": [
+       176,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "staff_t5": {
+     "frames": {
+      "0": [
+       192,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "bow_t5": {
+     "frames": {
+      "0": [
+       208,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "sword_t6": {
+     "frames": {
+      "0": [
+       224,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "dagger_t6": {
+     "frames": {
+      "0": [
+       240,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "wand_t6": {
+     "frames": {
+      "0": [
+       0,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "staff_t6": {
+     "frames": {
+      "0": [
+       16,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "bow_t6": {
+     "frames": {
+      "0": [
+       32,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "sword_t7": {
+     "frames": {
+      "0": [
+       48,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "dagger_t7": {
+     "frames": {
+      "0": [
+       64,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "wand_t7": {
+     "frames": {
+      "0": [
+       80,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "staff_t7": {
+     "frames": {
+      "0": [
+       96,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "bow_t7": {
+     "frames": {
+      "0": [
+       112,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "sword_t8": {
+     "frames": {
+      "0": [
+       128,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "dagger_t8": {
+     "frames": {
+      "0": [
+       144,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "wand_t8": {
+     "frames": {
+      "0": [
+       160,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "staff_t8": {
+     "frames": {
+      "0": [
+       176,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "bow_t8": {
+     "frames": {
+      "0": [
+       192,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "sword_t9": {
+     "frames": {
+      "0": [
+       208,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "dagger_t9": {
+     "frames": {
+      "0": [
+       224,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "wand_t9": {
+     "frames": {
+      "0": [
+       240,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "staff_t9": {
+     "frames": {
+      "0": [
+       0,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "bow_t9": {
+     "frames": {
+      "0": [
+       16,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "sword_t10": {
+     "frames": {
+      "0": [
+       32,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "dagger_t10": {
+     "frames": {
+      "0": [
+       48,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "wand_t10": {
+     "frames": {
+      "0": [
+       64,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "staff_t10": {
+     "frames": {
+      "0": [
+       80,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "bow_t10": {
+     "frames": {
+      "0": [
+       96,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "sword_t11": {
+     "frames": {
+      "0": [
+       112,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "dagger_t11": {
+     "frames": {
+      "0": [
+       128,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "wand_t11": {
+     "frames": {
+      "0": [
+       144,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "staff_t11": {
+     "frames": {
+      "0": [
+       160,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "bow_t11": {
+     "frames": {
+      "0": [
+       176,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "sword_t12": {
+     "frames": {
+      "0": [
+       192,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "dagger_t12": {
+     "frames": {
+      "0": [
+       208,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "wand_t12": {
+     "frames": {
+      "0": [
+       224,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "staff_t12": {
+     "frames": {
+      "0": [
+       240,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "bow_t12": {
+     "frames": {
+      "0": [
+       0,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "sword_t13": {
+     "frames": {
+      "0": [
+       16,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "dagger_t13": {
+     "frames": {
+      "0": [
+       32,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "wand_t13": {
+     "frames": {
+      "0": [
+       48,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "staff_t13": {
+     "frames": {
+      "0": [
+       64,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "bow_t13": {
+     "frames": {
+      "0": [
+       80,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    }
+   }
+  }
+ }
+}

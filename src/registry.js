@@ -132,6 +132,23 @@ function fromAstralPlus(R, pack, atlas, img) {
     }
   }
 }
+// 2e. the user's Realmforge project (tools/rf_build_items.py): sheets of small native pixel sprites, one image each;
+// frames are [x, y, w, h]; a sprite with several frames loops through them
+function fromRealmforge(R, pack, atlas, img) {
+  for (const [sheet, S] of Object.entries(atlas.sheets)) {
+    const I = img(S.image), kind = S.kind || 'item';
+    for (const [name, sp] of Object.entries(S.sprites)) {
+      const frames = {}; let w = 0, h = 0;
+      for (const [fn, f] of Object.entries(sp.frames)) { frames[fn] = { x: f[0], y: f[1], w: f[2], h: f[3] }; w = Math.max(w, f[2]); h = Math.max(h, f[3]); }
+      const anims = sp.anims || { loop: { frames: Object.keys(frames), fps: sp.fps || 8, loop: true } };
+      const def = { key: `${sheet}/${name}`, pack, sheet, name, img: I, frames, anims, pivot: [0, 0], size: [w, h], kind, meta: sp.meta || {} };
+      if (kind === 'shot' || kind === 'tile' || kind === 'item') def.foot = [w / 2, h / 2];
+      else if (kind === 'decor') def.foot = [w / 2, h];
+      else { def.foot = [w / 2, h]; def.needsFoot = true; }
+      R.add(def);
+    }
+  }
+}
 // 2d. the Grand Orrery's phase 4, Supernova (realm_astral_supernova): the reborn boss (48x48, drawn centred on the
 // boss), its shots (sn_shots/<name>, pointing right) and the Event Horizon's floor effects (sn_fx/<name>)
 function fromOrrerySupernova(R, pack, atlas, img) {
@@ -213,6 +230,7 @@ export function buildRegistry(atlases, hover, img = () => null) {
     if (json.bosses && json.meta && /^Realm Remaster/.test(json.meta.name)) fromRemaster(R, pack, json, im);
     else if (json.bosses) fromBosses(R, pack, json, im);
     else if (json.boss && json.clips && json.phase) fromOrrerySupernova(R, pack, json, im);
+    else if (json.rf) fromRealmforge(R, pack, json, im);
     else if (json.sheets && Object.values(json.sheets).some((S) => typeof S.native === 'string')) fromAstralPlus(R, pack, json, im);
     else if (json.items) fromItems(R, pack, json, im);
     else fromSheets(R, pack, json, im);

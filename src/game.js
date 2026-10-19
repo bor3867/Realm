@@ -2,7 +2,7 @@
 // Pure state + update(); rendering and DOM live elsewhere.
 import { R, rng, clamp, dist, dist2, angleTo, TAU, CAM, lift, liftO, liftA, liftB, angleUp } from './util.js';
 import { CLASSES, START_KIT, STATS, MAX_LEVEL, FAME_XP, FAME_GOALS, xpToNext, moveSpeed, fireRate, dmgMult, hpRegen, mpRegen, mitigate } from './data/classes.js';
-import { ITEMS, SETS, rollLoot, bagFor, canEquip, TYPE_SLOT, BAG_ORDER, BAG_NAMES, WEAPON_TYPES, ARMOR_TYPES, ABILITY_TYPES, ADMIN_SET } from './data/items.js';
+import { ITEMS, SETS, rollLoot, bagFor, canEquip, TYPE_SLOT, BAG_ORDER, BAG_NAMES, WEAPON_TYPES, ARMOR_TYPES, ABILITY_TYPES, ADMIN_SET, TIER_CAP, ladderTier } from './data/items.js';
 import { ENEMIES, PACKS, CAMP_LOOT, BIOME_SPAWNS, BOSS, REALM_BOSSES, PARENTS, HERALDS, BIOME_BOSS, EVENTS_TO_BOSS, GROUPS, DUNGEONS, DUNGEON_BOSSES, FIRECAMP_BANDS, portalDrop2 as portalDrop } from './data/enemies.js';
 import { nexus, vaultRoom, realm, dungeon, isSolid, shotBlocked, biomeAt, randomTileInBiome, BIOMES, BIOME_RING, BIOME_LABEL, TID } from './world/maps.js';
 import { writeSave } from './save.js';
@@ -90,7 +90,7 @@ export function shotScale(sprite, size, from) {
   let k = kCache.get(key);
   if (k === undefined) {
     const px = shotPx(sprite);
-    if (from === 'p') k = px >= 2 ? 0.5 : 1;
+    if (from === 'p') k = sprite.startsWith('rf_') ? 1 : px >= 2 ? 0.5 : 1;   // (Realmforge shots: its 8-pixel art at exactly 2x, the size it was drawn for)
     else if (SHOT_OVERRIDE[sprite]) k = shotScaleRaw(sprite, size);        // (drawn as light, not pixels)
     else k = (px * shotScaleRaw(sprite, size) >= 1.5 ? 2 : 1) / px;
     kCache.set(key, k);
@@ -3288,7 +3288,7 @@ export class Game {
     const uts = all.filter((it) => it.ut && !it.mythic && it.id !== 'crown_of_the_unstruck').map((it) => it.id);
     const myth = all.filter((it) => it.mythic && it.id !== 'crown_of_the_unstruck').map((it) => it.id);
     const C = CLASSES[this.player.cls], pick = (L) => L[Math.floor(R() * L.length)];
-    const out = [`${C.weapon}_t${R() < 0.5 ? 10 : 9}`, `${C.armor}_t${R() < 0.5 ? 11 : 10}`, `${C.ability}_t5`, `ring_${pick(STATS)}_t5`];
+    const out = [`${C.weapon}_t${R() < 0.5 ? TIER_CAP.weapon : TIER_CAP.weapon - 1}`, `${C.armor}_t${R() < 0.5 ? TIER_CAP.armor : TIER_CAP.armor - 1}`, `${C.ability}_t5`, `ring_${pick(STATS)}_t${TIER_CAP.ring}`];
     for (let k = 0; k < 3; k++) out.push(pick(uts));                                    // three relics, every time
     if (R() < 0.85) out.push(pick(myth));                                              // a mythic, almost always
     if (R() < 0.35) out.push(pick(myth));                                              // often two
@@ -3999,7 +3999,7 @@ export class Game {
   }
   nextTierId(it) {
     if (it.ut || it.slot === 'consumable') return null;
-    const cap = { weapon: 10, ability: 5, ring: 5, armor: 11 }[it.slot];
+    const cap = TIER_CAP[it.slot];
     if (it.tier >= cap) return null;
     const [b, ench] = it.id.split('~');                 // enchantments survive the forge
     return b.replace(/_t\d+$/, `_t${it.tier + 1}`) + (ench ? '~' + ench : '');
@@ -4018,11 +4018,11 @@ export class Game {
     const types = [...WEAPON_TYPES, ...ARMOR_TYPES];
     const C0 = this.player && CLASSES[this.player.cls], mine = C0 ? [C0.weapon, C0.armor] : types, seen = new Set();
     for (let k = 0, tries = 0; k < 7 && tries < 60; tries++) {     // seven different pieces, about half for your own class
-      const id = `${R.pick(k % 2 ? mine : types)}_t${R.int(1, 6)}`;
+      const pick0 = R.pick(k % 2 ? mine : types), id = `${pick0}_t${ladderTier(WEAPON_TYPES.includes(pick0) ? 'weapon' : 'armor', R.int(1, 6))}`;
       if (seen.has(id) || !ITEMS[id]) continue;
       seen.add(id); stock.push({ id }); k++;
     }
-    stock.push({ id: `${R.pick(ABILITY_TYPES)}_t${R.int(1, 3)}` }, { id: `ring_${R.pick(['hp', 'mp', 'att', 'def', 'spd', 'dex', 'vit', 'wis'])}_t${R.int(1, 3)}` });
+    stock.push({ id: `${R.pick(ABILITY_TYPES)}_t${R.int(1, 3)}` }, { id: `ring_${R.pick(['hp', 'mp', 'att', 'def', 'spd', 'dex', 'vit', 'wis'])}_t${ladderTier('ring', R.int(1, 3))}` });
     this.shop = stock.map((s0) => ({ ...s0, price: this.basePrice(ITEMS[s0.id]) }));
   }
   buy(i) {
