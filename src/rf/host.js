@@ -9,11 +9,11 @@ import { lift, R } from '../util.js';
 import { rollLoot } from '../data/items.js';
 import { bossData } from './boss.js';
 import { RF_FOE_LANDS } from '../data/rf_foes.js';
+import { rfBalance } from './balance.js';
 
 const TS = 16, K = 2;                                             // our tile is 16 buffer pixels; their art is 8 to a tile
 // their tile codes (C in explore.js) -> our tile names: a code change is a tile change, so our chunk caches follow
 export const RF_CODE_TILE = ['rf_wall', 'rf_floor', 'rf_path', 'rf_pit', 'rf_secret', 'rf_gate', 'rf_haz', 'rf_liq', 'rf_ice', 'rf_bridge', 'rf_tog', 'rf_break', 'rf_conv', 'rf_deep'];
-export const RF = { hpScale: 1, dmgScale: 1 };                    // balance (phase 4)
 let DATA = null, X = null;
 const HOST = {};                                                  // filled in by rfMap: the calls their engine makes to us
 
@@ -33,7 +33,7 @@ const methods = {
     const g = this;
     Object.assign(HOST, {
       msg: (t, dur) => g.banner(t, Math.max(1800, dur * 1000), true),
-      hurt: (d, o) => { const p = g.player, hp = p.hp; g.hurtPlayer(Math.round(d * RF.dmgScale), (o && o.d && o.d.name) || dg.name); return Math.max(0, Math.round(hp - p.hp)); },
+      hurt: (d, o) => { const p = g.player, hp = p.hp; g.hurtPlayer(Math.round(d * rfBalance(DATA, id).dmg), (o && o.d && o.d.name) || dg.name); return Math.max(0, Math.round(hp - p.hp)); },
       ground: (p, ground, dt, mod) => g.rfGround(p, ground, dt, mod),
       pickup: (d) => { if (d.k === 'potion') g.rfPotion(); },
       drop: (e) => g.rfDrop(e),
@@ -54,14 +54,14 @@ const methods = {
     m.rfSolid = (x, y) => X.solidMove(x, y);
     m.rfShot = (x, y) => X.solidShot(x, y);
     this.rfSync(m);
-    for (const e of E.en_) this.rfScale(e);
+    for (const e of E.en_) this.rfScale(e, id);                 // (this.map is not this one yet)
     return m;
   },
   // the loading card for one of their dungeons or boss rooms
   rfDest(where) {
     if (where.startsWith('rf_boss:')) { const B = DATA && DATA.bosses.find((b) => b.id === where.slice(8)); return { name: B ? B.name : where, stars: 4, sub: B ? B.title : '' }; }
-    const dg = dgOf(where.slice(3)), i = DATA ? DATA.dungeons.indexOf(dg) : 0, B = dg && DATA.bosses.find((b) => b.id === dg.boss);
-    return { name: dg ? dg.name : where, stars: Math.max(1, Math.min(5, 1 + Math.round(i / 6))), sub: B ? `Its master: ${B.name}` : '' };
+    const dg = dgOf(where.slice(3)), B = dg && DATA.bosses.find((b) => b.id === dg.boss);
+    return { name: dg ? dg.name : where, stars: dg ? rfBalance(DATA, dg.id).stars : 1, sub: B ? `Its master: ${B.name}` : '' };
   },
   // the realm keeps about one pack of each portal dropper in its land; the Unmaker's Eye is a rare sight in Godfall
   rfMaintain(packs, r) {
@@ -82,7 +82,7 @@ const methods = {
     this.say(`A portal to ${dg.name} has opened!`, dg.glow || '#3befff');
   },
   rfE() { return X.state ? X.state() : null; },
-  rfScale(e) { if (!e.rfScaled) { e.rfScaled = 1; e.hp = e.max = Math.round(e.max * RF.hpScale); } },
+  rfScale(e, id = this.map.rf.id) { if (!e.rfScaled) { e.rfScaled = 1; e.hp = e.max = Math.round(e.max * rfBalance(DATA, id).hp); } },   // (src/rf/balance.js)
   // our map follows theirs: tile codes, and what blocks you (their walls and solid things)
   rfSync(m) {
     const M = m.rf.E.M, t = M.t, og = m.rf.E.og;
@@ -141,10 +141,10 @@ const methods = {
     this.vx({ k: 'burst', ...this.rfLift(pr.x + 0.5, pr.y + 0.5), n: 10, colors: ['#ffe066', '#ffffff'] });
   },
   rfLift(x, y, h = 0.4) { const [lx, ly] = lift(x, y, h); return { x: lx, y: ly }; },
-  // their dungeons sit in tier bands by depth of the realm (balance in phase 4)
+  // the loot of their dungeon's band (src/rf/balance.js), like our dungeons' chests at the same tier
   rfLoot(k) {
-    const i = DATA.dungeons.findIndex((d) => d.id === this.map.rf.id), t = Math.min(11, 3 + Math.round(i / 3));
-    return [{ slot: 'weapon', tiers: [t - 1, t + 1], p: 0.35 * k }, { slot: 'armor', tiers: [t - 1, t + 1], p: 0.35 * k }, { slot: 'ring', tiers: [1, 3], p: 0.15 * k },
+    const T = rfBalance(DATA, this.map.rf.id).tiers;
+    return [{ slot: 'weapon', tiers: T, p: 0.35 * k }, { slot: 'armor', tiers: T, p: 0.35 * k }, { slot: 'ring', tiers: [1, 3], p: 0.15 * k },
       { slot: 'ability', tiers: [2, 4], p: 0.15 * k }, { id: 'pot_hp', p: 0.5 }, { stat: true, p: 0.08 * k }];
   },
   // our shot against their creatures (the loop in updateProjectiles calls this for each of your shots)

@@ -9,8 +9,9 @@ import { TID } from '../world/maps.js';
 import { lift } from '../util.js';
 import { rollLoot, ITEMS } from '../data/items.js';
 import { mitigate, moveSpeed } from '../data/classes.js';
+import { bandOfBoss } from './balance.js';
 
-export const RFB = { hpScale: 1, dropUt: 0.2, dropLeg: 0.08, dropMyth: 0.02 };   // balance (phase 4)
+export const RFB = { dropUt: 0.2, dropLeg: 0.08, dropMyth: 0.02, phaseMax: 60 };   // a boss's own uniques, by rarity (HP and damage: src/rf/balance.js)
 const DPR = 1.6, TP = 30;                                                      // their pixels to a tile; 30 * 1.6 = 48 = 16 * 3
 let S = null;
 const HOST = {
@@ -36,18 +37,18 @@ const methods = {
   rfBossMap(where) {
     const id = where.slice(8), B = DATA && DATA.bosses.find((b) => b.id === id);
     if (!S || !B) return null;
-    const g = this;
+    const g = this, bal = bandOfBoss(DATA, id);
     Object.assign(HOST, {
       input: () => g.player.rfMove || [0, 0],
       spd: () => g.player.rfSpd ?? moveSpeed(g.stat('spd')),
-      hurt: (d, src) => { const sh = B.shots[src]; g.hurtPlayer(Math.round(d), sh && sh.name ? `${B.name}'s ${sh.name}` : B.name); },
+      hurt: (d, src) => { const sh = B.shots[src]; g.hurtPlayer(Math.round(d * bal.bossDmg), sh && sh.name ? `${B.name}'s ${sh.name}` : B.name); },
       say: (nm, t, who) => { if (who !== 'sys') g.say(nm && who !== '*' ? `${nm}: ${t}` : t, who === '*' ? '#b8b0c8' : '#ffd0a0'); },
     });
     const A = S.start(B), R = A.room, cols = R ? R.cols : 18, rows = R ? R.rows : 14;
     const m = {
       kind: 'dungeon', name: B.name, w: cols, h: rows, tiles: new Uint8Array(cols * rows).fill(TID.rf_floor), solid: new Uint8Array(cols * rows),
       biome: new Int8Array(cols * rows).fill(-1), objects: [], portals: [], rooms: [], spawn: { x: cols / 2, y: rows - 3 },
-      rfBoss: { id, B, A, S, hp: Math.round(B.hp * RFB.hpScale), max: Math.round(B.hp * RFB.hpScale), phase: 0, done: false },
+      rfBoss: { id, B, A, S, bal, hp: Math.round(B.hp * bal.bossHp), max: Math.round(B.hp * bal.bossHp), phase: 0, done: false },
     };
     const ax = (x) => (x - 1) * TP, ay = (y) => (y - 2) * TP;               // world tiles -> their arena pixels (inner area)
     const out = (x, y) => x < 1 || y < 2 || x > cols - 1 || y > rows - 1;
@@ -67,11 +68,32 @@ const methods = {
     const B = F.B, next = B.phases[F.phase + 1];
     if (next && !A.trans && !A.dying && F.hp / F.max <= S.phaseHP(next)) { F.phase++; F.minKills = 0; S.startTrans(F.phase); }
     if (A.trans && A.trans.next !== undefined) F.phase = A.trans.next;
+    // phases the Armory ran on its timer, made to fit a fight on HP:
+    const P = B.phases[F.phase] || {}, why = this.rfBossInvuln();
+    if (F.cocoonPh !== F.phase) { F.cocoonPh = F.phase; F.cocoonDone = false; }
+    if (P.cocoon && why === 'Shielded by the chrysalis') {   // a damage check: break the shell in time, or she emerges healed
+      const S0 = F.shell || (F.shell = { hp: this.rfShellHp(P), t: 0 });
+      S0.t += dt;
+      if (S0.t > (P.cocoon.time || 10)) { F.hp = Math.min(F.max, F.hp + Math.round(F.max * 0.15)); F.shell = null; F.cocoonDone = true; this.banner(`${B.name} emerges from the chrysalis, healed.`, 2000); }
+    } else F.shell = null;
+    // an invulnerable phase that does not end by anything you do: survive it, and the fight moves on
+    const hard = why && !['Changing phase', 'Phase starting', 'Last words', 'In the air', 'Underground', 'Out of reach', 'Above the clouds', 'Shielded by the chrysalis'].includes(why);
+    F.lockT = hard && !A.trans && !A.dying ? (F.lockT || 0) + dt : 0;
+    if (F.lockT > Math.max(12, P.len || 18)) { F.lockT = 0; this.rfBossSkip(); }
+    // and no phase outstays its welcome: a boss that spends its phase in the air (Cinder's leaps) moves on after a while
+    if (F.timePh !== F.phase) { F.timePh = F.phase; F.phaseT = 0; }
+    if (!A.trans && !A.dying && (F.phaseT += dt) > RFB.phaseMax) { F.phaseT = 0; this.rfBossSkip(); }
     if (F.hp <= 0 && !A.dying && !F.dead) {
       if (B.fakeDeath && !A.faked) { A.faked = 1; S.fakeDeath(); F.hp = Math.round(F.max * 0.12); }   // it is not over
       else { F.dead = true; S.startDeath(); }
     }
     if (A.dying && !A.dying.pre && A.dying.t > 3 && !F.done) { F.done = true; this.rfBossWon(); }
+  },
+  rfShellHp(P) { const q = /([\d,]+) HP/.exec(P.text || ''); return Math.round((q ? +q[1].replace(/,/g, '') : 8000) * 0.55); },   // (their 8,000 was for the Armory's test player, who hit harder than ours)
+  // on to the next phase now (its HP mark), or, in the last, the end
+  rfBossSkip() {
+    const F = this.map.rfBoss, next = F.B.phases[F.phase + 1];
+    F.hp = next ? Math.min(F.hp, Math.floor(F.max * F.S.phaseHP(next)) - 1) : 0;
   },
   // our shot in the arena: their rules decide what it hits; the boss takes our damage (its DEF, its invulnerable spells)
   rfBossShot(b) {
@@ -82,19 +104,25 @@ const methods = {
     for (const mn of A.mins) {
       if (mn.hidden || Math.hypot(x - mn.x, y - mn.y) > T * 0.6) continue;
       if (b.hit) { if (b.hit.has(mn)) continue; b.hit.add(mn); }
-      if (mn.rfHp === undefined) { const how = (F.B.shots[mn.key] || {}).how || '', q = /\(([\d,]+) HP\)/.exec(how); mn.rfHp = q ? +q[1].replace(/,/g, '') * RFB.hpScale : 600; }
+      if (mn.rfHp === undefined) { const how = (F.B.shots[mn.key] || {}).how || '', q = /\(([\d,]+) HP\)/.exec(how); mn.rfHp = q ? +q[1].replace(/,/g, '') * F.bal.bossHp * 0.6 : 600 * F.bal.bossHp; }   // (minions a little under the boss's own scale)
       const d = mitigate(b.dmg, 10);
       mn.rfHp -= d; this.float(...lift(b.x, b.y, 0.6), `${d}`, '#ff5050');
       if (mn.rfHp <= 0) { A.mins = A.mins.filter((q) => q !== mn); A.hz.push({ k: 'anim', fx: 'impact_soul', x: mn.x, y: mn.y, size: T * 1.6, age: 0 }); F.minKills = (F.minKills || 0) + 1; }
       return !b.pierce;
     }
-    const onBoss = S.bossAt(x, y);
+    const onBoss = S.bossAt(x, y), th0 = A.th ? A.th.hits : 0;
     if (!S.shot(x, y, Math.atan2(b.vy, b.vx))) return false;
+    if (A.th && A.th.hits > th0) { const d = mitigate(b.dmg, F.bal.bossDef); F.hp = Math.max(0, F.hp - d); this.float(...lift(b.x, b.y, 0.6), `${d}`, '#ff5050'); return !b.pierce; }   // the true Vitrea among the thousand
     if (!onBoss) return !b.pierce;
     const inv = this.rfBossInvuln();
+    if (inv === 'Shielded by the chrysalis' && F.shell) {                    // the chrysalis takes the blow
+      const d = mitigate(b.dmg, F.bal.bossDef); F.shell.hp -= d; this.float(...lift(b.x, b.y, 0.6), `${d}`, '#f4ecd8');
+      if (F.shell.hp <= 0) { F.shell = null; F.cocoonDone = true; this.banner('The chrysalis breaks!', 1800); }
+      return !b.pierce;
+    }
     if (inv) { this.float(...lift(b.x, b.y, 0.6), 'IMMUNE', '#a8b8d8'); return true; }
     if (b.hit) { if (b.hit.has(F)) return false; b.hit.add(F); }
-    const d = mitigate(b.dmg, F.B.def || 0);
+    const d = mitigate(b.dmg, F.bal.bossDef);
     F.hp = Math.max(0, F.hp - d);
     this.float(...lift(b.x, b.y, 0.6), `${d}`, '#ff5050');
     return !b.pierce;
@@ -103,6 +131,7 @@ const methods = {
   // they fall (or, with none to kill, after the phase's time)
   rfBossInvuln() {
     const F = this.map.rfBoss, A = F.A, why = S.bossInvuln();
+    if (why === 'Shielded by the chrysalis' && F.cocoonDone) return false;      // she has emerged
     if (why === 'Invulnerable phase' && (A.mins.length === 0 && (F.minKills > 0 || A.since > (A.P.len || 18)))) return false;
     return why;
   },
@@ -116,8 +145,8 @@ const methods = {
       const c = d.rarity === 'mythic' ? RFB.dropMyth : d.rarity === 'legendary' ? RFB.dropLeg : RFB.dropUt;
       if (Math.random() < c) items.push(id);
     }
-    const i = DATA.dungeons.findIndex((dg) => dg.boss === B.id), t = Math.min(12, 4 + Math.round(Math.max(0, i) / 3));
-    items.push(...rollLoot([{ slot: 'weapon', tiers: [t - 1, t + 1], p: 0.8 }, { slot: 'armor', tiers: [t - 1, t + 1], p: 0.8 }, { slot: 'ring', tiers: [1, 3], p: 0.5 },
+    const T = F.bal.tiers, T2 = [T[0] + 1, T[1] + 1];                     // a boss gives a tier better than its dungeon's chests
+    items.push(...rollLoot([{ slot: 'weapon', tiers: T2, p: 0.8 }, { slot: 'armor', tiers: T2, p: 0.8 }, { slot: 'ring', tiers: [1, 3], p: 0.5 },
       { slot: 'ability', tiers: [3, 5], p: 0.5 }, { stat: true, p: 0.6 }, { id: 'pot_hp', p: 1 }], 2.5));
     const A = F.A, bx = A.b1.x / TP + 1, by = A.b1.y / TP + 2;
     this.addBag(bx, by + 0.5, items);

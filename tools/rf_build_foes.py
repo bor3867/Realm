@@ -76,7 +76,7 @@ for dg in D['dungeons']:
         contact = any(a.get('k') == 'contact' for a in e.get('atk', []))
         big = len(frames[0]) > 10                      # (drawn at 2x times scale: 8px art a tile tall, bigger art a little over)
         OUT[fid] = {'name': nm, 'biome': land, 'hp': hp, 'def': {'shore': 0, 'dunes': 2, 'lowlands': 1, 'fen': 3, 'thornwood': 5, 'runeholt': 9, 'steppe': 10, 'godfall': 16}[land] + (10 if eye else 0),
-                    'speed': round(min(3.6, max(0.6, e.get('spd', 2) * 0.55)), 2), 'xp': max(8, hp // 14), 'r': 0.55 if big else 0.42,
+                    'speed': round(min(3.6, max(0.9, e.get('spd', 2) * 0.68)), 2), 'xp': max(8, hp // 14), 'r': 0.55 if big else 0.42,
                     'ai': 'rooted' if eye else MOVE.get(e.get('move', 'chase'), 'shamble'), 'aggro': 10, 'reg': f'rf_foes/{fid}',
                     'scale': round(max(0.5, min(1, 12 / len(frames[0]))), 2), 'attacks': attacks or [{'pattern': 'aimed', 'proj': proj, 'count': 1, 'dmg': dmg, 'speed': 6, 'range': 6, 'cd': 1.8, 'tell': 350}],
                     'rfPortal': did, 'rfFrom': k, 'portalP': 1 if eye else 0.035, 'eye': eye}

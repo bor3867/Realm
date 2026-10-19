@@ -3550,8 +3550,8 @@ export class Game {
       let alive = true;
       if (b.from === 'p' && m.rf && this.rfShotHits(b)) alive = false;   // a Realmforge creature (src/rf/host.js)
       if (b.from === 'p' && m.rfBoss && this.rfBossShot(b)) alive = false;   // a Realmforge boss and its arena (src/rf/boss.js)
-      if (b.from === 'p' && alive) {
-        for (const e of targets) {
+      if (b.from === 'p') {
+        if (alive) for (const e of targets) {
           if (e.dead || e.state === 'dead' || e.under) continue;
           const rr = (e === this.boss ? BOSS.r : e.D.r) + b.r;
           const [hx, hy] = this.up(e.x, e.y, e === this.boss ? 2.3 : e.hitUp || (e.rb ? 1.4 : 0.5));

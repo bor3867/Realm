@@ -71,6 +71,13 @@ trail 13, line 12, spiral 7, summon 7, pulse 5, snipe 4, heal 3, and 9 rarer). 2
   Lands: Haunted Hills/Midlands -> Ashfen; Lowlands/Old Quarter -> Greenmarch; Highlands/Snow Peaks/Ruins ->
   Runeholt; Forest/Forest Edge -> Thornwood; Mountains/Mountaintops/Scholars' Hills -> Crystal Steppe; Desert ->
   Saltglass Dunes; Godlands/Volcanic Wastes -> Godfall; Shoreline -> Drowned Shore.
+- **Phase 4a: balance** (`src/rf/balance.js`). Each dungeon joins a band by its boss's HP (A <=45k, B <=65k, C <=75k,
+  D above) measured against our dungeons at the same gear tier: creature HP/damage brought to the band (their damage
+  was written for a 25-DEF test player), boss HP x1.6 / 2.2 / 2.6 / 3.1, boss damage x0.55..1.05, boss DEF capped at
+  ours (18/26/32/38), loot tiers 3-6 / 5-8 / 7-9 / 8-10 (bosses one better). Fights on HP: the chrysalis is a damage
+  check once a phase (break the shell or she emerges healed), hits on the true Vitrea count, an invulnerable phase
+  nothing you do can end is survived (it moves on after its length), and no phase lasts past 60 s. Measured, a
+  level-20 player in the band's gear, always firing: A 1.5-2.5 min, B 2.5-3.5, C 2.5-4, D 3.5-4.5 (all 24 killed).
 
 ## Status
 | Dungeon | Boss | Layout | Creatures | Boss | Uniques | Overworld droppers | Done |
