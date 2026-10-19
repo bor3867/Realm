@@ -19,7 +19,7 @@ const methods = {
   netStart() {
     if (this.net || typeof WebSocket === 'undefined') return;
     const url = serverUrl();
-    this.net = { url, ws: null, id: 0, seed: 0, world: false, others: new Map(), shots: [], hits: [], byId: new Map(), sendT: 0, wait: 2, online: 0, open: false };
+    this.net = { url, ws: null, id: 0, seed: 0, world: false, others: new Map(), shots: [], hits: [], efx: [], byId: new Map(), sendT: 0, wait: 2, online: 0, open: false };
     if (url) this.netConnect();
   },
   netConnect() {
@@ -60,6 +60,7 @@ const methods = {
       }
     } else if (m.t === 'ws') this.netWorldState(m);
     else if (m.t === 'wev') this.netWorldEvents(m.ev);
+    else if (m.t === 'wlog') { if (this.map.netWorld) { for (const a of m.tiles) this.netTile(a); for (const o of m.objs) this.netObj(o); } }
     else if (m.t === 'hurt') { if (this.map.netWorld && !this.player.dead) this.hurtPlayer(m.d, m.by, m.ap); }
     else if (m.t === 'chat') this.say(`${m.name}: ${m.text}`, m.id === N.id ? '#e9e4f2' : '#bfe8ff');
   },
@@ -96,6 +97,9 @@ const methods = {
     N.shots = [];
     if (N.hits.length && this.map.netWorld) N.ws.send(JSON.stringify({ t: 'hits', list: N.hits.slice(0, 60) }));
     N.hits = [];
+    if (this.map.netWorld) for (const e of N.byId.values()) if (e.netPx || e.netPy) { N.efx.push([e.nid, 'push', +e.netPx.toFixed(2), +(e.netPy || 0).toFixed(2)]); e.netPx = e.netPy = 0; }
+    if (N.efx.length && this.map.netWorld) N.ws.send(JSON.stringify({ t: 'efx', list: N.efx.slice(0, 40) }));
+    N.efx = [];
   },
   // ---- stage 2, milestone 1: the shared realm's monsters are the server's (server/world.mjs)
   // this realm is the shared one and the server runs its monsters: ours go, theirs come
@@ -117,17 +121,22 @@ const methods = {
   netWorldState(m) {
     const N = this.net, M = this.map;
     if (!M || !M.netWorld) return;
+    const off = this.t - (m.T || 0), TIMED = /Until$|^born$/;              // the server's clock to ours
+    for (const s of m.es) for (const k in s) if (TIMED.test(k) && typeof s[k] === 'number') s[k] += off;
     for (const s of m.es) {
       let e = N.byId.get(s.nid);
       if (!e) {
         if (!s.D) continue;
         e = { cds: [], queue: [], hurtT: 0, deadT: 0, phase: 0, state: 'move', st: 0, ...s, net: true, tx: s.x, ty: s.y };
         if (!e.id) e.id = s.D.id || '';
+        if (e.D.bx) { this.bxSetup(e); if (e.bx.anim) e.bx.anim.handlers = {}; }   // a three-phase boss: its art here, its mind on the server
+        this.netBx(e, s);
         N.byId.set(s.nid, e); this.enemies.push(e);
         continue;
       }
       const { x, y, D, ...rest } = s;
       Object.assign(e, rest);
+      this.netBx(e, s);
       if (x !== undefined) e.tx = x;
       if (y !== undefined) e.ty = y;
     }
@@ -145,19 +154,40 @@ const methods = {
   netWorldEvents(ev) {
     if (!this.map.netWorld) return;
     for (const x of ev) {
-      if (x.k === 'shot') { const b = x.b; b.hit = b.pierce ? new Set() : null; this.projectiles.push(b); }
+      if (x.k === 'shot') { const b = x.b; b.hit = b.pierce ? new Set() : null; b.netRemote = true; this.projectiles.push(b); }
       else if (x.k === 'fx') this.fx.push(x.f);
       else if (x.k === 'vx') this.vx(x.v);
       else if (x.k === 'banner') this.banner(x.text, x.ms);
       else if (x.k === 'say') { const e = this.net.byId.get(x.id); if (e) this.bubble(e, x.text, x.col); }
+      else if (x.k === 'tile') this.netTile(x.a);
+      else if (x.k === 'obj') this.netObj(x.o);
     }
   },
-  // a puppet between updates: it glides to where the server last had it
+  // a puppet between updates: it glides to where the server last had it; its burns tick here (the damage is reported);
+  // a slow you put on it goes to the server; a boss's animation plays on
   netPuppet(e, dt) {
     const d = Math.hypot(e.tx - e.x, e.ty - e.y);
     if (d > 5) { e.x = e.tx; e.y = e.ty; } else { const k = Math.min(1, dt * 10); e.x += (e.tx - e.x) * k; e.y += (e.ty - e.y) * k; }
     if (e.hurtT > 0) e.hurtT = Math.max(0, e.hurtT - dt);
+    if (e.burn && e.burn.t > 0) this.tickStatus(e, dt);
+    if (e.slowT > 0 && e.slowF > 0 && (e.slowF !== e.netSF || e.slowT > (e.netST || 0) + 0.3)) { e.netSF = e.slowF; e.netST = e.slowT; this.netEfx(e, 'slow', e.slowT, e.slowF); }
+    if (e.bx && e.bx.anim) e.bx.anim.update(dt);
   },
+  netEfx(e, k, a, b = 0) { const N = this.net; if (N && N.open && e.net) N.efx.push([e.nid, k, +(+a).toFixed(2), +(+b).toFixed(2)]); },
+  // a three-phase boss's phase and clip, as the server has them
+  netBx(e, s) {
+    const S = e.bx;
+    if (!S) return;
+    if (s.bx_phase !== undefined) S.phase = s.bx_phase;
+    if (s.bx_state !== undefined) S.state = s.bx_state;
+    if (s.bx_leapZ !== undefined) S.leapZ = s.bx_leapZ;
+    if (s.bx_drawK !== undefined) S.drawK = s.bx_drawK;
+    if (S.anim && s.bx_clip && S.anim.def.anims[s.bx_clip] && S.anim.clip !== s.bx_clip) S.anim.play(s.bx_clip);
+    if (S.anim && s.bx_spd !== undefined) S.anim.speed = s.bx_spd;
+  },
+  // the land as the server's events changed it: an arena raised, trees grown
+  netTile(a) { if (!this.map.netWorld) return; const [x, y, tid, skin] = a; this.evSet(x, y, tid, skin); this.map.miniDirty = true; this.map.tilesV = (this.map.tilesV || 0) + 1; },
+  netObj(o) { if (!this.map.netWorld || !o) return; this.map.objects.push(o); this.map.ogridDirty = true; },
   // the others here now, for the renderer and the nearby list
   netHere() { const N = this.net, room = this.netRoom(); return N && room ? [...N.others.values()].filter((o) => o.room === room) : []; },
 };

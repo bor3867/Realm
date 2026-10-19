@@ -1240,6 +1240,7 @@ export class Game {
     return out;
   }
   stun(e, t) {
+    if (e.net) this.netEfx(e, 'stun', t);                     // a shared monster: the server holds it still (src/net.js)
     if (e.rfC) { e.lock = Math.max(e.lock || 0, t); return; }   // an rf_ creature: held still
     if (e === this.boss || e.rb) { this.float(e.x, e.y - 2, 'UNSHAKEN', '#8d88a0'); return; }
     if (e.D && e.D.dummy) return;
@@ -1609,6 +1610,7 @@ export class Game {
   }
   moveCircle(o, dx, dy, r) {
     if (o.rfC || o.rfBossP) return;                           // (their creatures move by their own rules)
+    if (o.net) { o.netPx = (o.netPx || 0) + dx; o.netPy = (o.netPy || 0) + dy; }   // a shared monster knocked about: the server hears of it
     if (o.rb && this.map.kind === 'realm') {              // realm bosses pass over rocks, trees and thickets (RotMG-style): they never get stuck
       const m = this.map; o.x = Math.max(2, Math.min(m.w - 2, o.x + dx)); o.y = Math.max(2, Math.min(m.h - 2, o.y + dy)); return;
     }
@@ -1628,6 +1630,8 @@ export class Game {
   }
 
   shoot(from, x, y, a, speed, range, dmg, sprite, size = 0.4, pierce = false, by = null) {
+    // in the shared realm every monster shot comes from the server (split, burst and lob shards too): none made here
+    if (from === 'e' && this.map && this.map.netWorld) return { from, x, y, vx: 0, vy: 0, life: 0, dmg, sprite, r: size, a, by };
     const MB = this.mirrorBy;
     if (from === 'e' && MB && by === MB.name && this.t < MB.until && !this.mirroring) {
       this.mirroring = true; this.shoot('e', 2 * MB.cx - x, 2 * MB.cy - y, a + Math.PI, speed, range, dmg, sprite, size, pierce, by); this.mirroring = false;

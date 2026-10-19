@@ -66,8 +66,14 @@ function onMessage(c, text) {
     for (const h of m.list.slice(0, 60)) if (Array.isArray(h)) world.hit(c.id, num(h[0], 0, 1e9), num(h[1], 0, 1e6));
     return;
   }
+  if (m.t === 'efx' && world && c.room === REALM && Array.isArray(m.list)) {     // your stuns, slows, knockback on them
+    world.efx(c.id, m.list.slice(0, 40).filter((x) => Array.isArray(x) && ['stun', 'slow', 'push'].includes(x[1])).map((x) => [num(x[0], 0, 1e9), x[1], num(x[2], -10, 10), num(x[3], -10, 10)]));
+    return;
+  }
   if (m.t === 'chat') {
     const text = str(m.text, LIMIT.chat).trim();
+    // dev only (DEV=1 in the environment, never online): !kraken, !treant raise an event boss in the shared realm
+    if (process.env.DEV === '1' && world && /^!(kraken|treant)$/.test(text)) { const g = world._g; g.spawnEventBoss(text === '!kraken' ? 'abyssal_kraken' : 'thornheart_treant'); return; }
     if (text) toAll({ t: 'chat', id: c.id, name: c.name, text });
   }
 }
