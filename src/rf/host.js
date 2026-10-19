@@ -5,9 +5,10 @@
 // our renderer draws all of it (their art, 8 pixels to a tile, drawn at 2x like ours).
 import { makeExplore } from './explore_gen.js';
 import { TID } from '../world/maps.js';
-import { lift } from '../util.js';
+import { lift, R } from '../util.js';
 import { rollLoot } from '../data/items.js';
 import { bossData } from './boss.js';
+import { RF_FOE_LANDS } from '../data/rf_foes.js';
 
 const TS = 16, K = 2;                                             // our tile is 16 buffer pixels; their art is 8 to a tile
 // their tile codes (C in explore.js) -> our tile names: a code change is a tile change, so our chunk caches follow
@@ -61,6 +62,24 @@ const methods = {
     if (where.startsWith('rf_boss:')) { const B = DATA && DATA.bosses.find((b) => b.id === where.slice(8)); return { name: B ? B.name : where, stars: 4, sub: B ? B.title : '' }; }
     const dg = dgOf(where.slice(3)), i = DATA ? DATA.dungeons.indexOf(dg) : 0, B = dg && DATA.bosses.find((b) => b.id === dg.boss);
     return { name: dg ? dg.name : where, stars: Math.max(1, Math.min(5, 1 + Math.round(i / 6))), sub: B ? `Its master: ${B.name}` : '' };
+  },
+  // the realm keeps about one pack of each portal dropper in its land; the Unmaker's Eye is a rare sight in Godfall
+  rfMaintain(packs, r) {
+    const alive = {};
+    for (const e of this.enemies) if (!e.dead && e.D.rfPortal) alive[e.id] = (alive[e.id] || 0) + 1;
+    for (const [land, ids] of Object.entries(RF_FOE_LANDS)) for (const id of ids) {
+      if (alive[id]) continue;
+      if (id === 'rf_the_unmaker_s_eye') { if ((r || R)() < (r ? 0.5 : 0.004)) this.spawnGroup(land, r || R, this.player || this.map.spawn, 18, id); continue; }
+      this.spawnPack(land, id, r);
+    }
+    void packs;
+  },
+  // a portal to one of their dungeons, in their portal's art
+  rfOpenPortal(to, x, y, life) {
+    const id = to.slice(3), dg = dgOf(id);
+    if (!dg) return;
+    this.map.portals.push({ kind: 'dungeon', rf: id, x, y, label: dg.portal_name ? `${dg.name} (${dg.portal_name})` : dg.name, to, life });
+    this.say(`A portal to ${dg.name} has opened!`, dg.glow || '#3befff');
   },
   rfE() { return X.state ? X.state() : null; },
   rfScale(e) { if (!e.rfScaled) { e.rfScaled = 1; e.hp = e.max = Math.round(e.max * RF.hpScale); } },

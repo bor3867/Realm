@@ -11,6 +11,15 @@ const methods = {
     if (tx < 0 || ty < 0 || tx >= m.w || ty >= m.h || !E.base) { gc.fillStyle = '#000'; gc.fillRect(dx, dy, TS, TS); return; }
     gc.drawImage(E.base, tx * 8, ty * 8, 8, 8, dx, dy, TS, TS);
   },
+  // one of their portals in the realm: its own animated art, at 2x
+  rfPortal(g, pt, sx, sy) {
+    const C = this.objDefs || (this.objDefs = new Map()), key = `rf_portals/${pt.rf}`;
+    let def = C.get(key);
+    if (def === undefined) C.set(key, (def = (this.R && this.R.resolve(key)) || null));
+    if (!def) return;
+    const F = def.anims.loop.frames, fr = def.frames[F[Math.floor(g.t * 6) % F.length]], b = this.b;
+    b.drawImage(def.img, fr.x, fr.y, fr.w, fr.h, Math.round(sx - fr.w), Math.round(sy - fr.h * 2 + 4), fr.w * 2, fr.h * 2);
+  },
   // a sprite of theirs, standing at a ground point, bottom-centred (rx, ry: that point on screen)
   rfSprite(im, rx, ry, o = {}) {
     if (!im) return;

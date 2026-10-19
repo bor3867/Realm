@@ -613,6 +613,7 @@ export class Game {
     for (const b of BIOMES) for (let k = 0; k < parentTarget(m, b); k++) this.spawnParentGroup(b, r, m.spawn, 18);
     for (let k = 0; k < 4; k++) this.spawnGroup('godfall', r, m.spawn, 18, 'censer_magistrate');
     for (const [b, list] of Object.entries(PACKS)) for (const [id, n] of list) for (let k = 0; k < Math.round(n * 1.5); k++) this.spawnPack(b, id, r);
+    this.rfMaintain({}, r);
     for (const c of m.camps || []) {                    // each camp: an evolved leader and its band, guarding the chest
       const chest = m.objects.find((o) => o.interact === 'chest' && Math.abs(o.x - c.x) < 0.1 && Math.abs(o.y - c.y) < 0.1);
       const lead = this.addEnemy(r.pick(GROUPS[c.biome]), c.x + 1.5, c.y + 1.5);
@@ -765,6 +766,7 @@ export class Game {
     const packs = {};
     for (const e of this.enemies) if (!e.dead && e.pack) packs[e.pack] = (packs[e.pack] || 0) + 1;
     for (const [b, list] of Object.entries(PACKS)) for (const [id, n] of list) if ((packs[id] || 0) < n * 1.5 * 2) this.spawnPack(b, id);
+    this.rfMaintain(packs);                                     // the Realmforge portal droppers (src/rf/host.js)
   }
   // ---- mini-events: heralds. Three heralds in a biome summon that biome's realm boss.
   eventClock(dt) {
@@ -3059,7 +3061,7 @@ export class Game {
     }
     if (m.kind !== 'realm') return null;
     const pd = portalDrop(e.D, e.id);
-    return pd && R() < pd[1] * 0.15 ? `key_${pd[0]}` : null;     // whatever could drop a portal can, rarely, drop its key
+    return pd && ITEMS[`key_${pd[0]}`] && R() < pd[1] * 0.15 ? `key_${pd[0]}` : null;     // whatever could drop a portal can, rarely, drop its key
   }
   eggDrop(e) {
     const D = e.D || {}, roll = R(), bossy = e.rb || e === this.boss;
@@ -4267,6 +4269,7 @@ export class Game {
     }
   }
   openPortal(to, x, y, life = 40) {
+    if (to.startsWith('rf_')) return this.rfOpenPortal(to, x, y, life);   // a Realmforge dungeon (src/rf/host.js)
     const D = DUNGEONS[to];
     this.map.portals.push({ kind: D.portal, x, y, label: D.name, to, life });
     this.say(`A portal to ${D.name} has opened!`, '#3befff');

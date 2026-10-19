@@ -2047,3 +2047,12 @@ Object.assign(DUNGEONS.throne, { ambient: 'rgba(20,12,30,0.38)' });
 
 // the big ones among the newer dungeons' adds are drawn a size up
 for (const [id, k] of [['prism_image', 2.6], ['sleepers_nightmare', 2.4], ['hanging_marionette', 1.6], ['understudy', 1.5], ['comb_guard', 1.3], ['prima_donna', 1.4], ['nightmare_knight', 1.5], ['glass_knight', 1.3]]) ENEMIES[id].scale = k;
+
+// the user's Realmforge portals: the overworld foes each one names drop it (tools/rf_build_foes.py, src/rf/host.js)
+import { RF_FOES } from './rf_foes.js';
+{
+  const T = { shore: [[0, 2], [0, 2], [0, 1], [0, 1]], dunes: [[2, 4], [2, 4], [1, 2], [1, 2]], lowlands: [[1, 3], [1, 3], [0, 1], [0, 1]], fen: [[2, 4], [2, 4], [1, 2], [1, 2]],
+    thornwood: [[3, 5], [3, 5], [1, 2], [1, 2]], runeholt: [[4, 6], [4, 7], [2, 3], [2, 3]], steppe: [[5, 7], [5, 8], [2, 3], [2, 3]], godfall: [[7, 9], [7, 10], [3, 4], [3, 4]] };
+  for (const [id, F] of Object.entries(RF_FOES)) { const t = T[F.biome]; ENEMIES[id] = { ...F, loot: L(...t, 0.01) }; }
+  PORTAL_EXTRA.unshift((D) => (D.rfPortal ? [`rf_${D.rfPortal}`, D.portalP] : null));
+}

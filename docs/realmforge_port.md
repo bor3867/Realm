@@ -63,6 +63,14 @@ trail 13, line 12, spiral 7, summon 7, pulse 5, snipe 4, heal 3, and 9 rarer). 2
   by minions ends when they fall, phases turn on HP, fake deaths rise once, the death plays its lines and bursts, then
   XP, a bag (its uniques by rarity) and the exit. All 24 run through every phase to death. Not yet: balance (their
   HP is raw: 42,000 for Mortis), their arena sprites turn with the camera (drawn flat into the floor layer).
+- **Phase 2c done: the portals are in the realm.** `tools/rf_build_foes.py` makes the 46 overworld foes the portals
+  name (Gravekeepers, Bog Witches, ...) into realm enemies: each wears the art of the closest creature in its own
+  dungeon (by name, else by role), fights like it at its land's strength, lives in the closest of our lands, and drops
+  its dungeon's portal (3.5%) in Realmforge's own portal art. The realm keeps about one pack of each alive. The Rift
+  opens from the Unmaker's Eye, a rare, tough, rooted sight in Godfall (always drops it).
+  Lands: Haunted Hills/Midlands -> Ashfen; Lowlands/Old Quarter -> Greenmarch; Highlands/Snow Peaks/Ruins ->
+  Runeholt; Forest/Forest Edge -> Thornwood; Mountains/Mountaintops/Scholars' Hills -> Crystal Steppe; Desert ->
+  Saltglass Dunes; Godlands/Volcanic Wastes -> Godfall; Shoreline -> Drowned Shore.
 
 ## Status
 | Dungeon | Boss | Layout | Creatures | Boss | Uniques | Overworld droppers | Done |

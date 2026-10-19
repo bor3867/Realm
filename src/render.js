@@ -1009,6 +1009,7 @@ export class Renderer {
   }
   portal(g, pt, sx, sy) {
     if (pt.life !== undefined && pt.life < 6 && Math.floor(g.t * 8) % 2) return;     // flickers before it closes
+    if (pt.rf) return this.rfPortal(g, pt, sx, sy);           // a Realmforge portal, in its own art (src/rf/draw.js)
     const k = this.W.portals[pt.kind] + (Math.floor(g.t * 6) % 3), c = this.W.objectsCols;
     this.spr(this.A.img.objects, (k % c) * TS, Math.floor(k / c) * TS, TS, TS, sx, sy, 8, 8);
     if (Math.random() < 0.3) this.parts.push({ x: pt.x + (Math.random() - 0.5) * 0.6, y: pt.y, z: 4 + Math.random() * 6, vx: 0, vy: 0, vz: 14, g: 0, life: 0.6, max: 0.6, color: { realm: '#3befff', dungeon: '#ffc94a', nexus: '#fffdf0' }[pt.kind] || '#fff' });
