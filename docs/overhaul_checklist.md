@@ -66,14 +66,15 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   your inventory.
 
 ## To do (next sessions)
-- 2.5D walls (requested 2026-10-12, reference image received), first pass done in src/walls.js: every wall tile of the 17
-  dungeons is a block one tile tall. Tops are the wall's own art, lifted one tile up the screen and turning with the camera;
-  exposed faces (toward floor or void, facing the camera at its current angle) hang from the top to the ground, coursed,
-  darker than the top, lit by their world direction, with a contact shadow; packs with their own wall-side art use it.
-  Border walls sort with everyone (stand behind one and it covers you; it turns see-through over your own character);
-  shots are drawn over all of it. Collision unchanged. Cost about 1 ms a frame (tops cached per 8x8 chunk with the
-  ground). Still to do: walls of differing heights per material, the Nexus / realm hedges and cliffs, a closer pass on
-  each dungeon's face material.
+- 2.5D walls (requested 2026-10-12), done in src/walls.js: every wall is a block. Dungeon walls stand one tile tall
+  (the Crimson Keep 1.5, the chapel, the Heart and Throne ribs and the Prism Lighthouse 1.25); the Nexus hedges stand
+  low (0.7), in the Nexus only; the realm's ruins (towers, hamlets, graveyards, shells: ruin_wall pieces) are low
+  broken blocks of uneven height, while the realm's border, hedges and cliffs stay flat. Tops are the wall's own art,
+  lifted and turning with the camera; faces show toward anything lower (a partial face where a taller block meets a
+  shorter one), coursed per material (rivets, ribs, honeycomb, velvet folds, crystal facets, leaves), lit by their
+  world direction, with a contact shadow. Border walls sort with everyone; a wall over your own character turns
+  see-through; shots draw over all of it; collision is untouched. All 17 dungeons checked at a turned camera (a contact
+  sheet), the Nexus and the realm ruins too. Cost about 0.5-1 ms a frame.
 - Vault window and settings dropdown (requested 2026-10-12), done: standing on your vault chest opens a big window over
   the game (the vault grid itself moves into it, so dragging, tooltips and double-click all work), with Type / Tier / Rarity
   / Name sorting and a scrolling grid; double-click a backpack item to store it; Esc or x closes it (the panel label reopens

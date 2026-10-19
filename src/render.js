@@ -486,7 +486,7 @@ export class Renderer {
     return this.colorCache.get(key);
   }
   obj(o, sx, sy) {
-    if (o.hidden) return;
+    if (o.hidden || o.block) return;                          // (a ruin piece stands as a block: src/walls.js)
     if (o.interact === 'weak') {                             // a secret wall: drawn as plain wall (the tile), with the faintest hairline crack
       const b = this.b, x = Math.round(sx), y = Math.round(sy);
       b.globalAlpha = 0.28; b.fillStyle = '#05040a';
