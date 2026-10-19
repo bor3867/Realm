@@ -106,6 +106,18 @@ export function makeWorld(seed, send, where = 'realm') {
       if (log.tiles.length || log.objs.length) send(id, { t: 'wlog', tiles: log.tiles, objs: log.objs });
       if (dung && (dTiles.size || dObjs.size)) send(id, { t: 'dlog', tiles: [...dTiles.values()], objs: [...dObjs.values()] });
     },
+    // a player's blow on something breakable (a chest, an urn, a crate, a weak wall, a spore pod): the world takes it,
+    // as that player; everyone sees what changed; a chest that breaks gives each who hit it their own loot
+    ohit(id, i, k, d) {
+      const q = P.get(id), o = g.map.objects[i];
+      if (!q || !o || objKey(o) !== k || Math.hypot(o.x - q.x, o.y - q.y) > 14 || !(d > 0)) return;
+      (o.netHit || (o.netHit = new Set())).add(id);
+      const was = !!o.opened;
+      if (o.guards && o.guards.some((e) => !e.dead)) { send(id, { t: 'ofloat', i, k, text: 'GUARDED' }); return; }
+      g.player = q; try { g.hitObject(o.x, o.y, Math.min(d, 12000)); } catch (err) { console.warn('ohit', k, err.message); } finally { g.player = anchor; }
+      const f = OBJ(o); out.push({ k: 'ostate', i, key: k, f, x: o.x, y: o.y });
+      if (!was && o.opened && o.interact === 'chest') for (const h of o.netHit) send(h, { t: 'oopen', i, k });
+    },
     // a player used something here (a lever, a door, a chest): the world uses it too, for everyone
     use(id, i, k) {
       const q = P.get(id), o = g.map.objects[i];
@@ -196,7 +208,7 @@ export function makeWorld(seed, send, where = 'realm') {
       // to each player: the events near them, and (10 a second) the monsters near them
       for (const q of P.values()) {
         const near = (x, y, r = SEND_R) => Math.abs(x - q.x) < r && Math.abs(y - q.y) < r;
-        const mine = ev.filter((x) => x.k === 'su' || x.k === 'sg' || x.k === 'banner' || x.k === 'tile' || x.k === 'obj' || x.k === 'exit' || (x.k === 'shot' && near(x.b.x, x.b.y)) || (x.k === 'fx' && near(x.f.x, x.f.y)) || (x.k === 'vx' && near(x.v.x ?? q.x, x.v.y ?? q.y)) || x.k === 'say');
+        const mine = ev.filter((x) => (x.k === 'ostate' && near(x.x, x.y, 40)) || x.k === 'su' || x.k === 'sg' || x.k === 'banner' || x.k === 'tile' || x.k === 'obj' || x.k === 'exit' || (x.k === 'shot' && near(x.b.x, x.b.y)) || (x.k === 'fx' && near(x.f.x, x.f.y)) || (x.k === 'vx' && near(x.v.x ?? q.x, x.v.y ?? q.y)) || x.k === 'say');
         if (mine.length) send(q.netId, { t: 'wev', ev: mine });
         if (!sendNow) continue;
         const es = [], gone = [];
