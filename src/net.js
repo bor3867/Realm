@@ -144,7 +144,6 @@ const methods = {
     if (!M) return;
     const b = this.bags.find((q) => q.shared && q.bid === m.bid);
     if (m.gone) { if (b) { this.bags = M.bags = this.bags.filter((q) => q !== b); if (this.nearBag === b) this.nearBag = null; this.events.push({ type: 'ground' }); } return; }
-    if (!this.account || !this.account.online) return;
     const kind = this.bagKind(m.items) || 'brown';
     if (b) { b.items = m.items; b.kind = kind; } else this.bags.push({ shared: true, bid: m.bid, x: m.x, y: m.y, items: m.items, kind, life: 120, until: this.t + 1e9 });
     this.events.push({ type: 'ground' });

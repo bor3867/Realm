@@ -12,6 +12,8 @@ const { buildRegistry } = await import(new URL('src/registry.js', ROOT));
 const { Game } = await import(new URL('src/game.js', ROOT));
 const { realm } = await import(new URL('src/world/maps.js', ROOT));
 const { REALM_BOSSES } = await import(new URL('src/data/enemies.js', ROOT));
+const { ITEMS, bagFor } = await import(new URL('src/data/items.js', ROOT));
+const isBrown = (id) => { try { return bagFor([ITEMS[id]]) === 'brown'; } catch { return false; } };
 // the admin commands that make or end monsters: in a shared place the server runs them, so everyone has the same ones
 export const WORLD_CMDS = new Set(['spawn', 'bx', 'boss', 'kraken', 'treant', 'star', 'melon', 'event', 'progress', 'killall']);
 const J = (q) => JSON.parse(readFileSync(new URL('art/bundle/' + q, ROOT), 'utf8')), idx = J('index.json');
@@ -74,6 +76,10 @@ export function makeWorld(seed, send, where = 'realm') {
   // lighter for a small server: no chest prompts for the stand-in; the slow clocks (events, the melon, quirks) once a
   // second with the time they missed
   g.openChests = function () {};
+  // loot: the world's roll keeps only what goes in a brown bag, and that lies in a public bag for all here (server.mjs);
+  // everything finer, each player who fought it rolls for themselves (their own bag)
+  let onBag = null;
+  g.addBag = function (x, y, items) { const brown = (items || []).filter(isBrown); if (brown.length && onBag) onBag(x, y, brown); return { x, y, items: Array(8).fill(null), kind: 'brown' }; };
   const add0 = g.addEnemy.bind(g);                                 // a new monster joins the server's short list at once
   g.addEnemy = function (...a) { const e = add0(...a); (this.netNew = this.netNew || []).push(e); return e; };
   g.updateWorld = ((f) => function (dt) { const o = this.map.objects; this.map.objects = []; try { return f.call(this, dt); } finally { this.map.objects = o; } })(g.updateWorld);   // (no town objects to walk up to)
@@ -91,6 +97,7 @@ export function makeWorld(seed, send, where = 'realm') {
 
   return {
     seed, _g: g,                       // (_g: the world itself, for tests and admin)
+    set onBag(f) { onBag = f; },       // where its public loot goes
     get count() { return P.size; },
     join(id, name, admin = false) {
       const q = Object.create(anchor);

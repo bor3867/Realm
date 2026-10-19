@@ -2290,6 +2290,7 @@ export class Game {
       if (egg) items.push(egg);
       const key = this.keyDrop(e);
       if (key) items.push(key);
+      if (e.net) items = items.filter((id) => this.bagKind([id]) !== 'brown');   // a shared kill: brown loot lies in the public bag (the server's); the rest is yours
       if (items.length) this.addBag(e.x, e.y, items);
       if (this.map.kind === 'realm') {
         const pd = portalDrop(e.D, e.id);

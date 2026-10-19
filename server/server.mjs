@@ -22,6 +22,14 @@ const bags = new Map();              // room -> Map(bid -> { bid, x, y, items[8]
 let nextBid = 1;
 const bagsIn = (room) => { let B = bags.get(room); if (!B) bags.set(room, (B = new Map())); return B; };
 const bagMsg = (b) => ({ t: 'bag', bid: b.bid, x: b.x, y: b.y, items: b.items });
+// a shared kill's brown loot: one public bag where it fell (up to eight to a bag)
+function publicBag(room, x, y, items) {
+  const B = bagsIn(room);
+  for (let k = 0; k < items.length && B.size < 120; k += 8) {
+    const b = { bid: nextBid++, x: x + (k ? 0.6 : 0), y, items: [...items.slice(k, k + 8), ...Array(Math.max(0, 8 - items.slice(k, k + 8).length)).fill(null)], until: Date.now() + 90000 };
+    B.set(b.bid, b); toRoom(room, bagMsg(b));
+  }
+}
 setInterval(() => { const now = Date.now(); for (const [room, B] of bags) for (const [bid, b] of B) if (b.until < now) { B.delete(bid); toRoom(room, { t: 'bag', bid, gone: true }); } }, 5000);
 const db = makeDb();
 if (db) console.log(`accounts and saves: ${db.kind}`);
@@ -29,6 +37,7 @@ if (db) console.log(`accounts and saves: ${db.kind}`);
 const { makeWorld } = process.env.WORLD === '0' ? {} : await import('./world.mjs');
 const world = makeWorld ? makeWorld(SEED, (id, obj) => { const c = clients.get(id); if (c) send(c, obj); }) : null;
 const REALM = 'realm:' + SEED;
+if (world) world.onBag = (x, y, items) => publicBag(REALM, x, y, items);
 // milestone 3: shared dungeons, one world each, opened from portals in the shared realm (a dungeon closes when it has
 // stood empty for two minutes and its portal is gone)
 const { DUNGEONS } = world ? await import('../src/data/enemies.js') : { DUNGEONS: {} };
@@ -101,7 +110,7 @@ function onMessage(c, text) {
     if (dungeons.size >= 12 || (c.portalT || 0) > Date.now()) return;                   // (a few at a time; one a player every 5 s)
     c.portalT = Date.now() + 5000;
     const iid = nextIid++, seed = randomInt(1, 0xffffff) | 3, room = 'dg:' + iid, life = num(m.life, 10, 120);
-    try { dungeons.set(room, { world: makeWorld(seed, (id, obj) => { const t = clients.get(id); if (t) send(t, obj); }, m.to), to: m.to, until: Date.now() + life * 1000 }); }
+    try { const dw = makeWorld(seed, (id, obj) => { const t = clients.get(id); if (t) send(t, obj); }, m.to); dw.onBag = (x, y, items) => publicBag(room, x, y, items); dungeons.set(room, { world: dw, to: m.to, until: Date.now() + life * 1000 }); }
     catch (err) { console.error('dungeon', m.to, err); return; }
     toRoom(REALM, { t: 'portal', iid, seed, to: m.to, x: num(m.x, 0, 4096), y: num(m.y, 0, 4096), life });
     return;
