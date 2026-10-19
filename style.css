@@ -871,7 +871,10 @@ html body #app .slot .tier.tt.b5, html body #app #panel .slot .tier.tt.b5 { colo
 html body #app .slot .tier .pxtag { display: block; image-rendering: pixelated; height: 14px; width: auto; }
 
 /* the nearby list shows other players only (2026-10-19): not you, not your pet */
-html body #app #who .np.me, html body #app #who #petname { display: none !important; }
+html body #app #who .np.me, html body #app #who #petname:empty { display: none !important; }
+/* the other players near you (src/net.js): a short list, nearest first */
+html body #app #panel #who #petname { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: flex-start; gap: 0; }
+html body #app #panel #who #petname .other { color: #bfe8ff; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 
 /* the minimap's waypoint dropdown (main.js): the waypoint's name and a Teleport button */
 #wpmenu { position: fixed; z-index: 60; width: 150px; background: #1e1e1e; border: 2px solid #3a3a3a; box-shadow: 0 4px 0 #000;

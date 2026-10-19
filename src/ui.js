@@ -272,7 +272,7 @@ export class UI {
           const v = inp.value.trim();
           if (v) {
             if (v.startsWith('/')) { this.g.say(v, '#8d88a0'); this.g.command(v); }
-            else this.g.say(`${(this.g.account && this.g.account.name) || 'You'}: ${v}`, '#e9e4f2');
+            else if (!this.g.netChat(v)) this.g.say(`${(this.g.account && this.g.account.name) || 'You'}: ${v}`, '#e9e4f2');   // online: everyone hears it
           }
           this.closeChat();
         } else if (e.key === 'Escape') this.closeChat();
@@ -829,7 +829,15 @@ export class UI {
   // under the backpack: where you are, then the OTHER players with you (2026-10-19: not you, not your pet; the row
   // stays, empty, for others)
   nearbyLine() {
-    if (!this.showSelfInNearby) { const el = $('petname'); if (el.innerHTML) { el.innerHTML = ''; el.dataset.k = ''; } return; }
+    if (!this.showSelfInNearby) {                         // the other players here (src/net.js), nearest first
+      const el = $('petname'), p = this.g.player, here = this.g.netHere().filter((o) => !o.dead && Math.hypot(o.x - p.x, o.y - p.y) < 20)
+        .sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y)).slice(0, 4);
+      const key = here.map((o) => o.id + ':' + o.name).join(',');
+      if (el.dataset.k === key) return;
+      el.dataset.k = key; el.textContent = '';
+      for (const o of here) { const s = document.createElement('span'); s.className = 'other'; s.textContent = `${o.name} (Lv ${o.level || 1})`; el.appendChild(s); }
+      return;
+    }
     const P = this.g.activePet(), el = $('petname'), key = P ? `${P.id}:${P.rarity}:${petSprite(P)}` : '';
     if (el.dataset.k === key) return;
     el.dataset.k = key;

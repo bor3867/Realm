@@ -1,0 +1,11 @@
+{
+  "name": "melon-realms",
+  "private": true,
+  "description": "Melon Realms: the game is static files (GitHub Pages); this runs its multiplayer server.",
+  "type": "module",
+  "scripts": {
+    "start": "node server/server.mjs",
+    "play": "node tools/serve.mjs 5173"
+  },
+  "engines": { "node": ">=18" }
+}

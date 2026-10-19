@@ -22,6 +22,7 @@ async function boot() {
   }
   const settings = loadSettings();
   const game = new Game(assets, loadSave());
+  game.netStart();                                   // the other players, when a server is there (src/net.js)
   const rnd = new Renderer(canvas, document.getElementById('minimap'), assets);
   rnd.settings = settings;
   rnd.game = game;

@@ -182,6 +182,7 @@ export class Renderer {
     for (const e of drawn || g.enemies) add(e.x, e.y, (sx, sy) => this.enemy(g, e, sx, sy));
     if (g.boss) add(g.boss.x, g.boss.y, (sx, sy) => this.boss(g, g.boss, sx, sy));
     add(g.player.x, g.player.y, (sx, sy) => this.player(g, g.player, sx, sy));
+    for (const o of g.netHere()) add(o.x, o.y, (sx, sy) => this.player(g, o, sx, sy));   // the other players (src/net.js)
     for (const L of g.player.orbsLive || []) add(...lift(L.B.x, L.B.y, -0.5), () => this.orbiter(g, L));   // what circles you (src/orbiters.js)
     for (const a of g.allies || []) add(a.x, a.y, (sx, sy) => (a.kind === 'kite' ? this.kiteSpr(g, a, sx, sy) : this.ally(g, a, sx, sy)));
     for (const d of g.decoys || []) add(d.x, d.y, (sx, sy) => this.decoy(g, d, sx, sy));
@@ -1436,7 +1437,8 @@ export class Renderer {
     }
     if (!p.dead) this.shadow(sx, sy, 12);
     this.spr(S.img, (an.col + frame) * 16, an.row * 16, 16, 16, sx, sy - hop, 8, 15, flip, false);   // no white blink when hit
-    if (!p.dead && p.hp < g.stat('hp')) this.hpBar(sx, sy + 3, p.hp / g.stat('hp'), 14);   // RotMG-style bar at your feet
+    const maxHp = p.remote ? p.maxHp : g.stat('hp');
+    if (!p.dead && p.hp < maxHp) this.hpBar(sx, sy + 3, p.hp / maxHp, 14);   // RotMG-style bar at your feet
     if (!p.dead && p.chill > 0) {                                      // Frostveil's chill: a pale bar under the life bar
       const b = this.b, w = 14, x = Math.round(sx - w / 2), y = Math.round(sy + 6), hot = p.chill > 80 && Math.floor(g.t * 6) % 2;
       b.fillStyle = '#05040a'; b.fillRect(x - 1, y - 1, w + 2, 4);
@@ -1449,7 +1451,7 @@ export class Renderer {
       b.globalAlpha = 0.9; b.fillStyle = '#ffffff'; b.fillRect(x - 7, y - 17, 14, 1); b.fillRect(x - 7, y - 17, 1, 18); b.fillRect(x - 4, y - 14, 1, 4);
       b.globalAlpha = 1;
     }
-    if (!p.dead) this.owMarks(g, p, sx, sy);
+    if (!p.dead && !p.remote) this.owMarks(g, p, sx, sy);
     const st = p.status, b = this.b, cy = Math.round(sy) - 8;
     const pip = (col, ph) => {
       for (let k = 0; k < 3; k++) {
@@ -2130,6 +2132,11 @@ export class Renderer {
     ctx.globalAlpha = 1; ctx.lineWidth = 4;
     ctx.font = textFont(Math.max(13, s * 4 * 1.3));
     { const f0 = ctx.font; ctx.font = textFont(Math.max(11, s * 4 * 1.05));
+      for (const o of g.netHere()) {                     // the other players wear their names (src/net.js)
+        if (o.dead) continue;
+        const [bx, by] = this.proj(o.x, o.y), x = bx * s, y = (by - 30) * s;
+        outlined(ctx, o.name, x, y); ctx.fillStyle = '#bfe8ff'; ctx.fillText(o.name, x, y);
+      }
       for (const e of g.activeMap === g.map ? g.active : []) {   // elites wear their names
         if (!e.D.title || e.dead || e.spawnT > 0 || e.under) continue;
         const [bx, by] = this.proj(e.x, e.y), x = bx * s, y = (by - 44) * s;

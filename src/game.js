@@ -33,6 +33,7 @@ import { installRF } from './rf/host.js';
 import { installRFBoss } from './rf/boss.js';
 import { installUniqMech } from './rf/uniqmech.js';
 import { installOwBosses } from './owbosses.js';
+import { installNet } from './net.js';
 import { assignItemShots } from './data/uniques.js';
 import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUEST_HUNTS, FETCH_ITEMS } from './data/lore.js';
 
@@ -271,7 +272,7 @@ export class Game {
     if (where === 'nexus') this.map = nexus();
     else if (where === 'vault') this.map = vaultRoom();
     else if (where === 'realm') {
-      if (!this.realmMap) this.realmMap = realm((Date.now() & 0xffffff) | 1);
+      if (!this.realmMap) this.realmMap = realm(this.netSeed() || ((Date.now() & 0xffffff) | 1));   // the shared realm when online (src/net.js)
       this.map = this.realmMap;
     } else if (DUNGEONS[where]) this.map = dungeon((Date.now() & 0xffffff) | 3, DUNGEONS[where]);
     else if (where.startsWith('rf_boss:')) { const m = this.rfBossMap(where); if (!m) { this.banner('That boss is not ready.', 2000); return; } this.map = m; }
@@ -878,6 +879,7 @@ export class Game {
   update(dt) {
     if (this.mode !== 'play') return;
     this.t += dt;
+    this.netTick(dt);                                   // the other players (src/net.js)
     this.frameN = (this.frameN || 0) + 1;
     const p = this.player;
     if (this.camTarget !== null) {                    // glide to the requested angle instead of jumping
@@ -1634,6 +1636,7 @@ export class Game {
     if (from === 'e') b.vol = `${this.frameN || 0}:${by}`;
     b.k = shotScale(sprite, size, from);                      // big art is drawn (and hits) at the size its attack meant
     this.projectiles.push(b);
+    if (from === 'p' && this.net) this.netShot(b);            // others see your shots (src/net.js)
     return b;
   }
 
@@ -4398,4 +4401,5 @@ installRF(Game);
 installRFBoss(Game);
 installUniqMech(Game);
 installOwBosses(Game);
+installNet(Game);
 wireBxSetpieces(BX);
