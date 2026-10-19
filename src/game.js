@@ -291,6 +291,7 @@ export class Game {
     this.unstick(p);
     this.realmReturn = null;                              // dungeons let out onto the beach
     if (where === 'realm' && !this.map.populated) this.populateRealm();
+    if (where === 'realm') this.netWorldCheck();               // the server runs this realm's monsters (src/net.js)
     if (this.map.rf) this.map.portals.push({ kind: 'realm', x: this.map.spawn.x, y: this.map.spawn.y + 1.5, label: this.exitLabel(), to: 'realm' });
     if (DUNGEONS[where]) {
       this.populateDungeon(DUNGEONS[where]);
@@ -905,7 +906,7 @@ export class Game {
     this.updateTimeStop(dt);
     this.updateProjectiles(dt);
     this.updateWorld(dt);
-    if (this.map.kind === 'realm') { this.owTick(dt); this.maintainRealm(dt); this.eventClock(dt); this.melonTick(dt); this.eventBossTick(dt); }
+    if (this.map.kind === 'realm' && !this.map.netWorld) { this.owTick(dt); this.maintainRealm(dt); this.eventClock(dt); this.melonTick(dt); this.eventBossTick(dt); }
     this.updateEliteAuras(dt);
     if (this.map.rf) this.rfUpdate(dt);
     else if (this.map.rfBoss) this.rfBossUpdate(dt);
@@ -1778,15 +1779,20 @@ export class Game {
 
   // ------------------------------------------------------------- enemies
   updateEnemies(dt) {
-    const p = this.player;
+    // on the multiplayer server (server/world.mjs) there are many players: each monster hunts its nearest, which stands
+    // in as "the player" while that monster thinks. In a browser, monsters the server runs are puppets (src/net.js).
+    let p = this.player;
+    const T = this.netTargets, anchor = p;
     const act = (this.active = []), nb = (this.notable = []); this.activeMap = this.map;
     for (const e of this.enemies) {
       if (e.dead) continue;
-      if (Math.abs(e.x - p.x) < 30 && Math.abs(e.y - p.y) < 30) act.push(e);
+      if (T ? T.some((q) => Math.abs(e.x - q.x) < 30 && Math.abs(e.y - q.y) < 30) : Math.abs(e.x - p.x) < 30 && Math.abs(e.y - p.y) < 30) act.push(e);
       if (e.rb || e.herald || e.warden || e.D.melon) nb.push(e);
     }
     for (const e of this.enemies) {
       if (e.dead) { e.deadT += dt; continue; }
+      if (e.net) { this.netPuppet(e, dt); continue; }
+      if (T) { p = this.netNearest(e); if (!p) continue; this.player = p; }
       const d2 = dist2(e.x, e.y, p.x, p.y);
       if (d2 > (e.rb ? 40 * 40 : ACTIVE_R * ACTIVE_R)) continue;
       e.hurtT = Math.max(0, e.hurtT - dt);
@@ -1886,6 +1892,7 @@ export class Game {
       }
       this.moveEnemy(e, dt, aggro, d);
     }
+    if (T) this.player = anchor;
     const A = this.active;                          // gentle separation so crowds spread out
     for (let i = 0; i < A.length; i++) {
       const a = A[i];
@@ -2203,6 +2210,7 @@ export class Game {
       e.log = (e.log || []).filter((l) => this.t - l[0] < 3); e.log.push([this.t, d]);
       return d;
     }
+    if (e.net && !e.netKill && e.hp <= 0) e.hp = 1;             // a shared monster dies when the server says so (src/net.js)
     if (e.hp <= 0 && !e.dead) {
       if (e === this.boss) { this.killBoss(); return d; }
       e.dead = true; e.deadT = 0;
@@ -2214,9 +2222,9 @@ export class Game {
       this.player.kills++;
       this.speak(e, 'die', e.rb ? 1 : 0.04);
       if (e.D.confetti) { this.vx({ k: 'regfx', key: 'd2_effects/hollowmoon.confetti_pop', x: e.x, y: e.y - 0.6, fps: 10 }); const g0 = 3 + Math.floor(R() * 4); this.save.gold = (this.save.gold || 0) + g0; this.float(e.x, e.y - 1.4, `+${g0}g`, '#f2c14e'); }
-      if (e.D.deathBurst) { const B = e.D.deathBurst, a0 = R() * TAU; for (let k = 0; k < B.n; k++) this.shoot('e', ...lift(e.x, e.y, 0.4), a0 + (k / B.n) * TAU, B.speed, B.range, B.dmg, B.proj, 0.35, false, e.D.name); }
-      if (e.D.asDeath) this.asDeath(e);                       // a meteor mite's ring of embers; the Vault Keeper's fall (src/astral.js)
-      if (e.D.split) for (let k = 0; k < e.D.split.n; k++) {   // splitters burst into smaller copies
+      if (e.D.deathBurst && !e.net) { const B = e.D.deathBurst, a0 = R() * TAU; for (let k = 0; k < B.n; k++) this.shoot('e', ...lift(e.x, e.y, 0.4), a0 + (k / B.n) * TAU, B.speed, B.range, B.dmg, B.proj, 0.35, false, e.D.name); }
+      if (e.D.asDeath && !e.net) this.asDeath(e);                       // a meteor mite's ring of embers; the Vault Keeper's fall (src/astral.js)
+      if (e.D.split && !e.net) for (let k = 0; k < e.D.split.n; k++) {   // (the server splits a shared one)   // splitters burst into smaller copies
         const a = (k / e.D.split.n) * TAU, x = e.x + Math.cos(a) * 0.7, y = e.y + Math.sin(a) * 0.7;
         if (!isSolid(this.map, x, y)) this.addEnemy(e.D.split.id, x, y);
       }

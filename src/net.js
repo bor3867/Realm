@@ -19,7 +19,7 @@ const methods = {
   netStart() {
     if (this.net || typeof WebSocket === 'undefined') return;
     const url = serverUrl();
-    this.net = { url, ws: null, id: 0, seed: 0, others: new Map(), shots: [], sendT: 0, wait: 2, online: 0, open: false };
+    this.net = { url, ws: null, id: 0, seed: 0, world: false, others: new Map(), shots: [], hits: [], byId: new Map(), sendT: 0, wait: 2, online: 0, open: false };
     if (url) this.netConnect();
   },
   netConnect() {
@@ -30,7 +30,7 @@ const methods = {
     ws.onopen = () => { N.open = true; N.wait = 2; ws.send(JSON.stringify({ t: 'hi', name: (this.account && this.account.name) || '', cls: this.player ? this.player.cls : '' })); };
     ws.onmessage = (ev) => { let m; try { m = JSON.parse(ev.data); } catch { return; } this.netOn(m); };
     ws.onclose = () => {                                  // gone: everyone vanishes; try again, waiting longer each time
-      N.open = false; N.ws = null; N.others.clear();
+      N.open = false; N.ws = null; N.others.clear(); this.netWorldOff();
       setTimeout(() => this.netConnect(), N.wait * 1000); N.wait = Math.min(30, N.wait * 2);
     };
     ws.onerror = () => {};
@@ -38,8 +38,9 @@ const methods = {
   netOn(m) {
     const N = this.net;
     if (m.t === 'welcome') {
-      N.id = m.id; N.online = m.online;
+      N.id = m.id; N.online = m.online; N.world = !!m.world;
       if (N.seed !== m.seed) { N.seed = m.seed; if (this.realmMap && this.realmMap.seed !== m.seed && this.map !== this.realmMap) this.realmMap = null; }   // the shared realm from now on
+      if (this.map && this.map === this.realmMap) this.netWorldCheck();
     } else if (m.t === 'online') N.online = m.n;
     else if (m.t === 'st') {
       let o = N.others.get(m.id);
@@ -57,7 +58,10 @@ const methods = {
         const b = this.shoot('r', s.x, s.y, s.a, Math.hypot(s.vx, s.vy), Math.hypot(s.vx, s.vy) * s.l, 0, s.s, s.r, true);
         b.vx = s.vx; b.vy = s.vy; b.harmless = true; b.ghost = true;
       }
-    } else if (m.t === 'chat') this.say(`${m.name}: ${m.text}`, m.id === N.id ? '#e9e4f2' : '#bfe8ff');
+    } else if (m.t === 'ws') this.netWorldState(m);
+    else if (m.t === 'wev') this.netWorldEvents(m.ev);
+    else if (m.t === 'hurt') { if (this.map.netWorld && !this.player.dead) this.hurtPlayer(m.d, m.by, m.ap); }
+    else if (m.t === 'chat') this.say(`${m.name}: ${m.text}`, m.id === N.id ? '#e9e4f2' : '#bfe8ff');
   },
   // the place you share with others: the Nexus or the shared realm (dungeons and your vault are your own, for now)
   netRoom() {
@@ -90,8 +94,80 @@ const methods = {
       dead: !!p.dead, ab: p.abilityT > 0, sh: this.t - p.lastShot < 0.25, dn: p.danceT > 0, lv: p.level }));
     if (N.shots.length && room) { N.ws.send(JSON.stringify({ t: 'shot', room, list: N.shots })); }
     N.shots = [];
+    if (N.hits.length && this.map.netWorld) N.ws.send(JSON.stringify({ t: 'hits', list: N.hits.slice(0, 60) }));
+    N.hits = [];
+  },
+  // ---- stage 2, milestone 1: the shared realm's monsters are the server's (server/world.mjs)
+  // this realm is the shared one and the server runs its monsters: ours go, theirs come
+  netWorldCheck() {
+    const N = this.net, m = this.map;
+    if (!N || !N.world || !N.open || !m || m.kind !== 'realm' || m.seed !== N.seed || m.netWorld) return;
+    m.netWorld = true; N.byId.clear();
+    this.enemies = m.enemies = [];
+    this.boss = null;
+  },
+  // the server is gone: the realm runs its own monsters again
+  netWorldOff() {
+    const m = this.realmMap;
+    if (!m || !m.netWorld) return;
+    m.netWorld = false; this.net.byId.clear();
+    if (this.map === m) { this.enemies = m.enemies = this.enemies.filter((e) => !e.net); }
+  },
+  // the monsters near you: new ones (with what they are), changes to known ones, and those gone
+  netWorldState(m) {
+    const N = this.net, M = this.map;
+    if (!M || !M.netWorld) return;
+    for (const s of m.es) {
+      let e = N.byId.get(s.nid);
+      if (!e) {
+        if (!s.D) continue;
+        e = { cds: [], queue: [], hurtT: 0, deadT: 0, phase: 0, state: 'move', st: 0, ...s, net: true, tx: s.x, ty: s.y };
+        if (!e.id) e.id = s.D.id || '';
+        N.byId.set(s.nid, e); this.enemies.push(e);
+        continue;
+      }
+      const { x, y, D, ...rest } = s;
+      Object.assign(e, rest);
+      if (x !== undefined) e.tx = x;
+      if (y !== undefined) e.ty = y;
+    }
+    for (const [nid, how] of m.gone) {
+      const e = N.byId.get(nid);
+      if (!e) continue;
+      N.byId.delete(nid);
+      if (how === -1) { this.enemies = M.enemies = this.enemies.filter((o) => o !== e); continue; }   // out of sight
+      e.x = e.tx; e.y = e.ty;
+      if (how === 1) { e.netKill = true; e.hp = 0; e.spawnT = 0; e.bulwarkT = 0; e.wardT = 0; this.damageEnemy(e, 1, e.x, e.y, true); }   // yours too: your rewards
+      if (!e.dead) { e.dead = true; e.deadT = 0; this.vx({ k: 'death', e, big: !!e.rb }); }
+    }
+  },
+  // what the shared monsters did this moment: their shots (dodged and taken here), ground zones, effects, words
+  netWorldEvents(ev) {
+    if (!this.map.netWorld) return;
+    for (const x of ev) {
+      if (x.k === 'shot') { const b = x.b; b.hit = b.pierce ? new Set() : null; this.projectiles.push(b); }
+      else if (x.k === 'fx') this.fx.push(x.f);
+      else if (x.k === 'vx') this.vx(x.v);
+      else if (x.k === 'banner') this.banner(x.text, x.ms);
+      else if (x.k === 'say') { const e = this.net.byId.get(x.id); if (e) this.bubble(e, x.text, x.col); }
+    }
+  },
+  // a puppet between updates: it glides to where the server last had it
+  netPuppet(e, dt) {
+    const d = Math.hypot(e.tx - e.x, e.ty - e.y);
+    if (d > 5) { e.x = e.tx; e.y = e.ty; } else { const k = Math.min(1, dt * 10); e.x += (e.tx - e.x) * k; e.y += (e.ty - e.y) * k; }
+    if (e.hurtT > 0) e.hurtT = Math.max(0, e.hurtT - dt);
   },
   // the others here now, for the renderer and the nearby list
   netHere() { const N = this.net, room = this.netRoom(); return N && room ? [...N.others.values()].filter((o) => o.room === room) : []; },
 };
-export function installNet(Game) { Object.assign(Game.prototype, methods); }
+export function installNet(Game) {
+  Object.assign(Game.prototype, methods);
+  // your blow on a shared monster goes to the server too (it keeps the true Life, and says who dealt the blows)
+  const dmg0 = Game.prototype.damageEnemy;
+  Game.prototype.damageEnemy = function (e, ...a) {
+    const d = dmg0.call(this, e, ...a);
+    if (e && e.net && !e.netKill && d > 0 && this.net && this.net.open) this.net.hits.push([e.nid, Math.round(d)]);
+    return d;
+  };
+}

@@ -13,6 +13,10 @@ const ROOM = /^(nexus|realm:\d+)$/;                                        // th
 const CLASSES = new Set(['brawler', 'forge_knight', 'priest', 'summoner', 'harpooner', 'duelist', 'stormwright', 'clockmaker', 'runeblade', 'hexweaver']);
 
 const clients = new Map();   // id -> { sock, name, cls, room, budget }
+// stage 2: the shared realm's monsters run here (server/world.mjs). WORLD=0 in the environment turns it off.
+const { makeWorld } = process.env.WORLD === '0' ? {} : await import('./world.mjs');
+const world = makeWorld ? makeWorld(SEED, (id, obj) => { const c = clients.get(id); if (c) send(c, obj); }) : null;
+const REALM = 'realm:' + SEED;
 let nextId = 1;
 
 // ---- WebSocket framing (RFC 6455): text frames, masked from browsers, unmasked from us
@@ -34,13 +38,19 @@ function onMessage(c, text) {
   if (m.t === 'hi') {
     c.name = str(m.name, LIMIT.name).trim() || `Player ${c.id}`;
     c.cls = CLASSES.has(m.cls) ? m.cls : 'priest';
-    send(c, { t: 'welcome', id: c.id, seed: SEED, online: clients.size });
+    send(c, { t: 'welcome', id: c.id, seed: SEED, online: clients.size, world: !!world });
     return;
   }
   if (m.t === 'st') {                                    // where I am and what I'm doing
     const room = typeof m.room === 'string' && ROOM.test(m.room) ? m.room : null;
-    if (room !== c.room) { if (c.room) toRoom(c.room, { t: 'bye', id: c.id }, c); c.room = room; }
+    if (room !== c.room) {
+      if (c.room) toRoom(c.room, { t: 'bye', id: c.id }, c);
+      if (world && c.room === REALM) world.leave(c.id);
+      c.room = room;
+      if (world && room === REALM) world.join(c.id, c.name);
+    }
     if (!room) return;
+    if (world && room === REALM) world.player(c.id, { x: num(m.x, 0, 4096), y: num(m.y, 0, 4096), dead: !!m.dead, hp: num(m.hp, 0, 1e6) });
     if (CLASSES.has(m.cls)) c.cls = m.cls;
     { const nm = str(m.name, LIMIT.name).trim(); if (nm) c.name = nm; }   // (you may sign in after connecting)
     toRoom(room, { t: 'st', id: c.id, name: c.name, cls: c.cls, x: num(m.x, 0, 4096), y: num(m.y, 0, 4096), dir: ['front', 'back', 'left', 'right'].includes(m.dir) ? m.dir : 'front',
@@ -50,6 +60,10 @@ function onMessage(c, text) {
   if (m.t === 'shot' && c.room && Array.isArray(m.list)) {   // my shots, to be drawn (they hurt nothing)
     const list = m.list.slice(0, 24).map((s) => ({ x: num(s.x, 0, 4096), y: num(s.y, 0, 4096), vx: num(s.vx, -60, 60), vy: num(s.vy, -60, 60), a: num(s.a, -10, 10), s: str(s.s, 64), r: num(s.r, 0.05, 2), l: num(s.l, 0, 3) }));
     toRoom(c.room, { t: 'shot', id: c.id, list }, c);
+    return;
+  }
+  if (m.t === 'hits' && world && c.room === REALM && Array.isArray(m.list)) {   // your blows on the shared monsters
+    for (const h of m.list.slice(0, 60)) if (Array.isArray(h)) world.hit(c.id, num(h[0], 0, 1e9), num(h[1], 0, 1e6));
     return;
   }
   if (m.t === 'chat') {
@@ -97,10 +111,12 @@ server.on('upgrade', (req, sock) => {
       if (c.budget >= 0) onMessage(c, text);
     }
   });
-  const gone = () => { if (!clients.has(c.id)) return; clients.delete(c.id); if (c.room) toRoom(c.room, { t: 'bye', id: c.id }); toAll({ t: 'online', n: clients.size }); };
+  const gone = () => { if (!clients.has(c.id)) return; clients.delete(c.id); if (world) world.leave(c.id); if (c.room) toRoom(c.room, { t: 'bye', id: c.id }); toAll({ t: 'online', n: clients.size }); };
   sock.on('close', gone); sock.on('error', gone);
   toAll({ t: 'online', n: clients.size });
 });
 // keep connections alive through hosts' idle timeouts
 setInterval(() => { const ping = Buffer.from([0x89, 0]); for (const c of clients.values()) if (!c.sock.destroyed) c.sock.write(ping); }, 25000);
+// the world's clock: 20 steps a second, the monsters' news 10 times a second
+if (world) { let n = 0, slow = 0; setInterval(() => { const t0 = performance.now(); try { world.tick(0.05, ++n % 2 === 0); } catch (err) { console.error('world tick', err); } const ms = performance.now() - t0; if (ms > 45 && ++slow % 50 === 1) console.warn(`world tick slow: ${ms.toFixed(0)} ms`); }, 50); }
 server.listen(PORT, () => console.log(`Melon Realms server on :${PORT}, realm seed ${SEED}`));
