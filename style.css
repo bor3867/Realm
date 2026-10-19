@@ -850,3 +850,14 @@ body #app #panel #groundlabel[style*="pointer"]:hover { color: #fff; text-decora
 #gearmenu button:last-child { border-bottom: 0; }
 #gearmenu button:hover, #gearmenu button:focus-visible { background: #4a4a4a; outline: none; }
 #gearmenu button.hidden { display: none; }
+
+/* Tier tags (2026-10-19): the pixel font made 5 and 8 alike at this size. A heavy, plain sans with a solid black rim,
+   never under 10px, and a colour per tier band (T0-3 grey, T4-6 green, T7-9 blue, T10-11 purple, T12-13 gold) */
+html body #app .slot .tier.tt, html body #app #panel .slot .tier.tt { font-family: 'Arial Black', 'Segoe UI Black', 'Verdana', sans-serif !important; font-weight: 900 !important; letter-spacing: 0;
+  font-size: 11px !important; line-height: 1; right: 2px; bottom: 2px; -webkit-font-smoothing: antialiased;
+  text-shadow: 1px 0 0 #000, -1px 0 0 #000, 0 1px 0 #000, 0 -1px 0 #000, 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000 !important; }
+html body #app .slot .tier.tt.b1, html body #app #panel .slot .tier.tt.b1 { color: #d8d8d8 !important; }
+html body #app .slot .tier.tt.b2, html body #app #panel .slot .tier.tt.b2 { color: #8ef08a !important; }
+html body #app .slot .tier.tt.b3, html body #app #panel .slot .tier.tt.b3 { color: #7ac8ff !important; }
+html body #app .slot .tier.tt.b4, html body #app #panel .slot .tier.tt.b4 { color: #d49aff !important; }
+html body #app .slot .tier.tt.b5, html body #app #panel .slot .tier.tt.b5 { color: #ffc84a !important; }

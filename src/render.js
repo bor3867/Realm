@@ -2045,19 +2045,27 @@ export class Renderer {
   overlays(g) {
     const ctx = this.ctx, s = this.scale;
     ctx.textAlign = 'center';
-    ctx.font = textFont(Math.max(13, s * 4 * 1.3));
     const nums = !this.settings || this.settings.damageNumbers;
+    // damage numbers, made to read at a glance (2026-10-19): a heavy face, a thick black rim and a soft shadow; a
+    // quick pop as they land, full strength for half a second, then a fade; the player's own losses a size bigger
+    const base = Math.max(15, s * 4 * 1.55);
+    ctx.lineJoin = 'round';
     for (const f of g.floaters) {
-      if (!nums && /^[-+]?\d+$/.test(f.text)) continue;
+      const num = /^[-+]?\d+!?$/.test(f.text);
+      if (!nums && num) continue;
       let bx, by;
       if (f.who) { [bx, by] = this.proj(f.who.x, f.who.y); bx += f.dx * TS; by -= this.headPx(g, f.who); }   // above its owner's head, following it
       else [bx, by] = this.proj(f.x, f.y);
-      const x = bx * s, y = by * s - f.t * 30;
-      ctx.globalAlpha = Math.max(0, 1 - f.t / 0.9);
-      outlined(ctx, f.text, x, y);
+      const mine = f.color === '#e2546a', pop = f.t < 0.12 ? 1.3 - (f.t / 0.12) * 0.3 : 1, rise = 1 - (1 - Math.min(1, f.t / 0.9)) ** 2;
+      const x = bx * s, y = by * s - rise * 30;
+      ctx.font = num ? `900 ${Math.round(base * (mine ? 1.15 : 1) * pop)}px "Arial Black", "Segoe UI Black", "Source Sans 3", sans-serif` : textFont(Math.max(13, s * 4 * 1.3));
+      ctx.globalAlpha = f.t < 0.5 ? 1 : Math.max(0, 1 - (f.t - 0.5) / 0.4);
+      ctx.fillStyle = 'rgba(0,0,0,.45)'; ctx.fillText(f.text, x + 2, y + 3);                     // the shadow
+      ctx.lineWidth = num ? Math.max(4, base * 0.3) : 4; ctx.strokeStyle = '#000'; ctx.strokeText(f.text, x, y);
       ctx.fillStyle = f.color; ctx.fillText(f.text, x, y);
     }
-    ctx.globalAlpha = 1;
+    ctx.globalAlpha = 1; ctx.lineWidth = 4;
+    ctx.font = textFont(Math.max(13, s * 4 * 1.3));
     { const f0 = ctx.font; ctx.font = textFont(Math.max(11, s * 4 * 1.05));
       for (const e of g.activeMap === g.map ? g.active : []) {   // elites wear their names
         if (!e.D.title || e.dead || e.spawnT > 0 || e.under) continue;

@@ -595,7 +595,7 @@ export class Game {
   float(x, y, text, color) {
     if (typeof text === 'number' || /^[-+]?\d*\.\d+$/.test(text) || /^[-+]?\d+\.\d+$/.test(text)) text = (/^[-+]/.test(String(text)) ? String(text)[0] : '') + Math.round(Math.abs(parseFloat(text)));   // whole numbers only
     const who = this.floatOwner(x, y), n = who ? this.floaters.filter((f) => f.who === who && f.t < 0.3).length : 0;
-    this.floaters.push({ x, y, text, color, t: 0, who, dx: who ? [0, -0.45, 0.45][n % 3] : 0 });
+    this.floaters.push({ x, y, text, color, t: 0, who, dx: who ? [0, -0.6, 0.6, -0.3, 0.3][n % 5] : 0 });   // (spread wider: numbers that land together stay apart)
   }
   floatOwner(x, y) {
     let best = null, bd = 1e9;

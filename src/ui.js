@@ -501,7 +501,8 @@ export class UI {
           if (!own) { ico.style.setProperty('--m', `url(${this.r.icon(id)})`); ico.style.setProperty('--d', `${-((sn * 0.77) % 6).toFixed(2)}s`); }
           sn++;
           if (name === 'pots') { const n = this.g.pots()[i].n; tier.innerHTML = `<b class="${n >= POT_STACK ? 'full' : ''}">${n}</b>/${POT_STACK}`; } else tier.textContent = it.admin ? 'ADMIN' : it.mythic ? 'M' : it.legendary ? 'L' : it.ut ? 'UT' : it.use && it.use.egg ? RARITY[it.use.egg].name[0] : it.tier === null ? '' : 'T' + it.tier;
-          tier.className = 'tier' + (it.ut ? ' ut' : '');
+          const tb = typeof it.tier === 'number' ? (it.tier >= 12 ? 'b5' : it.tier >= 10 ? 'b4' : it.tier >= 7 ? 'b3' : it.tier >= 4 ? 'b2' : 'b1') : '';   // a tier's colour band: the number is never the only cue
+          tier.className = 'tier' + (it.ut ? ' ut' : '') + (tb && name !== 'pots' ? ` tt ${tb}` : '');
           el.style.setProperty('--rc', rarityColor(it));
           el.classList.add('has'); el.classList.remove('ghost'); el.classList.toggle('mythic', !!it.mythic); el.classList.toggle('ut', !!it.ut && !it.mythic && !it.admin);
           el.classList.toggle('admin', !!it.admin); el.classList.toggle('ench', !!it.enchants); el.classList.toggle('legend', !!it.legendary);

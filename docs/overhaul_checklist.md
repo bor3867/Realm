@@ -144,8 +144,11 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
 - Chests (requested 2026-10-19): abilities should damage chests (today only weapon shots break them), and better chest
   sprites.
 - Tier tags (requested 2026-10-19): the pixel "T5"/"T8" text on item slots is unreadable (5 and 8 look alike); redesign
-  the tier digits so every tier reads at a glance.
-- Damage numbers (requested 2026-10-19): make the numbers over enemies and over the player easier to read.
+  the tier digits so every tier reads at a glance. **Done 2026-10-19:** a heavy sans with a solid black rim, never under
+  10px, and a colour per band (T0-3 grey, T4-6 green, T7-9 blue, T10-11 purple, T12-13 gold).
+- Damage numbers (requested 2026-10-19): make the numbers over enemies and over the player easier to read. **Done
+  2026-10-19:** heavier and larger, a thick black rim and a shadow, a pop as they land, full strength for half a second,
+  the player's own losses a size bigger, and numbers landing together spread wider.
 - Dungeon difficulty ratings (requested 2026-10-19): check every dungeon (ours and Realmforge's) and give it a fitting
   star rating, keeping some dungeons for each of 1 to 5 stars. Then check where each dungeon's portal drops and move it
   to foes of the matching land: 1 star on the beach (maybe the grassland), 2 stars in the grassland, and so on inward.
