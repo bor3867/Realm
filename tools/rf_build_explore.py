@@ -48,6 +48,8 @@ patch("function kill(e){e.hp=0;e.dead=0;E.kills++;", "function kill(e){e.hp=0;e.
 # a shrine's blessing is a buff on our player too
 patch("if(pr.k==='shrine'&&d<1.1){pr.used=1;p.buff=60;", "if(pr.k==='shrine'&&d<1.1){pr.used=1;p.buff=60;HOST.shrine();")
 
+# the Hall of Mirrors draws your reflection with the test player sprite, which stays out: no sprite, no reflection
+patch("const im=E.player[Math.floor(p.f)%E.player.length];", "if(!E.player||!E.player.length)return;const im=E.player[Math.floor(p.f)%E.player.length];")
 # strict mode (a module is strict, Realmforge's page was not): a loop that also tags the side names, which a page ignores
 patch("for(const k in L){L[k].side='sun';Rr[k].side='moon';}", "for(const k in L){if(typeof L[k]==='object'){L[k].side='sun';Rr[k].side='moon';}}")
 

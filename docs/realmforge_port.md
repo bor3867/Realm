@@ -78,6 +78,11 @@ trail 13, line 12, spiral 7, summon 7, pulse 5, snipe 4, heal 3, and 9 rarer). 2
   check once a phase (break the shell or she emerges healed), hits on the true Vitrea count, an invulnerable phase
   nothing you do can end is survived (it moves on after its length), and no phase lasts past 60 s. Measured, a
   level-20 player in the band's gear, always firing: A 1.5-2.5 min, B 2.5-3.5, C 2.5-4, D 3.5-4.5 (all 24 killed).
+- **Phase 4b: light and the modules' own drawing.** Their darkness (a hole at every lamp, brazier and portal) and
+  coloured glow are laid over the world (glow only where you have explored); each module's drawFloor, drawTop and
+  drawLight (the Sanctum's moving sunlight, the sewer tide's shimmer, lava, ink) run in a view of theirs around you;
+  each module's status line ("The crypt stirs", "Water: low", "Shadow at IV") shows under the counters. The Hall of
+  Mirrors' reflection needs the test player sprite, which stays out: no reflection.
 
 ## Status
 | Dungeon | Boss | Layout | Creatures | Boss | Uniques | Overworld droppers | Done |

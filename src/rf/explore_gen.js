@@ -1699,7 +1699,7 @@ export function makeExplore(DATA,HOST){
     drawFloor(V){const {b,sx,sy,vis}=V,M=E.M;for(const rm of M.rooms){const A=rm.amir;if(!A||!A.pts||!vis(rm.cx,rm.cy,8))continue;b.strokeStyle=rm.solved?'#ffffff':'#ffe870';b.globalAlpha=0.6+0.3*Math.sin(E.t*12);b.lineWidth=2;b.beginPath();A.pts.forEach(([x,y],i)=>i?b.lineTo(sx(x),sy(y)):b.moveTo(sx(x),sy(y)));b.stroke();b.lineWidth=1;b.globalAlpha=1;}},
     drawTop(V){const {b,sx,sy}=V,M=E.M,p=E.p;// your reflection walks along in the mirror wall
       const r=M.rooms[roomOf(p.x,p.y)];if(!r||!M.mirror)return;for(const sd of (r.purpose==='challenge'?['n','s']:r.tag==='gallery'?[r.mside]:r.purpose==='entrance'?['n']:[])){const y=sd==='n'?r.y0-1:r.y0+r.h;if(!M.mirror.has(M.I(Math.floor(p.x),y)))continue;
-        const im=E.player[Math.floor(p.f)%E.player.length];b.save();b.globalAlpha=0.45;b.beginPath();b.rect(sx(p.x)-8,sy(y),16,TS);b.clip();const off=sd==='n'?(p.y-r.y0)*0.25:(r.y0+r.h-p.y)*0.25;b.drawImage(im,sx(p.x)-(im.width>>1),sy(y)+TS-im.height+2-Math.round(off));b.restore();}}};
+        if(!E.player||!E.player.length)return;const im=E.player[Math.floor(p.f)%E.player.length];b.save();b.globalAlpha=0.45;b.beginPath();b.rect(sx(p.x)-8,sy(y),16,TS);b.clip();const off=sd==='n'?(p.y-r.y0)*0.25:(r.y0+r.h-p.y)*0.25;b.drawImage(im,sx(p.x)-(im.width>>1),sy(y)+TS-im.height+2-Math.round(off));b.restore();}}};
 
   // =====================================================================
   // 18. THE UPTURNED MONASTERY: an upright monastery above, its upturned half hanging below, open sky between

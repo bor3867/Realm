@@ -164,7 +164,7 @@ export class Renderer {
       if (list.length > n0 && FLAT.has(o.sprite)) list[n0].sy -= 12;               // flat clutter lies under whoever stands on it
     }
     this.addWalls(g, m, list, VR);                                  // walls stand up: border walls sort with everyone (src/walls.js)
-    if (m.rf) { this.rfGround(g, m); this.rfAdd(g, m, add); }        // a Realmforge dungeon's things (src/rf/draw.js)
+    if (m.rf) { this.rfModLayer(g, m, 'drawFloor'); this.rfGround(g, m); this.rfAdd(g, m, add); }   // a Realmforge dungeon's things (src/rf/draw.js)
     for (const pt of m.portals) if (!pt.hidden) add(pt.x, pt.y, (sx, sy) => this.portal(g, pt, sx, sy));   // (a hidden one is a door drawn by its map)
     for (const bag of g.bags) {                                // a bag on a portal is drawn in front of it, never hidden inside
       const onPortal = m.portals.some((pt) => Math.abs(pt.x - bag.x) < 1.8 && Math.abs(pt.y - bag.y) < 1.8);
@@ -231,7 +231,7 @@ export class Renderer {
     const darkFirst = g.map.lights && g.map.kind === 'dungeon';     // in a dungeon the dark falls under the bullets: shots always read
     if (darkFirst) { b.save(); b.setTransform(this.scale, 0, 0, this.scale, 0, 0); this.dusk(g); b.restore(); }   // the screen's own scale, without the shake
     if (g.map.kind === 'dungeon') this.d4Fx(g);                  // the newer dungeons' lights, beams and strings (over the dark)
-    if (m.rf) this.rfTop(g, m);
+    if (m.rf) { this.rfModLayer(g, m, 'drawTop'); this.rfLight(g, m); this.rfModLayer(g, m, 'drawLight'); this.rfTop(g, m); }   // their module's top, their light, then their shots
     if (m.rfBoss) this.rfBossBar(g, m);
     this.drawProjectiles(g, dt);
     if (g.activeMap === m) for (const e of g.notable) if (e.bx && e.bx.B.drawTop && !e.dead) e.bx.B.drawTop(this, g, e);   // a boss's layer over the bullets (the Orrery's umbra)
@@ -255,6 +255,7 @@ export class Renderer {
       this.hurtFlash = Math.max(0, this.hurtFlash - dt * 0.9);
     }
     this.overlays(g);
+    if (g.map.rf) this.rfModHud(g, g.map);                    // a Realmforge module's status line (src/rf/draw.js)
     this.minimap(g);
   }
 

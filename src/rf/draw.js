@@ -133,6 +133,63 @@ const methods = {
       b.globalAlpha = 0.22 * q; b.fillStyle = h.c || E.danger; b.beginPath(); b.ellipse(x, y, h.r * TS * q, h.r * TS * q, 0, 0, TAU); b.fill(); b.globalAlpha = 1;
     }
   },
+  // a dungeon module's own drawing (its drawFloor, drawTop or drawLight: moving sunlight, a rising tide, lava, ink), done
+  // in a view of theirs around the player (8 pixels to a tile, unturned) and laid over the world like the ground
+  rfModLayer(g, m, which) {
+    const E = m.rf.E, mod = E.mod, fn = mod && mod[which];
+    if (!fn) return;
+    const RT = 26, VW = RT * 16, VH = RT * 16, cx = Math.round((g.player.x - RT) * 8), cy = Math.round((g.player.y - RT) * 8);
+    const cv = this.rfModCv || (this.rfModCv = Object.assign(document.createElement('canvas'), { width: VW, height: VH })), c = cv.getContext('2d');
+    c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, VW, VH); c.imageSmoothingEnabled = false; c.globalAlpha = 1; c.globalCompositeOperation = 'source-over';
+    const V = { b: c, sx: (x) => Math.round(x * 8 - cx), sy: (y) => Math.round(y * 8 - cy), vis: (x, y, mg) => x * 8 > cx - mg * 8 && x * 8 < cx + VW + mg * 8 && y * 8 > cy - mg * 8 && y * 8 < cy + VH + mg * 8,
+      fr: (a, f) => a[Math.floor(f) % a.length], cx, cy, VW, VH, TS: 8 };
+    E.V = V;
+    try { fn.call(mod, V); } catch (err) { if (!this.rfModErr) { this.rfModErr = 1; console.warn('Realmforge module drawing', which, err); } }
+    const b = this.b, s = this.scale, [ax, ay] = this.proj(cx / 8, cy / 8), [bx, by] = this.proj(cx / 8 + 1, cy / 8), [qx, qy] = this.proj(cx / 8, cy / 8 + 1), k = 1 / 8;
+    b.save(); b.setTransform(s * (bx - ax) * k, s * (by - ay) * k, s * (qx - ax) * k, s * (qy - ay) * k, s * ax, s * ay); b.imageSmoothingEnabled = false;
+    b.drawImage(cv, 0, 0); b.restore();
+  },
+  // a module's status line ("The crypt stirs ●●○○○", the tide, the hour), under the counters at the top left
+  rfModHud(g, m) {
+    const E = m.rf.E, mod = E.mod;
+    if (!mod || !mod.hud) return;
+    const cv = this.rfHudCv || (this.rfHudCv = Object.assign(document.createElement('canvas'), { width: 300, height: 48 })), c = cv.getContext('2d');
+    c.setTransform(1, 0, 0, 1, 0, 0); c.clearRect(0, 0, 300, 48);
+    try { mod.hud.call(mod, c, 1, 300, 48, 4, 14); } catch (err) { return; }
+    const c2 = this.ctx, k = Math.max(1, Math.round(this.c.width / 900)); c2.save(); c2.setTransform(1, 0, 0, 1, 0, 0); c2.imageSmoothingEnabled = false; c2.drawImage(cv, 12, 52 * k, 300 * k, 48 * k); c2.restore();
+  },
+  // their light: the dungeon's darkness with a hole at every lamp, brazier and portal, then the coloured glow of each,
+  // painted by their engine (8 pixels to a tile) and laid over the world like the ground. Shots are drawn after it.
+  rfLight(g, m) {
+    const E = m.rf.E, b = this.b;
+    if (!E.dark) return;
+    const [ax, ay] = this.proj(0, 0), [bx, by] = this.proj(1, 0), [cx, cy] = this.proj(0, 1), k = 1 / 8, s = this.scale;
+    b.save();
+    b.setTransform(s * (bx - ax) * k, s * (by - ay) * k, s * (cx - ax) * k, s * (cy - ay) * k, s * ax, s * ay);
+    b.imageSmoothingEnabled = true;                          // (light is soft)
+    b.drawImage(E.dark, 0, 0);
+    b.globalCompositeOperation = 'lighter'; b.drawImage(this.rfSeenGlow(g, m), 0, 0);
+    b.restore();
+  },
+  // the glow, only where you have been: a light in a room you have not found does not give the room away
+  rfSeenGlow(g, m) {
+    const E = m.rf.E, seen = m.seen;
+    if (!seen) return E.glow;
+    const R = m.rf.glowSeen || (m.rf.glowSeen = { n: -1, t: -9, c: Object.assign(document.createElement('canvas'), { width: E.glow.width, height: E.glow.height }), mask: Object.assign(document.createElement('canvas'), { width: m.w, height: m.h }) });
+    if (g.t - R.t < 0.4) return R.c;
+    R.t = g.t;
+    let n = 0; for (let i = 0; i < seen.length; i++) n += seen[i];
+    if (n === R.n) return R.c;
+    R.n = n;
+    const mx = R.mask.getContext('2d'), id = mx.createImageData(m.w, m.h);
+    for (let i = 0; i < seen.length; i++) if (seen[i]) id.data[i * 4 + 3] = 255;
+    mx.putImageData(id, 0, 0);
+    const x = R.c.getContext('2d');
+    x.globalCompositeOperation = 'copy'; x.drawImage(E.glow, 0, 0);
+    x.globalCompositeOperation = 'destination-in'; x.imageSmoothingEnabled = true; x.drawImage(R.mask, 0, 0, R.c.width, R.c.height);
+    x.globalCompositeOperation = 'source-over';
+    return R.c;
+  },
   // over everyone: their shots (always readable) and their bursts
   rfTop(g, m) {
     const E = m.rf.E, b = this.b;

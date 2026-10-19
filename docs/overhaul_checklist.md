@@ -127,3 +127,7 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   junctions worked out from neighbouring tiles, depth sorting with characters and shots, contextual see-through
   where walls would hide danger, restrained shading and per-dungeon materials, collision unchanged. **Blocked:** the
   request text was cut off at "6. Performance Optimization" and the reference screenshot did not arrive.
+- Enemy sizing pass (requested 2026-10-19, with screenshots: desert and Greenmarch foes): some enemies read wrong
+  because an 8x8 sprite is drawn too big or a 16x16 too small. Check every enemy (realm, dungeon, Realmforge) and set
+  its drawn size from its sprite size and its importance (fodder small, champions and minibosses larger, bosses
+  largest), consistently across a land; redraw 8x8s that need it as 16x16s.
