@@ -139,3 +139,8 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   and champion wardens at 2x; Realmforge foes at 1x (16px art) or 2x (8px art). Still open: the old 16px enemy sheet
   and the 24px champions are fine-pixel art (one screen pixel to an art pixel) next to the chunky 8x8s (two to one):
   both are clean, but a fully RotMG-uniform look would mean redrawing ~150 old-sheet monsters as 8x8s (the user's call).
+- Chests (requested 2026-10-19): abilities should damage chests (today only weapon shots break them), and better chest
+  sprites.
+- Tier tags (requested 2026-10-19): the pixel "T5"/"T8" text on item slots is unreadable (5 and 8 look alike); redesign
+  the tier digits so every tier reads at a glance.
+- Damage numbers (requested 2026-10-19): make the numbers over enemies and over the player easier to read.

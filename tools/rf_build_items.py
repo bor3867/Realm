@@ -99,14 +99,17 @@ for u in D['uniques']:
         if sh.get('grid'): ushots.add(key, sh['grid'], sh['pal'])
         if sh.get('motion') == 'helix': sp['weave'] = {'amp': 0.45, 'freq': 11}
         if sh.get('motion') == 'wave': sp['weave'] = {'amp': 0.35, 'freq': 9}
+    lines = []
     for line in u['fx']:
         parts = [x.strip() for x in line.replace('−', '-').split('  ') if x.strip()]
         if all(re.fullmatch(r'[+-]\d+ [A-Z]+', x) and x.split()[1] in STAT for x in parts):
             for x in parts: v, s = x.split(); bonus[STAT[s]] = bonus.get(STAT[s], 0) + int(v)
-        elif not (W and effect(line, sum(W['dmg']) / 2, sp)): pend.append(line)
+        else:
+            lines.append(line.replace('−', '-'))
+            if not (W and effect(line, sum(W['dmg']) / 2, sp)): pend.append(line)
     if 'pierce' in sp: W['pierce'] = sp.pop('pierce')
     RU.append({'id': key, 'type': t, 'rarity': u['rarity'], 'name': u['name'], 'desc': u['desc'], 'boss': u.get('boss'), 'set': u.get('set'),
-               'bonus': bonus, 'weapon': W, 'special': sp, 'shot': bool(W and (u.get('shot') or {}).get('grid')), 'pending': pend,
+               'bonus': bonus, 'weapon': W, 'special': sp, 'shot': bool(W and (u.get('shot') or {}).get('grid')), 'pending': pend, 'lines': lines,
                'effects': [{'name': e['name'], 'desc': e['desc']} for e in u.get('effects', [])]})
 
 out = os.path.join(root, 'art', 'bundle', 'realmforge'); os.makedirs(out, exist_ok=True)

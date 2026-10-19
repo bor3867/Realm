@@ -548,6 +548,7 @@ export class UI {
     const badge = it.admin ? 'ADMIN' : it.mythic ? 'MYTHIC' : it.legendary ? 'LEGENDARY' : it.use && it.use.egg && RARITY[it.use.egg] ? RARITY[it.use.egg].name.toUpperCase() : it.ut ? 'UT' : it.tier === null || it.tier === undefined ? '' : 'T' + it.tier;
     let h = `<div class="th"><div><h4>${it.name}</h4><div class="t">${itemLabel(it)}</div></div>${badge ? `<span class="badge">${badge}</span>` : ''}</div>`;
     if (it.desc) h += `<div class="flav">${it.desc}</div>`;
+    if (it.rf && it.rf.lines && it.rf.lines.length) h += `<div class="sec">${it.rf.lines.map((l) => `<div class="abd"${it.rf.pending.includes(l) ? ' style="opacity:.45"' : ''}>${l}${it.rf.pending.includes(l) ? ' (not yet)' : ''}</div>`).join('')}</div>`;   // a Realmforge unique's effects
     let stats = '';
     if (it.weapon) {
       const w = it.weapon;

@@ -16,11 +16,12 @@ const g = new Game({ reg }, { fame: 0, gold: 0, essence: 0, vaults: [[]], gravey
 g.newCharacter('priest'); g.persist = () => {}; g.enter('realm'); g.enemies = g.map.enemies = [];
 let fail = 0;
 const bad = (m) => { console.log('  PROBLEM:', m); fail++; };
-// Realmforge uniques whose named effects still wait for their dungeon (docs/realmforge_port.md) are counted, not judged
-const waiting = Object.values(ITEMS).filter((it) => it.rf && (it.rf.pending.length || !(it.weapon && it.weapon.special)));   // (or stat-only by the user's design)
+// Realmforge uniques: their effects are their own lines (src/rf/uniqmech.js), judged by those; a stat-only one (the
+// user's design) is counted, not judged
+const waiting = Object.values(ITEMS).filter((it) => it.rf && !(it.rf.lines && it.rf.lines.length) && !(it.weapon && it.weapon.special));
 const S = Object.values(ITEMS).filter((it) => !it.base && (it.ut || it.mythic || it.legendary) && !it.admin && !waiting.includes(it));
-console.log(`Realmforge uniques waiting for their dungeon's effects, or stat-only: ${waiting.length}`);
-const eff = (it) => it.slot === 'weapon' ? JSON.stringify(it.weapon.special || {}) : it.slot === 'ability' ? (it.ability.mod || '') + (it.ability.halo ? JSON.stringify(it.ability.halo) : '') + (it.ability.sigil ? JSON.stringify(it.ability.sigil) : '') + (it.ability.myth ? JSON.stringify(it.ability.myth) : '') + '|' + JSON.stringify(it.ability.sig ? { ...it.ability.sig, proj: 0 } : {}) + '|' + JSON.stringify(it.passive || {}) : JSON.stringify(it.passive || {}) + (it.gear ? JSON.stringify(it.gear) : '');
+console.log(`Realmforge uniques that are stat-only by design: ${waiting.length}`);
+const eff = (it) => it.rf && it.rf.lines && it.rf.lines.length ? 'rf:' + it.rf.lines.join('|') + JSON.stringify((it.weapon && it.weapon.special) || {}) : it.slot === 'weapon' ? JSON.stringify(it.weapon.special || {}) : it.slot === 'ability' ? (it.ability.mod || '') + (it.ability.halo ? JSON.stringify(it.ability.halo) : '') + (it.ability.sigil ? JSON.stringify(it.ability.sigil) : '') + (it.ability.myth ? JSON.stringify(it.ability.myth) : '') + '|' + JSON.stringify(it.ability.sig ? { ...it.ability.sig, proj: 0 } : {}) + '|' + JSON.stringify(it.passive || {}) : JSON.stringify(it.passive || {}) + (it.gear ? JSON.stringify(it.gear) : '');
 const empty = S.filter((it) => /^\{\}$|^\|\{\}\|\{\}$/.test(eff(it)));
 if (empty.length) bad('no effect: ' + empty.map((i) => i.id).join(', '));
 const seen = {};

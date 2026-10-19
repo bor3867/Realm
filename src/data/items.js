@@ -787,10 +787,12 @@ for (const u of UT) add({ bag: 'reliquary', ...u, tier: 'UT', ut: true });
 
 // ---- Realmforge's uniques (UT, Legendary, Mythic; tools/rf_build_items.py). They drop from their own bosses once
 // those dungeons are in (docs/realmforge_port.md); u.pending lists the named effects still to come with them.
+// their effects are built (src/rf/uniqmech.js), all but the ones that seek, held back by the no-seeking rule
+const RF_SEEKING = /seek|curve toward/i;
 for (const u of RF_UNIQUES) {
   const slot = u.weapon ? 'weapon' : u.type === 'ring' ? 'ring' : 'armor';
   const it = { id: `rf_${u.id}`, type: u.type, slot, tier: 'UT', ut: true, mythic: u.rarity === 'mythic', rfRarity: u.rarity,   // (their Legendary is not our twinkling legendary)
-    name: u.name, desc: u.desc, reg: `rf_uniq/${u.id}`, rf: { boss: u.boss, set: u.set, pending: u.pending, effects: u.effects } };
+    name: u.name, desc: u.desc, reg: `rf_uniq/${u.id}`, rf: { boss: u.boss, set: u.set, lines: u.lines, pending: u.pending.filter((l) => RF_SEEKING.test(l)), effects: u.effects } };
   if (Object.keys(u.bonus).length) it.bonus = { ...u.bonus };
   if (u.weapon) {
     const W = weapon(u.type, 10);

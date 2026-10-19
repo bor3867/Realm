@@ -31,6 +31,7 @@ import { installGearMech } from './gearmech.js';
 import { BX, bxEnemyDef } from './bosses/index.js';
 import { installRF } from './rf/host.js';
 import { installRFBoss } from './rf/boss.js';
+import { installUniqMech } from './rf/uniqmech.js';
 import { assignItemShots } from './data/uniques.js';
 import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUEST_HUNTS, FETCH_ITEMS } from './data/lore.js';
 
@@ -315,7 +316,7 @@ export class Game {
       const it = id && ITEMS[id];
       if (it && it.bonus && it.bonus[s]) v += it.bonus[s];
     }
-    return v + (this.setState().bonus[s] || 0);
+    return v + (this.setState().bonus[s] || 0) + this.rfStat(s);   // (+ a Realmforge unique's moment: src/rf/uniqmech.js)
   }
   // class sets: how many pieces of each are worn, and the bonuses that unlocks (the Conductor's Band adds a piece)
   setState() {
@@ -368,6 +369,7 @@ export class Game {
     let m = 1;
     if (P.momentum && p.moving) m += P.momentum;
     m += this.gearDamageBonus();                         // a Motion ring's empowered window
+    m += this.rfHitMult(e);                              // Realmforge uniques: checkmate, the Stilled, crowns (src/rf/uniqmech.js)
     if (P.rage) m += P.rage * (1 - p.hp / this.stat('hp'));
     if (P.kintsugi && p.status.kintsugi > 0) m += P.kintsugi;
     if (p.status.bless > 0 && p.blessKind === 'runeholt') m += 0.25;
@@ -924,7 +926,7 @@ export class Game {
     // terrain underfoot: shallows and bog drag at you, ice keeps you sliding
     const under = this.map.tiles[Math.floor(p.y) * this.map.w + Math.floor(p.x)];
     if (under === TID.hmspin) { const t = mx; mx = -my; my = t; }   // a spin tile: up becomes right
-    const drag = under === TID.bog || under === TID.fvwater ? 0.6 : under === TID.quicksand ? 0.55 : under === TID.ckblood ? 0.7 : under === TID.shallows ? 0.8 : 1;
+    const drag = this.rfu().washirobe ? 1 : under === TID.bog || under === TID.fvwater ? 0.6 : under === TID.quicksand ? 0.55 : under === TID.ckblood ? 0.7 : under === TID.shallows ? 0.8 : 1;
     const bless = p.status.bless > 0 ? p.blessKind : null;
     if (len) { mx /= len; my /= len; }
     const sp = moveSpeed(this.stat('spd')) * drag * (bless === 'shore' ? 1.25 : 1) * (this.map.kind === 'dungeon' ? this.d4Speed() * (this.map.rf ? p.rfSlow || 1 : 1) : 1) * (p.dragUntil > this.t ? p.dragF : 1) * this.chillSlow();
@@ -975,6 +977,7 @@ export class Game {
       this.sfx('shoot', p.cls);
       const sp = W.special || null;
       const cnt = sp && sp.mech && this.mechVolley(W, sp, ox, oy, a, mult) ? 0 : W.count || 1;   // a reworked weapon fires its own volley (src/weaponmech.js); one that names no count fires one shot
+      const vol = [];
       for (let k = 0; k < cnt; k++) {
         const off = cnt > 1 ? (k / (cnt - 1) - 0.5) * (W.arc || 0) : 0;
         const dmg = Math.round((W.dmg[0] + R() * (W.dmg[1] - W.dmg[0])) * mult);
@@ -982,7 +985,9 @@ export class Game {
         if (sp) { b.sp = sp; b.speed = W.speed; b.max = b.life; }
         if (sp && sp.accel) { b.range = W.range; b.dist = 0; b.life = 4; b.max = 4; }
         if (sp && sp.weave) { b.wa = a + off; b.ws = k % 2 ? -1 : 1; b.wt = 0; }   // a pair weaves around each other
+        vol.push(b);
       }
+      this.rfOnVolley(vol, a, ox, oy, mult, W);           // Realmforge uniques: counted volleys, extra shots (src/rf/uniqmech.js)
       if (sp && sp.starfall && (p.volleys = (p.volleys || 0) + 1) % sp.starfall.every === 0) {
         const d = Math.min(9, dist(p.x, p.y, I.aimX, I.aimY));
         this.fx.push({ kind: 'star', x: p.x + Math.cos(a) * d, y: p.y + Math.sin(a) * d, t: 0, life: 0.9, delay: 0.55,
@@ -999,7 +1004,7 @@ export class Game {
     this.haloTick(dt);
     this.sigilTick(dt);                                  // the ability sigils' queued beats (src/sigils.js)
     this.mythTick(dt);                                   // the Mythic abilities (src/mythics.js)
-    this.gearTick(dt);                                   // armour and ring mechanics (src/gearmech.js)                                   // the special Halos' shapes (src/halos.js)                                 // whatever circles you (src/orbiters.js)
+    this.gearTick(dt); this.rfTick(dt);                                   // armour and ring mechanics (src/gearmech.js)                                   // the special Halos' shapes (src/halos.js)                                 // whatever circles you (src/orbiters.js)
     if (P.lowregen && p.hp < this.stat('hp') * 0.35) p.hp = Math.min(this.stat('hp'), p.hp + P.lowregen * dt);
     if (P.aegis && !p.aegisUp) { p.aegisT = (p.aegisT || 0) - dt; if (p.aegisT <= 0) p.aegisUp = true; }
     if (P.cheatdeath) p.cheatT = Math.max(0, (p.cheatT || 0) - dt);
@@ -1050,9 +1055,10 @@ export class Game {
     if (!id) return;
     const A = ITEMS[id].ability;
     if (A.sigil && p.abilityT <= 0 && p.sigil && p.sigil.S === A.sigil && this.sigilTrigger()) return;   // the second press sets the sigil off (src/sigils.js)
-    if (p.mp < A.cost) { this.toast('Not enough mana.'); return; }
+    const cost = this.rfAbilityCost(A.cost);              // (a Realmforge robe or ring can lower it: src/rf/uniqmech.js)
+    if (p.mp < cost) { this.toast('Not enough mana.'); return; }
     if (p.abilityT > 0 || p.hook) return;
-    p.mp -= A.cost;
+    p.mp -= cost;
     p.abilityT = 0.5;
     this.sfx('ability');
     if (A.berserk) p.status.berserk = A.berserk;
@@ -1174,6 +1180,7 @@ export class Game {
     }
     if (A.sigil) this.sigilPlace(A, mult, tgt(7));        // a UT's sigil: press again to set it off (src/sigils.js)
     this.gearOnAbility();                                  // rings that ride on your abilities (src/gearmech.js)
+    this.rfOnAbility();
   }
   // enemies (and the dungeon boss) inside a circle
   enemiesIn(x, y, r) {
@@ -1616,6 +1623,7 @@ export class Game {
       if (d <= 0) return;
     }
     d = this.gearPreHurt(d);                                 // armour and rings: barriers, sanctuary, counters (src/gearmech.js)
+    d = this.rfPreHurt(d);                                   // Realmforge uniques (src/rf/uniqmech.js)
     if (d <= 0) return;
     if (p.status.armored) d = Math.ceil(d * 0.5);
     if (P.manashield && p.mp > 0) { const m = Math.min(p.mp, Math.round(d * P.manashield)); p.mp -= m; d -= m; }
@@ -1625,6 +1633,7 @@ export class Game {
     const hp0 = p.hp;
     p.hp -= d;
     this.gearPostHurt(d, hp0);
+    this.rfPostHurt(d, hp0);
     p.hitT = 0.15;
     this.sfx('hurt');
     this.vx({ k: 'hurt', amt: Math.min(4, 1 + d / 60) });
@@ -2144,6 +2153,7 @@ export class Game {
       if (e.soulT) this.sigilOnKill(e);                         // a soul-marked kill gives Mana back (src/sigils.js)
       if (e.page13 === 1) this.mythPageDeath(e);                // the Thirteenth Page passes its hex on (src/mythics.js)
       this.gearOnKill(e);                                       // rings and armour that answer a kill (src/gearmech.js)
+      this.rfOnKill(e);
       if (e.cloneOf) { this.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 30, colors: ['#ffffff', '#8af6ff'] }); this.bubble(e, 'An echo shatters.', '#cfffff'); return d; }
       this.player.kills++;
       this.speak(e, 'die', e.rb ? 1 : 0.04);
@@ -2205,6 +2215,7 @@ export class Game {
     const dealt = this.damageEnemy(e, dmg, b.x, b.y, false, crit);
     if (dealt && this.player.runeSigil) this.sigilOnHit(e);   // a rune sigil answers your hits inside it
     if (dealt && b.from === 'p') this.gearOnHit(e, b, dealt);   // armour and rings that count your hits (src/gearmech.js)
+    if (dealt && b.from === 'p') this.rfOnHit(e, b, dealt);     // Realmforge uniques (src/rf/uniqmech.js)
     if (!sp || !dealt) return;
     if (sp.mech) { if (b.sig) this.mechSigHit(e, b, dealt); else this.mechHit(e, b, dealt); }
     const p = this.player;
@@ -3541,7 +3552,8 @@ export class Game {
       if (!b.orb) { b.x += b.vx * dt; b.y += b.vy * dt; }
       b.life -= dt;
       const onBreakable = b.from === 'p' && m.kind !== 'nexus' && this.breakableAt(b.x, b.y + 0.3);   // chests and urns you walk through still catch your shots
-      if (b.life <= 0 || onBreakable || (!b.back && !b.orb && shotBlocked(m, b.x, b.y + 0.3))) {
+      if (b.from === 'p' && b.rfBounce && b.life > 0 && shotBlocked(m, b.x, b.y + 0.3)) this.rfWallHit(b, m);   // the Prism Wand's bounce (src/rf/uniqmech.js)
+      if (b.life <= 0 || onBreakable || (!b.back && !b.orb && !b.phase && shotBlocked(m, b.x, b.y + 0.3))) {
         if (b.from === 'p' && b.life > 0 && m.kind !== 'nexus') this.hitObject(b.x, b.y + 0.3, b.dmg);
         if (sp && sp.split && sp.split.onEnd && !b.child && b.from === 'p') this.splitShot(b, sp.split);
         if (sp && sp.mech && b.from === 'p') this.mechEnd(b);
@@ -4326,4 +4338,5 @@ installRemaster(Game);
 installSetpieces(Game);
 installRF(Game);
 installRFBoss(Game);
+installUniqMech(Game);
 wireBxSetpieces(BX);

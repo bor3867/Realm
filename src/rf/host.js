@@ -5,7 +5,7 @@
 // our renderer draws all of it (their art, 8 pixels to a tile, drawn at 2x like ours).
 import { makeExplore } from './explore_gen.js';
 import { TID } from '../world/maps.js';
-import { lift, R } from '../util.js';
+import { lift, liftA, liftB, R } from '../util.js';
 import { rollLoot } from '../data/items.js';
 import { bossData } from './boss.js';
 import { RF_FOE_LANDS } from '../data/rf_foes.js';
@@ -101,6 +101,7 @@ const methods = {
     X.tick(dt);
     if (ep.x !== bx || ep.y !== by) { p.x = ep.x; p.y = ep.y; this.unstick(p); }   // their portals, a collapsing floor, a push
     for (const e of E.en_) this.rfScale(e);
+    this.rfTheirsTick(dt);
     if ((R.tick = (R.tick || 0) + 1) % 3 === 0 || E.ogDirty === 0) this.rfSync(m);
     if (E.pots > R.pots) { for (let k = R.pots; k < E.pots; k++) this.rfPotion(); }
     R.pots = E.pots;
@@ -119,7 +120,7 @@ const methods = {
     if (ground === C.CONV) { const dr = M.aux[M.I(Math.floor(p.x), Math.floor(p.y))]; ex += [1, 0, -1, 0][dr & 3] * 2.6; ey += [0, 1, 0, -1][dr & 3] * 2.6; }
     if (mod && mod.push) { const q = mod.push(p, dt); ex += q[0]; ey += q[1]; }
     if (ex || ey) { this.moveCircle(P, ex * dt, ey * dt, 0.3); p.x = P.x; p.y = P.y; }
-    P.rfSlow = ground === C.LIQ ? (this.map.rf.E.cfg.liquid && this.map.rf.E.cfg.liquid.slow) || 0.6 : p.root > 0 ? 0.12 : p.slow > this.map.rf.E.t ? 0.55 : 1;
+    P.rfSlow = this.rfu().washirobe ? (p.root > 0 ? 0.12 : 1) : ground === C.LIQ ? (this.map.rf.E.cfg.liquid && this.map.rf.E.cfg.liquid.slow) || 0.6 : p.root > 0 ? 0.12 : p.slow > this.map.rf.E.t ? 0.55 : 1;
   },
   rfPotion() {
     const p = this.player, f = p.inv.indexOf(null);
@@ -127,7 +128,8 @@ const methods = {
   },
   // a creature dies: experience, and now and then a bag (their keys stay theirs: the locks count them)
   rfKill(e) {
-    const d = e.d, big = e.boss || d.size > 16;
+    const d = e.d, big = e.boss || d.size > 16, T = this.map.rf.E.t;
+    this.rfOnKill({ x: e.x, y: e.y, rb: !!e.boss, curseT: e.rfCurseT > T ? 1 : 0, burn: e.rfDot && e.rfDot.t > T ? { t: 1 } : null, D: { r: 0.5 } });   // the uniques that answer a kill
     this.gainXp(Math.round((d.hp || 300) / (big ? 12 : 25)));
     const R = Math.random();
     if (big) this.addBag(e.x, e.y + 0.6, rollLoot(this.rfLoot(2), 1.5));
@@ -147,6 +149,45 @@ const methods = {
     return [{ slot: 'weapon', tiers: T, p: 0.35 * k }, { slot: 'armor', tiers: T, p: 0.35 * k }, { slot: 'ring', tiers: [1, 3], p: 0.15 * k },
       { slot: 'ability', tiers: [2, 4], p: 0.15 * k }, { id: 'pot_hp', p: 0.5 }, { stat: true, p: 0.08 * k }];
   },
+  // what our shot's on-hit effects do to one of their creatures (ours act through playerHit; theirs have no burn or
+  // slow of their own): burning and venom tick, a slow slows, a curse raises the damage it takes, a chain arcs, a split
+  // splits, lifesteal heals, a tide shot shoves (the Realmforge uniques' own rules, src/rf/uniqmech.js, included)
+  rfOnHitTheirs(e, b, dealt) {
+    const E = this.map.rf.E, t = E.t, sp = b.sp || {}, p = this.player;
+    const dot = (dps, s) => { e.rfDot = { dps: Math.max(dps, e.rfDot && e.rfDot.t > t ? e.rfDot.dps : 0), t: t + s, acc: 0 }; };
+    if (sp.burn) dot(sp.burn.dps, sp.burn.t);
+    if (b.rfVenom) dot(Math.round(100 * this.rfMult()), 3);
+    if (sp.slow && !e.boss) { e.rfSlowT = t + sp.slow.t; e.rfSlowF = sp.slow.f; }
+    const curse = (f, s) => { e.rfCurseF = Math.max(e.rfCurseT > t ? e.rfCurseF || 0 : 0, f); e.rfCurseT = Math.max(e.rfCurseT || 0, t + s); };
+    if (sp.curse) curse(sp.curse.f, sp.curse.t);
+    if (b.rfCurse) curse(0.15, 3);
+    const U = this.rfu();
+    if (U.sarrukhfang) curse(0.1, 2);
+    if (sp.lifesteal) p.hp = Math.min(this.stat('hp'), p.hp + dealt * sp.lifesteal);
+    if (U.worldheart && this.rfReady('wheal')) { this.rfCool('wheal', 0.25); p.hp = Math.min(this.stat('hp'), p.hp + 10); }
+    if (sp.split && !sp.split.onEnd && !b.child) this.splitShot(b, sp.split);
+    if (sp.chain) {
+      let from = e; const seen = new Set([e]);
+      for (let k = 0; k < sp.chain.n; k++) {
+        const nx = E.en_.filter((o) => o.hp > 0 && !seen.has(o) && !o.hidden && !o.dormant && Math.hypot(o.x - from.x, o.y - from.y) < 4.5).sort((a, c) => Math.hypot(a.x - from.x, a.y - from.y) - Math.hypot(c.x - from.x, c.y - from.y))[0];
+        if (!nx) break;
+        seen.add(nx); this.vx({ k: 'zap', ...liftA(from.x, from.y, 0.5), ...liftB(nx.x, nx.y, 0.5) });
+        X.damageEnemy(nx, Math.round(b.dmg * sp.chain.f), { x: nx.x, y: nx.y }); from = nx;
+      }
+    }
+    if ((b.rfTide || U.unmaker) && !e.boss) { const a = Math.atan2(b.vy, b.vx); e.x += Math.cos(a) * (b.rfTide ? 0.8 : 0); e.y += Math.sin(a) * (b.rfTide ? 0.8 : 0); }
+    if ((b.rfStop || b.rfStill || (U.lighthouse && !(e.rfBlindT > t))) && !e.boss) { e.lock = Math.max(e.lock || 0, 0.6); e.rfBlindT = t + 3; b.rfStop = b.rfStill = false; }
+  },
+  // their creatures under our effects, every frame: burning ticks, slowed ones walk slow
+  rfTheirsTick(dt) {
+    const E = this.map.rf.E, t = E.t;
+    for (const e of E.en_) {
+      if (e.hp <= 0) continue;
+      if (e.rfDot && e.rfDot.t > t) { e.rfDot.acc += dt; if (e.rfDot.acc >= 0.5) { e.rfDot.acc -= 0.5; X.damageEnemy(e, Math.round(e.rfDot.dps * 0.5), { x: e.x, y: e.y }); this.float(...lift(e.x, e.y, 1.2), `${Math.round(e.rfDot.dps * 0.5)}`, '#ff9a5a'); } }
+      if (e.rfSpd0 === undefined) e.rfSpd0 = e.spd;
+      e.spd = e.rfSlowT > t ? e.rfSpd0 * e.rfSlowF : e.rfSpd0;
+    }
+  },
   // our shot against their creatures (the loop in updateProjectiles calls this for each of your shots)
   rfShotHits(b) {
     const E = this.map.rf.E;
@@ -155,11 +196,12 @@ const methods = {
       const [hx, hy] = lift(e.x, e.y + (e.z || 0), 0.45), rr = (e.r || 0.5) + b.r * 0.6;
       if ((b.x - hx) ** 2 + (b.y - hy) ** 2 < rr * rr) {
         if (b.hit) { if (b.hit.has(e)) continue; b.hit.add(e); }
-        const dmg = Math.round(b.dmg);
+        const t = E.t, curse = e.rfCurseT > t ? e.rfCurseF : 0;
+        const dmg = Math.round(b.dmg * (1 + curse));
         const hp0 = e.hp;
         X.damageEnemy(e, dmg, { x: e.x, y: e.y });
         const dealt = Math.max(0, hp0 - Math.max(0, e.hp));
-        if (dealt) this.float(...lift(e.x, e.y, 1.2), `${Math.round(dealt)}`, '#ff5050');
+        if (dealt) { this.float(...lift(e.x, e.y, 1.2), `${Math.round(dealt)}`, '#ff5050'); this.rfOnHitTheirs(e, b, dealt); }
         return !b.pierce;
       }
     }
