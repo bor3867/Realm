@@ -198,6 +198,27 @@ const methods = {
       e.spd = e.rfSlowT > t ? e.rfSpd0 * e.rfSlowF : e.rfSpd0;
     }
   },
+  // what an ability's circle holds here: the creatures (each given a light D for our ability code) and the boss
+  rfIn(x, y, r) {
+    const out = [], m = this.map;
+    if (m.rf) for (const e of m.rf.E.en_) {
+      if (e.hp <= 0 || e.dormant || e.hidden || e.st === 'gone') continue;
+      const er = e.r || 0.5;
+      if ((e.x - x) ** 2 + (e.y - y) ** 2 < (r + er) ** 2) { e.rfC = true; e.D = e.D || { name: (e.d && e.d.name) || 'creature', r: er }; out.push(e); }
+    }
+    const P = m.rfBoss && m.rfBoss.bubE;
+    if (P && !m.rfBoss.done && (P.x - x) ** 2 + (P.y - y) ** 2 < (r + 1.2) ** 2) { P.rfBossP = true; P.D = P.D || { name: m.rfBoss.B.name, r: 1.2 }; out.push(P); }
+    return out;
+  },
+  // an ability lands on one of them: the creature takes it as a shot would; the boss by its own rules (rf/boss.js)
+  rfAbilityHit(e, dmg) {
+    if (e.rfBossP) { this.rfBossShot({ x: e.x, y: e.y - 0.35, vx: 0, vy: 1, dmg, hit: null, pierce: true }); return dmg; }
+    const hp0 = e.hp;
+    X.damageEnemy(e, Math.round(dmg), { x: e.x, y: e.y });
+    const dealt = Math.max(0, hp0 - Math.max(0, e.hp));
+    if (dealt) this.float(...lift(e.x, e.y, 1.2), `${Math.round(dealt)}`, '#ff5050');
+    return dealt;
+  },
   // our shot against their creatures (the loop in updateProjectiles calls this for each of your shots)
   rfShotHits(b) {
     const E = this.map.rf.E;

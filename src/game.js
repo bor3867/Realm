@@ -1233,9 +1233,11 @@ export class Game {
   enemiesIn(x, y, r) {
     const out = (this.active || this.enemies).filter((e) => !e.dead && !e.under && e.state !== 'sleep' && dist2(e.x, e.y, x, y) < (r + e.D.r) ** 2);
     if (this.boss && this.boss.state !== 'sleep' && this.boss.state !== 'dead' && dist2(this.boss.x, this.boss.y, x, y) < (r + BOSS.r) ** 2) out.push(this.boss);
+    if (this.map.rf || this.map.rfBoss) out.push(...this.rfIn(x, y, r));   // an rf_ dungeon's creatures and boss (src/rf/host.js)
     return out;
   }
   stun(e, t) {
+    if (e.rfC) { e.lock = Math.max(e.lock || 0, t); return; }   // an rf_ creature: held still
     if (e === this.boss || e.rb) { this.float(e.x, e.y - 2, 'UNSHAKEN', '#8d88a0'); return; }
     if (e.D && e.D.dummy) return;
     e.stunT = Math.max(e.stunT || 0, e.herald ? t * 0.5 : t);
@@ -1603,6 +1605,7 @@ export class Game {
     return false;
   }
   moveCircle(o, dx, dy, r) {
+    if (o.rfC || o.rfBossP) return;                           // (their creatures move by their own rules)
     if (o.rb && this.map.kind === 'realm') {              // realm bosses pass over rocks, trees and thickets (RotMG-style): they never get stuck
       const m = this.map; o.x = Math.max(2, Math.min(m.w - 2, o.x + dx)); o.y = Math.max(2, Math.min(m.h - 2, o.y + dy)); return;
     }
@@ -1704,7 +1707,7 @@ export class Game {
     const C = m.w / 2, d = Math.min(1, dist(p.x, p.y, C, C) / (C * 0.9));
     return 0.5 + 0.45 * (1 - d);
   }
-  ignite(e, dps, t) { if (e.dead) return; e.burn = { dps: Math.max(dps, e.burn && e.burn.t > 0 ? e.burn.dps : 0), t, acc: e.burn ? e.burn.acc : 0 }; }
+  ignite(e, dps, t) { if (e.rfC) { e.rfDot = { dps, t: this.map.rf.E.t + t, acc: 0 }; return; } if (e.dead) return; e.burn = { dps: Math.max(dps, e.burn && e.burn.t > 0 ? e.burn.dps : 0), t, acc: e.burn ? e.burn.acc : 0 }; }
   killPlayer(by) {
     const p = this.player;
     p.hp = 0; p.dead = true; p.deadT = 0;
@@ -2143,6 +2146,7 @@ export class Game {
     }
   }
   damageEnemy(e, dmg, x, y, quiet = false, crit = false) {
+    if (e.rfC || e.rfBossP) return this.rfAbilityHit(e, dmg);   // an rf_ dungeon's creature or boss
     if (e.dead || e.state === 'dead') return 0;
     if (e.spawnT > 0) return 0;                                  // an elite still arriving
     if (e.bulwarkT > this.t) { if (!quiet) this.float(x, y - 0.8, 'BULWARK', '#ff8fbf'); return 0; }   // the reef golem's shell
@@ -3695,7 +3699,7 @@ export class Game {
     this.map.portals = this.map.portals.filter((pt) => pt.life === undefined || pt.life > 0);
     this.nearPortal = this.map.portals.find((pt) => dist(pt.x, pt.y, p.x, p.y) < 1.2) || null;
     const dg = this.danger(), stars = '★'.repeat(this.map.rf || this.map.rfBoss ? this.rfStars() : this.map.kind === 'dungeon' ? (DUNGEON_RATING[Object.keys(DUNGEONS).find((k) => DUNGEONS[k] === this.map.def)] || [3])[0] : Math.max(1, Math.min(5, Math.round((dg - 0.45) * 8))));
-    this.where = (this.map.kind === 'realm' ? BIOME_LABEL[BIOMES[biomeAt(this.map, p.x, p.y)]] || 'Open water' : this.map.name) + (this.map.kind === 'nexus' || this.map.kind === 'vault' ? '' : ` · danger ${stars}`);
+    this.where = (this.map.kind === 'realm' ? BIOME_LABEL[BIOMES[biomeAt(this.map, p.x, p.y)]] || 'Open water' : this.map.name) + (this.map.kind === 'nexus' || this.map.kind === 'vault' ? '' : ` ${stars}`);
   }
   // ------------------------------------------------------------- quests
   // kinds: hunt {target,n} · herald {n} · rboss {n} · shrine {n} · camp {n} · dungeon {target} · fetch {x,y,item}

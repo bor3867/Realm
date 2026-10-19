@@ -236,3 +236,11 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   heals and ward numbers no longer show there (the health and mana potions now show their numbers). In the rf_
   dungeons every number belongs to the creature or boss it hit and takes its spot over its head like the rest; no creature
   or meteor drops a floor potion, and a death leaves no white ring (their slams and traps keep theirs: those warn).
+- HUD font and danger word, abilities in the rf_ dungeons (requested 2026-10-19): drop "danger" from the location line
+  (the stars say it); the HUD (Life, Fame, Mana, slot numbers, quests, Stats and Pet tabs) still used the old font;
+  abilities did not hurt anything in the rf_ dungeons. **Done 2026-10-19:** the location reads "The Greenmarch ★★".
+  The game's pixel font is now a web font (tools/build_pixel_font.py -> art/fonts/realm_pixel.ttf): the damage numbers'
+  3x5 digits with capitals, lowercase and signs to match, outlines traced so no seams. Used across the HUD, its tabs,
+  menus, chat, banners, tooltips and screens at 16px (24px for headings and big counts), never faux-bold; the journal
+  keeps its book face. Abilities now reach the rf_ dungeons' creatures (damage, stuns hold them, burns tick) and boss
+  (by its own rules: immune phases stay immune); pets' zaps too.

@@ -702,6 +702,11 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #app #panel #interact > div { position: absolute; left: 0; right: 0; top: 0; }
 #app #panel #where { margin-top: auto !important; }
 
+/* the game's pixel font (tools/build_pixel_font.py): the damage numbers' and tier tags' 3x5 digits, with letters to
+   match. Crisp at 16px and 24px (2 and 3 screen pixels a font pixel); never faux-bold */
+@font-face { font-family: 'Realm Pixel'; src: url('art/fonts/realm_pixel.ttf') format('truetype'); font-display: block; }
+body #app { font-synthesis: none; }
+@media (max-height: 736px) { body #app #panel .slot .hint { font-size: 16px !important; } }
 /* ==== THE HUD, RotMG-style (matched to the user's own RotMG screenshot). One fixed layout, it never resizes itself:
    only the window height picks one of a few fixed sizes. Top to bottom: a black minimap as wide as the panel with
    + and - stacked at its top right; a row of white pixel icons (Stats, Pet, Settings); the Lvl/Fame, HP and MP bars
@@ -709,7 +714,7 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
    equipment slots in a light frame; the backpack box with its two pouch tabs, 4x2 slots (empty ones show their
    number) and the two wide potion buttons; then where you are and who is with you, which a bag or portal covers. ==== */
 :root { --r-pane: #363636; --r-dark: #2a2a2a; --r-slot: #545454; --r-slot2: #4a4a4a; --r-frame: #9a9a9a; --r-num: #6c6c6c;
-  --r-font: 'Pixelify Sans', 'Source Sans 3', system-ui, sans-serif;
+  --r-font: 'Realm Pixel', 'Pixelify Sans', 'Source Sans 3', system-ui, sans-serif;
   --r-ol: 1px 0 0 #000, -1px 0 0 #000, 0 1px 0 #000, 0 -1px 0 #000, 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; }
 body #app #panel { --slot: 60px; width: calc(var(--slot) * 4 + 40px) !important; padding: 8px !important; gap: 6px !important;
   background: var(--r-pane) !important; border-left: 2px solid #1a1a1a !important; box-shadow: none !important; font-family: var(--r-font); overflow: hidden !important; }
@@ -733,7 +738,7 @@ body #app #panel #minibtns { position: absolute; top: 4px; right: 4px; bottom: a
 body #app #panel #minibtns button { width: 28px; height: 28px; padding: 0; border-radius: 0 !important; border: 0 !important; background: #8a8a8acc !important;
   color: #fff; font: 700 24px/26px var(--r-font); text-shadow: none; }
 body #app #panel #minibtns button:hover { background: #b0b0b0dd !important; }
-body #app #panel #minilabel { position: absolute; left: 4px; bottom: 4px; font: 500 11px var(--r-font); color: #9a9a9a; background: none; text-shadow: var(--r-ol); pointer-events: none; }
+body #app #panel #minilabel { position: absolute; left: 4px; bottom: 4px; font: 500 16px var(--r-font); color: #9a9a9a; background: none; text-shadow: var(--r-ol); pointer-events: none; }
 
 /* the icon row */
 body #app #panel #iconrow { display: flex; align-items: center; gap: 2px; height: 26px; }
@@ -752,7 +757,7 @@ body #app #panel .bar.mp i { background: #4a6ae0 !important; }
 body #app #panel .bar.xp i { background: #3a9a3a !important; }
 body #app #panel .bar.xp.fame i { background: #e07a1a !important; }
 body #app #panel .bar.hp.low i { background: #c83a2a !important; }
-body #app #panel .bar b { position: absolute !important; inset: 0; display: flex !important; align-items: center; padding: 0 6px; font: 600 15px/18px var(--r-font) !important;
+body #app #panel .bar b { position: absolute !important; inset: 0; display: flex !important; align-items: center; padding: 0 6px; font: 600 16px/18px var(--r-font) !important;
   color: #fff; text-shadow: var(--r-ol) !important; letter-spacing: 0; white-space: nowrap; }
 body #app #panel .bar .bl { width: 42px; flex: none; }
 body #app #panel .bar .bv { flex: 1; text-align: center; margin-right: 42px; overflow: hidden; }
@@ -768,9 +773,9 @@ body #app #panel .slot:hover { border-color: #d0d0d0 !important; }
 body #app #panel .slot.has { border-color: #3a3a3a !important; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--rc) 45%, transparent) !important; }
 body #app #panel .slot.has:hover { border-color: #d0d0d0 !important; }
 body #app #panel .slot .ico { width: calc(var(--slot) * 0.78) !important; height: calc(var(--slot) * 0.78) !important; }
-body #app #panel .slot .tier { font: 500 calc(var(--slot) * 0.27)/1 var(--r-font) !important; color: #fff !important; text-shadow: var(--r-ol) !important; right: 3px !important; bottom: 2px !important; }
+body #app #panel .slot .tier { font: 500 16px/1 var(--r-font) !important; color: #fff !important; text-shadow: var(--r-ol) !important; right: 3px !important; bottom: 2px !important; }
 body #app #panel .slot .tier.ut { color: #ffd84a !important; }
-body #app #panel .slot .hint { font: 500 calc(var(--slot) * 0.5)/1 var(--r-font) !important; color: var(--r-num) !important; left: 0 !important; right: 0; top: 50% !important;
+body #app #panel .slot .hint { font: 500 24px/1 var(--r-font) !important; color: var(--r-num) !important; left: 0 !important; right: 0; top: 50% !important;
   transform: translateY(-50%); text-align: center; }
 body #app #panel #equip .slot .hint { display: none; }
 
@@ -782,38 +787,38 @@ body #app #panel #stattabs button.on { background: var(--r-dark); }
 body #app #panel #stattabs button.off { color: #6a6a6a; cursor: default; }
 body #app #panel #stattabs svg { width: 18px; height: 18px; fill: currentColor; filter: drop-shadow(1px 1px 0 #000); }
 body #app #panel #tabbody { height: calc(var(--slot) * 2 + 4px) !important; padding: 0 !important; background: none !important; border-radius: 0 !important; overflow: hidden auto; }
-body #app #panel #tabbody #stats { background: #1e1e1e !important; height: 100%; padding: 6px 10px !important; border-radius: 0; font-family: var(--r-font); font-size: 15px !important; align-content: start; }
+body #app #panel #tabbody #stats { background: #1e1e1e !important; height: 100%; padding: 6px 10px !important; border-radius: 0; font-family: var(--r-font); font-size: 16px !important; align-content: start; }
 body #app #panel #tabbody #stats .st { font-family: var(--r-font); font-weight: 500; text-shadow: var(--r-ol); }
 body #app #panel #pots.slots { display: grid; grid-template-columns: 1fr 1fr !important; gap: 4px !important; margin: 4px 0 0 !important; }
 body #app #panel #pots .slot { width: auto !important; height: 34px !important; aspect-ratio: auto !important; display: flex; align-items: center; justify-content: center; gap: 4px; background: #424242 !important; }
 body #app #panel #pots .slot .hint { display: none; }
 body #app #panel #pots .slot .ico { width: 26px !important; height: 26px !important; flex: none; }
 body #app #panel #pots .slot.ghost .ico { opacity: .35; filter: grayscale(1); }
-body #app #panel #pots .slot .tier { position: static; font: 500 13px/1 var(--r-font) !important; color: #fff !important; }
-body #app #panel #pots .slot .tier b { font-size: 20px; font-weight: 600; color: #ff8a2a; }
+body #app #panel #pots .slot .tier { position: static; font: 500 16px/1 var(--r-font) !important; color: #fff !important; }
+body #app #panel #pots .slot .tier b { font-size: 24px; font-weight: 600; color: #ff8a2a; }
 body #app #panel #pots .slot .tier b.full { color: #4af04a; } body #app #panel #pots .slot .tier b.none { color: #8a8a8a; }
 
 /* where you are, who is with you; a bag or a portal covers it */
 body #app #panel #bottom { position: relative; height: calc(var(--slot) * 2 + 34px); }
 body #app #panel #nearby { height: 100%; overflow: hidden; }
-body #app #panel #where { margin: 0 !important; font: 500 17px/22px var(--r-font) !important; color: #a8a8a8 !important; text-shadow: var(--r-ol) !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+body #app #panel #where { margin: 0 !important; font: 500 16px/22px var(--r-font) !important; color: #a8a8a8 !important; text-shadow: var(--r-ol) !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 body #app #panel #who { display: grid !important; grid-template-columns: 1fr 1fr; gap: 2px 8px !important; margin-top: 4px; }
-body #app #panel #who .np { display: flex; align-items: center; gap: 4px; min-width: 0; font: 500 14px var(--r-font); color: #4ac08a; text-shadow: var(--r-ol); white-space: nowrap; overflow: hidden; }
+body #app #panel #who .np { display: flex; align-items: center; gap: 4px; min-width: 0; font: 500 16px var(--r-font); color: #4ac08a; text-shadow: var(--r-ol); white-space: nowrap; overflow: hidden; }
 body #app #panel #who .np span { overflow: hidden; text-overflow: ellipsis; }
 body #app #panel #who #portrait { width: 22px !important; height: 22px !important; flex: none; border-radius: 0 !important; box-shadow: none !important; background: none !important; }
 body #app #panel #who .ico.pet { width: 20px; height: 20px; flex: none; background-size: 100% 100%; image-rendering: pixelated; }
-body #app #panel #cname { font: 500 14px var(--r-font) !important; color: #4ac08a !important; text-shadow: var(--r-ol) !important; letter-spacing: 0; }
+body #app #panel #cname { font: 500 16px var(--r-font) !important; color: #4ac08a !important; text-shadow: var(--r-ol) !important; letter-spacing: 0; }
 body #app #panel #quests { margin-top: 6px; gap: 2px; }
-body #app #panel #quests .q { font: 500 13px var(--r-font); background: #2a2a2a !important; border-radius: 0; padding: 2px 6px; }
+body #app #panel #quests .q { font: 500 16px var(--r-font); background: #2a2a2a !important; border-radius: 0; padding: 2px 6px; }
 body #app #panel #interact { position: absolute !important; inset: 0; height: auto !important; }
 body #app #panel #interact:has(> div:not(.off)) { background: var(--r-pane); }
 body #app #panel #interact > div { position: absolute; inset: 0 0 auto 0; }
-body #app #panel #interact .label { display: flex; align-items: center; gap: 6px; height: 26px; margin: 0 0 4px !important; font: 500 15px var(--r-font) !important; }
+body #app #panel #interact .label { display: flex; align-items: center; gap: 6px; height: 26px; margin: 0 0 4px !important; font: 500 16px var(--r-font) !important; }
 body #app #panel #interact .label .btn { margin-left: auto; font-family: var(--r-font); border-radius: 0; background: #4a4a4a; border: 2px solid #222; }
 body #app #panel #interact .label .btn + .btn { margin-left: 0; }
 body #app #panel #interact .label > span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 body #app #panel #interact .label .btn.off { display: none; }
-body #app #panel #interact .label .btn { white-space: nowrap; flex: none; padding: 2px 8px; font-size: 13px; }
+body #app #panel #interact .label .btn { white-space: nowrap; flex: none; padding: 2px 8px; font-size: 16px; }
 body #app #panel #ground.vault { grid-template-columns: repeat(8, 1fr) !important; max-height: calc(var(--slot) * 2 + 4px); }
 body #app #panel #ground.vault .slot { width: auto !important; height: auto !important; aspect-ratio: 1; }
 body #app #panel #ground.vault .slot .ico { width: 78% !important; height: 78% !important; }
@@ -826,27 +831,27 @@ body #app #panel .portalcard .btn { border-radius: 0; font-family: var(--r-font)
   display: flex; flex-direction: column; background: var(--r-pane, #363636); border: 2px solid #9a9a9a; box-shadow: 0 0 0 2px #1a1a1a, 0 12px 40px #000c; font-family: var(--r-font); }
 #vaultwin.hidden { display: none; }
 #vaultwin .vwhead { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: #2a2a2a; border-bottom: 2px solid #1a1a1a; flex-wrap: wrap; }
-#vaultwin .vwhead b { font: 600 18px var(--r-font); color: #fff; text-shadow: var(--r-ol); }
-#vaultwin .vwhead small { color: #a8a8a8; font: 500 13px var(--r-font); }
+#vaultwin .vwhead b { font: 600 16px var(--r-font); color: #fff; text-shadow: var(--r-ol); }
+#vaultwin .vwhead small { color: #a8a8a8; font: 500 16px var(--r-font); }
 #vaultwin .vwhead .sp { flex: 1; }
-#vaultwin .vwsort { color: #c8c8c8; font: 500 13px var(--r-font); display: flex; align-items: center; gap: 4px; }
-#vaultwin .vwsort button, #vwclose { font: 500 13px var(--r-font); color: #fff; background: #4a4a4a; border: 2px solid #222; padding: 2px 8px; cursor: pointer; text-shadow: var(--r-ol); }
+#vaultwin .vwsort { color: #c8c8c8; font: 500 16px var(--r-font); display: flex; align-items: center; gap: 4px; }
+#vaultwin .vwsort button, #vwclose { font: 500 16px var(--r-font); color: #fff; background: #4a4a4a; border: 2px solid #222; padding: 2px 8px; cursor: pointer; text-shadow: var(--r-ol); }
 #vaultwin .vwsort button:hover, #vwclose:hover { background: #5e5e5e; border-color: #9a9a9a; }
-#vwclose { font-size: 18px; line-height: 18px; padding: 2px 9px; }
+#vwclose { font-size: 16px; line-height: 18px; padding: 2px 9px; }
 #vwbody { overflow-y: auto; padding: 10px; min-height: 120px; }
 #vaultwin #ground.vault.slots { display: grid !important; grid-template-columns: repeat(auto-fill, 58px) !important; gap: 6px !important; justify-content: center;
   max-height: none !important; width: auto !important; padding: 0 !important; }
 #vaultwin #ground.vault .slot { width: 58px !important; height: 58px !important; aspect-ratio: auto !important; border-radius: 0 !important; background: var(--r-slot, #545454) !important; border: 2px solid #3a3a3a !important; box-shadow: none !important; }
 #vaultwin #ground.vault .slot:hover { border-color: #d0d0d0 !important; }
 #vaultwin #ground.vault .slot .ico { width: 46px !important; height: 46px !important; }
-#vaultwin #ground.vault .slot .tier { font: 500 14px/1 var(--r-font) !important; color: #fff !important; text-shadow: var(--r-ol) !important; right: 3px; bottom: 2px; }
-#vaultwin .vwfoot { padding: 6px 10px 8px; color: #8a8a8a; font: 500 12px var(--r-font); border-top: 2px solid #1a1a1a; background: #2a2a2a; }
+#vaultwin #ground.vault .slot .tier { font: 500 16px/1 var(--r-font) !important; color: #fff !important; text-shadow: var(--r-ol) !important; right: 3px; bottom: 2px; }
+#vaultwin .vwfoot { padding: 6px 10px 8px; color: #8a8a8a; font: 500 16px var(--r-font); border-top: 2px solid #1a1a1a; background: #2a2a2a; }
 body #app #panel #groundlabel[style*="pointer"]:hover { color: #fff; text-decoration: underline; }
 
 #gearmenu { position: absolute; z-index: 20; right: 8px; top: calc(100% * 0); margin-top: 0; display: flex; flex-direction: column; min-width: 170px;
   background: #2a2a2a; border: 2px solid #9a9a9a; box-shadow: 0 0 0 2px #1a1a1a, 0 8px 24px #000a; }
 #gearmenu.hidden { display: none; }
-#gearmenu button { font: 500 15px var(--r-font); color: #fff; text-align: left; background: none; border: 0; border-bottom: 1px solid #1a1a1a; padding: 8px 12px; cursor: pointer; text-shadow: var(--r-ol); }
+#gearmenu button { font: 500 16px var(--r-font); color: #fff; text-align: left; background: none; border: 0; border-bottom: 1px solid #1a1a1a; padding: 8px 12px; cursor: pointer; text-shadow: var(--r-ol); }
 #gearmenu button:last-child { border-bottom: 0; }
 #gearmenu button:hover, #gearmenu button:focus-visible { background: #4a4a4a; outline: none; }
 #gearmenu button.hidden { display: none; }
@@ -854,7 +859,7 @@ body #app #panel #groundlabel[style*="pointer"]:hover { color: #fff; text-decora
 /* Tier tags (2026-10-19): the pixel font made 5 and 8 alike at this size. A heavy, plain sans with a solid black rim,
    never under 10px, and a colour per tier band (T0-3 grey, T4-6 green, T7-9 blue, T10-11 purple, T12-13 gold) */
 html body #app .slot .tier.tt, html body #app #panel .slot .tier.tt { font-family: 'Arial Black', 'Segoe UI Black', 'Verdana', sans-serif !important; font-weight: 900 !important; letter-spacing: 0;
-  font-size: 11px !important; line-height: 1; right: 2px; bottom: 2px; -webkit-font-smoothing: antialiased;
+  font-size: 16px !important; line-height: 1; right: 2px; bottom: 2px; -webkit-font-smoothing: antialiased;
   text-shadow: 1px 0 0 #000, -1px 0 0 #000, 0 1px 0 #000, 0 -1px 0 #000, 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000 !important; }
 html body #app .slot .tier.tt.b1, html body #app #panel .slot .tier.tt.b1 { color: #d8d8d8 !important; }
 html body #app .slot .tier.tt.b2, html body #app #panel .slot .tier.tt.b2 { color: #8ef08a !important; }
@@ -870,8 +875,26 @@ html body #app #who .np.me, html body #app #who #petname { display: none !import
 
 /* the minimap's waypoint dropdown (main.js): the waypoint's name and a Teleport button */
 #wpmenu { position: fixed; z-index: 60; width: 150px; background: #1e1e1e; border: 2px solid #3a3a3a; box-shadow: 0 4px 0 #000;
-  padding: 6px; display: grid; gap: 6px; font-family: 'Pixelify Sans', 'Source Sans 3', sans-serif; color: #e8e8e8; }
+  padding: 6px; display: grid; gap: 6px; font-family: var(--r-font); color: #e8e8e8; }
 #wpmenu.hidden { display: none; }
-#wpmenu b { font-weight: 600; font-size: 14px; text-shadow: 1px 1px 0 #000; }
-#wpmenu button { font: inherit; font-size: 14px; background: #2f6a3a; color: #fff; border: 2px solid #1a3a20; padding: 4px 6px; cursor: pointer; }
+#wpmenu b { font-weight: 600; font-size: 16px; text-shadow: 1px 1px 0 #000; }
+#wpmenu button { font: inherit; font-size: 16px; background: #2f6a3a; color: #fff; border: 2px solid #1a3a20; padding: 4px 6px; cursor: pointer; }
 #wpmenu button:hover { background: #3c8a4a; }
+
+/* ==== the pixel font everywhere (2026-10-19): the HUD, its tabs, the chat, banners, screens and tooltips. Text at
+   16px (a font pixel is 2 screen pixels), headings and big counts at 24px; never faux-bold. The journal keeps its
+   book face. ==== */
+body #app, body #app button, body #app input, body #app select, body #app textarea { font-family: var(--r-font) !important; }
+body #app .screen.journal .page { font-family: Georgia, 'Times New Roman', serif !important; }
+body #app #hud { font-size: 16px; }
+body #app #hud b { font-weight: 400; }
+body #app #banner { font-size: 24px; }
+body #app #chatlog { font-size: 16px; }
+body #app #panel .label, body #app #portalgo { font-size: 16px !important; }
+body #tooltip, body #tooltip * { font-family: var(--r-font) !important; font-weight: 400 !important; }
+body #tooltip, body #tooltip :not(h4) { font-size: 16px !important; }
+body #tooltip h4 { font-size: 24px !important; }
+body #app #panel #tabbody #stats, body #app #panel #tabbody #stats * { font-size: 16px !important; font-weight: 400 !important; }
+body #app .screen :not(h1):not(h2) { font-size: 16px !important; font-weight: 400 !important; }
+body #app .screen h1, body #app .screen h2 { font-size: 24px !important; font-weight: 400 !important; }
+body #app .screen.journal .page, body #app .screen.journal .page * { font-size: 17px !important; }
