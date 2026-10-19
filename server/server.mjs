@@ -15,6 +15,8 @@ const CLASSES = new Set(['brawler', 'forge_knight', 'priest', 'summoner', 'harpo
 const clients = new Map();   // id -> { sock, name, cls, room, budget }
 // milestone 4: accounts and saves (server/db.mjs: Supabase online, a file when testing with DB=file)
 const { makeDb } = await import('./db.mjs');
+// milestone 5: what the server won't take (server/guard.mjs)
+const { checkSave, movedTooFar, LIMIT: G } = await import('./guard.mjs');
 const db = makeDb();
 if (db) console.log(`accounts and saves: ${db.kind}`);
 // stage 2: the shared realm's monsters run here (server/world.mjs). WORLD=0 in the environment turns it off.
@@ -58,9 +60,13 @@ function onMessage(c, text) {
       if (c.room) toRoom(c.room, { t: 'bye', id: c.id }, c);
       const W0 = worldOf(c.room); if (W0) W0.leave(c.id);
       c.room = room;
-      const W1 = worldOf(room); if (W1) W1.join(c.id, c.name);
+      const W1 = worldOf(room); if (W1) W1.join(c.id, c.name, !!(c.account && c.account.admin));
     }
     if (!room) return;
+    if (movedTooFar(c, num(m.x, 0, 4096), num(m.y, 0, 4096), room)) {   // faster than any build, again and again
+      console.warn(`dropped ${c.name}: moving impossibly fast`);
+      send(c, { t: 'kick', reason: 'You were moving faster than the game allows, so the server let you go. Reload to play again.' }); c.sock.end(); return;
+    }
     const W = worldOf(room);
     if (W) W.player(c.id, { x: num(m.x, 0, 4096), y: num(m.y, 0, 4096), dead: !!m.dead, hp: num(m.hp, 0, 1e6) });
     if (CLASSES.has(m.cls)) c.cls = m.cls;
@@ -102,6 +108,8 @@ function onMessage(c, text) {
     return;
   }
   if (m.t === 'chat') {
+    if (Date.now() - (c.chatAt || 0) < G.CHAT_GAP) return;         // one line at a time
+    c.chatAt = Date.now();
     const text = str(m.text, LIMIT.chat).trim();
     // dev only (DEV=1 in the environment, never online): !kraken, !treant raise an event boss in the shared realm
     if (process.env.DEV === '1' && world && /^!(kraken|treant)$/.test(text)) { const g = world._g; g.spawnEventBoss(text === '!kraken' ? 'abyssal_kraken' : 'thornheart_treant'); return; }
@@ -126,7 +134,12 @@ async function auth(c, m) {
     if (r.error) return reply({ error: r.error });
     if (c.account && c.account.id !== r.account.id) await flushSave(c);
     c.account = r.account; c.name = r.account.name;
-    if (r.created && m.upload && typeof m.upload === 'object' && JSON.stringify(m.upload).length < 600000) { await db.writeSave(r.account.id, m.upload); r.save = m.upload; }   // a new account brings this browser's progress
+    if (r.created && m.upload && typeof m.upload === 'object' && JSON.stringify(m.upload).length < 600000) {   // a new account brings this browser's progress (checked)
+      const { save, notes } = checkSave(m.upload, null, { upload: true });
+      if (notes.length) console.warn(`upload for ${r.account.name}: ${notes.slice(0, 8).join('; ')}`);
+      await db.writeSave(r.account.id, save); r.save = save;
+    }
+    c.goodSave = r.save; c.goodAt = Date.now();
     reply({ ok: true, token: r.token, account: r.account, save: r.save, created: !!r.created });
   } catch (err) { console.error('auth', m.kind, err.message); reply({ error: 'The account service is not answering. Try again soon.' }); }
 }
@@ -135,7 +148,10 @@ async function flushSave(c) {
   const data = c.pendingSave; c.pendingSave = null;
   if (!data || !c.account) return;
   c.savedAt = Date.now();
-  try { await db.writeSave(c.account.id, data); } catch (err) { console.error('save', err.message); c.pendingSave = c.pendingSave || data; }
+  const { save, notes } = checkSave(data, c.goodSave || { gold: 0, fame: 0, essence: 0 }, { admin: c.account.admin, minutes: (Date.now() - (c.goodAt || Date.now())) / 60000 });
+  if (notes.length) console.warn(`save for ${c.account.name}: ${notes.slice(0, 8).join('; ')}`);
+  c.goodSave = save; c.goodAt = Date.now();
+  try { await db.writeSave(c.account.id, save); } catch (err) { console.error('save', err.message); c.pendingSave = c.pendingSave || data; }
 }
 
 const server = createServer((req, res) => {

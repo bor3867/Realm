@@ -17,7 +17,12 @@ owns its player (moving, dodging, being hit, its shots and abilities, its reward
 | M2 | Realm bosses and events in full: the three-phase bosses' art, phase and animation; event terrain and props (the Kraken's reef, the Treant's grove) sent to all, latecomers too; heralds' progress shared (the server runs them); timed states on your clock; your stuns, slows and knockback reach the server; no doubled shards | **done 2026-10-19** |
 | M3 | Dungeons shared: a portal dropped in the shared realm opens one server instance (same seed for all, so every copy is identical); everyone who enters fights the same monsters and boss; gates, broken walls, levers and chests sync; things you use are used on the server too; the boss's fall gives everyone the way out (rewards to those who fought). Instances close two minutes after they empty | **done 2026-10-19** |
 | M4 | Accounts and saves on the server (Supabase): sign up and sign in through the server (passwords hashed there), stay signed in, saves kept on the server and loaded on any computer; a new account brings this browser's progress for that name; admin commands for admin accounts only (on localhost always) | **done 2026-10-19** |
-| M5 | Validation (speed, damage, rate of fire) so cheating is hard | |
+| M5 | What the server won't take (server/guard.mjs): saves checked before they're kept (items that don't exist, admin items on non-admins, levels and stats past their caps, gold / fame / essence growing faster than play allows: removed or clamped, and logged); damage capped per blow, per second and per ten seconds; impossible speed again and again drops the player; chat one line at a time. Admins trusted | **done 2026-10-19** |
+
+## What still can't be proven
+Each browser rolls its own loot and grants its own XP, so a determined cheater could still give themselves ordinary
+items or levels at a believable pace; the server only refuses the impossible. Moving loot and XP onto the server would
+close that, at the cost of a bigger rewrite.
 
 ## Accounts setup (Supabase)
 Render's Environment holds `SUPABASE_URL` and `SUPABASE_SECRET_KEY` (the secret key never goes anywhere else). The

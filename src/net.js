@@ -37,6 +37,7 @@ const methods = {
     ws.onmessage = (ev) => { let m; try { m = JSON.parse(ev.data); } catch { return; } this.netOn(m); };
     ws.onclose = () => {                                  // gone: everyone vanishes; try again, waiting longer each time
       N.open = false; N.ws = null; N.others.clear(); this.netWorldOff();
+      if (N.kicked) return;                                 // (dropped by the server: not again until you reload)
       setTimeout(() => this.netConnect(), N.wait * 1000); N.wait = Math.min(30, N.wait * 2);
     };
     ws.onerror = () => {};
@@ -49,6 +50,7 @@ const methods = {
       if (N.seed !== m.seed) { N.seed = m.seed; if (this.realmMap && this.realmMap.seed !== m.seed && this.map !== this.realmMap) this.realmMap = null; }   // the shared realm from now on
       if (this.map && this.map === this.realmMap) this.netWorldCheck();
     } else if (m.t === 'online') N.online = m.n;
+    else if (m.t === 'kick') { N.kicked = true; this.banner(m.reason || 'The server let you go.', 8000); this.say(m.reason || 'The server let you go.', '#ff8a8a'); }
     else if (m.t === 'auth') { const f = N.pending && N.pending.get(m.rid); if (f) { N.pending.delete(m.rid); f(m); } }
     else if (m.t === 'st') {
       let o = N.others.get(m.id);

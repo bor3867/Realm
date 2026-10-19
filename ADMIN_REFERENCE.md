@@ -108,5 +108,5 @@ Type commands in chat (`/` or Enter). Ids use underscores. Regenerate with `node
 ## Item ids
 
 - Find any id with `/items TEXT`. Keys: `key_DUNGEON` (the dungeons without `rf_`).
-- Enchanted: `ID~CODE` or `ID~CODE.CODE`, CODE = key + grade 1-3, e.g. `/give plate_t9~keen3.burning2`
+- Enchanted: `ID~CODE` or `ID~CODE.CODE`, CODE = key + grade 1-3, e.g. `/give wand_t9~keen3.burning2`
 - Enchant keys: `hp`, `mp`, `att`, `def`, `spd`, `dex`, `vit`, `wis`, `keen`, `sharp`, `burning`, `frost`, `vampiric`, `arcing`, `volatile`, `thrifty`, `potent`, `evasive`, `warded`, `mending`, `feasting`, `soulful`, `restless`, `thorned`, `furious`, `shardsong`, `smoulder`, `gravedust`, `phoenix`, `headsman`

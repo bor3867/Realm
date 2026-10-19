@@ -5,6 +5,7 @@
 // Each browser then dodges, gets hit and is rewarded (XP, loot, quests) by its own rules, RotMG-style.
 //   makeWorld(seed, send) -> { join, leave, player, hit, tick }      (server/server.mjs drives it)
 import { readFileSync } from 'node:fs';
+const { allowHit } = await import('./guard.mjs');
 globalThis.localStorage ??= { getItem: () => null, setItem() {} };
 const ROOT = new URL('../', import.meta.url);
 const { buildRegistry } = await import(new URL('src/registry.js', ROOT));
@@ -76,9 +77,9 @@ export function makeWorld(seed, send, where = 'realm') {
   return {
     seed, _g: g,                       // (_g: the world itself, for tests and admin)
     get count() { return P.size; },
-    join(id, name) {
+    join(id, name, admin = false) {
       const q = Object.create(anchor);
-      Object.assign(q, { netId: id, name, x: anchor.x, y: anchor.y, dead: false, status: {}, hp: 1, net: { seen: new Set(), last: new Map() } });
+      Object.assign(q, { netId: id, name, admin, x: anchor.x, y: anchor.y, dead: false, status: {}, hp: 1, net: { seen: new Set(), last: new Map() } });
       P.set(id, q); g.netTargets = [...P.values()];
       if (log.tiles.length || log.objs.length) send(id, { t: 'wlog', tiles: log.tiles, objs: log.objs });
       if (dung && (dTiles.size || dObjs.size)) send(id, { t: 'dlog', tiles: [...dTiles.values()], objs: [...dObjs.values()] });
@@ -110,6 +111,8 @@ export function makeWorld(seed, send, where = 'realm') {
       if (!q || !e || e.dead || !(d > 0)) return;
       if (Math.hypot(e.x - q.x, e.y - q.y) > 20) return;             // (out of reach: ignored)
       d = Math.min(d, Math.max(5000, e.maxHp * 0.25));             // (no one blow takes more than a quarter, or 5000)
+      d = allowHit(q, d);                                           // (nor more than a player can deal: server/guard.mjs)
+      if (!(d > 0)) return;
       (e.netHitBy || (e.netHitBy = new Set())).add(id);
       e.hp -= d;
       if (e.hp <= 0) { g.player = q; try { e.hp = 1; g.damageEnemy(e, 1e9, e.x, e.y, true); } finally { g.player = anchor; } }
