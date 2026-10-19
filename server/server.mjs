@@ -16,7 +16,13 @@ const clients = new Map();   // id -> { sock, name, cls, room, budget }
 // milestone 4: accounts and saves (server/db.mjs: Supabase online, a file when testing with DB=file)
 const { makeDb } = await import('./db.mjs');
 // milestone 5: what the server won't take (server/guard.mjs)
-const { checkSave, movedTooFar, LIMIT: G } = await import('./guard.mjs');
+const { checkSave, movedTooFar, itemOk, hadItem, LIMIT: G } = await import('./guard.mjs');
+// dropped bags in the shared places: everyone there sees them, and the server says who gets each item
+const bags = new Map();              // room -> Map(bid -> { bid, x, y, items[8], until })
+let nextBid = 1;
+const bagsIn = (room) => { let B = bags.get(room); if (!B) bags.set(room, (B = new Map())); return B; };
+const bagMsg = (b) => ({ t: 'bag', bid: b.bid, x: b.x, y: b.y, items: b.items });
+setInterval(() => { const now = Date.now(); for (const [room, B] of bags) for (const [bid, b] of B) if (b.until < now) { B.delete(bid); toRoom(room, { t: 'bag', bid, gone: true }); } }, 5000);
 const db = makeDb();
 if (db) console.log(`accounts and saves: ${db.kind}`);
 // stage 2: the shared realm's monsters run here (server/world.mjs). WORLD=0 in the environment turns it off.
@@ -62,6 +68,7 @@ function onMessage(c, text) {
       const W0 = worldOf(c.room); if (W0) W0.leave(c.id);
       c.room = room;
       const W1 = worldOf(room); if (W1) W1.join(c.id, c.name, !!(c.account && c.account.admin));
+      if (room) send(c, { t: 'bags', list: [...bagsIn(room).values()].map(bagMsg) });   // the bags lying here
     }
     if (!room) return;
     if (movedTooFar(c, num(m.x, 0, 4096), num(m.y, 0, 4096), room)) {   // faster than any build, again and again
@@ -106,6 +113,26 @@ function onMessage(c, text) {
     if (json.length > 600000) return;
     c.pendingSave = m.data;
     if (!c.saveTimer) c.saveTimer = setTimeout(() => flushSave(c), Math.max(0, (c.savedAt || 0) + 3000 - Date.now()));
+    return;
+  }
+  if (m.t === 'drop' && c.room && typeof m.id === 'string') {   // an item put on the ground for all here
+    const admin = !!(c.account && c.account.admin);
+    const ok = itemOk(m.id, admin) && (admin || hadItem(c.pendingSave, m.id) || hadItem(c.goodSave, m.id));   // (the save sent just before counts)
+    if (!ok) { send(c, { t: 'dropped', rid: m.rid, ok: false }); return; }
+    const B = bagsIn(c.room), x = num(m.x, 0, 4096), y = num(m.y, 0, 4096);
+    let b = [...B.values()].find((q) => Math.hypot(q.x - x, q.y - y) < 1 && q.items.includes(null));
+    if (!b) { if (B.size >= 60) { send(c, { t: 'dropped', rid: m.rid, ok: false }); return; } b = { bid: nextBid++, x, y, items: Array(8).fill(null) }; B.set(b.bid, b); }
+    b.items[b.items.indexOf(null)] = m.id; b.until = Date.now() + 120000;
+    send(c, { t: 'dropped', rid: m.rid, ok: true, bid: b.bid });
+    toRoom(c.room, bagMsg(b));
+    return;
+  }
+  if (m.t === 'take' && c.room) {                        // taking from a shared bag: the first to ask gets it
+    const B = bagsIn(c.room), b = B.get(num(m.bid, 0, 1e9)), i = num(m.i, 0, 7);
+    if (!b || !b.items[i] || b.items[i] !== m.id) { send(c, { t: 'took', rid: m.rid, ok: false }); return; }
+    b.items[i] = null;
+    send(c, { t: 'took', rid: m.rid, ok: true, id: m.id });
+    if (b.items.some(Boolean)) toRoom(c.room, bagMsg(b)); else { B.delete(b.bid); toRoom(c.room, { t: 'bag', bid: b.bid, gone: true }); }
     return;
   }
   if (m.t === 'gift' && c.account && c.account.admin && c.room && ['chickens', 'chests'].includes(m.what)) {   // an admin's gift for the room

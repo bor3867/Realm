@@ -832,9 +832,11 @@ export class UI {
     if (!this.showSelfInNearby) {                         // the other players here (src/net.js), nearest first
       const el = $('petname'), p = this.g.player, here = this.g.netHere().filter((o) => !o.dead && Math.hypot(o.x - p.x, o.y - p.y) < 20)
         .sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y)).slice(0, 4);
-      const key = here.map((o) => o.id + ':' + o.name).join(',');
+      const N = this.g.net, shared = !!this.g.netRoom(), st = !N || !N.url ? '' : N.open ? `● ${N.online || 1} online${shared ? '' : ' · not shared here'}` : '○ offline';
+      const key = st + '|' + here.map((o) => o.id + ':' + o.name).join(',');
       if (el.dataset.k === key) return;
       el.dataset.k = key; el.textContent = '';
+      if (st) { const s0 = document.createElement('span'); s0.className = 'netstat' + (N.open ? '' : ' off'); s0.textContent = st; el.appendChild(s0); }   // are you with the others?
       for (const o of here) { const s = document.createElement('span'); s.className = 'other'; s.textContent = `${o.name} (Lv ${o.level || 1})`; el.appendChild(s); }
       return;
     }

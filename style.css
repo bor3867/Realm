@@ -906,3 +906,5 @@ body .screen .logo.small h1 { font-size: 48px !important; letter-spacing: 4px; }
 @media (max-width: 760px) { body .screen .logo h1, body .screen.home > h1 { font-size: 40px !important; letter-spacing: 3px; } }
 body .screen.journal .page, body .screen.journal .page * { font-size: 17px !important; }
 body .screen .acchead .admintag { color: #ffd650; }
+html body #app #panel #who #petname .netstat { color: #7ad07a; }
+html body #app #panel #who #petname .netstat.off { color: #8a8a8a; }

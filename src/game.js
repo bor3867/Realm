@@ -428,6 +428,9 @@ export class Game {
     const A = this.container(fromC);
     let B = this.container(toC);
     if (!A || !A[fromI]) return false;
+    // a shared bag (src/net.js): taking asks the server first; putting down is the server's bag too
+    if (fromC === 'ground' && this.nearBag && this.nearBag.shared) { if (toC === 'ground') return false; this.netTake(this.nearBag, fromI, toC, toI); return true; }
+    if (toC === 'ground' && fromC !== 'vault' && this.netBagsOn()) { const id = A[fromI]; this.netPreDrop(); A[fromI] = null; this.clampVitals(); this.netDrop(id); this.events.push({ type: 'ground' }); return true; }
     if (!B && toC === 'ground') B = this.dropBag().items;
     if (!B) return false;
     const a = A[fromI], b = B[toI];
@@ -471,6 +474,7 @@ export class Game {
   lootAll() {
     const b = this.nearBag, p = this.player;
     if (!b || this.nearVault) return;
+    if (b.shared) { b.items.forEach((id, i) => { if (id) this.netTake(b, i, 'inv', -1); }); return; }   // (each item asked of the server)
     let n = 0;
     for (let i = 0; i < 8; i++) {
       if (!b.items[i]) continue;
@@ -483,6 +487,7 @@ export class Game {
   dropOnGround(cont, i) {
     const C = this.container(cont === 'ground' && this.nearVault ? 'vault' : cont);
     if (!C || !C[i] || cont === 'ground') return false;
+    if (cont !== 'vault' && this.netBagsOn()) { const id = C[i]; this.netPreDrop(); C[i] = null; this.clampVitals(); this.netDrop(id); this.events.push({ type: 'ground' }); return true; }   // a shared place: the server's bag (src/net.js)
     const bag = this.nearBag && this.nearBag.items.includes(null) ? this.nearBag : this.dropBag();
     bag.items[bag.items.indexOf(null)] = C[i];
     C[i] = null;
@@ -499,8 +504,10 @@ export class Game {
     this.nearBag = bag;
     return bag;
   }
+  fitsEquip(idx, id) { const it = ITEMS[id]; return !!it && TYPE_SLOT[it.type] === SLOT_ORDER[idx] && canEquip(this.player.cls, it); }
+  bagKind(items) { return bagFor(items.filter(Boolean).map((id) => ITEMS[id])); }
   cleanBags() {
-    this.bags = this.map.bags = this.bags.filter((b) => b.items.some(Boolean));
+    this.bags = this.map.bags = this.bags.filter((b) => b.shared || b.items.some(Boolean));   // (a shared bag goes when the server says)
     if (this.nearBag && !this.bags.includes(this.nearBag)) this.nearBag = null;
   }
   // double-click / number key behaviour

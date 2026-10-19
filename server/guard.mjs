@@ -17,7 +17,7 @@ export const LIMIT = { HIT_MAX: 12000, DPS_1S: 25000, DPS_10S: 150000, SPEED: 22
 const PURSE = { gold: [15000, 60000], fame: [3000, 25000], essence: [2500, 15000] };
 const PURSE_NEW = { gold: 2e6, fame: 2e6, essence: 5e5 };       // a new account's uploaded progress, at most
 
-const itemOk = (id, admin) => { if (id === null || id === undefined) return true; if (typeof id !== 'string' || id.length > 120) return false; try { const it = ITEMS[id]; return !!it && (admin || !it.admin); } catch { return false; } };
+export const itemOk = (id, admin) => { if (id === null || id === undefined) return true; if (typeof id !== 'string' || id.length > 120) return false; try { const it = ITEMS[id]; return !!it && (admin || !it.admin); } catch { return false; } };
 
 // a save, made fit to keep: { save, notes } (notes: what was taken out or clamped, for the server's log)
 export function checkSave(next, prev, { admin = false, minutes = 0, upload = false } = {}) {
@@ -51,6 +51,13 @@ export function checkSave(next, prev, { admin = false, minutes = 0, upload = fal
   if (!(s.slots >= 1 && s.slots <= 24)) { notes.push(`slots ${s.slots}`); s.slots = Math.max(1, Math.min(24, +s.slots || 4)); }
   if (!(s.bestLevel >= 0 && s.bestLevel <= MAX_LEVEL)) s.bestLevel = Math.max(0, Math.min(MAX_LEVEL, +s.bestLevel || 0));
   return { save: s, notes };
+}
+
+// did this player really have this item at their last save? (a dropped item must come from somewhere)
+export function hadItem(save, id) {
+  if (!save || typeof id !== 'string') return false;
+  const has = (arr) => Array.isArray(arr) && arr.includes(id);
+  return (save.chars || []).some((c) => c && (has(c.inv) || has(c.equip))) || (save.vaults || []).some(has);
 }
 
 // a player's blows against the shared monsters: how much of this one counts (0: none)

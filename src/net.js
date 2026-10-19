@@ -48,13 +48,18 @@ const methods = {
       N.id = m.id; N.online = m.online; N.world = !!m.world; N.db = !!m.db;
       for (const f of N.waiters || []) f(true); N.waiters = [];
       if (N.seed !== m.seed) { N.seed = m.seed; if (this.realmMap && this.realmMap.seed !== m.seed && this.map !== this.realmMap) this.realmMap = null; }   // the shared realm from now on
-      if (this.map && this.map === this.realmMap) this.netWorldCheck();
+      if (this.map && this.map === this.realmMap && this.map.seed !== m.seed && this.mode === 'play' && !this.player.dead) {   // out in a realm of your own: over to the shared one
+        this.realmMap = null; this.enter('realm'); this.banner('You join the shared realm.', 2600);
+      } else if (this.map && this.map === this.realmMap) this.netWorldCheck();
     } else if (m.t === 'online') N.online = m.n;
     else if (m.t === 'gift') {                            // an admin's gift: your own chests and chickens (shared chickens in the realm come as monsters)
       if (m.what === 'chests') this.spawnAdminChests(m.x, m.y, m.n);
       else if (m.what === 'chickens' && !this.map.netWorld) this.spawnChickens(m.x, m.y, m.n);
       if (m.by) this.banner(`${m.by} brings gifts!`, 2200);
     }
+    else if (m.t === 'bags') { if (this.map) { this.bags = this.map.bags = this.bags.filter((b) => !b.shared); for (const b of m.list) this.netBag(b); } }
+    else if (m.t === 'bag') this.netBag(m);
+    else if ((m.t === 'dropped' || m.t === 'took') && N.pending) { const f = N.pending.get(m.rid); if (f) { N.pending.delete(m.rid); f(m); } }
     else if (m.t === 'kick') { N.kicked = true; this.banner(m.reason || 'The server let you go.', 8000); this.say(m.reason || 'The server let you go.', '#ff8a8a'); }
     else if (m.t === 'auth') { const f = N.pending && N.pending.get(m.rid); if (f) { N.pending.delete(m.rid); f(m); } }
     else if (m.t === 'st') {
@@ -92,6 +97,44 @@ const methods = {
     if (!N || !N.open || !room || !(this.account && this.account.online && this.account.admin)) return false;
     N.ws.send(JSON.stringify({ t: 'gift', what, n, x: +p.x.toFixed(2), y: +p.y.toFixed(2) }));
     return true;
+  },
+  // ---- shared bags: an item dropped in a shared place lies there for everyone; the server gives each item to one
+  netBagsOn() { const N = this.net; return !!(N && N.open && this.netRoom() && this.account && this.account.online); },
+  netAsk(msg) {                                          // a request with an answer
+    const N = this.net, rid = (N.rid = (N.rid || 0) + 1);
+    (N.pending = N.pending || new Map());
+    return new Promise((res) => { N.pending.set(rid, res); N.ws.send(JSON.stringify({ ...msg, rid })); setTimeout(() => { if (N.pending.has(rid)) { N.pending.delete(rid); res({ ok: false }); } }, 8000); });
+  },
+  netPreDrop() { if (!this.player.dead) this.persist(); this.netSaveNow(); },   // your save, with the item still in it: the server checks you had it
+  async netDrop(id) {
+    const p = this.player;
+    const r = await this.netAsk({ t: 'drop', id, x: +p.x.toFixed(2), y: +(p.y + 0.3).toFixed(2) });
+    if (r.ok) { this.persist(); return; }
+    const f = p.inv.indexOf(null);                         // refused: it comes back to you
+    if (f >= 0) p.inv[f] = id; else this.addBag(p.x, p.y + 0.3, [id]);
+    this.toast('That could not be dropped here.'); this.events.push({ type: 'ground' });
+  },
+  async netTake(bag, i, toC, toI) {
+    const p = this.player, id = bag.items[i];
+    if (!id) return;
+    const C = this.container(toC), slot = C && toI >= 0 && !C[toI] && (toC !== 'equip' || this.fitsEquip(toI, id)) ? toI : -1;
+    if (slot < 0 && p.inv.indexOf(null) < 0) { this.toast('Your backpack is full.'); return; }
+    const r = await this.netAsk({ t: 'take', bid: bag.bid, i, id });
+    if (!r.ok) { this.toast('Someone took it first.'); return; }
+    const C2 = this.container(toC);
+    if (slot >= 0 && C2 && !C2[slot]) C2[slot] = id;
+    else { const f = p.inv.indexOf(null); if (f >= 0) p.inv[f] = id; else this.addBag(p.x, p.y + 0.3, [id]); }
+    this.clampVitals(); this.sfx('loot'); this.persist(); this.events.push({ type: 'ground' });
+  },
+  netBag(m) {                                            // a shared bag: new, changed or gone
+    const M = this.map;
+    if (!M) return;
+    const b = this.bags.find((q) => q.shared && q.bid === m.bid);
+    if (m.gone) { if (b) { this.bags = M.bags = this.bags.filter((q) => q !== b); if (this.nearBag === b) this.nearBag = null; this.events.push({ type: 'ground' }); } return; }
+    if (!this.account || !this.account.online) return;
+    const kind = this.bagKind(m.items) || 'brown';
+    if (b) { b.items = m.items; b.kind = kind; } else this.bags.push({ shared: true, bid: m.bid, x: m.x, y: m.y, items: m.items, kind, life: 120, until: this.t + 1e9 });
+    this.events.push({ type: 'ground' });
   },
   // ---- milestone 4: accounts and saves on the server (server/db.mjs)
   // wait (a little) for the server: true when it is there
