@@ -392,6 +392,29 @@ export class Renderer {
     }
   }
   // each ground skin's image and frames, looked up once
+  // a tile's colour on the minimap: the average of its ground art (cached); a skin's likewise
+  miniTileColor(t) {
+    const C = this.miniTC || (this.miniTC = new Map());
+    if (C.has(t)) return C.get(t);
+    const T = this.W && this.W.tiles[TILE_NAMES[t]], tiles = this.A && this.A.img.tiles;
+    let out = null;
+    if (T && tiles) { const cols = this.W.tilesCols; out = this.avgColor(tiles, (T.i % cols) * TS, Math.floor(T.i / cols) * TS, TS, TS); }
+    C.set(t, out); return out;
+  }
+  miniSkinColor(k) {
+    const C = this.miniSC || (this.miniSC = new Map());
+    if (C.has(k)) return C.get(k);
+    const A = this.skinArt()[k], f = A && A.img && A.fr[0], out = f ? this.avgColor(A.img, f.x, f.y, f.w, f.h) : null;
+    C.set(k, out); return out;
+  }
+  avgColor(img, x, y, w, h) {
+    try {
+      const c = Object.assign(document.createElement('canvas'), { width: w, height: h }), q = c.getContext('2d'); q.drawImage(img, x, y, w, h, 0, 0, w, h);
+      const d = q.getImageData(0, 0, w, h).data; let r = 0, g = 0, b = 0, n = 0;
+      for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 100) { r += d[i]; g += d[i + 1]; b += d[i + 2]; n++; }
+      return n ? [r / n, g / n, b / n] : null;
+    } catch { return null; }
+  }
   skinArt() {
     if (this.skinA) return this.skinA;
     return (this.skinA = SKINS.map((s) => {
@@ -2159,7 +2182,7 @@ export class Renderer {
     const m = g.map, mc = this.mctx;
     // ~12 redraws a second is plenty for a map; the marks blink at 3 Hz anyway
     const now = performance.now();
-    if (this.miniDrawn && this.miniFor === m && !m.miniDirty && now - this.miniDrawn < 80) return;
+    if (this.miniDrawn && this.miniFor === m && !m.miniDirty && now - this.miniDrawn < 15) return;   // (every frame: the map glides with you)
     this.miniDrawn = now;
     if (this.miniFor !== m || m.miniDirty) {
       m.miniDirty = false;
@@ -2172,11 +2195,16 @@ export class Renderer {
       for (let i = 0; i < m.tiles.length; i++) {
         const t = m.tiles[i], b = realmFlat ? m.biome[i] : -2;
         if (m.rfMini) { const q = m.rfMini(i); img.data[i * 4] = q[0]; img.data[i * 4 + 1] = q[1]; img.data[i * 4 + 2] = q[2]; img.data[i * 4 + 3] = 255; continue; }   // a Realmforge map: its own colours
-        const hex = !realmFlat ? MINI[t] || '#555060' : t === 1 ? '#0e2236' : t === 0 ? '#1d4466' : t === TID.cliff ? '#5a5866' : t === TID.rift ? '#c02a8a'
-          : (BIO[b] || MINI[t]);
-        let c = rgb.get(hex);
-        if (!c) { c = [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)]; rgb.set(hex, c); }
-        img.data[i * 4] = c[0]; img.data[i * 4 + 1] = c[1]; img.data[i * 4 + 2] = c[2]; img.data[i * 4 + 3] = 255;
+        // the ground you stand on, in its own colour: the tile's (or its skin's) art, shaded a little per tile (2026-10-19)
+        const sk = m.skin ? m.skin[i] : 0, art = sk > 0 && SKIN_TID[sk] === t ? this.miniSkinColor(sk) : this.miniTileColor(t);
+        let c = art;
+        if (!c) {
+          const hex = !realmFlat ? MINI[t] || '#555060' : t === 1 ? '#0e2236' : t === 0 ? '#1d4466' : t === TID.cliff ? '#5a5866' : t === TID.rift ? '#c02a8a' : (BIO[b] || MINI[t]);
+          c = rgb.get(hex);
+          if (!c) { c = [parseInt(hex.slice(1, 3), 16), parseInt(hex.slice(3, 5), 16), parseInt(hex.slice(5, 7), 16)]; rgb.set(hex, c); }
+        }
+        const x = i % m.w, y = (i / m.w) | 0, hh = ((x * 73856093) ^ (y * 19349663)) >>> 0, f = 0.92 + ((hh >>> 7) % 17) / 100;
+        img.data[i * 4] = Math.min(255, c[0] * f); img.data[i * 4 + 1] = Math.min(255, c[1] * f); img.data[i * 4 + 2] = Math.min(255, c[2] * f); img.data[i * 4 + 3] = 255;
       }
       if (!realmFlat) for (const o of m.objects) if (o.big) { const i = Math.floor(o.y) * m.w + Math.floor(o.x); img.data[i * 4] = img.data[i * 4 + 1] = img.data[i * 4 + 2] = 230; }
       x.putImageData(img, 0, 0);
@@ -2196,8 +2224,8 @@ export class Renderer {
       }
     }
     const SZ = this.mini.width;
-    const V = Math.min(this.settings ? this.settings.miniView : 80, Math.max(m.w, m.h)), p = g.player;
-    const whole = V >= Math.max(m.w, m.h);
+    const V0 = Math.min(this.settings ? this.settings.miniView : 80, Math.max(m.w, m.h)), p = g.player;
+    const whole = V0 >= Math.max(m.w, m.h), V = whole ? V0 : SZ / Math.max(1, Math.round(SZ / V0));   // a whole number of minimap pixels to a tile: no shimmer
     // follow the player continuously (fractional tiles), so the map glides instead of stepping
     const x0 = whole ? 0 : p.x - V / 2, y0 = whole ? 0 : p.y - V / 2;
     const k = SZ / V;

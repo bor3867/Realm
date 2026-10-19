@@ -192,4 +192,7 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   maxing stats is harder. **Done 2026-10-19:** the Attack potion was the odd tall bottle: now the wide flask like the
   rest; overworld monsters' stat-potion drops are cut to 40% (game.js STAT_DROP_REALM; bosses, dungeons, camps keep theirs).
 - Minimap, again (requested 2026-10-19): smooth (no jitter) as you move; more detail in the floor you stand on;
-  teleport waypoints as clickable icons, with a dropdown to teleport there.
+  teleport waypoints as clickable icons, with a dropdown to teleport there. **Done 2026-10-19:** redrawn every frame at
+  a whole number of minimap pixels to a tile (it was 12 times a second); each tile in its own ground art's colour,
+  lightly shaded; a waypoint click opens a dropdown (name, Teleport). Found on the way: waypoint travel was broken (two
+  methods named travel; the portals' replaced the waypoints'): now game.warpTo.

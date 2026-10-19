@@ -216,7 +216,7 @@ export class UI {
       <h2>Touch an obelisk to remember it. ${found} of ${total} found.</h2>
       <div class="cols wp">${sec}</div>
       <p class="msg">${msg}</p><button class="btn" id="mclose">Close${keyParen('settings')}</button></div>`);
-    o.querySelectorAll('[data-go]').forEach((b) => { b.onclick = () => { const err = g.travel(b.dataset.go); if (err) this.openWaypoints(here, err); else this.closeModal(); }; });
+    o.querySelectorAll('[data-go]').forEach((b) => { b.onclick = () => { const err = g.warpTo(b.dataset.go); if (err) this.openWaypoints(here, err); else this.closeModal(); }; });
     o.querySelector('#mclose').onclick = () => this.closeModal();
   }
   // ------------------------------------------------------------- quests

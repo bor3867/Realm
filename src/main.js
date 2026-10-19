@@ -71,15 +71,32 @@ async function boot() {
       const d = Math.hypot((o.x - T.x0) * T.k - cx, (o.y - T.y0) * T.k - cy);
       if (d < bd) { bd = d; best = o; }
     }
-    if (best) { const err = game.travel(best.name); if (err) game.toast(err); }
+    if (!best) { wpMenu.classList.add('hidden'); return; }
+    // a dropdown at the click: the waypoint's name and a Teleport button (2026-10-19)
+    wpMenu.querySelector('b').textContent = best.name;
+    wpMenu.dataset.to = best.name;
+    wpMenu.style.left = Math.round(e.clientX - 150) + 'px'; wpMenu.style.top = Math.round(e.clientY + 8) + 'px';
+    wpMenu.classList.remove('hidden');
+    e.stopPropagation();
   });
+  const wpMenu = document.createElement('div');
+  wpMenu.id = 'wpmenu'; wpMenu.className = 'hidden';
+  wpMenu.innerHTML = '<b></b><button type="button">Teleport</button>';
+  document.body.appendChild(wpMenu);
+  wpMenu.querySelector('button').addEventListener('click', (e) => {
+    e.stopPropagation(); wpMenu.classList.add('hidden');
+    if (game.mode !== 'play' || game.player.dead) return;
+    const err = game.warpTo(wpMenu.dataset.to); if (err) game.toast(err);
+  });
+  document.addEventListener('click', (e) => { if (!wpMenu.contains(e.target) && e.target !== mini) wpMenu.classList.add('hidden'); });
+  addEventListener('keydown', (e) => { if (e.code === 'Escape') wpMenu.classList.add('hidden'); });
   mini.addEventListener('mousemove', (e) => {
     const T = rnd.miniT;
     if (!T || game.map.kind !== 'realm') { mini.style.cursor = ''; return; }
     const r = mini.getBoundingClientRect(), cx = (e.clientX - r.left) * (mini.width / r.width), cy = (e.clientY - r.top) * (mini.height / r.height), known = game.player.waypoints || [];
     const hit = game.map.objects.find((o) => o.interact === 'waypoint' && known.includes(o.name) && Math.hypot((o.x - T.x0) * T.k - cx, (o.y - T.y0) * T.k - cy) < 14);
     mini.style.cursor = hit ? 'pointer' : '';
-    mini.title = hit ? `Travel to ${hit.name}` : '';
+    mini.title = hit ? `${hit.name}: click to teleport` : '';
   });
   document.getElementById('minimap').addEventListener('wheel', (e) => { e.preventDefault(); miniZoom(e.deltaY > 0 ? 1 : -1); }, { passive: false });
 

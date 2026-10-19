@@ -3200,8 +3200,9 @@ export class Game {
     this.sfx('coin'); this.persist();
     return `Bought a ${ITEMS[id].name}. Use it (shift-click) to hatch it.`;
   }
-  // ---- waypoints: travel between the ones you have found
-  travel(name) {
+  // ---- waypoints: travel between the ones you have found (warpTo: it was also named travel, and the portals' travel,
+  // defined later in the class, replaced it, so a waypoint sent you to the realm's landing beach)
+  warpTo(name) {
     const m = this.map, p = this.player;
     if (m.kind !== 'realm') return 'Waypoints only work in the realm.';
     const w = m.objects.find((o) => o.interact === 'waypoint' && o.name === name);

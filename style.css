@@ -867,3 +867,11 @@ html body #app .slot .tier .pxtag { display: block; image-rendering: pixelated; 
 
 /* the nearby list shows other players only (2026-10-19): not you, not your pet */
 html body #app #who .np.me, html body #app #who #petname { display: none !important; }
+
+/* the minimap's waypoint dropdown (main.js): the waypoint's name and a Teleport button */
+#wpmenu { position: fixed; z-index: 60; width: 150px; background: #1e1e1e; border: 2px solid #3a3a3a; box-shadow: 0 4px 0 #000;
+  padding: 6px; display: grid; gap: 6px; font-family: 'Pixelify Sans', 'Source Sans 3', sans-serif; color: #e8e8e8; }
+#wpmenu.hidden { display: none; }
+#wpmenu b { font-weight: 600; font-size: 14px; text-shadow: 1px 1px 0 #000; }
+#wpmenu button { font: inherit; font-size: 14px; background: #2f6a3a; color: #fff; border: 2px solid #1a3a20; padding: 4px 6px; cursor: pointer; }
+#wpmenu button:hover { background: #3c8a4a; }
