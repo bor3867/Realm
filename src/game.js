@@ -1209,6 +1209,18 @@ export class Game {
     if (A.sigil) this.sigilPlace(A, mult, tgt(7));        // a UT's sigil: press again to set it off (src/sigils.js)
     this.gearOnAbility();                                  // rings that ride on your abilities (src/gearmech.js)
     this.rfOnAbility();
+    this.abilityBreaks(B, mult, tgt);                       // and what it reaches breaks chests and urns too (2026-10-19)
+  }
+  // an ability's reach breaks things as shots do: chests, urns, crates, weak walls within its range of you, and around
+  // the point it was aimed at (one blow each, as strong as one of its own hits, more for a many-shot ability)
+  abilityBreaks(B, mult, tgt) {
+    const m = this.map, p = this.player;
+    if (!B || m.kind === 'nexus') return;
+    const R0 = Math.max(2.5, Math.min(7, B.range || 4)), at = tgt(R0), dmg = Math.round((B.dmg || 60) * mult * Math.max(1, Math.min(4, B.count || 1)));
+    for (const o of m.objects) {
+      if (!(o.interact === 'weak' || o.sdUrn || o.hmCrate || (o.mrPod && !o.burst) || (o.interact === 'chest' && !o.opened))) continue;
+      if (dist(o.x, o.y, p.x, p.y) < R0 || dist(o.x, o.y, at.x, at.y) < 1.8) this.hitObject(o.x, o.y, dmg);
+    }
   }
   // enemies (and the dungeon boss) inside a circle
   enemiesIn(x, y, r) {

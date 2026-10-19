@@ -142,7 +142,9 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   and the 24px champions are fine-pixel art (one screen pixel to an art pixel) next to the chunky 8x8s (two to one):
   both are clean, but a fully RotMG-uniform look would mean redrawing ~150 old-sheet monsters as 8x8s (the user's call).
 - Chests (requested 2026-10-19): abilities should damage chests (today only weapon shots break them), and better chest
-  sprites.
+  sprites. **Done 2026-10-19:** every ability's reach (its range around you, and its target point) breaks chests, urns,
+  crates and weak walls (game.abilityBreaks); the chest is redrawn (rounded lid, gold band, lock) and the open chest
+  now shows its lid thrown back over a heap of gold (it looked the same as a closed one).
 - Tier tags (requested 2026-10-19): the pixel "T5"/"T8" text on item slots is unreadable (5 and 8 look alike); redesign
   the tier digits so every tier reads at a glance. **Done 2026-10-19:** a heavy sans with a solid black rim, never under
   10px, and a colour per band (T0-3 grey, T4-6 green, T7-9 blue, T10-11 purple, T12-13 gold).
