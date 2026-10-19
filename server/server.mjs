@@ -38,12 +38,15 @@ const { makeWorld } = process.env.WORLD === '0' ? {} : await import('./world.mjs
 const world = makeWorld ? makeWorld(SEED, (id, obj) => { const c = clients.get(id); if (c) send(c, obj); }) : null;
 const REALM = 'realm:' + SEED;
 if (world) world.onBag = (x, y, items) => publicBag(REALM, x, y, items);
+// the Nexus has a shared world too: what an admin spawns there (bosses to try, chickens) is everyone's
+const nexusWorld = makeWorld ? makeWorld(1, (id, obj) => { const c = clients.get(id); if (c) send(c, obj); }, 'nexus') : null;
+if (nexusWorld) nexusWorld.onBag = (x, y, items) => publicBag('nexus', x, y, items);
 // milestone 3: shared dungeons, one world each, opened from portals in the shared realm (a dungeon closes when it has
 // stood empty for two minutes and its portal is gone)
 const { DUNGEONS } = world ? await import('../src/data/enemies.js') : { DUNGEONS: {} };
 const dungeons = new Map();          // 'dg:N' -> { world, to, until }
 let nextIid = 1;
-const worldOf = (room) => (room === REALM ? world : room && dungeons.has(room) ? dungeons.get(room).world : null);
+const worldOf = (room) => (room === REALM ? world : room === 'nexus' ? nexusWorld : room && dungeons.has(room) ? dungeons.get(room).world : null);
 const roomOk = (room) => typeof room === 'string' && (ROOM.test(room) || dungeons.has(room));
 let nextId = 1;
 
@@ -66,7 +69,7 @@ function onMessage(c, text) {
   if (m.t === 'hi') {
     c.name = str(m.name, LIMIT.name).trim() || `Player ${c.id}`;
     c.cls = CLASSES.has(m.cls) ? m.cls : 'priest';
-    send(c, { t: 'welcome', id: c.id, seed: SEED, online: clients.size, world: !!world, db: !!db });
+    send(c, { t: 'welcome', id: c.id, seed: SEED, online: clients.size, world: !!world, nexus: !!nexusWorld, db: !!db });
     return;
   }
   if (m.t === 'tk' && Array.isArray(m.parts)) { for (const part of m.parts.slice(0, 6)) if (part && typeof part === 'object' && part.t !== 'tk') onMessage(c, JSON.stringify(part)); return; }   // one bundle a tick
@@ -208,7 +211,8 @@ async function flushSave(c) {
 
 const server = createServer((req, res) => {
   res.writeHead(200, { 'content-type': 'text/plain', 'access-control-allow-origin': '*' });
-  res.end(`Melon Realms server: ${clients.size} online\n`);
+  res.end(`Melon Realms server: ${clients.size} online · version ${(process.env.RENDER_GIT_COMMIT || 'local').slice(0, 7)}
+`);
 });
 server.on('upgrade', (req, sock) => {
   const key = req.headers['sec-websocket-key'];
@@ -255,6 +259,7 @@ setInterval(() => { const ping = Buffer.from([0x89, 0]); for (const c of clients
 // the world's clock: 20 steps a second, the monsters' news 10 times a second
 if (world) { let n = 0, slow = 0; setInterval(() => { const t0 = performance.now(); const now = true; ++n;
   try { world.tick(0.1, now); } catch (err) { console.error('world tick', err); }
+  try { if (nexusWorld) nexusWorld.tick(0.1, now); } catch (err) { console.error('nexus tick', err); }
   for (const [room, d] of dungeons) {
     try { d.world.tick(0.1, now); } catch (err) { console.error('dungeon tick', d.to, err); }
     if (Date.now() > d.until && d.world.idleMs > 120000) dungeons.delete(room);     // empty, its portal long gone: closed

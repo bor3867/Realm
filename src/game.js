@@ -296,7 +296,7 @@ export class Game {
     this.unstick(p);
     this.realmReturn = null;                              // dungeons let out onto the beach
     if (where === 'realm' && !this.map.populated) this.populateRealm();
-    if (where === 'realm') this.netWorldCheck();               // the server runs this realm's monsters (src/net.js)
+    if (where === 'realm' || where === 'nexus') this.netWorldCheck();   // the server runs these monsters (src/net.js)
     if (this.map.rf) this.map.portals.push({ kind: 'realm', x: this.map.spawn.x, y: this.map.spawn.y + 1.5, label: this.exitLabel(), to: 'realm' });
     if (DUNGEONS[where]) {
       this.populateDungeon(DUNGEONS[where]);

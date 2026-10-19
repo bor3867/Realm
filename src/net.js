@@ -46,12 +46,12 @@ const methods = {
   netOn(m) {
     const N = this.net;
     if (m.t === 'welcome') {
-      N.id = m.id; N.online = m.online; N.world = !!m.world; N.db = !!m.db;
+      N.id = m.id; N.online = m.online; N.world = !!m.world; N.nexusWorld = !!m.nexus; N.db = !!m.db;
       for (const f of N.waiters || []) f(true); N.waiters = [];
       if (N.seed !== m.seed) { N.seed = m.seed; if (this.realmMap && this.realmMap.seed !== m.seed && this.map !== this.realmMap) this.realmMap = null; }   // the shared realm from now on
       if (this.map && this.map === this.realmMap && this.map.seed !== m.seed && this.mode === 'play' && !this.player.dead) {   // out in a realm of your own: over to the shared one
         this.realmMap = null; this.enter('realm'); this.banner('You join the shared realm.', 2600);
-      } else if (this.map && this.map === this.realmMap) this.netWorldCheck();
+      } else if (this.map && (this.map === this.realmMap || this.map.kind === 'nexus')) this.netWorldCheck();
     } else if (m.t === 'online') N.online = m.n;
     else if (m.t === 'gift') {                            // an admin's gift: your own chests and chickens (shared chickens in the realm come as monsters)
       if (m.what === 'chests') this.spawnAdminChests(m.x, m.y, m.n);
@@ -219,7 +219,7 @@ const methods = {
   netWorldCheck() {
     const N = this.net, m = this.map;
     if (!N || !N.world || !N.open || !m || m.netWorld) return;
-    if (!(m.kind === 'realm' && m.seed === N.seed) && !(m.kind === 'dungeon' && m.netIid)) return;
+    if (!(m.kind === 'realm' && m.seed === N.seed) && !(m.kind === 'dungeon' && m.netIid) && !(m.kind === 'nexus' && N.nexusWorld)) return;
     m.netWorld = true; N.byId.clear(); N.held = new Map();
     this.enemies = m.enemies = [];
     this.boss = null;
