@@ -1,6 +1,7 @@
 // How hard is each original boss now (docs/design/10_boss_setpieces.md)? The same dodging bot as
 // check_boss_pressure.mjs, held in each third of the boss's life for 40 s: shots per second and damage per minute.
-// Fails if any boss is now trivial (under 1,500 a minute) or out of hand (over 9,000: the hardest three-phase bosses' level).
+// Fails if any boss is now trivial (under 1,500 a minute) or out of hand (over 9,000: the hardest three-phase bosses' level;
+// 11,000 for the overworld bosses, made deadlier on purpose: src/owbosses.js).
 // The Sleeper and Maestro Lucan are exempt from the floor: their danger is in mechanics the bot never meets (falling asleep
 // when still, inverted controls, a mirror that answers your shots, curtains), not in bullets.
 //   node tools/check_old_boss_pressure.mjs [boss ...]
@@ -8,6 +9,7 @@ import { readFileSync } from 'node:fs';
 globalThis.localStorage = { getItem: () => null, setItem: () => {} };
 const { buildRegistry } = await import('../src/registry.js');
 const { Game } = await import('../src/game.js');
+const { OW_BOSSES } = await import('../src/owbosses.js');
 const { REALM_BOSSES } = await import('../src/data/enemies.js');
 const { isSolid } = await import('../src/world/maps.js');
 const { OLD_SP } = await import('../src/setpieces.js');
@@ -50,6 +52,7 @@ for (const id of Object.keys(OLD_SP)) {
   }
   const avg = Math.round(res.reduce((a, r) => a + (r ? r.d : 0), 0) / 3);
   console.log(`${id.padEnd(20)} shots/s ${res.map((r) => String(r ? r.s : '-').padStart(5)).join(' ')} | bot dmg/min ${res.map((r) => String(r ? r.d : '-').padStart(6)).join(' ')} | avg ${avg}`);
-  if ((avg < 1500 && !MECHANIC.has(id)) || avg > 9000) { console.log(`  PROBLEM: ${id} averages ${avg}/min`); fail++; }
+  // (the overworld bosses may hit harder: src/owbosses.js, the user's request of 2026-10-19)
+  if ((avg < 1500 && !MECHANIC.has(id)) || avg > (OW_BOSSES[id] ? 11000 : 9000)) { console.log(`  PROBLEM: ${id} averages ${avg}/min`); fail++; }
 }
 process.exit(fail ? 1 : 0);

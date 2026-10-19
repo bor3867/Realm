@@ -169,3 +169,9 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   2026-10-19:** you and your pet are no longer listed; the row stays (empty, in this single-player game) for others.
 - Item stats (requested 2026-10-19): items feel lacklustre. Rework every item to give a bit more in stats, with bigger
   and more distinctive numbers for UT, Mythic and Legendary items.
+- Overworld bosses too easy: **done 2026-10-19** (src/owbosses.js; measured by tools/bench_overworld_bosses.mjs). Each
+  has more Life (x1.3 to x3), hits harder (x2 to x3, every blow under its name) and calls adds now and then (the Kraken's
+  tentacles burst out of the water around you; the others call their own kind; adds sink away after a while, no loot).
+  A level-20 bench priest in the land's gear now takes 2.5 to 7 minutes; a player who stands still lasts 5 to 11 s
+  (was 14 to 83). The Penitent Colossus, already the hardest by the dodging bot, gets Life only. The dodging-bot check
+  allows overworld bosses up to 11,000 damage a minute (dungeon bosses stay at 9,000).

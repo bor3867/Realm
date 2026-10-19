@@ -51,6 +51,11 @@ const ART = {
     extra: [[0, 6, 'Y'], [11, 4, 'Y']],
     move2: { 6: 'Y.TPTPTPTP..', 4: '...FkFFkF..Y' },
     attack: { 4: '...FkFFkF...', 5: '...FkkkkF...', 7: 'FPPPPTTTTTTF' } },
+  kraken_tentacle: {                               // the Abyssal Kraken's arm, risen from the water, purple-suckered
+    pal: { T: '#2a8a8a', t: '#1a5a60', S: '#e080c0', W: '#5ac8f0', w: '#2a78b8' },
+    base: ['....tT......', '...tTTt.....', '...TTSt.....', '....tTTt....', '.....TSTt...', '.....tTTt...', '....tTSTt...', '....tTTTt...', '...tTSTTTt..', '.wWtTTTTtWw.', 'wWWWWWWWWWWw', '.wwwwwwwwww.'],
+    move2: { 0: '.....tT.....', 1: '....tTTt....', 2: '....tTST....' },
+    attack: { 0: '..TTTTt.....', 1: '.tS..tTt....', 2: '.....tTS....' } },
 };
 const parse = (rows, pal) => rows.map((r) => [...r].map((ch) => (ch === '.' ? null : pal[ch])));
 const pale = (hex) => { const n = parseInt(hex.slice(1), 16), m = (v) => Math.round(v + (255 - v) * 0.6); return `#${[(n >> 16) & 255, (n >> 8) & 255, n & 255].map(m).map((v) => v.toString(16).padStart(2, '0')).join('')}`; };

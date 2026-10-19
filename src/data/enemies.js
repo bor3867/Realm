@@ -2063,3 +2063,9 @@ import { RF_FOES } from './rf_foes.js';
   for (const [id, F] of Object.entries(RF_FOES)) { const t = T[F.biome]; ENEMIES[id] = { ...F, loot: L(...t, 0.01) }; }
   PORTAL_EXTRA.unshift((D) => (D.rfPortal ? [`rf_${D.rfPortal}`, D.portalP] : null));
 }
+
+// the Abyssal Kraken's tentacles: they burst out of the water around you while it fights, lash with barbed hooks, and
+// sink again after a while (src/owbosses.js); art: tools/redraw_enemies.mjs
+ENEMIES.kraken_tentacle = { name: 'Kraken Tentacle', biome: 'shore', hp: 1400, def: 6, speed: 0, xp: 30, r: 0.5, ai: 'rooted', aggro: 12, contact: 60,
+  reg: 'rs_enemies/kraken_tentacle', scale: 1,
+  attacks: [{ pattern: 'aimed', proj: 'bx_shots/abyssal_kraken.barbed_hook', count: 3, arc: 0.35, dmg: 55, speed: 7, range: 8, cd: 1.5, tell: 400 }], loot: [] };

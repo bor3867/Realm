@@ -32,6 +32,7 @@ import { BX, bxEnemyDef } from './bosses/index.js';
 import { installRF } from './rf/host.js';
 import { installRFBoss } from './rf/boss.js';
 import { installUniqMech } from './rf/uniqmech.js';
+import { installOwBosses } from './owbosses.js';
 import { assignItemShots } from './data/uniques.js';
 import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUEST_HUNTS, FETCH_ITEMS } from './data/lore.js';
 
@@ -822,6 +823,7 @@ export class Game {
       hp: D.hp, maxHp: D.hp, state: 'idle', st: 1.5, queue: [], spin: 0, invulnT: 0, spiral: null, stream: null,
       phaseIdx: 0, cycleIdx: 0, deadT: 0, hurtT: 0, wx: pos.x, wy: pos.y, wt: 0, phase: R() * TAU, cds: [] };
     this.enemies.push(e);
+    this.owTune(e);                                        // an overworld boss: more Life, harder hits, adds (src/owbosses.js)
     if (!def) { this.banner(`${D.name} has risen in ${BIOME_LABEL[D.biome]}!`, 3200); this.sfx('boss'); }
     return e;
   }
@@ -872,7 +874,7 @@ export class Game {
     this.updateTimeStop(dt);
     this.updateProjectiles(dt);
     this.updateWorld(dt);
-    if (this.map.kind === 'realm') { this.maintainRealm(dt); this.eventClock(dt); this.melonTick(dt); this.eventBossTick(dt); }
+    if (this.map.kind === 'realm') { this.owTick(dt); this.maintainRealm(dt); this.eventClock(dt); this.melonTick(dt); this.eventBossTick(dt); }
     this.updateEliteAuras(dt);
     if (this.map.rf) this.rfUpdate(dt);
     else if (this.map.rfBoss) this.rfBossUpdate(dt);
@@ -1597,6 +1599,7 @@ export class Game {
     return shotTouches(S, b.x, b.y, ca, sa, cx, cy, ux, uy, fx, fy, hx, hy, k);
   }
   hurtPlayer(dmg, by, ignoreDef = false) {
+    dmg = this.owDmg(dmg, by);                             // an overworld boss hits harder (src/owbosses.js)
     const p = this.player;
     if (p.dead || p.status.invuln > 0 || this.map.kind === 'nexus' || this.god) return;
     const P = this.passive();
@@ -2194,7 +2197,7 @@ export class Game {
       }
       if (e.warden) this.breakSeal(`${e.D.name.split(',')[0]} falls.`);
       if (e.rb) { this.questEvent(this.map.kind === 'dungeon' ? 'dungeon' : 'rboss', e); this.trophy(e.id); if (this.map.kind === 'dungeon') this.player.dungeons = (this.player.dungeons || 0) + 1; else this.player.bossKills = (this.player.bossKills || 0) + 1; }
-      const items = rollLoot(e.D.loot, e.D.lootLuck || 1);
+      const items = e.noLoot ? [] : rollLoot(e.D.loot, e.D.lootLuck || 1);   // (an overworld boss's adds carry nothing)
       const egg = this.eggDrop(e);
       if (egg) items.push(egg);
       const key = this.keyDrop(e);
@@ -4345,4 +4348,5 @@ installSetpieces(Game);
 installRF(Game);
 installRFBoss(Game);
 installUniqMech(Game);
+installOwBosses(Game);
 wireBxSetpieces(BX);
