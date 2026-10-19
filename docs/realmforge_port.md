@@ -42,6 +42,13 @@ trail 13, line 12, spiral 7, summon 7, pulse 5, snipe 4, heal 3, and 9 rarer). 2
 3. **Dungeons in batches** (about four per session), each with its boss, uniques' effects and overworld droppers.
 4. **Review**: balance against our dungeons, a contact sheet per dungeon, the checks.
 
+## Progress
+- **Phase 1 done.** Ladders in (`tools/rf_build_items.py` -> `art/bundle/realmforge`, `src/data/rf_items_data.js`).
+  The 79 uniques are items `rf_<id>` with art, shots, stats and the effects our engine already had (pierce, slow, burn,
+  poison/bleed as burn, curse/mark, lifesteal, burst-split, return, helix/wave weave). Their other 95 named effects sit
+  in `item.rf.pending` and are built with each dungeon; seeking effects (paper cranes, curving arrows) stay out under
+  the no-seeking rule unless the user says otherwise. Uniques drop once their boss's dungeon is in.
+
 ## Status
 | Dungeon | Boss | Layout | Creatures | Boss | Uniques | Overworld droppers | Done |
 |---|---|---|---|---|---|---|---|

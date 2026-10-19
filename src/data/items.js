@@ -76,7 +76,7 @@ export const legacyId = (id) => {
 };
 const RING_BONUS = { hp: 20, mp: 20, att: 1, def: 1, spd: 1, dex: 1, vit: 1, wis: 1 };
 // the user's Realmforge ladders replace our tiered weapons, armour and rings (docs/realmforge_port.md)
-import { RF_WEAPONS, RF_ARMOR, RF_RINGS } from './rf_items_data.js';
+import { RF_WEAPONS, RF_ARMOR, RF_RINGS, RF_UNIQUES } from './rf_items_data.js';
 export const TIER_CAP = { weapon: 13, armor: 13, ring: 3, ability: 5 };
 const OLD_CAP = { weapon: 10, armor: 11, ring: 5, ability: 5 };
 // a tier written for the old ladders (loot tables, shops), on the new one
@@ -784,6 +784,22 @@ for (const u of UT) {
   if (S.passive) u.passive = { ...(u.passive || {}), ...S.passive };
 }
 for (const u of UT) add({ bag: 'reliquary', ...u, tier: 'UT', ut: true });
+
+// ---- Realmforge's uniques (UT, Legendary, Mythic; tools/rf_build_items.py). They drop from their own bosses once
+// those dungeons are in (docs/realmforge_port.md); u.pending lists the named effects still to come with them.
+for (const u of RF_UNIQUES) {
+  const slot = u.weapon ? 'weapon' : u.type === 'ring' ? 'ring' : 'armor';
+  const it = { id: `rf_${u.id}`, type: u.type, slot, tier: 'UT', ut: true, mythic: u.rarity === 'mythic', rfRarity: u.rarity,   // (their Legendary is not our twinkling legendary)
+    name: u.name, desc: u.desc, reg: `rf_uniq/${u.id}`, rf: { boss: u.boss, set: u.set, pending: u.pending, effects: u.effects } };
+  if (Object.keys(u.bonus).length) it.bonus = { ...u.bonus };
+  if (u.weapon) {
+    const W = weapon(u.type, 10);
+    it.weapon = { ...W, ...u.weapon, pierce: u.weapon.pierce || W.pierce, proj: u.shot ? `rf_uniq_shots/${u.id}` : `rf_shots/${u.type}_t13` };
+    if (Object.keys(u.special).length) it.weapon.special = { ...u.special };
+    if (u.special.weave) it.weapon.arc = 0;                // a helix pair twists around one line
+  }
+  add(it);
+}
 
 // ---- ADMIN: test gear. Never drops; /give or /admin only. Any class can wield it.
 add({ id: 'admin_godhammer', type: 'godweapon', slot: 'weapon', tier: 'ADMIN', ut: true, admin: true, name: 'The Developer\'s Gavel',

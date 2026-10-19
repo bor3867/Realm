@@ -2659,6 +2659,1430 @@
      "meta": {}
     }
    }
+  },
+  "rf_uniq": {
+   "image": "rf_uniq.png",
+   "kind": "item",
+   "sprites": {
+    "gravewarden": {
+     "frames": {
+      "0": [
+       0,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Gravewarden's Cleaver"
+     }
+    },
+    "lastember": {
+     "frames": {
+      "0": [
+       16,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Brand of the Last Ember"
+     }
+    },
+    "starsunder": {
+     "frames": {
+      "0": [
+       32,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Starsunder"
+     }
+    },
+    "gutterlord": {
+     "frames": {
+      "0": [
+       48,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Gutterlord's Shiv"
+     }
+    },
+    "palemoth": {
+     "frames": {
+      "0": [
+       64,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Whisper of the Pale Moth"
+     }
+    },
+    "eclipsefang": {
+     "frames": {
+      "0": [
+       80,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Eclipse Fang"
+     }
+    },
+    "drownedchoir": {
+     "frames": {
+      "0": [
+       96,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Wand of the Drowned Choir"
+     }
+    },
+    "hexthorn": {
+     "frames": {
+      "0": [
+       112,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Hexthorn Wand"
+     }
+    },
+    "ninthsun": {
+     "frames": {
+      "0": [
+       128,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Conduit of the Ninth Sun"
+     }
+    },
+    "bogseer": {
+     "frames": {
+      "0": [
+       144,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Staff of the Bog Seer"
+     }
+    },
+    "frostspire": {
+     "frames": {
+      "0": [
+       160,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Frostspire"
+     }
+    },
+    "unmaker": {
+     "frames": {
+      "0": [
+       176,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Unmaker's Rift"
+     }
+    },
+    "hollowstag": {
+     "frames": {
+      "0": [
+       192,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Antlerbow of the Hollow Stag"
+     }
+    },
+    "stormcaller": {
+     "frames": {
+      "0": [
+       208,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Stormcaller's Longbow"
+     }
+    },
+    "phoenixspan": {
+     "frames": {
+      "0": [
+       224,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Phoenixspan"
+     }
+    },
+    "tidecutter": {
+     "frames": {
+      "0": [
+       240,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Tidecutter Kris"
+     }
+    },
+    "briarbow": {
+     "frames": {
+      "0": [
+       0,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Briarbow"
+     }
+    },
+    "oathroot": {
+     "frames": {
+      "0": [
+       16,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Oathroot Greatblade"
+     }
+    },
+    "gloamcrozier": {
+     "frames": {
+      "0": [
+       32,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Gloamlight Crozier"
+     }
+    },
+    "requiem": {
+     "frames": {
+      "0": [
+       48,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Requiem of Ash"
+     }
+    },
+    "worldheart": {
+     "frames": {
+      "0": [
+       64,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Heart of the Worldtree"
+     }
+    },
+    "saltrust": {
+     "frames": {
+      "0": [
+       80,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Saltrust Saber"
+     }
+    },
+    "bloodsickle": {
+     "frames": {
+      "0": [
+       96,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Bloodmoon Sickle"
+     }
+    },
+    "lighthouse": {
+     "frames": {
+      "0": [
+       112,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Spire of the Last Lighthouse"
+     }
+    },
+    "sarrukhfang": {
+     "frames": {
+      "0": [
+       128,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Fang of Sarrukh"
+     }
+    },
+    "miragebow": {
+     "frames": {
+      "0": [
+       144,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Mirage Longbow"
+     }
+    },
+    "pendulumstaff": {
+     "frames": {
+      "0": [
+       160,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Pendulum of the Final Hour"
+     }
+    },
+    "prismwand": {
+     "frames": {
+      "0": [
+       176,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Wand of a Thousand Angles"
+     }
+    },
+    "orbitbow": {
+     "frames": {
+      "0": [
+       192,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Bow of Falling Stones"
+     }
+    },
+    "gnomonblade": {
+     "frames": {
+      "0": [
+       208,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Gnomon of the Still Hour"
+     }
+    },
+    "starbow": {
+     "frames": {
+      "0": [
+       224,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Bow of the Starbound"
+     }
+    },
+    "usurper": {
+     "frames": {
+      "0": [
+       240,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Usurper's Blade"
+     }
+    },
+    "gourdstaff": {
+     "frames": {
+      "0": [
+       0,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Staff of the Pumpkin Lord"
+     }
+    },
+    "baton": {
+     "frames": {
+      "0": [
+       16,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Mirabeau's Wand"
+     }
+    },
+    "cranebow": {
+     "frames": {
+      "0": [
+       32,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Bow of a Thousand Folds"
+     }
+    },
+    "ossuary": {
+     "frames": {
+      "0": [
+       48,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Ossuary Plate"
+     }
+    },
+    "ragcoat": {
+     "frames": {
+      "0": [
+       64,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Gutterlord's Ragcoat"
+     }
+    },
+    "bogrobe": {
+     "frames": {
+      "0": [
+       80,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Vestments of the Bog Seer"
+     }
+    },
+    "emberforge": {
+     "frames": {
+      "0": [
+       96,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Emberforge Cuirass"
+     }
+    },
+    "mothmantle": {
+     "frames": {
+      "0": [
+       112,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Mantle of the Pale Moth"
+     }
+    },
+    "frostweave": {
+     "frames": {
+      "0": [
+       128,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Frostweave Robe"
+     }
+    },
+    "staraegis": {
+     "frames": {
+      "0": [
+       144,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Aegis of the Fallen Star"
+     }
+    },
+    "eclipseshroud": {
+     "frames": {
+      "0": [
+       160,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Eclipse Shroud"
+     }
+    },
+    "unmakingrobe": {
+     "frames": {
+      "0": [
+       176,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Robe of the Unmaking"
+     }
+    },
+    "choirrobe": {
+     "frames": {
+      "0": [
+       192,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Choirmaster's Vestments"
+     }
+    },
+    "thornhide": {
+     "frames": {
+      "0": [
+       208,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Thornhide Vest"
+     }
+    },
+    "stormcoat": {
+     "frames": {
+      "0": [
+       224,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Stormcaller's Coat"
+     }
+    },
+    "barkplate": {
+     "frames": {
+      "0": [
+       240,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Barkskin Plate"
+     }
+    },
+    "phoenixplumage": {
+     "frames": {
+      "0": [
+       0,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Plumage of the Phoenix"
+     }
+    },
+    "cathedralplate": {
+     "frames": {
+      "0": [
+       16,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Requiem Plate"
+     }
+    },
+    "duneshell": {
+     "frames": {
+      "0": [
+       32,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Duneshell Plate"
+     }
+    },
+    "hourrobe": {
+     "frames": {
+      "0": [
+       48,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Robes of the Final Hour"
+     }
+    },
+    "mirrormail": {
+     "frames": {
+      "0": [
+       64,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Mirrormail"
+     }
+    },
+    "horizonplate": {
+     "frames": {
+      "0": [
+       80,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Mantle of the Still Peak"
+     }
+    },
+    "stillrobe": {
+     "frames": {
+      "0": [
+       96,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Robe of the Still Hour"
+     }
+    },
+    "skycloak": {
+     "frames": {
+      "0": [
+       112,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Cloak of the Night Sky"
+     }
+    },
+    "hollowplate": {
+     "frames": {
+      "0": [
+       128,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Hollow Royal Plate"
+     }
+    },
+    "rindmail": {
+     "frames": {
+      "0": [
+       144,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Rindmail of Sir Rindley"
+     }
+    },
+    "harlequin": {
+     "frames": {
+      "0": [
+       160,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "The Magnificent Tailcoat"
+     }
+    },
+    "washirobe": {
+     "frames": {
+      "0": [
+       176,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Washi Robe"
+     }
+    },
+    "gravesignet": {
+     "frames": {
+      "0": [
+       192,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Gravedigger's Signet"
+     }
+    },
+    "wyrmcoil": {
+     "frames": {
+      "0": [
+       208,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Coil of the Sewer Wyrm"
+     }
+    },
+    "emberheart": {
+     "frames": {
+      "0": [
+       224,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Emberheart Loop"
+     }
+    },
+    "moonhalo": {
+     "frames": {
+      "0": [
+       240,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Moonstone Halo"
+     }
+    },
+    "rifteye": {
+     "frames": {
+      "0": [
+       0,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Eye of the Rift"
+     }
+    },
+    "starseal": {
+     "frames": {
+      "0": [
+       16,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Seal of the Fallen Star"
+     }
+    },
+    "pearlring": {
+     "frames": {
+      "0": [
+       32,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Pearl of the Sunken Chapel"
+     }
+    },
+    "hexband": {
+     "frames": {
+      "0": [
+       48,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Hexthorn Band"
+     }
+    },
+    "seedring": {
+     "frames": {
+      "0": [
+       64,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Seedring of the Worldtree"
+     }
+    },
+    "oasisring": {
+     "frames": {
+      "0": [
+       80,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Oasis Signet"
+     }
+    },
+    "escapement": {
+     "frames": {
+      "0": [
+       96,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Escapement Seal"
+     }
+    },
+    "facetring": {
+     "frames": {
+      "0": [
+       112,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Facet of Vitrea"
+     }
+    },
+    "lodestone": {
+     "frames": {
+      "0": [
+       128,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Prayer Bead of Ossian"
+     }
+    },
+    "gnomonring": {
+     "frames": {
+      "0": [
+       144,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Hourglass Seal"
+     }
+    },
+    "polaris": {
+     "frames": {
+      "0": [
+       160,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Polaris Ring"
+     }
+    },
+    "hollowcrown": {
+     "frames": {
+      "0": [
+       176,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "The Hollow Crown"
+     }
+    },
+    "dewring": {
+     "frames": {
+      "0": [
+       192,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "Honeydew Blessing"
+     }
+    },
+    "twofaces": {
+     "frames": {
+      "0": [
+       208,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "The Vanishing Ring"
+     }
+    },
+    "wishring": {
+     "frames": {
+      "0": [
+       224,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {
+      "name": "The Thousandth Wish"
+     }
+    }
+   }
+  },
+  "rf_uniq_shots": {
+   "image": "rf_uniq_shots.png",
+   "kind": "shot",
+   "sprites": {
+    "gravewarden": {
+     "frames": {
+      "0": [
+       0,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "lastember": {
+     "frames": {
+      "0": [
+       16,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "starsunder": {
+     "frames": {
+      "0": [
+       32,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "gutterlord": {
+     "frames": {
+      "0": [
+       48,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "palemoth": {
+     "frames": {
+      "0": [
+       64,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "eclipsefang": {
+     "frames": {
+      "0": [
+       80,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "drownedchoir": {
+     "frames": {
+      "0": [
+       96,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "hexthorn": {
+     "frames": {
+      "0": [
+       112,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "ninthsun": {
+     "frames": {
+      "0": [
+       128,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "bogseer": {
+     "frames": {
+      "0": [
+       144,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "frostspire": {
+     "frames": {
+      "0": [
+       160,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "unmaker": {
+     "frames": {
+      "0": [
+       176,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "hollowstag": {
+     "frames": {
+      "0": [
+       192,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "stormcaller": {
+     "frames": {
+      "0": [
+       208,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "phoenixspan": {
+     "frames": {
+      "0": [
+       224,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "tidecutter": {
+     "frames": {
+      "0": [
+       240,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "briarbow": {
+     "frames": {
+      "0": [
+       0,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "oathroot": {
+     "frames": {
+      "0": [
+       16,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "gloamcrozier": {
+     "frames": {
+      "0": [
+       32,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "requiem": {
+     "frames": {
+      "0": [
+       48,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "worldheart": {
+     "frames": {
+      "0": [
+       64,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "saltrust": {
+     "frames": {
+      "0": [
+       80,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "bloodsickle": {
+     "frames": {
+      "0": [
+       96,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "lighthouse": {
+     "frames": {
+      "0": [
+       112,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "sarrukhfang": {
+     "frames": {
+      "0": [
+       128,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "miragebow": {
+     "frames": {
+      "0": [
+       144,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "pendulumstaff": {
+     "frames": {
+      "0": [
+       160,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "prismwand": {
+     "frames": {
+      "0": [
+       176,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "orbitbow": {
+     "frames": {
+      "0": [
+       192,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "gnomonblade": {
+     "frames": {
+      "0": [
+       208,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "starbow": {
+     "frames": {
+      "0": [
+       224,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "usurper": {
+     "frames": {
+      "0": [
+       240,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "gourdstaff": {
+     "frames": {
+      "0": [
+       0,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "baton": {
+     "frames": {
+      "0": [
+       16,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "cranebow": {
+     "frames": {
+      "0": [
+       32,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    }
+   }
   }
  }
 }

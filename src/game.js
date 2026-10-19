@@ -971,6 +971,7 @@ export class Game {
         const b = this.shoot('p', ox, oy, a + off, W.speed, W.range, dmg, W.proj, W.size, W.pierce);
         if (sp) { b.sp = sp; b.speed = W.speed; b.max = b.life; }
         if (sp && sp.accel) { b.range = W.range; b.dist = 0; b.life = 4; b.max = 4; }
+        if (sp && sp.weave) { b.wa = a + off; b.ws = k % 2 ? -1 : 1; b.wt = 0; }   // a pair weaves around each other
       }
       if (sp && sp.starfall && (p.volleys = (p.volleys || 0) + 1) % sp.starfall.every === 0) {
         const d = Math.min(9, dist(p.x, p.y, I.aimX, I.aimY));
@@ -3514,6 +3515,11 @@ export class Game {
           b.vx *= s1 / s0; b.vy *= s1 / s0;
           b.dist += s1 * dt;
           if (b.dist >= b.range) b.life = 0;
+        }
+        if (sp.weave && !b.back && b.wa !== undefined) {   // Realmforge's helix staves and wave wands: the shot weaves across its line
+          b.wt += dt;
+          const w = sp.weave.amp * sp.weave.freq * Math.cos(sp.weave.freq * b.wt) * b.ws, perp = b.wa + Math.PI / 2;
+          b.vx = Math.cos(b.wa) * b.speed + Math.cos(perp) * w; b.vy = Math.sin(b.wa) * b.speed + Math.sin(perp) * w; b.a = Math.atan2(b.vy, b.vx);
         }
         if (sp.boomerang && !b.back && b.life < b.max * 0.5) { b.back = true; if (b.hit) b.hit.clear(); }
         if (b.back) {                                    // fly home
