@@ -24,6 +24,9 @@ export const BXF = {
     // where shots hit it and come from: the middle of its drawn body, in tiles above its feet
     e.hitUp = def ? Math.max(0.5, (def.foot[1] - def.size[1] / 2) / 8) : 1.4;
     if (S.anim) S.anim.on('ended', (clip) => this.bxClipEnded(e, clip));
+    // spawned already awake (an admin's /bx, /spawn): it never passes through bxWake, so set up what waking sets up
+    // (the Grand Orrery's planets: without them its Alignment threw every frame and the game froze)
+    if (S.state === 'intro' && S.B.onWake) { try { S.B.onWake(this, e); } catch (err) { console.warn('bx onWake', e.D.bx, err); } }
     return S;
   },
   bxPhaseData(e) { return e.bx.B.phases[e.bx.phase]; },
