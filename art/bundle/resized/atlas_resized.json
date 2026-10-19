@@ -1,53 +1,54 @@
 {
  "meta": {
-  "name": "Resized monsters",
-  "notes": "tools/upscale_enemies.mjs: 8x8 monsters redrawn at 16x16 (Scale2x) or 24x24 (Scale3x)"
+  "name": "Redrawn monsters",
+  "notes": "tools/redraw_enemies.mjs: 8x8 monsters that stand bigger, redrawn by hand at 12x12"
  },
  "rf": true,
  "sheets": {
   "rs_enemies": {
    "image": "rs_enemies.png",
    "kind": "enemy",
+   "outline": true,
    "sprites": {
     "scarecrow": {
      "frames": {
-      "sway1": [
+      "move1": [
        0,
        0,
-       24,
-       24
+       12,
+       12
       ],
-      "sway2": [
-       26,
+      "move2": [
+       14,
        0,
-       24,
-       24
+       12,
+       12
       ],
       "attack": [
-       52,
+       28,
        0,
-       24,
-       24
+       12,
+       12
       ],
       "hurt": [
-       78,
+       42,
        0,
-       24,
-       24
+       12,
+       12
       ]
      },
      "anims": {
       "move": {
        "frames": [
-        "sway1",
-        "sway2"
+        "move1",
+        "move2"
        ],
        "fps": 5,
        "loop": true
       },
       "attack": {
        "frames": [
-        "sway1",
+        "move1",
         "attack"
        ],
        "fps": 6,
@@ -56,144 +57,55 @@
       "hurt": {
        "frames": [
         "hurt",
-        "sway1"
+        "move1"
        ],
-       "fps": 12,
+       "fps": 8,
        "loop": false
       }
      },
      "meta": {
-      "from": "ow_enemies/scarecrow",
-      "upscale": 3
+      "redrawn": "12x12"
      }
     },
     "sporeling_clump": {
      "frames": {
-      "walk1": [
-       104,
+      "move1": [
+       56,
        0,
-       16,
-       16
+       12,
+       12
       ],
-      "walk2": [
-       130,
+      "move2": [
+       70,
        0,
-       16,
-       16
+       12,
+       12
       ],
       "attack": [
-       156,
+       84,
        0,
-       16,
-       16
+       12,
+       12
       ],
       "hurt": [
-       182,
+       98,
        0,
-       16,
-       16
+       12,
+       12
       ]
      },
      "anims": {
       "move": {
        "frames": [
-        "walk1",
-        "walk2"
-       ],
-       "fps": 4,
-       "loop": true
-      },
-      "attack": {
-       "frames": [
-        "walk1",
-        "attack"
-       ],
-       "fps": 6,
-       "loop": false
-      },
-      "hurt": {
-       "frames": [
-        "hurt",
-        "walk1"
-       ],
-       "fps": 12,
-       "loop": false
-      }
-     },
-     "meta": {
-      "from": "ex_mirerot/sporeling",
-      "upscale": 2
-     }
-    },
-    "glowcap_sprout": {
-     "frames": {
-      "mother_mycelia.glowcap_seed_0": [
-       208,
-       0,
-       16,
-       16
-      ],
-      "mother_mycelia.glowcap_seed_1": [
-       234,
-       0,
-       16,
-       16
-      ]
-     },
-     "anims": {
-      "loop": {
-       "frames": [
-        "mother_mycelia.glowcap_seed_0",
-        "mother_mycelia.glowcap_seed_1"
-       ],
-       "fps": 10,
-       "loop": true
-      }
-     },
-     "meta": {
-      "from": "bx_shots/mother_mycelia.glowcap_seed",
-      "upscale": 2
-     }
-    },
-    "jester_puppet": {
-     "frames": {
-      "juggle1": [
-       260,
-       0,
-       16,
-       16
-      ],
-      "juggle2": [
-       286,
-       0,
-       16,
-       16
-      ],
-      "attack": [
-       0,
-       26,
-       16,
-       16
-      ],
-      "hurt": [
-       26,
-       26,
-       16,
-       16
-      ]
-     },
-     "anims": {
-      "move": {
-       "frames": [
-        "juggle1",
-        "juggle2"
+        "move1",
+        "move2"
        ],
        "fps": 5,
        "loop": true
       },
       "attack": {
        "frames": [
-        "juggle1",
+        "move1",
         "attack"
        ],
        "fps": 6,
@@ -202,114 +114,55 @@
       "hurt": {
        "frames": [
         "hurt",
-        "juggle1"
+        "move1"
        ],
-       "fps": 12,
+       "fps": 8,
        "loop": false
       }
      },
      "meta": {
-      "from": "d2_hollowmoon/knife_juggler",
-      "upscale": 2
-     }
-    },
-    "glacial_sentinel": {
-     "frames": {
-      "walk1": [
-       52,
-       26,
-       24,
-       24
-      ],
-      "walk2": [
-       78,
-       26,
-       24,
-       24
-      ],
-      "attack": [
-       104,
-       26,
-       24,
-       24
-      ],
-      "hurt": [
-       130,
-       26,
-       24,
-       24
-      ]
-     },
-     "anims": {
-      "move": {
-       "frames": [
-        "walk1",
-        "walk2"
-       ],
-       "fps": 3,
-       "loop": true
-      },
-      "attack": {
-       "frames": [
-        "walk1",
-        "attack"
-       ],
-       "fps": 6,
-       "loop": false
-      },
-      "hurt": {
-       "frames": [
-        "hurt",
-        "walk1"
-       ],
-       "fps": 12,
-       "loop": false
-      }
-     },
-     "meta": {
-      "from": "ex_frostveil/glacial_sentinel",
-      "upscale": 3
+      "redrawn": "12x12"
      }
     },
     "vine_lasher": {
      "frames": {
-      "sway1": [
-       156,
-       26,
-       24,
-       24
+      "move1": [
+       0,
+       14,
+       12,
+       12
       ],
-      "sway2": [
-       182,
-       26,
-       24,
-       24
+      "move2": [
+       14,
+       14,
+       12,
+       12
       ],
       "attack": [
-       208,
-       26,
-       24,
-       24
+       28,
+       14,
+       12,
+       12
       ],
       "hurt": [
-       234,
-       26,
-       24,
-       24
+       42,
+       14,
+       12,
+       12
       ]
      },
      "anims": {
       "move": {
        "frames": [
-        "sway1",
-        "sway2"
+        "move1",
+        "move2"
        ],
-       "fps": 2,
+       "fps": 5,
        "loop": true
       },
       "attack": {
        "frames": [
-        "sway1",
+        "move1",
         "attack"
        ],
        "fps": 6,
@@ -318,56 +171,55 @@
       "hurt": {
        "frames": [
         "hurt",
-        "sway1"
+        "move1"
        ],
-       "fps": 12,
+       "fps": 8,
        "loop": false
       }
      },
      "meta": {
-      "from": "ex_mirerot/vine_lasher",
-      "upscale": 3
+      "redrawn": "12x12"
      }
     },
     "jackal_warden": {
      "frames": {
-      "walk1": [
-       260,
-       26,
-       24,
-       24
+      "move1": [
+       56,
+       14,
+       12,
+       12
       ],
-      "walk2": [
-       286,
-       26,
-       24,
-       24
+      "move2": [
+       70,
+       14,
+       12,
+       12
       ],
       "attack": [
-       0,
-       52,
-       24,
-       24
+       84,
+       14,
+       12,
+       12
       ],
       "hurt": [
-       26,
-       52,
-       24,
-       24
+       98,
+       14,
+       12,
+       12
       ]
      },
      "anims": {
       "move": {
        "frames": [
-        "walk1",
-        "walk2"
+        "move1",
+        "move2"
        ],
-       "fps": 4,
+       "fps": 5,
        "loop": true
       },
       "attack": {
        "frames": [
-        "walk1",
+        "move1",
         "attack"
        ],
        "fps": 6,
@@ -376,56 +228,55 @@
       "hurt": {
        "frames": [
         "hurt",
-        "walk1"
+        "move1"
        ],
-       "fps": 12,
+       "fps": 8,
        "loop": false
       }
      },
      "meta": {
-      "from": "ex_sandscour/jackal_warden",
-      "upscale": 3
+      "redrawn": "12x12"
      }
     },
     "haunted_armor": {
      "frames": {
-      "walk1": [
-       52,
-       52,
-       24,
-       24
+      "move1": [
+       0,
+       28,
+       12,
+       12
       ],
-      "walk2": [
-       78,
-       52,
-       24,
-       24
+      "move2": [
+       14,
+       28,
+       12,
+       12
       ],
       "attack": [
-       104,
-       52,
-       24,
-       24
+       28,
+       28,
+       12,
+       12
       ],
       "hurt": [
-       130,
-       52,
-       24,
-       24
+       42,
+       28,
+       12,
+       12
       ]
      },
      "anims": {
       "move": {
        "frames": [
-        "walk1",
-        "walk2"
+        "move1",
+        "move2"
        ],
-       "fps": 3,
+       "fps": 5,
        "loop": true
       },
       "attack": {
        "frames": [
-        "walk1",
+        "move1",
         "attack"
        ],
        "fps": 6,
@@ -434,63 +285,112 @@
       "hurt": {
        "frames": [
         "hurt",
-        "walk1"
+        "move1"
        ],
-       "fps": 12,
+       "fps": 8,
        "loop": false
       }
      },
      "meta": {
-      "from": "d2_crimson_keep/haunted_armor",
-      "upscale": 3
+      "redrawn": "12x12"
+     }
+    },
+    "glacial_sentinel": {
+     "frames": {
+      "move1": [
+       56,
+       28,
+       12,
+       12
+      ],
+      "move2": [
+       70,
+       28,
+       12,
+       12
+      ],
+      "attack": [
+       84,
+       28,
+       12,
+       12
+      ],
+      "hurt": [
+       98,
+       28,
+       12,
+       12
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "move1",
+        "move2"
+       ],
+       "fps": 5,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "move1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "move1"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     },
+     "meta": {
+      "redrawn": "12x12"
      }
     },
     "carousel_horse": {
      "frames": {
-      "gallop1": [
-       156,
-       52,
-       24,
-       24
+      "move1": [
+       0,
+       42,
+       12,
+       12
       ],
-      "gallop2": [
-       182,
-       52,
-       24,
-       24
-      ],
-      "gallop3": [
-       208,
-       52,
-       24,
-       24
+      "move2": [
+       14,
+       42,
+       12,
+       12
       ],
       "attack": [
-       234,
-       52,
-       24,
-       24
+       28,
+       42,
+       12,
+       12
       ],
       "hurt": [
-       260,
-       52,
-       24,
-       24
+       42,
+       42,
+       12,
+       12
       ]
      },
      "anims": {
       "move": {
        "frames": [
-        "gallop1",
-        "gallop2",
-        "gallop3"
+        "move1",
+        "move2"
        ],
-       "fps": 8,
+       "fps": 5,
        "loop": true
       },
       "attack": {
        "frames": [
-        "gallop1",
+        "move1",
         "attack"
        ],
        "fps": 6,
@@ -499,15 +399,71 @@
       "hurt": {
        "frames": [
         "hurt",
-        "gallop1"
+        "move1"
        ],
-       "fps": 12,
+       "fps": 8,
        "loop": false
       }
      },
      "meta": {
-      "from": "d2_hollowmoon/carousel_horse",
-      "upscale": 3
+      "redrawn": "12x12"
+     }
+    },
+    "jester_puppet": {
+     "frames": {
+      "move1": [
+       56,
+       42,
+       12,
+       12
+      ],
+      "move2": [
+       70,
+       42,
+       12,
+       12
+      ],
+      "attack": [
+       84,
+       42,
+       12,
+       12
+      ],
+      "hurt": [
+       98,
+       42,
+       12,
+       12
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "move1",
+        "move2"
+       ],
+       "fps": 5,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "move1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "move1"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     },
+     "meta": {
+      "redrawn": "12x12"
      }
     }
    }

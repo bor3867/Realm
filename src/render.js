@@ -440,7 +440,7 @@ export class Renderer {
       else { b.save(); b.translate(dx + w * k, dy); b.scale(-1, 1); b.drawImage(I, 0, 0, w * k, h * k); b.restore(); }
       return;
     }
-    const U = this.U || 1, I = outlinedFrame(img, sx, sy, w, h, U), P = I.pad / U * k, W = I.width / U * k, H = I.height / U * k;
+    const U = this.U || 1, I = outlinedFrame(img, sx, sy, w, h, U, undefined, U >= 2 ? Math.max(1, Math.round(2 / k)) : 1), P = I.pad / U * k, W = I.width / U * k, H = I.height / U * k;   // (one rim width for everyone: 2 screen pixels)
     if (!flip) b.drawImage(I, dx - P, dy - P, W, H);
     else { b.save(); b.translate(dx - P + W, dy - P); b.scale(-1, 1); b.drawImage(I, 0, 0, W, H); b.restore(); }
   }
@@ -453,7 +453,7 @@ export class Renderer {
     const ax = o.center || o.rot !== undefined ? f.w / 2 : def.foot[0], ay = o.center || o.rot !== undefined ? f.h / 2 : def.foot[1];
     let I, pad = 0;
     if (o.flash) I = this.white(def.img, f.x, f.y, f.w, f.h);
-    else if (def.outline) { I = outlinedFrame(def.img, f.x, f.y, f.w, f.h, U * K); pad = I.pad / U; }
+    else if (def.outline) { I = outlinedFrame(def.img, f.x, f.y, f.w, f.h, U * K, undefined, U >= 2 ? 2 : 1); pad = I.pad / U; }
     else I = null;
     const W = f.w * K, H = f.h * K, ga = b.globalAlpha;
     if (o.alpha !== undefined) b.globalAlpha = ga * o.alpha;

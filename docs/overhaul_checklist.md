@@ -135,7 +135,9 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   at 1.5x: big or uneven pixels). Rule now: every monster at a whole pixel size (tools/audit_enemy_sizes.mjs fails
   otherwise). Nine 8x8 monsters that stand bigger were redrawn (tools/upscale_enemies.mjs: Scale2x to 16x16 at the
   player's pixel size, or Scale3x to 24x24 at the fine size: the Field Warden, sporeling clump, glowcap, jester
-  marionette, glacial sentinel, vine lasher, jackal warden, haunted armor, carousel horse); dungeon "a size up" monsters
+  marionette, glacial sentinel, vine lasher, jackal warden, haunted armor, carousel horse) [second round, same day: the
+  upscales looked soft and, drawn finer, thin-rimmed; replaced by hand-drawn 12x12s at the player's pixel size
+  (tools/redraw_enemies.mjs), and every sprite's outline is now 2 screen pixels whatever its own pixel size]; dungeon "a size up" monsters
   and champion wardens at 2x; Realmforge foes at 1x (16px art) or 2x (8px art). Still open: the old 16px enemy sheet
   and the 24px champions are fine-pixel art (one screen pixel to an art pixel) next to the chunky 8x8s (two to one):
   both are clean, but a fully RotMG-uniform look would mean redrawing ~150 old-sheet monsters as 8x8s (the user's call).
@@ -144,3 +146,8 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
 - Tier tags (requested 2026-10-19): the pixel "T5"/"T8" text on item slots is unreadable (5 and 8 look alike); redesign
   the tier digits so every tier reads at a glance.
 - Damage numbers (requested 2026-10-19): make the numbers over enemies and over the player easier to read.
+- Dungeon difficulty ratings (requested 2026-10-19): check every dungeon (ours and Realmforge's) and give it a fitting
+  star rating, keeping some dungeons for each of 1 to 5 stars. Then check where each dungeon's portal drops and move it
+  to foes of the matching land: 1 star on the beach (maybe the grassland), 2 stars in the grassland, and so on inward.
+  A dungeon raised to 5 stars gets much higher damage and difficulty; one lowered to 1 star gets slightly easier for
+  new players.

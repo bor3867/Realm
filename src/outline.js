@@ -4,13 +4,15 @@
 // The returned canvas is the frame at U x, padded by `pad` on each side (canvas.pad).
 const cache = new WeakMap();
 
-export function outlinedFrame(img, sx, sy, w, h, U = 1, col = '#05040a') {
+// rim: the outline's width in screen pixels; the same for every monster, however fine its own pixels (left out: the
+// old rule, 2 only when baked at 4x or more, gave fine-pixel monsters a rim half as thick as their neighbours')
+export function outlinedFrame(img, sx, sy, w, h, U = 1, col = '#05040a', rim = 0) {
   let per = cache.get(img);
   if (!per) { per = new Map(); cache.set(img, per); }
-  const key = `${sx}|${sy}|${w}|${h}|${U}|${col}`;
+  const key = `${sx}|${sy}|${w}|${h}|${U}|${col}|${rim}`;
   let cv = per.get(key);
   if (cv) return cv;
-  const o = U >= 4 ? 2 : 1, W = w * U, H = h * U;
+  const o = rim || (U >= 4 ? 2 : 1), W = w * U, H = h * U;
   cv = document.createElement('canvas'); cv.width = W + 2 * o; cv.height = H + 2 * o; cv.pad = o;
   const x = cv.getContext('2d');
   x.imageSmoothingEnabled = false;
