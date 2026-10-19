@@ -186,7 +186,9 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   art pixel, hitbox to match), 35% faster, for every staff.
 - Item stats, revised (2026-10-19): the tiered weapons, armour and rings are fine (keep, or nudge slightly). Tiered
   abilities need stats that fit the class they are for, plus a little Life/Mana at the higher tiers. (Bigger, more
-  distinctive numbers for UT/Mythic/Legendary still stand.) **Tiered abilities done 2026-10-19:** two stats per class
+  distinctive numbers for UT/Mythic/Legendary still stand: **done 2026-10-19**, items.js: each special item keeps its
+  stats and gains UT 6 / Legendary 8 / Mythic 11 points (rings 4/6/8) over 2-3 stats that fit it, split by its id, and
+  no two special items of a slot share a stat line.) **Tiered abilities done 2026-10-19:** two stats per class
   (e.g. Bellows +ATT +VIT, Halo +WIS +SPD) rising with tier, and +20/30/40 Life or Mana at T3-T5.
 - Stat potions (requested 2026-10-19): every stat potion uses the same sprite; fewer drop from overworld enemies, so
   maxing stats is harder. **Done 2026-10-19:** the Attack potion was the odd tall bottle: now the wide flask like the

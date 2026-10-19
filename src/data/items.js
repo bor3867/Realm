@@ -1381,3 +1381,42 @@ applyGearRework(ITEMS);
     it.bonus = B;
   }
 }
+
+// the special items' stats (the user's call, 2026-10-19: "more, and more distinctive numbers for UT, Mythic and
+// Legendary"): each keeps what it had and gains a budget by rarity (UT 6, Legendary 8, Mythic 11 points; rings, already
+// rich, 4/6/8), spread over two or three stats that fit it; one point is +1 of a stat or +10 Life/Mana. How the budget
+// splits comes from the item's id, so no two read alike.
+{
+  const POOL = { sword: ['att', 'vit', 'def'], dagger: ['dex', 'spd', 'att'], bow: ['dex', 'att', 'spd'], staff: ['wis', 'att', 'mp'],
+    wand: ['wis', 'dex', 'mp'], heavy: ['def', 'vit', 'hp'], leather: ['spd', 'dex', 'def'], robe: ['wis', 'mp', 'def'],
+    bellows: ['att', 'vit', 'hp'], seal: ['def', 'vit', 'hp'], halo: ['wis', 'spd', 'mp'], reliquary: ['wis', 'att', 'mp'], hookline: ['att', 'spd', 'hp'],
+    mirror: ['dex', 'spd', 'hp'], kite: ['wis', 'dex', 'mp'], stopwatch: ['def', 'wis', 'mp'], runeward: ['att', 'def', 'hp'], hex: ['wis', 'dex', 'mp'] };
+  const hash = (s) => { let h = 2166136261; for (const c of s) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return h >>> 0; };
+  for (const it of Object.values(ITEMS)) {
+    if (it.base || it.admin || !(it.ut || it.mythic || it.legendary)) continue;
+    const rank = it.mythic ? 2 : it.legendary || it.rfRarity === 'legendary' ? 1 : 0;
+    let budget = it.slot === 'ring' ? [4, 6, 8][rank] : [6, 8, 11][rank];
+    const pool = it.slot === 'ring' ? [...new Set([...Object.keys(it.bonus || {}), 'vit', 'hp'])].slice(0, 3)
+      : POOL[it.type] || (it.slot === 'weapon' ? ['att', 'dex', 'spd'] : it.slot === 'armor' ? ['def', 'vit', 'hp'] : ['wis', 'mp', 'att']);
+    const h = hash(it.id), n = 2 + (h % 2), start = (h >>> 20) % pool.length, picks = Array.from({ length: n }, (_, k) => pool[(start + k) % pool.length]), B = { ...(it.bonus || {}) };   // (which stat leads varies too)
+    picks.forEach((s, k) => {
+      const share = k === picks.length - 1 ? budget : Math.max(1, Math.min(budget - 1, Math.round(budget * (0.3 + ((h >>> (4 + k * 5)) % 9) * 0.05))));   // 30-70% to the first, and so on
+      budget -= share;
+      B[s] = (B[s] || 0) + (s === 'hp' || s === 'mp' ? share * 10 + ((h >>> 9) % 3) * 5 : share);
+    });
+    it.bonus = B;
+  }
+}
+// and no two special items of a slot read alike: a duplicate moves a point between its stats until it is its own
+{
+  const seen = new Set(), key = (it) => it.slot + JSON.stringify(Object.entries(it.bonus || {}).sort());
+  for (const it of Object.values(ITEMS)) {
+    if (it.base || it.admin || !(it.ut || it.mythic || it.legendary)) continue;
+    const ks = Object.keys(it.bonus || {}).filter((s) => !['hp', 'mp'].includes(s));
+    for (let tries = 0; seen.has(key(it)) && tries < 12; tries++) {
+      const a = ks[tries % ks.length], b = ks[(tries + 1) % ks.length];
+      if (tries < 6 && ks.length > 1 && it.bonus[a] > 1) { it.bonus[a] -= 1; it.bonus[b] += 1; } else it.bonus[a || 'vit'] = (it.bonus[a || 'vit'] || 0) + 1;   // (then a point more)
+    }
+    seen.add(key(it));
+  }
+}
