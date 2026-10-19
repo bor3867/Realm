@@ -177,7 +177,9 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   allows overworld bosses up to 11,000 damage a minute (dungeon bosses stay at 9,000).
 - Damage numbers, again (requested 2026-10-19): still odd. More pixel-style, slightly smaller, and never two numbers
   side by side (two 100s read as "100,100"). **Done 2026-10-19:** numbers in a 3x5 pixel font (src/pixelfont.js),
-  a step smaller; over one target a new number waits until the last has risen clear, and hits in that wait add up.
+  a step smaller. Revised the same day (the user: show every hit, no merging): each number takes the first free spot
+  above its target among staggered slots (each at its own height), checked against where the live numbers are now;
+  an eased rise, a soft fade in, a quick fade out.
 - Dungeon exit portals (requested 2026-10-19): a dungeon opened with a key in the Nexus sends you back to the Nexus; one
   found or opened in the realm sends you back to the realm. **Done 2026-10-19** (game.exitTo, every exit portal).
 - Staff shots (requested 2026-10-19): smaller and faster. **Done 2026-10-19:** half the size (one buffer pixel to an

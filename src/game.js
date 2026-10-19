@@ -121,7 +121,9 @@ export const POT_STACK = 10, VAULT_MAX = 80;
 // the share of an overworld monster's stat-potion drops that survive (realm bosses, dungeons and camps keep theirs):
 // maxing your stats takes longer (the user's call, 2026-10-19)
 export const STAT_DROP_REALM = 0.4;
-const FLOAT_GAP = 0.35;                                  // seconds between two numbers over one target (they rise 60px in 0.9s)
+// where numbers that land together appear above a target (tiles: right, up): staggered, never two at one height side
+// by side closer than a number's width
+const FLOAT_SLOTS = [[0, 0], [-0.95, 0.3], [0.95, 0.6], [-0.45, 0.9], [0.5, 1.2], [-1, 1.5], [1, 1.8], [0, 2.1], [-0.6, 2.4], [0.6, 2.7]];   // (each at its own height)
 const ACTIVE_R = 24;            // enemies farther than this sleep
 const SLOT_ORDER = ['weapon', 'ability', 'armor', 'ring'];
 const BIOME_TARGET = { shore: 210, fen: 170, runeholt: 125, godfall: 85 };
@@ -605,14 +607,16 @@ export class Game {
   float(x, y, text, color) {
     if (typeof text === 'number' || /^[-+]?\d*\.\d+$/.test(text) || /^[-+]?\d+\.\d+$/.test(text)) text = (/^[-+]/.test(String(text)) ? String(text)[0] : '') + Math.round(Math.abs(parseFloat(text)));   // whole numbers only
     const who = this.floatOwner(x, y);
-    // numbers over one target never touch (2026-10-19): a new one waits until the last has risen clear of it, and hits
-    // that land during that wait add into the waiting number, which then shows their total
+    // every hit shows its own number (2026-10-19): numbers that land together each take a different spot above the
+    // target, staggered so none sits beside another at the same height ("100,100"), with a little jitter
     if (who) {
-      const num = /^[-+]?\d+$/.test(text), mine = this.floaters.filter((f) => f.who === who && /^[-+]?\d+$/.test(f.text) === num), last = mine[mine.length - 1];
-      if (!num) { if (!mine.some((f) => f.text === text && f.t < 0.5)) this.floaters.push({ x, y, text, color, t: 0, who, dx: 0, dy: Math.min(2, mine.filter((f) => f.t < 0.5).length) * 0.6 }); return; }   // words: once, stacked
-      if (last && num && last.t < 0 && last.color === color && /^[-+]?\d+$/.test(last.text)) { const s = text[0] === '-' ? '-' : ''; last.text = s + (Math.abs(+last.text) + Math.abs(+text)); return; }
-      const t0 = last ? Math.min(0, last.t - FLOAT_GAP) : 0;
-      this.floaters.push({ x, y, text, color, t: t0, who, dx: 0, dy: 0 });
+      // the live numbers over it, where they are now (risen part-way), as boxes in tiles; the first spot that touches none
+      const W = (t) => (String(t).length * 4 + 1) * 0.0625, H = 0.44 + 0.12, rise = (t) => 0.55 * (1 - (1 - Math.min(1, t / 0.9)) ** 3);   // (the font: 1/16 tile a pixel, 7 tall with its rim)
+      const live = this.floaters.filter((f) => f.who === who && f.t < 0.9).map((f) => ({ x: f.dx, y: f.dy + rise(f.t), w: W(f.text) }));
+      const w = W(text), hit = (cx, cy) => live.reduce((n, o) => n + (Math.abs(cx - o.x) < (w + o.w) / 2 + 0.15 && Math.abs(cy - o.y) < H ? 1 : 0), 0);
+      let best = FLOAT_SLOTS[0], bn = Infinity;
+      for (const S of FLOAT_SLOTS) { const n = hit(S[0], S[1]); if (n < bn) { bn = n; best = S; if (!n) break; } }
+      this.floaters.push({ x, y, text, color, t: 0, who, dx: best[0] + (R() - 0.5) * 0.1, dy: best[1] });
       return;
     }
     this.floaters.push({ x, y, text, color, t: 0, who, dx: 0, dy: 0 });
