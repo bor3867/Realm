@@ -165,6 +165,7 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   rim, the band's colour), crisp at every slot size.
 - Overworld bosses too easy (requested 2026-10-19): the Kraken and the older overworld bosses go down too fast. More HP,
   harder hits, small adds where they fit (tentacles for the Kraken), so they can kill a player who is not dodging.
-- Bottom-right party list (requested 2026-10-19): show other players only, not yourself or your pets.
+- Bottom-right party list (requested 2026-10-19): show other players only, not yourself or your pets. **Done
+  2026-10-19:** you and your pet are no longer listed; the row stays (empty, in this single-player game) for others.
 - Item stats (requested 2026-10-19): items feel lacklustre. Rework every item to give a bit more in stats, with bigger
   and more distinctive numbers for UT, Mythic and Legendary items.

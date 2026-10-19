@@ -864,3 +864,6 @@ html body #app .slot .tier.tt.b5, html body #app #panel .slot .tier.tt.b5 { colo
 
 /* the tier tag drawn in its own pixel font (ui.js pixelTag): never smoothed, never squeezed */
 html body #app .slot .tier .pxtag { display: block; image-rendering: pixelated; height: 14px; width: auto; }
+
+/* the nearby list shows other players only (2026-10-19): not you, not your pet */
+html body #app #who .np.me, html body #app #who #petname { display: none !important; }

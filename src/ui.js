@@ -826,8 +826,10 @@ export class UI {
     $('hfame').textContent = g.save.fame; $('hgold').textContent = g.save.gold || 0; $('hess').textContent = g.save.essence || 0;
     this.refreshSlots();
   }
-  // under the backpack: where you are, then who is with you (you, and your pet), each with a tiny portrait
+  // under the backpack: where you are, then the OTHER players with you (2026-10-19: not you, not your pet; the row
+  // stays, empty, for others)
   nearbyLine() {
+    if (!this.showSelfInNearby) { const el = $('petname'); if (el.innerHTML) { el.innerHTML = ''; el.dataset.k = ''; } return; }
     const P = this.g.activePet(), el = $('petname'), key = P ? `${P.id}:${P.rarity}:${petSprite(P)}` : '';
     if (el.dataset.k === key) return;
     el.dataset.k = key;
