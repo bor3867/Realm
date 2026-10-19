@@ -13,6 +13,10 @@ const ROOM = /^(nexus|realm:\d+)$/;                                        // th
 const CLASSES = new Set(['brawler', 'forge_knight', 'priest', 'summoner', 'harpooner', 'duelist', 'stormwright', 'clockmaker', 'runeblade', 'hexweaver']);
 
 const clients = new Map();   // id -> { sock, name, cls, room, budget }
+// milestone 4: accounts and saves (server/db.mjs: Supabase online, a file when testing with DB=file)
+const { makeDb } = await import('./db.mjs');
+const db = makeDb();
+if (db) console.log(`accounts and saves: ${db.kind}`);
 // stage 2: the shared realm's monsters run here (server/world.mjs). WORLD=0 in the environment turns it off.
 const { makeWorld } = process.env.WORLD === '0' ? {} : await import('./world.mjs');
 const world = makeWorld ? makeWorld(SEED, (id, obj) => { const c = clients.get(id); if (c) send(c, obj); }) : null;
@@ -45,7 +49,7 @@ function onMessage(c, text) {
   if (m.t === 'hi') {
     c.name = str(m.name, LIMIT.name).trim() || `Player ${c.id}`;
     c.cls = CLASSES.has(m.cls) ? m.cls : 'priest';
-    send(c, { t: 'welcome', id: c.id, seed: SEED, online: clients.size, world: !!world });
+    send(c, { t: 'welcome', id: c.id, seed: SEED, online: clients.size, world: !!world, db: !!db });
     return;
   }
   if (m.t === 'st') {                                    // where I am and what I'm doing
@@ -89,12 +93,49 @@ function onMessage(c, text) {
     worldOf(c.room).efx(c.id, m.list.slice(0, 40).filter((x) => Array.isArray(x) && ['stun', 'slow', 'push'].includes(x[1])).map((x) => [num(x[0], 0, 1e9), x[1], num(x[2], -10, 10), num(x[3], -10, 10)]));
     return;
   }
+  if (m.t === 'auth' && db) { auth(c, m); return; }
+  if (m.t === 'save' && db && c.account && m.data && typeof m.data === 'object') {   // your save, kept on the server
+    const json = JSON.stringify(m.data);
+    if (json.length > 600000) return;
+    c.pendingSave = m.data;
+    if (!c.saveTimer) c.saveTimer = setTimeout(() => flushSave(c), Math.max(0, (c.savedAt || 0) + 3000 - Date.now()));
+    return;
+  }
   if (m.t === 'chat') {
     const text = str(m.text, LIMIT.chat).trim();
     // dev only (DEV=1 in the environment, never online): !kraken, !treant raise an event boss in the shared realm
     if (process.env.DEV === '1' && world && /^!(kraken|treant)$/.test(text)) { const g = world._g; g.spawnEventBoss(text === '!kraken' ? 'abyssal_kraken' : 'thornheart_treant'); return; }
     if (text) toAll({ t: 'chat', id: c.id, name: c.name, text });
   }
+}
+
+// sign up, sign in, come back signed in, sign out (a few tries a minute per connection)
+async function auth(c, m) {
+  const reply = (r) => send(c, { t: 'auth', rid: m.rid, ...r });
+  const now = Date.now();
+  c.tries = (c.tries || []).filter((t) => now - t < 60000);
+  if (m.kind !== 'logout' && c.tries.length >= 10) return reply({ error: 'Too many tries: wait a minute.' });
+  c.tries.push(now);
+  try {
+    let r;
+    if (m.kind === 'signup') r = await db.signup(str(m.name, 16).trim(), typeof m.pass === 'string' ? m.pass.slice(0, 128) : '');
+    else if (m.kind === 'login') r = await db.login(str(m.name, 16).trim(), typeof m.pass === 'string' ? m.pass.slice(0, 128) : '');
+    else if (m.kind === 'resume') r = await db.resume(str(m.token, 100));
+    else if (m.kind === 'logout') { if (c.account) await flushSave(c); await db.logout(str(m.token, 100)); c.account = null; return reply({ ok: true }); }
+    else return;
+    if (r.error) return reply({ error: r.error });
+    if (c.account && c.account.id !== r.account.id) await flushSave(c);
+    c.account = r.account; c.name = r.account.name;
+    if (r.created && m.upload && typeof m.upload === 'object' && JSON.stringify(m.upload).length < 600000) { await db.writeSave(r.account.id, m.upload); r.save = m.upload; }   // a new account brings this browser's progress
+    reply({ ok: true, token: r.token, account: r.account, save: r.save, created: !!r.created });
+  } catch (err) { console.error('auth', m.kind, err.message); reply({ error: 'The account service is not answering. Try again soon.' }); }
+}
+async function flushSave(c) {
+  clearTimeout(c.saveTimer); c.saveTimer = null;
+  const data = c.pendingSave; c.pendingSave = null;
+  if (!data || !c.account) return;
+  c.savedAt = Date.now();
+  try { await db.writeSave(c.account.id, data); } catch (err) { console.error('save', err.message); c.pendingSave = c.pendingSave || data; }
 }
 
 const server = createServer((req, res) => {
@@ -136,7 +177,7 @@ server.on('upgrade', (req, sock) => {
       if (c.budget >= 0) onMessage(c, text);
     }
   });
-  const gone = () => { if (!clients.has(c.id)) return; clients.delete(c.id); const W = worldOf(c.room); if (W) W.leave(c.id); if (c.room) toRoom(c.room, { t: 'bye', id: c.id }); toAll({ t: 'online', n: clients.size }); };
+  const gone = () => { if (!clients.has(c.id)) return; clients.delete(c.id); if (c.pendingSave) flushSave(c); const W = worldOf(c.room); if (W) W.leave(c.id); if (c.room) toRoom(c.room, { t: 'bye', id: c.id }); toAll({ t: 'online', n: clients.size }); };
   sock.on('close', gone); sock.on('error', gone);
   toAll({ t: 'online', n: clients.size });
 });

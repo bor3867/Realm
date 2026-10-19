@@ -23,6 +23,7 @@ async function boot() {
   const settings = loadSettings();
   const game = new Game(assets, loadSave());
   game.netStart();                                   // the other players, when a server is there (src/net.js)
+  addEventListener('pagehide', () => { if (game.account && game.account.online) { if (game.player && !game.player.dead && game.mode === 'play') game.persist(); game.netSaveNow(); } });   // (an online save goes before you leave)
   const rnd = new Renderer(canvas, document.getElementById('minimap'), assets);
   rnd.settings = settings;
   rnd.game = game;

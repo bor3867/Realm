@@ -252,8 +252,12 @@ export class Game {
   persist() {
     const keep = ['id', 'created', 'cls', 'level', 'xp', 'totalXp', 'base', 'equip', 'inv', 'kills', 'quests', 'lore', 'petted', 'fame', 'fameXp', 'bossKills', 'dungeons', 'waypoints', 'pots'];
     const chars = this.save.chars.map((c) => Object.fromEntries(keep.map((k) => [k, c[k]])));
-    writeSave({ ...this.save, chars }, this.saveKey);
+    const data = { ...this.save, chars };
+    writeSave(data, this.saveKey);
+    if (this.account && this.account.online) this.netSave(data);   // an online account's save is kept on the server (src/net.js)
   }
+  // admin commands: on this computer always; online, for admin accounts only
+  adminOk() { return typeof location === 'undefined' || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) || !!(this.account && this.account.online && this.account.admin); }
 
   // a dungeon's way out leads back where you came in from: the Nexus (a key used there) or the realm (2026-10-19)
   exitLabel() { return this.exitTo === 'nexus' ? 'Back to the Nexus' : 'Back to the Realm'; }
@@ -4183,6 +4187,7 @@ export class Game {
     const say = (t) => this.say(t, '#7ad0a8');
     const near = (d = 4) => { const a = R() * TAU; return { x: p.x + Math.cos(a) * d, y: p.y + Math.sin(a) * d }; };
     const n = (v, dflt) => (v === undefined || isNaN(+v) ? dflt : +v);
+    if (!['help', 'dance'].includes((cmd || '').toLowerCase()) && !this.adminOk()) { say('That command is for admins.'); return; }
     switch ((cmd || '').toLowerCase()) {
       case 'help':
         say('/admin  /backpack  /maxlevel  /level N  /maxstats  /heal  /god  /give ITEM [N]  /give dungeon ID (its whole loot set)  /items TEXT  /spawn ID [N] (any monster, elite or boss)  /boss ID  ' +

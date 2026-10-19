@@ -37,8 +37,13 @@ const migrate = (id) => {
 const fresh = () => ({ fame: 0, gold: 0, essence: 0, vaults: [empty8()], graveyard: [], chars: [], slots: 4, bestLevel: 0, trophies: [], pets: [], activePet: null });
 
 export function loadSave(key = KEY) {
+  let s = null;
+  try { s = JSON.parse(localStorage.getItem(key)); } catch { /* corrupted or blocked storage: start fresh */ }
+  return normalizeSave(s);
+}
+// a save as the game wants it, whatever its age (from this browser or from the server)
+export function normalizeSave(s) {
   try {
-    const s = JSON.parse(localStorage.getItem(key));
     if (s && typeof s === 'object') {
       const out = { ...fresh(), ...s };
       if (!Array.isArray(s.vaults)) out.vaults = [Array.isArray(s.vault) ? s.vault : empty8(), empty8(), empty8(), empty8()];   // old single chest
@@ -54,9 +59,13 @@ export function loadSave(key = KEY) {
       }
       return out;
     }
-  } catch { /* corrupted or blocked storage: start fresh */ }
+  } catch { /* a broken save: start fresh */ }
   return fresh();
 }
+// staying signed in to the server: its session token, kept in this browser
+const SESSION = 'realm.session.v1';
+export const getSession = () => { try { return localStorage.getItem(SESSION); } catch { return null; } };
+export const setSession = (t) => { try { if (t) localStorage.setItem(SESSION, t); else localStorage.removeItem(SESSION); } catch { /* storage blocked */ } };
 export function writeSave(s, key = KEY) {
   try { localStorage.setItem(key || KEY, JSON.stringify(s)); } catch { /* storage unavailable */ }
 }

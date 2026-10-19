@@ -30,7 +30,10 @@ const methods = {
     let ws;
     try { ws = new WebSocket(N.url); } catch { return; }
     N.ws = ws;
-    ws.onopen = () => { N.open = true; N.wait = 2; ws.send(JSON.stringify({ t: 'hi', name: (this.account && this.account.name) || '', cls: this.player ? this.player.cls : '' })); };
+    ws.onopen = () => {
+      N.open = true; N.wait = 2; ws.send(JSON.stringify({ t: 'hi', name: (this.account && this.account.name) || '', cls: this.player ? this.player.cls : '' }));
+      if (this.account && this.account.online && this.account.token) this.netAuth('resume', { token: this.account.token });   // back after a drop: still you
+    };
     ws.onmessage = (ev) => { let m; try { m = JSON.parse(ev.data); } catch { return; } this.netOn(m); };
     ws.onclose = () => {                                  // gone: everyone vanishes; try again, waiting longer each time
       N.open = false; N.ws = null; N.others.clear(); this.netWorldOff();
@@ -41,10 +44,12 @@ const methods = {
   netOn(m) {
     const N = this.net;
     if (m.t === 'welcome') {
-      N.id = m.id; N.online = m.online; N.world = !!m.world;
+      N.id = m.id; N.online = m.online; N.world = !!m.world; N.db = !!m.db;
+      for (const f of N.waiters || []) f(true); N.waiters = [];
       if (N.seed !== m.seed) { N.seed = m.seed; if (this.realmMap && this.realmMap.seed !== m.seed && this.map !== this.realmMap) this.realmMap = null; }   // the shared realm from now on
       if (this.map && this.map === this.realmMap) this.netWorldCheck();
     } else if (m.t === 'online') N.online = m.n;
+    else if (m.t === 'auth') { const f = N.pending && N.pending.get(m.rid); if (f) { N.pending.delete(m.rid); f(m); } }
     else if (m.t === 'st') {
       let o = N.others.get(m.id);
       if (!o) { o = { remote: true, id: m.id, x: m.x, y: m.y, status: {}, deadT: 0, lastShot: -9, shotPeriod: 0.3, abilityT: 0, hitT: 0, danceT: 0 }; N.others.set(m.id, o); }
@@ -74,6 +79,32 @@ const methods = {
     else if (m.t === 'hurt') { if (this.map.netWorld && !this.player.dead) this.hurtPlayer(m.d, m.by, m.ap); }
     else if (m.t === 'chat') this.say(`${m.name}: ${m.text}`, m.id === N.id ? '#e9e4f2' : '#bfe8ff');
   },
+  // ---- milestone 4: accounts and saves on the server (server/db.mjs)
+  // wait (a little) for the server: true when it is there
+  netWhenOpen(ms) {
+    const N = this.net;
+    if (!N || !N.url) return Promise.resolve(false);
+    if (N.open && N.id) return Promise.resolve(true);
+    return new Promise((res) => { (N.waiters = N.waiters || []).push(res); setTimeout(() => res(!!(N.open && N.id)), ms); });
+  },
+  netHasAccounts() { return !!(this.net && this.net.open && this.net.db); },
+  // sign up, sign in, resume, sign out: the server's answer
+  netAuth(kind, fields = {}) {
+    const N = this.net;
+    if (!N || !N.open) return Promise.resolve({ error: 'The server is not answering.' });
+    const rid = (N.rid = (N.rid || 0) + 1);
+    (N.pending = N.pending || new Map());
+    return new Promise((res) => { N.pending.set(rid, res); N.ws.send(JSON.stringify({ t: 'auth', rid, kind, ...fields })); setTimeout(() => { if (N.pending.has(rid)) { N.pending.delete(rid); res({ error: 'The server took too long. Try again.' }); } }, 12000); });
+  },
+  // your save to the server, a few seconds after the last change (the latest one wins)
+  netSave(data) {
+    const N = this.net;
+    if (!N) return;
+    N.saveData = data;
+    if (N.saveT) return;
+    N.saveT = setTimeout(() => { N.saveT = null; if (N.open && N.saveData) { N.ws.send(JSON.stringify({ t: 'save', data: N.saveData })); N.saveData = null; } }, 3000);
+  },
+  netSaveNow() { const N = this.net; if (!N) return; clearTimeout(N.saveT); N.saveT = null; if (N.open && N.saveData) { N.ws.send(JSON.stringify({ t: 'save', data: N.saveData })); N.saveData = null; } },
   // the place you share with others: the Nexus or the shared realm (dungeons and your vault are your own, for now)
   netRoom() {
     const m = this.map;

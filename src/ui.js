@@ -5,7 +5,7 @@ import { ITEMS, itemLabel, specialLines, canEquip, SETS, SET_PIECES } from './da
 import { POT_STACK } from './game.js';
 import { ACTIONS, MINI_STEPS, keyLabel, resetSettings, keyName, keyParen } from './settings.js';
 import { PET_KINDS, RARITY, RARITY_ORDER, ABILITIES, PET_TICK, SHIELD_TICK, PET_MAX, petHeal, petMagic, petShield, petXpToNext, petCap, petMaxed, feedCost, feedValue, canMorph, FUSE_GOLD, petSprite, petName, abilityOrder, mainMaxed, petLevel } from './data/pets.js';
-import { loadAccounts, saveAccounts, saveKeyFor, hashPassword, loadSave } from './save.js';
+import { loadAccounts, saveAccounts, saveKeyFor, hashPassword, loadSave, normalizeSave, getSession, setSession } from './save.js';
 
 const $ = (id) => document.getElementById(id);
 const SLOT_HINT = ['WPN', 'ABL', 'ARM', 'RNG'];
@@ -999,6 +999,47 @@ export class UI {
     };
     draw();
   }
+  // the front door when the server keeps accounts (milestone 4): one account, any computer
+  onlineScreen(msg = '') {
+    const o = this.overlay(`<div class="screen login"><div class="logo"><h1>MELON REALMS</h1></div>
+      <div class="card">
+        <h3>Sign in or make an account</h3>
+        <input id="lname" maxlength="16" placeholder="Account name" autocomplete="username" spellcheck="false">
+        <input id="lpass" type="password" maxlength="64" placeholder="Password" autocomplete="current-password">
+        <label class="keep"><input type="checkbox" id="lkeep" checked> Keep me signed in on this computer</label>
+        <div class="row2"><button class="btn primary" id="login">Sign in</button><button class="btn" id="create">Create account</button></div>
+        <p class="msg"></p>
+        <p class="fine">Your account and characters are kept on the Melon Realms server: play from any computer. <a href="#" id="offline">Play offline instead</a></p>
+      </div></div>`);
+    this.splash(o);
+    const name = o.querySelector('#lname'), pass = o.querySelector('#lpass'), say = (t) => this.loginMsg(o, t);
+    say(msg);
+    const go = async (kind) => {
+      const nm = name.value.trim();
+      if (!nm || !pass.value) return say('Type your account name and password.');
+      say(kind === 'signup' ? 'Making your account…' : 'Signing in…');
+      // a new account brings this browser's progress for that name, if there is any
+      const local = kind === 'signup' && loadAccounts().list.find((a) => a.name.toLowerCase() === nm.toLowerCase());
+      const r = await this.g.netAuth(kind, { name: nm, pass: pass.value, upload: local ? loadSave(saveKeyFor(local.id)) : undefined });
+      if (r.error) return say(r.error);
+      setSession(o.querySelector('#lkeep').checked ? r.token : null);
+      this.useOnline(r);
+    };
+    o.querySelector('#login').onclick = () => go('login');
+    o.querySelector('#create').onclick = () => go('signup');
+    o.querySelector('#offline').onclick = (e) => { e.preventDefault(); this.loginScreen(); };
+    for (const el of [name, pass]) el.onkeydown = (e) => { if (e.key === 'Enter') go('login'); };
+    name.focus();
+  }
+  // signed in on the server: its save (or a fresh one) is yours, cached in this browser too
+  useOnline(r) {
+    const g = this.g, a = r.account;
+    const acc = { id: 'net' + a.id, name: a.name, online: true, admin: !!a.admin, token: r.token, created: '' };
+    g.account = acc; g.saveKey = saveKeyFor(acc.id);
+    g.save = normalizeSave(r.save);
+    if (r.created && r.save) this.g.say('Your progress on this computer came with you.', '#7ad0a8');
+    this.accountScreen();
+  }
   loginScreen(msg = '') {
     const A = loadAccounts();
     const list = A.list.map((a) => `<button class="acctbtn" data-acc="${a.id}"><b>${a.name}</b><small>${a.hash ? '🔒 password' : 'no password'} · since ${a.created}</small></button>`).join('');
@@ -1040,7 +1081,13 @@ export class UI {
     (last ? o.querySelector(`[data-acc="${last.id}"]`) : name).focus();
   }
   // the front door on load: straight to the account page if you asked to stay logged in
-  start() {
+  async start() {
+    // the server keeps accounts when it is there: sign in there (back in at once if you stayed signed in)
+    if (await this.g.netWhenOpen(2500) && this.g.netHasAccounts()) {
+      const t = getSession();
+      if (t) { const r = await this.g.netAuth('resume', { token: t }); if (!r.error) return this.useOnline(r); setSession(null); }
+      return this.onlineScreen();
+    }
     const A = loadAccounts(), acc = A.keep && A.list.find((a) => a.id === A.keep);
     if (acc) this.useAccount(acc); else this.loginScreen();
   }
@@ -1078,7 +1125,10 @@ export class UI {
     this.splash(o);
     o.querySelector('#tochars').onclick = () => this.titleScreen();
     o.querySelector('#asett').onclick = () => this.toggleSettings();
-    o.querySelector('#logout').onclick = () => { const A = loadAccounts(); A.keep = null; saveAccounts(A); g.account = null; this.loginScreen(); };
+    o.querySelector('#logout').onclick = () => {
+      if (g.account && g.account.online) { g.persist(); g.netSaveNow(); g.netAuth('logout', { token: g.account.token }); setSession(null); g.account = null; return this.onlineScreen(); }
+      const A = loadAccounts(); A.keep = null; saveAccounts(A); g.account = null; this.loginScreen();
+    };
     this.animateCanvases(o, () => 'front_idle', 40);
     o.querySelector('#tochars').focus();
   }
