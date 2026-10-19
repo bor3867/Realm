@@ -4387,11 +4387,27 @@ export class Game {
         say(e ? 'A Giant Watermelon plops down beside you.' : 'One is already growing somewhere.');
         break;
       }
-      case 'killall': {
+      case 'killall': {                                    // /killall [R]: every monster within R tiles (15), immune or not
         let k = 0;
-        for (const e of this.enemies) if (!e.dead && dist(e.x, e.y, p.x, p.y) < 15) { this.damageEnemy(e, 1e7, e.x, e.y); k++; }
-        if (this.boss && this.boss.state !== 'dead' && dist(this.boss.x, this.boss.y, p.x, p.y) < 20) this.killBoss();
+        const R = Math.min(200, n(args[0], 15));
+        for (const e of this.enemies) if (!e.dead && !(e.D && e.D.dummy) && dist(e.x, e.y, p.x, p.y) < R) { this.forceKill(e); k++; }
+        if (this.boss && this.boss.state !== 'dead' && dist(this.boss.x, this.boss.y, p.x, p.y) < R + 5) this.killBoss();
         say(`Killed ${k}.`); break;
+      }
+      case 'kill': {                                       // /kill [name]: the nearest monster (or the nearest by that name), immune or not
+        const want = args.join(' ').toLowerCase();
+        const e = this.enemies.filter((o) => !o.dead && !(o.D && o.D.dummy) && (!want || (o.D && o.D.name || '').toLowerCase().includes(want) || String(o.id).includes(want)))
+          .sort((a, b) => dist(a.x, a.y, p.x, p.y) - dist(b.x, b.y, p.x, p.y))[0];
+        if (!e) { say(want ? `No ${want} here.` : 'Nothing to kill here.'); break; }
+        this.forceKill(e); say(`Killed ${e.D ? e.D.name : e.id}.`); break;
+      }
+      case 'clear': {                                      // /clear: every monster in this place gone (no loot), immune bosses too; the dummies stay
+        let k = 0;
+        for (const e of this.enemies) if (!e.dead && !(e.D && e.D.dummy)) { e.noLoot = true; e.dead = true; e.deadT = 0; e.hp = 0; k++; }
+        if (this.boss && this.boss.state !== 'dead') { this.boss.state = 'dead'; this.boss = null; k++; }
+        this.projectiles = this.projectiles.filter((b) => b.from !== 'e');
+        this.fx = this.fx.filter((f) => !f.dmg);
+        say(`Cleared ${k} monster${k === 1 ? '' : 's'}.`); break;
       }
       case 'clearbags': this.bags.length = 0; this.map.bags = this.bags; this.nearBag = null; this.events.push({ type: 'ground' }); say('Bags cleared.'); break;
       case 'portal': { const to = DUNGEONS[args[0]] || (args[0] || '').startsWith('rf_') ? args[0] : 'forge'; this.openPortal(to, p.x + 1.5, p.y, 60); break; }
@@ -4423,6 +4439,14 @@ export class Game {
   }
   // going through a portal: the UI shows a loading card first (onTravel), then the map is made; headless, at once
   travel(where) { if (this.onTravel) this.onTravel(where); else this.enter(where); }
+  // an admin's kill: through any immunity (phases, wards, shells); if it still stands, it simply falls
+  forceKill(e) {
+    if (e.dead) return;
+    e.invulnT = 0; e.wardT = 0; e.bulwarkT = 0; e.spawnT = 0; e.shieldBy = null;
+    if (e.bx) { e.bx.immune = false; e.bx.invuln = 0; }
+    try { this.damageEnemy(e, 1e9, e.x, e.y, true); } catch { /* a boss mid-change */ }
+    if (!e.dead) { e.dead = true; e.deadT = 0; e.hp = 0; this.vx({ k: 'death', e, big: !!e.rb }); }
+  }
   // to another player in the same shared place (the minimap, the nearby list, /teleport): an error, or null
   teleportTo(name) {
     const p = this.player, nm = String(name || '').trim().toLowerCase();

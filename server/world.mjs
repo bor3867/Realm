@@ -15,7 +15,7 @@ const { REALM_BOSSES } = await import(new URL('src/data/enemies.js', ROOT));
 const { ITEMS, bagFor } = await import(new URL('src/data/items.js', ROOT));
 const isBrown = (id) => { try { return bagFor([ITEMS[id]]) === 'brown'; } catch { return false; } };
 // the admin commands that make or end monsters: in a shared place the server runs them, so everyone has the same ones
-export const WORLD_CMDS = new Set(['spawn', 'bx', 'boss', 'kraken', 'treant', 'star', 'melon', 'event', 'progress', 'killall']);
+export const WORLD_CMDS = new Set(['spawn', 'bx', 'boss', 'kraken', 'treant', 'star', 'melon', 'event', 'progress', 'killall', 'kill', 'clear']);
 const J = (q) => JSON.parse(readFileSync(new URL('art/bundle/' + q, ROOT), 'utf8')), idx = J('index.json');
 const reg = buildRegistry(idx.atlases.map((a) => ({ pack: a.split('/')[0], json: J(a) })), J(idx.hover), (q) => q);
 

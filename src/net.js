@@ -6,7 +6,7 @@
 // Mixed into Game; game.js calls netTick every frame, shoot() reports your shots, enter() asks netSeed for the realm.
 
 import { DUNGEONS as DUNGEON_DEFS, REALM_BOSSES } from './data/enemies.js';
-const NET_WORLD_CMDS = new Set(['spawn', 'bx', 'boss', 'kraken', 'treant', 'star', 'melon', 'event', 'progress', 'killall']);
+const NET_WORLD_CMDS = new Set(['spawn', 'bx', 'boss', 'kraken', 'treant', 'star', 'melon', 'event', 'progress', 'killall', 'kill', 'clear']);
 // the dungeons that can be shared (the Drowned Forge's boss is of an older kind and stays each player's own for now)
 const NET_DUNGEONS = (to) => !!DUNGEON_DEFS[to] && to !== 'forge';
 // where the server is: ?server=wss://... in the address wins; on this computer, the local one; online, SERVER_URL
