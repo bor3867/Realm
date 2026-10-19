@@ -51,6 +51,11 @@ const ART = {
     extra: [[0, 6, 'Y'], [11, 4, 'Y']],
     move2: { 6: 'Y.TPTPTPTP..', 4: '...FkFFkF..Y' },
     attack: { 4: '...FkFFkF...', 5: '...FkkkkF...', 7: 'FPPPPTTTTTTF' } },
+  xp_chicken: {                                    // the admin's gift: a plump white hen with a golden glint, worth a lot of XP
+    pal: { W: '#f8f4ec', w: '#cfc6b4', R: '#e83a30', Y: '#f8c030', y: '#c08818', E: '#1a1018', G: '#ffe066' },
+    base: ['.....RR....G', '....RRRR....', '....WWWWW...', '...WWWWEWYY.', '...WWWWWWYy.', 'W..WWWWWWR..', 'WWWWwwWWWR..', 'WWwWwwWWW...', '.WwwWWWWW...', '..wwwwWW....', '....Y..Y....', '...YY.YY....'],
+    move2: { 0: '.....RR.....', 10: '...Y...Y....', 11: '..YY..YY....' },
+    attack: { 4: 'WW.WWWWWWYy.', 5: 'WWWWWWWWWR..', 6: '.WWWwwWWWR..', 0: 'G....RR....G' } },
   kraken_tentacle: {                               // the Abyssal Kraken's arm, risen from the water, purple-suckered
     pal: { T: '#2a8a8a', t: '#1a5a60', S: '#e080c0', W: '#5ac8f0', w: '#2a78b8' },
     base: ['....tT......', '...tTTt.....', '...TTSt.....', '....tTTt....', '.....TSTt...', '.....tTTt...', '....tTSTt...', '....tTTTt...', '...tTSTTTt..', '.wWtTTTTtWw.', 'wWWWWWWWWWWw', '.wwwwwwwwww.'],

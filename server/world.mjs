@@ -58,6 +58,8 @@ export function makeWorld(seed, send, where = 'realm') {
   g.evSet = function (x, y, tid, skin = 0) { ev0(x, y, tid, skin); const a = [x, y, tid, skin]; log.tiles.push(a); out.push({ k: 'tile', a }); };
   g.netTargets = [];
   let nid = 0, out = [];               // events this tick: shots, zones, effects, hurts
+  let sid = 0;                          // every monster shot's number, so a shot this world steers can be followed
+  const steered = new Map();            // shot -> where it was (a shot moved by a boss, not by its own speed)
   // what the world does, caught for the players
   const hurt0 = g.hurtPlayer.bind(g);
   g.hurtPlayer = function (d, by, ap) { if (this.player !== anchor && this.player.netId) send(this.player.netId, { t: 'hurt', d: Math.round(d), by: String(by || ''), ap: !!ap }); else if (this.player === anchor) return; else hurt0(d, by, ap); };
@@ -91,6 +93,10 @@ export function makeWorld(seed, send, where = 'realm') {
       g.player = q; try { g.interact(o); } catch (err) { console.warn('use', k, err.message); } finally { g.player = anchor; }
     },
     get idleMs() { return P.size ? 0 : Date.now() - lastEmpty; },
+    // monsters an admin brings (/chickens): shared, round a spot
+    spawn(id, x, y, n) {
+      for (let k = 0; k < n; k++) { const a = Math.random() * Math.PI * 2, d = 2 + Math.random() * 3; const e = g.addEnemy(id, x + Math.cos(a) * d, y + Math.sin(a) * d); e.seen = true; }
+    },
     // a player's effect on a monster: held still, slowed, knocked about (each within reason)
     efx(id, list) {
       const q = P.get(id);
@@ -129,7 +135,23 @@ export function makeWorld(seed, send, where = 'realm') {
       if (dung) for (const e of g.enemies) if (e.rb && e.dead && !e.netExit) { e.netExit = true; out.push({ k: 'exit', x: e.x, y: e.y, name: e.D.name }); }   // its master falls: a way out for all
       for (const o of g.map.objects) if (!seenObj.has(o)) { const j = safe(o); log.objs.push(j); out.push({ k: 'obj', o: j }); }
       if (g.bags && g.bags.length > 40) g.bags.length = 0;                       // (the server's own loot: nobody's)
-      for (const b of g.projectiles) if (!seenShots.has(b) && b.from === 'e') out.push({ k: 'shot', b: shotJSON(b) });
+      // shots a boss holds and moves itself (set pieces, orbits): where they are, until they fly free; and their end
+      const live = new Set(g.projectiles);
+      for (const [b, at] of steered) {
+        if (!live.has(b) || b.life <= 0) { out.push({ k: 'sg', sid: b.sid, x: b.x, y: b.y }); steered.delete(b); continue; }
+        if (Math.abs(b.x - at.x) > 0.02 || Math.abs(b.y - at.y) > 0.02 || b.vx !== at.vx || b.vy !== at.vy) {
+          const free = !b.ctl && !b.orc && !b.asSpiral && !b.asOrb && !b.toBoss;
+          out.push({ k: 'su', sid: b.sid, x: Math.round(b.x * 100) / 100, y: Math.round(b.y * 100) / 100, ...(free ? { vx: b.vx, vy: b.vy, a: b.a, life: b.life } : {}) });
+          if (free) steered.delete(b); else steered.set(b, { x: b.x, y: b.y, vx: b.vx, vy: b.vy });
+        }
+      }
+      for (const b of g.projectiles) if (!seenShots.has(b) && b.from === 'e') {
+        b.sid = ++sid;
+        const held = !!(b.ctl || b.orc || b.asSpiral || b.asOrb || b.toBoss);
+        if (held) steered.set(b, { x: b.x, y: b.y, vx: b.vx, vy: b.vy });
+        const j = shotJSON(b); if (held) j.netHeld = true;
+        out.push({ k: 'shot', b: j });
+      }
       for (const f of g.fx) if (!seenFx.has(f) && f.kind) out.push({ k: 'fx', f: shotJSON(f) });
       for (const b of g.bubbles || []) if (!seenBub.has(b) && b.e && b.e.nid) out.push({ k: 'say', id: b.e.nid, text: b.text, col: b.col });
       if (dung && sendNow && Math.floor(g.t * 10) % 3 === 0) {          // a dungeon's changes, about three times a second
@@ -142,7 +164,7 @@ export function makeWorld(seed, send, where = 'realm') {
       // to each player: the events near them, and (10 a second) the monsters near them
       for (const q of P.values()) {
         const near = (x, y, r = SEND_R) => Math.abs(x - q.x) < r && Math.abs(y - q.y) < r;
-        const mine = ev.filter((x) => x.k === 'banner' || x.k === 'tile' || x.k === 'obj' || x.k === 'exit' || (x.k === 'shot' && near(x.b.x, x.b.y)) || (x.k === 'fx' && near(x.f.x, x.f.y)) || (x.k === 'vx' && near(x.v.x ?? q.x, x.v.y ?? q.y)) || x.k === 'say');
+        const mine = ev.filter((x) => x.k === 'su' || x.k === 'sg' || x.k === 'banner' || x.k === 'tile' || x.k === 'obj' || x.k === 'exit' || (x.k === 'shot' && near(x.b.x, x.b.y)) || (x.k === 'fx' && near(x.f.x, x.f.y)) || (x.k === 'vx' && near(x.v.x ?? q.x, x.v.y ?? q.y)) || x.k === 'say');
         if (mine.length) send(q.netId, { t: 'wev', ev: mine });
         if (!sendNow) continue;
         const es = [], gone = [];

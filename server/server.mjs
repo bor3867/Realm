@@ -107,6 +107,13 @@ function onMessage(c, text) {
     if (!c.saveTimer) c.saveTimer = setTimeout(() => flushSave(c), Math.max(0, (c.savedAt || 0) + 3000 - Date.now()));
     return;
   }
+  if (m.t === 'gift' && c.account && c.account.admin && c.room && ['chickens', 'chests'].includes(m.what)) {   // an admin's gift for the room
+    const n = Math.max(1, Math.min(m.what === 'chests' ? 5 : 20, Math.round(num(m.n, 1, 20)))), x = num(m.x, 0, 4096), y = num(m.y, 0, 4096);
+    const W = worldOf(c.room);
+    if (W && m.what === 'chickens') W.spawn('xp_chicken', x, y, n);             // where the server runs the monsters: shared ones
+    else { const msg = { t: 'gift', what: m.what, n, x, y, by: c.name }; toRoom(c.room, msg, c); send(c, msg); }
+    return;
+  }
   if (m.t === 'chat') {
     if (Date.now() - (c.chatAt || 0) < G.CHAT_GAP) return;         // one line at a time
     c.chatAt = Date.now();

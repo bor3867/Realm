@@ -466,7 +466,7 @@
       "redrawn": "12x12"
      }
     },
-    "kraken_tentacle": {
+    "xp_chicken": {
      "frames": {
       "move1": [
        0,
@@ -488,6 +488,63 @@
       ],
       "hurt": [
        42,
+       56,
+       12,
+       12
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "move1",
+        "move2"
+       ],
+       "fps": 5,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "move1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "move1"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     },
+     "meta": {
+      "redrawn": "12x12"
+     }
+    },
+    "kraken_tentacle": {
+     "frames": {
+      "move1": [
+       56,
+       56,
+       12,
+       12
+      ],
+      "move2": [
+       70,
+       56,
+       12,
+       12
+      ],
+      "attack": [
+       84,
+       56,
+       12,
+       12
+      ],
+      "hurt": [
+       98,
        56,
        12,
        12

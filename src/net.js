@@ -50,6 +50,11 @@ const methods = {
       if (N.seed !== m.seed) { N.seed = m.seed; if (this.realmMap && this.realmMap.seed !== m.seed && this.map !== this.realmMap) this.realmMap = null; }   // the shared realm from now on
       if (this.map && this.map === this.realmMap) this.netWorldCheck();
     } else if (m.t === 'online') N.online = m.n;
+    else if (m.t === 'gift') {                            // an admin's gift: your own chests and chickens (shared chickens in the realm come as monsters)
+      if (m.what === 'chests') this.spawnAdminChests(m.x, m.y, m.n);
+      else if (m.what === 'chickens' && !this.map.netWorld) this.spawnChickens(m.x, m.y, m.n);
+      if (m.by) this.banner(`${m.by} brings gifts!`, 2200);
+    }
     else if (m.t === 'kick') { N.kicked = true; this.banner(m.reason || 'The server let you go.', 8000); this.say(m.reason || 'The server let you go.', '#ff8a8a'); }
     else if (m.t === 'auth') { const f = N.pending && N.pending.get(m.rid); if (f) { N.pending.delete(m.rid); f(m); } }
     else if (m.t === 'st') {
@@ -80,6 +85,13 @@ const methods = {
     else if (m.t === 'dlog') { if (this.map.netWorld && this.map.kind === 'dungeon') this.netDungeonState(m); }
     else if (m.t === 'hurt') { if (this.map.netWorld && !this.player.dead) this.hurtPlayer(m.d, m.by, m.ap); }
     else if (m.t === 'chat') this.say(`${m.name}: ${m.text}`, m.id === N.id ? '#e9e4f2' : '#bfe8ff');
+  },
+  // an admin's gift for everyone in this room: the server checks you're an admin and hands it out (true: sent)
+  netGift(what, n) {
+    const N = this.net, room = this.netRoom(), p = this.player;
+    if (!N || !N.open || !room || !(this.account && this.account.online && this.account.admin)) return false;
+    N.ws.send(JSON.stringify({ t: 'gift', what, n, x: +p.x.toFixed(2), y: +p.y.toFixed(2) }));
+    return true;
   },
   // ---- milestone 4: accounts and saves on the server (server/db.mjs)
   // wait (a little) for the server: true when it is there
@@ -151,7 +163,7 @@ const methods = {
     const N = this.net, m = this.map;
     if (!N || !N.world || !N.open || !m || m.netWorld) return;
     if (!(m.kind === 'realm' && m.seed === N.seed) && !(m.kind === 'dungeon' && m.netIid)) return;
-    m.netWorld = true; N.byId.clear();
+    m.netWorld = true; N.byId.clear(); N.held = new Map();
     this.enemies = m.enemies = [];
     this.boss = null;
   },
@@ -174,7 +186,7 @@ const methods = {
         if (!s.D) continue;
         e = { cds: [], queue: [], hurtT: 0, deadT: 0, phase: 0, state: 'move', st: 0, ...s, net: true, tx: s.x, ty: s.y };
         if (!e.id) e.id = s.D.id || '';
-        if (e.D.bx) { this.bxSetup(e); if (e.bx.anim) e.bx.anim.handlers = {}; }   // a three-phase boss: its art here, its mind on the server
+        if (e.D.bx) { this.bxSetup(e); if (e.bx.anim) e.bx.anim.handlers = { ended: [] }; }   // a three-phase boss: its art here, its mind on the server
         this.netBx(e, s);
         N.byId.set(s.nid, e); this.enemies.push(e);
         continue;
@@ -199,7 +211,17 @@ const methods = {
   netWorldEvents(ev) {
     if (!this.map.netWorld) return;
     for (const x of ev) {
-      if (x.k === 'shot') { const b = x.b; b.hit = b.pierce ? new Set() : null; b.netRemote = true; this.projectiles.push(b); }
+      if (x.k === 'shot') {
+        const b = x.b; b.hit = b.pierce ? new Set() : null; b.netRemote = true; this.projectiles.push(b);
+        if (b.netHeld) { (this.net.held = this.net.held || new Map()).set(b.sid, b); b.vx = b.vx || 0; b.vy = b.vy || 0; b.life = Math.max(b.life, 30); }   // held by its boss: the server moves it
+      }
+      else if (x.k === 'su' || x.k === 'sg') {           // a held shot moved, flew free, or ended
+        const H = this.net.held, b = H && H.get(x.sid);
+        if (!b) continue;
+        if (x.k === 'sg') { b.life = 0; H.delete(x.sid); continue; }
+        b.x = x.x; b.y = x.y;
+        if (x.vx !== undefined) { b.vx = x.vx; b.vy = x.vy; b.a = x.a; b.life = x.life; b.netHeld = false; H.delete(x.sid); }
+      }
       else if (x.k === 'fx') this.fx.push(x.f);
       else if (x.k === 'vx') this.vx(x.v);
       else if (x.k === 'banner') this.banner(x.text, x.ms);

@@ -3631,10 +3631,10 @@ export class Game {
       if (!b.orb) { b.x += b.vx * dt; b.y += b.vy * dt; }
       if (b.dust && (b.dustT = (b.dustT || 0) - dt) <= 0) { b.dustT = 0.07; this.vx({ k: 'burst', x: b.x, y: b.y, n: 1, colors: b.dust }); }   // its trail
       b.life -= dt;
-      const onBreakable = b.from === 'p' && m.kind !== 'nexus' && this.breakableAt(b.x, b.y + 0.3);   // chests and urns you walk through still catch your shots
+      const onBreakable = b.from === 'p' && (m.kind !== 'nexus' || m.nexusChests) && this.breakableAt(b.x, b.y + 0.3);   // chests and urns you walk through still catch your shots
       if (b.from === 'p' && b.rfBounce && b.life > 0 && shotBlocked(m, b.x, b.y + 0.3)) this.rfWallHit(b, m);   // the Prism Wand's bounce (src/rf/uniqmech.js)
       if (b.life <= 0 || onBreakable || (!b.back && !b.orb && !b.phase && shotBlocked(m, b.x, b.y + 0.3))) {
-        if (b.from === 'p' && b.life > 0 && m.kind !== 'nexus') this.hitObject(b.x, b.y + 0.3, b.dmg);
+        if (b.from === 'p' && b.life > 0 && (m.kind !== 'nexus' || m.nexusChests)) this.hitObject(b.x, b.y + 0.3, b.dmg);
         if (sp && sp.split && sp.split.onEnd && !b.child && b.from === 'p') this.splitShot(b, sp.split);
         if (sp && sp.mech && b.from === 'p') this.mechEnd(b);
         continue;
@@ -4208,6 +4208,13 @@ export class Game {
       case 'maxstats': Object.assign(p.base, CLASSES[p.cls].max); p.hp = this.stat('hp'); p.mp = this.stat('mp'); say('All stats maxed.'); break;
       case 'heal': p.hp = this.stat('hp'); p.mp = this.stat('mp'); say('Healed.'); break;
       case 'god': this.god = !this.god; say(`God mode ${this.god ? 'on' : 'off'}.`); break;
+      case 'mortal': {                                     // /mortal: god mode off and the admin kit to your backpack, to feel the hits again
+        this.god = false;
+        let moved = 0;
+        p.equip = p.equip.map((id) => { if (id && ITEMS[id] && ITEMS[id].admin) { const f = p.inv.indexOf(null); if (f >= 0) p.inv[f] = id; else this.addBag(p.x, p.y + 0.4, [id]); moved++; return null; } return id; });
+        this.clampVitals(); this.events.push({ type: 'ground' });
+        say(`Mortal again: god mode off${moved ? `, ${moved} admin piece${moved > 1 ? 's' : ''} to your backpack` : ''}. (Nothing can hurt you in the Nexus.)`); break;
+      }
       case 'admin': {                                   // the overpowered test kit, straight into your slots
         const old = p.equip.slice();
         p.equip = ADMIN_SET.slice();
@@ -4272,22 +4279,17 @@ export class Game {
         while (this.map.sealsLeft) this.breakSeal('By admin decree.');
         break;
       }
+      case 'chickens': {                                   // /chickens [N]: XP chickens for everyone here (online: every player in the room gets them)
+        const N = Math.min(20, Math.max(1, n(args[0], 6)));
+        if (this.map.kind === 'vault') { say('Not in your vault.'); break; }
+        if (this.netGift && this.netGift('chickens', N)) { say(`${N} XP chickens for everyone here.`); break; }
+        say(`${this.spawnChickens(p.x, p.y, N)} XP chickens hatched.`); break;
+      }
       case 'adminchest': {                                 // /adminchest [N]: a gilded chest only admins can conjure; break it for the best loot
-        if (this.map.kind === 'nexus' || this.map.kind === 'vault') { say('Spawn it in the realm or a dungeon.'); break; }
-        let made = 0;
-        for (let k = 0; k < Math.min(5, n(args[0], 1)); k++) {
-          let x = 0, y = 0, ok = false;
-          for (let t = 0; t < 40 && !ok; t++) {                 // an open tile 2-4 tiles from you, clear of anything else
-            const a = R() * TAU, d = 2 + R() * 2;
-            x = Math.floor(p.x + Math.cos(a) * d) + 0.5; y = Math.floor(p.y + Math.sin(a) * d) + 0.5;
-            ok = !isSolid(this.map, x, y) && !this.map.objects.some((q) => Math.floor(q.x) === Math.floor(x) && Math.floor(q.y) === Math.floor(y));
-          }
-          if (!ok) continue;
-          this.map.objects.push({ sprite: 'admin_chest', x, y, solid: true, interact: 'chest', admin: true });
-          this.map.solid[Math.floor(y) * this.map.w + Math.floor(x)] = 1;
-          this.vx({ k: 'burst', x, y: y - 0.5, n: 30, colors: ['#ff4af0', '#ffd650', '#ffffff'] });
-          made++;
-        }
+        if (this.map.kind === 'vault') { say('Not in your vault.'); break; }
+        const N = Math.min(5, Math.max(1, n(args[0], 1)));
+        if (this.netGift && this.netGift('chests', N)) { say(`${N} admin chest${N > 1 ? 's' : ''} for everyone here.`); break; }
+        const made = this.spawnAdminChests(p.x, p.y, N);
         say(made ? `${made} admin chest${made > 1 ? 's' : ''} conjured. Break ${made > 1 ? 'them' : 'it'} open.` : 'No room here: step somewhere open.');
         break;
       }
@@ -4390,6 +4392,37 @@ export class Game {
   }
   // going through a portal: the UI shows a loading card first (onTravel), then the map is made; headless, at once
   travel(where) { if (this.onTravel) this.onTravel(where); else this.enter(where); }
+  // an admin's gifts, here (each player gets their own: their own chests to break, their own chickens to catch)
+  spawnAdminChests(cx, cy, N) {
+    let made = 0;
+    for (let k = 0; k < N; k++) {
+      let x = 0, y = 0, ok = false;
+      for (let t = 0; t < 40 && !ok; t++) {                 // an open tile 2-4 tiles from there, clear of anything else
+        const a = R() * TAU, d = 2 + R() * 2;
+        x = Math.floor(cx + Math.cos(a) * d) + 0.5; y = Math.floor(cy + Math.sin(a) * d) + 0.5;
+        ok = !isSolid(this.map, x, y) && !this.map.objects.some((q) => Math.floor(q.x) === Math.floor(x) && Math.floor(q.y) === Math.floor(y));
+      }
+      if (!ok) continue;
+      this.map.objects.push({ sprite: 'admin_chest', x, y, solid: true, interact: 'chest', admin: true });
+      this.map.solid[Math.floor(y) * this.map.w + Math.floor(x)] = 1;
+      if (this.map.kind === 'nexus') this.map.nexusChests = true;   // (the town lets you break these)
+      this.map.ogridDirty = true; this.map.brk = null;
+      this.vx({ k: 'burst', x, y: y - 0.5, n: 30, colors: ['#ff4af0', '#ffd650', '#ffffff'] });
+      made++;
+    }
+    return made;
+  }
+  spawnChickens(cx, cy, N) {
+    let made = 0;
+    for (let k = 0; k < N; k++) {
+      const a = R() * TAU, d = 2 + R() * 3, x = cx + Math.cos(a) * d, y = cy + Math.sin(a) * d;
+      if (isSolid(this.map, x, y)) continue;
+      const e = this.addEnemy('xp_chicken', x, y);
+      e.seen = true; e.spawnT = 0.4; made++;
+      this.vx({ k: 'burst', x, y: y - 0.4, n: 10, colors: ['#ffffff', '#ffe066', '#f8c030'] });
+    }
+    return made;
+  }
   // where a portal leads, for the loading card: its name, how dangerous it is (1-5), a line about it
   destination(where) {
     if (where === 'nexus') return { name: 'The Nexus', stars: 0, sub: 'Safe ground. Rest, trade, and stash your loot.' };
