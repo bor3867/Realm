@@ -7,6 +7,7 @@ Type commands in chat (`/` or Enter). Ids use underscores. Regenerate with `node
 | Command | What it does |
 | --- | --- |
 | `/help` | List the commands in chat |
+| `/teleport NAME` | Teleport to another player in the same place (anyone; every 10 s). Clicking their name or minimap dot does it too |
 | `/admin` | Equip the admin kit (old gear goes to your backpack) |
 | `/god` | Toggle god mode |
 | `/mortal` | God mode off and the admin kit to your backpack (to be hurt again) |

@@ -875,6 +875,8 @@ html body #app #who .np.me, html body #app #who #petname:empty { display: none !
 /* the other players near you (src/net.js): a short list, nearest first */
 html body #app #panel #who #petname { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: flex-start; gap: 0; }
 html body #app #panel #who #petname .other { color: #bfe8ff; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+html body #app #panel #who #petname .other { cursor: pointer; pointer-events: auto; }
+html body #app #panel #who #petname .other:hover { color: #ffffff; text-decoration: underline; }
 
 /* the minimap's waypoint dropdown (main.js): the waypoint's name and a Teleport button */
 #wpmenu { position: fixed; z-index: 60; width: 150px; background: #1e1e1e; border: 2px solid #3a3a3a; box-shadow: 0 4px 0 #000;

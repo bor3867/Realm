@@ -2347,6 +2347,8 @@ export class Renderer {
     for (const bag of g.bags) if (bag.rare || !calm) mark(bag.x, bag.y, 'bag', bag.rare ? '#ffffff' : '#c98a22', bag.rare ? '#b06bff' : '#f2c14e', false, bag.rare ? 2 : 1);
     for (const e of g.activeMap === m ? g.notable : g.enemies) if (e.rb && !e.dead) mark(e.x, e.y, 'skull', blink ? '#ff2a2a' : '#ff8a8a', '#05040a', true);
     if (g.boss && g.boss.state !== 'dead') mark(g.boss.x, g.boss.y, 'skull', blink ? '#ff2a2a' : '#ff8a8a', '#05040a', true);
+    // the other players here: blue dots (click one to teleport to them: src/main.js)
+    for (const o of g.netHere()) if (!o.dead) mark(o.x, o.y, 'player', '#5ac8ff', '#ffffff', true, 2);
     // player + a tick showing which way "up" on screen points
     const ux = -Math.sin(g.camAngle), uy = -Math.cos(g.camAngle);
     mc.fillStyle = '#ffe060';

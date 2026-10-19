@@ -64,8 +64,18 @@ async function boot() {
   const mini = document.getElementById('minimap');
   mini.addEventListener('click', (e) => {
     const T = rnd.miniT;
-    if (!T || game.mode !== 'play' || game.map.kind !== 'realm' || game.player.dead) return;
+    if (!T || game.mode !== 'play' || game.player.dead) return;
     const r = mini.getBoundingClientRect(), cx = (e.clientX - r.left) * (mini.width / r.width), cy = (e.clientY - r.top) * (mini.height / r.height);
+    // another player's dot: teleport to them
+    let who = null, wd = 12;
+    for (const o of game.netHere()) { if (o.dead) continue; const d = Math.hypot((o.x - T.x0) * T.k - cx, (o.y - T.y0) * T.k - cy); if (d < wd) { wd = d; who = o; } }
+    if (who) {
+      wpMenu.querySelector('b').textContent = who.name; wpMenu.dataset.to = ''; wpMenu.dataset.player = who.name;
+      wpMenu.style.left = Math.round(e.clientX - 150) + 'px'; wpMenu.style.top = Math.round(e.clientY + 8) + 'px';
+      wpMenu.classList.remove('hidden'); e.stopPropagation(); return;
+    }
+    if (game.map.kind !== 'realm') return;
+    wpMenu.dataset.player = '';
     const known = game.player.waypoints || [];
     let best = null, bd = 14;                                  // within 14 minimap pixels of the click
     for (const o of game.map.objects) {
@@ -88,14 +98,17 @@ async function boot() {
   wpMenu.querySelector('button').addEventListener('click', (e) => {
     e.stopPropagation(); wpMenu.classList.add('hidden');
     if (game.mode !== 'play' || game.player.dead) return;
-    const err = game.warpTo(wpMenu.dataset.to); if (err) game.toast(err);
+    const err = wpMenu.dataset.player ? game.teleportTo(wpMenu.dataset.player) : game.warpTo(wpMenu.dataset.to); if (err) game.toast(err);
   });
   document.addEventListener('click', (e) => { if (!wpMenu.contains(e.target) && e.target !== mini) wpMenu.classList.add('hidden'); });
   addEventListener('keydown', (e) => { if (e.code === 'Escape') wpMenu.classList.add('hidden'); });
   mini.addEventListener('mousemove', (e) => {
     const T = rnd.miniT;
-    if (!T || game.map.kind !== 'realm') { mini.style.cursor = ''; return; }
+    if (!T) { mini.style.cursor = ''; return; }
     const r = mini.getBoundingClientRect(), cx = (e.clientX - r.left) * (mini.width / r.width), cy = (e.clientY - r.top) * (mini.height / r.height), known = game.player.waypoints || [];
+    const who = game.netHere().find((o) => !o.dead && Math.hypot((o.x - T.x0) * T.k - cx, (o.y - T.y0) * T.k - cy) < 12);
+    if (who) { mini.style.cursor = 'pointer'; mini.title = `${who.name}: click to teleport`; return; }
+    if (game.map.kind !== 'realm') { mini.style.cursor = ''; mini.title = ''; return; }
     const hit = game.map.objects.find((o) => o.interact === 'waypoint' && known.includes(o.name) && Math.hypot((o.x - T.x0) * T.k - cx, (o.y - T.y0) * T.k - cy) < 14);
     mini.style.cursor = hit ? 'pointer' : '';
     mini.title = hit ? `${hit.name}: click to teleport` : '';

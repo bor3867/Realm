@@ -4205,7 +4205,7 @@ export class Game {
     const say = (t) => this.say(t, '#7ad0a8');
     const near = (d = 4) => { const a = R() * TAU; return { x: p.x + Math.cos(a) * d, y: p.y + Math.sin(a) * d }; };
     const n = (v, dflt) => (v === undefined || isNaN(+v) ? dflt : +v);
-    if (!['help', 'dance'].includes((cmd || '').toLowerCase()) && !this.adminOk()) {
+    if (!['help', 'dance', 'teleport'].includes((cmd || '').toLowerCase()) && !this.adminOk()) {
       say(this.account && this.account.online ? 'That command is for admins.' : 'That command is for admins: sign in to your online admin account (this is an offline one).'); return;
     }
     switch ((cmd || '').toLowerCase()) {
@@ -4226,6 +4226,10 @@ export class Game {
       case 'maxstats': Object.assign(p.base, CLASSES[p.cls].max); p.hp = this.stat('hp'); p.mp = this.stat('mp'); say('All stats maxed.'); break;
       case 'heal': p.hp = this.stat('hp'); p.mp = this.stat('mp'); say('Healed.'); break;
       case 'god': this.god = !this.god; say(`God mode ${this.god ? 'on' : 'off'}.`); break;
+      case 'teleport': {                                   // /teleport NAME: to another player here (everyone may; 10 s between)
+        const err = this.teleportTo(args.join(' '));
+        if (err) say(err); break;
+      }
       case 'mortal': {                                     // /mortal: god mode off and the admin kit to your backpack, to feel the hits again
         this.god = false;
         let moved = 0;
@@ -4410,6 +4414,24 @@ export class Game {
   }
   // going through a portal: the UI shows a loading card first (onTravel), then the map is made; headless, at once
   travel(where) { if (this.onTravel) this.onTravel(where); else this.enter(where); }
+  // to another player in the same shared place (the minimap, the nearby list, /teleport): an error, or null
+  teleportTo(name) {
+    const p = this.player, nm = String(name || '').trim().toLowerCase();
+    if (!nm) return 'Teleport to whom? /teleport NAME';
+    if (p.dead || this.mode !== 'play') return 'Not now.';
+    const o = this.netHere().find((q) => (q.name || '').toLowerCase() === nm) || this.netHere().find((q) => (q.name || '').toLowerCase().startsWith(nm));
+    if (!o) return `No player called ${name} here.`;
+    if (o.dead) return `${o.name} is dead.`;
+    const left = (this.tpUntil || 0) - this.t;
+    if (left > 0) return `You can teleport again in ${Math.ceil(left)} s.`;
+    let x = o.tx ?? o.x, y = o.ty ?? o.y;
+    if (isSolid(this.map, x, y)) for (const [dx, dy] of [[0, 1], [1, 0], [-1, 0], [0, -1], [1, 1], [-1, 1]]) if (!isSolid(this.map, x + dx, y + dy)) { x += dx; y += dy; break; }
+    this.vx({ k: 'burst', x: p.x, y: p.y - 0.6, n: 16, colors: ['#5ac8ff', '#ffffff'] });
+    p.x = x; p.y = y; this.tpUntil = this.t + 10;
+    this.vx({ k: 'burst', x, y: y - 0.6, n: 20, colors: ['#5ac8ff', '#ffffff'] }); this.sfx('portal');
+    this.toast(`Teleported to ${o.name}.`);
+    return null;
+  }
   // an admin's gifts, here (each player gets their own: their own chests to break, their own chickens to catch)
   spawnAdminChests(cx, cy, N) {
     let made = 0;

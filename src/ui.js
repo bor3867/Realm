@@ -837,7 +837,11 @@ export class UI {
       if (el.dataset.k === key) return;
       el.dataset.k = key; el.textContent = '';
       if (st) { const s0 = document.createElement('span'); s0.className = 'netstat' + (N.open ? '' : ' off'); s0.textContent = st; el.appendChild(s0); }   // are you with the others?
-      for (const o of here) { const s = document.createElement('span'); s.className = 'other'; s.textContent = `${o.name} (Lv ${o.level || 1})`; el.appendChild(s); }
+      for (const o of here) {                               // click a name to teleport to them
+        const s = document.createElement('span'); s.className = 'other'; s.textContent = `${o.name} (Lv ${o.level || 1})`; s.title = `Teleport to ${o.name}`;
+        s.onclick = () => { const err = this.g.teleportTo(o.name); if (err) this.g.toast(err); };
+        el.appendChild(s);
+      }
       return;
     }
     const P = this.g.activePet(), el = $('petname'), key = P ? `${P.id}:${P.rarity}:${petSprite(P)}` : '';
