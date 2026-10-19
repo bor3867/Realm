@@ -259,8 +259,11 @@ export class UI {
   }
   // ------------------------------------------------------------- chat
   chatOpen() { return !$('chatin').classList.contains('hidden'); }
+  // typing in it (the keys are the chat's); open but not typing (you clicked the game): the keys move you again
+  chatTyping() { return this.chatOpen() && document.activeElement === $('chatin'); }
   openChat(prefix = '') {
     const inp = $('chatin');
+    if (this.chatOpen()) { if (prefix && !inp.value) inp.value = prefix; inp.focus(); return; }   // already open: back to typing, nothing lost
     inp.classList.remove('hidden'); $('chat').classList.add('open');
     inp.value = prefix; inp.focus();
     this.renderChat();
@@ -268,6 +271,8 @@ export class UI {
       this.chatWired = true;
       inp.addEventListener('keydown', (e) => {
         e.stopPropagation();
+        // keys that type nothing (the arrows, if they move you) still move you while you type
+        if (e.key.length > 1 && !['Enter', 'Escape', 'Backspace', 'Delete', 'Tab', 'Home', 'End'].includes(e.key) && this.onHeldKey && this.onHeldKey(e.code, true)) { e.preventDefault(); return; }
         if (e.key === 'Enter') {
           const v = inp.value.trim();
           if (v) {
@@ -277,7 +282,7 @@ export class UI {
           this.closeChat();
         } else if (e.key === 'Escape') this.closeChat();
       });
-      inp.addEventListener('keyup', (e) => e.stopPropagation());
+      inp.addEventListener('keyup', (e) => { e.stopPropagation(); if (this.onHeldKey) this.onHeldKey(e.code, false); });   // (a key let go while typing is let go)
     }
   }
   closeChat() {

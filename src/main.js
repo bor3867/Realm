@@ -122,9 +122,8 @@ async function boot() {
   const doAction = (act, code, e) => {
     if (act === 'settings') { e.preventDefault(); if (!document.getElementById('gearmenu').classList.contains('hidden')) document.getElementById('gearmenu').classList.add('hidden'); else if (ui.vaultOpen) ui.closeVault(true); else if (ui.modal) ui.closeModal(); else ui.toggleSettings(); return; }
     if (game.mode !== 'play' || ui.overlayOpen()) return;
-    if (act === 'chat' || act === 'command') {
+    if (act === 'chat' || act === 'command') {           // (you keep moving: chat doesn't stop you)
       e.preventDefault();
-      I.up = I.down = I.left = I.right = I.rotL = I.rotR = 0; I.fire = false;
       ui.openChat(act === 'command' ? '/' : '');
       return;
     }
@@ -149,12 +148,15 @@ async function boot() {
     }
   };
   addEventListener('keydown', (e) => {
-    if (ui.capturing || ui.chatOpen()) return;              // rebinding a key, or typing in chat
+    if (ui.capturing || ui.chatTyping()) return;            // rebinding a key, or typing in chat
+    if (ui.chatOpen() && e.code === 'Escape') { ui.closeChat(); return; }   // chat open, not typing: Escape closes it
     doAction(actionFor(settings, e.code), e.code, e);
   });
+  // held movement keys from the chat box (arrows while typing; any key let go while typing)
+  ui.onHeldKey = (code, down) => { const act = actionFor(settings, code); if (!HELD.has(act)) return false; I[act] = down ? 1 : 0; return true; };
   // mouse buttons bound to actions (middle, right, and the side buttons). The side buttons never send the page back.
   addEventListener('mousedown', (e) => {
-    if (ui.capturing || ui.chatOpen() || e.button === 0) return;
+    if (ui.capturing || ui.chatTyping() || e.button === 0) return;
     const act = actionFor(settings, 'Mouse' + e.button);
     if (e.button >= 3) e.preventDefault();
     if (act) { e.preventDefault(); doAction(act, 'Mouse' + e.button, e); }
@@ -169,7 +171,7 @@ async function boot() {
   const KONAMI = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
   let kbuf = [];
   addEventListener('keydown', (e) => {
-    if (game.mode !== 'play' || ui.chatOpen()) return;
+    if (game.mode !== 'play' || ui.chatTyping()) return;
     kbuf = [...kbuf, e.code].slice(-KONAMI.length);
     if (kbuf.join() === KONAMI.join()) { kbuf = []; game.konami(); }
   });
@@ -188,7 +190,7 @@ async function boot() {
     if (game.mode === 'play') ui.hoverWorld(rnd.toWorld(mouse.x * (canvas.width / canvas.clientWidth), mouse.y * (canvas.height / canvas.clientHeight)), e);
   });
   canvas.addEventListener('mouseleave', () => ui.hoverWorld(null));
-  canvas.addEventListener('mousedown', (e) => { if (e.button === 0) I.fire = true; });
+  canvas.addEventListener('mousedown', (e) => { if (ui.chatTyping()) document.getElementById('chatin').blur(); if (e.button === 0) I.fire = true; });   // (a click on the game hands the keys back, chat left open)
   addEventListener('mouseup', (e) => { if (e.button === 0) I.fire = false; });
   canvas.addEventListener('contextmenu', (e) => e.preventDefault());
   // mouse wheel anywhere over the world zooms the MINIMAP (the play view keeps its scale)
