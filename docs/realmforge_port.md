@@ -55,6 +55,14 @@ trail 13, line 12, spiral 7, summon 7, pulse 5, snipe 4, heal 3, and 9 rarer). 2
   their creatures, kills give XP and bags, chests give our loot. `src/rf/draw.js` draws their painted map, objects,
   props, creatures, shots, traps and telegraphs. All 24 run (admin: `/tp rf_<id>`). Not yet: their lighting, the boss
   fights (the boss door only announces the boss), the uniques' effects, portals in the realm, balance.
+- **Phase 2b done: the bosses are hosted.** `tools/rf_build_bosses.py` builds `src/rf/boss_gen.js` from engine.js
+  (seams: the Armory page, its test player and bot, its phase timer). `src/rf/boss.js`: a dungeon's boss door opens
+  onto the boss's own room (`rf_boss:<id>`); their arena runs and draws itself into a canvas laid on our floor; our
+  player walks it (their arena moves you: zero-g, frost, leashes, solids), our shots hit by their rules (snares,
+  crystals, the true clone, the boss), minions can be shot (HP from their description), an invulnerable phase guarded
+  by minions ends when they fall, phases turn on HP, fake deaths rise once, the death plays its lines and bursts, then
+  XP, a bag (its uniques by rarity) and the exit. All 24 run through every phase to death. Not yet: balance (their
+  HP is raw: 42,000 for Mortis), their arena sprites turn with the camera (drawn flat into the floor layer).
 
 ## Status
 | Dungeon | Boss | Layout | Creatures | Boss | Uniques | Overworld droppers | Done |

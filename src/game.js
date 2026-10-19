@@ -30,6 +30,7 @@ import { installMythics } from './mythics.js';
 import { installGearMech } from './gearmech.js';
 import { BX, bxEnemyDef } from './bosses/index.js';
 import { installRF } from './rf/host.js';
+import { installRFBoss } from './rf/boss.js';
 import { assignItemShots } from './data/uniques.js';
 import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUEST_HUNTS, FETCH_ITEMS } from './data/lore.js';
 
@@ -259,6 +260,7 @@ export class Game {
       if (!this.realmMap) this.realmMap = realm((Date.now() & 0xffffff) | 1);
       this.map = this.realmMap;
     } else if (DUNGEONS[where]) this.map = dungeon((Date.now() & 0xffffff) | 3, DUNGEONS[where]);
+    else if (where.startsWith('rf_boss:')) { const m = this.rfBossMap(where); if (!m) { this.banner('That boss is not ready.', 2000); return; } this.map = m; }
     else if (where.startsWith('rf_')) { const m = this.rfMap(where); if (!m) { this.banner('That dungeon is not ready.', 2000); return; } this.map = m; }
     this.projectiles = [];
     this.allies = [];
@@ -869,6 +871,7 @@ export class Game {
     if (this.map.kind === 'realm') { this.maintainRealm(dt); this.eventClock(dt); this.melonTick(dt); this.eventBossTick(dt); }
     this.updateEliteAuras(dt);
     if (this.map.rf) this.rfUpdate(dt);
+    else if (this.map.rfBoss) this.rfBossUpdate(dt);
     else if (this.map.kind === 'dungeon') { this.updateDungeon(dt); this.updatePuzzles(dt); this.updateTraps(dt); this.updateD4(dt); if (this.map.def && this.map.def.style === 'frostveil') this.updateFrostveil(dt); if (this.map.def && this.map.def.style === 'mirerot') this.updateMirerot(dt); if (this.map.def && this.map.def.style === 'astral') this.updateAstral(dt); if (this.map.def && this.map.def.style === 'sandscour') this.updateSandscour(dt); if (this.map.def && this.map.def.style === 'keep') this.updateKeep(dt); if (this.map.def && this.map.def.style === 'hollowmoon') this.updateHollowmoon(dt); if (this.map.def && this.map.def.style === 'ember') this.updateEmber(dt); }
     { const m = this.map; if (m.fvTimers) { for (const T of m.fvTimers) if ((T.t -= dt) <= 0 && !T.done) { T.done = true; T.fn(); } m.fvTimers = m.fvTimers.filter((T) => !T.done); } }   // later(): any map's delayed events
     this.updateChill(dt); this.updatePoison(dt);
@@ -933,7 +936,8 @@ export class Game {
       if (this.t < p.gust.until) this.moveCircle(p, p.gust.vx * dt, p.gust.vy * dt, PLAYER_R);
       else { if (icy) { p.vel.x += p.gust.vx * 0.7; p.vel.y += p.gust.vy * 0.7; } p.gust = null; }
     }
-    if (Math.abs(p.vel.x) + Math.abs(p.vel.y) > 0.01) this.moveCircle(p, p.vel.x * dt, p.vel.y * dt, PLAYER_R);
+    if (this.map.rfBoss) { p.rfMove = len && sp ? [wx / sp, wy / sp] : [0, 0]; p.rfSpd = sp; }   // a Realmforge arena moves you itself (src/rf/boss.js)
+    else if (Math.abs(p.vel.x) + Math.abs(p.vel.y) > 0.01) this.moveCircle(p, p.vel.x * dt, p.vel.y * dt, PLAYER_R);
     if (len) {
       p.stepT = (p.stepT || 0) - dt;
       if (p.stepT <= 0) { p.stepT = 0.16; this.vx({ k: 'dust', x: p.x, y: p.y, splash: under === TID.shallows || under === TID.bog || under === TID.fvwater, ice: icy }); }
@@ -3543,6 +3547,7 @@ export class Game {
       }
       let alive = true;
       if (b.from === 'p' && m.rf && this.rfShotHits(b)) alive = false;   // a Realmforge creature (src/rf/host.js)
+      if (b.from === 'p' && m.rfBoss && this.rfBossShot(b)) alive = false;   // a Realmforge boss and its arena (src/rf/boss.js)
       if (b.from === 'p' && alive) {
         for (const e of targets) {
           if (e.dead || e.state === 'dead' || e.under) continue;
@@ -4288,6 +4293,7 @@ export class Game {
     if (where === 'nexus') return { name: 'The Nexus', stars: 0, sub: 'Safe ground. Rest, trade, and stash your loot.' };
     if (where === 'vault') return { name: 'Your Vault', stars: 0, sub: 'Everything you have kept, safe.' };
     if (where === 'realm') return { name: 'The Realm', stars: -1, sub: 'The shore is gentle. The closer to the middle, the deadlier it gets.' };
+    if (where.startsWith('rf_')) return this.rfDest(where);         // a Realmforge dungeon or boss room (src/rf/host.js)
     const D = DUNGEONS[where];
     if (!D) return { name: where, stars: 0, sub: '' };
     const dg = { hive: 0.6, chapel: 0.7, crypt: 0.8, theatre: 0.82, forge: 0.9, ember: 0.95, spire: 0.97, dream: 1, heart: 1 }[where] || 0.85;
@@ -4316,4 +4322,5 @@ installElites(Game);
 installRemaster(Game);
 installSetpieces(Game);
 installRF(Game);
+installRFBoss(Game);
 wireBxSetpieces(BX);

@@ -69,7 +69,7 @@ function makeMap(kind, name, w, h, fill) {
 }
 export const idx = (m, x, y) => y * m.w + x;
 export function isSolid(m, x, y) {
-  if (m.rf) return m.rf.solid(x, y);                     // a Realmforge dungeon: its own walls, pits and solid things
+  if (m.rfSolid) return m.rfSolid(x, y);                 // a Realmforge dungeon or boss arena: its own walls, pits and solid things
   const xi = Math.floor(x), yi = Math.floor(y);
   if (xi < 0 || yi < 0 || xi >= m.w || yi >= m.h) return true;
   return m.solid[yi * m.w + xi] === 1;
@@ -648,7 +648,7 @@ export function objectsIn(m, x0, y0, x1, y1) {
 }
 // shots fly over open water (the sea, the fen's pools): only walls, rock and solid things stop them
 export function shotBlocked(m, x, y) {
-  if (m.rf) return m.rf.shot(x, y);                      // (shots fly over their pits and deep water)
+  if (m.rfShot) return m.rfShot(x, y);                   // (shots fly over their pits and deep water)
   if (!isSolid(m, x, y)) return false;
   const xi = Math.floor(x), yi = Math.floor(y);
   if (xi < 0 || yi < 0 || xi >= m.w || yi >= m.h) return true;

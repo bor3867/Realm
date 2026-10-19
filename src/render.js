@@ -6,6 +6,7 @@
 import { lift } from './util.js';
 import { installWalls } from './walls.js';
 import { installRFRender } from './rf/draw.js';
+import { installRFBossRender } from './rf/boss.js';
 import { rxFrame } from './remaster.js';
 import { TILE_NAMES, BIOMES, biomeAt, objectsIn, SKINS, SKIN_TID, TID, FLAT, WALL_FACE } from './world/maps.js';
 import { hoverY } from './registry.js';
@@ -143,6 +144,7 @@ export class Renderer {
     b.drawImage(this.ground, -G / 2 - (this.px * TS - Math.round(this.px * TS)), -G / 2 - (this.py * TS - Math.round(this.py * TS)));
     b.restore();
     this.drawWallTops();                                    // every seen wall's top, one tile up the screen (src/walls.js)
+    if (g.map.rfBoss) this.rfBossLayer(g, g.map);             // a Realmforge boss's arena, drawn by its own engine (src/rf/boss.js)
     // sprites, sorted by screen y
     const m = g.map, list = [];
     // each thing is drawn at whole buffer pixels (so its shadow, bar and sprite line up), then the whole group is
@@ -163,7 +165,7 @@ export class Renderer {
     }
     this.addWalls(g, m, list, VR);                                  // walls stand up: border walls sort with everyone (src/walls.js)
     if (m.rf) { this.rfGround(g, m); this.rfAdd(g, m, add); }        // a Realmforge dungeon's things (src/rf/draw.js)
-    for (const pt of m.portals) add(pt.x, pt.y, (sx, sy) => this.portal(g, pt, sx, sy));
+    for (const pt of m.portals) if (!pt.hidden) add(pt.x, pt.y, (sx, sy) => this.portal(g, pt, sx, sy));   // (a hidden one is a door drawn by its map)
     for (const bag of g.bags) {                                // a bag on a portal is drawn in front of it, never hidden inside
       const onPortal = m.portals.some((pt) => Math.abs(pt.x - bag.x) < 1.8 && Math.abs(pt.y - bag.y) < 1.8);
       const n0 = list.length;
@@ -230,6 +232,7 @@ export class Renderer {
     if (darkFirst) { b.save(); b.setTransform(this.scale, 0, 0, this.scale, 0, 0); this.dusk(g); b.restore(); }   // the screen's own scale, without the shake
     if (g.map.kind === 'dungeon') this.d4Fx(g);                  // the newer dungeons' lights, beams and strings (over the dark)
     if (m.rf) this.rfTop(g, m);
+    if (m.rfBoss) this.rfBossBar(g, m);
     this.drawProjectiles(g, dt);
     if (g.activeMap === m) for (const e of g.notable) if (e.bx && e.bx.B.drawTop && !e.dead) e.bx.B.drawTop(this, g, e);   // a boss's layer over the bullets (the Orrery's umbra)
     this.drawZaps(dt);
@@ -2335,3 +2338,4 @@ export class Renderer {
 // RotMG-style 2.5D walls (src/walls.js)
 installWalls(Renderer);
 installRFRender(Renderer);
+installRFBossRender(Renderer);

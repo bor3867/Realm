@@ -7,6 +7,7 @@ import { makeExplore } from './explore_gen.js';
 import { TID } from '../world/maps.js';
 import { lift } from '../util.js';
 import { rollLoot } from '../data/items.js';
+import { bossData } from './boss.js';
 
 const TS = 16, K = 2;                                             // our tile is 16 buffer pixels; their art is 8 to a tile
 // their tile codes (C in explore.js) -> our tile names: a code change is a tile change, so our chunk caches follow
@@ -17,7 +18,7 @@ const HOST = {};                                                  // filled in b
 
 // boot: the Realmforge data (dungeons, creatures, art) is loaded once, in the background
 export async function loadRF() {
-  try { DATA = await (await fetch('art/rf/data.json')).json(); X = makeExplore(DATA, HOST); } catch (err) { console.warn('Realmforge data not loaded', err); }
+  try { DATA = await (await fetch('art/rf/data.json')).json(); X = makeExplore(DATA, HOST); bossData(DATA); } catch (err) { console.warn('Realmforge data not loaded', err); }
 }
 export const rfReady = () => !!X;
 export const rfDungeons = () => (DATA ? DATA.dungeons.map((d) => d.id) : []);
@@ -49,11 +50,17 @@ const methods = {
       biome: new Int8Array(M.W * M.H).fill(-1), objects: [], portals: [], rooms: [], spawn: { x: M.start.x, y: M.start.y },
       rf: { id, dg, E, X, pots: E.pots, coins: E.coins, tick: 0 },
     };
-    m.rf.solid = (x, y) => X.solidMove(x, y);
-    m.rf.shot = (x, y) => X.solidShot(x, y);
+    m.rfSolid = (x, y) => X.solidMove(x, y);
+    m.rfShot = (x, y) => X.solidShot(x, y);
     this.rfSync(m);
     for (const e of E.en_) this.rfScale(e);
     return m;
+  },
+  // the loading card for one of their dungeons or boss rooms
+  rfDest(where) {
+    if (where.startsWith('rf_boss:')) { const B = DATA && DATA.bosses.find((b) => b.id === where.slice(8)); return { name: B ? B.name : where, stars: 4, sub: B ? B.title : '' }; }
+    const dg = dgOf(where.slice(3)), i = DATA ? DATA.dungeons.indexOf(dg) : 0, B = dg && DATA.bosses.find((b) => b.id === dg.boss);
+    return { name: dg ? dg.name : where, stars: Math.max(1, Math.min(5, 1 + Math.round(i / 6))), sub: B ? `Its master: ${B.name}` : '' };
   },
   rfE() { return X.state ? X.state() : null; },
   rfScale(e) { if (!e.rfScaled) { e.rfScaled = 1; e.hp = e.max = Math.round(e.max * RF.hpScale); } },
@@ -79,8 +86,11 @@ const methods = {
     if (E.pots > R.pots) { for (let k = R.pots; k < E.pots; k++) this.rfPotion(); }
     R.pots = E.pots;
     if (E.banner && E.banner !== R.banner) { R.banner = E.banner; this.banner(E.banner.t, 2200, false); }
-    if (E.atDoor && !R.doorTold) { R.doorTold = true; this.banner(`${E.B.name} waits behind this door. (The boss fights arrive in the next part of the port.)`, 3500); }
-    if (!E.atDoor) R.doorTold = false;
+    if (E.M.bossDoor && !R.door && E.atDoor) {                 // the boss's door: it opens onto the boss's own room
+      R.door = { kind: 'dungeon', hidden: true, x: E.M.bossDoor.x + 0.5, y: E.M.bossDoor.y + 1, label: E.B.name, to: `rf_boss:${E.B.id}` };
+      m.portals.push(R.door);
+      this.banner(`${E.B.name} waits beyond this door.`, 2500);
+    }
   },
   // what the ground does to you: ice slides you, liquid slows and may hurt, conveyors, winds and currents push
   rfGround(p, ground, dt, mod) {
