@@ -569,6 +569,25 @@ export class UI {
     this.tip.classList.remove('hidden');
     this.placeTip(ev);
   }
+  // a quick look at another player: who they are, what they wear, how strong they are
+  showPlayerTip(id, ev) {
+    const o = this.g.net && this.g.net.others.get(id);
+    if (!o) return;
+    const C = CLASSES[o.cls], esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const SLOTS = ['Weapon', 'Ability', 'Armor', 'Ring'];
+    const gear = (o.eq || []).map((id, i) => {
+      const it = id && ITEMS[id];
+      return `<div class="pk-item">${it ? `<i class="ico" style="background-image:url(${this.r.icon(id)})"></i><span style="color:${rarityColor(it)}">${esc(it.name)}</span>` : `<i class="ico empty"></i><span class="mut">${SLOTS[i]}: empty</span>`}</div>`;
+    }).join('');
+    const S = o.stats, stat = (k, label) => `<div class="kv"><span>${label}</span><b>${S[k]}</b></div>`;
+    this.tip.innerHTML = `<div class="th"><div><h4>${esc(o.name)}</h4><div class="t">Level ${o.level || 1} ${C ? C.name : ''}${o.fame ? ` · ${o.fame} fame` : ''}</div></div></div>
+      <div class="pk-gear">${gear || '<span class="mut">Gear not seen yet</span>'}</div>
+      ${S ? `<div class="pk-stats">${stat('hp', 'HP')}${stat('mp', 'MP')}${stat('att', 'ATT')}${stat('def', 'DEF')}${stat('spd', 'SPD')}${stat('dex', 'DEX')}${stat('vit', 'VIT')}${stat('wis', 'WIS')}</div>` : ''}
+      <div class="d">Click to teleport to them.</div>`;
+    this.tip.style.setProperty('--rc', '#5ac8ff');
+    this.tip.classList.remove('hidden');
+    this.placeTip(ev);
+  }
   tipHTML(it, id, name) {
     const g = this.g, row = (k, v, cls = '') => `<div class="kv ${cls}"><span>${k}</span><b>${v}</b></div>`;
     const badge = it.admin ? 'ADMIN' : it.mythic ? 'MYTHIC' : it.legendary ? 'LEGENDARY' : it.use && it.use.egg && RARITY[it.use.egg] ? RARITY[it.use.egg].name.toUpperCase() : it.ut ? 'UT' : it.tier === null || it.tier === undefined ? '' : 'T' + it.tier;
@@ -830,8 +849,9 @@ export class UI {
   // stays, empty, for others)
   nearbyLine() {
     if (!this.showSelfInNearby) {                         // the other players here (src/net.js), nearest first
-      const el = $('petname'), p = this.g.player, here = this.g.netHere().filter((o) => !o.dead && Math.hypot(o.x - p.x, o.y - p.y) < 20)
-        .sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y)).slice(0, 4);
+      // everyone in this place, nearest first (not only those close by)
+      const el = $('petname'), p = this.g.player, here = this.g.netHere().filter((o) => !o.dead)
+        .sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y)).slice(0, 8);
       const N = this.g.net, shared = !!this.g.netRoom(), st = !N || !N.url ? '' : N.open ? `● ${N.online || 1} online${shared ? '' : ' · not shared here'}` : '○ offline';
       const key = st + '|' + here.map((o) => o.id + ':' + o.name).join(',');
       if (el.dataset.k === key) return;
@@ -840,6 +860,7 @@ export class UI {
       for (const o of here) {                               // click a name to teleport to them
         const s = document.createElement('span'); s.className = 'other'; s.textContent = `${o.name} (Lv ${o.level || 1})`; s.title = `Teleport to ${o.name}`;
         s.onclick = () => { const err = this.g.teleportTo(o.name); if (err) this.g.toast(err); };
+        s.onmouseenter = (ev) => this.showPlayerTip(o.id, ev); s.onmousemove = (ev) => this.placeTip(ev); s.onmouseleave = () => this.hideTip();   // a quick look at them
         el.appendChild(s);
       }
       return;

@@ -80,7 +80,11 @@ function onMessage(c, text) {
     if (CLASSES.has(m.cls)) c.cls = m.cls;
     { const nm = str(m.name, LIMIT.name).trim(); if (nm) c.name = nm; }   // (you may sign in after connecting)
     toRoom(room, { t: 'st', id: c.id, name: c.name, cls: c.cls, x: num(m.x, 0, 4096), y: num(m.y, 0, 4096), dir: ['front', 'back', 'left', 'right'].includes(m.dir) ? m.dir : 'front',
-      mv: !!m.mv, hp: num(m.hp, 0, 1e6), mhp: num(m.mhp, 1, 1e6), dead: !!m.dead, ab: !!m.ab, sh: !!m.sh, dn: !!m.dn, lv: num(m.lv, 1, 99) }, c);
+      mv: !!m.mv, hp: num(m.hp, 0, 1e6), mhp: num(m.mhp, 1, 1e6), dead: !!m.dead, ab: !!m.ab, sh: !!m.sh, dn: !!m.dn, lv: num(m.lv, 1, 99),
+      // what they wear and how strong they are, for a look-over (gear: item ids; stats: eight numbers)
+      ...(Array.isArray(m.eq) ? { eq: m.eq.slice(0, 4).map((x) => (typeof x === 'string' ? str(x, 80) : null)) } : {}),
+      ...(m.stats && typeof m.stats === 'object' ? { stats: Object.fromEntries(['hp', 'mp', 'att', 'def', 'spd', 'dex', 'vit', 'wis'].map((k) => [k, num(m.stats[k], 0, 1e5)])) } : {}),
+      ...(m.fame !== undefined ? { fame: num(m.fame, 0, 1e9) } : {}) }, c);
     return;
   }
   if (m.t === 'shot' && c.room && Array.isArray(m.list)) {   // my shots, to be drawn (they hurt nothing)

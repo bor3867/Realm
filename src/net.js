@@ -66,6 +66,9 @@ const methods = {
       let o = N.others.get(m.id);
       if (!o) { o = { remote: true, id: m.id, x: m.x, y: m.y, status: {}, deadT: 0, lastShot: -9, shotPeriod: 0.3, abilityT: 0, hitT: 0, danceT: 0 }; N.others.set(m.id, o); }
       Object.assign(o, { name: m.name, cls: m.cls, tx: m.x, ty: m.y, dir: m.dir, moving: m.mv, hp: m.hp, maxHp: m.mhp, level: m.lv, seen: this.t, room: this.netRoom() });
+      if (m.eq) o.eq = m.eq;
+      if (m.stats) o.stats = m.stats;
+      if (m.fame !== undefined) o.fame = m.fame;
       if (m.dead && !o.dead) o.deadT = 0;
       o.dead = m.dead;
       if (m.sh) o.lastShot = this.t;
@@ -191,7 +194,8 @@ const methods = {
     const p = this.player;
     if (!p) return;
     const parts = [{ t: 'st', room, name: (this.account && this.account.name) || '', cls: p.cls, x: +p.x.toFixed(2), y: +p.y.toFixed(2), dir: p.dir, mv: !!p.moving, hp: Math.round(p.hp), mhp: Math.round(this.stat('hp')),
-      dead: !!p.dead, ab: p.abilityT > 0, sh: this.t - p.lastShot < 0.25, dn: p.danceT > 0, lv: p.level }];
+      dead: !!p.dead, ab: p.abilityT > 0, sh: this.t - p.lastShot < 0.25, dn: p.danceT > 0, lv: p.level, eq: p.equip }];
+    if ((N.statT = (N.statT || 0) - SEND) <= 0) { N.statT = 1; parts[0].stats = Object.fromEntries(['hp', 'mp', 'att', 'def', 'spd', 'dex', 'vit', 'wis'].map((k) => [k, Math.round(this.stat(k))])); parts[0].fame = Math.round(p.fame || 0); }
     if (N.shots.length && room) parts.push({ t: 'shot', room, list: N.shots });
     N.shots = [];
     if (N.hits.length && this.map.netWorld) parts.push({ t: 'hits', list: N.hits.slice(0, 60) });

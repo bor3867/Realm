@@ -2348,7 +2348,14 @@ export class Renderer {
     for (const e of g.activeMap === m ? g.notable : g.enemies) if (e.rb && !e.dead) mark(e.x, e.y, 'skull', blink ? '#ff2a2a' : '#ff8a8a', '#05040a', true);
     if (g.boss && g.boss.state !== 'dead') mark(g.boss.x, g.boss.y, 'skull', blink ? '#ff2a2a' : '#ff8a8a', '#05040a', true);
     // the other players here: blue dots (click one to teleport to them: src/main.js)
-    for (const o of g.netHere()) if (!o.dead) mark(o.x, o.y, 'player', '#5ac8ff', '#ffffff', true, 2);
+    for (const o of g.netHere()) {
+      if (o.dead) continue;
+      if (o.x >= x0 && o.y >= y0 && o.x <= x0 + V && o.y <= y0 + V) { mark(o.x, o.y, 'player', '#5ac8ff', '#ffffff', true, 2); continue; }
+      // beyond the view: a dot on the minimap's edge, the way they are
+      const cx = (x0 + V / 2), cy = (y0 + V / 2), dx = o.x - cx, dy = o.y - cy, s = (V / 2 - 1) / Math.max(Math.abs(dx), Math.abs(dy));
+      const ex = Math.round((cx + dx * s - x0) * k), ey = Math.round((cy + dy * s - y0) * k);
+      mc.fillStyle = '#05040a'; mc.fillRect(ex - 3, ey - 3, 6, 6); mc.fillStyle = blink ? '#5ac8ff' : '#bfe8ff'; mc.fillRect(ex - 2, ey - 2, 4, 4);
+    }
     // player + a tick showing which way "up" on screen points
     const ux = -Math.sin(g.camAngle), uy = -Math.cos(g.camAngle);
     mc.fillStyle = '#ffe060';

@@ -910,3 +910,11 @@ body .screen.journal .page, body .screen.journal .page * { font-size: 17px !impo
 body .screen .acchead .admintag { color: #ffd650; }
 html body #app #panel #who #petname .netstat { color: #7ad07a; }
 html body #app #panel #who #petname .netstat.off { color: #8a8a8a; }
+/* a quick look at another player (hover their name in the panel) */
+#tooltip .pk-gear { display: flex; flex-direction: column; gap: 3px; margin: 6px 0; }
+#tooltip .pk-item { display: flex; align-items: center; gap: 6px; }
+#tooltip .pk-item .ico { width: 24px; height: 24px; flex: none; background-size: contain; background-repeat: no-repeat; image-rendering: pixelated; }
+#tooltip .pk-item .ico.empty { background: #2a2a2a; border: 1px solid #3a3a3a; }
+#tooltip .pk-stats { display: grid; grid-template-columns: repeat(4, auto); gap: 1px 10px; margin-top: 4px; }
+#tooltip .pk-stats .kv { display: flex; gap: 4px; justify-content: space-between; }
+#tooltip .pk-stats .kv span { color: #9a9a9a; }
