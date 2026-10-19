@@ -17,6 +17,13 @@ const clients = new Map();   // id -> { sock, name, cls, room, budget }
 const { makeWorld } = process.env.WORLD === '0' ? {} : await import('./world.mjs');
 const world = makeWorld ? makeWorld(SEED, (id, obj) => { const c = clients.get(id); if (c) send(c, obj); }) : null;
 const REALM = 'realm:' + SEED;
+// milestone 3: shared dungeons, one world each, opened from portals in the shared realm (a dungeon closes when it has
+// stood empty for two minutes and its portal is gone)
+const { DUNGEONS } = world ? await import('../src/data/enemies.js') : { DUNGEONS: {} };
+const dungeons = new Map();          // 'dg:N' -> { world, to, until }
+let nextIid = 1;
+const worldOf = (room) => (room === REALM ? world : room && dungeons.has(room) ? dungeons.get(room).world : null);
+const roomOk = (room) => typeof room === 'string' && (ROOM.test(room) || dungeons.has(room));
 let nextId = 1;
 
 // ---- WebSocket framing (RFC 6455): text frames, masked from browsers, unmasked from us
@@ -42,15 +49,16 @@ function onMessage(c, text) {
     return;
   }
   if (m.t === 'st') {                                    // where I am and what I'm doing
-    const room = typeof m.room === 'string' && ROOM.test(m.room) ? m.room : null;
+    const room = roomOk(m.room) ? m.room : null;
     if (room !== c.room) {
       if (c.room) toRoom(c.room, { t: 'bye', id: c.id }, c);
-      if (world && c.room === REALM) world.leave(c.id);
+      const W0 = worldOf(c.room); if (W0) W0.leave(c.id);
       c.room = room;
-      if (world && room === REALM) world.join(c.id, c.name);
+      const W1 = worldOf(room); if (W1) W1.join(c.id, c.name);
     }
     if (!room) return;
-    if (world && room === REALM) world.player(c.id, { x: num(m.x, 0, 4096), y: num(m.y, 0, 4096), dead: !!m.dead, hp: num(m.hp, 0, 1e6) });
+    const W = worldOf(room);
+    if (W) W.player(c.id, { x: num(m.x, 0, 4096), y: num(m.y, 0, 4096), dead: !!m.dead, hp: num(m.hp, 0, 1e6) });
     if (CLASSES.has(m.cls)) c.cls = m.cls;
     { const nm = str(m.name, LIMIT.name).trim(); if (nm) c.name = nm; }   // (you may sign in after connecting)
     toRoom(room, { t: 'st', id: c.id, name: c.name, cls: c.cls, x: num(m.x, 0, 4096), y: num(m.y, 0, 4096), dir: ['front', 'back', 'left', 'right'].includes(m.dir) ? m.dir : 'front',
@@ -62,12 +70,23 @@ function onMessage(c, text) {
     toRoom(c.room, { t: 'shot', id: c.id, list }, c);
     return;
   }
-  if (m.t === 'hits' && world && c.room === REALM && Array.isArray(m.list)) {   // your blows on the shared monsters
-    for (const h of m.list.slice(0, 60)) if (Array.isArray(h)) world.hit(c.id, num(h[0], 0, 1e9), num(h[1], 0, 1e6));
+  if (m.t === 'hits' && worldOf(c.room) && Array.isArray(m.list)) {   // your blows on the shared monsters
+    const W = worldOf(c.room);
+    for (const h of m.list.slice(0, 60)) if (Array.isArray(h)) W.hit(c.id, num(h[0], 0, 1e9), num(h[1], 0, 1e6));
     return;
   }
-  if (m.t === 'efx' && world && c.room === REALM && Array.isArray(m.list)) {     // your stuns, slows, knockback on them
-    world.efx(c.id, m.list.slice(0, 40).filter((x) => Array.isArray(x) && ['stun', 'slow', 'push'].includes(x[1])).map((x) => [num(x[0], 0, 1e9), x[1], num(x[2], -10, 10), num(x[3], -10, 10)]));
+  if (m.t === 'portal' && world && c.room === REALM && DUNGEONS[m.to] && m.to !== 'forge') {   // a dungeon opened in the shared realm
+    if (dungeons.size >= 12 || (c.portalT || 0) > Date.now()) return;                   // (a few at a time; one a player every 5 s)
+    c.portalT = Date.now() + 5000;
+    const iid = nextIid++, seed = randomInt(1, 0xffffff) | 3, room = 'dg:' + iid, life = num(m.life, 10, 120);
+    try { dungeons.set(room, { world: makeWorld(seed, (id, obj) => { const t = clients.get(id); if (t) send(t, obj); }, m.to), to: m.to, until: Date.now() + life * 1000 }); }
+    catch (err) { console.error('dungeon', m.to, err); return; }
+    toRoom(REALM, { t: 'portal', iid, seed, to: m.to, x: num(m.x, 0, 4096), y: num(m.y, 0, 4096), life });
+    return;
+  }
+  if (m.t === 'use' && dungeons.has(c.room)) { dungeons.get(c.room).world.use(c.id, num(m.i, 0, 1e5), str(m.k, 40)); return; }
+  if (m.t === 'efx' && worldOf(c.room) && Array.isArray(m.list)) {     // your stuns, slows, knockback on them
+    worldOf(c.room).efx(c.id, m.list.slice(0, 40).filter((x) => Array.isArray(x) && ['stun', 'slow', 'push'].includes(x[1])).map((x) => [num(x[0], 0, 1e9), x[1], num(x[2], -10, 10), num(x[3], -10, 10)]));
     return;
   }
   if (m.t === 'chat') {
@@ -117,12 +136,17 @@ server.on('upgrade', (req, sock) => {
       if (c.budget >= 0) onMessage(c, text);
     }
   });
-  const gone = () => { if (!clients.has(c.id)) return; clients.delete(c.id); if (world) world.leave(c.id); if (c.room) toRoom(c.room, { t: 'bye', id: c.id }); toAll({ t: 'online', n: clients.size }); };
+  const gone = () => { if (!clients.has(c.id)) return; clients.delete(c.id); const W = worldOf(c.room); if (W) W.leave(c.id); if (c.room) toRoom(c.room, { t: 'bye', id: c.id }); toAll({ t: 'online', n: clients.size }); };
   sock.on('close', gone); sock.on('error', gone);
   toAll({ t: 'online', n: clients.size });
 });
 // keep connections alive through hosts' idle timeouts
 setInterval(() => { const ping = Buffer.from([0x89, 0]); for (const c of clients.values()) if (!c.sock.destroyed) c.sock.write(ping); }, 25000);
 // the world's clock: 20 steps a second, the monsters' news 10 times a second
-if (world) { let n = 0, slow = 0; setInterval(() => { const t0 = performance.now(); try { world.tick(0.05, ++n % 2 === 0); } catch (err) { console.error('world tick', err); } const ms = performance.now() - t0; if (ms > 45 && ++slow % 50 === 1) console.warn(`world tick slow: ${ms.toFixed(0)} ms`); }, 50); }
+if (world) { let n = 0, slow = 0; setInterval(() => { const t0 = performance.now(); const now = ++n % 2 === 0;
+  try { world.tick(0.05, now); } catch (err) { console.error('world tick', err); }
+  for (const [room, d] of dungeons) {
+    try { d.world.tick(0.05, now); } catch (err) { console.error('dungeon tick', d.to, err); }
+    if (Date.now() > d.until && d.world.idleMs > 120000) dungeons.delete(room);     // empty, its portal long gone: closed
+  } const ms = performance.now() - t0; if (ms > 45 && ++slow % 50 === 1) console.warn(`world tick slow: ${ms.toFixed(0)} ms`); }, 50); }
 server.listen(PORT, () => console.log(`Melon Realms server on :${PORT}, realm seed ${SEED}`));

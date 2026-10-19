@@ -257,7 +257,8 @@ export class Game {
 
   // a dungeon's way out leads back where you came in from: the Nexus (a key used there) or the realm (2026-10-19)
   exitLabel() { return this.exitTo === 'nexus' ? 'Back to the Nexus' : 'Back to the Realm'; }
-  enter(where) {
+  enter(where, opt = null) {
+    if (!opt && this.netTakeEnter) opt = this.netTakeEnter(where);   // through a shared portal (src/net.js)
     if (this.spClear) this.spClear();                    // no set piece outlives its map
     const fromKind = this.map && this.map.kind, toDungeon = !!DUNGEONS[where] || where.startsWith('rf_');
     if (where === 'realm' && fromKind === 'dungeon' && this.exitTo === 'nexus') where = 'nexus';   // a dungeon opened in the Nexus lets you out there
@@ -274,7 +275,7 @@ export class Game {
     else if (where === 'realm') {
       if (!this.realmMap) this.realmMap = realm(this.netSeed() || ((Date.now() & 0xffffff) | 1));   // the shared realm when online (src/net.js)
       this.map = this.realmMap;
-    } else if (DUNGEONS[where]) this.map = dungeon((Date.now() & 0xffffff) | 3, DUNGEONS[where]);
+    } else if (DUNGEONS[where]) this.map = dungeon((opt && opt.seed) || ((Date.now() & 0xffffff) | 3), DUNGEONS[where]);
     else if (where.startsWith('rf_boss:')) { const m = this.rfBossMap(where); if (!m) { this.banner('That boss is not ready.', 2000); return; } this.map = m; }
     else if (where.startsWith('rf_')) { const m = this.rfMap(where); if (!m) { this.banner('That dungeon is not ready.', 2000); return; } this.map = m; }
     this.projectiles = [];
@@ -295,6 +296,7 @@ export class Game {
     if (this.map.rf) this.map.portals.push({ kind: 'realm', x: this.map.spawn.x, y: this.map.spawn.y + 1.5, label: this.exitLabel(), to: 'realm' });
     if (DUNGEONS[where]) {
       this.populateDungeon(DUNGEONS[where]);
+      if (opt && opt.iid) { this.map.netIid = opt.iid; this.netWorldCheck(); }   // a shared dungeon (src/net.js)
       // a way back out, right where you arrive
       this.map.portals.push({ kind: 'realm', x: this.map.spawn.x, y: this.map.spawn.y - 3, label: this.exitLabel(), to: 'realm' });
     }
@@ -717,6 +719,7 @@ export class Game {
   }
   addEnemy(id, x, y) {
     const D = ENEMIES[id];
+    if (this.map && this.map.netWorld) return { id, D, x, y, hp: D.hp, maxHp: D.hp, state: 'move', st: 0, cds: [], queue: [], dead: false, deadT: 0, netGhost: true };   // (the server's to make)
     const e = { id, D, x, y, hx: x, hy: y, hp: D.hp, maxHp: D.hp, state: 'move', st: 0, cds: D.attacks.map(() => 0.5 + R() * 1.5),
       atk: -1, wx: x, wy: y, wt: 0, hurtT: 0, deadT: 0, queue: [], seen: false, phase: R() * TAU, born: this.t };
     this.enemies.push(e);
@@ -2887,7 +2890,7 @@ export class Game {
   // ---- dungeon atmosphere: each dungeon has its own hazard while you walk its halls
   updateDungeon(dt) {
     const m = this.map, def = m.def, p = this.player;
-    if (!def) return;
+    if (!def || m.netWorld) return;                       // (a shared dungeon's hazards and ambushes are the server's)
     const room = m.rooms.find((rm) => p.x > rm.x && p.x < rm.x + rm.w && p.y > rm.y && p.y < rm.y + rm.h);
     for (const rm of m.rooms) {                         // rooms can overlap, so check every one you're standing in
       if (rm.pending && p.x > rm.x + 1 && p.x < rm.x + rm.w - 1 && p.y > rm.y + 1 && p.y < rm.y + rm.h - 1) {
@@ -3797,6 +3800,7 @@ export class Game {
   }
   // ------------------------------------------------------------- the things you can walk up to and use
   interact(o) {
+    if (this.map && this.map.netWorld && this.map.kind === 'dungeon') this.netUse(o);   // (src/net.js)
     if (this.interactD4(o)) return;
     if (this.interactAstral(o)) return;
     const p = this.player, say = (t, c) => this.bubble(o, t, c);
@@ -4355,6 +4359,7 @@ export class Game {
     }
   }
   openPortal(to, x, y, life = 40) {
+    if (this.netPortal && this.netPortal(to, x, y, life)) return;   // in the shared realm the server opens it for everyone (src/net.js)
     if (to.startsWith('rf_')) return this.rfOpenPortal(to, x, y, life);   // a Realmforge dungeon (src/rf/host.js)
     const D = DUNGEONS[to];
     this.map.portals.push({ kind: D.portal, x, y, label: D.name, to, life });
@@ -4369,7 +4374,8 @@ export class Game {
     }
     if (!this.nearPortal) return;
     const pt = this.nearPortal;
-    if (pt.life !== undefined) this.map.portals = this.map.portals.filter((x) => x !== pt);   // used portals close
+    if (pt.life !== undefined && !pt.netIid) this.map.portals = this.map.portals.filter((x) => x !== pt);   // used portals close (a shared one stays for the others)
+    if (pt.netIid) { this.netEnterNext = { iid: pt.netIid, seed: pt.netSeed }; }
     this.travel(pt.to);
   }
   toNexus() {

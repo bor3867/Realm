@@ -37,10 +37,19 @@ function shotJSON(b) {
   }));
 }
 
-export function makeWorld(seed, send) {
+export function makeWorld(seed, send, where = 'realm') {
   const g = new Game({ reg }, { fame: 0, gold: 0, essence: 0, vaults: [[]], graveyard: [], chars: [], slots: 8, bestLevel: 0 });
   g.newCharacter('priest'); g.persist = () => {}; g.save = { ...g.save };
-  g.realmMap = realm(seed); g.enter('realm'); g.god = true;
+  if (where === 'realm') { g.realmMap = realm(seed); g.enter('realm'); }
+  else g.enter(where, { seed });                // a shared dungeon: the same seed as every player's copy
+  g.god = true;
+  const M0 = g.map, dung = M0.kind === 'dungeon';
+  // a dungeon's changes since it was made (gates, broken walls; chests, levers), for those inside and latecomers
+  const baseT = dung ? M0.tiles.slice() : null, objKey = (o) => o.interact || o.sprite || '';
+  const OBJ = (o) => { const f = {}; for (const k in o) { const v = o[k]; if (typeof v === 'number' || typeof v === 'boolean' || typeof v === 'string') f[k] = v; } return f; };
+  const baseO = dung ? M0.objects.map((o) => JSON.stringify(OBJ(o))) : null, sentO = dung ? baseO.slice() : null;
+  const dTiles = new Map(), dObjs = new Map();
+  let lastEmpty = Date.now();
   const anchor = g.player;             // the server's own stand-in (never hunted, never hurt): the players are proxies
   const P = new Map();                 // client id -> proxy (a player-shaped object over the anchor, so any field reads)
   const log = { tiles: [], objs: [] }; // the land as events changed it (an arena raised, trees grown): for latecomers too
@@ -72,7 +81,15 @@ export function makeWorld(seed, send) {
       Object.assign(q, { netId: id, name, x: anchor.x, y: anchor.y, dead: false, status: {}, hp: 1, net: { seen: new Set(), last: new Map() } });
       P.set(id, q); g.netTargets = [...P.values()];
       if (log.tiles.length || log.objs.length) send(id, { t: 'wlog', tiles: log.tiles, objs: log.objs });
+      if (dung && (dTiles.size || dObjs.size)) send(id, { t: 'dlog', tiles: [...dTiles.values()], objs: [...dObjs.values()] });
     },
+    // a player used something here (a lever, a door, a chest): the world uses it too, for everyone
+    use(id, i, k) {
+      const q = P.get(id), o = g.map.objects[i];
+      if (!q || !o || objKey(o) !== k || Math.hypot(o.x - q.x, o.y - q.y) > 3) return;
+      g.player = q; try { g.interact(o); } catch (err) { console.warn('use', k, err.message); } finally { g.player = anchor; }
+    },
+    get idleMs() { return P.size ? 0 : Date.now() - lastEmpty; },
     // a player's effect on a monster: held still, slowed, knocked about (each within reason)
     efx(id, list) {
       const q = P.get(id);
@@ -85,7 +102,7 @@ export function makeWorld(seed, send) {
         else if (k === 'push' && !e.rb) { const n = Math.hypot(a, b), s = n > 2 ? 2 / n : 1; g.moveCircle(e, a * s, b * s, 0.35); }
       }
     },
-    leave(id) { P.delete(id); g.netTargets = [...P.values()]; },
+    leave(id) { P.delete(id); g.netTargets = [...P.values()]; if (!P.size) lastEmpty = Date.now(); },
     player(id, s) { const q = P.get(id); if (q) { q.x = s.x; q.y = s.y; q.dead = !!s.dead; q.hp = s.hp; } },
     // a player's shot (or ability) took d off a monster: the server's tally, and its death if it falls
     hit(id, eid, d) {
@@ -106,16 +123,23 @@ export function makeWorld(seed, send) {
       g.update(dt);
       anchor.hp = 1e9; anchor.dead = false; g.mode = 'play';
       for (const e of g.enemies) if (!e.nid) e.nid = ++nid;
+      if (dung) for (const e of g.enemies) if (e.rb && e.dead && !e.netExit) { e.netExit = true; out.push({ k: 'exit', x: e.x, y: e.y, name: e.D.name }); }   // its master falls: a way out for all
       for (const o of g.map.objects) if (!seenObj.has(o)) { const j = safe(o); log.objs.push(j); out.push({ k: 'obj', o: j }); }
       if (g.bags && g.bags.length > 40) g.bags.length = 0;                       // (the server's own loot: nobody's)
       for (const b of g.projectiles) if (!seenShots.has(b) && b.from === 'e') out.push({ k: 'shot', b: shotJSON(b) });
       for (const f of g.fx) if (!seenFx.has(f) && f.kind) out.push({ k: 'fx', f: shotJSON(f) });
       for (const b of g.bubbles || []) if (!seenBub.has(b) && b.e && b.e.nid) out.push({ k: 'say', id: b.e.nid, text: b.text, col: b.col });
+      if (dung && sendNow && Math.floor(g.t * 10) % 3 === 0) {          // a dungeon's changes, about three times a second
+        const T = g.map.tiles, nt = [], no = [];
+        for (let i = 0; i < T.length; i++) if (T[i] !== baseT[i] && (!dTiles.has(i) || dTiles.get(i)[1] !== T[i])) { const a = [i, T[i], g.map.solid ? g.map.solid[i] : 0]; dTiles.set(i, a); nt.push(a); }
+        g.map.objects.forEach((o, i) => { if (i >= sentO.length) return; const j = JSON.stringify(OBJ(o)); if (j !== sentO[i]) { sentO[i] = j; const a = [i, objKey(o), OBJ(o)]; dObjs.set(i, a); no.push(a); } });
+        if (nt.length || no.length) for (const q of P.values()) send(q.netId, { t: 'dlog', tiles: nt, objs: no });
+      }
       const ev = out; out = [];
       // to each player: the events near them, and (10 a second) the monsters near them
       for (const q of P.values()) {
         const near = (x, y, r = SEND_R) => Math.abs(x - q.x) < r && Math.abs(y - q.y) < r;
-        const mine = ev.filter((x) => x.k === 'banner' || x.k === 'tile' || x.k === 'obj' || (x.k === 'shot' && near(x.b.x, x.b.y)) || (x.k === 'fx' && near(x.f.x, x.f.y)) || (x.k === 'vx' && near(x.v.x ?? q.x, x.v.y ?? q.y)) || x.k === 'say');
+        const mine = ev.filter((x) => x.k === 'banner' || x.k === 'tile' || x.k === 'obj' || x.k === 'exit' || (x.k === 'shot' && near(x.b.x, x.b.y)) || (x.k === 'fx' && near(x.f.x, x.f.y)) || (x.k === 'vx' && near(x.v.x ?? q.x, x.v.y ?? q.y)) || x.k === 'say');
         if (mine.length) send(q.netId, { t: 'wev', ev: mine });
         if (!sendNow) continue;
         const es = [], gone = [];
