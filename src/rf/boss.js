@@ -96,7 +96,7 @@ const methods = {
     if (A.dying && !A.dying.pre && A.dying.t > 3 && !F.done) { F.done = true; this.rfBossWon(); }
     // their words and their floating text, in our game's own (upright) speech bubbles, banners and numbers
     const tox = (ax) => ax / TP + 1, toy = (ay) => ay / TP + 2;
-    F.bubE = F.bubE || { rb: true, dead: false }; F.bubE.x = tox(A.b1.x); F.bubE.y = toy(A.b1.y);
+    F.bubE = F.bubE || { rb: true, dead: false, rfH: 40 }; F.bubE.x = tox(A.b1.x); F.bubE.y = toy(A.b1.y);
     for (const bb of A.bub || []) {
       if (bb.rfShown) continue; bb.rfShown = 1;
       if (bb.who === '*' || bb.who === 'sys') { this.banner(bb.t, 3200, false); continue; }
@@ -130,11 +130,11 @@ const methods = {
     }
     const onBoss = S.bossAt(x, y), th0 = A.th ? A.th.hits : 0;
     if (!S.shot(x, y, Math.atan2(b.vy, b.vx))) return false;
-    if (A.th && A.th.hits > th0) { const d = mitigate(b.dmg, F.bal.bossDef); F.hp = Math.max(0, F.hp - d); this.float(...lift(b.x, b.y, 0.6), `${d}`, '#ff5050'); return !b.pierce; }   // the true Vitrea among the thousand
+    if (A.th && A.th.hits > th0) { const d = mitigate(b.dmg, F.bal.bossDef); F.hp = Math.max(0, F.hp - d); this.float(...lift(b.x, b.y, 0.6), `${d}`, '#ff5050', F.bubE); return !b.pierce; }   // the true Vitrea among the thousand
     if (!onBoss) return !b.pierce;
     const inv = this.rfBossInvuln();
     if (inv === 'Shielded by the chrysalis' && F.shell) {                    // the chrysalis takes the blow
-      const d = mitigate(b.dmg, F.bal.bossDef); F.shell.hp -= d; this.float(...lift(b.x, b.y, 0.6), `${d}`, '#f4ecd8');
+      const d = mitigate(b.dmg, F.bal.bossDef); F.shell.hp -= d; this.float(...lift(b.x, b.y, 0.6), `${d}`, '#f4ecd8', F.bubE);
       if (F.shell.hp <= 0) { F.shell = null; F.cocoonDone = true; this.banner('The chrysalis breaks!', 1800); }
       return !b.pierce;
     }
@@ -142,7 +142,7 @@ const methods = {
     if (b.hit) { if (b.hit.has(F)) return false; b.hit.add(F); }
     const d = mitigate(b.dmg, F.bal.bossDef);
     F.hp = Math.max(0, F.hp - d);
-    this.float(...lift(b.x, b.y, 0.6), `${d}`, '#ff5050');
+    this.float(...lift(b.x, b.y, 0.6), `${d}`, '#ff5050', F.bubE);
     return !b.pierce;
   },
   // why the boss can't be hurt right now (their rules), except that an invulnerable phase guarded by minions ends when

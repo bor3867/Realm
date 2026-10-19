@@ -357,9 +357,9 @@ export function makeExplore(DATA,HOST){
   function openChest(pr){pr.used=1;pr.opened=1;HOST.chest(pr);return;const loot=pr.loot;const coins=loot==='common'?8:loot==='puzzle'?14:18;E.coins+=coins;E.pots+=loot==='common'?0:1;
     const set=E.B.drops||[];let item=null;const chance=loot==='rare'||loot==='challenge'?0.5:loot==='secret'?0.45:loot==='puzzle'?0.3:0.12;if(set.length&&Math.random()<chance)item=set[Math.floor(Math.random()*set.length)];
     if(item){E.loot.push(item);E.msg('Inside: '+item.name+'! ('+coins+' gold)',4);}else E.msg('Inside: '+coins+' gold'+(loot==='common'?'.':' and a potion.'),2.5);pfx('boom',pr.x+0.5,pr.y+0.5,{r:1.2,c:'#ffe066'});}
-  function drop(e){const d=e.d;HOST.drop(e);if(0)if(Math.random()<(d.drop||0.2))E.drops.push({k:'coin',x:e.x,y:e.y,n:d.rare?20:1+Math.floor(Math.random()*3)});if(Math.random()<0.05)E.drops.push({k:'potion',x:e.x+0.3,y:e.y});
+  function drop(e){const d=e.d;HOST.drop(e);if(0)if(Math.random()<(d.drop||0.2))E.drops.push({k:'coin',x:e.x,y:e.y,n:d.rare?20:1+Math.floor(Math.random()*3)});
     if(e.boss){E.drops.push({k:'key',x:e.x,y:e.y+0.4});const M=E.M;const r=M.rooms[e.room];if(r)r.guardDown=1;for(const g of M.gates)if(g.kind==='guard'&&!g.open&&(g.by||[e.room]).every(id=>M.rooms[id].guardDown))openGate(g,g.opened||'With its guardian gone, the way opens.');}}
-  function kill(e){e.hp=0;e.dead=0;E.kills++;HOST.kill(e);drop(e);pfx('boom',e.x,e.y,{r:e.d.size>16?2:0.8,c:'#ffffff'});const d=e.d;
+  function kill(e){e.hp=0;e.dead=0;E.kills++;HOST.kill(e);drop(e);const d=e.d;
     if(d.burst)for(let i=0;i<d.burst;i++)shoot(d.shot,e.x,e.y,i*TAU/d.burst+0.2,5,d.dmg*0.5);
     if(d.split&&!e.half){for(let i=0;i<(d.split.n||2);i++){const o=mkEnemy({k:d.split.k||e.k,x:e.x+(i?0.5:-0.5),y:e.y,room:e.room,aggro:true});if(!d.split.k){o.hp=o.max=e.max*0.4;o.half=1;o.spd*=1.3;}E.en_.push(o);}}
     if(!d.noCorpse&&!e.summoned)E.corpses.push({k:e.k,x:e.x,y:e.y,room:e.room,t:E.t});
@@ -1078,7 +1078,7 @@ export function makeExplore(DATA,HOST){
         if(los(tx,ty,p.x,p.y)){hurtP(75,{});const a=Math.atan2(p.y-CRY,(p.x-CRX)/CSX);p.ext[0]+=Math.cos(a)*9;p.ext[1]+=Math.sin(a)*9;E.msg('The shockwave hits you. Get behind rock when it comes!',2);}}if(E.swR>30)E.swR=-1;}
       // meteor cores puzzle
       const ch=E.M.props.find(q=>q.locked==='cores');if(ch&&ch.hidden&&!E.M.objs.some(o=>o.cores&&!o.gone)){ch.hidden=0;ch.locked=0;E.msg('The last fragment cracks open. Inside them all: pieces of something that fit together.',3);}},
-    objBroke(o){if(o.core||o.cores){E.drops.push({k:'coin',x:o.x+1,y:o.y+1,n:6});if(o.core&&Math.random()<0.3)E.drops.push({k:'potion',x:o.x+1.3,y:o.y+1});E.msg('The meteor shell breaks: there was starmetal in its core.',1.8);
+    objBroke(o){if(o.core||o.cores){E.drops.push({k:'coin',x:o.x+1,y:o.y+1,n:6});E.msg('The meteor shell breaks: there was starmetal in its core.',1.8);
         if(Math.random()<0.5){const e=mkEnemy({k:'parasite',x:o.x+1,y:o.y+1.2,room:roomOf(o.x+1,o.y+1),aggro:true});E.en_.push(e);}}},
     drawTop(V){if(E.swR<0)return;const {b,sx,sy}=V;b.strokeStyle='rgba(240,200,255,.75)';b.lineWidth=2;b.beginPath();b.ellipse(sx(CRX),sy(CRY),E.swR*CSX*TS,E.swR*TS,0,0,TAU);b.stroke();b.lineWidth=1;},
     hud(c,d,W,H,x,y){const s=E.swR>=0?'SHOCKWAVE':'Next shockwave '+Math.ceil(10-E.swT)+'s';c.fillStyle=E.swR>=0||E.swT>8?'#ff9ad8':'#b8a0d0';c.font=(10*d)+'px ui-monospace,monospace';c.fillText(s+' · core '+Math.round(crDist(E.p.x,E.p.y))+' away',x,y);}};

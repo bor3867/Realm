@@ -219,3 +219,8 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   show only red (damage taken), green (a health potion) and blue (a mana potion). Apply the same numbers in the
   Realmforge dungeons, remove their floor potions you walk over, and remove the ring shown when one of their creatures
   dies: they should feel like our dungeons.
+  **Done 2026-10-19:** the spots over a target are a narrow column (0.4 tile either side, rising 0.2 a step) and numbers
+  rise less. Over you: only a hit taken (red) and what a health potion (green) or mana potion (blue) gave; words, other
+  heals and ward numbers no longer show there (the health and mana potions now show their numbers). In the Realmforge
+  dungeons every number belongs to the creature or boss it hit and takes its spot over its head like ours; no creature
+  or meteor drops a floor potion, and a death leaves no white ring (their slams and traps keep theirs: those warn).

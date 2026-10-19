@@ -145,7 +145,7 @@ const methods = {
     if (big) this.addBag(e.x, e.y + 0.6, rollLoot(this.rfLoot(2), 1.5));
     else if (R < 0.06) this.addBag(e.x, e.y + 0.4, rollLoot(this.rfLoot(1), 1));
   },
-  rfDrop(e) { if (Math.random() < 0.05) this.map.rf.E.drops.push({ k: 'potion', x: e.x + 0.3, y: e.y }); },
+  rfDrop() {},                                                 // (no floor potions: our dungeons drop none, 2026-10-19)
   // a chest: our loot, by how hard it was to reach
   rfChest(pr) {
     const L = { common: 1, puzzle: 1.6, rare: 2, challenge: 2.4, secret: 2.6 }[pr.loot] || 1;

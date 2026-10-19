@@ -122,8 +122,8 @@ export const POT_STACK = 10, VAULT_MAX = 80;
 // maxing your stats takes longer (the user's call, 2026-10-19)
 export const STAT_DROP_REALM = 0.4;
 // where numbers that land together appear above a target (tiles: right, up): staggered, never two at one height side
-// by side closer than a number's width
-const FLOAT_SLOTS = [[0, 0], [-0.95, 0.3], [0.95, 0.6], [-0.45, 0.9], [0.5, 1.2], [-1, 1.5], [1, 1.8], [0, 2.1], [-0.6, 2.4], [0.6, 2.7]];   // (each at its own height)
+// by side closer than a number's width, and kept close over the head (round three, 2026-10-19: tighter)
+const FLOAT_SLOTS = [[0, 0], [-0.42, 0.2], [0.42, 0.4], [0, 0.6], [-0.42, 0.8], [0.42, 1.0], [0, 1.2], [-0.3, 1.4], [0.3, 1.6]];   // (each at its own height)
 const ACTIVE_R = 24;            // enemies farther than this sleep
 const SLOT_ORDER = ['weapon', 'ability', 'armor', 'ring'];
 const BIOME_TARGET = { shore: 210, fen: 170, runeholt: 125, godfall: 85 };
@@ -571,9 +571,9 @@ export class Game {
         else if (roll < 0.97) { this.toast('Inside: angry bees. (They are crabs.)'); for (let k = 0; k < 3; k++) this.addEnemy('brine_slimelet', p.x + Math.cos(k * 2) * 2, p.y + Math.sin(k * 2) * 2); }
         else { this.toast('Inside: a relic!'); give([R.pick(Object.values(ITEMS).filter((x) => x.ut && !x.mythic && !x.admin && x.slot !== 'consumable').map((x) => x.id))]); }
       }
-      if (it.use.heal) p.hp = Math.min(this.stat('hp'), p.hp + it.use.heal);
+      if (it.use.heal) { const h0 = p.hp; p.hp = Math.min(this.stat('hp'), p.hp + it.use.heal); if (p.hp > h0) this.pFloat(`+${Math.round(p.hp - h0)}`, '#5ef08a'); }
       if (it.use.regen) { p.regenRate = it.use.regen.hp / it.use.regen.t; p.regenUntil = this.t + it.use.regen.t; this.vx({ k: 'hearts', x: p.x, y: p.y }); }
-      if (it.use.mana) p.mp = Math.min(this.stat('mp'), p.mp + it.use.mana);
+      if (it.use.mana) { const m0 = p.mp; p.mp = Math.min(this.stat('mp'), p.mp + it.use.mana); if (p.mp > m0) this.pFloat(`+${Math.round(p.mp - m0)}`, '#6ab4ff'); }
       if (it.use.stat) {
         const s = it.use.stat, cap = CLASSES[p.cls].max[s];
         if (p.base[s] >= cap) { this.toast(`${s.toUpperCase()} is already maxed.`); return; }
@@ -604,23 +604,27 @@ export class Game {
   }
   toast(text) { this.events.push({ type: 'toast', text }); }
   // floating text: numbers and words that belong to someone ride above their head, not over their body
-  float(x, y, text, color) {
+  float(x, y, text, color, own) {
     if (typeof text === 'number' || /^[-+]?\d*\.\d+$/.test(text) || /^[-+]?\d+\.\d+$/.test(text)) text = (/^[-+]/.test(String(text)) ? String(text)[0] : '') + Math.round(Math.abs(parseFloat(text)));   // whole numbers only
-    const who = this.floatOwner(x, y);
+    const who = own || this.floatOwner(x, y);
+    // over you: only red (a hit taken), green (a health potion) and blue (a mana potion) (the user's call, 2026-10-19)
+    if (who && who === this.player && !this.pFloatOk) return;
     // every hit shows its own number (2026-10-19): numbers that land together each take a different spot above the
     // target, staggered so none sits beside another at the same height ("100,100"), with a little jitter
     if (who) {
       // the live numbers over it, where they are now (risen part-way), as boxes in tiles; the first spot that touches none
-      const W = (t) => (String(t).length * 4 + 1) * 0.0625, H = 0.44 + 0.12, rise = (t) => 0.55 * (1 - (1 - Math.min(1, t / 0.9)) ** 3);   // (the font: 1/16 tile a pixel, 7 tall with its rim)
+      const W = (t) => (String(t).length * 4 + 1) * 0.0625, H = 0.44 + 0.04, rise = (t) => 0.4 * (1 - (1 - Math.min(1, t / 0.9)) ** 3);   // (the font: 1/16 tile a pixel, 7 tall with its rim)
       const live = this.floaters.filter((f) => f.who === who && f.t < 0.9).map((f) => ({ x: f.dx, y: f.dy + rise(f.t), w: W(f.text) }));
-      const w = W(text), hit = (cx, cy) => live.reduce((n, o) => n + (Math.abs(cx - o.x) < (w + o.w) / 2 + 0.15 && Math.abs(cy - o.y) < H ? 1 : 0), 0);
+      const w = W(text), hit = (cx, cy) => live.reduce((n, o) => n + (Math.abs(cx - o.x) < (w + o.w) / 2 + 0.06 && Math.abs(cy - o.y) < H ? 1 : 0), 0);
       let best = FLOAT_SLOTS[0], bn = Infinity;
       for (const S of FLOAT_SLOTS) { const n = hit(S[0], S[1]); if (n < bn) { bn = n; best = S; if (!n) break; } }
-      this.floaters.push({ x, y, text, color, t: 0, who, dx: best[0] + (R() - 0.5) * 0.1, dy: best[1] });
+      this.floaters.push({ x, y, text, color, t: 0, who, dx: best[0] + (R() - 0.5) * 0.06, dy: best[1] });
       return;
     }
     this.floaters.push({ x, y, text, color, t: 0, who, dx: 0, dy: 0 });
   }
+  // a number over you that is allowed (a hit, a potion)
+  pFloat(text, color) { const p = this.player; this.pFloatOk = true; this.float(...lift(p.x, p.y, 1.2), text, color); this.pFloatOk = false; }
   floatOwner(x, y) {
     let best = null, bd = 1e9;
     const test = (e, up, reach) => { const d = Math.hypot(e.x - x, e.y - up - y); if (d < reach && d < bd) { bd = d; best = e; } };
@@ -628,6 +632,7 @@ export class Game {
     if (p && !p.dead) test(p, 0.7, 1.6);
     for (const e of this.active || []) if (!e.dead) test(e, e.hitUp || 0.6, e.rb ? 3.2 : 1.6);
     if (this.boss && this.boss.state !== 'dead') test(this.boss, 2.3, 3.5);
+    if (this.map && this.map.rf && this.map.rf.E) for (const e of this.map.rf.E.en_ || []) if (e.hp > 0 && !e.hidden) test(e, 0.6, 1.6);   // a Realmforge creature
     return best;
   }
 
@@ -1678,7 +1683,7 @@ export class Game {
     p.hitT = 0.15;
     this.sfx('hurt');
     this.vx({ k: 'hurt', amt: Math.min(4, 1 + d / 60) });
-    this.float(...lift(p.x, p.y, 1.2), `-${d}`, '#e2546a');
+    this.pFloat(`-${d}`, '#e2546a');
     if (p.hp <= 0 && P.cheatdeath && !p.cheatT) {
       p.cheatT = P.cheatdeath; p.hp = this.stat('hp') * 0.4; p.status.invuln = 1.5;
       this.banner('Cheated death!', 1600);

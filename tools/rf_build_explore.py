@@ -45,6 +45,10 @@ patch("function openChest(pr){pr.used=1;pr.opened=1;", "function openChest(pr){p
 # the healing font heals you; a kill is ours to reward
 patch("if(pr.k==='heal'&&d<1.3){p.hp=PL_HP;", "if(pr.k==='heal'&&d<1.3){HOST.heal();")
 patch("function kill(e){e.hp=0;e.dead=0;E.kills++;", "function kill(e){e.hp=0;e.dead=0;E.kills++;HOST.kill(e);")
+# our dungeons' feel (2026-10-19): no ring where a creature dies, no potions on the floor to walk over
+patch("drop(e);pfx('boom',e.x,e.y,{r:e.d.size>16?2:0.8,c:'#ffffff'});", "drop(e);")
+patch("if(Math.random()<0.05)E.drops.push({k:'potion',x:e.x+0.3,y:e.y});", "")   # (the 'if(0)' above guards only their coins)
+patch("if(o.core&&Math.random()<0.3)E.drops.push({k:'potion',x:o.x+1.3,y:o.y+1});", "")
 # a shrine's blessing is a buff on our player too
 patch("if(pr.k==='shrine'&&d<1.1){pr.used=1;p.buff=60;", "if(pr.k==='shrine'&&d<1.1){pr.used=1;p.buff=60;HOST.shrine();")
 
