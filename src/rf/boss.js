@@ -168,7 +168,7 @@ const methods = {
       { slot: 'ability', tiers: [3, 5], p: 0.5 }, { stat: true, p: 0.6 }, { id: 'pot_hp', p: 1 }], 2.5));
     const A = F.A, bx = A.b1.x / TP + 1, by = A.b1.y / TP + 2;
     this.addBag(bx, by + 0.5, items);
-    m.portals.push({ kind: 'realm', x: bx, y: by + 2, label: 'Back to the Realm', to: 'realm' });
+    m.portals.push({ kind: 'realm', x: bx, y: by + 2, label: this.exitLabel(), to: 'realm' });
     this.banner(`${B.name} is defeated!`, 3000);
   },
 };

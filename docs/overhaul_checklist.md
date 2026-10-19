@@ -175,3 +175,19 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   A level-20 bench priest in the land's gear now takes 2.5 to 7 minutes; a player who stands still lasts 5 to 11 s
   (was 14 to 83). The Penitent Colossus, already the hardest by the dodging bot, gets Life only. The dodging-bot check
   allows overworld bosses up to 11,000 damage a minute (dungeon bosses stay at 9,000).
+- Damage numbers, again (requested 2026-10-19): still odd. More pixel-style, slightly smaller, and never two numbers
+  side by side (two 100s read as "100,100"). **Done 2026-10-19:** numbers in a 3x5 pixel font (src/pixelfont.js),
+  a step smaller; over one target a new number waits until the last has risen clear, and hits in that wait add up.
+- Dungeon exit portals (requested 2026-10-19): a dungeon opened with a key in the Nexus sends you back to the Nexus; one
+  found or opened in the realm sends you back to the realm. **Done 2026-10-19** (game.exitTo, every exit portal).
+- Staff shots (requested 2026-10-19): smaller and faster. **Done 2026-10-19:** half the size (one buffer pixel to an
+  art pixel, hitbox to match), 35% faster, for every staff.
+- Item stats, revised (2026-10-19): the tiered weapons, armour and rings are fine (keep, or nudge slightly). Tiered
+  abilities need stats that fit the class they are for, plus a little Life/Mana at the higher tiers. (Bigger, more
+  distinctive numbers for UT/Mythic/Legendary still stand.) **Tiered abilities done 2026-10-19:** two stats per class
+  (e.g. Bellows +ATT +VIT, Halo +WIS +SPD) rising with tier, and +20/30/40 Life or Mana at T3-T5.
+- Stat potions (requested 2026-10-19): every stat potion uses the same sprite; fewer drop from overworld enemies, so
+  maxing stats is harder. **Done 2026-10-19:** the Attack potion was the odd tall bottle: now the wide flask like the
+  rest; overworld monsters' stat-potion drops are cut to 40% (game.js STAT_DROP_REALM; bosses, dungeons, camps keep theirs).
+- Minimap, again (requested 2026-10-19): smooth (no jitter) as you move; more detail in the floor you stand on;
+  teleport waypoints as clickable icons, with a dropdown to teleport there.

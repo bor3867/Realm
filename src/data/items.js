@@ -157,7 +157,7 @@ for (const type of WEAPON_TYPES) {                      // our family's feel (ra
   for (let t = 0; t <= TIER_CAP.weapon; t++) {
     const F = RF_WEAPONS[type][t], W = weapon(type, Math.min(10, t));
     add({ id: `${type}_t${t}`, type, slot: 'weapon', tier: t, name: F.name, desc: F.desc, reg: `rf_items/${type}_t${t}`,
-      weapon: rfPath({ ...W, dmg: F.dmg, count: F.count, range: F.range, speed: F.speed, proj: `rf_shots/${type}_t${t}` }, F.motion) });
+      weapon: rfPath({ ...W, dmg: F.dmg, count: F.count, range: F.range, speed: F.speed, proj: `rf_shots/${type}_t${t}` }, F.motion, type) });
   }
 }
 for (const type of ABILITY_TYPES) {
@@ -793,7 +793,8 @@ const RF_SEEK = { bogseer: { homing: 2.4 }, orbitbow: { homing: 3.2, homingR: 3 
 // a Realmforge shot's path, as its Armory draws it: a helix (two shots crossing round the line of fire every 3.5 tiles,
 // a third of a tile out), a wave (one shot swaying, 3.25 tiles from crest to crest), or a spread (shots side by side,
 // a fifth of a tile apart, opening a little as they fly)
-function rfPath(W, motion) {
+function rfPath(W, motion, type) {
+  if (type === 'staff') { W.speed = Math.round(W.speed * 1.35 * 10) / 10; W.shotK = 0.5; }   // staves: smaller, faster bolts (the user's call, 2026-10-19)
   if (motion === 'helix') { W.special = { ...(W.special || {}), weave: { amp: 0.33, lam: 3.5 } }; W.arc = 0; W.count = Math.max(2, W.count || 2); }
   if (motion === 'wave') W.special = { ...(W.special || {}), weave: { amp: 0.26, lam: 3.25 } };
   if (motion === 'spread') { W.rfSpread = 0.19; W.arc = 0.05 * Math.max(0, (W.count || 3) - 1); }
@@ -809,7 +810,7 @@ for (const u of RF_UNIQUES) {
     const { motion, ...UW } = u.weapon;
     it.weapon = { ...W, ...UW, pierce: u.weapon.pierce || W.pierce, proj: u.shot ? `rf_uniq_shots/${u.id}` : `rf_shots/${u.type}_t13` };
     if (Object.keys(u.special).length) it.weapon.special = { ...u.special };
-    rfPath(it.weapon, motion);
+    rfPath(it.weapon, motion, u.type);
     const seek = RF_SEEK[u.id];                            // the three that seek (the user's exception to the no-seeking rule)
     if (seek) it.weapon.special = { ...(it.weapon.special || {}), ...seek };
   }
@@ -1364,3 +1365,19 @@ applyDungeonItems(ITEMS);
 applyWeaponRework(ITEMS);
 applyAbilityRework(ITEMS);
 applyGearRework(ITEMS);
+
+// tiered abilities carry stats that fit the class they are made for, rising with the tier, and from T3 a little Life
+// (or Mana, for the casters) on top (the user's call, 2026-10-19)
+{
+  const FIT = { bellows: ['att', 'vit', 'hp'], seal: ['def', 'vit', 'hp'], halo: ['wis', 'spd', 'mp'], reliquary: ['wis', 'att', 'mp'],
+    hookline: ['att', 'spd', 'hp'], mirror: ['dex', 'spd', 'hp'], kite: ['wis', 'dex', 'mp'], stopwatch: ['def', 'wis', 'mp'],
+    runeward: ['att', 'def', 'hp'], hex: ['wis', 'dex', 'mp'] };
+  const MAIN = [1, 1, 2, 3, 3, 4], SIDE = [0, 1, 1, 1, 2, 3], POOL = [0, 0, 0, 20, 30, 40];
+  for (const [type, [a, b, pool]] of Object.entries(FIT)) for (let t = 0; t <= TIER_CAP.ability; t++) {
+    const it = ITEMS[`${type}_t${t}`];
+    if (!it) continue;
+    const B = { ...(it.bonus || {}) };
+    B[a] = (B[a] || 0) + MAIN[t]; if (SIDE[t]) B[b] = (B[b] || 0) + SIDE[t]; if (POOL[t]) B[pool] = (B[pool] || 0) + POOL[t];
+    it.bonus = B;
+  }
+}

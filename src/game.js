@@ -118,6 +118,10 @@ export function segDist(ax, ay, bx, by, cx, cy, dx, dy) {
 }
 const r4 = () => [0, Math.PI / 2, Math.PI, -Math.PI / 2][Math.floor(Math.random() * 4)];
 export const POT_STACK = 10, VAULT_MAX = 80;
+// the share of an overworld monster's stat-potion drops that survive (realm bosses, dungeons and camps keep theirs):
+// maxing your stats takes longer (the user's call, 2026-10-19)
+export const STAT_DROP_REALM = 0.4;
+const FLOAT_GAP = 0.35;                                  // seconds between two numbers over one target (they rise 60px in 0.9s)
 const ACTIVE_R = 24;            // enemies farther than this sleep
 const SLOT_ORDER = ['weapon', 'ability', 'armor', 'ring'];
 const BIOME_TARGET = { shore: 210, fen: 170, runeholt: 125, godfall: 85 };
@@ -248,8 +252,13 @@ export class Game {
     writeSave({ ...this.save, chars }, this.saveKey);
   }
 
+  // a dungeon's way out leads back where you came in from: the Nexus (a key used there) or the realm (2026-10-19)
+  exitLabel() { return this.exitTo === 'nexus' ? 'Back to the Nexus' : 'Back to the Realm'; }
   enter(where) {
     if (this.spClear) this.spClear();                    // no set piece outlives its map
+    const fromKind = this.map && this.map.kind, toDungeon = !!DUNGEONS[where] || where.startsWith('rf_');
+    if (where === 'realm' && fromKind === 'dungeon' && this.exitTo === 'nexus') where = 'nexus';   // a dungeon opened in the Nexus lets you out there
+    if (toDungeon && fromKind !== 'dungeon') this.exitTo = fromKind === 'realm' ? 'realm' : 'nexus';
     const p = this.player;
     p.carry = null; p.drowsy = 0; this.invertUntil = 0;                // nothing carried, dreamt or inverted crosses a portal
     p.chill = 0; p.frozenUntil = 0; p.gust = null; p.poisonUntil = 0;   // nor any cold or poison
@@ -278,11 +287,11 @@ export class Game {
     this.unstick(p);
     this.realmReturn = null;                              // dungeons let out onto the beach
     if (where === 'realm' && !this.map.populated) this.populateRealm();
-    if (this.map.rf) this.map.portals.push({ kind: 'realm', x: this.map.spawn.x, y: this.map.spawn.y + 1.5, label: 'Back to the Realm', to: 'realm' });
+    if (this.map.rf) this.map.portals.push({ kind: 'realm', x: this.map.spawn.x, y: this.map.spawn.y + 1.5, label: this.exitLabel(), to: 'realm' });
     if (DUNGEONS[where]) {
       this.populateDungeon(DUNGEONS[where]);
       // a way back out, right where you arrive
-      this.map.portals.push({ kind: 'realm', x: this.map.spawn.x, y: this.map.spawn.y - 3, label: 'Back to the Realm', to: 'realm' });
+      this.map.portals.push({ kind: 'realm', x: this.map.spawn.x, y: this.map.spawn.y - 3, label: this.exitLabel(), to: 'realm' });
     }
     // fog of war: realms and dungeons start dark and stay uncovered where you have been (the town has none)
     if ((this.map.kind === 'realm' || this.map.kind === 'dungeon') && !this.map.seen) { this.map.seen = new Uint8Array(this.map.w * this.map.h); this.map.fogNew = []; }
@@ -595,8 +604,18 @@ export class Game {
   // floating text: numbers and words that belong to someone ride above their head, not over their body
   float(x, y, text, color) {
     if (typeof text === 'number' || /^[-+]?\d*\.\d+$/.test(text) || /^[-+]?\d+\.\d+$/.test(text)) text = (/^[-+]/.test(String(text)) ? String(text)[0] : '') + Math.round(Math.abs(parseFloat(text)));   // whole numbers only
-    const who = this.floatOwner(x, y), n = who ? this.floaters.filter((f) => f.who === who && f.t < 0.3).length : 0;
-    this.floaters.push({ x, y, text, color, t: 0, who, dx: who ? [0, -0.6, 0.6, -0.3, 0.3][n % 5] : 0 });   // (spread wider: numbers that land together stay apart)
+    const who = this.floatOwner(x, y);
+    // numbers over one target never touch (2026-10-19): a new one waits until the last has risen clear of it, and hits
+    // that land during that wait add into the waiting number, which then shows their total
+    if (who) {
+      const num = /^[-+]?\d+$/.test(text), mine = this.floaters.filter((f) => f.who === who && /^[-+]?\d+$/.test(f.text) === num), last = mine[mine.length - 1];
+      if (!num) { if (!mine.some((f) => f.text === text && f.t < 0.5)) this.floaters.push({ x, y, text, color, t: 0, who, dx: 0, dy: Math.min(2, mine.filter((f) => f.t < 0.5).length) * 0.6 }); return; }   // words: once, stacked
+      if (last && num && last.t < 0 && last.color === color && /^[-+]?\d+$/.test(last.text)) { const s = text[0] === '-' ? '-' : ''; last.text = s + (Math.abs(+last.text) + Math.abs(+text)); return; }
+      const t0 = last ? Math.min(0, last.t - FLOAT_GAP) : 0;
+      this.floaters.push({ x, y, text, color, t: t0, who, dx: 0, dy: 0 });
+      return;
+    }
+    this.floaters.push({ x, y, text, color, t: 0, who, dx: 0, dy: 0 });
   }
   floatOwner(x, y) {
     let best = null, bd = 1e9;
@@ -988,7 +1007,8 @@ export class Game {
         if (sp && sp.accel) { b.range = W.range; b.dist = 0; b.life = 4; b.max = 4; }
         if (sp && sp.weave) { b.wa = a + off; b.ws = k % 2 ? -1 : 1; b.wt = 0; if (sp.weave.lam) b.wf = (2 * Math.PI * W.speed) / sp.weave.lam; }   // a pair weaves around each other
         if (W.rfSpread && cnt > 1) { const lat = (k - (cnt - 1) / 2) * W.rfSpread; b.x += Math.cos(a + Math.PI / 2) * lat; b.y += Math.sin(a + Math.PI / 2) * lat; }   // side by side (a Realmforge spread)
-        if (W.trail) b.dust = W.trail;                       // a Realmforge shot's trail of dust
+        if (W.trail) b.dust = W.trail;
+        if (W.shotK) b.k = W.shotK;                         // a weapon that draws (and hits with) its shot at its own size                       // a Realmforge shot's trail of dust
         vol.push(b);
       }
       this.rfOnVolley(vol, a, ox, oy, mult, W);           // Realmforge uniques: counted volleys, extra shots (src/rf/uniqmech.js)
@@ -2197,7 +2217,8 @@ export class Game {
       }
       if (e.warden) this.breakSeal(`${e.D.name.split(',')[0]} falls.`);
       if (e.rb) { this.questEvent(this.map.kind === 'dungeon' ? 'dungeon' : 'rboss', e); this.trophy(e.id); if (this.map.kind === 'dungeon') this.player.dungeons = (this.player.dungeons || 0) + 1; else this.player.bossKills = (this.player.bossKills || 0) + 1; }
-      const items = e.noLoot ? [] : rollLoot(e.D.loot, e.D.lootLuck || 1);   // (an overworld boss's adds carry nothing)
+      let items = e.noLoot ? [] : rollLoot(e.D.loot, e.D.lootLuck || 1);   // (an overworld boss's adds carry nothing)
+      if (this.map.kind === 'realm' && !e.rb) items = items.filter((id) => !String(id).startsWith('stat_') || R() < STAT_DROP_REALM);   // stat potions are scarcer out in the realm (2026-10-19)
       const egg = this.eggDrop(e);
       if (egg) items.push(egg);
       const key = this.keyDrop(e);
@@ -2207,7 +2228,7 @@ export class Game {
         const pd = portalDrop(e.D, e.id);
         if (pd && R() < pd[1]) this.openPortal(pd[0], e.x + (e.rb ? 1.5 : 0), e.y);
       } else if (e.rb && this.map.kind === 'dungeon') {
-        this.map.portals.push({ kind: 'realm', x: e.x + 1.5, y: e.y + 1, label: 'Back to the Realm', to: 'realm', life: 90 });
+        this.map.portals.push({ kind: 'realm', x: e.x + 1.5, y: e.y + 1, label: this.exitLabel(), to: 'realm', life: 90 });
       }
     }
     return d;
@@ -3466,7 +3487,7 @@ export class Game {
     this.gainXp(BOSS.xp);
     this.addBag(B.x - 1, B.y + 1, rollLoot(BOSS.loot));
     if (R() < 0.25) this.portalNextToNexus = true;
-    this.map.portals.push({ kind: 'realm', x: B.x + 1.5, y: B.y + 1, label: 'Back to the Realm', to: 'realm', life: 90 });
+    this.map.portals.push({ kind: 'realm', x: B.x + 1.5, y: B.y + 1, label: this.exitLabel(), to: 'realm', life: 90 });
     if (this.portalNextToNexus) {                      // sometimes the Forge opens the way to the god's heart
       this.portalNextToNexus = false;
       this.map.portals.push({ kind: 'heart', x: B.x - 2, y: B.y + 1, label: DUNGEONS.heart.name, to: 'heart', life: 90 });
