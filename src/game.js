@@ -4187,7 +4187,9 @@ export class Game {
     const say = (t) => this.say(t, '#7ad0a8');
     const near = (d = 4) => { const a = R() * TAU; return { x: p.x + Math.cos(a) * d, y: p.y + Math.sin(a) * d }; };
     const n = (v, dflt) => (v === undefined || isNaN(+v) ? dflt : +v);
-    if (!['help', 'dance'].includes((cmd || '').toLowerCase()) && !this.adminOk()) { say('That command is for admins.'); return; }
+    if (!['help', 'dance'].includes((cmd || '').toLowerCase()) && !this.adminOk()) {
+      say(this.account && this.account.online ? 'That command is for admins.' : 'That command is for admins: sign in to your online admin account (this is an offline one).'); return;
+    }
     switch ((cmd || '').toLowerCase()) {
       case 'help':
         say('/admin  /backpack  /maxlevel  /level N  /maxstats  /heal  /god  /give ITEM [N]  /give dungeon ID (its whole loot set)  /items TEXT  /spawn ID [N] (any monster, elite or boss)  /boss ID  ' +

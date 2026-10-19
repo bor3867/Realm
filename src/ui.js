@@ -860,7 +860,7 @@ export class UI {
     else if (what === 'account') {
       this.settingsOpen = false; this.closeVault();
       if (g.mode === 'play') g.leaveToMenu();
-      const A = loadAccounts(); A.keep = null; saveAccounts(A); g.account = null; this.loginScreen();
+      this.signOut();
     }
   }
   // ---- the vault window: the vault's grid, moved out of the panel into a big window over the game while you stand
@@ -1031,6 +1031,18 @@ export class UI {
     for (const el of [name, pass]) el.onkeydown = (e) => { if (e.key === 'Enter') go('login'); };
     name.focus();
   }
+  // sign out (both the account page's button and the gear menu): an online account back to the online door
+  signOut() {
+    const g = this.g;
+    if (g.account && g.account.online) {
+      if (g.player && !g.player.dead && g.mode === 'play') g.persist();
+      g.netSaveNow(); g.netAuth('logout', { token: g.account.token }); setSession(null); g.account = null;
+      return this.onlineScreen();
+    }
+    const A = loadAccounts(); A.keep = null; saveAccounts(A); g.account = null;
+    if (g.netHasAccounts()) return this.onlineScreen();
+    this.loginScreen();
+  }
   // signed in on the server: its save (or a fresh one) is yours, cached in this browser too
   useOnline(r) {
     const g = this.g, a = r.account;
@@ -1082,8 +1094,20 @@ export class UI {
   }
   // the front door on load: straight to the account page if you asked to stay logged in
   async start() {
-    // the server keeps accounts when it is there: sign in there (back in at once if you stayed signed in)
-    if (await this.g.netWhenOpen(2500) && this.g.netHasAccounts()) {
+    // the server keeps accounts when it is there: sign in there (back in at once if you stayed signed in). Online the
+    // free server may be asleep: it takes up to a minute to wake, so wait for it (or play offline)
+    const g = this.g, url = g.net && g.net.url, local = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+    let offline = false;
+    if (url && !local && !(g.net.open && g.net.id)) {
+      const o = this.overlay(`<div class="screen login"><div class="logo"><h1>MELON REALMS</h1></div><div class="card">
+        <h3>Waking the server…</h3><p class="fine">The first visit in a while takes up to a minute.</p>
+        <div class="row2"><button class="btn" id="offline">Play offline instead</button></div></div></div>`);
+      this.splash(o);
+      o.querySelector('#offline').onclick = () => { offline = true; this.loginScreen(); };
+    }
+    const up = await g.netWhenOpen(local ? 2500 : 75000);
+    if (offline) return;
+    if (up && g.netHasAccounts()) {
       const t = getSession();
       if (t) { const r = await this.g.netAuth('resume', { token: t }); if (!r.error) return this.useOnline(r); setSession(null); }
       return this.onlineScreen();
@@ -1107,7 +1131,7 @@ export class UI {
     }).join('');
     const o = this.overlay(`<div class="screen account"><div class="logo small"><h1>MELON REALMS</h1></div>
       <div class="card wide">
-        <div class="acchead"><div><small>Signed in as</small><h2>${acc.name}</h2></div><button class="btn" id="logout">Switch account</button></div>
+        <div class="acchead"><div><small>Signed in as${acc.online ? ` · online${acc.admin ? ' · <b class="admintag">admin</b>' : ''}` : ' · offline (this browser only)'}</small><h2>${acc.name}</h2></div><button class="btn" id="logout">Switch account</button></div>
         <div class="tiles">
           <div class="tile f"><small>Account fame</small><b>✦ ${s.fame}</b></div>
           <div class="tile g"><small>Gold</small><b>● ${s.gold || 0}</b></div>
@@ -1125,10 +1149,7 @@ export class UI {
     this.splash(o);
     o.querySelector('#tochars').onclick = () => this.titleScreen();
     o.querySelector('#asett').onclick = () => this.toggleSettings();
-    o.querySelector('#logout').onclick = () => {
-      if (g.account && g.account.online) { g.persist(); g.netSaveNow(); g.netAuth('logout', { token: g.account.token }); setSession(null); g.account = null; return this.onlineScreen(); }
-      const A = loadAccounts(); A.keep = null; saveAccounts(A); g.account = null; this.loginScreen();
-    };
+    o.querySelector('#logout').onclick = () => this.signOut();
     this.animateCanvases(o, () => 'front_idle', 40);
     o.querySelector('#tochars').focus();
   }
