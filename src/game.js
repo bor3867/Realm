@@ -1795,12 +1795,23 @@ export class Game {
     let p = this.player;
     const T = this.netTargets, anchor = p;
     const act = (this.active = []), nb = (this.notable = []); this.activeMap = this.map;
-    for (const e of this.enemies) {
+    // the server thinks only about the monsters near some player: a short list, rebuilt each second (and the new ones)
+    let L = this.enemies, fresh = true;
+    if (T) {
+      if (!this.netNear || this.t >= this.netNearT) {
+        this.netNearT = this.t + 1;
+        this.netNear = this.enemies.filter((e) => e.rb || (!e.dead || e.deadT < 1.4) && T.some((q) => Math.abs(e.x - q.x) < 48 && Math.abs(e.y - q.y) < 48));
+      } else fresh = false;
+      for (const e of this.netNew || []) if (!this.netNear.includes(e)) this.netNear.push(e);
+      this.netNew = [];
+      L = this.netNear;
+    }
+    for (const e of L) {
       if (e.dead) continue;
       if (T ? T.some((q) => Math.abs(e.x - q.x) < 30 && Math.abs(e.y - q.y) < 30) : Math.abs(e.x - p.x) < 30 && Math.abs(e.y - p.y) < 30) act.push(e);
       if (e.rb || e.herald || e.warden || e.D.melon) nb.push(e);
     }
-    for (const e of this.enemies) {
+    for (const e of L) {
       if (e.dead) { e.deadT += dt; continue; }
       if (e.net) { this.netPuppet(e, dt); continue; }
       if (T) { p = this.netNearest(e); if (!p) continue; this.player = p; }
@@ -1918,7 +1929,7 @@ export class Game {
         }
       }
     }
-    this.enemies = this.map.enemies = this.enemies.filter((e) => !e.dead || e.deadT < (e.rb ? 1.4 : 0.6));
+    if (fresh) this.enemies = this.map.enemies = this.enemies.filter((e) => !e.dead || e.deadT < (e.rb ? 1.4 : 0.6));   // (the server: once a second)
   }
   // Movement styles (ENEMIES[id].ai):
   //   shamble, kite, orbit, drift, charge - the originals

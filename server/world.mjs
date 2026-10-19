@@ -68,6 +68,16 @@ export function makeWorld(seed, send, where = 'realm') {
   const banner0 = g.banner.bind(g);
   g.banner = function (text, ms, ...r) { out.push({ k: 'banner', text: String(text), ms }); return banner0(text, ms, ...r); };
   g.say = function () {};             // (the server's own chat goes nowhere)
+  // lighter for a small server: no chest prompts for the stand-in; the slow clocks (events, the melon, quirks) once a
+  // second with the time they missed
+  g.openChests = function () {};
+  const add0 = g.addEnemy.bind(g);                                 // a new monster joins the server's short list at once
+  g.addEnemy = function (...a) { const e = add0(...a); (this.netNew = this.netNew || []).push(e); return e; };
+  g.updateWorld = ((f) => function (dt) { const o = this.map.objects; this.map.objects = []; try { return f.call(this, dt); } finally { this.map.objects = o; } })(g.updateWorld);   // (no town objects to walk up to)
+  for (const k of ['melonTick', 'eventClock', 'updateQuirks']) {
+    const f = g[k]; if (typeof f !== 'function') continue;
+    let acc = 0; g[k] = function (dt, ...r) { acc += dt || 0; if (acc < 1) return; const d = acc; acc = 0; return f.call(this, d, ...r); };
+  }
 
   function nearest(e) {
     let best = null, bd = 1e9;
@@ -128,12 +138,12 @@ export function makeWorld(seed, send, where = 'realm') {
       // the world's bookkeeping happens round a player: take turns
       const list = [...P.values()].filter((q) => !q.dead), at = list[Math.floor(g.t * 2) % Math.max(1, list.length)];
       if (at) { anchor.x = at.x; anchor.y = at.y; }
-      const seenShots = new Set(g.projectiles), seenFx = new Set(g.fx), seenBub = new Set(g.bubbles || []), seenObj = new Set(g.map.objects);
+      const seenShots = new Set(g.projectiles), seenFx = new Set(g.fx), seenBub = new Set(g.bubbles || []), objN = g.map.objects.length;
       g.update(dt);
       anchor.hp = 1e9; anchor.dead = false; g.mode = 'play';
       for (const e of g.enemies) if (!e.nid) e.nid = ++nid;
       if (dung) for (const e of g.enemies) if (e.rb && e.dead && !e.netExit) { e.netExit = true; out.push({ k: 'exit', x: e.x, y: e.y, name: e.D.name }); }   // its master falls: a way out for all
-      for (const o of g.map.objects) if (!seenObj.has(o)) { const j = safe(o); log.objs.push(j); out.push({ k: 'obj', o: j }); }
+      for (let i = objN; i < g.map.objects.length; i++) { const j = safe(g.map.objects[i]); log.objs.push(j); out.push({ k: 'obj', o: j }); }   // (things the world added this tick)
       if (g.bags && g.bags.length > 40) g.bags.length = 0;                       // (the server's own loot: nobody's)
       // shots a boss holds and moves itself (set pieces, orbits): where they are, until they fly free; and their end
       const live = new Set(g.projectiles);

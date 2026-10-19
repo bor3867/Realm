@@ -147,15 +147,16 @@ const methods = {
     N.sendT = SEND;
     const p = this.player;
     if (!p) return;
-    N.ws.send(JSON.stringify({ t: 'st', room, name: (this.account && this.account.name) || '', cls: p.cls, x: +p.x.toFixed(2), y: +p.y.toFixed(2), dir: p.dir, mv: !!p.moving, hp: Math.round(p.hp), mhp: Math.round(this.stat('hp')),
-      dead: !!p.dead, ab: p.abilityT > 0, sh: this.t - p.lastShot < 0.25, dn: p.danceT > 0, lv: p.level }));
-    if (N.shots.length && room) { N.ws.send(JSON.stringify({ t: 'shot', room, list: N.shots })); }
+    const parts = [{ t: 'st', room, name: (this.account && this.account.name) || '', cls: p.cls, x: +p.x.toFixed(2), y: +p.y.toFixed(2), dir: p.dir, mv: !!p.moving, hp: Math.round(p.hp), mhp: Math.round(this.stat('hp')),
+      dead: !!p.dead, ab: p.abilityT > 0, sh: this.t - p.lastShot < 0.25, dn: p.danceT > 0, lv: p.level }];
+    if (N.shots.length && room) parts.push({ t: 'shot', room, list: N.shots });
     N.shots = [];
-    if (N.hits.length && this.map.netWorld) N.ws.send(JSON.stringify({ t: 'hits', list: N.hits.slice(0, 60) }));
+    if (N.hits.length && this.map.netWorld) parts.push({ t: 'hits', list: N.hits.slice(0, 60) });
     N.hits = [];
     if (this.map.netWorld) for (const e of N.byId.values()) if (e.netPx || e.netPy) { N.efx.push([e.nid, 'push', +e.netPx.toFixed(2), +(e.netPy || 0).toFixed(2)]); e.netPx = e.netPy = 0; }
-    if (N.efx.length && this.map.netWorld) N.ws.send(JSON.stringify({ t: 'efx', list: N.efx.slice(0, 40) }));
+    if (N.efx.length && this.map.netWorld) parts.push({ t: 'efx', list: N.efx.slice(0, 40) });
     N.efx = [];
+    N.ws.send(JSON.stringify(parts.length === 1 ? parts[0] : { t: 'tk', parts }));   // (one message a tick, whatever it holds)
   },
   // ---- stage 2, milestone 1: the shared realm's monsters are the server's (server/world.mjs)
   // this realm is the shared one and the server runs its monsters: ours go, theirs come

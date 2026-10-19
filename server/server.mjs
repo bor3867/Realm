@@ -8,7 +8,7 @@ import { createHash, randomInt } from 'node:crypto';
 
 const PORT = +process.env.PORT || 8787;
 const SEED = (+process.env.REALM_SEED || randomInt(1, 0xffffff)) | 1;   // the shared realm (a new one each start)
-const LIMIT = { msg: 16384, name: 16, chat: 200, perSec: 40 };           // what one player may send
+const LIMIT = { msg: 65536, name: 16, chat: 200, perSec: 40 };           // what one player may send
 const ROOM = /^(nexus|realm:\d+)$/;                                        // the places players share (stage 1)
 const CLASSES = new Set(['brawler', 'forge_knight', 'priest', 'summoner', 'harpooner', 'duelist', 'stormwright', 'clockmaker', 'runeblade', 'hexweaver']);
 
@@ -54,6 +54,7 @@ function onMessage(c, text) {
     send(c, { t: 'welcome', id: c.id, seed: SEED, online: clients.size, world: !!world, db: !!db });
     return;
   }
+  if (m.t === 'tk' && Array.isArray(m.parts)) { for (const part of m.parts.slice(0, 6)) if (part && typeof part === 'object' && part.t !== 'tk') onMessage(c, JSON.stringify(part)); return; }   // one bundle a tick
   if (m.t === 'st') {                                    // where I am and what I'm doing
     const room = roomOk(m.room) ? m.room : null;
     if (room !== c.room) {
@@ -196,8 +197,9 @@ server.on('upgrade', (req, sock) => {
       const text = Buffer.concat(parts).toString('utf8'); parts = [];
       // a budget of messages a second (a misbehaving client is dropped, not the server)
       const now = Date.now(); c.budget = Math.min(LIMIT.perSec, c.budget + ((now - c.last) / 1000) * LIMIT.perSec); c.last = now;
-      if ((c.budget -= 1) < -LIMIT.perSec) { sock.destroy(); return; }
-      if (c.budget >= 0) onMessage(c, text);
+      // over budget: the extra is dropped (a burst after lag is no crime); only a real flood is let go
+      if ((c.budget -= 1) < -LIMIT.perSec * 10) { console.warn(`dropped ${c.name || c.id}: flooding`); sock.destroy(); return; }
+      if (c.budget >= -LIMIT.perSec) onMessage(c, text);
     }
   });
   const gone = () => { if (!clients.has(c.id)) return; clients.delete(c.id); if (c.pendingSave) flushSave(c); const W = worldOf(c.room); if (W) W.leave(c.id); if (c.room) toRoom(c.room, { t: 'bye', id: c.id }); toAll({ t: 'online', n: clients.size }); };
@@ -207,10 +209,10 @@ server.on('upgrade', (req, sock) => {
 // keep connections alive through hosts' idle timeouts
 setInterval(() => { const ping = Buffer.from([0x89, 0]); for (const c of clients.values()) if (!c.sock.destroyed) c.sock.write(ping); }, 25000);
 // the world's clock: 20 steps a second, the monsters' news 10 times a second
-if (world) { let n = 0, slow = 0; setInterval(() => { const t0 = performance.now(); const now = ++n % 2 === 0;
-  try { world.tick(0.05, now); } catch (err) { console.error('world tick', err); }
+if (world) { let n = 0, slow = 0; setInterval(() => { const t0 = performance.now(); const now = true; ++n;
+  try { world.tick(0.1, now); } catch (err) { console.error('world tick', err); }
   for (const [room, d] of dungeons) {
-    try { d.world.tick(0.05, now); } catch (err) { console.error('dungeon tick', d.to, err); }
+    try { d.world.tick(0.1, now); } catch (err) { console.error('dungeon tick', d.to, err); }
     if (Date.now() > d.until && d.world.idleMs > 120000) dungeons.delete(room);     // empty, its portal long gone: closed
-  } const ms = performance.now() - t0; if (ms > 45 && ++slow % 50 === 1) console.warn(`world tick slow: ${ms.toFixed(0)} ms`); }, 50); }
+  } const ms = performance.now() - t0; if (ms > 90 && ++slow % 50 === 1) console.warn(`world tick slow: ${ms.toFixed(0)} ms`); }, 100); }
 server.listen(PORT, () => console.log(`Melon Realms server on :${PORT}, realm seed ${SEED}`));
