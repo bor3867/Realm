@@ -11,6 +11,9 @@ const ROOT = new URL('../', import.meta.url);
 const { buildRegistry } = await import(new URL('src/registry.js', ROOT));
 const { Game } = await import(new URL('src/game.js', ROOT));
 const { realm } = await import(new URL('src/world/maps.js', ROOT));
+const { REALM_BOSSES } = await import(new URL('src/data/enemies.js', ROOT));
+// the admin commands that make or end monsters: in a shared place the server runs them, so everyone has the same ones
+export const WORLD_CMDS = new Set(['spawn', 'bx', 'boss', 'kraken', 'treant', 'star', 'melon', 'event', 'progress', 'killall']);
 const J = (q) => JSON.parse(readFileSync(new URL('art/bundle/' + q, ROOT), 'utf8')), idx = J('index.json');
 const reg = buildRegistry(idx.atlases.map((a) => ({ pack: a.split('/')[0], json: J(a) })), J(idx.hover), (q) => q);
 
@@ -103,6 +106,18 @@ export function makeWorld(seed, send, where = 'realm') {
       g.player = q; try { g.interact(o); } catch (err) { console.warn('use', k, err.message); } finally { g.player = anchor; }
     },
     get idleMs() { return P.size ? 0 : Date.now() - lastEmpty; },
+    // an admin's spawning command, run in this world round them (/spawn, /bx, /boss, /kraken, ...): what it said
+    adminCmd(id, line) {
+      const q = P.get(id), said = [];
+      if (!q) return said;
+      const [cmd, a0] = line.trim().slice(1).split(/\s+/), c = (cmd || '').toLowerCase();
+      if (!WORLD_CMDS.has(c)) return ['Not a world command.'];
+      if (c === 'boss') { const id2 = ({ emily: 'emily_the_yapper', penguin: 'emily_the_yapper' })[a0] || a0; if (id2 && !REALM_BOSSES[id2]) return ['Dungeon bosses: use /boss away from the shared world (it takes you to them).']; }
+      const say0 = g.say, x0 = q.x, y0 = q.y; g.say = (t) => said.push(String(t)); g.player = q;
+      try { g.command(line); } catch (err) { said.push('That failed: ' + err.message); } finally { g.player = anchor; g.say = say0; }
+      if (Math.hypot(q.x - x0, q.y - y0) > 3) send(id, { t: 'moveto', x: q.x, y: q.y });   // (a command that puts you somewhere: the Kraken's edge)
+      return said;
+    },
     // monsters an admin brings (/chickens): shared, round a spot
     spawn(id, x, y, n) {
       for (let k = 0; k < n; k++) { const a = Math.random() * Math.PI * 2, d = 2 + Math.random() * 3; const e = g.addEnemy(id, x + Math.cos(a) * d, y + Math.sin(a) * d); e.seen = true; }

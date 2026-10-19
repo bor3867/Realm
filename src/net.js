@@ -5,7 +5,8 @@
 // seed, so every player walks the same land. With no server (none set, or it is down) the game plays alone as before.
 // Mixed into Game; game.js calls netTick every frame, shoot() reports your shots, enter() asks netSeed for the realm.
 
-import { DUNGEONS as DUNGEON_DEFS } from './data/enemies.js';
+import { DUNGEONS as DUNGEON_DEFS, REALM_BOSSES } from './data/enemies.js';
+const NET_WORLD_CMDS = new Set(['spawn', 'bx', 'boss', 'kraken', 'treant', 'star', 'melon', 'event', 'progress', 'killall']);
 // the dungeons that can be shared (the Drowned Forge's boss is of an older kind and stays each player's own for now)
 const NET_DUNGEONS = (to) => !!DUNGEON_DEFS[to] && to !== 'forge';
 // where the server is: ?server=wss://... in the address wins; on this computer, the local one; online, SERVER_URL
@@ -60,6 +61,7 @@ const methods = {
     else if (m.t === 'bags') { if (this.map) { this.bags = this.map.bags = this.bags.filter((b) => !b.shared); for (const b of m.list) this.netBag(b); } }
     else if (m.t === 'bag') this.netBag(m);
     else if ((m.t === 'dropped' || m.t === 'took') && N.pending) { const f = N.pending.get(m.rid); if (f) { N.pending.delete(m.rid); f(m); } }
+    else if (m.t === 'moveto') { const p = this.player; if (p && !p.dead && this.map.netWorld) { p.x = m.x; p.y = m.y; } }
     else if (m.t === 'kick') { N.kicked = true; this.banner(m.reason || 'The server let you go.', 8000); this.say(m.reason || 'The server let you go.', '#ff8a8a'); }
     else if (m.t === 'auth') { const f = N.pending && N.pending.get(m.rid); if (f) { N.pending.delete(m.rid); f(m); } }
     else if (m.t === 'st') {
@@ -93,6 +95,14 @@ const methods = {
     else if (m.t === 'dlog') { if (this.map.netWorld && this.map.kind === 'dungeon') this.netDungeonState(m); }
     else if (m.t === 'hurt') { if (this.map.netWorld && !this.player.dead) this.hurtPlayer(m.d, m.by, m.ap); }
     else if (m.t === 'chat') this.say(`${m.name}: ${m.text}`, m.id === N.id ? '#e9e4f2' : '#bfe8ff');
+  },
+  // an admin's command that makes or ends monsters, in a shared place: run by the server (true: sent)
+  netWorldCmd(line, cmd, args) {
+    const N = this.net;
+    if (!N || !N.open || !NET_WORLD_CMDS.has(cmd) || !(this.account && this.account.online && this.account.admin)) return false;
+    if (cmd === 'boss') { const id = ({ emily: 'emily_the_yapper', penguin: 'emily_the_yapper' })[args[0]] || args[0]; if (id && !REALM_BOSSES[id]) return false; }   // (a dungeon boss: it takes you there)
+    N.ws.send(JSON.stringify({ t: 'acmd', line }));
+    return true;
   },
   // an admin's gift for everyone in this room: the server checks you're an admin and hands it out (true: sent)
   netGift(what, n) {

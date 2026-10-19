@@ -139,6 +139,10 @@ function onMessage(c, text) {
     if (b.items.some(Boolean)) toRoom(c.room, bagMsg(b)); else { B.delete(b.bid); toRoom(c.room, { t: 'bag', bid: b.bid, gone: true }); }
     return;
   }
+  if (m.t === 'acmd' && c.account && c.account.admin && typeof m.line === 'string' && worldOf(c.room)) {   // an admin's world command
+    for (const t of worldOf(c.room).adminCmd(c.id, str(m.line, 200)).slice(0, 6)) send(c, { t: 'chat', id: 0, name: 'Server', text: t });
+    return;
+  }
   if (m.t === 'gift' && c.account && c.account.admin && c.room && ['chickens', 'chests'].includes(m.what)) {   // an admin's gift for the room
     const n = Math.max(1, Math.min(m.what === 'chests' ? 5 : 20, Math.round(num(m.n, 1, 20)))), x = num(m.x, 0, 4096), y = num(m.y, 0, 4096);
     const W = worldOf(c.room);

@@ -4208,6 +4208,8 @@ export class Game {
     if (!['help', 'dance', 'teleport'].includes((cmd || '').toLowerCase()) && !this.adminOk()) {
       say(this.account && this.account.online ? 'That command is for admins.' : 'That command is for admins: sign in to your online admin account (this is an offline one).'); return;
     }
+    // in a shared place the monsters are the server's: commands that make or end them run there, for everyone (src/net.js)
+    if (this.map && this.map.netWorld && this.netWorldCmd && this.netWorldCmd(line, (cmd || '').toLowerCase(), args)) { say('(sent to the server: everyone here sees it)'); return; }
     switch ((cmd || '').toLowerCase()) {
       case 'help':
         say('/admin  /backpack  /maxlevel  /level N  /maxstats  /heal  /god  /give ITEM [N]  /give dungeon ID (its whole loot set)  /items TEXT  /spawn ID [N] (any monster, elite or boss)  /boss ID  ' +
