@@ -6,7 +6,9 @@ export const TILE_NAMES = ['water', 'deep', 'sand', 'fen', 'mud', 'snow', 'runef
   'grass', 'cobble', 'dirt', 'hedge', 'shallows', 'bog', 'ice', 'dune', 'glassflat', 'loam', 'bramble', 'steppe', 'quartz',
   'cryptfloor', 'cryptwall', 'cryptwater', 'emberfloor', 'emberwall', 'emberlava', 'carpet',
   'combfloor', 'waxwall', 'honey', 'stageboards', 'velvetwall', 'prismfloor', 'crystalwall', 'dreamfloor', 'dreamwall', 'starvoid', 'dreambridge', 'fadebridge', 'fadegone',
-  'cliff', 'rift', 'fvsnow', 'fvice', 'fvwater', 'fvwall', 'mrmud', 'mrmoss', 'mrboard', 'mrwall', 'asmarble', 'asgrate', 'asvoid', 'aswall', 'sdsand', 'sdtomb', 'quicksand', 'sdwall', 'ckstone', 'ckcarpet', 'ckmarble', 'ckblood', 'ckwall', 'ckwin', 'hmsaw', 'hmboard', 'hmcheck', 'hmspin', 'hmwall'];
+  'cliff', 'rift', 'fvsnow', 'fvice', 'fvwater', 'fvwall', 'mrmud', 'mrmoss', 'mrboard', 'mrwall', 'asmarble', 'asgrate', 'asvoid', 'aswall', 'sdsand', 'sdtomb', 'quicksand', 'sdwall', 'ckstone', 'ckcarpet', 'ckmarble', 'ckblood', 'ckwall', 'ckwin', 'hmsaw', 'hmboard', 'hmcheck', 'hmspin', 'hmwall',
+  // the user's Realmforge dungeons (src/rf/host.js): one name per tile code of theirs; their art is drawn per dungeon
+  'rf_wall', 'rf_floor', 'rf_path', 'rf_pit', 'rf_secret', 'rf_gate', 'rf_haz', 'rf_liq', 'rf_ice', 'rf_bridge', 'rf_tog', 'rf_break', 'rf_conv', 'rf_deep'];
 export const TID = Object.fromEntries(TILE_NAMES.map((n, i) => [n, i]));
 const SOLID_TILES = new Set([TID.water, TID.deep, TID.forgewall, TID.void, TID.chapelwall, TID.ribwall, TID.hedge, TID.bramble, TID.cryptwall, TID.emberwall, TID.cryptwater,
   TID.waxwall, TID.velvetwall, TID.crystalwall, TID.dreamwall, TID.starvoid, TID.fadegone, TID.cliff, TID.fvwall, TID.mrwall, TID.aswall, TID.sdwall, TID.ckwall, TID.ckwin, TID.hmwall]);
@@ -67,6 +69,7 @@ function makeMap(kind, name, w, h, fill) {
 }
 export const idx = (m, x, y) => y * m.w + x;
 export function isSolid(m, x, y) {
+  if (m.rf) return m.rf.solid(x, y);                     // a Realmforge dungeon: its own walls, pits and solid things
   const xi = Math.floor(x), yi = Math.floor(y);
   if (xi < 0 || yi < 0 || xi >= m.w || yi >= m.h) return true;
   return m.solid[yi * m.w + xi] === 1;
@@ -645,6 +648,7 @@ export function objectsIn(m, x0, y0, x1, y1) {
 }
 // shots fly over open water (the sea, the fen's pools): only walls, rock and solid things stop them
 export function shotBlocked(m, x, y) {
+  if (m.rf) return m.rf.shot(x, y);                      // (shots fly over their pits and deep water)
   if (!isSolid(m, x, y)) return false;
   const xi = Math.floor(x), yi = Math.floor(y);
   if (xi < 0 || yi < 0 || xi >= m.w || yi >= m.h) return true;

@@ -48,6 +48,13 @@ trail 13, line 12, spiral 7, summon 7, pulse 5, snipe 4, heal 3, and 9 rarer). 2
   poison/bleed as burn, curse/mark, lifesteal, burst-split, return, helix/wave weave). Their other 95 named effects sit
   in `item.rf.pending` and are built with each dungeon; seeking effects (paper cranes, curving arrows) stay out under
   the no-seeking rule unless the user says otherwise. Uniques drop once their boss's dungeon is in.
+- **Phase 2a done: the dungeons are hosted.** `tools/rf_build_explore.py` builds `src/rf/explore_gen.js` from
+  Realmforge's explore.js + all xmods (checked patches only at the seams: player, auto-fire, potions/coins, chest loot,
+  window). `src/rf/host.js` is the game around it: our map mirrors theirs (tile codes -> `rf_*` tiles, their walls are
+  our 2.5D walls, their collision is ours), our player stands in for theirs (hurt, heal, slow, pushes), our shots hit
+  their creatures, kills give XP and bags, chests give our loot. `src/rf/draw.js` draws their painted map, objects,
+  props, creatures, shots, traps and telegraphs. All 24 run (admin: `/tp rf_<id>`). Not yet: their lighting, the boss
+  fights (the boss door only announces the boss), the uniques' effects, portals in the realm, balance.
 
 ## Status
 | Dungeon | Boss | Layout | Creatures | Boss | Uniques | Overworld droppers | Done |

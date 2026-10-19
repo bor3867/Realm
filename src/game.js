@@ -29,6 +29,7 @@ import { installSigils } from './sigils.js';
 import { installMythics } from './mythics.js';
 import { installGearMech } from './gearmech.js';
 import { BX, bxEnemyDef } from './bosses/index.js';
+import { installRF } from './rf/host.js';
 import { assignItemShots } from './data/uniques.js';
 import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUEST_HUNTS, FETCH_ITEMS } from './data/lore.js';
 
@@ -258,6 +259,7 @@ export class Game {
       if (!this.realmMap) this.realmMap = realm((Date.now() & 0xffffff) | 1);
       this.map = this.realmMap;
     } else if (DUNGEONS[where]) this.map = dungeon((Date.now() & 0xffffff) | 3, DUNGEONS[where]);
+    else if (where.startsWith('rf_')) { const m = this.rfMap(where); if (!m) { this.banner('That dungeon is not ready.', 2000); return; } this.map = m; }
     this.projectiles = [];
     this.allies = [];
     this.decoys = [];
@@ -272,6 +274,7 @@ export class Game {
     this.unstick(p);
     this.realmReturn = null;                              // dungeons let out onto the beach
     if (where === 'realm' && !this.map.populated) this.populateRealm();
+    if (this.map.rf) this.map.portals.push({ kind: 'realm', x: this.map.spawn.x, y: this.map.spawn.y + 1.5, label: 'Back to the Realm', to: 'realm' });
     if (DUNGEONS[where]) {
       this.populateDungeon(DUNGEONS[where]);
       // a way back out, right where you arrive
@@ -865,7 +868,8 @@ export class Game {
     this.updateWorld(dt);
     if (this.map.kind === 'realm') { this.maintainRealm(dt); this.eventClock(dt); this.melonTick(dt); this.eventBossTick(dt); }
     this.updateEliteAuras(dt);
-    if (this.map.kind === 'dungeon') { this.updateDungeon(dt); this.updatePuzzles(dt); this.updateTraps(dt); this.updateD4(dt); if (this.map.def && this.map.def.style === 'frostveil') this.updateFrostveil(dt); if (this.map.def && this.map.def.style === 'mirerot') this.updateMirerot(dt); if (this.map.def && this.map.def.style === 'astral') this.updateAstral(dt); if (this.map.def && this.map.def.style === 'sandscour') this.updateSandscour(dt); if (this.map.def && this.map.def.style === 'keep') this.updateKeep(dt); if (this.map.def && this.map.def.style === 'hollowmoon') this.updateHollowmoon(dt); if (this.map.def && this.map.def.style === 'ember') this.updateEmber(dt); }
+    if (this.map.rf) this.rfUpdate(dt);
+    else if (this.map.kind === 'dungeon') { this.updateDungeon(dt); this.updatePuzzles(dt); this.updateTraps(dt); this.updateD4(dt); if (this.map.def && this.map.def.style === 'frostveil') this.updateFrostveil(dt); if (this.map.def && this.map.def.style === 'mirerot') this.updateMirerot(dt); if (this.map.def && this.map.def.style === 'astral') this.updateAstral(dt); if (this.map.def && this.map.def.style === 'sandscour') this.updateSandscour(dt); if (this.map.def && this.map.def.style === 'keep') this.updateKeep(dt); if (this.map.def && this.map.def.style === 'hollowmoon') this.updateHollowmoon(dt); if (this.map.def && this.map.def.style === 'ember') this.updateEmber(dt); }
     { const m = this.map; if (m.fvTimers) { for (const T of m.fvTimers) if ((T.t -= dt) <= 0 && !T.done) { T.done = true; T.fn(); } m.fvTimers = m.fvTimers.filter((T) => !T.done); } }   // later(): any map's delayed events
     this.updateChill(dt); this.updatePoison(dt);
     if (this.map.kind !== 'nexus') this.openChests();
@@ -918,7 +922,7 @@ export class Game {
     const drag = under === TID.bog || under === TID.fvwater ? 0.6 : under === TID.quicksand ? 0.55 : under === TID.ckblood ? 0.7 : under === TID.shallows ? 0.8 : 1;
     const bless = p.status.bless > 0 ? p.blessKind : null;
     if (len) { mx /= len; my /= len; }
-    const sp = moveSpeed(this.stat('spd')) * drag * (bless === 'shore' ? 1.25 : 1) * (this.map.kind === 'dungeon' ? this.d4Speed() : 1) * (p.dragUntil > this.t ? p.dragF : 1) * this.chillSlow();
+    const sp = moveSpeed(this.stat('spd')) * drag * (bless === 'shore' ? 1.25 : 1) * (this.map.kind === 'dungeon' ? this.d4Speed() * (this.map.rf ? p.rfSlow || 1 : 1) : 1) * (p.dragUntil > this.t ? p.dragF : 1) * this.chillSlow();
     // keys are screen directions: rotate them into the world
     const wx = len ? (mx * cs + my * sn) * sp : 0, wy = len ? (-mx * sn + my * cs) * sp : 0;
     p.vel = p.vel || { x: 0, y: 0 };
@@ -3538,7 +3542,8 @@ export class Game {
         continue;
       }
       let alive = true;
-      if (b.from === 'p') {
+      if (b.from === 'p' && m.rf && this.rfShotHits(b)) alive = false;   // a Realmforge creature (src/rf/host.js)
+      if (b.from === 'p' && alive) {
         for (const e of targets) {
           if (e.dead || e.state === 'dead' || e.under) continue;
           const rr = (e === this.boss ? BOSS.r : e.D.r) + b.r;
@@ -4217,7 +4222,7 @@ export class Game {
       case 'tp': {
         const w = (args[0] || '').toLowerCase();
         if (w === 'nexus') { this.enter('nexus'); break; }
-        if (DUNGEONS[w]) { this.enter(w); break; }
+        if (DUNGEONS[w] || w.startsWith('rf_')) { this.enter(w); break; }
         if (this.map.kind !== 'realm') this.enter('realm');
         const bi = BIOMES.indexOf(w);
         if (bi >= 0) { const at = randomTileInBiome(this.map, bi, R, null); if (at) { p.x = at.x; p.y = at.y; } }
@@ -4310,4 +4315,5 @@ installCryptEmber(Game);
 installElites(Game);
 installRemaster(Game);
 installSetpieces(Game);
+installRF(Game);
 wireBxSetpieces(BX);

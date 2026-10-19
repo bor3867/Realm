@@ -5,6 +5,7 @@
 // every sprite stays upright at its rotated position, like classic tiny-MMO cameras.
 import { lift } from './util.js';
 import { installWalls } from './walls.js';
+import { installRFRender } from './rf/draw.js';
 import { rxFrame } from './remaster.js';
 import { TILE_NAMES, BIOMES, biomeAt, objectsIn, SKINS, SKIN_TID, TID, FLAT, WALL_FACE } from './world/maps.js';
 import { hoverY } from './registry.js';
@@ -161,6 +162,7 @@ export class Renderer {
       if (list.length > n0 && FLAT.has(o.sprite)) list[n0].sy -= 12;               // flat clutter lies under whoever stands on it
     }
     this.addWalls(g, m, list, VR);                                  // walls stand up: border walls sort with everyone (src/walls.js)
+    if (m.rf) { this.rfGround(g, m); this.rfAdd(g, m, add); }        // a Realmforge dungeon's things (src/rf/draw.js)
     for (const pt of m.portals) add(pt.x, pt.y, (sx, sy) => this.portal(g, pt, sx, sy));
     for (const bag of g.bags) {                                // a bag on a portal is drawn in front of it, never hidden inside
       const onPortal = m.portals.some((pt) => Math.abs(pt.x - bag.x) < 1.8 && Math.abs(pt.y - bag.y) < 1.8);
@@ -227,6 +229,7 @@ export class Renderer {
     const darkFirst = g.map.lights && g.map.kind === 'dungeon';     // in a dungeon the dark falls under the bullets: shots always read
     if (darkFirst) { b.save(); b.setTransform(this.scale, 0, 0, this.scale, 0, 0); this.dusk(g); b.restore(); }   // the screen's own scale, without the shake
     if (g.map.kind === 'dungeon') this.d4Fx(g);                  // the newer dungeons' lights, beams and strings (over the dark)
+    if (m.rf) this.rfTop(g, m);
     this.drawProjectiles(g, dt);
     if (g.activeMap === m) for (const e of g.notable) if (e.bx && e.bx.B.drawTop && !e.dead) e.bx.B.drawTop(this, g, e);   // a boss's layer over the bullets (the Orrery's umbra)
     this.drawZaps(dt);
@@ -313,6 +316,7 @@ export class Renderer {
     const skinned = (x, y) => { if (!sk || x < 0 || y < 0 || x >= m.w || y >= m.h) return false; const j = y * m.w + x, k = sk[j]; return k > 0 && SKIN_TID[k] === m.tiles[j]; };
     const nm = name(tx, ty), T = W.tiles[nm];
     if (m.seen && (tx < 0 || ty < 0 || tx >= m.w || ty >= m.h || !m.seen[ty * m.w + tx])) { gc.fillStyle = '#000'; gc.fillRect(dx, dy, TS, TS); return false; }
+    if (m.rf) { this.rfGroundTile(gc, m, tx, ty, dx, dy); return false; }   // a Realmforge dungeon: its own painted map (src/rf/draw.js)
     const h = ((tx * 73856093) ^ (ty * 19349663)) >>> 0;
     let moving = false;
     if (SA && skinned(tx, ty)) {
@@ -2330,3 +2334,4 @@ export class Renderer {
 
 // RotMG-style 2.5D walls (src/walls.js)
 installWalls(Renderer);
+installRFRender(Renderer);

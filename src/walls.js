@@ -16,7 +16,7 @@ import { TILE_NAMES, TID, WALL_FACE } from './world/maps.js';
 const TS = 16;
 const C = 8;                                                  // = GROUND_CHUNK in render.js
 export const WALL_TILES = new Set(['forgewall', 'chapelwall', 'ribwall', 'cryptwall', 'emberwall', 'waxwall', 'velvetwall', 'crystalwall', 'dreamwall',
-  'fvwall', 'mrwall', 'aswall', 'sdwall', 'ckwall', 'ckwin', 'hmwall'].map((n) => TID[n]).filter((t) => t !== undefined));
+  'fvwall', 'mrwall', 'aswall', 'sdwall', 'ckwall', 'ckwin', 'hmwall', 'rf_wall', 'rf_secret', 'rf_tog', 'rf_break'].map((n) => TID[n]).filter((t) => t !== undefined));
 // how tall each stands, in screen pixels (a tile is 16): castle and chapel walls loom, hedges come to the chest
 const WALL_H = { ckwall: 24, ckwin: 24, chapelwall: 20, ribwall: 20, crystalwall: 20, hedge: 11 };
 const heightOf = (name) => WALL_H[name] || 16;
@@ -44,7 +44,7 @@ const methods = {
     if (K0 && K0.sig === sig && K0.src === groundK) return K0;
     const K = K0 || { cs: {} };
     const inside = (x, y) => x >= 0 && y >= 0 && x < m.w && y < m.h;
-    const hAt = (x, y) => (inside(x, y) && this.wallTile(m, m.tiles[y * m.w + x]) ? heightOf(TILE_NAMES[m.tiles[y * m.w + x]]) : 0);   // 0: floor, water, void
+    const hAt = (x, y) => (inside(x, y) ? (this.wallTile(m, m.tiles[y * m.w + x]) ? heightOf(TILE_NAMES[m.tiles[y * m.w + x]]) : 0) : m.rf ? 16 : 0);   // (a Realmforge map is rock to its edge)   // 0: floor, water, void
     const seen = (x, y) => !m.seen || (inside(x, y) && m.seen[y * m.w + x]);
     K.border = []; K.heights = [];
     const tiles = {};
@@ -71,13 +71,15 @@ const methods = {
   // a face texture for a material facing world direction d: its art darkened, coursed, tinted, lit by its facing
   wallFace(name, d, art) {
     this.faceTex = this.faceTex || {};
-    const key = name + d;
+    const rfA = name.startsWith('rf_') ? this.rfWallArt : null;   // a Realmforge dungeon's own wall art (src/rf/draw.js)
+    const key = name + d + (rfA ? rfA.id : '');
     if (this.faceTex[key]) return this.faceTex[key];
     const cv = Object.assign(document.createElement('canvas'), { width: TS, height: TS }), x = cv.getContext('2d');
     x.imageSmoothingEnabled = false;
     const packed = WALL_FACE[name];                           // a pack that drew its own wall side: use it as it is
     let src = null;
     if (packed && this.R) { const def = this.R.resolve(packed), f = def && def.frames[Object.keys(def.frames)[0]]; if (f) { x.drawImage(def.img, f.x, f.y, f.w, f.h, 0, 0, TS, TS); src = 'pack'; } }
+    if (rfA) { x.drawImage(rfA.img, 0, 0, rfA.img.width, rfA.img.height, 0, 0, TS, TS); src = 'pack'; }
     if (!src && art) x.drawImage(art.img, art.x, art.y, art.w || TS, art.h || TS, 0, 0, TS, TS);
     const img = x.getImageData(0, 0, TS, TS), p = img.data, M = MAT[name] || { course: 5, tint: [40, 40, 50], tk: 0.08 };
     const lit = 0.8 + 0.2 * Math.max(-1, Math.min(1, -(DIRS[d][0] * LIGHT[0] + DIRS[d][1] * LIGHT[1])));   // facing the light: brighter

@@ -15,6 +15,7 @@ async function boot() {
   let assets;
   try {
     assets = await loadAssets();
+    (await import('./rf/host.js')).loadRF();      // the Realmforge dungeons' data, in the background
   } catch (err) {
     stage.innerHTML = `<p style="padding:20px">Could not load game assets (${err.message}).<br>Serve this folder over HTTP, e.g. <code>node tools/serve.mjs</code></p>`;
     return;
