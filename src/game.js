@@ -122,8 +122,8 @@ export const POT_STACK = 10, VAULT_MAX = 80;
 // maxing your stats takes longer (the user's call, 2026-10-19)
 export const STAT_DROP_REALM = 0.4;
 // where numbers that land together appear above a target (tiles: right, up): staggered, never two at one height side
-// by side closer than a number's width, and kept close over the head (round three, 2026-10-19: tighter)
-const FLOAT_SLOTS = [[0, 0], [-0.42, 0.2], [0.42, 0.4], [0, 0.6], [-0.42, 0.8], [0.42, 1.0], [0, 1.2], [-0.3, 1.4], [0.3, 1.6]];   // (each at its own height)
+// by side closer than a number's width, and kept close over the head (rounds three and four, 2026-10-19: tighter)
+const FLOAT_SLOTS = [[0, 0], [-0.3, 0.16], [0.3, 0.32], [0, 0.48], [-0.3, 0.64], [0.3, 0.8], [0, 0.96], [-0.22, 1.12], [0.22, 1.28]];   // (each at its own height)
 const ACTIVE_R = 24;            // enemies farther than this sleep
 const SLOT_ORDER = ['weapon', 'ability', 'armor', 'ring'];
 const BIOME_TARGET = { shore: 210, fen: 170, runeholt: 125, godfall: 85 };
@@ -614,12 +614,12 @@ export class Game {
     // target, staggered so none sits beside another at the same height ("100,100"), with a little jitter
     if (who) {
       // the live numbers over it, where they are now (risen part-way), as boxes in tiles; the first spot that touches none
-      const W = (t) => (String(t).length * 4 + 1) * 0.0625, H = 0.44 + 0.04, rise = (t) => 0.4 * (1 - (1 - Math.min(1, t / 0.9)) ** 3);   // (the font: 1/16 tile a pixel, 7 tall with its rim)
+      const W = (t) => (String(t).length * 4 + 1) * 0.0625, H = 0.44 + 0.04, rise = (t) => 0.32 * (1 - (1 - Math.min(1, t / 0.9)) ** 3);   // (the font: 1/16 tile a pixel, 7 tall with its rim)
       const live = this.floaters.filter((f) => f.who === who && f.t < 0.9).map((f) => ({ x: f.dx, y: f.dy + rise(f.t), w: W(f.text) }));
       const w = W(text), hit = (cx, cy) => live.reduce((n, o) => n + (Math.abs(cx - o.x) < (w + o.w) / 2 + 0.06 && Math.abs(cy - o.y) < H ? 1 : 0), 0);
       let best = FLOAT_SLOTS[0], bn = Infinity;
       for (const S of FLOAT_SLOTS) { const n = hit(S[0], S[1]); if (n < bn) { bn = n; best = S; if (!n) break; } }
-      this.floaters.push({ x, y, text, color, t: 0, who, dx: best[0] + (R() - 0.5) * 0.06, dy: best[1] });
+      this.floaters.push({ x, y, text, color, t: 0, who, dx: best[0] + (R() - 0.5) * 0.04, dy: best[1] });
       return;
     }
     this.floaters.push({ x, y, text, color, t: 0, who, dx: 0, dy: 0 });
@@ -4331,7 +4331,7 @@ export class Game {
         say(`Killed ${k}.`); break;
       }
       case 'clearbags': this.bags.length = 0; this.map.bags = this.bags; this.nearBag = null; this.events.push({ type: 'ground' }); say('Bags cleared.'); break;
-      case 'portal': { const to = DUNGEONS[args[0]] ? args[0] : 'forge'; this.openPortal(to, p.x + 1.5, p.y, 60); break; }
+      case 'portal': { const to = DUNGEONS[args[0]] || (args[0] || '').startsWith('rf_') ? args[0] : 'forge'; this.openPortal(to, p.x + 1.5, p.y, 60); break; }
       default: say(`Unknown command /${cmd}. Type /help.`);
     }
   }

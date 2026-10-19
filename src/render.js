@@ -2114,7 +2114,7 @@ export class Renderer {
       if (f.who) { [bx, by] = this.proj(f.who.x, f.who.y); bx += f.dx * TS; by -= this.headPx(g, f.who); }   // above its owner's head, following it
       else [bx, by] = this.proj(f.x, f.y);
       const mine = f.color === '#e2546a' || (f.who && f.who === g.player), pop = f.t < 0.12 ? 1.3 - (f.t / 0.12) * 0.3 : 1, q = Math.min(1, f.t / 0.9), rise = 1 - (1 - q) ** 3;   // an eased rise: quick, then settling
-      const x = bx * s, y = by * s - rise * (num && pixelable(f.text) ? 20 : 30) - (f.dy || 0) * TS * s;
+      const x = bx * s, y = by * s - rise * (num && pixelable(f.text) ? 16 : 30) - (f.dy || 0) * TS * s;
       if (num && pixelable(f.text)) {                   // numbers in the pixel font (src/pixelfont.js): crisp, a size per kind
         const P = Math.max(2, Math.round(s * (mine ? 1 : 0.85))), I = pixelText(f.text, f.color, P);
         ctx.globalAlpha = f.t < 0.06 ? f.t / 0.06 : f.t < 0.5 ? 1 : Math.max(0, 1 - (f.t - 0.5) / 0.25);   // a soft fade in, a quick one out (old numbers clear away)

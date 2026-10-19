@@ -151,19 +151,19 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
 - Damage numbers (requested 2026-10-19): make the numbers over enemies and over the player easier to read. **Done
   2026-10-19:** heavier and larger, a thick black rim and a shadow, a pop as they land, full strength for half a second,
   the player's own losses a size bigger, and numbers landing together spread wider.
-- Dungeon difficulty ratings (requested 2026-10-19): check every dungeon (ours and Realmforge's) and give it a fitting
+- Dungeon difficulty ratings (requested 2026-10-19): check every dungeon and give it a fitting
   star rating, keeping some dungeons for each of 1 to 5 stars. Then check where each dungeon's portal drops and move it
   to foes of the matching land: 1 star on the beach (maybe the grassland), 2 stars in the grassland, and so on inward.
   A dungeon raised to 5 stars gets much higher damage and difficulty; one lowered to 1 star gets slightly easier for
   new players.
-  **Done 2026-10-19:** one table each (enemies.js DUNGEON_RATING, rf/balance.js RATING), feeding the HUD, the loading
-  card and how hard each dungeon hits. 1 star: Honeyed Hollow, Sunken Chapel, and Realmforge's Chapel, Sewers, Oasis
-  (shore, dunes, lowlands). 2: Sunken Crypt, Mirerot, Sandscour; their Crypt, Mire, Glade (fen, thornwood, dunes).
-  3: Scriptorium, Frostveil, Theatre, Crimson Keep; their Forge, Unmelting, Cathedral, Peaks, Clocktower, Mirrors
-  (runeholt). 4: Drowned Forge, Observatory, Hollowmoon; their Crater, Pyre, Atlas, Temple, Patch, Sanctum (steppe,
-  godfall). 5: Heart, Ember, Spire, Dream, Throne; their Rift, Monastery, Paper, Stage, Keep, Grove (godfall, steppe).
+  **Done 2026-10-19:** one table each (enemies.js DUNGEON_RATING; the rf_ dungeons in rf/balance.js RATING), feeding the HUD, the loading
+  card and how hard each dungeon hits. 1 star: Honeyed Hollow, Sunken Chapel, Sunken Chapel (rf), Undersewers, Buried Oasis
+  (shore, dunes, lowlands). 2: Sunken Crypt, Mirerot, Sandscour, Sealed Crypt, Mirewood Hollow, Moonlit Glade (fen, thornwood, dunes).
+  3: Scriptorium, Frostveil, Theatre, Crimson Keep, Burned Forge-City, Unmelting, Burned Cathedral, Stormcrown Peaks, Clocktower Court, Hall of Mirrors
+  (runeholt). 4: Drowned Forge, Observatory, Hollowmoon, Impact Crater, Pyre Peak, Celestial Atlas, Twin Moons, Hollow Patch, Sundial Sanctum (steppe,
+  godfall). 5: Heart, Ember, Spire, Dream, Throne, Rift Beneath, Upturned Monastery, Paper Garden, Velvet Stage, Duskmourne Keep, Sworn Grove (godfall, steppe).
   Portals moved to match: the Hive from the fen/thornwood to the lowlands/shore; the Theatre and Keep to runeholt only;
-  Realmforge's Patch and Sanctum to steppe foes, Stage, Keep and Grove to godfall foes. A new gentle band for 1 star
+  the Hollow Patch and Sundial Sanctum to steppe foes, the Velvet Stage, Duskmourne Keep and Sworn Grove to godfall foes. A new gentle band for 1 star
   (softer creatures and boss); a dungeon rated off its boss's own band has its boss brought to that band's size. The
   Chapel is a little softer (danger 0.62, creatures x1.3); the Throne, raised to 5, hits x1.4 harder with tougher
   creatures.
@@ -225,12 +225,14 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   (dazed: half fire rate for 3 s), the Kraken's ink (blinded: only a little light round you for 3 s), the Treant's
   seeds (rooted for 1 s; you can still fire). Each mark has its own look on you, no words over your head. Boss
   pressure stays under the ceiling (check_old_boss_pressure passes).
+- Damage numbers, round four (requested 2026-10-19): tighten slightly again. **Done 2026-10-19:** the spots are 0.3
+  tile either side, 0.16 a step up, and numbers rise a fifth less.
 - Damage numbers, round three (requested 2026-10-19): tighten the area they appear in over a target. Over the player
   show only red (damage taken), green (a health potion) and blue (a mana potion). Apply the same numbers in the
   Realmforge dungeons, remove their floor potions you walk over, and remove the ring shown when one of their creatures
   dies: they should feel like our dungeons.
   **Done 2026-10-19:** the spots over a target are a narrow column (0.4 tile either side, rising 0.2 a step) and numbers
   rise less. Over you: only a hit taken (red) and what a health potion (green) or mana potion (blue) gave; words, other
-  heals and ward numbers no longer show there (the health and mana potions now show their numbers). In the Realmforge
-  dungeons every number belongs to the creature or boss it hit and takes its spot over its head like ours; no creature
+  heals and ward numbers no longer show there (the health and mana potions now show their numbers). In the rf_
+  dungeons every number belongs to the creature or boss it hit and takes its spot over its head like the rest; no creature
   or meteor drops a floor potion, and a death leaves no white ring (their slams and traps keep theirs: those warn).
