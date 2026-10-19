@@ -1055,7 +1055,7 @@ export class Renderer {
     else col = Math.floor(g.t * (e.hop || e.sk || e.dive ? 10 : 6) + e.phase) % 4;
     const L = this.alive(g, e, sx, sy, F);
     if (!e.dead) this.shadow(sx, sy, Math.max(8, 18 - L.z * 0.6));
-    this.sprK = e.warden ? 1.5 : 1;
+    this.sprK = e.warden ? 2 : 1;                        // (a warden twice as tall: whole sizes only)
     this.liveSpr(S.img, col * F, row * F, F, sx + L.dx, sy + L.dy - L.z, Gd.pivot.x, Gd.pivot.y, L, false);
     this.sprK = 1;
     if (e.dead) return;

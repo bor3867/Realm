@@ -1,0 +1,516 @@
+{
+ "meta": {
+  "name": "Resized monsters",
+  "notes": "tools/upscale_enemies.mjs: 8x8 monsters redrawn at 16x16 (Scale2x) or 24x24 (Scale3x)"
+ },
+ "rf": true,
+ "sheets": {
+  "rs_enemies": {
+   "image": "rs_enemies.png",
+   "kind": "enemy",
+   "sprites": {
+    "scarecrow": {
+     "frames": {
+      "sway1": [
+       0,
+       0,
+       24,
+       24
+      ],
+      "sway2": [
+       26,
+       0,
+       24,
+       24
+      ],
+      "attack": [
+       52,
+       0,
+       24,
+       24
+      ],
+      "hurt": [
+       78,
+       0,
+       24,
+       24
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "sway1",
+        "sway2"
+       ],
+       "fps": 5,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "sway1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "sway1"
+       ],
+       "fps": 12,
+       "loop": false
+      }
+     },
+     "meta": {
+      "from": "ow_enemies/scarecrow",
+      "upscale": 3
+     }
+    },
+    "sporeling_clump": {
+     "frames": {
+      "walk1": [
+       104,
+       0,
+       16,
+       16
+      ],
+      "walk2": [
+       130,
+       0,
+       16,
+       16
+      ],
+      "attack": [
+       156,
+       0,
+       16,
+       16
+      ],
+      "hurt": [
+       182,
+       0,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "walk1",
+        "walk2"
+       ],
+       "fps": 4,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "walk1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "walk1"
+       ],
+       "fps": 12,
+       "loop": false
+      }
+     },
+     "meta": {
+      "from": "ex_mirerot/sporeling",
+      "upscale": 2
+     }
+    },
+    "glowcap_sprout": {
+     "frames": {
+      "mother_mycelia.glowcap_seed_0": [
+       208,
+       0,
+       16,
+       16
+      ],
+      "mother_mycelia.glowcap_seed_1": [
+       234,
+       0,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "loop": {
+       "frames": [
+        "mother_mycelia.glowcap_seed_0",
+        "mother_mycelia.glowcap_seed_1"
+       ],
+       "fps": 10,
+       "loop": true
+      }
+     },
+     "meta": {
+      "from": "bx_shots/mother_mycelia.glowcap_seed",
+      "upscale": 2
+     }
+    },
+    "jester_puppet": {
+     "frames": {
+      "juggle1": [
+       260,
+       0,
+       16,
+       16
+      ],
+      "juggle2": [
+       286,
+       0,
+       16,
+       16
+      ],
+      "attack": [
+       0,
+       26,
+       16,
+       16
+      ],
+      "hurt": [
+       26,
+       26,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "juggle1",
+        "juggle2"
+       ],
+       "fps": 5,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "juggle1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "juggle1"
+       ],
+       "fps": 12,
+       "loop": false
+      }
+     },
+     "meta": {
+      "from": "d2_hollowmoon/knife_juggler",
+      "upscale": 2
+     }
+    },
+    "glacial_sentinel": {
+     "frames": {
+      "walk1": [
+       52,
+       26,
+       24,
+       24
+      ],
+      "walk2": [
+       78,
+       26,
+       24,
+       24
+      ],
+      "attack": [
+       104,
+       26,
+       24,
+       24
+      ],
+      "hurt": [
+       130,
+       26,
+       24,
+       24
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "walk1",
+        "walk2"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "walk1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "walk1"
+       ],
+       "fps": 12,
+       "loop": false
+      }
+     },
+     "meta": {
+      "from": "ex_frostveil/glacial_sentinel",
+      "upscale": 3
+     }
+    },
+    "vine_lasher": {
+     "frames": {
+      "sway1": [
+       156,
+       26,
+       24,
+       24
+      ],
+      "sway2": [
+       182,
+       26,
+       24,
+       24
+      ],
+      "attack": [
+       208,
+       26,
+       24,
+       24
+      ],
+      "hurt": [
+       234,
+       26,
+       24,
+       24
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "sway1",
+        "sway2"
+       ],
+       "fps": 2,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "sway1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "sway1"
+       ],
+       "fps": 12,
+       "loop": false
+      }
+     },
+     "meta": {
+      "from": "ex_mirerot/vine_lasher",
+      "upscale": 3
+     }
+    },
+    "jackal_warden": {
+     "frames": {
+      "walk1": [
+       260,
+       26,
+       24,
+       24
+      ],
+      "walk2": [
+       286,
+       26,
+       24,
+       24
+      ],
+      "attack": [
+       0,
+       52,
+       24,
+       24
+      ],
+      "hurt": [
+       26,
+       52,
+       24,
+       24
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "walk1",
+        "walk2"
+       ],
+       "fps": 4,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "walk1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "walk1"
+       ],
+       "fps": 12,
+       "loop": false
+      }
+     },
+     "meta": {
+      "from": "ex_sandscour/jackal_warden",
+      "upscale": 3
+     }
+    },
+    "haunted_armor": {
+     "frames": {
+      "walk1": [
+       52,
+       52,
+       24,
+       24
+      ],
+      "walk2": [
+       78,
+       52,
+       24,
+       24
+      ],
+      "attack": [
+       104,
+       52,
+       24,
+       24
+      ],
+      "hurt": [
+       130,
+       52,
+       24,
+       24
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "walk1",
+        "walk2"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "walk1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "walk1"
+       ],
+       "fps": 12,
+       "loop": false
+      }
+     },
+     "meta": {
+      "from": "d2_crimson_keep/haunted_armor",
+      "upscale": 3
+     }
+    },
+    "carousel_horse": {
+     "frames": {
+      "gallop1": [
+       156,
+       52,
+       24,
+       24
+      ],
+      "gallop2": [
+       182,
+       52,
+       24,
+       24
+      ],
+      "gallop3": [
+       208,
+       52,
+       24,
+       24
+      ],
+      "attack": [
+       234,
+       52,
+       24,
+       24
+      ],
+      "hurt": [
+       260,
+       52,
+       24,
+       24
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "gallop1",
+        "gallop2",
+        "gallop3"
+       ],
+       "fps": 8,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "gallop1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "gallop1"
+       ],
+       "fps": 12,
+       "loop": false
+      }
+     },
+     "meta": {
+      "from": "d2_hollowmoon/carousel_horse",
+      "upscale": 3
+     }
+    }
+   }
+  }
+ }
+}

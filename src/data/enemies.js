@@ -2046,7 +2046,14 @@ Object.assign(DUNGEONS.throne, { ambient: 'rgba(20,12,30,0.38)' });
 }
 
 // the big ones among the newer dungeons' adds are drawn a size up
-for (const [id, k] of [['prism_image', 2.6], ['sleepers_nightmare', 2.4], ['hanging_marionette', 1.6], ['understudy', 1.5], ['comb_guard', 1.3], ['prima_donna', 1.4], ['nightmare_knight', 1.5], ['glass_knight', 1.3]]) ENEMIES[id].scale = k;
+// (the sizing pass, 2026-10-19: whole sizes only, so their pixels match everyone else's; tools/audit_enemy_sizes.mjs)
+for (const id of ['prism_image', 'sleepers_nightmare', 'hanging_marionette', 'understudy', 'comb_guard', 'prima_donna', 'nightmare_knight', 'glass_knight']) ENEMIES[id].scale = 2;
+// 8x8 monsters that stand bigger than the small fry: redrawn at 16x16 (Scale2x, at the player's pixel size, twice as
+// tall) or 24x24 (Scale3x, at the champions' fine pixel size) by tools/upscale_enemies.mjs, instead of blown up by a
+// fraction with big uneven pixels
+export const RESIZED = { scarecrow: 3, sporeling_clump: 2, glowcap_sprout: 2, jester_puppet: 2,
+  glacial_sentinel: 3, vine_lasher: 3, jackal_warden: 3, haunted_armor: 3, carousel_horse: 3 };
+for (const [id, k] of Object.entries(RESIZED)) { const D = ENEMIES[id]; D.regSrc = D.reg; D.reg = `rs_enemies/${id}`; D.scale = k === 2 ? 1 : 0.5; }
 
 // the user's Realmforge portals: the overworld foes each one names drop it (tools/rf_build_foes.py, src/rf/host.js)
 import { RF_FOES } from './rf_foes.js';

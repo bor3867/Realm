@@ -13,7 +13,8 @@
   "pets_v2/atlas_pets_v2.json",
   "remaster/atlas_remaster_ext.json",
   "realmforge/atlas_rf.json",
-  "realmforge/atlas_rf_foes.json"
+  "realmforge/atlas_rf_foes.json",
+  "resized/atlas_resized.json"
  ],
  "hover": "HOVER.json",
  "manifest": "MANIFEST.json"

@@ -131,3 +131,11 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   because an 8x8 sprite is drawn too big or a 16x16 too small. Check every enemy (realm, dungeon, Realmforge) and set
   its drawn size from its sprite size and its importance (fodder small, champions and minibosses larger, bosses
   largest), consistently across a land; redraw 8x8s that need it as 16x16s.
+  **Done 2026-10-19 (first pass):** the defect was fractional pixel sizes (art drawn at 1.25x to 3.6x, or Realmforge foes
+  at 1.5x: big or uneven pixels). Rule now: every monster at a whole pixel size (tools/audit_enemy_sizes.mjs fails
+  otherwise). Nine 8x8 monsters that stand bigger were redrawn (tools/upscale_enemies.mjs: Scale2x to 16x16 at the
+  player's pixel size, or Scale3x to 24x24 at the fine size: the Field Warden, sporeling clump, glowcap, jester
+  marionette, glacial sentinel, vine lasher, jackal warden, haunted armor, carousel horse); dungeon "a size up" monsters
+  and champion wardens at 2x; Realmforge foes at 1x (16px art) or 2x (8px art). Still open: the old 16px enemy sheet
+  and the 24px champions are fine-pixel art (one screen pixel to an art pixel) next to the chunky 8x8s (two to one):
+  both are clean, but a fully RotMG-uniform look would mean redrawing ~150 old-sheet monsters as 8x8s (the user's call).
