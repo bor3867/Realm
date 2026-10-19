@@ -61,8 +61,9 @@ for (const it of S) {
   } catch (err) { bad(`${it.id} threw: ${err.message}`); }
 }
 console.log(`weapons fired their own shot: ${fired} | abilities used: ${used}`);
-// no item seeks
-const seek = Object.values(ITEMS).filter((it) => it.weapon && it.weapon.special && it.weapon.special.homing).map((it) => it.id);
+// no item seeks, but for the three Realmforge uniques the user allowed (2026-10-19): the Bog Seer, the Orbit Bow, the Crane Bow
+const SEEK_OK = new Set(['rf_bogseer', 'rf_orbitbow', 'rf_cranebow']);
+const seek = Object.values(ITEMS).filter((it) => it.weapon && it.weapon.special && it.weapon.special.homing && !SEEK_OK.has(it.id)).map((it) => it.id);
 if (seek.length) bad('these still seek: ' + seek.slice(0, 8).join(', '));
 // the dungeon items' orbiters: each has its art, strikes what comes close, and (where it should) catches shots
 const { DUNGEON_ITEMS } = await import('../src/data/dungeon_items.js');

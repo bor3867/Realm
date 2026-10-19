@@ -3,8 +3,8 @@
 // hooks (src/gearmech.js): rfPreHurt (a blow, before it lands), rfPostHurt (after), rfOnHit (your shot hits), rfOnKill,
 // rfOnAbility, rfOnVolley (your weapon fires), rfTick (every frame), rfHitMult (damage against one enemy), rfStat (a
 // stat bonus), rfAbilityCost and rfWallHit (one of your shots meets a wall).
-// Not here, by the no-seeking rule (the user's call, docs/realmforge_port.md): the Crane Bow's cranes, the Orbit Bow's
-// curve and the Bog Seer's curve.
+// The three that seek (the Bog Seer, the Orbit Bow, the Crane Bow: the user's exception to the no-seeking rule) seek
+// through the weapon's own homing (items.js, RF_SEEK; game.js).
 import { lift, liftO, liftA, liftB } from '../util.js';
 import { shotBlocked } from '../world/maps.js';
 import { ITEMS } from '../data/items.js';

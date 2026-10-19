@@ -157,7 +157,7 @@ for (const type of WEAPON_TYPES) {                      // our family's feel (ra
   for (let t = 0; t <= TIER_CAP.weapon; t++) {
     const F = RF_WEAPONS[type][t], W = weapon(type, Math.min(10, t));
     add({ id: `${type}_t${t}`, type, slot: 'weapon', tier: t, name: F.name, desc: F.desc, reg: `rf_items/${type}_t${t}`,
-      weapon: { ...W, dmg: F.dmg, count: F.count, range: F.range, speed: F.speed, proj: `rf_shots/${type}_t${t}` } });
+      weapon: rfPath({ ...W, dmg: F.dmg, count: F.count, range: F.range, speed: F.speed, proj: `rf_shots/${type}_t${t}` }, F.motion) });
   }
 }
 for (const type of ABILITY_TYPES) {
@@ -788,7 +788,17 @@ for (const u of UT) add({ bag: 'reliquary', ...u, tier: 'UT', ut: true });
 // ---- Realmforge's uniques (UT, Legendary, Mythic; tools/rf_build_items.py). They drop from their own bosses once
 // those dungeons are in (docs/realmforge_port.md); u.pending lists the named effects still to come with them.
 // their effects are built (src/rf/uniqmech.js), all but the ones that seek, held back by the no-seeking rule
-const RF_SEEKING = /seek|curve toward/i;
+const RF_SEEKING = /^$/;                                   // (none held back: the user allowed the three that seek, 2026-10-19)
+const RF_SEEK = { bogseer: { homing: 2.4 }, orbitbow: { homing: 3.2, homingR: 3 }, cranebow: { homing: 3, homingAfter: 3, foldInto: 'rf_foeshots/rf_paper_crane' } };
+// a Realmforge shot's path, as its Armory draws it: a helix (two shots crossing round the line of fire every 3.5 tiles,
+// a third of a tile out), a wave (one shot swaying, 3.25 tiles from crest to crest), or a spread (shots side by side,
+// a fifth of a tile apart, opening a little as they fly)
+function rfPath(W, motion) {
+  if (motion === 'helix') { W.special = { ...(W.special || {}), weave: { amp: 0.33, lam: 3.5 } }; W.arc = 0; W.count = Math.max(2, W.count || 2); }
+  if (motion === 'wave') W.special = { ...(W.special || {}), weave: { amp: 0.26, lam: 3.25 } };
+  if (motion === 'spread') { W.rfSpread = 0.19; W.arc = 0.05 * Math.max(0, (W.count || 3) - 1); }
+  return W;
+}
 for (const u of RF_UNIQUES) {
   const slot = u.weapon ? 'weapon' : u.type === 'ring' ? 'ring' : 'armor';
   const it = { id: `rf_${u.id}`, type: u.type, slot, tier: 'UT', ut: true, mythic: u.rarity === 'mythic', rfRarity: u.rarity,   // (their Legendary is not our twinkling legendary)
@@ -796,9 +806,12 @@ for (const u of RF_UNIQUES) {
   if (Object.keys(u.bonus).length) it.bonus = { ...u.bonus };
   if (u.weapon) {
     const W = weapon(u.type, 10);
-    it.weapon = { ...W, ...u.weapon, pierce: u.weapon.pierce || W.pierce, proj: u.shot ? `rf_uniq_shots/${u.id}` : `rf_shots/${u.type}_t13` };
+    const { motion, ...UW } = u.weapon;
+    it.weapon = { ...W, ...UW, pierce: u.weapon.pierce || W.pierce, proj: u.shot ? `rf_uniq_shots/${u.id}` : `rf_shots/${u.type}_t13` };
     if (Object.keys(u.special).length) it.weapon.special = { ...u.special };
-    if (u.special.weave) it.weapon.arc = 0;                // a helix pair twists around one line
+    rfPath(it.weapon, motion);
+    const seek = RF_SEEK[u.id];                            // the three that seek (the user's exception to the no-seeking rule)
+    if (seek) it.weapon.special = { ...(it.weapon.special || {}), ...seek };
   }
   add(it);
 }

@@ -85,8 +85,9 @@ trail 13, line 12, spiral 7, summon 7, pulse 5, snipe 4, heal 3, and 9 rarer). 2
   Mirrors' reflection needs the test player sprite, which stays out: no reflection.
 - **Phase 1c: the uniques' named effects** (`src/rf/uniqmech.js`): all 79 uniques do what their lines say (the numbers
   from their own text), on our gear hooks (hurt, hit, kill, cast, volley, tick, stats, ability cost, wall bounce), and
-  their tooltips list them. Held back by the no-seeking rule until the user says otherwise: the Crane Bow's cranes, the
-  Orbit Bow's curve, the Bog Seer's curve (shown greyed, "not yet"). Inside their dungeons our shots' on-hit effects now
+  their tooltips list them. The three that seek (Bog Seer, Orbit Bow, Crane Bow) seek: the user allowed them.
+  Every Realmforge weapon, tiered and unique, flies its own path as the Armory draws it (helix, wave, spread, numbers
+  from template.html's lanes) and the uniques leave their own dust trails. Inside their dungeons our shots' on-hit effects now
   reach their creatures too (burn and venom tick, slows, curses, chains, splits, lifesteal, shoves, stops). Known gap:
   the uniques' area effects (ash clouds, rifts, trails, the jack-o'-lantern, thralls) touch our monsters, not theirs.
   `tools/check_rf_uniques.mjs`: every unique worn in a fight without an error, and a few promises measured.

@@ -56,7 +56,7 @@ for ti, row in enumerate(L['weapons']['rows']):
         items.add(key, cell['grid'], cell['pal'], {'name': cell['name']})
         sh = cell.get('shot') or D['tierShots'][t][ti]
         shots.add(key, sh['grid'], sh['pal'])
-        RW[t].append({'name': cell['name'], 'desc': cell['desc'], 'dmg': num(S['Damage'])[:2], 'count': int(S['Shots']), 'range': fl(S['Range']), 'speed': fl(S['Shot Speed']), 'feed': int(S.get('Feed Power', 0))})
+        RW[t].append({'name': cell['name'], 'desc': cell['desc'], 'dmg': num(S['Damage'])[:2], 'count': int(S['Shots']), 'range': fl(S['Range']), 'speed': fl(S['Shot Speed']), 'feed': int(S.get('Feed Power', 0)), 'motion': sh.get('motion', 'straight')})
 for ti, row in enumerate(L['armor']['rows']):
     for ci, cell in enumerate(row['cells']):
         t = AT[L['armor']['cols'][ci]]; key = f'{t}_t{ti}'
@@ -85,7 +85,7 @@ def effect(line, avg, sp):                      # one fx line -> our weapon spec
     if l.startswith('Heals you for'): sp['lifesteal'] = n[0] / 100; return True
     if l.startswith('Shots burst into'): sp['split'] = {'n': int(n[0]) if n else 3, 'f': 0.3}; return True
     if l.startswith('Shots that miss swing around'): sp['boomerang'] = True; return True
-    if l in ('Shots weave like a pendulum', 'Shots travel in a rolling wave'): sp['weave'] = {'amp': 0.35, 'freq': 9}; return True
+    if l in ('Shots weave like a pendulum', 'Shots travel in a rolling wave'): return True   # (the shot's own path: its motion)
     return False
 for u in D['uniques']:
     t = 'leather' if u['type'] == 'light' else u['type']; key = u['id']; S = stats(u)
@@ -97,8 +97,10 @@ for u in D['uniques']:
         d = num(S['Damage'])[:2]; sh = u.get('shot') or {}
         W = {'dmg': d, 'count': int(S['Shots']), 'range': fl(S['Range']), 'speed': fl(S['Shot Speed'])}
         if sh.get('grid'): ushots.add(key, sh['grid'], sh['pal'])
-        if sh.get('motion') == 'helix': sp['weave'] = {'amp': 0.45, 'freq': 11}
-        if sh.get('motion') == 'wave': sp['weave'] = {'amp': 0.35, 'freq': 9}
+        W['motion'] = sh.get('motion', 'straight')
+        tr = sh.get('trail') or {}
+        if tr.get('kind') == 'dust': W['trail'] = tr['colors']
+        elif tr.get('kind') == 'sprite': W['trail'] = sorted(set(tr['pal'].values()))[:4]   # (a stamped-sprite trail, as its colours)
     lines = []
     for line in u['fx']:
         parts = [x.strip() for x in line.replace('−', '-').split('  ') if x.strip()]

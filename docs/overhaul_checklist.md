@@ -154,3 +154,15 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   to foes of the matching land: 1 star on the beach (maybe the grassland), 2 stars in the grassland, and so on inward.
   A dungeon raised to 5 stars gets much higher damage and difficulty; one lowered to 1 star gets slightly easier for
   new players.
+- Realmforge shots on every item (requested 2026-10-19): the tiered weapons still fire the old shots. Every item that
+  came from realmforge-project gets its full shot sprite, its path (straight, spread, helix, wave) and its range and
+  shot speed. **Done 2026-10-19:** the tiered weapons did fire Realmforge's shots already (their tier art is pale at
+  some tiers, which read as old); what was missing was each shot's path (staves: a helix pair; wave wands; bows side
+  by side) and the uniques' trails. Every Realmforge weapon now flies its path with the Armory's numbers.
+- HUD tier numbers (requested 2026-10-19): the item tooltip's tier changed, but the HUD slots still show a 5 that looks
+  like an 8. Rework again: still pixel-style, but clean and easy to read.
+- Overworld bosses too easy (requested 2026-10-19): the Kraken and the older overworld bosses go down too fast. More HP,
+  harder hits, small adds where they fit (tentacles for the Kraken), so they can kill a player who is not dodging.
+- Bottom-right party list (requested 2026-10-19): show other players only, not yourself or your pets.
+- Item stats (requested 2026-10-19): items feel lacklustre. Rework every item to give a bit more in stats, with bigger
+  and more distinctive numbers for UT, Mythic and Legendary items.
