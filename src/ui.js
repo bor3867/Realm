@@ -994,7 +994,7 @@ export class UI {
   loginScreen(msg = '') {
     const A = loadAccounts();
     const list = A.list.map((a) => `<button class="acctbtn" data-acc="${a.id}"><b>${a.name}</b><small>${a.hash ? '🔒 password' : 'no password'} · since ${a.created}</small></button>`).join('');
-    const o = this.overlay(`<div class="screen login"><div class="logo"><h1>REALM</h1><h2>of the Unstruck God</h2></div>
+    const o = this.overlay(`<div class="screen login"><div class="logo"><h1>MELON REALMS</h1></div>
       <div class="card">
         ${A.list.length ? `<h3>Accounts on this computer</h3><div class="accts">${list}</div><div class="or">or</div>` : ''}
         <h3>${A.list.length ? 'Sign in / make a new account' : 'Make your account'}</h3>
@@ -1050,7 +1050,7 @@ export class UI {
       const f = (s.classFame || {})[c] || 0, stars = FAME_GOALS.filter((x) => f >= x).length;
       return `<div class="cf"><canvas width="40" height="40" data-c="${c}"></canvas><b>${CLASSES[c].name}</b><span class="stars">${'★'.repeat(stars)}<i>${'★'.repeat(5 - stars)}</i></span></div>`;
     }).join('');
-    const o = this.overlay(`<div class="screen account"><div class="logo small"><h1>REALM</h1></div>
+    const o = this.overlay(`<div class="screen account"><div class="logo small"><h1>MELON REALMS</h1></div>
       <div class="card wide">
         <div class="acchead"><div><small>Signed in as</small><h2>${acc.name}</h2></div><button class="btn" id="logout">Switch account</button></div>
         <div class="tiles">
@@ -1093,7 +1093,7 @@ export class UI {
     }
     const grave = s.graveyard.length ? s.graveyard.slice(0, 12).map((d) => `<div>${d.date} · <b>${CLASSES[d.cls].name}</b> Lv ${d.level} · killed by ${d.by} · <span class="fame">+${d.fame}</span></div>`).join('') : '<div class="mut">No one has died yet.</div>';
     const o = this.overlay(`<div class="screen home"><button class="btn back" id="toacct">← ${(g.account && g.account.name) || 'Account'}</button>
-      <h1>REALM</h1><h2>of the Unstruck God</h2>
+      <h1>MELON REALMS</h1>
       <div class="acct"><span class="h-fame">✦ ${s.fame} fame</span><span class="h-gold">● ${s.gold || 0} gold</span><span class="h-ess">◆ ${s.essence || 0} essence</span><span>Best: level ${s.bestLevel || 0}</span></div>
       <div class="homecols">
         <section><h3>Your characters <small class="mut">(${s.chars.length}/${s.slots})</small></h3><div class="chars">${cards.join('')}</div><p class="msg">${msg}</p></section>

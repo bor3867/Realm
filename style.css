@@ -884,8 +884,9 @@ html body #app #who .np.me, html body #app #who #petname { display: none !import
 /* ==== the pixel font everywhere (2026-10-19): the HUD, its tabs, the chat, banners, screens and tooltips. Text at
    16px (a font pixel is 2 screen pixels), headings and big counts at 24px; never faux-bold. The journal keeps its
    book face. ==== */
-body #app, body #app button, body #app input, body #app select, body #app textarea { font-family: var(--r-font) !important; }
-body #app .screen.journal .page { font-family: Georgia, 'Times New Roman', serif !important; }
+body #app, body #app button, body #app input, body #app select, body #app textarea,
+body #overlay, body #overlay button, body #overlay input, body #overlay select, body #overlay textarea { font-family: var(--r-font) !important; }
+body .screen.journal .page { font-family: Georgia, 'Times New Roman', serif !important; }
 body #app #hud { font-size: 16px; }
 body #app #hud b { font-weight: 400; }
 body #app #banner { font-size: 24px; }
@@ -895,6 +896,9 @@ body #tooltip, body #tooltip * { font-family: var(--r-font) !important; font-wei
 body #tooltip, body #tooltip :not(h4) { font-size: 16px !important; }
 body #tooltip h4 { font-size: 24px !important; }
 body #app #panel #tabbody #stats, body #app #panel #tabbody #stats * { font-size: 16px !important; font-weight: 400 !important; }
-body #app .screen :not(h1):not(h2) { font-size: 16px !important; font-weight: 400 !important; }
-body #app .screen h1, body #app .screen h2 { font-size: 24px !important; font-weight: 400 !important; }
-body #app .screen.journal .page, body #app .screen.journal .page * { font-size: 17px !important; }
+body .screen :not(h1):not(h2) { font-size: 16px !important; font-weight: 400 !important; }
+body .screen h1, body .screen h2 { font-size: 24px !important; font-weight: 400 !important; }
+body .screen .logo h1, body .screen.home > h1 { font-size: 72px !important; letter-spacing: 6px; line-height: 1.1; }   /* the title: 9 screen px a font pixel */
+body .screen .logo.small h1 { font-size: 48px !important; letter-spacing: 4px; }
+@media (max-width: 760px) { body .screen .logo h1, body .screen.home > h1 { font-size: 40px !important; letter-spacing: 3px; } }
+body .screen.journal .page, body .screen.journal .page * { font-size: 17px !important; }
