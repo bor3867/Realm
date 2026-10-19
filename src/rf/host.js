@@ -27,7 +27,7 @@ const dgOf = (id) => DATA && DATA.dungeons.find((d) => d.id === id);
 
 const methods = {
   // a fresh run of one of their dungeons, as our map
-  rfMap(where) {
+  rfMap(where, seed0 = 0) {
     const id = where.slice(3), dg = dgOf(id);
     if (!X || !dg) return null;
     const g = this;
@@ -43,7 +43,7 @@ const methods = {
       shrine: () => { g.player.status.berserk = Math.max(g.player.status.berserk || 0, 20); },
       bossDoor: () => {},
     });
-    const seed = (Date.now() & 0xffffff) | 5;
+    const seed = seed0 || ((Date.now() & 0xffffff) | 5);
     if (!X.setup(dg, seed)) return null;
     const E = X.E || this.rfE();
     const M = E.M, m = {

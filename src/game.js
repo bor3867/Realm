@@ -281,7 +281,7 @@ export class Game {
       this.map = this.realmMap;
     } else if (DUNGEONS[where]) this.map = dungeon((opt && opt.seed) || ((Date.now() & 0xffffff) | 3), DUNGEONS[where]);
     else if (where.startsWith('rf_boss:')) { const m = this.rfBossMap(where); if (!m) { this.banner('That boss is not ready.', 2000); return; } this.map = m; }
-    else if (where.startsWith('rf_')) { const m = this.rfMap(where); if (!m) { this.banner('That dungeon is not ready.', 2000); return; } this.map = m; }
+    else if (where.startsWith('rf_')) { const m = this.rfMap(where, opt && opt.seed); if (!m) { this.banner('That dungeon is not ready.', 2000); return; } this.map = m; if (opt && opt.iid) m.netIid = opt.iid; }   // (a shared portal: the same layout for all)
     this.projectiles = [];
     this.allies = [];
     this.decoys = [];
@@ -3437,6 +3437,7 @@ export class Game {
   updateBoss(dt) {
     const B = this.boss, p = this.player;
     if (B.state === 'dead') { B.deadT += dt; return; }
+    if (B.net) { this.netPuppet(B, dt); return; }        // the server's boss (src/net.js): it glides where the server has it
     this.rxPhaseTick(B, dt); this.rxUnstruck(B, dt); this.spUnstruck(B, dt);    // the remaster's phases 2 and 3 (src/remaster.js)
     B.hurtT = Math.max(0, B.hurtT - dt);
     this.tickStatus(B, dt);

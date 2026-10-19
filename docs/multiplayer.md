@@ -56,9 +56,11 @@ Making an account an admin: `update accounts set is_admin = true where name_lowe
 Testing locally without Supabase: `DB=file` keeps accounts in server/.data/db.json (the first account is an admin).
 
 ## Not shared yet
-- The Drowned Forge (its boss is of an older kind) and the rf_ dungeons (their own engine) stay each player's own.
-- Dungeons opened from a key in the Nexus are your own (only portals dropped in the shared realm are shared).
-- Dungeon systems that make ground zones on their own (some traps) can show twice.
+- The rf_ dungeons: a shared portal puts everyone in the same layout (one seed) and they see each other, but each
+  player's creatures are their own. Their engine (src/rf/explore_gen.js) was built for one hero: sharing its creatures
+  means running it on the server for several heroes (a stand-in canvas there; their creature loop taking each
+  creature's nearest hero; hits and hurts through HOST) and puppets in the browser, as the rest of the game does.
+- Your vault.
 
 ## Known gaps after M2
 - A boss's own drawn extras that live in its state (some bosses draw whirlpools, chains or rings from lists) may be

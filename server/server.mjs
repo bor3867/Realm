@@ -117,17 +117,20 @@ function onMessage(c, text) {
     for (const h of m.list.slice(0, 60)) if (Array.isArray(h)) W.hit(c.id, num(h[0], 0, 1e9), num(h[1], 0, 1e6));
     return;
   }
-  if (m.t === 'portal' && world && (c.room === REALM || c.room === 'nexus') && DUNGEONS[m.to] && m.to !== 'forge') {   // a dungeon opened in the shared realm or the Nexus
+  if (m.t === 'portal' && world && (c.room === REALM || c.room === 'nexus') && (DUNGEONS[m.to] || /^rf_[a-z_]+$/.test(m.to))) {   // a dungeon opened in the shared realm or the Nexus
     if (dungeons.size >= 12 || (c.portalT || 0) > Date.now()) return;                   // (a few at a time; one a player every 5 s)
     c.portalT = Date.now() + 5000;
     const iid = nextIid++, seed = randomInt(1, 0xffffff) | 3, room = 'dg:' + iid, life = num(m.life, 10, 120);
-    try { const dw = makeWorld(seed, (id, obj) => { const t = clients.get(id); if (t) send(t, obj); }, m.to); dw.onBag = (x, y, items) => publicBag(room, x, y, items); dungeons.set(room, { world: dw, to: m.to, until: Date.now() + life * 1000 }); }
+    try {
+      if (m.to.startsWith('rf_')) dungeons.set(room, { world: null, to: m.to, until: Date.now() + life * 1000, idleSince: Date.now() });   // (an rf_ dungeon: one layout, its players together; no server world yet)
+      else { const dw = makeWorld(seed, (id, obj) => { const t = clients.get(id); if (t) send(t, obj); }, m.to); dw.onBag = (x, y, items) => publicBag(room, x, y, items); dungeons.set(room, { world: dw, to: m.to, until: Date.now() + life * 1000 }); }
+    }
     catch (err) { console.error('dungeon', m.to, err); return; }
     toRoom(c.room, { t: 'portal', iid, seed, to: m.to, x: num(m.x, 0, 4096), y: num(m.y, 0, 4096), life });
     return;
   }
   if (m.t === 'ohit' && worldOf(c.room)) { worldOf(c.room).ohit(c.id, num(m.i, 0, 1e6), str(m.k, 40), num(m.d, 0, 1e6)); return; }   // a blow on something breakable
-  if (m.t === 'use' && dungeons.has(c.room)) { dungeons.get(c.room).world.use(c.id, num(m.i, 0, 1e5), str(m.k, 40)); return; }
+  if (m.t === 'use' && dungeons.has(c.room) && dungeons.get(c.room).world) { dungeons.get(c.room).world.use(c.id, num(m.i, 0, 1e5), str(m.k, 40)); return; }
   if (m.t === 'efx' && worldOf(c.room) && Array.isArray(m.list)) {     // your stuns, slows, knockback on them
     worldOf(c.room).efx(c.id, m.list.slice(0, 40).filter((x) => Array.isArray(x) && ['stun', 'slow', 'push'].includes(x[1])).map((x) => [num(x[0], 0, 1e9), x[1], num(x[2], -10, 10), num(x[3], -10, 10)]));
     return;
@@ -287,7 +290,8 @@ if (world) { let n = 0, slow = 0; setInterval(() => { const t0 = performance.now
   try { world.tick(0.1, now); } catch (err) { console.error('world tick', err); }
   try { if (nexusWorld) nexusWorld.tick(0.1, now); } catch (err) { console.error('nexus tick', err); }
   for (const [room, d] of dungeons) {
-    try { d.world.tick(0.1, now); } catch (err) { console.error('dungeon tick', d.to, err); }
-    if (Date.now() > d.until && d.world.idleMs > 120000) dungeons.delete(room);     // empty, its portal long gone: closed
+    if (d.world) { try { d.world.tick(0.1, now); } catch (err) { console.error('dungeon tick', d.to, err); } }
+    const idle = d.world ? d.world.idleMs : ([...clients.values()].some((c) => c.room === room) ? (d.idleSince = Date.now(), 0) : Date.now() - d.idleSince);
+    if (Date.now() > d.until && idle > 120000) dungeons.delete(room);     // empty, its portal long gone: closed
   } const ms = performance.now() - t0; if (ms > 90 && ++slow % 50 === 1) console.warn(`world tick slow: ${ms.toFixed(0)} ms`); }, 100); }
 server.listen(PORT, () => console.log(`Melon Realms server on :${PORT}, realm seed ${SEED}`));

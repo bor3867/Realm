@@ -9,7 +9,7 @@ import { DUNGEONS as DUNGEON_DEFS, REALM_BOSSES } from './data/enemies.js';
 import { lift } from './util.js';
 const NET_WORLD_CMDS = new Set(['spawn', 'bx', 'boss', 'kraken', 'treant', 'star', 'melon', 'event', 'progress', 'killall', 'kill', 'clear']);
 // the dungeons that can be shared (the Drowned Forge's boss is of an older kind and stays each player's own for now)
-const NET_DUNGEONS = (to) => !!DUNGEON_DEFS[to] && to !== 'forge';
+const NET_DUNGEONS = (to) => !!DUNGEON_DEFS[to] || /^rf_[a-z_]+$/.test(to);   // (rf_ dungeons: the same layout and each other, their creatures each player's own for now)
 // where the server is: ?server=wss://... in the address wins; on this computer, the local one; online, SERVER_URL
 export const SERVER_URL = 'wss://realm-7ila.onrender.com';   // the multiplayer server (Render)
 function serverUrl() {
@@ -63,6 +63,13 @@ const methods = {
     else if (m.t === 'bags') { if (this.map) { this.bags = this.map.bags = this.bags.filter((b) => !b.shared); for (const b of m.list) this.netBag(b); } }
     else if (m.t === 'bag') this.netBag(m);
     else if (m.t === 'chest') this.netChest(m);
+    else if (m.t === 'bossdead') {                        // the old-style boss fell on the server: your rewards if you hit it
+      const B = this.boss;
+      if (!B || !B.net || B.state === 'dead') return;
+      B.x = B.tx; B.y = B.ty;
+      if (m.credit) { B.netKill = true; this.killBoss(); }
+      else { B.state = 'dead'; B.deadT = 0; B.hp = 0; this.vx({ k: 'shake', amt: 8 }); }
+    }
     else if (m.t === 'oopen') { const o = this.map && this.map.netWorld && this.netObj2(m.i, m.k); if (o) { o.guards = null; this.breakChest(o); this.map.brk = null; } }   // you hit it: your loot
     else if (m.t === 'ofloat') { const o = this.map && this.netObj2(m.i, m.k); if (o) this.float(o.x, o.y - 1, m.text, '#8d88a0'); }
     else if ((m.t === 'dropped' || m.t === 'took') && N.pending) { const f = N.pending.get(m.rid); if (f) { N.pending.delete(m.rid); f(m); } }
@@ -93,9 +100,9 @@ const methods = {
     else if (m.t === 'wlog') { if (this.map.netWorld) { for (const a of m.tiles) this.netTile(a); for (const o of m.objs) this.netObj(o); } }
     else if (m.t === 'portal') {                          // a dungeon opened in the shared realm: everyone's way in
       const M = this.map, D = DUNGEON_DEFS[m.to];
-      if (!M || !M.netWorld || (M.kind !== 'realm' && M.kind !== 'nexus') || !D) return;
-      M.portals.push({ kind: D.portal, x: m.x, y: m.y, label: D.name, to: m.to, life: m.life, netIid: m.iid, netSeed: m.seed });
-      this.say(`A portal to ${D.name} has opened!`, '#3befff');
+      if (!M || !M.netWorld || (M.kind !== 'realm' && M.kind !== 'nexus') || (!D && !String(m.to).startsWith('rf_'))) return;
+      if (D) { M.portals.push({ kind: D.portal, x: m.x, y: m.y, label: D.name, to: m.to, life: m.life, netIid: m.iid, netSeed: m.seed }); this.say(`A portal to ${D.name} has opened!`, '#3befff'); }
+      else { const n0 = M.portals.length; this.rfOpenPortal(m.to, m.x, m.y, m.life); for (const q of M.portals.slice(n0)) { q.netIid = m.iid; q.netSeed = m.seed; } }   // (an rf_ dungeon's own portal art)
     }
     else if (m.t === 'dlog') { if (this.map.netWorld && this.map.kind === 'dungeon') this.netDungeonState(m); }
     else if (m.t === 'hurt') { if (this.map.netWorld && !this.player.dead) this.hurtPlayer(m.d, m.by, m.ap); }
@@ -250,11 +257,12 @@ const methods = {
   netWorldCheck() {
     const N = this.net, m = this.map;
     if (!N || !N.world || !N.open || !m || m.netWorld) return;
-    if (!(m.kind === 'realm' && m.seed === N.seed) && !(m.kind === 'dungeon' && m.netIid) && !(m.kind === 'nexus' && N.nexusWorld)) return;
+    if (!(m.kind === 'realm' && m.seed === N.seed) && !(m.kind === 'dungeon' && m.netIid && !m.rf) && !(m.kind === 'nexus' && N.nexusWorld)) return;
     m.netWorld = true; N.byId.clear(); N.held = new Map();
     for (const o of m.objects) if (o.guards) o.guards = null;   // (camp chests: the server's guards are the ones that count)
     this.enemies = m.enemies = [];
-    this.boss = null;
+    // the Drowned Forge's old-style boss: kept as a puppet of the server's (its arena is the same for all)
+    if (this.boss && m.kind === 'dungeon') { Object.assign(this.boss, { net: true, tx: this.boss.x, ty: this.boss.y }); } else this.boss = null;
   },
   // the server is gone: the realm runs its own monsters again
   netWorldOff() {
@@ -269,6 +277,14 @@ const methods = {
     if (!M || !M.netWorld) return;
     const off = this.t - (m.T || 0), TIMED = /Until$|^born$/;              // the server's clock to ours
     for (const s of m.es) for (const k in s) if (TIMED.test(k) && typeof s[k] === 'number') s[k] += off;
+    if (m.boss && this.boss && this.boss.net) {                            // the old-style boss
+      const { x, y, ...rest } = m.boss;
+      for (const k in rest) if (TIMED.test(k) && typeof rest[k] === 'number') rest[k] += off;
+      if (this.boss.state === 'dead') delete rest.state;
+      Object.assign(this.boss, rest);
+      if (x !== undefined) this.boss.tx = x;
+      if (y !== undefined) this.boss.ty = y;
+    }
     for (const s of m.es) {
       let e = N.byId.get(s.nid);
       if (!e) {
@@ -356,7 +372,7 @@ const methods = {
     return true;
   },
   // the shared portal you are stepping through: its instance and seed
-  netTakeEnter(where) { const q = this.netEnterNext; this.netEnterNext = null; return q && DUNGEON_DEFS[where] ? q : null; },
+  netTakeEnter(where) { const q = this.netEnterNext; this.netEnterNext = null; return q && (DUNGEON_DEFS[where] || where.startsWith('rf_')) ? q : null; },
   // you used something in a shared dungeon: the server uses it too (by its place in the dungeon's list)
   netUse(o) { const N = this.net, i = this.map.objects.indexOf(o); if (N && N.open && i >= 0) N.ws.send(JSON.stringify({ t: 'use', i, k: o.interact || o.sprite || '' })); },
   // the dungeon as the server has it: tiles changed (gates opened, walls broken) and things' states (chests, levers)
