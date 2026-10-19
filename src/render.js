@@ -2164,6 +2164,7 @@ export class Renderer {
       const BIO = ['#b89a68', '#4a6a38', '#a8b4c4', '#544a50', '#e0c898', '#26341c', '#b8a050', '#6e9a40'];
       for (let i = 0; i < m.tiles.length; i++) {
         const t = m.tiles[i], b = realmFlat ? m.biome[i] : -2;
+        if (m.rfMini) { const q = m.rfMini(i); img.data[i * 4] = q[0]; img.data[i * 4 + 1] = q[1]; img.data[i * 4 + 2] = q[2]; img.data[i * 4 + 3] = 255; continue; }   // a Realmforge map: its own colours
         const hex = !realmFlat ? MINI[t] || '#555060' : t === 1 ? '#0e2236' : t === 0 ? '#1d4466' : t === TID.cliff ? '#5a5866' : t === TID.rift ? '#c02a8a'
           : (BIO[b] || MINI[t]);
         let c = rgb.get(hex);
@@ -2249,7 +2250,8 @@ export class Renderer {
         mark(o.x, o.y, kind, col, kind === 'talk' ? '#1a1218' : '#ffffff');
       }
     }
-    for (const pt of m.portals) mark(pt.x, pt.y, 'portal', '#3befff', '#0a2a40');
+    if (m.rf || m.rfBoss) this.rfMiniMarks(g, m, mark);          // a Realmforge dungeon's creatures, doors, chests, fonts (src/rf/draw.js)
+    for (const pt of m.portals) if (!pt.hidden) mark(pt.x, pt.y, 'portal', '#3befff', '#0a2a40');
     for (const s0 of g.sealStatus ? g.sealStatus() : []) {      // every unbroken seal glows on the minimap, even in the fog
       if (s0.done) continue;
       const pulse = Math.floor(g.t * 4) % 2 === 0;

@@ -1,8 +1,13 @@
 // Drawing a hosted Realmforge dungeon (src/rf/host.js) with our renderer: their pre-painted map is our ground (and so
 // the tops of our 2.5D walls), and their objects, props, creatures, shots, traps and telegraphs are drawn from their own
 // art, 8 pixels to a tile at 2x, turned with our camera like everything else. Mixed into the Renderer (render.js).
-const TS = 16, K = 2, TAU = Math.PI * 2;
+const TS = 16, K = 2, TAU = Math.PI * 2;   // K: their 8px-a-tile props and objects at our tiles' size
 const fr = (a, f) => a[Math.floor(f) % a.length];
+import { outlinedFrame } from '../outline.js';
+// their art, rebuilt without the outline Realmforge bakes in (at our scale it came out three times as thick as ours):
+// a grid and palette -> a plain canvas, cached
+const plain = (grid, pal) => { const h = grid.length, w = Math.max(...grid.map((r) => r.length)), c = Object.assign(document.createElement('canvas'), { width: w, height: h }), x = c.getContext('2d');
+  for (let y = 0; y < h; y++) for (let i = 0; i < w; i++) { const ch = grid[y][i]; if (ch !== '.' && pal[ch]) { x.fillStyle = pal[ch]; x.fillRect(i, y, 1, 1); } } return c; };
 
 const methods = {
   // one tile of ground, cut from their painted map (walls included: our wall tops are cut from the ground)
@@ -20,6 +25,44 @@ const methods = {
     const F = def.anims.loop.frames, fr = def.frames[F[Math.floor(g.t * 6) % F.length]], b = this.b;
     b.drawImage(def.img, fr.x, fr.y, fr.w, fr.h, Math.round(sx - fr.w), Math.round(sy - fr.h * 2 + 4), fr.w * 2, fr.h * 2);
   },
+  // a prop or object of theirs: its frames, unoutlined, and whether it lies flat (a decal, a rug: no outline)
+  rfArtOf(m, k) {
+    const C = this.rfArtC || (this.rfArtC = new Map()), key = m.rf.id + '|' + k;
+    if (C.has(key)) return C.get(key);
+    const dg = m.rf.dg, cfg = m.rf.E.cfg, xp = m.rf.xp || {};
+    const src = k === 'portal' ? dg.portal : (dg.objects && dg.objects[k]) || (cfg.props && cfg.props[k]) || (xp.props && xp.props[k]);
+    const flat = !(dg.objects && dg.objects[k]) && ((cfg.flat || []).includes(k) || (xp.flat || []).includes(k));
+    const out = src ? { cvs: src.frames.map((g) => plain(g, src.pal)), flat } : null;
+    C.set(key, out); return out;
+  },
+  // a shot of theirs (their boss's shot sheet, or the dungeon's own), unoutlined
+  rfShotArt(m, key) {
+    const C = this.rfArtC || (this.rfArtC = new Map()), ck = m.rf.id + '|s|' + key;
+    if (C.has(ck)) return C.get(ck);
+    const E = m.rf.E, cs = E.cfg.shots && E.cfg.shots[key], bs = E.B.shots[key];
+    const out = cs ? plain(cs.frames[0], cs.pal) : bs && bs.grid && bs.grid.length <= 8 ? plain(bs.grid, bs.pal) : null;
+    C.set(ck, out || (E.shots[key] || null)); return C.get(ck);
+  },
+  // a creature of theirs: its frames (and its idle pose, asleep), unoutlined
+  rfCreature(m, k) {
+    const C = this.rfArtC || (this.rfArtC = new Map()), key = m.rf.id + '|e|' + k;
+    if (C.has(key)) return C.get(key);
+    const d = m.rf.E.cfg.enemies[k], out = d && d.art ? { f: d.art.frames.map((g) => plain(g, d.art.pal)), idle: d.idle ? d.idle.frames.map((g) => plain(g, d.idle.pal)) : null } : null;
+    C.set(key, out); return out;
+  },
+  // one of their sprites the way ours are drawn: K buffer pixels to an art pixel, our 2-pixel outline, bottom-centred
+  rfDraw(im, rx, ry, K, o = {}) {
+    if (!im) return;
+    const b = this.b, U = this.U || 1, w = im.width * K, h = im.height * K;
+    let I = im, pad = 0;
+    if (o.flash) I = this.white(im, 0, 0, im.width, im.height);
+    else if (!o.flat) { I = outlinedFrame(im, 0, 0, im.width, im.height, U * K, undefined, U >= 2 ? 2 : 1); pad = I.pad / U; }
+    b.save();
+    if (o.alpha !== undefined) b.globalAlpha = o.alpha;
+    if (o.flip) { b.translate(rx, 0); b.scale(-1, 1); b.translate(-rx, 0); }
+    b.drawImage(I, Math.round(rx - w / 2) - pad, Math.round(ry - h + (o.down || 0)) - pad, w + 2 * pad, h + 2 * pad);
+    b.restore();
+  },
   // a sprite of theirs, standing at a ground point, bottom-centred (rx, ry: that point on screen)
   rfSprite(im, rx, ry, o = {}) {
     if (!im) return;
@@ -35,17 +78,18 @@ const methods = {
     const E = m.rf.E, t = E.t;
     for (const o of E.M.objs) {
       if (o.gone) continue;
-      const a = E.art[o.st ? o.k + '_' + o.st : o.k] || E.art[o.k];
-      if (!a) continue;
-      add(o.x + o.s / 2, o.y + o.s - 0.02, (rx, ry) => this.rfSprite(fr(a, t * (o.anim || 5) + ((o.x * 7 + o.y * 3) % 4)), rx, ry));
+      const A = this.rfArtOf(m, o.st ? o.k + '_' + o.st : o.k) || this.rfArtOf(m, o.k);
+      if (!A) continue;
+      add(o.x + o.s / 2, o.y + o.s - 0.02, (rx, ry) => this.rfDraw(fr(A.cvs, t * (o.anim || 5) + ((o.x * 7 + o.y * 3) % 4)), rx, ry, K, { flat: A.flat }));
     }
     for (const pr of E.M.props) {
       if (pr.hidden || pr.k[0] === '_') continue;
-      let a = E.art[pr.st ? pr.k + '_' + pr.st : pr.k] || E.art[pr.k];
-      if (pr.k === 'plate' && pr.on) a = E.art.plate_on || a;
-      if ((pr.k === 'chest' || pr.k === 'chest_rare') && pr.opened) a = E.art.chest_open || a;
-      if (!a) continue;
-      add(pr.x + 0.5, pr.y + 0.98, (rx, ry) => this.rfSprite(fr(a, t * (pr.k === 'portal' ? 8 : 4)), rx, ry, { down: a[0].height > 8 ? Math.min(8, a[0].height - 8) : 0 }));
+      let A = this.rfArtOf(m, pr.st ? pr.k + '_' + pr.st : pr.k) || this.rfArtOf(m, pr.k);
+      if (pr.k === 'plate' && pr.on) A = this.rfArtOf(m, 'plate_on') || A;
+      if ((pr.k === 'chest' || pr.k === 'chest_rare') && pr.opened) A = this.rfArtOf(m, 'chest_open') || A;
+      if (!A) continue;
+      const hh = A.cvs[0].height;
+      add(pr.x + 0.5, pr.y + 0.98, (rx, ry) => this.rfDraw(fr(A.cvs, t * (pr.k === 'portal' ? 8 : 4)), rx, ry, K, { flat: A.flat, down: hh > 8 ? Math.min(8, hh - 8) : 0 }));
     }
     for (const e of E.en_) {
       if (e.st === 'gone') continue;
@@ -54,30 +98,25 @@ const methods = {
     for (const d of E.drops) add(d.x, d.y, (rx, ry) => this.rfDropSpr(E, d, rx, ry));
   },
   rfEnemy(g, E, e, rx, ry) {
-    const A = E.en[e.k], d = e.d, b = this.b;
+    const A = this.rfCreature(g.map, e.k), d = e.d, b = this.b;
     if (!A) return;
-    const im = e.dormant && A.idle ? A.idle[0] : fr(e.flash > 0 || e.hp <= 0 ? A.white : A.f, e.f);
-    const zy = Math.round((e.z || 0) * TS);
+    const im = e.dormant && A.idle ? A.idle[0] : fr(A.f, e.f), K = im.height <= 10 ? 2 : 1;   // 8px art at the player's pixel size, bigger art at the fine size
+    const zy = Math.round((e.z || 0) * TS), h = im.height * K;
     if (e.hidden) {                                            // under the ground (or phased): only a stir of dust
       b.fillStyle = 'rgba(255,255,255,.45)'; const q = Math.floor(E.t * 6) % 3;
       b.fillRect(rx - 6 - q * 2, ry, 12 + q * 4, 2);
-      if (d.phase) this.rfSprite(fr(A.f, e.f), rx, ry + zy + 6, { alpha: 0.14 + 0.08 * Math.sin(E.t * 9) });
+      if (d.phase) this.rfDraw(fr(A.f, e.f), rx, ry + zy + 3, K, { alpha: 0.14 + 0.08 * Math.sin(E.t * 9) });
       return;
     }
-    b.fillStyle = 'rgba(0,0,0,.4)'; b.beginPath(); b.ellipse(rx, ry + 2, im.width * 0.7, 3, 0, 0, TAU); b.fill();
+    b.fillStyle = 'rgba(0,0,0,.4)'; b.beginPath(); b.ellipse(rx, ry + 1, im.width * K * 0.38, 3, 0, 0, TAU); b.fill();
     let alpha = 1;
     if (e.dormant && e.wake != null) alpha = 0.5 + 0.5 * Math.sin(E.t * 30);
     if (e.hp <= 0) alpha = Math.max(0, 1 - (e.dead || 0) * 3.5);
     if (E.mod.alpha) alpha *= E.mod.alpha(e);
-    this.rfSprite(im, rx, ry + zy + 6, { alpha, flip: e.face < 0 && !d.noflip });
-    const h = im.height * K;
-    if (e.shield > 0) { b.strokeStyle = '#8a8aff'; b.globalAlpha = 0.7; b.beginPath(); b.arc(rx, ry - h / 2, Math.max(im.width, im.height) + 2, 0, TAU); b.stroke(); b.globalAlpha = 1; }
-    if (e.teleT > E.t) { b.strokeStyle = E.danger; b.globalAlpha = 0.5 + 0.5 * Math.sin(E.t * 30); b.beginPath(); b.arc(rx, ry - h / 2 + 4, Math.max(im.width, im.height) + 4, 0, TAU); b.stroke(); b.globalAlpha = 1; }
-    if (e.hp > 0 && e.hp < e.max && !d.rare) {
-      const bw = Math.max(16, im.width * K - 6);
-      b.fillStyle = '#000'; b.fillRect(rx - bw / 2 - 1, ry - h - 1, bw + 2, 4);
-      b.fillStyle = e.boss ? '#ff5050' : '#5ad06a'; b.fillRect(rx - bw / 2, ry - h, Math.round(bw * e.hp / e.max), 2);
-    }
+    this.rfDraw(im, rx, ry + zy + 3, K, { alpha, flip: e.face < 0 && !d.noflip, flash: e.flash > 0 || e.hp <= 0 });
+    if (e.shield > 0) { b.strokeStyle = '#8a8aff'; b.globalAlpha = 0.7; b.beginPath(); b.arc(rx, ry - h / 2, h * 0.6 + 2, 0, TAU); b.stroke(); b.globalAlpha = 1; }
+    if (e.teleT > E.t) { b.strokeStyle = E.danger; b.globalAlpha = 0.5 + 0.5 * Math.sin(E.t * 30); b.beginPath(); b.arc(rx, ry - h / 2 + 2, h * 0.6 + 4, 0, TAU); b.stroke(); b.globalAlpha = 1; }
+    if (e.hp > 0 && e.hp < e.max && !d.rare) this.hpBar(rx, ry + 3, e.hp / e.max, e.boss ? 20 : 12);   // our own health bar, under the feet
   },
   rfDropSpr(E, d, rx, ry) {
     const a = E.art[d.k] || (d.k === 'key' ? E.art.key : null), b = this.b;
@@ -158,6 +197,31 @@ const methods = {
     try { mod.hud.call(mod, c, 1, 300, 48, 4, 14); } catch (err) { return; }
     const c2 = this.ctx, k = Math.max(1, Math.round(this.c.width / 900)); c2.save(); c2.setTransform(1, 0, 0, 1, 0, 0); c2.imageSmoothingEnabled = false; c2.drawImage(cv, 12, 52 * k, 300 * k, 48 * k); c2.restore();
   },
+  // the minimap's marks in their dungeons: creatures (a skull for a guardian), the boss's door, unopened chests, healing
+  // fonts and shrines, lore, the keeper, portals between rooms, keys on the floor; in a boss room, the boss and its minions
+  rfMiniMarks(g, m, mark) {
+    if (m.rfBoss) {
+      const A = m.rfBoss.A, X = (ax) => ax / 30 + 1, Y = (ay) => ay / 30 + 2;
+      for (const mn of A.mins) if (!mn.hidden) mark(X(mn.x), Y(mn.y), 'enemy', '#ff3c50', '#ffd0d8', false, 2);
+      if (!m.rfBoss.done) { mark(X(A.b1.x), Y(A.b1.y), 'skull', '#ff4a5a', '#ffffff', true); if (A.B.twin) mark(X(A.b2.x), Y(A.b2.y), 'skull', '#ffa030', '#ffffff', true); }
+      return;
+    }
+    const E = m.rf.E;
+    for (const e of E.en_) if (e.hp > 0 && !e.dormant && !e.hidden) mark(e.x, e.y, e.boss ? 'skull' : 'enemy', e.boss ? '#ffa030' : '#ff3c50', '#ffd0d8', false, e.boss ? 3 : 2);
+    for (const pr of E.M.props) {
+      if (pr.hidden || pr.k[0] === '_') continue;
+      const x = pr.x + 0.5, y = pr.y + 0.5;
+      if (pr.k === 'door_boss') mark(x, y, 'skull', '#ff4a5a', '#ffffff');
+      else if ((pr.k === 'chest' || pr.k === 'chest_rare') && !pr.opened) mark(x, y, 'bag', pr.k === 'chest_rare' ? '#ffd650' : '#c98a22', '#ffffff');
+      else if (pr.k === 'heal') mark(x, y, 'shrine', '#5ab8ff', '#e0f4ff');
+      else if (pr.k === 'shrine' && !pr.used) mark(x, y, 'shrine', '#ff8a50', '#fff0e0');
+      else if (pr.k === 'lore' && !pr.used) mark(x, y, 'lore', '#8af6ff', '#ffffff');
+      else if (pr.k === 'keeper_npc' && !pr.used) mark(x, y, 'talk', '#ffd650', '#1a1218');
+      else if (pr.pair) mark(x, y, 'portal', m.rf.dg.glow || '#b06aff', '#1a0a2a');
+      else if (pr.k === 'plate' && !pr.on) mark(x, y, 'diamond', '#ffd650', '#ffffff');
+    }
+    for (const d of E.drops) if (d.k === 'key') mark(d.x, d.y, 'diamond', '#ffd650', '#ffffff', true);
+  },
   // their light: the dungeon's darkness with a hole at every lamp, brazier and portal, then the coloured glow of each,
   // painted by their engine (8 pixels to a tile) and laid over the world like the ground. Shots are drawn after it.
   rfLight(g, m) {
@@ -195,11 +259,11 @@ const methods = {
     const E = m.rf.E, b = this.b;
     for (const s of E.bul) {
       if (s.delay > 0) continue;
-      const im = E.shots[s.key]; if (!im) continue;
-      const [x, y] = this.proj(s.x, s.y);
+      const im = this.rfShotArt(m, s.key); if (!im) continue;
+      const [x, y] = this.proj(s.x, s.y), U = this.U || 1, I = outlinedFrame(im, 0, 0, im.width, im.height, U * K, E.danger, U >= 2 ? 2 : 1), pad = I.pad / U;   // their danger-coloured rim, at our rim's width
       b.save(); if (s.ghost) b.globalAlpha = 0.6;
       b.translate(Math.round(x), Math.round(y) - 6); b.rotate(s.a + this.th);
-      b.drawImage(im, -im.width, -im.height, im.width * K, im.height * K); b.restore();
+      b.drawImage(I, -im.width - pad, -im.height - pad, im.width * K + 2 * pad, im.height * K + 2 * pad); b.restore();
     }
     for (const f of E.fx) {
       const q = f.age / (f.life || 0.6), [x, y] = this.proj(f.x, f.y);

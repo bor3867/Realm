@@ -91,6 +91,15 @@ trail 13, line 12, spiral 7, summon 7, pulse 5, snipe 4, heal 3, and 9 rarer). 2
   reach their creatures too (burn and venom tick, slows, curses, chains, splits, lifesteal, shoves, stops). Known gap:
   the uniques' area effects (ash clouds, rifts, trails, the jack-o'-lantern, thralls) touch our monsters, not theirs.
   `tools/check_rf_uniques.mjs`: every unique worn in a fight without an error, and a few promises measured.
+- **Phase 4c: made to feel like our game** (user, 2026-10-19: "enemies too big, bosses not upright, no minimap").
+  Their creatures, props and shots are rebuilt from their art without Realmforge's baked outline and drawn our way:
+  8px art at the player's pixel size, bigger art at the fine size (like our detailed monsters), our 2-pixel outline,
+  our health bars; their shots keep their danger-coloured rim at our width. In a boss room the boss (twin, decoys,
+  clones, the thousand copies), its minions and allies turn back against the camera, and their speech and floating
+  text are our bubbles, banners and numbers. The minimap takes each tile's colour from their painted map (and the
+  room's art in a boss room) and marks creatures, guardians, the boss's door, unopened chests, fonts, shrines, lore,
+  the keeper, portals and keys. Their maps no longer get our dungeon danger multiplier (their band sets the numbers);
+  the HUD's stars are the band's.
 
 ## Status
 | Dungeon | Boss | Layout | Creatures | Boss | Uniques | Overworld droppers | Done |

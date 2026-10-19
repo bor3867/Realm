@@ -1652,6 +1652,7 @@ export class Game {
   // god's heart. Dungeons have their own level.
   danger() {
     const m = this.map, p = this.player;
+    if (m.rf || m.rfBoss) return 1;                       // a Realmforge dungeon: its band already sets its numbers (src/rf/balance.js)
     if (m.kind === 'dungeon') return { hive: 0.6, chapel: 0.7, crypt: 0.8, theatre: 0.82, forge: 0.9, ember: 0.95, spire: 0.97, dream: 1, heart: 1 }[Object.keys(DUNGEONS).find((k) => DUNGEONS[k] === m.def)] || 0.85;
     if (m.kind !== 'realm') return 1;
     const C = m.w / 2, d = Math.min(1, dist(p.x, p.y, C, C) / (C * 0.9));
@@ -3644,7 +3645,7 @@ export class Game {
     for (const pt of this.map.portals) if (pt.life !== undefined) pt.life -= dt;
     this.map.portals = this.map.portals.filter((pt) => pt.life === undefined || pt.life > 0);
     this.nearPortal = this.map.portals.find((pt) => dist(pt.x, pt.y, p.x, p.y) < 1.2) || null;
-    const dg = this.danger(), stars = '★'.repeat(Math.max(1, Math.min(5, Math.round((dg - 0.45) * 8))));
+    const dg = this.danger(), stars = '★'.repeat(this.map.rf || this.map.rfBoss ? this.rfStars() : Math.max(1, Math.min(5, Math.round((dg - 0.45) * 8))));
     this.where = (this.map.kind === 'realm' ? BIOME_LABEL[BIOMES[biomeAt(this.map, p.x, p.y)]] || 'Open water' : this.map.name) + (this.map.kind === 'nexus' || this.map.kind === 'vault' ? '' : ` · danger ${stars}`);
   }
   // ------------------------------------------------------------- quests

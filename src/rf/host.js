@@ -49,11 +49,12 @@ const methods = {
     const M = E.M, m = {
       kind: 'dungeon', name: dg.name, w: M.W, h: M.H, tiles: new Uint8Array(M.W * M.H), solid: new Uint8Array(M.W * M.H),
       biome: new Int8Array(M.W * M.H).fill(-1), objects: [], portals: [], rooms: [], spawn: { x: M.start.x, y: M.start.y },
-      rf: { id, dg, E, X, pots: E.pots, coins: E.coins, tick: 0 },
+      rf: { id, dg, E, X, xp: DATA.explore, pots: E.pots, coins: E.coins, tick: 0 },
     };
     m.rfSolid = (x, y) => X.solidMove(x, y);
     m.rfShot = (x, y) => X.solidShot(x, y);
     this.rfSync(m);
+    m.rfMini = (i) => this.rfMiniColor(m, i);
     for (const e of E.en_) this.rfScale(e, id);                 // (this.map is not this one yet)
     return m;
   },
@@ -81,6 +82,15 @@ const methods = {
     this.map.portals.push({ kind: 'dungeon', rf: id, x, y, label: dg.portal_name ? `${dg.name} (${dg.portal_name})` : dg.name, to, life });
     this.say(`A portal to ${dg.name} has opened!`, dg.glow || '#3befff');
   },
+  // a tile's colour on the minimap: the middle of its painted art (walls deep inside the rock stay dark)
+  rfMiniColor(m, i) {
+    const E = m.rf.E;
+    if (!m.rf.miniPx || m.rf.miniPxT !== m.rf.tilesV) { m.rf.miniPx = E.base.getContext('2d').getImageData(0, 0, E.base.width, E.base.height).data; m.rf.miniPxT = m.rf.tilesV; }
+    const x = i % m.w, y = (i / m.w) | 0, W = E.base.width, P = m.rf.miniPx, q = ((y * 8 + 4) * W + x * 8 + 3) * 4, r = ((y * 8 + 2) * W + x * 8 + 5) * 4;
+    return [(P[q] + P[r]) >> 1, (P[q + 1] + P[r + 1]) >> 1, (P[q + 2] + P[r + 2]) >> 1];
+  },
+  // a Realmforge map's stars (its band: src/rf/balance.js)
+  rfStars() { const m = this.map, id = m.rf ? m.rf.id : (DATA.dungeons.find((d) => d.boss === m.rfBoss.id) || {}).id; const b = id && rfBalance(DATA, id); return b ? b.stars : 3; },
   rfE() { return X.state ? X.state() : null; },
   rfScale(e, id = this.map.rf.id) { if (!e.rfScaled) { e.rfScaled = 1; e.hp = e.max = Math.round(e.max * rfBalance(DATA, id).hp); } },   // (src/rf/balance.js)
   // our map follows theirs: tile codes, and what blocks you (their walls and solid things)
@@ -88,7 +98,7 @@ const methods = {
     const M = m.rf.E.M, t = M.t, og = m.rf.E.og;
     for (let k = 0; k < t.length; k++) {
       const v = TID[RF_CODE_TILE[t[k]]];
-      if (m.tiles[k] !== v) m.tiles[k] = v;
+      if (m.tiles[k] !== v) { m.tiles[k] = v; m.miniDirty = true; m.rf.tilesV = (m.rf.tilesV || 0) + 1; }   // (the minimap follows)
       m.solid[k] = X.BM[t[k]] && !(t[k] === X.C.DEEP && M.deepWalk) ? 1 : og && og[k] > 0 ? 1 : 0;
     }
   },

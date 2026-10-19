@@ -15,7 +15,7 @@ export const RFB = { dropUt: 0.2, dropLeg: 0.08, dropMyth: 0.02, phaseMax: 60 };
 const DPR = 1.6, TP = 30;                                                      // their pixels to a tile; 30 * 1.6 = 48 = 16 * 3
 let S = null;
 const HOST = {
-  DPR,
+  DPR, th: 0, ownText: true,                                                  // (th: our camera's angle, so what stands up stays upright)
   stub: { querySelectorAll: () => [], querySelector: () => ({ style: {}, textContent: '', setAttribute() {} }), classList: { toggle() {} }, dataset: {}, append() {} },
   el(tag, attrs = {}, kids = []) { const e = document.createElement(tag); for (const k in attrs) { if (k === 'class') e.className = attrs[k]; else if (k === 'text') e.textContent = attrs[k]; else if (k === 'style') e.style.cssText = attrs[k]; else e.setAttribute(k, attrs[k]); } for (const k of [].concat(kids)) if (k) e.append(k); return e; },
   // the Armory's sprite painter (template.html): an 8x8 grid at a CSS size, with a thin black outline
@@ -55,6 +55,12 @@ const methods = {
     m.rfSolid = (x, y) => out(x, y) || !!S.solidAt(ax(x), ay(y), 0);
     m.rfShot = (x, y) => out(x, y) || S.shotBlocked(ax(x), ay(y));
     m.rfAx = ax; m.rfAy = ay;
+    m.rfMini = (i) => {                                                        // the minimap: the room's own art, a tile at a time
+      if (!m.rfMiniPx) { const bg = A.roomBg && A.roomBg[0]; m.rfMiniPx = bg ? { d: bg.getContext('2d').getImageData(0, 0, bg.width, bg.height).data, w: bg.width, s: bg.width / cols } : null; }
+      const Q = m.rfMiniPx; if (!Q) return [40, 36, 48];
+      const x = i % cols, y = (i / cols) | 0, q = (Math.floor((y + 0.5) * Q.s) * Q.w + Math.floor((x + 0.5) * Q.s)) * 4;
+      return [Q.d[q], Q.d[q + 1], Q.d[q + 2]];
+    };
     A.pl.x = ax(m.spawn.x); A.pl.y = ay(m.spawn.y);
     m.seen = null;                                                              // a boss room is lit: no fog
     return m;
@@ -88,6 +94,18 @@ const methods = {
       else { F.dead = true; S.startDeath(); }
     }
     if (A.dying && !A.dying.pre && A.dying.t > 3 && !F.done) { F.done = true; this.rfBossWon(); }
+    // their words and their floating text, in our game's own (upright) speech bubbles, banners and numbers
+    const tox = (ax) => ax / TP + 1, toy = (ay) => ay / TP + 2;
+    F.bubE = F.bubE || { rb: true, dead: false }; F.bubE.x = tox(A.b1.x); F.bubE.y = toy(A.b1.y);
+    for (const bb of A.bub || []) {
+      if (bb.rfShown) continue; bb.rfShown = 1;
+      if (bb.who === '*' || bb.who === 'sys') { this.banner(bb.t, 3200, false); continue; }
+      const al = A.allies && A.allies.find((q) => q.name === bb.who), o = al || (bb.who === 'Noct' ? A.b2 : null);
+      const e = o ? { x: tox(o.x), y: toy(o.y), rb: true } : F.bubE;
+      this.bubbles.push({ e, x: e.x, y: e.y, text: bb.t, t0: this.t, col: al ? '#9ff07a' : '#ffb547', big: true });
+      if (this.bubbles.length > 12) this.bubbles.shift();
+    }
+    for (const f of A.fl || []) if (!f.rfShown) { f.rfShown = 1; this.float(tox(f.x), toy(f.y), f.txt, f.st || (f.heal ? '#8aff9a' : f.big ? '#ffe066' : '#ffffff')); }
   },
   rfShellHp(P) { const q = /([\d,]+) HP/.exec(P.text || ''); return Math.round((q ? +q[1].replace(/,/g, '') : 8000) * 0.55); },   // (their 8,000 was for the Armory's test player, who hit harder than ours)
   // on to the next phase now (its HP mark), or, in the last, the end
@@ -160,6 +178,7 @@ export function installRFBoss(Game) { Object.assign(Game.prototype, methods); }
 const rmethods = {
   rfBossLayer(g, m) {
     const F = m.rfBoss, A = F.A, b = this.b;
+    HOST.th = this.th;
     S.draw();
     const [ax, ay] = this.proj(0, 0), [bx, by] = this.proj(1, 0), [cx, cy] = this.proj(0, 1), k = 1 / (TP * DPR);
     b.save();
