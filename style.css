@@ -861,3 +861,6 @@ html body #app .slot .tier.tt.b2, html body #app #panel .slot .tier.tt.b2 { colo
 html body #app .slot .tier.tt.b3, html body #app #panel .slot .tier.tt.b3 { color: #7ac8ff !important; }
 html body #app .slot .tier.tt.b4, html body #app #panel .slot .tier.tt.b4 { color: #d49aff !important; }
 html body #app .slot .tier.tt.b5, html body #app #panel .slot .tier.tt.b5 { color: #ffc84a !important; }
+
+/* the tier tag drawn in its own pixel font (ui.js pixelTag): never smoothed, never squeezed */
+html body #app .slot .tier .pxtag { display: block; image-rendering: pixelated; height: 14px; width: auto; }

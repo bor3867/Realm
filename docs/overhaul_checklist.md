@@ -160,7 +160,9 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   some tiers, which read as old); what was missing was each shot's path (staves: a helix pair; wave wands; bows side
   by side) and the uniques' trails. Every Realmforge weapon now flies its path with the Armory's numbers.
 - HUD tier numbers (requested 2026-10-19): the item tooltip's tier changed, but the HUD slots still show a 5 that looks
-  like an 8. Rework again: still pixel-style, but clean and easy to read.
+  like an 8. Rework again: still pixel-style, but clean and easy to read. **Done 2026-10-19:** the slot tags are drawn
+  in a pixel font of their own (ui.js pixelTag: 3x5 glyphs, every digit its own shape, 2 pixels per pixel, a black
+  rim, the band's colour), crisp at every slot size.
 - Overworld bosses too easy (requested 2026-10-19): the Kraken and the older overworld bosses go down too fast. More HP,
   harder hits, small adds where they fit (tentacles for the Kraken), so they can kill a player who is not dodging.
 - Bottom-right party list (requested 2026-10-19): show other players only, not yourself or your pets.

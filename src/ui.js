@@ -32,6 +32,27 @@ export function rarityColor(it) {
   return TIER_COL[it.tier];
 }
 
+// tier tags in a pixel font of their own (2026-10-19): every glyph is 3x5, every digit its own shape (a 5's right
+// side is open above where an 8's is closed), drawn at 2 pixels per pixel with a 1-pixel black rim and cached
+const PX_GLYPH = { 0: ['111', '101', '101', '101', '111'], 1: ['010', '110', '010', '010', '111'], 2: ['111', '001', '111', '100', '111'],
+  3: ['111', '001', '011', '001', '111'], 4: ['101', '101', '111', '001', '001'], 5: ['111', '100', '111', '001', '110'],
+  6: ['011', '100', '111', '101', '111'], 7: ['111', '001', '010', '010', '010'], 8: ['111', '101', '111', '101', '111'],
+  9: ['111', '101', '111', '001', '110'], T: ['111', '010', '010', '010', '010'], U: ['101', '101', '101', '101', '111'],
+  M: ['101', '111', '111', '101', '101'], L: ['100', '100', '100', '100', '111'] };
+const pxCache = new Map();
+export function pixelTag(text, color) {
+  const key = text + '|' + color;
+  if (pxCache.has(key)) return pxCache.get(key);
+  const P = 2, gl = [...text].map((ch) => PX_GLYPH[ch] || PX_GLYPH[0]), w = gl.length * 4 - 1, h = 5;
+  const cv = document.createElement('canvas'); cv.width = (w + 2) * P; cv.height = (h + 2) * P;
+  const x = cv.getContext('2d');
+  const each = (fn) => gl.forEach((g, i) => g.forEach((row, y) => [...row].forEach((b, xx) => { if (b === '1') fn(1 + i * 4 + xx, 1 + y); })));
+  x.fillStyle = '#000';
+  each((gx, gy) => { for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) x.fillRect((gx + dx) * P, (gy + dy) * P, P, P); });
+  x.fillStyle = color; each((gx, gy) => x.fillRect(gx * P, gy * P, P, P));
+  const url = cv.toDataURL(); pxCache.set(key, url); return url;
+}
+
 export class UI {
   constructor(game, renderer) {
     this.g = game; this.r = renderer;
@@ -503,6 +524,10 @@ export class UI {
           if (name === 'pots') { const n = this.g.pots()[i].n; tier.innerHTML = `<b class="${n >= POT_STACK ? 'full' : ''}">${n}</b>/${POT_STACK}`; } else tier.textContent = it.admin ? 'ADMIN' : it.mythic ? 'M' : it.legendary ? 'L' : it.ut ? 'UT' : it.use && it.use.egg ? RARITY[it.use.egg].name[0] : it.tier === null ? '' : 'T' + it.tier;
           const tb = typeof it.tier === 'number' ? (it.tier >= 12 ? 'b5' : it.tier >= 10 ? 'b4' : it.tier >= 7 ? 'b3' : it.tier >= 4 ? 'b2' : 'b1') : '';   // a tier's colour band: the number is never the only cue
           tier.className = 'tier' + (it.ut ? ' ut' : '') + (tb && name !== 'pots' ? ` tt ${tb}` : '');
+          if (name !== 'pots' && /^(T\d{1,2}|UT|M|L)$/.test(tier.textContent)) {   // drawn in the pixel font: clean at any slot size
+            const col = getComputedStyle(tier).color || '#d8d8d8', txt = tier.textContent;
+            tier.textContent = ''; const im = new Image(); im.src = pixelTag(txt, col); im.className = 'pxtag'; im.alt = txt; tier.appendChild(im);
+          }
           el.style.setProperty('--rc', rarityColor(it));
           el.classList.add('has'); el.classList.remove('ghost'); el.classList.toggle('mythic', !!it.mythic); el.classList.toggle('ut', !!it.ut && !it.mythic && !it.admin);
           el.classList.toggle('admin', !!it.admin); el.classList.toggle('ench', !!it.enchants); el.classList.toggle('legend', !!it.legendary);
