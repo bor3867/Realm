@@ -55,11 +55,13 @@ const methods = {
     } else if (m.t === 'online') N.online = m.n;
     else if (m.t === 'gift') {                            // an admin's gift: your own chests and chickens (shared chickens in the realm come as monsters)
       if (m.what === 'chests') this.spawnAdminChests(m.x, m.y, m.n);
+      if (m.what === 'note') { if (m.by) this.banner(`${m.by} brings gifts!`, 2200); return; }
       else if (m.what === 'chickens' && !this.map.netWorld) this.spawnChickens(m.x, m.y, m.n);
       if (m.by) this.banner(`${m.by} brings gifts!`, 2200);
     }
     else if (m.t === 'bags') { if (this.map) { this.bags = this.map.bags = this.bags.filter((b) => !b.shared); for (const b of m.list) this.netBag(b); } }
     else if (m.t === 'bag') this.netBag(m);
+    else if (m.t === 'chest') this.netChest(m);
     else if ((m.t === 'dropped' || m.t === 'took') && N.pending) { const f = N.pending.get(m.rid); if (f) { N.pending.delete(m.rid); f(m); } }
     else if (m.t === 'moveto') { const p = this.player; if (p && !p.dead && this.map.netWorld) { p.x = m.x; p.y = m.y; } }
     else if (m.t === 'kick') { N.kicked = true; this.banner(m.reason || 'The server let you go.', 8000); this.say(m.reason || 'The server let you go.', '#ff8a8a'); }
@@ -138,6 +140,23 @@ const methods = {
     if (slot >= 0 && C2 && !C2[slot]) C2[slot] = id;
     else { const f = p.inv.indexOf(null); if (f >= 0) p.inv[f] = id; else this.addBag(p.x, p.y + 0.3, [id]); }
     this.clampVitals(); this.sfx('loot'); this.persist(); this.events.push({ type: 'ground' });
+  },
+  // a shared admin chest: placed, hurt, broken (loot for each who hit it) or gone
+  netChest(m) {
+    const M = this.map;
+    if (!M) return;
+    let o = M.objects.find((q) => q.netCid === m.cid);
+    if (m.gone) { if (o) { M.objects = M.objects.filter((q) => q !== o); M.solid[Math.floor(o.y) * M.w + Math.floor(o.x)] = 0; M.ogridDirty = true; M.brk = null; } return; }
+    if (!o && !m.open) {
+      o = { sprite: 'admin_chest', x: m.x, y: m.y, solid: true, interact: 'chest', admin: true, netCid: m.cid, hp: m.hp, maxHp: m.max };
+      M.objects.push(o); M.solid[Math.floor(o.y) * M.w + Math.floor(o.x)] = 1; M.ogridDirty = true; M.brk = null;
+      if (M.kind === 'nexus') M.nexusChests = true;
+      this.vx({ k: 'burst', x: o.x, y: o.y - 0.5, n: 30, colors: ['#ff4af0', '#ffd650', '#ffffff'] });
+      return;
+    }
+    if (!o) return;
+    if (m.open) { if ((m.to || []).includes(this.net.id)) this.breakChest(o); else { o.opened = true; o.sprite = 'chest_open'; o.hp = 0; } M.brk = null; return; }   // yours if you hit it
+    o.hp = m.hp; o.hurtT = this.t;
   },
   netBag(m) {                                            // a shared bag: new, changed or gone
     const M = this.map;

@@ -3395,6 +3395,12 @@ export class Game {
     if (o.hmStriker || o.hmCrate) return this.hitFair(o);
     if (o.interact === 'weak') return this.hitWeak(o);
     if (o.guards && o.guards.some((g) => !g.dead)) { if (o.starVault) this.asVaultHit(o); this.float(o.x, o.y - 1, 'GUARDED', '#8d88a0'); return; }
+    if (o.netCid) {                                        // a shared chest: the server keeps its Life (src/net.js)
+      if (this.net && this.net.open) this.net.ws.send(JSON.stringify({ t: 'chesthit', cid: o.netCid, d: Math.round(dmg) }));
+      this.float(...lift(o.x, o.y, 0.9), `${Math.round(dmg)}`, '#ffd650'); o.hurtT = this.t;
+      this.vx({ k: 'burst', ...liftO(o.x, o.y, 0.4), n: 3, colors: ['#c98a44', '#ffd650'] });
+      return;
+    }
     if (!o.maxHp) o.hp = o.maxHp = this.chestHp(o);
     o.hp -= dmg; o.mine = (o.mine || 0) + dmg; o.hurtT = this.t;
     this.float(...lift(o.x, o.y, 0.9), `${Math.round(dmg)}`, '#ffd650');

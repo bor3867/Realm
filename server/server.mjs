@@ -22,6 +22,13 @@ const bags = new Map();              // room -> Map(bid -> { bid, x, y, items[8]
 let nextBid = 1;
 const bagsIn = (room) => { let B = bags.get(room); if (!B) bags.set(room, (B = new Map())); return B; };
 const bagMsg = (b) => ({ t: 'bag', bid: b.bid, x: b.x, y: b.y, items: b.items });
+// shared admin chests (an admin's /adminchest in a shared place): one chest for all, its Life here; when it breaks,
+// everyone who hit it gets their own admin loot (their browser rolls it)
+const chests = new Map();            // room -> Map(cid -> { cid, x, y, hp, max, hit: Set(client ids), until })
+let nextCid = 1;
+const chestsIn = (room) => { let C = chests.get(room); if (!C) chests.set(room, (C = new Map())); return C; };
+const chestMsg = (o) => ({ t: 'chest', cid: o.cid, x: o.x, y: o.y, hp: o.hp, max: o.max });
+setInterval(() => { const now = Date.now(); for (const [room, C] of chests) for (const [cid, o] of C) if (o.until < now) { C.delete(cid); toRoom(room, { t: 'chest', cid, gone: true }); } }, 10000);
 // a shared kill's brown loot: one public bag where it fell (up to eight to a bag)
 function publicBag(room, x, y, items) {
   const B = bagsIn(room);
@@ -81,6 +88,7 @@ function onMessage(c, text) {
       c.room = room;
       const W1 = worldOf(room); if (W1) W1.join(c.id, c.name, !!(c.account && c.account.admin));
       if (room) send(c, { t: 'bags', list: [...bagsIn(room).values()].map(bagMsg) });   // the bags lying here
+      if (room) for (const o of chestsIn(room).values()) send(c, chestMsg(o));             // and the shared chests
     }
     if (!room) return;
     if (movedTooFar(c, num(m.x, 0, 4096), num(m.y, 0, 4096), room)) {   // faster than any build, again and again
@@ -155,10 +163,27 @@ function onMessage(c, text) {
     for (const t of worldOf(c.room).adminCmd(c.id, str(m.line, 200)).slice(0, 6)) send(c, { t: 'chat', id: 0, name: 'Server', text: t });
     return;
   }
+  if (m.t === 'chesthit' && c.room) {                    // a blow on a shared chest
+    const C = chestsIn(c.room), o = C.get(num(m.cid, 0, 1e9));
+    if (!o || o.hp <= 0) return;
+    o.hp = Math.max(0, o.hp - Math.min(num(m.d, 0, 1e6), 3000)); o.hit.add(c.id);
+    if (o.hp > 0) { toRoom(c.room, chestMsg(o)); return; }
+    C.delete(o.cid); toRoom(c.room, { t: 'chest', cid: o.cid, open: true, to: [...o.hit] });   // broken: loot for each who hit it
+    return;
+  }
   if (m.t === 'gift' && c.account && c.account.admin && c.room && ['chickens', 'chests'].includes(m.what)) {   // an admin's gift for the room
     const n = Math.max(1, Math.min(m.what === 'chests' ? 5 : 20, Math.round(num(m.n, 1, 20)))), x = num(m.x, 0, 4096), y = num(m.y, 0, 4096);
     const W = worldOf(c.room);
     if (W && m.what === 'chickens') W.spawn('xp_chicken', x, y, n);             // where the server runs the monsters: shared ones
+    else if (W && m.what === 'chests') {                                       // a shared place: chests for all to break together
+      const C = chestsIn(c.room);
+      for (let k = 0; k < n && C.size < 20; k++) {
+        const a = Math.random() * Math.PI * 2, d = 2 + Math.random() * 2;
+        const o = { cid: nextCid++, x: Math.floor(x + Math.cos(a) * d) + 0.5, y: Math.floor(y + Math.sin(a) * d) + 0.5, hp: 4000, max: 4000, hit: new Set(), until: Date.now() + 600000 };
+        C.set(o.cid, o); toRoom(c.room, chestMsg(o));
+      }
+      toRoom(c.room, { t: 'gift', what: 'note', n, x, y, by: c.name });
+    }
     else { const msg = { t: 'gift', what: m.what, n, x, y, by: c.name }; toRoom(c.room, msg, c); send(c, msg); }
     return;
   }
