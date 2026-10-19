@@ -215,6 +215,16 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   as ordinary champions: make every one a proper boss (size, presence). And give each a fitting signature threat. The
   Rime Astrolabe (a great fight) is frozen, so when it enters its frenzy it fires fast snowflake patterns that SLOW you
   if they hit; every boss should have such a thing that suits it.
+  **Done 2026-10-19:** the six overworld bosses on the old 48px sheet (Brine Cathedral, Wick-Mother, Rime Astrolabe,
+  Penitent Colossus, Emily, the Fallen Star) are drawn twice life-size (whole pixels, the same 2px outline), with a
+  body to match, so they stand beside the Kraken and the Treant. Each of the eight has a signature volley once hurt
+  (src/owbosses.js OW_SIGS; faster below a third of its Life): the Astrolabe's snowflake frenzy (fast rings and aimed
+  flakes that chill: slower feet and hands, three in a row freeze you solid), the Cathedral's undertow (brine rings
+  that drag you in), the Wick-Mother's tallow (ablaze: a burn for 3 s), the Colossus's penance (gold shards that
+  break your armour: no Defense for 4 s), Emily's yapping (confused: left is right for 2 s), the Fallen Star's flares
+  (dazed: half fire rate for 3 s), the Kraken's ink (blinded: only a little light round you for 3 s), the Treant's
+  seeds (rooted for 1 s; you can still fire). Each mark has its own look on you, no words over your head. Boss
+  pressure stays under the ceiling (check_old_boss_pressure passes).
 - Damage numbers, round three (requested 2026-10-19): tighten the area they appear in over a target. Over the player
   show only red (damage taken), green (a health potion) and blue (a mana potion). Apply the same numbers in the
   Realmforge dungeons, remove their floor potions you walk over, and remove the ring shown when one of their creatures

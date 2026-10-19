@@ -264,6 +264,7 @@ export class Game {
     const p = this.player;
     p.carry = null; p.drowsy = 0; this.invertUntil = 0;                // nothing carried, dreamt or inverted crosses a portal
     p.chill = 0; p.frozenUntil = 0; p.gust = null; p.poisonUntil = 0;   // nor any cold or poison
+    p.owBurn = null; p.owBroken = p.owDazed = p.owInked = p.owRooted = 0;   // nor an overworld boss's mark
     // remember where you stepped into a dungeon, so its portals can send you back to that spot
     if (DUNGEONS[where] && this.map && this.map.kind === 'realm') this.realmReturn = { x: p.x, y: p.y };
     else if (where === 'nexus' || where === 'vault') this.realmReturn = null;
@@ -950,6 +951,7 @@ export class Game {
     if (this.invertUntil > this.t) { mx = -mx; my = -my; }           // the Sleeper's dream-logic
     if (p.status.asleep > 0) { mx = 0; my = 0; }                     // fallen asleep where you stood
     if (p.frozenUntil > this.t) { mx = 0; my = 0; }                  // frozen solid (Frostveil's chill)
+    if (p.owRooted > this.t) { mx = 0; my = 0; }                     // rooted by the Treant's seeds (src/owbosses.js)
     const len = Math.hypot(mx, my);
     p.moving = len > 0;
     const cs = Math.cos(this.camAngle), sn = Math.sin(this.camAngle);
@@ -996,7 +998,7 @@ export class Game {
     p.fireCd -= dt;
     const W = this.weapon();
     if (firing && W && p.fireCd <= 0 && !(p.status.asleep > 0) && !(p.frozenUntil > this.t)) {
-      const rate = W.rate * fireRate(this.stat('dex')) * (p.status.berserk ? 1.5 : 1) * this.chillSlow();
+      const rate = W.rate * fireRate(this.stat('dex')) * (p.status.berserk ? 1.5 : 1) * this.chillSlow() * (p.owDazed > this.t ? 0.5 : 1);
       p.fireCd = 1 / rate;
       p.lastShot = this.t;
       p.shotPeriod = 1 / rate;
@@ -3647,6 +3649,7 @@ export class Game {
           if (b.pull) { const s = Math.hypot(b.vx, b.vy) || 1; this.moveCircle(p, (-b.vx / s) * b.pull, (-b.vy / s) * b.pull, 0.32); }   // a void orb drags you toward its caster
           if (b.drowsy) p.drowsy = Math.min(1, (p.drowsy || 0) + b.drowsy);
           if (b.chill) this.addChill(b.chill);
+          if (b.sig) this.owSig(b);
           if (b.poison) this.poison(b.poison);
           if (this.hitVols.size > 300) for (const [k, v] of this.hitVols) if (this.t - v > 6) this.hitVols.delete(k);
         }

@@ -8,6 +8,10 @@ import { installWalls } from './walls.js';
 import { installRFRender } from './rf/draw.js';
 import { installRFBossRender } from './rf/boss.js';
 import { rxFrame } from './remaster.js';
+// the overworld bosses on the old 48px sheet, drawn twice life-size so they read as bosses beside the Kraken and the
+// Treant, not as champions (2026-10-19; whole sizes only)
+const RB_BIG = new Set(['brine_cathedral', 'wick_mother', 'orrery_of_winter', 'penitent_colossus', 'emily_the_yapper', 'the_fallen_star']);
+const rbK = (e) => (RB_BIG.has(e.id) ? 2 : 1);
 import { TILE_NAMES, BIOMES, biomeAt, objectsIn, SKINS, SKIN_TID, TID, FLAT, WALL_FACE } from './world/maps.js';
 import { hoverY } from './registry.js';
 import { CLASSES } from './data/classes.js';
@@ -1261,8 +1265,8 @@ export class Renderer {
       return;
     }
     // rising out of the ground: sink the sprite and clip everything below its feet line
-    const sink = Math.round((py + 1) * (1 - L.rise)), b = this.b, gy = Math.round(y) + 1;
-    b.save(); b.beginPath(); b.rect(Math.round(x - px) - 2, gy - F - 4, F + 4, F + 4); b.clip();
+    const k = this.sprK || 1, sink = Math.round((py + 1) * k * (1 - L.rise)), b = this.b, gy = Math.round(y) + 1;
+    b.save(); b.beginPath(); b.rect(Math.round(x - px * k) - 2, gy - F * k - 4, F * k + 4, F * k + 4); b.clip();
     this.spr(img, sx, sy, F, F, x, y + sink, px, py, L.flip, flash);
     b.restore();
   }
@@ -1352,8 +1356,9 @@ export class Renderer {
     else if (e.state === 'tell') col = 4;
     else if (e.state === 'attack') col = 5;
     else col = Math.floor(g.t * 5 + e.phase) % 4;
-    if (!e.dead) this.shadow(sx, sy, F > 48 ? 46 : 34);
-    const L = this.alive(g, e, sx, sy, F, true);
+    const K = rbK(e);
+    if (!e.dead) this.shadow(sx, sy, (F > 48 ? 46 : 34) * (K > 1 ? 1.6 : 1));
+    const L = this.alive(g, e, sx, sy, F * K, true);
     if (e.tether) {                                       // the tether: a golden ring you must stay inside
       const b = this.b, R = e.tether.r * TS;
       b.fillStyle = Math.floor(g.t * 6) % 2 ? '#ffd650' : '#fff6c8';
@@ -1362,7 +1367,9 @@ export class Renderer {
     if (e.cloneOf) this.b.globalAlpha = 0.55 + Math.sin(g.t * 6 + e.phase) * 0.15;
     const blaze = !e.dead && e.reflectUntil > g.t;          // the Colossus's bulwark: it flashes white while it reflects
     const rx = rxFrame(this.R, g, e);                      // the remaster's phase 2/3, morphs and death (src/remaster.js)
+    this.sprK = K;
     this.liveSpr(rx ? rx.img : S.img, rx ? rx.x : col * F, rx ? rx.y : row * F, F, sx + L.dx, sy + L.dy, Gd.pivot.x, Gd.pivot.y, L, blaze && Math.floor(g.t * 10) % 2 === 0);
+    this.sprK = 1;
     if (blaze && Math.random() < 0.6) this.parts.push({ x: e.x + (Math.random() - 0.5) * 2.4, y: e.y, z: 10 + 30 * Math.random(), vx: 0, vy: 0, vz: 8, g: 0, life: 0.4, max: 0.4, color: Math.random() < 0.5 ? '#ffffff' : '#ffd84a' });
     this.b.globalAlpha = 1;
     if (e.cloneOf && Math.random() < 0.3) this.parts.push({ x: e.x + (Math.random() - 0.5) * 2, y: e.y, z: 20 * Math.random(), vx: 0, vy: 0, vz: 6, g: 0, life: 0.5, max: 0.5, color: '#8af6ff' });
@@ -1372,7 +1379,7 @@ export class Renderer {
         const a = (k / 40) * Math.PI * 2 + g.t * 1.5;
         if ((k + Math.floor(g.t * 10)) % 5 === 0) continue;
         b.fillStyle = k % 2 ? '#8af6ff' : '#ffffff';
-        b.fillRect(Math.round(sx + Math.cos(a) * (F * 0.5)), Math.round(sy - F * 0.45 + Math.sin(a) * F * 0.42), 1, 1);
+        b.fillRect(Math.round(sx + Math.cos(a) * (F * K * 0.5)), Math.round(sy - F * K * 0.45 + Math.sin(a) * F * K * 0.42), 1, 1);
       }
       for (const m of e.shieldBy) {                        // tethers from the guards to the boss
         if (m.dead) continue;
@@ -1442,6 +1449,7 @@ export class Renderer {
       b.globalAlpha = 0.9; b.fillStyle = '#ffffff'; b.fillRect(x - 7, y - 17, 14, 1); b.fillRect(x - 7, y - 17, 1, 18); b.fillRect(x - 4, y - 14, 1, 4);
       b.globalAlpha = 1;
     }
+    if (!p.dead) this.owMarks(g, p, sx, sy);
     const st = p.status, b = this.b, cy = Math.round(sy) - 8;
     const pip = (col, ph) => {
       for (let k = 0; k < 3; k++) {
@@ -2057,6 +2065,7 @@ export class Renderer {
     if (e === g.player) return 24;
     if (e.rfH) return e.rfH + 6;                                 // a Realmforge creature or boss (src/rf/draw.js)
     if (e.bx && e.bx.def) return e.bx.def.foot[1] * 2 + 6;
+    if (e.rb && rbK(e) > 1) return 88;                           // an overworld boss, twice life-size
     if (e === g.boss || (e.rb && !e.D.reg)) return 44;
     if (e.D && e.D.reg) {
       const C = this.objDefs || (this.objDefs = new Map());
@@ -2067,8 +2076,31 @@ export class Renderer {
     return 16 * (e.warden ? 2 : (e.D && e.D.scale) || 1) + 6;
   }
   // ------------------------------------------------------------ HUD overlays
+  // an overworld boss's mark on you (src/owbosses.js): each its own look, at your feet and round you, no words
+  owMarks(g, p, sx, sy) {
+    const b = this.b, t = g.t, x = Math.round(sx), y = Math.round(sy), on = (k) => p[k] > t;
+    if (p.owBurn && p.owBurn.until > t && Math.random() < 0.5) this.parts.push({ x: p.x + (Math.random() - 0.5) * 0.6, y: p.y, z: 4 + Math.random() * 10, vx: 0, vy: 0, vz: 14, g: 0, life: 0.45, max: 0.45, color: Math.random() < 0.5 ? '#ffb040' : '#ff5a2a' });
+    if (on('owRooted')) {                                  // roots wound round your feet
+      b.fillStyle = '#3a6a2a'; for (let k = -6; k <= 6; k += 3) b.fillRect(x + k, y - 3 + (k & 1), 2, 4);
+      b.fillStyle = '#7ac85a'; for (let k = -5; k <= 5; k += 5) b.fillRect(x + k, y - 4, 1, 2);
+    }
+    if (on('owBroken')) {                                  // cracked armour: grey shards falling away
+      if (Math.random() < 0.25) this.parts.push({ x: p.x + (Math.random() - 0.5) * 0.5, y: p.y, z: 8 + Math.random() * 6, vx: (Math.random() - 0.5) * 2, vy: 0, vz: 4, g: 30, life: 0.5, max: 0.5, color: Math.random() < 0.5 ? '#c8c0b0' : '#f2c14e' });
+    }
+    if (on('owDazed') || g.invertUntil > t) {             // dazed (white sparks) or confused (birds of stars) round your head
+      const n = 3, col = g.invertUntil > t ? '#ff9ad8' : '#fff6a0';
+      for (let k = 0; k < n; k++) { const a = t * 5 + (k / n) * Math.PI * 2; b.fillStyle = col; b.fillRect(Math.round(x + Math.cos(a) * 7), Math.round(y - 21 + Math.sin(a) * 2), 2, 2); }
+    }
+    if (on('owInked') && Math.random() < 0.3) this.parts.push({ x: p.x + (Math.random() - 0.5) * 0.5, y: p.y, z: 12, vx: 0, vy: 0, vz: -6, g: 0, life: 0.5, max: 0.5, color: '#14101e' });
+  }
   overlays(g) {
     const ctx = this.ctx, s = this.scale;
+    { const p = g.player;                                  // the Kraken's ink: only a little light round you
+      if (p && !p.dead && p.owInked > g.t) {
+        const [px, py] = this.proj(p.x, p.y), X = px * s, Y = (py - 8) * s, R0 = 34 * s, R1 = 80 * s, k = Math.min(1, (p.owInked - g.t) / 0.4);
+        const G = ctx.createRadialGradient(X, Y, R0, X, Y, R1); G.addColorStop(0, 'rgba(6,4,14,0)'); G.addColorStop(1, `rgba(6,4,14,${0.94 * k})`);
+        ctx.fillStyle = G; ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      } }
     ctx.textAlign = 'center';
     const nums = !this.settings || this.settings.damageNumbers;
     // damage numbers, made to read at a glance (2026-10-19): a heavy face, a thick black rim and a soft shadow; a
@@ -2166,7 +2198,7 @@ export class Renderer {
     for (const B of g.bubbles) {
       if (B.e && !B.e.dead && B.e.x !== undefined) { B.x = B.e.x; B.y = B.e.y; }
       const [bx, by] = this.proj(B.x, B.y), age = g.t - B.t0, life = B.big ? 3.6 : 2.6;
-      const hgt = B.e && B.e.rb ? 54 : B.e && B.e.D && B.e.D.sheet === 'champions' ? 30 : B.e === g.boss ? 64 : 22;
+      const hgt = B.e && B.e.rb ? (rbK(B.e) > 1 ? 98 : 54) : B.e && B.e.D && B.e.D.sheet === 'champions' ? 30 : B.e === g.boss ? 64 : 22;
       const x = bx * s, y = (by - hgt) * s - Math.min(1, age * 8) * 4;
       const w = ctx.measureText(B.text).width + 14, h = Math.max(16, s * 5.5);
       ctx.globalAlpha = Math.min(1, (life - age) * 3, age * 10);
