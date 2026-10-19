@@ -156,6 +156,17 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   to foes of the matching land: 1 star on the beach (maybe the grassland), 2 stars in the grassland, and so on inward.
   A dungeon raised to 5 stars gets much higher damage and difficulty; one lowered to 1 star gets slightly easier for
   new players.
+  **Done 2026-10-19:** one table each (enemies.js DUNGEON_RATING, rf/balance.js RATING), feeding the HUD, the loading
+  card and how hard each dungeon hits. 1 star: Honeyed Hollow, Sunken Chapel, and Realmforge's Chapel, Sewers, Oasis
+  (shore, dunes, lowlands). 2: Sunken Crypt, Mirerot, Sandscour; their Crypt, Mire, Glade (fen, thornwood, dunes).
+  3: Scriptorium, Frostveil, Theatre, Crimson Keep; their Forge, Unmelting, Cathedral, Peaks, Clocktower, Mirrors
+  (runeholt). 4: Drowned Forge, Observatory, Hollowmoon; their Crater, Pyre, Atlas, Temple, Patch, Sanctum (steppe,
+  godfall). 5: Heart, Ember, Spire, Dream, Throne; their Rift, Monastery, Paper, Stage, Keep, Grove (godfall, steppe).
+  Portals moved to match: the Hive from the fen/thornwood to the lowlands/shore; the Theatre and Keep to runeholt only;
+  Realmforge's Patch and Sanctum to steppe foes, Stage, Keep and Grove to godfall foes. A new gentle band for 1 star
+  (softer creatures and boss); a dungeon rated off its boss's own band has its boss brought to that band's size. The
+  Chapel is a little softer (danger 0.62, creatures x1.3); the Throne, raised to 5, hits x1.4 harder with tougher
+  creatures.
 - Realmforge shots on every item (requested 2026-10-19): the tiered weapons still fire the old shots. Every item that
   came from realmforge-project gets its full shot sprite, its path (straight, spread, helix, wave) and its range and
   shot speed. **Done 2026-10-19:** the tiered weapons did fire Realmforge's shots already (their tier art is pale at
@@ -200,3 +211,11 @@ Baseline: commit a0e0b20, all 22 `tools/check_*.mjs` passing.
   a whole number of minimap pixels to a tile (it was 12 times a second); each tile in its own ground art's colour,
   lightly shaded; a waypoint click opens a dropdown (name, Teleport). Found on the way: waypoint travel was broken (two
   methods named travel; the portals' replaced the waypoints'): now game.warpTo.
+- Overworld bosses, round two (requested 2026-10-19): not all were made harder; some are still small sprites that read
+  as ordinary champions: make every one a proper boss (size, presence). And give each a fitting signature threat. The
+  Rime Astrolabe (a great fight) is frozen, so when it enters its frenzy it fires fast snowflake patterns that SLOW you
+  if they hit; every boss should have such a thing that suits it.
+- Damage numbers, round three (requested 2026-10-19): tighten the area they appear in over a target. Over the player
+  show only red (damage taken), green (a health potion) and blue (a mana potion). Apply the same numbers in the
+  Realmforge dungeons, remove their floor potions you walk over, and remove the ring shown when one of their creatures
+  dies: they should feel like our dungeons.

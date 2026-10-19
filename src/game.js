@@ -3,7 +3,7 @@
 import { R, rng, clamp, dist, dist2, angleTo, TAU, CAM, lift, liftO, liftA, liftB, angleUp } from './util.js';
 import { CLASSES, START_KIT, STATS, MAX_LEVEL, FAME_XP, FAME_GOALS, xpToNext, moveSpeed, fireRate, dmgMult, hpRegen, mpRegen, mitigate } from './data/classes.js';
 import { ITEMS, SETS, rollLoot, bagFor, canEquip, TYPE_SLOT, BAG_ORDER, BAG_NAMES, WEAPON_TYPES, ARMOR_TYPES, ABILITY_TYPES, ADMIN_SET, TIER_CAP, ladderTier } from './data/items.js';
-import { ENEMIES, PACKS, CAMP_LOOT, BIOME_SPAWNS, BOSS, REALM_BOSSES, PARENTS, HERALDS, BIOME_BOSS, EVENTS_TO_BOSS, GROUPS, DUNGEONS, DUNGEON_BOSSES, FIRECAMP_BANDS, portalDrop2 as portalDrop } from './data/enemies.js';
+import { ENEMIES, PACKS, CAMP_LOOT, BIOME_SPAWNS, BOSS, REALM_BOSSES, PARENTS, HERALDS, BIOME_BOSS, EVENTS_TO_BOSS, GROUPS, DUNGEONS, DUNGEON_BOSSES, FIRECAMP_BANDS, DUNGEON_RATING, portalDrop2 as portalDrop } from './data/enemies.js';
 import { nexus, vaultRoom, realm, dungeon, isSolid, shotBlocked, biomeAt, randomTileInBiome, BIOMES, BIOME_RING, BIOME_LABEL, TID } from './world/maps.js';
 import { writeSave } from './save.js';
 import { keyParen } from './settings.js';
@@ -1692,7 +1692,7 @@ export class Game {
   danger() {
     const m = this.map, p = this.player;
     if (m.rf || m.rfBoss) return 1;                       // a Realmforge dungeon: its band already sets its numbers (src/rf/balance.js)
-    if (m.kind === 'dungeon') return { hive: 0.6, chapel: 0.7, crypt: 0.8, theatre: 0.82, forge: 0.9, ember: 0.95, spire: 0.97, dream: 1, heart: 1 }[Object.keys(DUNGEONS).find((k) => DUNGEONS[k] === m.def)] || 0.85;
+    if (m.kind === 'dungeon') return (DUNGEON_RATING[Object.keys(DUNGEONS).find((k) => DUNGEONS[k] === m.def)] || [3, 0.85])[1];
     if (m.kind !== 'realm') return 1;
     const C = m.w / 2, d = Math.min(1, dist(p.x, p.y, C, C) / (C * 0.9));
     return 0.5 + 0.45 * (1 - d);
@@ -3686,7 +3686,7 @@ export class Game {
     for (const pt of this.map.portals) if (pt.life !== undefined) pt.life -= dt;
     this.map.portals = this.map.portals.filter((pt) => pt.life === undefined || pt.life > 0);
     this.nearPortal = this.map.portals.find((pt) => dist(pt.x, pt.y, p.x, p.y) < 1.2) || null;
-    const dg = this.danger(), stars = '★'.repeat(this.map.rf || this.map.rfBoss ? this.rfStars() : Math.max(1, Math.min(5, Math.round((dg - 0.45) * 8))));
+    const dg = this.danger(), stars = '★'.repeat(this.map.rf || this.map.rfBoss ? this.rfStars() : this.map.kind === 'dungeon' ? (DUNGEON_RATING[Object.keys(DUNGEONS).find((k) => DUNGEONS[k] === this.map.def)] || [3])[0] : Math.max(1, Math.min(5, Math.round((dg - 0.45) * 8))));
     this.where = (this.map.kind === 'realm' ? BIOME_LABEL[BIOMES[biomeAt(this.map, p.x, p.y)]] || 'Open water' : this.map.name) + (this.map.kind === 'nexus' || this.map.kind === 'vault' ? '' : ` · danger ${stars}`);
   }
   // ------------------------------------------------------------- quests
@@ -4358,9 +4358,8 @@ export class Game {
     if (where.startsWith('rf_')) return this.rfDest(where);         // a Realmforge dungeon or boss room (src/rf/host.js)
     const D = DUNGEONS[where];
     if (!D) return { name: where, stars: 0, sub: '' };
-    const dg = { hive: 0.6, chapel: 0.7, crypt: 0.8, theatre: 0.82, forge: 0.9, ember: 0.95, spire: 0.97, dream: 1, heart: 1 }[where] || 0.85;
     const boss = BX[D.boss] ? BX[D.boss].name : DUNGEON_BOSSES[D.boss] ? DUNGEON_BOSSES[D.boss].name : D.boss === 'unstruck' ? 'The Unstruck' : '';
-    return { name: D.name, stars: Math.max(1, Math.min(5, Math.round((dg - 0.45) * 8) + (D.mobHp > 1.5 ? 1 : 0))), sub: boss ? `Its master: ${boss}` : '' };
+    return { name: D.name, stars: (DUNGEON_RATING[where] || [3])[0], sub: boss ? `Its master: ${boss}` : '' };
   }
 }
 installD4(Game);

@@ -348,7 +348,7 @@ export const DUNGEONS = {
     chestLoot: [{ slot: 'weapon', tiers: [3, 6], p: 0.8 }, { slot: 'armor', tiers: [3, 6], p: 0.8 }, { slot: 'ring', tiers: [2, 3], p: 0.5 },
       { stat: true, p: 0.6 }, { id: 'pot_hp', p: 1 }, { id: 'drowned_bell', p: 0.05 }, { id: 'tidewoven_coat', p: 0.04 }],
     mobs: ['brine_pilgrim', 'lantern_jelly', 'anchor_bearer', 'salt_widow', 'lens_moth'], elites: ['pilgrim_elder', 'salt_matriarch', 'anchor_titan'],
-    boss: 'drowned_abbot', mobHp: 1.6 },
+    boss: 'drowned_abbot', mobHp: 1.3 },
   forge: { name: 'The Drowned Forge', floor: 'forge', wall: 'forgewall', hazard: 'lava', rooms: 11, portal: 'dungeon', style: 'forge',
     hazardFx: { kind: 'zones', name: 'falling slag', every: 3.2, n: 3, r: 1.4, delay: 1.1, dmg: 95, spread: 4, stagger: 0.15, shards: 6, proj: 'slag', colors: ['#f2641a', '#ffc94a'] },
     chestLoot: [{ slot: 'weapon', tiers: [7, 9], p: 0.8 }, { slot: 'armor', tiers: [7, 10], p: 0.8 }, { slot: 'ability', tiers: [3, 4], p: 0.5 },
@@ -360,6 +360,16 @@ export const DUNGEONS = {
       { slot: 'ring', tiers: [4, 5], p: 0.6 }, { stat: true, p: 1 }, { stat: true, p: 0.5 }, { id: 'crown_of_the_fallen', p: 0.03 }, { id: 'gravedust_band', p: 0.05 }],
     mobs: ['halo_eater', 'reliquary_spider', 'cherub_husk', 'hollow_thane', 'choir_engine'],
     elites: ['seraph_husk', 'hollow_jarl', 'halo_glutton', 'broodmother'], boss: 'fallen_heart', mobHp: 1.8 },
+};
+// each dungeon's stars and how hard it hits (requested 2026-10-19: one star on the beach and the grass, rising inward to
+// five in Godfall; a dungeon raised to five hits far harder, one lowered to one a little softer). Its portal drops from
+// the land that matches (portalDrop, PORTAL_EXTRA). The Realmforge dungeons: src/rf/balance.js RATING.
+export const DUNGEON_RATING = {
+  hive: [1, 0.6], chapel: [1, 0.62],
+  sandscour: [2, 0.74], crypt: [2, 0.74], mirerot: [2, 0.75],
+  scriptorium: [3, 0.85], frostveil: [3, 0.85], theatre: [3, 0.85], keep: [3, 0.85],
+  forge: [4, 0.9], astral: [4, 0.92], hollowmoon: [4, 0.92],
+  ember: [5, 0.97], spire: [5, 0.98], dream: [5, 1], heart: [5, 1], throne: [5, 1.2],
 };
 // portal drops: [dungeon, chance] by what died
 export function portalDrop(D, id) {
@@ -945,7 +955,7 @@ DUNGEONS.throne = { name: 'The Throne of the Unstruck God', floor: 'marble', wal
   chestLoot: [{ slot: 'weapon', tiers: [9, 10], p: 1 }, { slot: 'armor', tiers: [10, 11], p: 1 }, { slot: 'ability', tiers: [5, 5], p: 0.8 },
     { slot: 'ring', tiers: [5, 5], p: 0.8 }, { stat: true, p: 1 }, { stat: true, p: 1 }],
   mobs: ['hollow_thane', 'gilded_cardinal', 'blood_seraph', 'cherub_husk', 'gilded_lancer'],
-  elites: ['hollow_jarl', 'seraph_husk', 'cathedral_engine'], boss: 'the_unstruck_god', mobHp: 2.0 };
+  elites: ['hollow_jarl', 'seraph_husk', 'cathedral_engine'], boss: 'the_unstruck_god', mobHp: 2.6 };
 DUNGEON_BOSSES.the_unstruck_god = {
   name: 'The Unstruck God', biome: 'throne', sheet: 'godking', hp: 180000, def: 34, xp: 20000, r: 1.9, speed: 0.7, keep: 6, summon: 'cherub_husk',
   phases: [
@@ -1518,7 +1528,7 @@ ENEMIES.giant_watermelon = { name: 'Giant Watermelon', biome: 'event', melon: tr
       return deep < 0.5 ? ['blood_thrall', 'blood_thrall', 'blood_bat', 'blood_bat', 'haunted_armor'] : ['blood_thrall', 'blood_thrall', 'blood_thrall', 'haunted_armor', 'gargoyle', 'blood_bat', 'blood_bat'];
     } };
   PORTAL_EXTRA.unshift((D) => {
-    if ((D.biome === 'fen' || D.biome === 'godfall') && Math.random() < 0.3) return ['keep', D.children ? 0.04 : 0.01];
+    if (D.biome === 'runeholt' && Math.random() < 0.3) return ['keep', D.children ? 0.04 : 0.01];
     return null;
   });
   Object.assign(SPEECH, { count_vesper: { see: ['Welcome to my home. Do stay for dinner.', 'You will be the finest vintage in my cellar.'], die: ['...the sun... so bright...'] } });
@@ -2036,8 +2046,8 @@ Object.assign(DUNGEONS.throne, { ambient: 'rgba(20,12,30,0.38)' });
     if (id === 'emily_the_yapper') return ['theatre', 1];
     if (id === 'the_fallen_star') return Math.random() < 0.5 ? ['dream', 1] : null;
     if (id === 'penitent_colossus') return Math.random() < 0.5 ? ['spire', 1] : null;
-    if (D.biome === 'thornwood' || D.biome === 'fen') return Math.random() < 0.5 ? ['hive', D.children ? 0.06 : 0.015] : null;
-    if (D.biome === 'dunes' || D.biome === 'runeholt') return Math.random() < 0.4 ? ['theatre', D.children ? 0.05 : 0.01] : null;
+    if (D.biome === 'lowlands' || D.biome === 'shore') return Math.random() < 0.5 ? ['hive', D.children ? 0.06 : 0.015] : null;
+    if (D.biome === 'runeholt') return Math.random() < 0.4 ? ['theatre', D.children ? 0.05 : 0.01] : null;
     if (D.biome === 'steppe') return Math.random() < 0.5 ? ['spire', D.children ? 0.04 : 0.008] : null;
     if (D.biome === 'godfall' && D.children) return Math.random() < 0.35 ? ['dream', 0.03] : null;
     return null;

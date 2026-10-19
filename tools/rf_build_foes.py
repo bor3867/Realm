@@ -18,6 +18,8 @@ LAND = {'Haunted Hills': 'fen', 'Lowlands': 'lowlands', 'Midlands': 'fen', 'High
         'Snow Peaks': 'runeholt', 'Godlands': 'godfall', 'Shoreline': 'shore', 'Forest': 'thornwood', 'Mountaintops': 'steppe',
         'Volcanic Wastes': 'godfall', 'Ruins': 'runeholt', 'Desert': 'dunes', 'Mountains': 'steppe', 'Old Quarter': 'lowlands',
         "Scholars' Hills": 'steppe'}
+# dungeons whose portals drop further in than their own place, so their stars match the land (src/rf/balance.js RATING)
+MOVED = {'patch': 'steppe', 'sanctum': 'steppe', 'stage': 'godfall', 'keep': 'godfall', 'grove': 'godfall'}
 # a land's strength: hp and damage of an ordinary foe there
 POWER = {'shore': (160, 22), 'dunes': (300, 34), 'lowlands': (260, 30), 'fen': (320, 36), 'thornwood': (420, 42),
          'runeholt': (620, 55), 'steppe': (700, 60), 'godfall': (1100, 85)}
@@ -43,7 +45,7 @@ for dg in D['dungeons']:
         names, place = ["The Unmaker's Eye"], 'Godlands'
     else:
         names, place = [singular(n) for n in re.split(r' and |, ', m.group(1))], m.group(2)
-    land = LAND.get(place, 'runeholt'); hp0, dmg0 = POWER[land]
+    land = MOVED.get(did) or LAND.get(place, 'runeholt'); hp0, dmg0 = POWER[land]
     roster = {k: e for k, e in cfg['enemies'].items() if (not e.get('boss') or k == cfg.get('miniboss')) and not e.get('rare') and e.get('art')}
     used = set()
     for i, nm in enumerate(names):
