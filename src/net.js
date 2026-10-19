@@ -6,7 +6,7 @@
 // Mixed into Game; game.js calls netTick every frame, shoot() reports your shots, enter() asks netSeed for the realm.
 
 // where the server is: ?server=wss://... in the address wins; on this computer, the local one; online, SERVER_URL
-export const SERVER_URL = '';        // set when the server is online, e.g. 'wss://melon-realms.example.com'
+export const SERVER_URL = 'wss://realm-7ila.onrender.com';   // the multiplayer server (Render)
 function serverUrl() {
   const q = new URLSearchParams(location.search).get('server');
   if (q) return q;
