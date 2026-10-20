@@ -94,6 +94,7 @@ const methods = {
       for (const s of m.list) {                            // their shots: drawn, harmless
         const b = this.shoot('r', s.x, s.y, s.a, Math.hypot(s.vx, s.vy), Math.hypot(s.vx, s.vy) * s.l, 0, s.s, s.r, true);
         b.vx = s.vx; b.vy = s.vy; b.harmless = true; b.ghost = true;
+        if (Array.isArray(s.d)) b.dust = s.d;                 // (its trail, as its owner sees it)
       }
     } else if (m.t === 'ws') this.netWorldState(m);
     else if (m.t === 'wev') this.netWorldEvents(m.ev);
@@ -223,7 +224,7 @@ const methods = {
   },
   // the realm's seed: the shared one when the server has given it
   netSeed() { return this.net && this.net.seed ? this.net.seed : 0; },
-  netShot(b) { const N = this.net; if (N && N.open && N.shots.length < 24) N.shots.push({ x: b.x, y: b.y, vx: b.vx, vy: b.vy, a: b.a, s: b.sprite, r: b.r, l: b.life }); },
+  netShot(b) { const N = this.net; if (N && N.open && N.shots.length < 24) N.shots.push({ x: b.x, y: b.y, vx: b.vx, vy: b.vy, a: b.a, s: b.sprite, r: b.r, l: b.life, ...(b.dust ? { d: b.dust } : {}) }); },
   netChat(text) { const N = this.net; if (!N || !N.open) return false; N.ws.send(JSON.stringify({ t: 'chat', text })); return true; },
   netTick(dt) {
     const N = this.net;

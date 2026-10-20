@@ -108,7 +108,7 @@ function onMessage(c, text) {
     return;
   }
   if (m.t === 'shot' && c.room && Array.isArray(m.list)) {   // my shots, to be drawn (they hurt nothing)
-    const list = m.list.slice(0, 24).map((s) => ({ x: num(s.x, 0, 4096), y: num(s.y, 0, 4096), vx: num(s.vx, -60, 60), vy: num(s.vy, -60, 60), a: num(s.a, -10, 10), s: str(s.s, 64), r: num(s.r, 0.05, 2), l: num(s.l, 0, 3) }));
+    const list = m.list.slice(0, 24).map((s) => ({ x: num(s.x, 0, 4096), y: num(s.y, 0, 4096), vx: num(s.vx, -60, 60), vy: num(s.vy, -60, 60), a: num(s.a, -10, 10), s: str(s.s, 64), r: num(s.r, 0.05, 2), l: num(s.l, 0, 3), ...(Array.isArray(s.d) ? { d: s.d.slice(0, 4).map((c) => str(c, 9)).filter((c) => /^#[0-9a-f]{3,8}$/i.test(c)) } : {}) }));
     toRoom(c.room, { t: 'shot', id: c.id, list }, c);
     return;
   }

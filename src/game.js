@@ -3673,7 +3673,7 @@ export class Game {
         }
       }
       if (!b.orb) { b.x += b.vx * dt; b.y += b.vy * dt; }
-      if (b.dust && (b.dustT = (b.dustT || 0) - dt) <= 0) { b.dustT = 0.07; this.vx({ k: 'burst', x: b.x, y: b.y, n: 1, colors: b.dust }); }   // its trail
+      if (b.dust && (b.dustT = (b.dustT || 0) - dt) <= 0) { b.dustT = 0.025; this.vx({ k: 'trail', x: b.x, y: b.y, colors: b.dust }); }   // its trail: glowing dust that hangs where it passed, and fades
       b.life -= dt;
       const onBreakable = b.from === 'p' && (m.kind !== 'nexus' || m.nexusChests) && this.breakableAt(b.x, b.y + 0.3);   // chests and urns you walk through still catch your shots
       if (b.from === 'p' && b.rfBounce && b.life > 0 && shotBlocked(m, b.x, b.y + 0.3)) this.rfWallHit(b, m);   // the Prism Wand's bounce (src/rf/uniqmech.js)

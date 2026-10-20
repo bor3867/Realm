@@ -1990,6 +1990,7 @@ export class Renderer {
       else if (v.k === 'aura') this.spray(v.x, v.y, 6, v.cold ? ['#cfffff', '#8af6ff'] : ['#ff8a1f', '#ffc94a'], v.r * 3, 0.5, 2, true);
       else if (v.k === 'muzzle') this.spray(v.x, v.y, 2, ['#ffffff'], 1.5, 0.12, 2);
       else if (v.k === 'burst') this.spray(v.x, v.y, v.n, v.colors, 6, 0.6, 10);
+      else if (v.k === 'trail') { const c = v.colors; this.parts.push({ x: v.x + (Math.random() - 0.5) * 0.12, y: v.y + (Math.random() - 0.5) * 0.12, z: 0, vx: 0, vy: 0, vz: 1.5, g: 0, life: 0.4, max: 0.4, sz: 2, color: c[Math.floor(Math.random() * c.length)] }); }   // a shot's trail: one mote, still, fading
       else if (v.k === 'dust') {
         const bi = biomeAt(g.map, v.x, v.y);
         if (v.splash) { this.spray(v.x, v.y, 4, ['#c8eeff', '#7ec0e4', '#ffffff'], 2.2, 0.35, 6); continue; }
@@ -2041,7 +2042,7 @@ export class Renderer {
       const [sx, sy] = this.proj(q.x, q.y);
       b.fillStyle = q.color;
       if (q.heart) { const x = Math.round(sx), y = Math.round(sy - q.z); b.fillRect(x - 1, y - 1, 1, 1); b.fillRect(x + 1, y - 1, 1, 1); b.fillRect(x - 1, y, 3, 1); b.fillRect(x, y + 1, 1, 1); }
-      else b.fillRect(Math.round(sx), Math.round(sy - q.z), 1, 1);
+      else { const z = q.sz && q.life > q.max * 0.5 ? q.sz : 1; b.fillRect(Math.round(sx), Math.round(sy - q.z), z, z); }   // (a trail mote starts a size larger)
       keep.push(q);
     }
     this.parts = keep;
