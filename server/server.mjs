@@ -295,3 +295,11 @@ if (world) { let n = 0, slow = 0; setInterval(() => { const t0 = performance.now
     if (Date.now() > d.until && idle > 120000) dungeons.delete(room);     // empty, its portal long gone: closed
   } const ms = performance.now() - t0; if (ms > 90 && ++slow % 50 === 1) console.warn(`world tick slow: ${ms.toFixed(0)} ms`); }, 100); }
 server.listen(PORT, () => console.log(`Melon Realms server on :${PORT}, realm seed ${SEED}`));
+// shutting down (Render stops the old server on every deploy): write every save still waiting, then go
+let closing = false;
+for (const sig of ['SIGTERM', 'SIGINT']) process.on(sig, async () => {
+  if (closing) return; closing = true;
+  const waits = [...clients.values()].filter((c) => c.pendingSave).map((c) => flushSave(c).catch(() => {}));
+  await Promise.race([Promise.all(waits), new Promise((r) => setTimeout(r, 8000))]);
+  process.exit(0);
+});

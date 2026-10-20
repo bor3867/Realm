@@ -1080,7 +1080,12 @@ export class UI {
     const g = this.g, a = r.account;
     const acc = { id: 'net' + a.id, name: a.name, online: true, admin: !!a.admin, token: r.token, created: '' };
     g.account = acc; g.saveKey = saveKeyFor(acc.id);
-    g.save = normalizeSave(r.save);
+    // the server's copy, unless this browser holds a newer one (its last saves lost when the server restarted): then
+    // this browser's copy is yours, and goes to the server at once
+    const mine = (() => { try { return JSON.parse(localStorage.getItem(g.saveKey) || 'null'); } catch { return null; } })();
+    const newer = mine && r.save && (mine.savedAt || 0) > (r.save.savedAt || 0) + 2000 && (mine.chars || []).length;
+    g.save = normalizeSave(newer ? mine : r.save);
+    if (newer) { g.netSave({ ...g.save }); g.netSaveNow(); }
     if (r.created && r.save) this.g.say('Your progress on this computer came with you.', '#7ad0a8');
     this.accountScreen();
   }
@@ -1144,8 +1149,20 @@ export class UI {
       if (t) { const r = await this.g.netAuth('resume', { token: t }); if (!r.error) return this.useOnline(r); setSession(null); }
       return this.onlineScreen();
     }
+    // the server didn't answer, and you play online: never slip into an offline account here (its characters are other,
+    // older ones: it looked as if your levels had gone). Wait for the server, or choose offline yourself
+    if (!up && !local && getSession()) return this.noServerScreen();
     const A = loadAccounts(), acc = A.keep && A.list.find((a) => a.id === A.keep);
     if (acc) this.useAccount(acc); else this.loginScreen();
+  }
+  // the server is asleep or restarting: try again (it keeps trying by itself too), or play offline knowing it is apart
+  noServerScreen() {
+    const o = this.overlay(`<div class="screen login"><div class="logo"><h1>MELON REALMS</h1></div><div class="card">
+      <h3>The server isn't answering yet</h3><p class="fine">It may be waking up or restarting. Your characters are kept there: wait a moment and try again.</p>
+      <div class="row2"><button class="btn primary" id="retry">Try again</button><button class="btn" id="offline">Play offline (separate characters)</button></div></div></div>`);
+    this.splash(o);
+    o.querySelector('#retry').onclick = () => this.start();
+    o.querySelector('#offline').onclick = () => this.loginScreen();
   }
   loginMsg(o, t) { const m = o.querySelector('.msg'); if (m) m.textContent = t; }
   useAccount(acc) {

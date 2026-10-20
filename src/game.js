@@ -252,7 +252,8 @@ export class Game {
   persist() {
     const keep = ['id', 'created', 'cls', 'level', 'xp', 'totalXp', 'base', 'equip', 'inv', 'kills', 'quests', 'lore', 'petted', 'fame', 'fameXp', 'bossKills', 'dungeons', 'waypoints', 'pots'];
     const chars = this.save.chars.map((c) => Object.fromEntries(keep.map((k) => [k, c[k]])));
-    const data = { ...this.save, chars };
+    const data = { ...this.save, chars, savedAt: Date.now() };   // (when: the newer of this browser's copy and the server's wins)
+    this.save.savedAt = data.savedAt;
     writeSave(data, this.saveKey);
     if (this.account && this.account.online) this.netSave(data);   // an online account's save is kept on the server (src/net.js)
   }

@@ -34,7 +34,7 @@ const methods = {
     N.ws = ws;
     ws.onopen = () => {
       N.open = true; N.wait = 2; ws.send(JSON.stringify({ t: 'hi', name: (this.account && this.account.name) || '', cls: this.player ? this.player.cls : '' }));
-      if (this.account && this.account.online && this.account.token) this.netAuth('resume', { token: this.account.token });   // back after a drop: still you
+      if (this.account && this.account.online && this.account.token) this.netAuth('resume', { token: this.account.token }).then((r) => { if (r && !r.error && this.player && !this.player.dead && this.mode === 'play') this.persist(); });   // back after a drop: still you (and your latest save goes up again: the server may have restarted)
     };
     ws.onmessage = (ev) => { let m; try { m = JSON.parse(ev.data); } catch { return; } this.netOn(m); };
     ws.onclose = () => {                                  // gone: everyone vanishes; try again, waiting longer each time
