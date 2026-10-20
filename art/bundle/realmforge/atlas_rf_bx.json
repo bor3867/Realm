@@ -1,0 +1,3728 @@
+{
+ "rf": true,
+ "meta": {
+  "name": "Realmforge bosses for the three-phase engine",
+  "version": 1
+ },
+ "sheets": {
+  "bx_rf_mortis": {
+   "image": "rf_bx.png",
+   "kind": "boss",
+   "sprites": {
+    "rf_mortis": {
+     "frames": {
+      "f0": [
+       0,
+       0,
+       32,
+       32
+      ],
+      "f1": [
+       34,
+       0,
+       32,
+       32
+      ],
+      "f2": [
+       68,
+       0,
+       32,
+       32
+      ],
+      "f3": [
+       102,
+       0,
+       32,
+       32
+      ],
+      "atk": [
+       136,
+       0,
+       32,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "The Rounds",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "2": {
+       "name": "Lantern Out",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "3": {
+       "name": "Unburial",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "4": {
+       "name": "Funeral Bell",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "5": {
+       "name": "Last Rites",
+       "idle": "idle",
+       "attack": "attack"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_rf_gutterlord": {
+   "image": "rf_bx.png",
+   "kind": "boss",
+   "sprites": {
+    "rf_gutterlord": {
+     "frames": {
+      "f0": [
+       170,
+       0,
+       32,
+       32
+      ],
+      "f1": [
+       204,
+       0,
+       32,
+       32
+      ],
+      "f2": [
+       238,
+       0,
+       32,
+       32
+      ],
+      "f3": [
+       0,
+       34,
+       32,
+       32
+      ],
+      "atk": [
+       34,
+       34,
+       32,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "Court of Rats",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "2": {
+       "name": "Royal Tantrum",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "3": {
+       "name": "The Flood",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "4": {
+       "name": "Gnawing Frenzy",
+       "idle": "idle",
+       "attack": "attack"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_rf_mire": {
+   "image": "rf_bx.png",
+   "kind": "boss",
+   "sprites": {
+    "rf_mire": {
+     "frames": {
+      "f0": [
+       68,
+       34,
+       32,
+       32
+      ],
+      "f1": [
+       102,
+       34,
+       32,
+       32
+      ],
+      "f2": [
+       136,
+       34,
+       32,
+       32
+      ],
+      "f3": [
+       170,
+       34,
+       32,
+       32
+      ],
+      "atk": [
+       204,
+       34,
+       32,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "Lantern Walk",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "2": {
+       "name": "Three Lanterns",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "3": {
+       "name": "Bubbling Cauldron",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "4": {
+       "name": "Lantern's Gaze",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "5": {
+       "name": "Hexthorn Bloom",
+       "idle": "idle",
+       "attack": "attack"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_rf_cinder": {
+   "image": "rf_bx.png",
+   "kind": "boss",
+   "sprites": {
+    "rf_cinder": {
+     "frames": {
+      "f0": [
+       238,
+       34,
+       32,
+       32
+      ],
+      "f1": [
+       0,
+       68,
+       32,
+       32
+      ],
+      "f2": [
+       34,
+       68,
+       32,
+       32
+      ],
+      "f3": [
+       68,
+       68,
+       32,
+       32
+      ],
+      "atk": [
+       102,
+       68,
+       32,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "Stoking",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "2": {
+       "name": "Quench",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "3": {
+       "name": "Hammerfall",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "4": {
+       "name": "Molten Chains",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "5": {
+       "name": "Meltdown",
+       "idle": "idle",
+       "attack": "attack"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_rf_matriarch": {
+   "image": "rf_bx.png",
+   "kind": "boss",
+   "sprites": {
+    "rf_matriarch": {
+     "frames": {
+      "f0": [
+       136,
+       68,
+       32,
+       32
+      ],
+      "f1": [
+       170,
+       68,
+       32,
+       32
+      ],
+      "f2": [
+       204,
+       68,
+       32,
+       32
+      ],
+      "f3": [
+       238,
+       68,
+       32,
+       32
+      ],
+      "atk": [
+       0,
+       102,
+       32,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "Flutter",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "2": {
+       "name": "Mesmer",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "3": {
+       "name": "Chrysalis",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "4": {
+       "name": "Last Light",
+       "idle": "idle",
+       "attack": "attack"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_rf_rime": {
+   "image": "rf_bx.png",
+   "kind": "boss",
+   "sprites": {
+    "rf_rime": {
+     "frames": {
+      "f0": [
+       34,
+       102,
+       32,
+       32
+      ],
+      "f1": [
+       68,
+       102,
+       32,
+       32
+      ],
+      "f2": [
+       102,
+       102,
+       32,
+       32
+      ],
+      "f3": [
+       136,
+       102,
+       32,
+       32
+      ],
+      "atk": [
+       170,
+       102,
+       32,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "Hail",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "2": {
+       "name": "Snowfall",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "3": {
+       "name": "Ice Pillars",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "4": {
+       "name": "Shatter",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "5": {
+       "name": "Absolute Zero",
+       "idle": "idle",
+       "attack": "attack"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_rf_astraeus": {
+   "image": "rf_bx.png",
+   "kind": "boss",
+   "sprites": {
+    "rf_astraeus": {
+     "frames": {
+      "f0": [
+       204,
+       102,
+       32,
+       32
+      ],
+      "f1": [
+       238,
+       102,
+       32,
+       32
+      ],
+      "f2": [
+       0,
+       136,
+       32,
+       32
+      ],
+      "f3": [
+       34,
+       136,
+       32,
+       32
+      ],
+      "atk": [
+       68,
+       136,
+       32,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "Constellation",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "2": {
+       "name": "Starfall",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "3": {
+       "name": "Supernova",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "4": {
+       "name": "Collapse",
+       "idle": "idle",
+       "attack": "attack"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_rf_twins": {
+   "image": "rf_bx.png",
+   "kind": "boss",
+   "sprites": {
+    "rf_twins": {
+     "frames": {
+      "f0": [
+       102,
+       136,
+       32,
+       32
+      ],
+      "f1": [
+       136,
+       136,
+       32,
+       32
+      ],
+      "f2": [
+       170,
+       136,
+       32,
+       32
+      ],
+      "f3": [
+       204,
+       136,
+       32,
+       32
+      ],
+      "atk": [
+       238,
+       136,
+       32,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "Day and Night",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "2": {
+       "name": "Orbit",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "3": {
+       "name": "Totality",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "4": {
+       "name": "Separation",
+       "idle": "idle",
+       "attack": "attack"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_rf_unmaker": {
+   "image": "rf_bx.png",
+   "kind": "boss",
+   "sprites": {
+    "rf_unmaker": {
+     "frames": {
+      "f0": [
+       0,
+       170,
+       32,
+       32
+      ],
+      "f1": [
+       34,
+       170,
+       32,
+       32
+      ],
+      "f2": [
+       68,
+       170,
+       32,
+       32
+      ],
+      "f3": [
+       102,
+       170,
+       32,
+       32
+      ],
+      "atk": [
+       136,
+       170,
+       32,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "Gaze",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "2": {
+       "name": "Tear",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "3": {
+       "name": "Reflection",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "4": {
+       "name": "Singularity",
+       "idle": "idle",
+       "attack": "attack"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_rf_cantor": {
+   "image": "rf_bx.png",
+   "kind": "boss",
+   "sprites": {
+    "rf_cantor": {
+     "frames": {
+      "f0": [
+       170,
+       170,
+       32,
+       32
+      ],
+      "f1": [
+       204,
+       170,
+       32,
+       32
+      ],
+      "f2": [
+       238,
+       170,
+       32,
+       32
+      ],
+      "f3": [
+       0,
+       204,
+       32,
+       32
+      ],
+      "atk": [
+       34,
+       204,
+       32,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "Prelude",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "2": {
+       "name": "Downbeat",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "3": {
+       "name": "High Tide",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "4": {
+       "name": "Fugue",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "5": {
+       "name": "Requiem of the Deep",
+       "idle": "idle",
+       "attack": "attack"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_rf_elderbark": {
+   "image": "rf_bx.png",
+   "kind": "boss",
+   "sprites": {
+    "rf_elderbark": {
+     "frames": {
+      "f0": [
+       68,
+       204,
+       32,
+       32
+      ],
+      "f1": [
+       102,
+       204,
+       32,
+       32
+      ],
+      "f2": [
+       136,
+       204,
+       32,
+       32
+      ],
+      "f3": [
+       170,
+       204,
+       32,
+       32
+      ],
+      "atk": [
+       204,
+       204,
+       32,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "The Oath",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "2": {
+       "name": "Briar Hedges",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "3": {
+       "name": "Seedfall",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "4": {
+       "name": "Roots",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "5": {
+       "name": "Uprooted",
+       "idle": "idle",
+       "attack": "attack"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_rf_roc": {
+   "image": "rf_bx.png",
+   "kind": "boss",
+   "sprites": {
+    "rf_roc": {
+     "frames": {
+      "f0": [
+       238,
+       204,
+       32,
+       32
+      ],
+      "f1": [
+       0,
+       238,
+       32,
+       32
+      ],
+      "f2": [
+       34,
+       238,
+       32,
+       32
+      ],
+      "f3": [
+       68,
+       238,
+       32,
+       32
+      ],
+      "atk": [
+       102,
+       238,
+       32,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "Gale",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "2": {
+       "name": "Thunderhead",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "3": {
+       "name": "Eye of the Storm",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "4": {
+       "name": "Downburst",
+       "idle": "idle",
+       "attack": "attack"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_rf_ignis": {
+   "image": "rf_bx.png",
+   "kind": "boss",
+   "sprites": {
+    "rf_ignis": {
+     "frames": {
+      "f0": [
+       136,
+       238,
+       32,
+       32
+      ],
+      "f1": [
+       170,
+       238,
+       32,
+       32
+      ],
+      "f2": [
+       204,
+       238,
+       32,
+       32
+      ],
+      "f3": [
+       238,
+       238,
+       32,
+       32
+      ],
+      "atk": [
+       0,
+       272,
+       32,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "Kindling",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "2": {
+       "name": "Ashes",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "3": {
+       "name": "Blaze",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "4": {
+       "name": "The Ninth Sun",
+       "idle": "idle",
+       "attack": "attack"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_rf_cardinal": {
+   "image": "rf_bx.png",
+   "kind": "boss",
+   "sprites": {
+    "rf_cardinal": {
+     "frames": {
+      "f0": [
+       34,
+       272,
+       32,
+       32
+      ],
+      "f1": [
+       68,
+       272,
+       32,
+       32
+      ],
+      "f2": [
+       102,
+       272,
+       32,
+       32
+      ],
+      "f3": [
+       136,
+       272,
+       32,
+       32
+      ],
+      "atk": [
+       170,
+       272,
+       32,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "Procession",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "2": {
+       "name": "Stained Glass",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "3": {
+       "name": "Ashfall",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "4": {
+       "name": "Requiem",
+       "idle": "idle",
+       "attack": "attack"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_rf_sarrukh": {
+   "image": "rf_bx.png",
+   "kind": "boss",
+   "sprites": {
+    "rf_sarrukh": {
+     "frames": {
+      "f0": [
+       204,
+       272,
+       32,
+       32
+      ],
+      "f1": [
+       238,
+       272,
+       32,
+       32
+      ],
+      "f2": [
+       0,
+       306,
+       32,
+       32
+      ],
+      "f3": [
+       34,
+       306,
+       32,
+       32
+      ],
+      "atk": [
+       68,
+       306,
+       32,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "The Hunt",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "2": {
+       "name": "Burrow",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "3": {
+       "name": "Sandstorm",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "4": {
+       "name": "Coil",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "5": {
+       "name": "Glass Fury",
+       "idle": "idle",
+       "attack": "attack"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_rf_magistrate": {
+   "image": "rf_bx.png",
+   "kind": "boss",
+   "sprites": {
+    "rf_magistrate": {
+     "frames": {
+      "f0": [
+       102,
+       306,
+       32,
+       32
+      ],
+      "f1": [
+       136,
+       306,
+       32,
+       32
+      ],
+      "f2": [
+       170,
+       306,
+       32,
+       32
+      ],
+      "f3": [
+       204,
+       306,
+       32,
+       32
+      ],
+      "atk": [
+       238,
+       306,
+       32,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "Order in the Court",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "2": {
+       "name": "Time Stop",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "3": {
+       "name": "Rewind",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "4": {
+       "name": "The Pendulum",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "5": {
+       "name": "Final Verdict",
+       "idle": "idle",
+       "attack": "attack"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_rf_vitrea": {
+   "image": "rf_bx.png",
+   "kind": "boss",
+   "sprites": {
+    "rf_vitrea": {
+     "frames": {
+      "f0": [
+       0,
+       340,
+       32,
+       32
+      ],
+      "f1": [
+       34,
+       340,
+       32,
+       32
+      ],
+      "f2": [
+       68,
+       340,
+       32,
+       32
+      ],
+      "f3": [
+       102,
+       340,
+       32,
+       32
+      ],
+      "atk": [
+       136,
+       340,
+       32,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "Mirror Image",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "2": {
+       "name": "Echoes",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "3": {
+       "name": "Fracture",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "4": {
+       "name": "The Thousandfold",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "5": {
+       "name": "Shatterpoint",
+       "idle": "idle",
+       "attack": "attack"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_rf_ossian": {
+   "image": "rf_bx.png",
+   "kind": "boss",
+   "sprites": {
+    "rf_ossian": {
+     "frames": {
+      "f0": [
+       170,
+       340,
+       32,
+       32
+      ],
+      "f1": [
+       204,
+       340,
+       32,
+       32
+      ],
+      "f2": [
+       238,
+       340,
+       32,
+       32
+      ],
+      "f3": [
+       0,
+       374,
+       32,
+       32
+      ],
+      "atk": [
+       34,
+       374,
+       32,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "Prayer Stones",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "2": {
+       "name": "The Bell Tolls",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "3": {
+       "name": "Unmoored",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "4": {
+       "name": "Breath of the Mountain",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "5": {
+       "name": "The Fall",
+       "idle": "idle",
+       "attack": "attack"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_rf_aion": {
+   "image": "rf_bx.png",
+   "kind": "boss",
+   "sprites": {
+    "rf_aion": {
+     "frames": {
+      "f0": [
+       68,
+       374,
+       32,
+       32
+      ],
+      "f1": [
+       102,
+       374,
+       32,
+       32
+      ],
+      "f2": [
+       136,
+       374,
+       32,
+       32
+      ],
+      "f3": [
+       170,
+       374,
+       32,
+       32
+      ],
+      "atk": [
+       204,
+       374,
+       32,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "The First Hour",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "2": {
+       "name": "The Sundial",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "3": {
+       "name": "The Ordering of Hours",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "4": {
+       "name": "Turning the Sun",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "5": {
+       "name": "The Last Hour",
+       "idle": "idle",
+       "attack": "attack"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_rf_vael": {
+   "image": "rf_bx.png",
+   "kind": "boss",
+   "sprites": {
+    "rf_vael": {
+     "frames": {
+      "f0": [
+       238,
+       374,
+       32,
+       32
+      ],
+      "f1": [
+       0,
+       408,
+       32,
+       32
+      ],
+      "f2": [
+       34,
+       408,
+       32,
+       32
+      ],
+      "f3": [
+       68,
+       408,
+       32,
+       32
+      ],
+      "atk": [
+       102,
+       408,
+       32,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "Hunter's Mark",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "2": {
+       "name": "Comet Hounds",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "3": {
+       "name": "Starflight",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "4": {
+       "name": "Moonlit Ambush",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "5": {
+       "name": "Supernova Run",
+       "idle": "idle",
+       "attack": "attack"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_rf_morvane": {
+   "image": "rf_bx.png",
+   "kind": "boss",
+   "sprites": {
+    "rf_morvane": {
+     "frames": {
+      "f0": [
+       136,
+       408,
+       32,
+       32
+      ],
+      "f1": [
+       170,
+       408,
+       32,
+       32
+      ],
+      "f2": [
+       204,
+       408,
+       32,
+       32
+      ],
+      "f3": [
+       238,
+       408,
+       32,
+       32
+      ],
+      "atk": [
+       0,
+       442,
+       32,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "The Throne Room",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "2": {
+       "name": "Checkmate",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "3": {
+       "name": "The King's Gambit",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "4": {
+       "name": "Chandeliers",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "5": {
+       "name": "The Black Court",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "6": {
+       "name": "Hollow Crown",
+       "idle": "idle",
+       "attack": "attack"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_rf_gourdrick": {
+   "image": "rf_bx.png",
+   "kind": "boss",
+   "sprites": {
+    "rf_gourdrick": {
+     "frames": {
+      "f0": [
+       34,
+       442,
+       32,
+       32
+      ],
+      "f1": [
+       68,
+       442,
+       32,
+       32
+      ],
+      "f2": [
+       102,
+       442,
+       32,
+       32
+      ],
+      "f3": [
+       136,
+       442,
+       32,
+       32
+      ],
+      "atk": [
+       170,
+       442,
+       32,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "The Patch",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "2": {
+       "name": "Snare",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "3": {
+       "name": "Harvest Moon",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "4": {
+       "name": "Rotten Harvest",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "5": {
+       "name": "Smashing Pumpkins",
+       "idle": "idle",
+       "attack": "attack"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_rf_mirabeau": {
+   "image": "rf_bx.png",
+   "kind": "boss",
+   "sprites": {
+    "rf_mirabeau": {
+     "frames": {
+      "f0": [
+       204,
+       442,
+       32,
+       32
+      ],
+      "f1": [
+       238,
+       442,
+       32,
+       32
+      ],
+      "f2": [
+       0,
+       476,
+       32,
+       32
+      ],
+      "f3": [
+       34,
+       476,
+       32,
+       32
+      ],
+      "atk": [
+       68,
+       476,
+       32,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "Showtime",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "2": {
+       "name": "The Double Act",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "3": {
+       "name": "Find the Lady",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "4": {
+       "name": "Encore",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "5": {
+       "name": "Trapdoors",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "6": {
+       "name": "Grand Finale",
+       "idle": "idle",
+       "attack": "attack"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_rf_orrigan": {
+   "image": "rf_bx.png",
+   "kind": "boss",
+   "sprites": {
+    "rf_orrigan": {
+     "frames": {
+      "f0": [
+       102,
+       476,
+       32,
+       32
+      ],
+      "f1": [
+       136,
+       476,
+       32,
+       32
+      ],
+      "f2": [
+       170,
+       476,
+       32,
+       32
+      ],
+      "f3": [
+       204,
+       476,
+       32,
+       32
+      ],
+      "atk": [
+       238,
+       476,
+       32,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2",
+        "f3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "A Thousand Cranes",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "2": {
+       "name": "The Fold",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "3": {
+       "name": "Ink and Brush",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "4": {
+       "name": "Paper Storm",
+       "idle": "idle",
+       "attack": "attack"
+      },
+      "5": {
+       "name": "The Wish",
+       "idle": "idle",
+       "attack": "attack"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "rfx_shots": {
+   "image": "rfx_shots.png",
+   "kind": "shot",
+   "sprites": {
+    "mortis.cleave": {
+     "frames": {
+      "0": [
+       0,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "mortis.wisp": {
+     "frames": {
+      "0": [
+       16,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "mortis.bone": {
+     "frames": {
+      "0": [
+       32,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "mortis.nail": {
+     "frames": {
+      "0": [
+       48,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "mortis.thrall": {
+     "frames": {
+      "0": [
+       64,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "mortis.bolas": {
+     "frames": {
+      "0": [
+       80,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "gutterlord.gnaw": {
+     "frames": {
+      "0": [
+       96,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "gutterlord.sludge": {
+     "frames": {
+      "0": [
+       112,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "gutterlord.bile": {
+     "frames": {
+      "0": [
+       128,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "gutterlord.rat": {
+     "frames": {
+      "0": [
+       144,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "gutterlord.spew": {
+     "frames": {
+      "0": [
+       160,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "mire.marsh": {
+     "frames": {
+      "0": [
+       176,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "mire.petal": {
+     "frames": {
+      "0": [
+       192,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "mire.bubble": {
+     "frames": {
+      "0": [
+       208,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "mire.lantern": {
+     "frames": {
+      "0": [
+       224,
+       0,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "mire.brew": {
+     "frames": {
+      "0": [
+       240,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "cinder.slag": {
+     "frames": {
+      "0": [
+       0,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "cinder.spark": {
+     "frames": {
+      "0": [
+       16,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "cinder.flame": {
+     "frames": {
+      "0": [
+       32,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "cinder.chain": {
+     "frames": {
+      "0": [
+       48,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "cinder.linger": {
+     "frames": {
+      "0": [
+       64,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "matriarch.moth": {
+     "frames": {
+      "0": [
+       80,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "matriarch.moon": {
+     "frames": {
+      "0": [
+       96,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "matriarch.dust": {
+     "frames": {
+      "0": [
+       112,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "matriarch.scale": {
+     "frames": {
+      "0": [
+       128,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "rime.icicle": {
+     "frames": {
+      "0": [
+       144,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "rime.frost": {
+     "frames": {
+      "0": [
+       160,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "rime.flake": {
+     "frames": {
+      "0": [
+       176,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "rime.star": {
+     "frames": {
+      "0": [
+       192,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "rime.pillar": {
+     "frames": {
+      "0": [
+       208,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "rime.hang": {
+     "frames": {
+      "0": [
+       224,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "rime.frostbomb": {
+     "frames": {
+      "0": [
+       240,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "astraeus.blade": {
+     "frames": {
+      "0": [
+       0,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "astraeus.twin": {
+     "frames": {
+      "0": [
+       16,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "astraeus.star": {
+     "frames": {
+      "0": [
+       32,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "astraeus.comet": {
+     "frames": {
+      "0": [
+       48,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "twins.disc": {
+     "frames": {
+      "0": [
+       64,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "twins.fang": {
+     "frames": {
+      "0": [
+       80,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "twins.umbral": {
+     "frames": {
+      "0": [
+       96,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "unmaker.void": {
+     "frames": {
+      "0": [
+       112,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "unmaker.null": {
+     "frames": {
+      "0": [
+       128,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "unmaker.tendril": {
+     "frames": {
+      "0": [
+       144,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "unmaker.current": {
+     "frames": {
+      "0": [
+       160,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "unmaker.blink": {
+     "frames": {
+      "0": [
+       176,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "cantor.hymn": {
+     "frames": {
+      "0": [
+       192,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "cantor.pearl": {
+     "frames": {
+      "0": [
+       208,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "cantor.note": {
+     "frames": {
+      "0": [
+       224,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "cantor.tide": {
+     "frames": {
+      "0": [
+       240,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "cantor.staffnote": {
+     "frames": {
+      "0": [
+       0,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "elderbark.leaf": {
+     "frames": {
+      "0": [
+       16,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "elderbark.thorn": {
+     "frames": {
+      "0": [
+       32,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "elderbark.seed": {
+     "frames": {
+      "0": [
+       48,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "elderbark.stag": {
+     "frames": {
+      "0": [
+       64,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "elderbark.sapling": {
+     "frames": {
+      "0": [
+       80,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "roc.bolt": {
+     "frames": {
+      "0": [
+       96,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "roc.feather": {
+     "frames": {
+      "0": [
+       112,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "roc.gust": {
+     "frames": {
+      "0": [
+       128,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "ignis.flame": {
+     "frames": {
+      "0": [
+       144,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "ignis.sun": {
+     "frames": {
+      "0": [
+       160,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "ignis.ember": {
+     "frames": {
+      "0": [
+       176,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "ignis.wisp": {
+     "frames": {
+      "0": [
+       192,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "cardinal.slash": {
+     "frames": {
+      "0": [
+       208,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "cardinal.ember": {
+     "frames": {
+      "0": [
+       224,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "cardinal.glass": {
+     "frames": {
+      "0": [
+       240,
+       48,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "cardinal.censer": {
+     "frames": {
+      "0": [
+       0,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "sarrukh.spit": {
+     "frames": {
+      "0": [
+       16,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "sarrukh.grit": {
+     "frames": {
+      "0": [
+       32,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "sarrukh.grain": {
+     "frames": {
+      "0": [
+       48,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "sarrukh.shard": {
+     "frames": {
+      "0": [
+       64,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "sarrukh.seg": {
+     "frames": {
+      "0": [
+       80,
+       64,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "sarrukh.scarab": {
+     "frames": {
+      "0": [
+       96,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "magistrate.cog": {
+     "frames": {
+      "0": [
+       112,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "magistrate.hand": {
+     "frames": {
+      "0": [
+       128,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "magistrate.tick": {
+     "frames": {
+      "0": [
+       144,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "magistrate.spring": {
+     "frames": {
+      "0": [
+       160,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "vitrea.prism": {
+     "frames": {
+      "0": [
+       176,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "vitrea.sliver": {
+     "frames": {
+      "0": [
+       192,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "vitrea.shard": {
+     "frames": {
+      "0": [
+       208,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "ossian.bead": {
+     "frames": {
+      "0": [
+       224,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "ossian.stone": {
+     "frames": {
+      "0": [
+       240,
+       64,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "ossian.incense": {
+     "frames": {
+      "0": [
+       0,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "ossian.censer": {
+     "frames": {
+      "0": [
+       16,
+       80,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "ossian.boulder": {
+     "frames": {
+      "0": [
+       32,
+       80,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "ossian.bellwell": {
+     "frames": {
+      "0": [
+       48,
+       80,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "ossian.abyss": {
+     "frames": {
+      "0": [
+       64,
+       80,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "aion.sand": {
+     "frames": {
+      "0": [
+       80,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "aion.hourhand": {
+     "frames": {
+      "0": [
+       96,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "aion.lance": {
+     "frames": {
+      "0": [
+       112,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "aion.crystal": {
+     "frames": {
+      "0": [
+       128,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "aion.sundisc": {
+     "frames": {
+      "0": [
+       144,
+       80,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "aion.tmirror": {
+     "frames": {
+      "0": [
+       160,
+       80,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "vael.star": {
+     "frames": {
+      "0": [
+       176,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "vael.starrow": {
+     "frames": {
+      "0": [
+       192,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "vael.splitarrow": {
+     "frames": {
+      "0": [
+       208,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "vael.astral": {
+     "frames": {
+      "0": [
+       224,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "vael.astralfast": {
+     "frames": {
+      "0": [
+       240,
+       80,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "vael.astralring": {
+     "frames": {
+      "0": [
+       0,
+       96,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "vael.astralgate": {
+     "frames": {
+      "0": [
+       16,
+       96,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "vael.dust": {
+     "frames": {
+      "0": [
+       32,
+       96,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "vael.hound": {
+     "frames": {
+      "0": [
+       48,
+       96,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "morvane.decree": {
+     "frames": {
+      "0": [
+       64,
+       96,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "morvane.crown": {
+     "frames": {
+      "0": [
+       80,
+       96,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "morvane.shade": {
+     "frames": {
+      "0": [
+       96,
+       96,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "morvane.guard": {
+     "frames": {
+      "0": [
+       112,
+       96,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "morvane.rook": {
+     "frames": {
+      "0": [
+       128,
+       96,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "morvane.bishop": {
+     "frames": {
+      "0": [
+       144,
+       96,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "morvane.queen": {
+     "frames": {
+      "0": [
+       160,
+       96,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "morvane.knight": {
+     "frames": {
+      "0": [
+       176,
+       96,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "morvane.courtier": {
+     "frames": {
+      "0": [
+       192,
+       96,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "morvane.wrook": {
+     "frames": {
+      "0": [
+       208,
+       96,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "morvane.wqueen": {
+     "frames": {
+      "0": [
+       224,
+       96,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "morvane.wknight": {
+     "frames": {
+      "0": [
+       240,
+       96,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "morvane.wking": {
+     "frames": {
+      "0": [
+       0,
+       112,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "morvane.bking": {
+     "frames": {
+      "0": [
+       16,
+       112,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "morvane.bpawn": {
+     "frames": {
+      "0": [
+       32,
+       112,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "morvane.brook": {
+     "frames": {
+      "0": [
+       48,
+       112,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "gourdrick.seed": {
+     "frames": {
+      "0": [
+       64,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "gourdrick.flame": {
+     "frames": {
+      "0": [
+       80,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "gourdrick.vine": {
+     "frames": {
+      "0": [
+       96,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "gourdrick.rot": {
+     "frames": {
+      "0": [
+       112,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "gourdrick.jack": {
+     "frames": {
+      "0": [
+       128,
+       112,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "mirabeau.card": {
+     "frames": {
+      "0": [
+       144,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "mirabeau.rose": {
+     "frames": {
+      "0": [
+       160,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "mirabeau.ribbon": {
+     "frames": {
+      "0": [
+       176,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "mirabeau.hat": {
+     "frames": {
+      "0": [
+       192,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "mirabeau.dove": {
+     "frames": {
+      "0": [
+       208,
+       112,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "mirabeau.cabinet": {
+     "frames": {
+      "0": [
+       224,
+       112,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "mirabeau.rabbit": {
+     "frames": {
+      "0": [
+       240,
+       112,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    },
+    "orrigan.crane": {
+     "frames": {
+      "0": [
+       0,
+       128,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "orrigan.cut": {
+     "frames": {
+      "0": [
+       16,
+       128,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "orrigan.dart": {
+     "frames": {
+      "0": [
+       32,
+       128,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "orrigan.petal": {
+     "frames": {
+      "0": [
+       48,
+       128,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "orrigan.frog": {
+     "frames": {
+      "0": [
+       64,
+       128,
+       16,
+       16
+      ]
+     },
+     "meta": {}
+    }
+   }
+  }
+ }
+}

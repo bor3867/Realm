@@ -12,6 +12,8 @@ const { buildRegistry } = await import(new URL('src/registry.js', ROOT));
 const { Game } = await import(new URL('src/game.js', ROOT));
 const { realm } = await import(new URL('src/world/maps.js', ROOT));
 const { REALM_BOSSES } = await import(new URL('src/data/enemies.js', ROOT));
+// the Realmforge bosses on the three-phase engine (src/bosses/rf_translate.js): the server knows them too
+{ const { addRfBosses } = await import(new URL('src/bosses/rf_translate.js', ROOT)); addRfBosses(JSON.parse(readFileSync(new URL('art/rf/data.json', ROOT), 'utf8'))); }
 const { ITEMS, bagFor } = await import(new URL('src/data/items.js', ROOT));
 const isBrown = (id) => { try { return bagFor([ITEMS[id]]) === 'brown'; } catch { return false; } };
 // the admin commands that make or end monsters: in a shared place the server runs them, so everyone has the same ones

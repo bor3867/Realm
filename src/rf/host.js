@@ -10,6 +10,7 @@ import { rollLoot } from '../data/items.js';
 import { bossData } from './boss.js';
 import { RF_FOE_LANDS } from '../data/rf_foes.js';
 import { rfBalance } from './balance.js';
+import { addRfBosses } from '../bosses/rf_translate.js';
 
 const TS = 16, K = 2;                                             // our tile is 16 buffer pixels; their art is 8 to a tile
 // their tile codes (C in explore.js) -> our tile names: a code change is a tile change, so our chunk caches follow
@@ -19,7 +20,7 @@ const HOST = {};                                                  // filled in b
 
 // boot: the Realmforge data (dungeons, creatures, art) is loaded once, in the background
 export async function loadRF() {
-  try { DATA = await (await fetch('art/rf/data.json')).json(); X = makeExplore(DATA, HOST); bossData(DATA); } catch (err) { console.warn('Realmforge data not loaded', err); }
+  try { DATA = await (await fetch('art/rf/data.json')).json(); X = makeExplore(DATA, HOST); bossData(DATA); addRfBosses(DATA); } catch (err) { console.warn('Realmforge data not loaded', err); }
 }
 export const rfReady = () => !!X;
 export const rfDungeons = () => (DATA ? DATA.dungeons.map((d) => d.id) : []);

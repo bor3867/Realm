@@ -142,6 +142,7 @@ function fromRealmforge(R, pack, atlas, img) {
       for (const [fn, f] of Object.entries(sp.frames)) { frames[fn] = { x: f[0], y: f[1], w: f[2], h: f[3] }; w = Math.max(w, f[2]); h = Math.max(h, f[3]); }
       const anims = sp.anims || { loop: { frames: Object.keys(frames), fps: sp.fps || 8, loop: true } };
       const def = { key: `${sheet}/${name}`, pack, sheet, name, img: I, frames, anims, pivot: [0, 0], size: [w, h], kind, meta: sp.meta || {} };
+      if (kind === 'boss') { def.phases = sp.phases; def.death = sp.death; }   // a Realmforge boss for the three-phase engine (tools/rf_build_bx.py)
       if (kind === 'shot' || kind === 'tile' || kind === 'item') def.foot = [w / 2, h / 2];
       else if (kind === 'decor') def.foot = [w / 2, h];
       else { def.foot = [w / 2, h]; def.needsFoot = true; }

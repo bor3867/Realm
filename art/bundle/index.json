@@ -14,7 +14,8 @@
   "remaster/atlas_remaster_ext.json",
   "realmforge/atlas_rf.json",
   "realmforge/atlas_rf_foes.json",
-  "resized/atlas_resized.json"
+  "resized/atlas_resized.json",
+  "realmforge/atlas_rf_bx.json"
  ],
  "hover": "HOVER.json",
  "manifest": "MANIFEST.json"

@@ -4372,7 +4372,7 @@ export class Game {
         const id = args[0];
         if (!BX[id]) { say(`Bundle bosses: ${Object.keys(BX).join(', ')}`); break; }
         const e = this.spawnRealmBoss(id, near(7), bxEnemyDef(id));
-        if (e) say(`${e.D.name} (${e.D.hp} life). Phases at 66% and 33%.`);
+        if (e) say(`${e.D.name} (${e.D.hp} life). Phases at ${(BX[id].thresholds || [0.66, 0.33]).map((t) => Math.round(t * 100) + '%').join(', ')}.`);
         break;
       }
       case 'kraken': case 'treant': {                       // /kraken, /treant: the realm event now, and you at its edge

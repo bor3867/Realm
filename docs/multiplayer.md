@@ -55,6 +55,15 @@ alter table saves enable row level security;
 Making an account an admin: `update accounts set is_admin = true where name_lower = 'yourname';`
 Testing locally without Supabase: `DB=file` keeps accounts in server/.data/db.json (the first account is an admin).
 
+## One boss engine (started 2026-10-19)
+Every boss is moving onto the three-phase engine (src/bossx.js); the rf_ dungeons keep their own engine for the
+exploring (rooms, puzzles, traps). The 24 Realmforge bosses are translated from their data at load time
+(src/bosses/rf_translate.js; art: tools/rf_build_bx.py): each of their phases with its Life, movement and emitters.
+Done: aim, ring, spiral and aoe emitters (most of every fight), their movement styles, their art and shots, their
+loot. Admin: /bx rfx_<id> (rfx_mortis ...). Next: their other emitters (minions, lasers, beams, rain, walls ...), the
+bespoke boss mechanics (shields, clones, puzzles inside the fight ...), their arenas as our maps (shared on the server),
+and the rf_ dungeons' boss doors leading to them; then the older realm and dungeon bosses moved across.
+
 ## Not shared yet
 - The rf_ dungeons: a shared portal puts everyone in the same layout (one seed) and they see each other, but each
   player's creatures are their own. Their engine (src/rf/explore_gen.js) was built for one hero: sharing its creatures
