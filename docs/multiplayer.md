@@ -63,7 +63,9 @@ Done: 25 of their 30 emitter kinds (aim, ring, spiral, aoe in its four shapes, m
 span and burst, lasers, rain, walls, lines, implosions, converging, flocks, novas, beams, drops, sprays, bolas, orbits,
 clouds, rifts, wildfire, hedges, warps, sequences, ahead-of-you), their movement styles, art, shots and loot. Admin:
 /bx rfx_<id>. Left to their specials: chess boards, music staves, a worm's segments, beams that follow a laser.
-Next: the bespoke boss mechanics (shields, clones, puzzles inside the fight ...), their arenas as our maps (shared),
+Specials done: rage, phase time limits (60 s unless set; the last ends the fight), invulnerable phases (freed when
+their minions fall), shields (openings every 9 s: a stand-in for Aion's puzzle), heat floors, leashes.
+Next: the other bespoke mechanics (puzzles, clones, mirror panes, wells, time stop, allies, twins ...), their arenas as our maps (shared),
 the rf_ dungeons' boss doors leading to them; then the older realm and dungeon bosses moved across.
 Fixed on the way: a player's blow on a shared monster now goes through the game's own damage step on the server, so a
 three-phase boss's phases, morphs, immunity and survive phases happen as they should (before, only its HP fell).

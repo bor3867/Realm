@@ -10,6 +10,11 @@
 //   flocks, novas, beams, drops, sprays, bolas, ahead-of-you marks, sequences, clouds, rifts, hedges, wildfire).
 //   Still their engine's alone: chess boards, music staves, a worm's segments, beams that follow a laser (specials).
 // Their arena-wide patterns use a box the size of their arena (B.room) round the place the boss rose.
+// Their phase rules (specials, part 1): rage (it runs hotter: emitters a quarter faster, a red glow), len (a phase
+// lasts so long, 60 s unless it says; then the next, and the last ends the fight, as their engine had it), invuln (it
+// cannot be hurt that phase; its minions falling ends it early), shield (the hour shields it but for short openings:
+// a stand-in for Aion's puzzle), heat (a checkerboard floor, its squares burning by turns after a warning), leash
+// (stray too far from it and the oath burns).
 // Their art: tools/rf_build_bx.py (sheet 'bx_rf_<id>', shots 'rfx_shots/<boss>.<shot>'). Their numbers: their dungeon's
 // band (src/rf/balance.js), as their own engine had them. Each becomes BX['rfx_<id>'].
 import { BX } from './index.js';
@@ -128,6 +133,44 @@ function fire(g, e, B, bal, em, vol) {
     for (const [x, len] of [[A.x0, g0 - A.x0], [g0 + 3, A.x0 + A.w - g0 - 3]]) if (len > 0.5) g.fx.push({ kind: 'lane', x, y, a: 0, len, w: 0.45, delay: 0.8, t: 0, life: 0.8 + (em.life || 4), dmg: Math.round((s.dmg || 60) * bal.bossDmg), by: e.D.name, hitT: 0 }); } }
   else if (em.t === 'warp') { const n = em.n || 6; for (let k = 0; k < n; k++) { const a = (k * TAU) / n + rnd(-0.2, 0.2), r = 7; shot(a + Math.PI, p.x + Math.cos(a) * r, p.y + Math.sin(a) * r, s.speed || 5, r + 2); } }
 }
+// a phase's own rules, every frame: its time limit, its invulnerability, its shield's openings, the hot floor, the leash
+function phaseRules(g, e, B, bal, dt) {
+  const S = e.bx, ph = S.B.phases[S.phase];
+  if (!ph || S.state === 'death' || S.state === 'deathhold' || S.state === 'sleep' || S.state === 'intro') return;
+  if (e.rfPh !== S.phase) { e.rfPh = S.phase; e.rfPhT = 0; e.rfFreed = false; e.rfHadMins = false; e.rfOpen = 0; e.rfOpenNext = 6; e.rfHeatT = 0; }
+  if (S.state === 'morph') return;
+  e.rfPhT += dt;
+  // invulnerable: its minions falling frees it
+  const mins = (e.rfMins || []).filter((m) => !m.dead);
+  if (mins.length) e.rfHadMins = true;
+  if (ph.invuln && !e.rfFreed && e.rfHadMins && !mins.length) { e.rfFreed = true; g.banner(`${e.D.name} is exposed!`, 1800); }
+  // the shield's openings: every 9 s for 4 s (until Aion's own puzzle is here)
+  if (ph.shield && (e.rfOpenNext -= dt) <= 0) { e.rfOpenNext = 9; e.rfOpen = S.t + 4; g.banner('The shield falters!', 1600); }
+  e.rfImm = (ph.invuln && !e.rfFreed) || (ph.shield && !(e.rfOpen > S.t));   // can it be hurt right now
+  // the time limit: on to the next phase (its Life set there), or, the last, the end of the fight
+  if (e.rfPhT > ph.len && S.state !== 'death') {
+    const th = S.B.thresholds[S.phase - 1];
+    if (th !== undefined) { e.hp = Math.min(e.hp, Math.round(e.maxHp * th)); g.bxMorph(e); }
+    else if (g.bxDie) g.bxDie(e);
+    return;
+  }
+  // the hot floor: squares size x size by turns, a warning, then they burn
+  if (ph.heat && (e.rfHeatT -= dt) <= 0) {
+    const h = ph.heat, A = box(e, B), sz = h.size || 3, par = (e.rfHeatK = (e.rfHeatK || 0) + 1) % 2, s = B.shots[h.s] || {};
+    e.rfHeatT = h.every || 2.6;
+    for (let j = 0; j * sz < A.h; j++) for (let i = 0; i * sz < A.w; i++) if ((i + j) % 2 === par)
+      g.fx.push({ kind: 'zone', x: A.x0 + i * sz + sz / 2, y: A.y0 + j * sz + sz / 2, r: sz * 0.5, t: 0, delay: h.warn || 1.2, life: (h.warn || 1.2) + 0.15, dmg: Math.round((h.dmg || 110) * bal.bossDmg), by: 'the hot floor', done: false, colors: [s.color || '#ff7a1a', '#ffd650'] });
+  }
+  // the leash: every player too far from it burns (each on their own clock)
+  if (ph.leash) {
+    const who = g.netTargets && g.netTargets.length ? g.netTargets : [g.player], keep = g.player;
+    for (const q of who) {
+      if (q.dead || Math.hypot(q.x - e.x, q.y - e.y) <= ph.leash.len) continue;
+      if ((q.rfLeashT = (q.rfLeashT || 0) - dt) > 0) continue;
+      q.rfLeashT = 0.5; g.player = q; try { g.hurtPlayer(Math.round((ph.leash.dmg || 40) * bal.bossDmg), 'the oath'); } finally { g.player = keep; }
+    }
+  }
+}
 // the kinds this translates (the rest wait for their boss's specials)
 const KINDS = new Set(['aim', 'ring', 'spiral', 'aoe', 'minion', 'laser', 'rain', 'wall', 'lines', 'implode', 'converge', 'flock', 'nova', 'beam', 'drop', 'spray', 'bolas', 'ahead', 'orbit', 'cloud', 'rift', 'wildfire', 'hedge', 'warp', 'seq']);
 // minions' own life: a life span, a burst when they fall (every frame, from the boss's update)
@@ -145,6 +188,7 @@ export function rfBossToBX(DATA, B) {
   P.forEach((ph, i) => {
     if (i) thresholds.push(Math.min(0.99, startOf(ph.hp)));
     phases[i + 1] = { move: MOVE_OF[ph.mv && ph.mv.m] || 'rf_center', rfMv: ph.mv, rfEm: (ph.em || []).filter((em) => KINDS.has(em.t)),
+      rage: !!ph.rage, len: ph.len || 60, invuln: !!ph.invuln, shield: !!ph.shield, heat: ph.heat || null, leash: ph.leash || null,
       patterns: [{ name: ph.name, windup: 0.4, recover: 5.5, volleys: [{ form: 'special', name: 'rfEmit' }] }] };
   });
   const T2 = [bal.tiers[0] + 1, bal.tiers[1] + 1];
@@ -159,9 +203,24 @@ export function rfBossToBX(DATA, B) {
     update(g, e, dt) {
       const S = e.bx, R = S.rfEm;
       tickMinions(g, e, B, bal, dt);
+      phaseRules(g, e, B, bal, dt);
       if (S.state === 'death' || S.state === 'deathhold') for (const m of e.rfMins || []) if (!m.dead) { m.noLoot = true; m.dead = true; m.deadT = 0; }   // (its creatures go with it)
       if (!R || S.t > R.until || S.state === 'morph' || S.state === 'death' || S.state === 'deathhold') return;
-      for (const q of R.list) if ((q.t -= dt) <= 0) { q.t = q.em.e || (q.em.t === 'minion' ? 1e9 : 1.5); fire(g, e, B, bal, q.em, q.vol++); }
+      const hot = S.B.phases[S.phase] && S.B.phases[S.phase].rage ? 0.8 : 1;   // (rage: a quarter faster)
+      for (const q of R.list) if ((q.t -= dt) <= 0) { q.t = (q.em.e || (q.em.t === 'minion' ? 1e9 : 1.5)) * hot; fire(g, e, B, bal, q.em, q.vol++); }
+    },
+    // can't be hurt: an invulnerable phase (until its time is up or its minions fall), or shielded outside its openings
+    immune(g, e) { return !!e.rfImm; },                 // (worked out each frame where the fight runs: phaseRules; a shared boss brings it along)
+    immuneText: 'INVULNERABLE',
+    // what the phase looks like on it: rage's red glow, an invulnerable ring, the hour's gold shield, the leash's reach
+    draw(r, g, e, sx, sy) {
+      const ph = e.bx.B.phases[e.bx.phase], b = r.b;
+      if (!ph || e.dead) return;
+      const ring = (rad, col, a) => { b.globalAlpha = a; b.strokeStyle = col; b.lineWidth = 2; b.beginPath(); b.arc(sx, sy - 24, rad, 0, TAU); b.stroke(); b.globalAlpha = 1; };
+      if (ph.rage) ring(40 + Math.sin(g.t * 6) * 3, '#ff3c50', 0.5);
+      if (ph.invuln && e.rfImm) ring(34, '#9fd8ff', 0.55 + Math.sin(g.t * 6) * 0.25);
+      if (ph.shield && e.rfImm) ring(36, '#ffd650', 0.6);
+      if (ph.leash) { b.globalAlpha = 0.18; b.strokeStyle = '#7ac85a'; b.lineWidth = 1; b.beginPath(); b.arc(sx, sy, ph.leash.len * 16, 0, TAU); b.stroke(); b.globalAlpha = 1; }
     },
     loot: [...(B.drops || []).map((d) => ({ id: `rf_${d.id}`, p: d.rarity === 'mythic' ? 0.02 : d.rarity === 'legendary' ? 0.08 : 0.2 })),
       { slot: 'weapon', tiers: T2, p: 0.8 }, { slot: 'armor', tiers: T2, p: 0.8 }, { slot: 'ring', tiers: [1, 3], p: 0.5 }, { slot: 'ability', tiers: [3, 5], p: 0.5 }, { stat: true, p: 0.6 }, { id: 'pot_hp', p: 1 }],
