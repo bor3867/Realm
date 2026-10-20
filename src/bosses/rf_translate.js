@@ -44,19 +44,35 @@ function moves() {
     rf_strafe(g, e, dt) { const p = g.player, a = Math.atan2(e.y - p.y, e.x - p.x) + dt * 0.6; step(g, e, p.x + Math.cos(a) * 6, p.y + Math.sin(a) * 6, spd(e, 1.4), dt); },
     rf_orbit(g, e, dt) { const H = home(e), a = (e.rfA = (e.rfA || 0) + dt * 0.5); step(g, e, H.x + Math.cos(a) * 4, H.y + Math.sin(a) * 4, spd(e, 1.6), dt); },
     rf_wander(g, e, dt) { const H = home(e); if (!e.rfT || Math.hypot(e.rfT.x - e.x, e.rfT.y - e.y) < 0.5 || (e.rfTT = (e.rfTT || 0) - dt) <= 0) { const a = Math.random() * TAU, r = 1 + Math.random() * 4; e.rfT = { x: H.x + Math.cos(a) * r, y: H.y + Math.sin(a) * r }; e.rfTT = 3; } step(g, e, e.rfT.x, e.rfT.y, spd(e), dt); },
+    // swapping places among three spots, every so often (the other two hold its decoys)
+    rf_swap(g, e, dt) { if ((e.rfSwT = (e.rfSwT || 0) + dt) >= ((e.rfMv && e.rfMv.every) || 2.5)) { e.rfSwT = 0; e.rfSw = ((e.rfSw || 0) + 1) % 3; g.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 12, colors: ['#7ac85a', '#2a4a1a'] }); }
+      const q = swapAt(box(e, e.bx.B.rfData), e.rfSw || 0); e.x = q.x; e.y = q.y; },
     rf_fig8(g, e, dt) { const H = home(e), a = (e.rfA = (e.rfA || 0) + dt * 0.6); step(g, e, H.x + Math.sin(a) * 5, H.y + Math.sin(a * 2) * 2.5, spd(e, 1.6), dt); },
   };
   M.rf_middle = M.rf_center;
   return M;
 }
 const MOVE_OF = { middle: 'rf_center', center: 'rf_center', chase: 'rf_chase', strafe: 'rf_strafe', orbit: 'rf_orbit', wander: 'rf_wander', fig8: 'rf_fig8',
-  aisle: 'rf_strafe', mirror: 'rf_strafe', charge: 'rf_chase', dash: 'rf_chase', gravehop: 'rf_wander', worm: 'rf_wander', burrow: 'rf_wander', teleport: 'rf_wander', swap: 'rf_center', leap: 'rf_chase', dive: 'rf_chase' };
+  aisle: 'rf_strafe', mirror: 'rf_strafe', charge: 'rf_chase', dash: 'rf_chase', gravehop: 'rf_wander', worm: 'rf_wander', burrow: 'rf_wander', teleport: 'rf_wander', swap: 'rf_swap', leap: 'rf_chase', dive: 'rf_chase' };
 
 // where it rose: kept as plain numbers, so the browsers have it with the boss (a puppet: the server's, once it arrives)
 function homeOf(e) {
   if (e.net) return { x: e.rfHx ?? e.x, y: e.rfHy ?? e.y };
   if (e.rfHx === undefined) { e.rfHx = e.x; e.rfHy = e.y; }
   return { x: e.rfHx, y: e.rfHy };
+}
+// the three places a swapper stands (its decoys at the other two); where shots come from besides its body
+const SWAP = [[0.2, 0.24], [0.8, 0.24], [0.5, 0.42]];
+const swapAt = (A, i) => ({ x: A.x0 + SWAP[i % 3][0] * A.w, y: A.y0 + SWAP[i % 3][1] * A.h });
+const decoysOf = (e, B, P) => Array.from({ length: P.decoys || 0 }, (_, k) => swapAt(box(e, B), (e.rfSw || 0) + k + 1));
+const crownAt = (e, B, c) => { const A = box(e, B), a = (e.rfL ?? e.rfPhT ?? 0) * (c.w || 0.9); return { x: A.x0 + A.w / 2 + Math.cos(a) * c.r, y: A.y0 + A.h * 0.5 + Math.sin(a) * c.r * 0.62 }; };
+function originsOf(e, B, src) {
+  const P = e.bx.B.phases[e.bx.phase] && e.bx.B.phases[e.bx.phase].rfP;
+  if (!P || !src) return null;
+  if (src === 'decoys' && P.decoys) return decoysOf(e, B, P);
+  if (src === 'corners') { const A = box(e, B); return [[1.5, 1.5], [A.w - 1.5, 1.5], [1.5, A.h - 1.5], [A.w - 1.5, A.h - 1.5]].map(([x, y]) => ({ x: A.x0 + x, y: A.y0 + y })); }
+  if (src === 'crown' && P.crownOrbit) return [crownAt(e, B, P.crownOrbit)];
+  return null;                                                   // (its body: b1, and for now b2 and the ring of mirrors too)
 }
 // the arena-sized box round the place it rose (their arena's columns and rows)
 function box(e, B) {
@@ -79,11 +95,11 @@ function minionKind(B, bal, key, em) {
 }
 
 // one emitter firing: their shot, our projectile
-function fire(g, e, B, bal, em, vol) {
+function fire(g, e, B, bal, em, vol, org) {
   const s = B.shots[em.s] || {};
-  if (em.t === 'seq') { const st = em.steps && em.steps[vol % em.steps.length]; if (st) fire(g, e, B, bal, st, vol); return; }   // their steps, one a beat
+  if (em.t === 'seq') { const st = em.steps && em.steps[vol % em.steps.length]; if (st) fire(g, e, B, bal, st, vol, org); return; }   // their steps, one a beat
   if (!B.shots[em.s] && em.t !== 'minion') return;
-  const p = g.player, [ox, oy] = g.bxOrigin(e), aim = Math.atan2(p.y - 0.4 - oy, p.x - ox), A = box(e, B), dmg = Math.round((s.dmg || 60) * bal.bossDmg);
+  const p = g.player, [ox, oy] = org ? [org.x, org.y] : g.bxOrigin(e), aim = Math.atan2(p.y - 0.4 - oy, p.x - ox), A = box(e, B), dmg = Math.round((s.dmg || 60) * bal.bossDmg);
   const shot = (a, x = ox, y = oy, sp = s.speed || 5, rg = s.range || 8) => g.shoot('e', x, y, a, sp, rg, dmg, `rfx_shots/${B.id}.${em.s}`, 0.35, false, e.D.name);
   const INK = em.ink && e.bx.B.phases[e.bx.phase] && e.bx.B.phases[e.bx.phase].rfP.ink;
   const zone = (x, y, r, delay) => {
@@ -155,13 +171,16 @@ function fire(g, e, B, bal, em, vol) {
 function phaseRules(g, e, B, bal, dt) {
   const S = e.bx, ph = S.B.phases[S.phase];
   if (!ph || S.state === 'death' || S.state === 'deathhold' || S.state === 'sleep' || S.state === 'intro') return;
-  if (e.rfPh !== S.phase) { e.rfPh = S.phase; e.rfPhT = 0; e.rfFreed = false; e.rfHadMins = false; e.rfOpen = 0; e.rfOpenNext = 6; e.rfHeatT = 0; e.rfPz = 'combat'; e.rfPzT = 0; e.rfPzR = 0; e.rfExpT = 0; e.rfPlN = 0; e.rfSock = 0; e.rfTx = 0; endPieces(e); }
+  if (e.rfPh !== S.phase) { e.rfPh = S.phase; e.rfPhT = 0; e.rfFreed = false; e.rfHadMins = false; e.rfOpen = 0; e.rfOpenNext = 6; e.rfHeatT = 0; e.rfPz = 'combat'; e.rfPzT = 0; e.rfPzR = 0; e.rfExpT = 0; e.rfPlN = 0; e.rfSock = 0; e.rfTx = 0; endPieces(e);
+    e.rfRit = ''; e.rfRitT = ph.rfP.ritual ? ph.rfP.ritual.every - 3 : 0; e.rfStagT = 0; }
   if (S.state === 'morph') return;
   e.rfPhT += dt;
   // invulnerable: its minions falling frees it
   const mins = (e.rfMins || []).filter((m) => !m.dead);
   if (mins.length) e.rfHadMins = true;
   if (ph.invuln && !e.rfFreed && e.rfHadMins && !mins.length) { e.rfFreed = true; g.banner(`${e.D.name} is exposed!`, 1800); }
+  // Mother Mire's ritual: step on every rune before the brew boils
+  if (ph.rfP.ritual) ritualStep(g, e, B, bal, dt, ph.rfP.ritual);
   // Aion's still hour: the puzzle that brings the shield down
   if (ph.rfP.puzzle) puzzleStep(g, e, B, bal, dt, ph.rfP);
   // a shield with no puzzle: openings every 9 s for 4 s
@@ -226,7 +245,9 @@ function arenaRules(g, e, B, bal, dt) {
   const outside = (w) => p.x < A.x0 + w || p.x > A.x0 + A.w - w || p.y < A.y0 + w || p.y > A.y0 + A.h - w;
   // the still hour: its shots hang in the air; the lances, turned by the mirror, end there
   if (e.rfPz === 'still') { if (!g.timeStop || g.timeStop.rfx) g.timeStop = { x: e.x, y: e.y, r: 40, t: 0.3, rfx: true }; }
-  if (e.rfLanceWin !== Z.lw) { if (Z.lw !== undefined) for (const b of g.projectiles) if (b.rfLance) { b.life = 0; g.fx.push({ kind: 'ring', x: b.x, y: b.y, t: 0, max: 1.2, color: '#ffd650' }); } Z.lw = e.rfLanceWin; }
+  if (!('lw' in Z) || e.rfLanceWin !== Z.lw) { if ('lw' in Z) for (const b of g.projectiles) if (b.rfLance) { b.life = 0; g.fx.push({ kind: 'ring', x: b.x, y: b.y, t: 0, max: 1.2, color: '#ffd650' }); } Z.lw = e.rfLanceWin; }
+  // the brew boiled over: those near are confused (keys turned about) for a while
+  if (!('rit' in Z) || e.rfRitFail !== Z.rit) { const I = P.ritual && P.ritual.inflict; if ('rit' in Z && I && Math.hypot(p.x - e.x, p.y - e.y) < 16) { g.invertUntil = g.t + (I.t || 2.5); g.float(p.x, p.y - 1.2, 'CONFUSED', '#c8a0ff'); } Z.rit = e.rfRitFail; }
   // the dark, the sandstorm: you see only round yourself
   if (P.dark || P.sandstorm) { if (!(g.darkUntil > g.t)) g.darkStart = g.t; g.darkUntil = g.t + 0.7; g.darkR = P.dark ? 3.2 : 4.6; g.darkBy = e; }
   if (!live) return;
@@ -317,9 +338,38 @@ function drawArena(r, g, e, B) {
     for (let i = 0; i < e.rfPlN; i++) { const pl = plateAt(A, i), lit = ord.indexOf(i) < (e.rfNext || 0), [sx, sy] = r.proj(pl.x, pl.y);
       circle(pl.x, pl.y, 0.7, lit ? '#ffd650' : '#8a7ad0', lit ? 0.6 : 0.35); circle(pl.x, pl.y, 0.7, '#fff6c8', 0.7, true);
       b.fillStyle = '#ffffff'; b.font = '12px monospace'; b.textAlign = 'center'; b.fillText(['I', 'II', 'III', 'IV', 'V'][ord.indexOf(i)] || '', sx, sy + 4); } }
+  if (e.rfRit) for (const q of runesOf(e.rfRit)) { circle(q.x, q.y, 0.85, q.done ? '#ffd650' : '#7a3ac8', q.done ? 0.55 : 0.35 + 0.2 * Math.sin(g.t * 8)); circle(q.x, q.y, 0.85, '#e8d0ff', 0.7, true); }
+  if (P.crownOrbit) { const c = crownAt(e, B, P.crownOrbit); circle(c.x, c.y, 0.6, '#ffd650', 0.8); circle(c.x, c.y, 0.9, '#fff6c8', 0.5, true); }
   if (e.rfSock) { const S0 = socketAt(A); circle(S0.x, S0.y, 0.8, '#ffd650', 0.8, true); circle(S0.x, S0.y, 0.5, '#3a2a10', 0.5); }
   if (e.rfTx) { circle(e.rfTx, e.rfTy, 0.7, '#ffd650', 0.5); circle(e.rfTx, e.rfTy, 0.7, '#ffffff', 0.8, true); }
   if (P.spotlight && g.rfZ && g.rfZ.e === e && g.rfZ.spot) circle(g.rfZ.spot.x, g.rfZ.spot.y, P.spotlight.r, '#fff6c8', 0.25);
+}
+// ---- Mother Mire's ritual, on the server: runes appear; if the players between them step on every one before the cast
+// ends it is broken (she staggers, three seconds without attacking); if not, the brew boils over (a ring of shots, and
+// each player near is confused for a while: their browser sees the count go up). The runes go out as one word: x:y:done|...
+const runesOf = (s) => (s ? s.split('|').map((q) => { const [x, y, d] = q.split(':'); return { x: +x, y: +y, done: d === '1' }; }) : []);
+const runesWord = (L) => L.map((q) => `${q.x.toFixed(2)}:${q.y.toFixed(2)}:${q.done ? 1 : 0}`).join('|');
+function ritualStep(g, e, B, bal, dt, R) {
+  const A = box(e, B), who = g.netTargets && g.netTargets.length ? g.netTargets : [g.player];
+  e.rfRitT = (e.rfRitT || 0) + dt;
+  if (!e.rfRit) {
+    if (e.rfRitT < R.every) return;
+    const L = [];
+    for (let k = 0; k < (R.runes || 3); k++) { let x = 0, y = 0; for (let j = 0; j < 30; j++) { x = A.x0 + rnd(0.12, 0.88) * A.w; y = A.y0 + rnd(0.18, 0.88) * A.h; if (L.every((q) => Math.hypot(q.x - x, q.y - y) > 3.5) && Math.hypot(x - e.x, y - e.y) > 2.5) break; } L.push({ x, y, done: false }); }
+    e.rfRit = runesWord(L); e.rfRitT = 0; g.banner(R.say || 'A ritual begins! Step on every rune before it completes.', 2800);
+    return;
+  }
+  const L = runesOf(e.rfRit);
+  let changed = false;
+  for (const q of who) for (const r of L) if (!r.done && Math.hypot(q.x - r.x, q.y - r.y) < 0.85) { r.done = true; changed = true; g.fx.push({ kind: 'ring', x: r.x, y: r.y, t: 0, max: 1.6, color: '#c8a0ff' }); }
+  if (changed) e.rfRit = runesWord(L);
+  if (L.every((r) => r.done)) { e.rfRit = ''; e.rfRitT = 0; e.rfStagT = 3; g.float(e.x, e.y - 3, 'INTERRUPTED!', '#ffd650'); g.banner('The ritual is broken!', 1800); }
+  else if (e.rfRitT >= R.cast) {
+    e.rfRit = ''; e.rfRitT = 0; e.rfRitFail = (e.rfRitFail || 0) + 1;
+    const s = B.shots[R.s] || {}, n = R.n || 28;
+    for (let i = 0; i < n; i++) g.shoot('e', e.x, e.y - 0.5, (i * TAU) / n + 0.1, s.speed || 5, s.range || 9, Math.round((s.dmg || 70) * bal.bossDmg), `rfx_shots/${B.id}.${R.s}`, 0.35, false, e.D.name);
+    g.banner(R.done || 'It is done!', 2200);
+  }
 }
 // ---- Aion's still hour (puzzle phases), on the server: time stops for everyone; the pieces are creatures the server
 // owns (crystals to shatter, the Sun Disc and the Hand Mirror to push: any player walking into them moves them), the
@@ -434,9 +484,10 @@ export function rfBossToBX(DATA, B) {
       phaseRules(g, e, B, bal, dt);
       if (S.state === 'death' || S.state === 'deathhold') { for (const m of e.rfMins || []) if (!m.dead) { m.noLoot = true; m.dead = true; m.deadT = 0; } endPieces(e); }   // (its creatures go with it)
       if (e.rfPz === 'still') return;                              // (time stopped: it waits too)
+      if (e.rfStagT > 0) { e.rfStagT -= dt; return; }              // (staggered: a ritual broken)
       if (!R || S.t > R.until || S.state === 'morph' || S.state === 'death' || S.state === 'deathhold') return;
       const hot = S.B.phases[S.phase] && S.B.phases[S.phase].rage ? 0.8 : 1;   // (rage: a quarter faster)
-      for (const q of R.list) if ((q.t -= dt) <= 0) { q.t = (q.em.e || (q.em.t === 'minion' ? 1e9 : 1.5)) * hot; fire(g, e, B, bal, q.em, q.vol++); }
+      for (const q of R.list) if ((q.t -= dt) <= 0) { q.t = (q.em.e || (q.em.t === 'minion' ? 1e9 : 1.5)) * hot; const O = originsOf(e, B, q.em.src), v = q.vol++; if (O) for (const o of O) fire(g, e, B, bal, q.em, v, o); else fire(g, e, B, bal, q.em, v); }
     },
     // the arena's rules, for the player in this browser
     local(g, e, dt) { arenaRules(g, e, B, bal, dt); },
@@ -452,6 +503,8 @@ export function rfBossToBX(DATA, B) {
       if (ph.rage) ring(40 + Math.sin(g.t * 6) * 3, '#ff3c50', 0.5);
       if (ph.invuln && e.rfImm) ring(34, '#9fd8ff', 0.55 + Math.sin(g.t * 6) * 0.25);
       if (ph.shield && e.rfImm) ring(36, '#ffd650', 0.6);
+      if (ph.rfP.decoys && e.bx.def && e.bx.anim) for (const d of decoysOf(e, B, ph.rfP)) { const [dx, dy] = r.proj(d.x, d.y); b.globalAlpha = 0.45; r.drawDef(e.bx.def, e.bx.anim.frame, dx, dy, { scale: 1 }); b.globalAlpha = 1; }   // her decoys
+      if (e.rfStagT > 0) { b.fillStyle = '#ffe066'; b.font = '10px monospace'; b.textAlign = 'center'; b.fillText('STAGGERED', sx, sy - 60); }
       if ((ph.rfP.egg || ph.rfP.cocoon) && e.rfImm) ring(32 + Math.sin(g.t * 6) * 2, ph.rfP.egg ? '#ffcc33' : '#f4ecd8', 0.7);
       if (ph.leash) { b.globalAlpha = 0.18; b.strokeStyle = '#7ac85a'; b.lineWidth = 1; b.beginPath(); b.arc(sx, sy, ph.leash.len * 16, 0, TAU); b.stroke(); b.globalAlpha = 1; }
     },

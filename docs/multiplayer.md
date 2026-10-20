@@ -70,9 +70,12 @@ player gets the same floor: the lantern cone, darkness and sandstorm, the floor 
 mesmer, moonlight pools, frostbite, closing and fixed edges, wind, updrafts, sunspots, the gavel, the stopped clock,
 gravity wells / fields / pulses (shots bend and are swallowed), zero gravity, the spotlight, the encore, ink, the fold.
 On the server: the burning trail, the egg and the cocoon, ink pools where marks land.
-Next: the big bespoke ones (Aion's time-stop puzzles, Vitrea's clones and mirror panes, the twins' second body, Gourdrick's
-knight and priest, Morvane's chess, Mirabeau's shell game, Mire's ritual and decoys, Vael's warp, the Cantor's staves,
-the worm's segments), their arenas as our maps (shared),
+Shared puzzles done: Aion's still hours (time stops for all; crystals, the Sun Disc and the Hand Mirror are creatures the
+server owns, so everyone shatters and pushes the same ones; runes light in order for whoever steps on them), Mother
+Mire's ritual (anyone may step on the runes; broken, she staggers; boiled over, those near are confused), her swaps
+and decoys (the decoys fire too), shots from Cinder's corners and Morvane's crown.
+Next: Vitrea's clones and mirror panes, the twins' second body, Gourdrick's knight and priest, Morvane's chess,
+Mirabeau's shell game, Vael's warp, the Cantor's staves, the worm's segments, their arenas as our maps (shared),
 the rf_ dungeons' boss doors leading to them; then the older realm and dungeon bosses moved across.
 Fixed on the way: a player's blow on a shared monster now goes through the game's own damage step on the server, so a
 three-phase boss's phases, morphs, immunity and survive phases happen as they should (before, only its HP fell).

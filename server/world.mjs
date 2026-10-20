@@ -23,7 +23,7 @@ const reg = buildRegistry(idx.atlases.map((a) => ({ pack: a.split('/')[0], json:
 
 const SEND_R = 32;                   // a monster is sent to a player within this many tiles
 const SKIP = new Set(['D', 'cds', 'queue', 'kids', 'parent', 'bx', 'ow', 'owOf', 'shieldBy', 'thrallOf', 'cloneOf', 'hit', 'netHitBy', 'netSent', 'lastSent', 'tether', 'kidsOf', 'S', 'mirror',
-  'rfOpenNext', 'rfHeatT', 'rfHeatK', 'rfTrailT', 'rfTT', 'rfA', 'rfHadMins', 'rfLife', 'rfFreed', 'rfPh', 'rfPzT', 'rfPzR', 'rfExpT']);   // (a Realmforge boss's own countdowns: the browser needs only its phase clock, home and immunity)
+  'rfOpenNext', 'rfHeatT', 'rfHeatK', 'rfTrailT', 'rfTT', 'rfA', 'rfHadMins', 'rfLife', 'rfFreed', 'rfPh', 'rfPzT', 'rfPzR', 'rfExpT', 'rfRitT', 'rfSwT']);   // (a Realmforge boss's own countdowns: the browser needs only its phase clock, home and immunity)
 // a monster's state for the wire: its plain fields (numbers, words, flags), not its links to other things
 function plain(o) {
   const out = {};
