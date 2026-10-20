@@ -155,16 +155,18 @@ function fire(g, e, B, bal, em, vol) {
 function phaseRules(g, e, B, bal, dt) {
   const S = e.bx, ph = S.B.phases[S.phase];
   if (!ph || S.state === 'death' || S.state === 'deathhold' || S.state === 'sleep' || S.state === 'intro') return;
-  if (e.rfPh !== S.phase) { e.rfPh = S.phase; e.rfPhT = 0; e.rfFreed = false; e.rfHadMins = false; e.rfOpen = 0; e.rfOpenNext = 6; e.rfHeatT = 0; }
+  if (e.rfPh !== S.phase) { e.rfPh = S.phase; e.rfPhT = 0; e.rfFreed = false; e.rfHadMins = false; e.rfOpen = 0; e.rfOpenNext = 6; e.rfHeatT = 0; e.rfPz = 'combat'; e.rfPzT = 0; e.rfPzR = 0; e.rfExpT = 0; e.rfPlN = 0; e.rfSock = 0; e.rfTx = 0; endPieces(e); }
   if (S.state === 'morph') return;
   e.rfPhT += dt;
   // invulnerable: its minions falling frees it
   const mins = (e.rfMins || []).filter((m) => !m.dead);
   if (mins.length) e.rfHadMins = true;
   if (ph.invuln && !e.rfFreed && e.rfHadMins && !mins.length) { e.rfFreed = true; g.banner(`${e.D.name} is exposed!`, 1800); }
-  // the shield's openings: every 9 s for 4 s (until Aion's own puzzle is here)
-  if (ph.shield && (e.rfOpenNext -= dt) <= 0) { e.rfOpenNext = 9; e.rfOpen = S.t + 4; g.banner('The shield falters!', 1600); }
-  e.rfImm = (ph.invuln && !e.rfFreed) || (ph.shield && !(e.rfOpen > S.t)) || !!ph.rfP.egg || !!ph.rfP.cocoon;   // can it be hurt right now
+  // Aion's still hour: the puzzle that brings the shield down
+  if (ph.rfP.puzzle) puzzleStep(g, e, B, bal, dt, ph.rfP);
+  // a shield with no puzzle: openings every 9 s for 4 s
+  else if (ph.shield && (e.rfOpenNext -= dt) <= 0) { e.rfOpenNext = 9; e.rfOpen = S.t + 4; g.banner('The shield falters!', 1600); }
+  e.rfImm = (ph.invuln && !e.rfFreed) || (ph.shield && !(ph.rfP.puzzle ? e.rfExpT > 0 : e.rfOpen > S.t)) || !!ph.rfP.egg || !!ph.rfP.cocoon;   // can it be hurt right now
   // the trail: it leaves fire where it goes
   if (ph.rfP.trail && (e.rfTrailT = (e.rfTrailT || 0) - dt) <= 0) { e.rfTrailT = 0.25; g.fx.push({ kind: 'scorch', x: e.x, y: e.y + 0.2, r: 0.7, t: 0, life: 2.5, dps: Math.round(100 * bal.bossDmg), tick: 0, by: e.D.name }); }
   // the time limit: on to the next phase (its Life set there), or, the last, the end of the fight
@@ -222,6 +224,9 @@ function arenaRules(g, e, B, bal, dt) {
   const mark = (x, y, r, tele, key) => { const s = B.shots[key] || {}; g.fx.push({ kind: 'zone', x, y, r, t: 0, delay: tele, life: tele + 0.15, dmg: dm(s.dmg || 80), by: e.D.name, done: false, colors: [s.color || '#ff6a4a', '#ffffff'] }); };
   const push = (dx, dy) => g.moveCircle(p, dx, dy, 0.32);
   const outside = (w) => p.x < A.x0 + w || p.x > A.x0 + A.w - w || p.y < A.y0 + w || p.y > A.y0 + A.h - w;
+  // the still hour: its shots hang in the air; the lances, turned by the mirror, end there
+  if (e.rfPz === 'still') { if (!g.timeStop || g.timeStop.rfx) g.timeStop = { x: e.x, y: e.y, r: 40, t: 0.3, rfx: true }; }
+  if (e.rfLanceWin !== Z.lw) { if (Z.lw !== undefined) for (const b of g.projectiles) if (b.rfLance) { b.life = 0; g.fx.push({ kind: 'ring', x: b.x, y: b.y, t: 0, max: 1.2, color: '#ffd650' }); } Z.lw = e.rfLanceWin; }
   // the dark, the sandstorm: you see only round yourself
   if (P.dark || P.sandstorm) { if (!(g.darkUntil > g.t)) g.darkStart = g.t; g.darkUntil = g.t + 0.7; g.darkR = P.dark ? 3.2 : 4.6; g.darkBy = e; }
   if (!live) return;
@@ -307,8 +312,93 @@ function drawArena(r, g, e, B) {
     b.globalAlpha = 0.5 + 0.4 * Math.sin(g.t * 12); b.strokeStyle = '#ffffff'; b.lineWidth = 2; b.setLineDash([6, 5]); b.beginPath(); b.moveTo(x0, y0); b.lineTo(x1, y1); b.stroke(); b.setLineDash([]); b.globalAlpha = 1; } }
   if (P.gavel) { const c = L % P.gavel.every; if (c >= P.gavel.every - P.gavel.warn) circle(e.x, e.y, 3 + Math.sin(g.t * 14) * 0.2, '#ff5a4a', 0.6, true); }
   if (P.timestop && g.timeStop && g.timeStop.rfx) circle(e.x, e.y, 3.2, '#fff0b0', 0.4, true);
+  // Aion's still hour: the runes (numbered in order, lit when stepped on), the sundial's socket, the mirror's mark
+  if (e.rfPlN) { const ord = String(e.rfOrd || '').split('').map(Number);
+    for (let i = 0; i < e.rfPlN; i++) { const pl = plateAt(A, i), lit = ord.indexOf(i) < (e.rfNext || 0), [sx, sy] = r.proj(pl.x, pl.y);
+      circle(pl.x, pl.y, 0.7, lit ? '#ffd650' : '#8a7ad0', lit ? 0.6 : 0.35); circle(pl.x, pl.y, 0.7, '#fff6c8', 0.7, true);
+      b.fillStyle = '#ffffff'; b.font = '12px monospace'; b.textAlign = 'center'; b.fillText(['I', 'II', 'III', 'IV', 'V'][ord.indexOf(i)] || '', sx, sy + 4); } }
+  if (e.rfSock) { const S0 = socketAt(A); circle(S0.x, S0.y, 0.8, '#ffd650', 0.8, true); circle(S0.x, S0.y, 0.5, '#3a2a10', 0.5); }
+  if (e.rfTx) { circle(e.rfTx, e.rfTy, 0.7, '#ffd650', 0.5); circle(e.rfTx, e.rfTy, 0.7, '#ffffff', 0.8, true); }
   if (P.spotlight && g.rfZ && g.rfZ.e === e && g.rfZ.spot) circle(g.rfZ.spot.x, g.rfZ.spot.y, P.spotlight.r, '#fff6c8', 0.25);
 }
+// ---- Aion's still hour (puzzle phases), on the server: time stops for everyone; the pieces are creatures the server
+// owns (crystals to shatter, the Sun Disc and the Hand Mirror to push: any player walking into them moves them), the
+// runes are places on the floor; solved, the shield falls for a while and the hour bites its Life; failed, it bursts
+function objKind(B, key, hp) {
+  const id = `rfz_${B.id}_${key}`, s = B.shots[key] || {};
+  if (!ENEMIES[id]) ENEMIES[id] = { name: s.name || key, biome: 'dungeon', hp, def: 0, speed: 0, xp: 0, r: 0.5, ai: 'rooted', aggro: 0, reg: `rfx_shots/${B.id}.${key}`, scale: 2.5, contact: 0, attacks: [], loot: [] };
+  return id;
+}
+const PLATES = [[0.27, 0.46], [0.73, 0.46], [0.27, 0.84], [0.73, 0.84], [0.5, 0.66]];
+const plateAt = (A, i) => ({ x: A.x0 + PLATES[i][0] * A.w, y: A.y0 + PLATES[i][1] * A.h });
+const socketAt = (A) => ({ x: A.x0 + A.w / 2, y: A.y0 + A.h * 0.66 });
+function puzzleStep(g, e, B, bal, dt, P) {
+  const Z = P.puzzle, A = box(e, B), who = g.netTargets && g.netTargets.length ? g.netTargets : [g.player];
+  const O = e.rfPzO, sand = (x, y, n) => { const s = B.shots.sand || {}; for (let k = 0; k < n; k++) g.shoot('e', x, y, (k * TAU) / n, s.speed || 5, s.range || 7, Math.round((s.dmg || 60) * bal.bossDmg), `rfx_shots/${B.id}.sand`, 0.35, false, e.D.name); };
+  const piece = (key, x, y, hp, hard) => { const m = g.addEnemy(objKind(B, key, hp), x, y); m.seen = true; m.noLoot = true; m.rfPiece = true; if (hard) m.invulnT = 99; e.rfPzO.objs.push(m); return m; };
+  const spot = (minP, minB) => { let x = 0, y = 0; for (let k = 0; k < 30; k++) { x = A.x0 + rnd(0.1, 0.9) * A.w; y = A.y0 + rnd(0.2, 0.88) * A.h; if (who.every((q) => Math.hypot(x - q.x, y - q.y) > minP) && Math.hypot(x - e.x, y - e.y) > minB && !(g.map && g.blocked && g.blocked(x, y))) break; } return { x, y }; };
+  e.rfPzT = (e.rfPzT || 0) + dt;
+  if (e.rfExpT > 0) e.rfExpT -= dt;
+  if (e.rfPz !== 'still') {
+    if (e.rfPzT < Z.combat) return;
+    // time stops
+    const r = e.rfPzR || 0, kind = Z.kind, want = (k) => kind === k || (kind === 'combo' && (k === 'crystals' || k === 'sequence'));
+    const o = (e.rfPzO = { kind, objs: [] });
+    e.rfPz = 'still'; e.rfPzT = 0; e.rfPlN = 0; e.rfSock = 0; e.rfTx = 0; e.rfTy = 0;
+    if (want('crystals')) { o.crystals = []; for (let k = 0; k < Math.min(5, (Z.n || 3) + r); k++) { const s = spot(4, 3); o.crystals.push(piece('crystal', s.x, s.y, Math.round(480 * Math.max(1, bal.bossHp / 3)))); } }
+    if (want('sequence')) { const n = Math.min(5, (Z.n || 3) + r), ord = [...Array(n).keys()].sort(() => Math.random() - 0.5); e.rfPlN = n; e.rfOrd = ord.join(''); e.rfNext = 0; o.fail = false; }
+    if (kind === 'sundial') { const S0 = socketAt(A); e.rfSock = 1; let s = spot(2, 4); for (let k = 0; k < 20 && Math.hypot(s.x - S0.x, s.y - S0.y) < 4 + r; k++) s = spot(2, 4); o.disc = piece('sundisc', s.x, s.y, 9999, true); }
+    if (kind === 'redirect') {
+      const q = who.reduce((a, b) => (Math.hypot(b.x - e.x, b.y - e.y) < Math.hypot(a.x - e.x, a.y - e.y) ? b : a)), a = Math.atan2(q.y - e.y, q.x - e.x), s = B.shots.lance || {};
+      o.lance = true;
+      for (let k = 0; k < 5; k++) { const d = 2 + k * 0.9, b = g.shoot('e', e.x + Math.cos(a) * d, e.y + Math.sin(a) * d, a, s.speed || 7, s.range || 14, Math.round((s.dmg || 110) * bal.bossDmg), `rfx_shots/${B.id}.lance`, 0.4, false, e.D.name); if (b) b.rfLance = 1; }
+      const far = 2 + 5 * 0.9 + 1.6; e.rfTx = e.x + Math.cos(a) * far; e.rfTy = e.y + Math.sin(a) * far;
+      const m = spot(2.5, 3); o.mirror = piece('tmirror', m.x, m.y, 9999, true);
+    }
+    g.banner(Z.say || 'TIME STOPS.', 3000);
+    return;
+  }
+  // the still hour: the runes underfoot, the pieces pushed
+  if (e.rfPlN && !o_fail(O)) {
+    const ord = e.rfOrd.split('').map(Number);
+    for (const q of who) for (let i = 0; i < e.rfPlN; i++) {
+      if (ord.indexOf(i) < e.rfNext) continue;
+      const pl = plateAt(A, i); if (Math.hypot(q.x - pl.x, q.y - pl.y) > 0.7) continue;
+      if (i === ord[e.rfNext]) { e.rfNext++; g.fx.push({ kind: 'ring', x: pl.x, y: pl.y, t: 0, max: 1.6, color: '#ffd650' }); }
+      else { O.fail = true; g.banner('Wrong rune. The sequence breaks.', 2000); }
+      break;
+    }
+  }
+  for (const m of [O.disc, O.mirror]) {
+    if (!m || m.dead || m.rfDocked) continue;
+    m.invulnT = 99;
+    for (const q of who) { const dx = m.x - q.x, dy = m.y - q.y, d = Math.hypot(dx, dy); if (d < 0.95 && d > 0.01) g.moveCircle(m, (dx / d) * (0.95 - d), (dy / d) * (0.95 - d), 0.4); }
+    m.x = Math.max(A.x0 + 1, Math.min(A.x0 + A.w - 1, m.x)); m.y = Math.max(A.y0 + 1, Math.min(A.y0 + A.h - 1, m.y));
+  }
+  if (O.disc && !O.disc.rfDocked) { const S0 = socketAt(A); if (Math.hypot(O.disc.x - S0.x, O.disc.y - S0.y) < 0.8) { O.disc.rfDocked = true; O.disc.x = S0.x; O.disc.y = S0.y; } }
+  const done = (!O.crystals || O.crystals.every((c) => c.dead)) && (!e.rfPlN || e.rfNext >= e.rfPlN) && (!O.disc || O.disc.rfDocked) && (!O.mirror || Math.hypot(O.mirror.x - e.rfTx, O.mirror.y - e.rfTy) < 0.7);
+  const failed = e.rfPlN && O.fail;
+  if (!(e.rfPzT >= Z.still || (done && e.rfPzT > 0.6) || (failed && !O.crystals))) return;
+  // time resumes
+  const ok = done && !failed, r = e.rfPzR || 0;
+  e.rfPz = 'combat'; e.rfPzT = 0; e.rfPzR = r + 1;
+  if (ok) {
+    e.rfExpT = 5; e.rfImm = false;
+    if (O.mirror) e.rfLanceWin = (e.rfLanceWin || 0) + 1;      // (the lances turn on their maker: each browser ends them at the mirror)
+    if (O.disc) g.fx.push({ kind: 'laser', x0: O.disc.x, y0: O.disc.y, a: Math.atan2(e.y - O.disc.y, e.x - O.disc.x), len: Math.hypot(e.x - O.disc.x, e.y - O.disc.y), t: 0, tele: 0.05, act: 0.6, life: 0.7, dmg: 0, by: 'the sun', hit: true });
+    g.banner(Z.win || 'Solved. Aion is exposed!', 2600);
+    e.netRawHit = true; try { g.damageEnemy(e, Math.round(e.maxHp * (5 + r) / 100), e.x, e.y, true); } finally { e.netRawHit = false; }
+  } else {
+    g.banner(Z.lose || 'The hour turns against you.', 2600);
+    for (const c of O.crystals || []) if (!c.dead) sand(c.x, c.y, 12);
+    if (e.rfPlN) { const s = B.shots.rune || {}; for (let i = 0; i < e.rfPlN; i++) { const pl = plateAt(A, i); g.fx.push({ kind: 'zone', x: pl.x, y: pl.y, r: 1.4, t: 0, delay: 0.8, life: 0.95, dmg: Math.round((s.dmg || 100) * bal.bossDmg), by: e.D.name, done: false, colors: ['#ffd650', '#ffffff'] }); } }
+    if (O.disc && !O.disc.rfDocked) sand(O.disc.x, O.disc.y, 16);
+  }
+  endPieces(e);
+  e.rfPlN = 0; e.rfSock = 0; e.rfTx = 0; e.rfTy = 0;
+}
+const o_fail = (O) => !!(O && O.fail);
+function endPieces(e) { for (const m of (e.rfPzO && e.rfPzO.objs) || []) if (!m.dead) { m.noLoot = true; m.dead = true; m.deadT = 0; } e.rfPzO = null; }
 // the kinds this translates (the rest wait for their boss's specials)
 const KINDS = new Set(['aim', 'ring', 'spiral', 'aoe', 'minion', 'laser', 'rain', 'wall', 'lines', 'implode', 'converge', 'flock', 'nova', 'beam', 'drop', 'spray', 'bolas', 'ahead', 'orbit', 'cloud', 'rift', 'wildfire', 'hedge', 'warp', 'seq']);
 // minions' own life: a life span, a burst when they fall (every frame, from the boss's update)
@@ -342,7 +432,8 @@ export function rfBossToBX(DATA, B) {
       const S = e.bx, R = S.rfEm;
       tickMinions(g, e, B, bal, dt);
       phaseRules(g, e, B, bal, dt);
-      if (S.state === 'death' || S.state === 'deathhold') for (const m of e.rfMins || []) if (!m.dead) { m.noLoot = true; m.dead = true; m.deadT = 0; }   // (its creatures go with it)
+      if (S.state === 'death' || S.state === 'deathhold') { for (const m of e.rfMins || []) if (!m.dead) { m.noLoot = true; m.dead = true; m.deadT = 0; } endPieces(e); }   // (its creatures go with it)
+      if (e.rfPz === 'still') return;                              // (time stopped: it waits too)
       if (!R || S.t > R.until || S.state === 'morph' || S.state === 'death' || S.state === 'deathhold') return;
       const hot = S.B.phases[S.phase] && S.B.phases[S.phase].rage ? 0.8 : 1;   // (rage: a quarter faster)
       for (const q of R.list) if ((q.t -= dt) <= 0) { q.t = (q.em.e || (q.em.t === 'minion' ? 1e9 : 1.5)) * hot; fire(g, e, B, bal, q.em, q.vol++); }
@@ -373,3 +464,4 @@ export function addRfBosses(DATA) {
   for (const B of DATA.bosses || []) BX[`rfx_${B.id}`] = rfBossToBX(DATA, B);
   return Object.keys(BX).filter((k) => k.startsWith('rfx_')).length;
 }
+export { plateAt as rfPlateAt, socketAt as rfSocketAt, box as rfBox };   // (for tests)
