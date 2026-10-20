@@ -2216,7 +2216,7 @@ export class Game {
       if (!quiet) this.float(x, y - 0.8, 'REFLECTED', '#ffffff');
       return 0;
     }
-    let d = mitigate(dmg, e.D ? e.D.def : BOSS.def, false);
+    let d = e.netRawHit ? Math.round(dmg) : mitigate(dmg, e.D ? e.D.def : BOSS.def, false);   // (a player's blow on the server: Defense already taken off)
     const SV = e.rb && !e.survived && e.D.phases && e.D.phases.find((ph) => ph.survive);
     if (SV && e.hp - d <= e.maxHp * SV.at) {                 // the last of its life: it refuses to die, and you must survive it
       d = Math.max(0, Math.round(e.hp - e.maxHp * SV.at));

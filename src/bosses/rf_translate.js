@@ -3,11 +3,18 @@
 // "75–55%"); in it the boss moves their way (mv) and runs their emitters (em) on their own clocks, as their engine did:
 //   aim     n shots in a spread of sp degrees at you        ring    n round, turned rot degrees each time (from 12 up,
 //   spiral  arms stepping step degrees each time                    a two-shot gap near you)
-//   aoe     a marked circle that bursts where you stand     other kinds: still to come (docs/multiplayer.md)
+//   aoe     marked circles: where you stand, a line toward you, rings going out, a grid of lanes with a gap
+//   minion  its own creatures (their art, their shot, a life span, a burst when they fall), up to a number
+//   laser   a marked line that burns: at you, crossed through you, or swept
+//   and the rest of their kinds as close as our shots and hazards allow (rain, walls, lines, implosions, converging,
+//   flocks, novas, beams, drops, sprays, bolas, ahead-of-you marks, sequences, clouds, rifts, hedges, wildfire).
+//   Still their engine's alone: chess boards, music staves, a worm's segments, beams that follow a laser (specials).
+// Their arena-wide patterns use a box the size of their arena (B.room) round the place the boss rose.
 // Their art: tools/rf_build_bx.py (sheet 'bx_rf_<id>', shots 'rfx_shots/<boss>.<shot>'). Their numbers: their dungeon's
 // band (src/rf/balance.js), as their own engine had them. Each becomes BX['rfx_<id>'].
 import { BX } from './index.js';
 import { bandOfBoss } from '../rf/balance.js';
+import { ENEMIES } from '../data/enemies.js';
 
 const D2R = Math.PI / 180, TAU = Math.PI * 2;
 // "100–75%" -> 1, "75–55%" -> 0.75 (the Life at which the phase begins)
@@ -32,12 +39,35 @@ function moves() {
 const MOVE_OF = { middle: 'rf_center', center: 'rf_center', chase: 'rf_chase', strafe: 'rf_strafe', orbit: 'rf_orbit', wander: 'rf_wander', fig8: 'rf_fig8',
   aisle: 'rf_strafe', mirror: 'rf_strafe', charge: 'rf_chase', dash: 'rf_chase', gravehop: 'rf_wander', worm: 'rf_wander', burrow: 'rf_wander', teleport: 'rf_wander', swap: 'rf_center', leap: 'rf_chase', dive: 'rf_chase' };
 
+// the arena-sized box round the place it rose (their arena's columns and rows)
+function box(e, B) {
+  const H = e.rfHome || (e.rfHome = { x: e.x, y: e.y }), map = (B.room && B.room.map) || [];
+  const w = Math.max(14, Math.min(26, (map[0] || '').length || 18)), h = Math.max(10, Math.min(20, map.length || 14));
+  return { x0: H.x - w / 2, y0: H.y - h / 2, w, h };
+}
+const rnd = (a, b) => a + Math.random() * (b - a);
+// their minions as our monsters: one kind per boss and shot, made the first time it is called for
+function minionKind(B, bal, key, em) {
+  const id = `rfm_${B.id}_${key}`, s = B.shots[key] || {};
+  if (ENEMIES[id]) return id;
+  const q = /\(([\d,]+) HP\)/.exec(s.how || ''), hp = Math.round((q ? +q[1].replace(/,/g, '') : 600) * bal.bossHp * 0.6);
+  const sh = em.shoot && B.shots[em.shoot.s];
+  ENEMIES[id] = { name: s.name || 'Minion', biome: 'dungeon', hp, def: 0, speed: em.behave === 'trap' ? 0 : Math.min(4, (em.spd || 1.2) * 1.4), xp: 0, r: 0.45,
+    ai: em.behave === 'trap' ? 'rooted' : 'shamble', aggro: 40, reg: `rfx_shots/${B.id}.${key}`, scale: 2, contact: em.behave === 'chase' && !em.shoot ? Math.round(60 * bal.bossDmg) : 0,
+    attacks: sh ? [{ pattern: 'aimed', proj: `rfx_shots/${B.id}.${em.shoot.s}`, count: em.shoot.n || 1, arc: 0.3, dmg: Math.round((sh.dmg || 50) * bal.bossDmg), speed: sh.speed || 5, range: sh.range || 7, cd: em.shoot.e || 2, tell: 300 }] : [],
+    loot: [] };
+  return id;
+}
+
 // one emitter firing: their shot, our projectile
 function fire(g, e, B, bal, em, vol) {
-  const s = B.shots[em.s];
-  if (!s) return;
-  const p = g.player, [ox, oy] = g.bxOrigin(e), aim = Math.atan2(p.y - 0.4 - oy, p.x - ox);
-  const shot = (a) => g.shoot('e', ox, oy, a, s.speed || 5, s.range || 8, Math.round((s.dmg || 60) * bal.bossDmg), `rfx_shots/${B.id}.${em.s}`, 0.35, false, e.D.name);
+  const s = B.shots[em.s] || {};
+  if (em.t === 'seq') { const st = em.steps && em.steps[vol % em.steps.length]; if (st) fire(g, e, B, bal, st, vol); return; }   // their steps, one a beat
+  if (!B.shots[em.s] && em.t !== 'minion') return;
+  const p = g.player, [ox, oy] = g.bxOrigin(e), aim = Math.atan2(p.y - 0.4 - oy, p.x - ox), A = box(e, B), dmg = Math.round((s.dmg || 60) * bal.bossDmg);
+  const shot = (a, x = ox, y = oy, sp = s.speed || 5, rg = s.range || 8) => g.shoot('e', x, y, a, sp, rg, dmg, `rfx_shots/${B.id}.${em.s}`, 0.35, false, e.D.name);
+  const zone = (x, y, r, delay) => g.fx.push({ kind: 'zone', x, y, r, t: 0, delay, life: delay + 0.15, dmg: Math.round((s.dmg || 80) * bal.bossDmg), by: e.D.name, done: false, colors: [s.color || '#ff6a4a', '#ffffff'] });
+  const laser = (x0, y0, a, len, tele, act) => g.fx.push({ kind: 'laser', x0, y0, a, len, t: 0, tele, act, life: tele + act + 0.1, dmg: Math.round((s.dmg || 90) * bal.bossDmg), by: e.D.name, hit: false });
   if (em.t === 'aim') { const n = em.n || 1, sp = (em.sp || 0) * D2R; for (let i = 0; i < n; i++) shot(aim + (n > 1 ? -sp / 2 + (sp * i) / (n - 1) : 0)); }
   else if (em.t === 'ring') {
     const n = em.n || 8, off = vol * (em.rot || 0) * D2R;
@@ -46,8 +76,65 @@ function fire(g, e, B, bal, em, vol) {
     for (let i = 0; i < n; i++) if (i !== g0 && i !== (g0 + 1) % n) shot(off + (i * TAU) / n);
   } else if (em.t === 'spiral') { const arms = em.arms || 1, off = vol * (em.step || 10) * D2R; for (let i = 0; i < arms; i++) shot(off + (i * TAU) / arms); }
   else if (em.t === 'aoe') {
-    const r = em.r || 2, at = em.at === 'self' ? { x: e.x, y: e.y } : { x: p.x, y: p.y };
-    g.fx.push({ kind: 'zone', x: at.x, y: at.y, r, t: 0, delay: em.delay || 1, life: (em.delay || 1) + 0.15, dmg: Math.round((s.dmg || 80) * bal.bossDmg), by: e.D.name, done: false, colors: [s.color || '#ff6a4a', '#ffffff'] });
+    const r = em.r || 1.2, tele = em.tele || em.delay || 0.8;
+    if (em.at === 'line') for (let k = 1; k <= (em.n || 6); k++) zone(e.x + Math.cos(aim) * k * 1.3, e.y + Math.sin(aim) * k * 1.3, r, tele + k * 0.12);
+    else if (em.at === 'ringout') for (let k = 1; k <= (em.n || 3); k++) { const m = 4 + k * 2; for (let j = 0; j < m; j++) { const a = (j * TAU) / m + k * 0.5 + vol * 0.4; zone(e.x + Math.cos(a) * k * 2.8, e.y + Math.sin(a) * k * 2.5, r, tele + (k - 1) * 0.45); } }
+    else if (em.at === 'trap') { const horiz = vol % 2 === 0, n = Math.ceil((horiz ? A.w : A.h) / 2), pc = Math.floor(((horiz ? p.x - A.x0 : p.y - A.y0)) / 2), g0 = Math.max(0, Math.min(n - 2, pc + Math.floor(Math.random() * 3) - 1));
+      for (let k = 0; k < n; k++) { if (k === g0 || k === g0 + 1) continue; const c = k * 2 + 1; zone(horiz ? A.x0 + c : p.x, horiz ? p.y : A.y0 + c, 0.9, tele); } }
+    else { const at = em.at === 'self' ? { x: e.x, y: e.y } : { x: p.x, y: p.y }; for (let k = 0; k < (em.n || 1); k++) zone(at.x + (k ? rnd(-2, 2) : 0), at.y + (k ? rnd(-2, 2) : 0), em.r || 2, tele); }
+  }
+  else if (em.t === 'minion') {                                  // their creatures
+    const id = minionKind(B, bal, em.s, em), mine = (e.rfMins = (e.rfMins || []).filter((m) => !m.dead));
+    if (em.max && mine.length >= em.max) return;
+    for (let k = 0; k < (em.n || 1); k++) {
+      const pl = em.place || 'boss', c = [[0.12, 0.15], [0.88, 0.15], [0.12, 0.85], [0.88, 0.85]][k % 4], d = [[0.06, 0.5], [0.94, 0.5], [0.5, 0.08], [0.5, 0.94]][k % 4];
+      let x = e.x + rnd(-1.5, 1.5), y = e.y + rnd(-1.5, 1.5);
+      if (pl === 'corners') { x = A.x0 + A.w * c[0]; y = A.y0 + A.h * c[1]; } else if (pl === 'edges') { x = A.x0 + A.w * d[0]; y = A.y0 + A.h * d[1]; }
+      else if (pl === 'ring') { const a = (k * TAU) / (em.n || 1) + 0.4; x = A.x0 + A.w / 2 + Math.cos(a) * 6; y = A.y0 + A.h * 0.48 + Math.sin(a) * 4.2; }
+      else if (pl === 'random') { x = A.x0 + rnd(0.15, 0.85) * A.w; y = A.y0 + rnd(0.2, 0.85) * A.h; } else if (pl === 'top') { x = A.x0 + A.w * (0.2 + 0.3 * k); y = A.y0 + A.h * 0.1; }
+      const m = g.addEnemy(id, x, y);
+      m.seen = true; m.aggro = true; m.noLoot = true; m.rfLife = em.life || 0; m.rfBurst = em.burst ? { s: em.burst.s, n: em.burst.n || 6 } : null; m.rfOf = e;
+      mine.push(m);
+    }
+  }
+  else if (em.t === 'laser') {
+    const tele = em.tele || 0.8, act = Math.min(1.2, em.dur || 0.5), L = Math.max(A.w, A.h) + 6;
+    if (em.at === 'cross') for (const sg of [-1, 1]) { const a = (Math.PI / 4) * sg + Math.PI / 2; laser(p.x - Math.cos(a) * L / 2, p.y - Math.sin(a) * L / 2, a, L, tele, act); }
+    else if (em.at === 'sweep' || em.at === 'pendulum') for (let k = 0; k < 3; k++) laser(ox, oy, aim + (k - 1) * 0.35 + Math.sin(vol) * 0.4, L, tele + k * 0.35, act);
+    else laser(ox, oy, aim, L, tele, act);
+  }
+  else if (em.t === 'rain') { const ang = (90 - (em.angle || 0)) * D2R; for (let k = 0; k < (em.n || 1); k++) shot(ang, A.x0 + rnd(0.05, 0.95) * A.w, A.y0 - 0.5, s.speed || 5, A.h + 2); }
+  else if (em.t === 'wall') { const gap = em.gap || 3, gx = Math.max(A.x0 + 1, Math.min(A.x0 + A.w - gap - 1, p.x - gap / 2 + (vol % 2 ? 2 : -2) * (em.alt ? 1 : 0)));
+    for (let x = A.x0 + 0.5; x < A.x0 + A.w; x += 0.85) { if (x > gx && x < gx + gap) continue; shot(Math.PI / 2, x, A.y0 - 0.5, s.speed || 4, A.h + 2); } }
+  else if (em.t === 'lines') {
+    if (em.at === 'grid') { const sp = em.sp || 2.4, vert = vol % 2 === 0, n = Math.floor((vert ? A.w : A.h) / sp), pc = Math.floor(((vert ? p.x - A.x0 : p.y - A.y0)) / sp);
+      for (let k = 0; k <= n; k++) { if (k === pc) continue; const c = k * sp + sp / 2; if (vert) laser(A.x0 + c, A.y0, Math.PI / 2, A.h, em.tele || 1, 0.5); else laser(A.x0, A.y0 + c, 0, A.w, em.tele || 1, 0.5); } }
+    else { const pts = Array.from({ length: em.n || 4 }, () => ({ x: A.x0 + rnd(0.1, 0.9) * A.w, y: A.y0 + rnd(0.1, 0.9) * A.h }));
+      for (let k = 0; k + 1 < pts.length; k++) { const a = pts[k], b = pts[k + 1]; laser(a.x, a.y, Math.atan2(b.y - a.y, b.x - a.x), Math.hypot(b.x - a.x, b.y - a.y), em.tele || 1, Math.min(1, em.dur || 0.6)); } }
+  }
+  else if (em.t === 'implode') { const n = em.n || 12, r = em.r || 9, off = vol * 7 * D2R; for (let i = 0; i < n; i++) { const a = off + (i * TAU) / n; shot(a + Math.PI, e.x + Math.cos(a) * r, e.y + Math.sin(a) * r, Math.max(2, s.speed || 5), r + 0.5); } }
+  else if (em.t === 'converge') { const n = em.n || 6, r = em.r || 5; zone(p.x, p.y, 1.2, em.tele || 1.5); for (let i = 0; i < n; i++) { const a = (i * TAU) / n; shot(a + Math.PI, p.x + Math.cos(a) * r, p.y + Math.sin(a) * r, r / ((em.tele || 1.5) + 0.3), r + 1); } }
+  else if (em.t === 'flock') { const n = em.n || 7, left = Math.random() < 0.5, y0 = Math.max(A.y0 + 2, Math.min(A.y0 + A.h - 2, p.y + rnd(-1.5, 1.5))), mid = (n - 1) / 2;
+    for (let k = 0; k < n; k++) shot(left ? 0 : Math.PI, left ? A.x0 - Math.abs(k - mid) * 0.8 : A.x0 + A.w + Math.abs(k - mid) * 0.8, y0 + (k - mid) * 0.7, s.speed || 5, A.w + 4); }
+  else if (em.t === 'nova') { const n = 28, gap = (em.gap || 40) * D2R, ga = aim + rnd(-0.3, 0.3); for (let i = 0; i < n; i++) { const a = (i * TAU) / n; if (Math.abs(Math.atan2(Math.sin(a - ga), Math.cos(a - ga))) < gap / 2) continue; shot(a, ox, oy, em.speed || 6); } }
+  else if (em.t === 'beam') { const arms = em.arms || 1, off = g.t * (em.sweep || 30) * D2R; for (let i = 0; i < arms; i++) shot(off + (i * TAU) / arms); }
+  else if (em.t === 'drop') shot(rnd(0, TAU), ox + rnd(-0.4, 0.4), oy + rnd(-0.4, 0.4));
+  else if (em.t === 'spray') shot(aim + Math.sin(g.t * (em.w || 2.2)) * (em.arc || 60) * D2R);
+  else if (em.t === 'bolas') { const n = em.n || 1; for (let k = 0; k < n; k++) shot(aim + (k - (n - 1) / 2) * 0.25); }
+  else if (em.t === 'ahead') { const v = g.player.vel || { x: 0, y: 0 }, sp = Math.hypot(v.x || 0, v.y || 0); const ux = sp > 0.8 ? v.x / sp : Math.cos(aim), uy = sp > 0.8 ? v.y / sp : Math.sin(aim); for (let k = 1; k <= (em.n || 3); k++) zone(p.x + ux * k * 1.6, p.y + uy * k * 1.6, 1, (em.tele || 0.7) + k * 0.1); }
+  else if (em.t === 'orbit') { const n = em.n || 4, r = em.r || 2; for (let i = 0; i < n; i++) { const a = g.t * 1.6 + (i * TAU) / n; shot(a + Math.PI / 2, e.x + Math.cos(a) * r, e.y + Math.sin(a) * r, 3, 4); } }
+  else if (em.t === 'cloud' || em.t === 'rift' || em.t === 'wildfire') { for (let k = 0; k < (em.n || 1); k++) { let x = p.x, y = p.y; for (let j = 0; j < 12; j++) { x = A.x0 + rnd(0.1, 0.9) * A.w; y = A.y0 + rnd(0.15, 0.9) * A.h; if (Math.hypot(x - p.x, y - p.y) > (em.t === 'wildfire' ? 0 : 2.2) && Math.hypot(x - p.x, y - p.y) < (em.t === 'wildfire' ? 5.5 : 99)) break; } zone(x, y, em.r || (em.t === 'rift' ? 2.5 : 1.6), em.t === 'rift' ? 1.4 : 1); } }
+  else if (em.t === 'hedge') { for (let k = 0; k < (em.n || 2); k++) { const y = A.y0 + rnd(0.35, 0.92) * A.h, g0 = A.x0 + rnd(0.1, 0.7) * A.w;
+    for (const [x, len] of [[A.x0, g0 - A.x0], [g0 + 3, A.x0 + A.w - g0 - 3]]) if (len > 0.5) g.fx.push({ kind: 'lane', x, y, a: 0, len, w: 0.45, delay: 0.8, t: 0, life: 0.8 + (em.life || 4), dmg: Math.round((s.dmg || 60) * bal.bossDmg), by: e.D.name, hitT: 0 }); } }
+  else if (em.t === 'warp') { const n = em.n || 6; for (let k = 0; k < n; k++) { const a = (k * TAU) / n + rnd(-0.2, 0.2), r = 7; shot(a + Math.PI, p.x + Math.cos(a) * r, p.y + Math.sin(a) * r, s.speed || 5, r + 2); } }
+}
+// the kinds this translates (the rest wait for their boss's specials)
+const KINDS = new Set(['aim', 'ring', 'spiral', 'aoe', 'minion', 'laser', 'rain', 'wall', 'lines', 'implode', 'converge', 'flock', 'nova', 'beam', 'drop', 'spray', 'bolas', 'ahead', 'orbit', 'cloud', 'rift', 'wildfire', 'hedge', 'warp', 'seq']);
+// minions' own life: a life span, a burst when they fall (every frame, from the boss's update)
+function tickMinions(g, e, B, bal, dt) {
+  for (const m of e.rfMins || []) {
+    if (!m.dead && m.rfLife > 0 && (m.rfLife -= dt) <= 0) { m.noLoot = true; g.damageEnemy(m, 1e9, m.x, m.y, true); }
+    if (m.dead && m.rfBurst && !m.rfBurst.done) { m.rfBurst.done = true; const s = B.shots[m.rfBurst.s]; if (s) for (let k = 0; k < m.rfBurst.n; k++) g.shoot('e', m.x, m.y - 0.3, (k * TAU) / m.rfBurst.n, s.speed || 5, s.range || 6, Math.round((s.dmg || 50) * bal.bossDmg), `rfx_shots/${B.id}.${m.rfBurst.s}`, 0.35, false, e.D.name); }
   }
 }
 
@@ -57,7 +144,7 @@ export function rfBossToBX(DATA, B) {
   const phases = {}, thresholds = [];
   P.forEach((ph, i) => {
     if (i) thresholds.push(Math.min(0.99, startOf(ph.hp)));
-    phases[i + 1] = { move: MOVE_OF[ph.mv && ph.mv.m] || 'rf_center', rfMv: ph.mv, rfEm: (ph.em || []).filter((em) => ['aim', 'ring', 'spiral', 'aoe'].includes(em.t)),
+    phases[i + 1] = { move: MOVE_OF[ph.mv && ph.mv.m] || 'rf_center', rfMv: ph.mv, rfEm: (ph.em || []).filter((em) => KINDS.has(em.t)),
       patterns: [{ name: ph.name, windup: 0.4, recover: 5.5, volleys: [{ form: 'special', name: 'rfEmit' }] }] };
   });
   const T2 = [bal.tiers[0] + 1, bal.tiers[1] + 1];
@@ -71,8 +158,10 @@ export function rfBossToBX(DATA, B) {
     },
     update(g, e, dt) {
       const S = e.bx, R = S.rfEm;
+      tickMinions(g, e, B, bal, dt);
+      if (S.state === 'death' || S.state === 'deathhold') for (const m of e.rfMins || []) if (!m.dead) { m.noLoot = true; m.dead = true; m.deadT = 0; }   // (its creatures go with it)
       if (!R || S.t > R.until || S.state === 'morph' || S.state === 'death' || S.state === 'deathhold') return;
-      for (const q of R.list) if ((q.t -= dt) <= 0) { q.t = q.em.e || 1.5; fire(g, e, B, bal, q.em, q.vol++); }
+      for (const q of R.list) if ((q.t -= dt) <= 0) { q.t = q.em.e || (q.em.t === 'minion' ? 1e9 : 1.5); fire(g, e, B, bal, q.em, q.vol++); }
     },
     loot: [...(B.drops || []).map((d) => ({ id: `rf_${d.id}`, p: d.rarity === 'mythic' ? 0.02 : d.rarity === 'legendary' ? 0.08 : 0.2 })),
       { slot: 'weapon', tiers: T2, p: 0.8 }, { slot: 'armor', tiers: T2, p: 0.8 }, { slot: 'ring', tiers: [1, 3], p: 0.5 }, { slot: 'ability', tiers: [3, 5], p: 0.5 }, { stat: true, p: 0.6 }, { id: 'pot_hp', p: 1 }],

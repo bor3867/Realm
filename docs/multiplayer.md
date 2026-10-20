@@ -59,10 +59,14 @@ Testing locally without Supabase: `DB=file` keeps accounts in server/.data/db.js
 Every boss is moving onto the three-phase engine (src/bossx.js); the rf_ dungeons keep their own engine for the
 exploring (rooms, puzzles, traps). The 24 Realmforge bosses are translated from their data at load time
 (src/bosses/rf_translate.js; art: tools/rf_build_bx.py): each of their phases with its Life, movement and emitters.
-Done: aim, ring, spiral and aoe emitters (most of every fight), their movement styles, their art and shots, their
-loot. Admin: /bx rfx_<id> (rfx_mortis ...). Next: their other emitters (minions, lasers, beams, rain, walls ...), the
-bespoke boss mechanics (shields, clones, puzzles inside the fight ...), their arenas as our maps (shared on the server),
-and the rf_ dungeons' boss doors leading to them; then the older realm and dungeon bosses moved across.
+Done: 25 of their 30 emitter kinds (aim, ring, spiral, aoe in its four shapes, minions with their own art, shot, life
+span and burst, lasers, rain, walls, lines, implosions, converging, flocks, novas, beams, drops, sprays, bolas, orbits,
+clouds, rifts, wildfire, hedges, warps, sequences, ahead-of-you), their movement styles, art, shots and loot. Admin:
+/bx rfx_<id>. Left to their specials: chess boards, music staves, a worm's segments, beams that follow a laser.
+Next: the bespoke boss mechanics (shields, clones, puzzles inside the fight ...), their arenas as our maps (shared),
+the rf_ dungeons' boss doors leading to them; then the older realm and dungeon bosses moved across.
+Fixed on the way: a player's blow on a shared monster now goes through the game's own damage step on the server, so a
+three-phase boss's phases, morphs, immunity and survive phases happen as they should (before, only its HP fell).
 
 ## Not shared yet
 - The rf_ dungeons: a shared portal puts everyone in the same layout (one seed) and they see each other, but each

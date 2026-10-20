@@ -169,8 +169,10 @@ export function makeWorld(seed, send, where = 'realm') {
       d = allowHit(q, d);                                           // (nor more than a player can deal: server/guard.mjs)
       if (!(d > 0)) return;
       (e.netHitBy || (e.netHitBy = new Set())).add(id);
-      e.hp -= d;
-      if (e.hp <= 0) { g.player = q; try { e.hp = 1; g.damageEnemy(e, 1e9, e.x, e.y, true); } finally { g.player = anchor; } }
+      // through the game's own damage step (immunity, a three-phase boss's phases and morphs, survive phases, its death),
+      // as that player; their browser already took the Defense off
+      g.player = q; e.netRawHit = true;
+      try { g.damageEnemy(e, d, e.x, e.y, true); } finally { e.netRawHit = false; g.player = anchor; }
     },
     tick(dt, sendNow) {
       if (!P.size) return;
@@ -219,7 +221,7 @@ export function makeWorld(seed, send, where = 'realm') {
       // to each player: the events near them, and (10 a second) the monsters near them
       for (const q of P.values()) {
         const near = (x, y, r = SEND_R) => Math.abs(x - q.x) < r && Math.abs(y - q.y) < r;
-        const mine = ev.filter((x) => (x.k === 'ostate' && near(x.x, x.y, 40)) || x.k === 'su' || x.k === 'sg' || x.k === 'banner' || x.k === 'tile' || x.k === 'obj' || x.k === 'exit' || (x.k === 'shot' && near(x.b.x, x.b.y)) || (x.k === 'fx' && near(x.f.x, x.f.y)) || (x.k === 'vx' && near(x.v.x ?? q.x, x.v.y ?? q.y)) || x.k === 'say');
+        const mine = ev.filter((x) => (x.k === 'ostate' && near(x.x, x.y, 40)) || x.k === 'su' || x.k === 'sg' || x.k === 'banner' || x.k === 'tile' || x.k === 'obj' || x.k === 'exit' || (x.k === 'shot' && near(x.b.x, x.b.y)) || (x.k === 'fx' && near(x.f.x ?? x.f.x0, x.f.y ?? x.f.y0)) || (x.k === 'vx' && near(x.v.x ?? q.x, x.v.y ?? q.y)) || x.k === 'say');
         if (mine.length) send(q.netId, { t: 'wev', ev: mine });
         if (!sendNow) continue;
         const es = [], gone = [];
