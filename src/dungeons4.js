@@ -201,9 +201,14 @@ export const D4 = {
     const m = this.map, p = this.player, S = m.d4, pi = Math.floor(p.y) * m.w + Math.floor(p.x);
     const under = m.tiles[pi];
     if (under === TID.dreamfloor || under === TID.dreambridge) S.safe = { x: p.x, y: p.y };
+    if (m.netWorld) {                                    // a shared dungeon: the server fades the bridges (its tiles come to us); we only fall
+      this.trialLock(m);
+      if (under === TID.fadegone && !p.dead) { const back = S.safe || { x: m.rooms[0].cx + 0.5, y: m.rooms[0].cy + 0.5 }; p.x = back.x; p.y = back.y; this.hurtPlayer(Math.round(this.stat("hp") * 0.15), "a fading dream", true); this.banner("The bridge fades and you fall through the dream!", 1600); }
+      return;
+    }
     for (const sp of m.spans) {
-      if (!sp.fade && !sp.locked) continue;
-      const c = (this.t + sp.phase) % sp.period, on = !sp.locked && c < sp.period * 0.64;
+      if (!sp.fade && !sp.locked && sp.on !== false) continue;   // (a steady bridge: only while a trial locks it away, and back after)
+      const c = (this.t + sp.phase) % sp.period, on = !sp.locked && (!sp.fade || c < sp.period * 0.64);
       sp.warn = on && c > sp.period * 0.64 - 0.9;
       if (on === sp.on) continue;
       sp.on = on;
@@ -216,34 +221,56 @@ export const D4 = {
       }
     }
   },
+  // A nightmare trial, told as a story: the sigil wakes and the bridges round its room fade (you are shut in); each wave
+  // is announced, its nightmares rise where marks have glowed for a moment, and the checklist counts them down; a breath
+  // between waves; the third brings their champion; then the nightmare fades and the bridges come back.
+  // In a shared dungeon the server runs it (its monsters are the server's) and the sigil carries the state to everyone
+  // (o.trialOn, o.wave, o.left); a browser there only follows.
   startTrial(o) {
     const m = this.map, S = m.d4 || (m.d4 = { timers: [], puddles: [] }), rm = m.rooms[o.room];
-    if (S.trial) { this.toast('Finish the trial you started first.'); return; }
     if (o.done) { this.toast('This nightmare is already spent.'); return; }
-    const pad = 4;
-    S.trial = { o, rm, wave: 0, waveT: 1.2, live: [] };
-    for (const sp of m.spans) if (sp.tiles.some((i) => { const x = i % m.w, y = Math.floor(i / m.w); return x > rm.x - pad && x < rm.x + rm.w + pad && y > rm.y - pad && y < rm.y + rm.h + pad; })) sp.locked = true;
-    this.banner('A NIGHTMARE TRIAL. The bridges vanish: survive three waves!', 2400);
+    if (m.netWorld) return;                               // (the server starts it, for everyone)
+    if (S.trial) { this.toast('Finish the trial you started first.'); return; }
+    S.trial = { o, rm, wave: 0, waveT: 2.2, live: [], marks: null };
+    o.trialOn = true; o.wave = 0; o.left = 0;
+    this.trialLock(m);
+    this.banner('A NIGHTMARE TRIAL. The bridges fade: survive three waves!', 2600);
     this.sfx('boss'); this.vx({ k: 'shake', amt: 5 });
     o.sprite = 'dream_sigil_live';
+  },
+  // the bridges near a live trial's room are locked away (from the sigils: the same in every copy of the dungeon)
+  trialLock(m) {
+    const pad = 4, live = m.objects.filter((q) => q.interact === 'sigil' && q.trialOn).map((q) => m.rooms[q.room]).filter(Boolean);
+    for (const sp of m.spans) sp.locked = live.some((rm) => sp.tiles.some((i) => { const x = i % m.w, y = Math.floor(i / m.w); return x > rm.x - pad && x < rm.x + rm.w + pad && y > rm.y - pad && y < rm.y + rm.h + pad; }));
   },
   updateTrial(dt) {
     const m = this.map, S = m.d4, T = S.trial;
     T.live = T.live.filter((e) => !e.dead);
+    T.o.left = T.live.length;
     if (T.live.length) return;
-    if ((T.waveT -= dt) > 0) return;
-    if (T.wave >= 3) {                                    // the nightmare is spent
-      S.trial = null; T.o.done = true; T.o.sprite = 'dream_sigil_done';
-      for (const sp of m.spans) sp.locked = false;
-      this.breakSeal('The nightmare fades.');
+    if (T.holdT > 0) { T.holdT -= dt; return; }           // (a moment for the marks to glow before they rise)
+    if (T.marks) {                                        // the marks have glowed: the wave rises from them
+      const n0 = this.enemies.length;
+      this.spawnPending(T.marks);
+      T.live = this.enemies.slice(n0);
+      for (const e of T.live) { e.seen = true; e.aggro = true; this.unstick(e, 0.5); this.vx({ k: 'burst', x: e.x, y: e.y - 0.5, n: 14, colors: ['#c8a0ff', '#2a1040', '#ffffff'] }); }
+      T.marks = null; T.o.left = T.live.length; T.waveT = 2.5;
       return;
     }
-    T.wave++; T.waveT = 1.5;
-    const n0 = this.enemies.length;
-    this.spawnPending(this.dungeonFill(T.rm, 2 + T.wave, T.wave === 3));
-    T.live = this.enemies.slice(n0);
-    for (const e of T.live) { e.seen = true; this.unstick(e, 0.5); }
-    this.banner(`Nightmare: wave ${T.wave} of 3`, 1400);
+    if ((T.waveT -= dt) > 0) return;
+    if (T.wave >= 3) {                                    // the nightmare is spent
+      S.trial = null; T.o.done = true; T.o.trialOn = false; T.o.sprite = 'dream_sigil_done'; T.o.left = 0;
+      this.trialLock(m);
+      this.breakSeal('The nightmare fades, and the bridges return.');
+      return;
+    }
+    T.wave++; T.o.wave = T.wave;
+    T.marks = this.dungeonFill(T.rm, 2 + T.wave, T.wave === 3);
+    for (const [, x, y] of T.marks) this.fx.push({ kind: 'ring', x, y, t: 0, max: 1.2, color: '#c8a0ff' });   // where they will rise
+    T.waveT = 0;
+    this.banner(T.wave === 3 ? 'Nightmare: the last wave, and their champion!' : `Nightmare: wave ${T.wave} of 3`, 1800);
+    this.vx({ k: 'shake', amt: 3 });
+    T.holdT = 1.1;
   },
 
   // ================================================================ interactions (F)

@@ -3038,8 +3038,8 @@ export class Game {
     }
     for (const B of m.beams || []) out.push({ kind: 'mirror', done: B.lit, x: B.recv.x + 0.5, y: B.recv.y + 0.5, text: 'Light the crystal', sub: B.lit ? '' : `turn the mirrors${keyParen('portal')} to bend the beam` });
     for (const o of m.objects) if (o.interact === 'sigil') {
-      const live = S4.trial && S4.trial.o === o;
-      out.push({ kind: 'trial', done: !!o.done, x: o.x, y: o.y, text: 'Survive a nightmare trial', sub: o.done ? '' : live ? `wave ${S4.trial.wave} of 3` : `step onto the sigil and use it${keyParen('portal')}`, live });
+      const live = !!o.trialOn;                          // (the trial's state lives on its sigil: in a shared dungeon the server's)
+      out.push({ kind: 'trial', done: !!o.done, x: o.x, y: o.y, text: 'Survive a nightmare trial', sub: o.done ? '' : live ? (o.wave ? `wave ${o.wave} of 3: ${o.left || 0} nightmare${o.left === 1 ? '' : 's'} left` : 'the nightmare gathers…') : `step onto the sigil and use it${keyParen('portal')}`, live });
     }
     return out;
   }
