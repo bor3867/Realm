@@ -119,7 +119,7 @@ const finale = {
 export default {
   lead: true,                                     // aimed volleys alternate: at you, then where you are going (a steady circle is not safe)
   id: 'forgeheart_colossus', name: 'The Forgeheart Colossus', biome: 'dungeon', hp: 520000, def: 40, xp: 20000, r: 2, speed: 1.1, keep: 6, faces: true,
-  tempo: 0.64, dmgScale: 1.6, finale,
+  tempo: 0.64, dmgScale: 1.2, finale,   // (was 1.6: ~600 damage a second on a player who stood still, twice any other boss)
   phases: {
     1: { move: 'pace', pressure: [{ every: 1.6, special: 'looseRivet', delay: 1.2, dmg: 115 }], patterns: [
       { name: 'hammer slam', windup: 0.8, recover: 0.6, special: 'slam', dmg: 115 },

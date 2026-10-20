@@ -1655,7 +1655,7 @@ export class Game {
     }
     const b = { from, x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, life: range / Math.max(0.01, speed),
       dmg, sprite, r: size, pierce, hit: pierce ? new Set() : null, a, by };
-    if (from === 'e') b.vol = `${this.frameN || 0}:${by}`;
+    if (from === 'e') { const S = this.curShooter; b.vol = `${this.frameN || 0}:${by}:${S ? S.uid || (S.uid = (this.uidN = (this.uidN || 0) + 1)) : 0}`; }   // one volley: one shooter's, this instant (two of a pack firing together are two blows)
     b.k = shotScale(sprite, size, from);                      // big art is drawn (and hits) at the size its attack meant
     this.projectiles.push(b);
     if (from === 'p' && this.net) this.netShot(b);            // others see your shots (src/net.js)
@@ -1832,6 +1832,7 @@ export class Game {
       if (!T && e.bx && e.bx.B.local) e.bx.B.local(this, e, dt);   // a boss's arena rules, felt by the player in this browser (src/bosses/rf_translate.js)
       if (e.net) { this.netPuppet(e, dt); continue; }
       if (T) { p = this.netNearest(e); if (!p) continue; this.player = p; }
+      this.curShooter = e;                                       // (whose shots these are: src shoot, one volley each)
       if (e.leash) { const lh = dist(e.x, e.y, e.hx, e.hy), L1 = e.leash + 1; if (lh > L1) { e.x = e.hx + ((e.x - e.hx) / lh) * L1; e.y = e.hy + ((e.y - e.hy) / lh) * L1; } }   // a camp's guard: never far from its chest, however it moves (swoops, dashes, knockback)
       const d2 = dist2(e.x, e.y, p.x, p.y);
       if (d2 > (e.rb ? 40 * 40 : ACTIVE_R * ACTIVE_R)) continue;
@@ -2394,11 +2395,16 @@ export class Game {
     return false;
   }
   lobLand(b) {
-    const p = this.player, L = b.lob;
+    const p = this.player, L = b.lob, S0 = this.curShooter;
+    this.curShooter = L;                                     // (its shards: one volley of their own, the lob's)
+    L.uid = L.uid || (this.uidN = (this.uidN || 0) + 1);
     if (!p.dead && dist2(p.x, p.y, L.x1, L.y1) < L.r * L.r) {
       this.hurtPlayer(b.dmg, b.by);
-      (this.hitVols = this.hitVols || new Map()).set(`${this.frameN || 0}:${b.by}`, this.t);   // its shards are the same blow
+      (this.hitVols = this.hitVols || new Map()).set(`${this.frameN || 0}:${b.by}:${L.uid}`, this.t);   // its shards are the same blow
     }
+    try { this.lobShards(b, L); } finally { this.curShooter = S0; }
+  }
+  lobShards(b, L) {
     if (L.onLand) { L.onLand(this, b); return; }
     for (let k = 0; k < L.n; k++) { const s = this.shoot('e', L.x1, L.y1, (k / L.n) * TAU + L.t, L.ss, 3, Math.round(b.dmg * 0.5), L.sprite || b.sprite, 0.3, false, b.by); s.shard = true; if (L.bxOf) s.bxOf = L.bxOf; }   // (shards of a shot already thrown: they land even if the thrower has died)
     this.vx({ k: 'burst', x: L.x1, y: L.y1, n: 12, colors: ['#ffffff', '#c8c0b0', '#8d88a0'] });

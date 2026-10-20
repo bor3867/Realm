@@ -159,7 +159,7 @@ const finale = {
 
 export default {
   id: 'glacius_frozen_wyrm', name: 'Glacius, the Frozen Wyrm', biome: 'dungeon', hp: 300000, def: 24, xp: 14000, r: 2.2, speed: 2.6, keep: 8, faces: true,
-  tempo: 0.68, dmgScale: 1.45, finale,
+  tempo: 0.68, dmgScale: 1.25, finale,   // (was 1.45)
   phases: {
     1: { move: 'hold', pressure: [{ every: 2.4, special: 'rimeCrawl', delay: 1.5, dmg: 95 }], patterns: [
       { name: 'frost breath', windup: 0.8, recover: 0.6, tell: 'sweepTell', special: 'sweep', dmg: 100 },

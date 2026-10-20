@@ -71,7 +71,7 @@ function spout(g, e, V) {
 export default {
   lead: true,                                     // aimed volleys alternate: at you, then where you are going (a steady circle is not safe)
   id: 'abyssal_kraken', name: 'The Abyssal Kraken', biome: 'shore', hp: 36000, def: 18, xp: 3600, r: 2.2, speed: 0.8, keep: 6, faces: false, noShadow: true,
-  tempo: 0.85, dmgScale: 1.15,
+  tempo: 0.85, dmgScale: 1.0,   // (was 1.15)
   phases: {
     1: { move: 'lurk', patterns: [
       { name: 'ink lob', windup: 0.7, recover: 0.7, special: 'ink', n: 3, dmg: 50 },
