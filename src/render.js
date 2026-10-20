@@ -756,7 +756,9 @@ export class Renderer {
     }
   }
   scorchFx(f, g) {
+    if (f.t < 0) return;                                  // (ink not yet landed)
     const [x, y] = this.proj(f.x, f.y), R = f.r * TS, b = this.b, fade = Math.min(1, (f.life - f.t) / 0.6);
+    if (f.ink) { b.globalAlpha = 0.55 * fade; b.fillStyle = f.col || '#2a1840'; b.beginPath(); b.arc(x, y, R, 0, Math.PI * 2); b.fill(); b.globalAlpha = 1; return; }
     b.globalAlpha = 0.35 * fade; b.fillStyle = '#ff4a1a'; b.beginPath(); b.arc(x, y, R, 0, Math.PI * 2); b.fill(); b.globalAlpha = 1;
     if (Math.random() < 0.4) this.parts.push({ x: f.x + (Math.random() - 0.5) * f.r * 1.6, y: f.y + (Math.random() - 0.5) * f.r * 1.6, z: 0, vx: 0, vy: 0, vz: 10, g: 0, life: 0.5, max: 0.5, color: Math.random() < 0.5 ? '#ff8a1f' : '#ffd650' });
   }

@@ -1820,6 +1820,7 @@ export class Game {
     }
     for (const e of L) {
       if (e.dead) { e.deadT += dt; continue; }
+      if (!T && e.bx && e.bx.B.local) e.bx.B.local(this, e, dt);   // a boss's arena rules, felt by the player in this browser (src/bosses/rf_translate.js)
       if (e.net) { this.netPuppet(e, dt); continue; }
       if (T) { p = this.netNearest(e); if (!p) continue; this.player = p; }
       const d2 = dist2(e.x, e.y, p.x, p.y);
@@ -2850,7 +2851,7 @@ export class Game {
         if (dist(p.x, p.y, f.x, f.y) < f.r) this.hurtPlayer(f.dmg, f.by);
         this.vx({ k: 'shake', amt: 5 }); this.vx({ k: 'burst', x: f.x, y: f.y, n: 26, colors: ['#ffd650', '#ff8a1f', '#ffffff'] });
         if (f.burn) this.fx.push({ kind: 'scorch', x: f.x, y: f.y, r: f.r * 0.8, t: 0, life: f.burn.t, dps: f.burn.dps, tick: 0, by: f.by });
-      } else if (f.kind === 'scorch' && !p.dead) {
+      } else if (f.kind === 'scorch' && f.dps && f.t >= 0 && !p.dead) {   // (ink: a pool that only slows)
         f.tick -= dt;
         if (f.tick <= 0 && dist(p.x, p.y, f.x, f.y) < f.r) { f.tick = 0.5; this.hurtPlayer(Math.round(f.dps * 0.5), f.by); }
       }

@@ -8,13 +8,21 @@
 //   laser   a marked line that burns: at you, crossed through you, or swept
 //   and the rest of their kinds as close as our shots and hazards allow (rain, walls, lines, implosions, converging,
 //   flocks, novas, beams, drops, sprays, bolas, ahead-of-you marks, sequences, clouds, rifts, hedges, wildfire).
-//   Still their engine's alone: chess boards, music staves, a worm's segments, beams that follow a laser (specials).
+//   Still their engine's alone: chess boards, music staves, a worm's segments, beams that follow a laser, and the big
+//   bespoke phases (Aion's puzzles, Vitrea's clones and panes, the twins, Gourdrick's allies, the shell game, rituals).
 // Their arena-wide patterns use a box the size of their arena (B.room) round the place the boss rose.
 // Their phase rules (specials, part 1): rage (it runs hotter: emitters a quarter faster, a red glow), len (a phase
 // lasts so long, 60 s unless it says; then the next, and the last ends the fight, as their engine had it), invuln (it
 // cannot be hurt that phase; its minions falling ends it early), shield (the hour shields it but for short openings:
 // a stand-in for Aion's puzzle), heat (a checkerboard floor, its squares burning by turns after a warning), leash
 // (stray too far from it and the oath burns).
+// Their arena rules (specials, part 2), felt in each player's own browser (B.local; the server runs the boss and its
+// shots, each browser the floor under its own player, on the phase's clock the boss carries): the lantern's cone, the
+// dark and the sandstorm, the floor that strikes the still, the flood, the mesmer that turns you back, the moonlight
+// pools, frostbite, the closing edge, the wind, updrafts lifting its shots, sunspots, the gavel that strikes the moving,
+// the stopped clock (its shots hang in the air), gravity wells, fields and pulses (shots bend and are swallowed too),
+// zero gravity, the spotlight, the encore, ink that slows, the fold that turns the far side's shots onto you. On the
+// server: the burning trail, the egg and the cocoon (it can't be hurt), ink left where its marks land.
 // Their art: tools/rf_build_bx.py (sheet 'bx_rf_<id>', shots 'rfx_shots/<boss>.<shot>'). Their numbers: their dungeon's
 // band (src/rf/balance.js), as their own engine had them. Each becomes BX['rfx_<id>'].
 import { BX } from './index.js';
@@ -28,7 +36,7 @@ const startOf = (s) => { const m = /(\d+)/.exec(String(s || '')); return m ? +m[
 // how they move (their mv.m): round the place it rose (its home) or round you
 function moves() {
   const step = (g, e, tx, ty, sp, dt) => { const dx = tx - e.x, dy = ty - e.y, d = Math.hypot(dx, dy); if (d > 0.2) g.moveCircle(e, (dx / d) * Math.min(d, sp * dt), (dy / d) * Math.min(d, sp * dt), 0.8); };
-  const home = (e) => e.rfHome || (e.rfHome = { x: e.x, y: e.y });
+  const home = homeOf;
   const spd = (e, k = 1) => (e.rfMv && e.rfMv.spd ? e.rfMv.spd : 1.2) * k;
   const M = {
     rf_center(g, e, dt) { const H = home(e); step(g, e, H.x, H.y, spd(e, 1.5), dt); },
@@ -44,9 +52,15 @@ function moves() {
 const MOVE_OF = { middle: 'rf_center', center: 'rf_center', chase: 'rf_chase', strafe: 'rf_strafe', orbit: 'rf_orbit', wander: 'rf_wander', fig8: 'rf_fig8',
   aisle: 'rf_strafe', mirror: 'rf_strafe', charge: 'rf_chase', dash: 'rf_chase', gravehop: 'rf_wander', worm: 'rf_wander', burrow: 'rf_wander', teleport: 'rf_wander', swap: 'rf_center', leap: 'rf_chase', dive: 'rf_chase' };
 
+// where it rose: kept as plain numbers, so the browsers have it with the boss (a puppet: the server's, once it arrives)
+function homeOf(e) {
+  if (e.net) return { x: e.rfHx ?? e.x, y: e.rfHy ?? e.y };
+  if (e.rfHx === undefined) { e.rfHx = e.x; e.rfHy = e.y; }
+  return { x: e.rfHx, y: e.rfHy };
+}
 // the arena-sized box round the place it rose (their arena's columns and rows)
 function box(e, B) {
-  const H = e.rfHome || (e.rfHome = { x: e.x, y: e.y }), map = (B.room && B.room.map) || [];
+  const H = homeOf(e), map = (B.room && B.room.map) || [];
   const w = Math.max(14, Math.min(26, (map[0] || '').length || 18)), h = Math.max(10, Math.min(20, map.length || 14));
   return { x0: H.x - w / 2, y0: H.y - h / 2, w, h };
 }
@@ -71,7 +85,11 @@ function fire(g, e, B, bal, em, vol) {
   if (!B.shots[em.s] && em.t !== 'minion') return;
   const p = g.player, [ox, oy] = g.bxOrigin(e), aim = Math.atan2(p.y - 0.4 - oy, p.x - ox), A = box(e, B), dmg = Math.round((s.dmg || 60) * bal.bossDmg);
   const shot = (a, x = ox, y = oy, sp = s.speed || 5, rg = s.range || 8) => g.shoot('e', x, y, a, sp, rg, dmg, `rfx_shots/${B.id}.${em.s}`, 0.35, false, e.D.name);
-  const zone = (x, y, r, delay) => g.fx.push({ kind: 'zone', x, y, r, t: 0, delay, life: delay + 0.15, dmg: Math.round((s.dmg || 80) * bal.bossDmg), by: e.D.name, done: false, colors: [s.color || '#ff6a4a', '#ffffff'] });
+  const INK = em.ink && e.bx.B.phases[e.bx.phase] && e.bx.B.phases[e.bx.phase].rfP.ink;
+  const zone = (x, y, r, delay) => {
+    g.fx.push({ kind: 'zone', x, y, r, t: 0, delay, life: delay + 0.15, dmg: Math.round((s.dmg || 80) * bal.bossDmg), by: e.D.name, done: false, colors: [s.color || '#ff6a4a', '#ffffff'] });
+    if (INK) g.fx.push({ kind: 'scorch', x, y, r: INK.r || 1.4, t: -delay, life: INK.life || 7, dps: 0, tick: 0, by: e.D.name, ink: INK.slow || 0.55, col: '#2a1840' });   // (a pool of ink where it lands)
+  };
   const laser = (x0, y0, a, len, tele, act) => g.fx.push({ kind: 'laser', x0, y0, a, len, t: 0, tele, act, life: tele + act + 0.1, dmg: Math.round((s.dmg || 90) * bal.bossDmg), by: e.D.name, hit: false });
   if (em.t === 'aim') { const n = em.n || 1, sp = (em.sp || 0) * D2R; for (let i = 0; i < n; i++) shot(aim + (n > 1 ? -sp / 2 + (sp * i) / (n - 1) : 0)); }
   else if (em.t === 'ring') {
@@ -146,7 +164,9 @@ function phaseRules(g, e, B, bal, dt) {
   if (ph.invuln && !e.rfFreed && e.rfHadMins && !mins.length) { e.rfFreed = true; g.banner(`${e.D.name} is exposed!`, 1800); }
   // the shield's openings: every 9 s for 4 s (until Aion's own puzzle is here)
   if (ph.shield && (e.rfOpenNext -= dt) <= 0) { e.rfOpenNext = 9; e.rfOpen = S.t + 4; g.banner('The shield falters!', 1600); }
-  e.rfImm = (ph.invuln && !e.rfFreed) || (ph.shield && !(e.rfOpen > S.t));   // can it be hurt right now
+  e.rfImm = (ph.invuln && !e.rfFreed) || (ph.shield && !(e.rfOpen > S.t)) || !!ph.rfP.egg || !!ph.rfP.cocoon;   // can it be hurt right now
+  // the trail: it leaves fire where it goes
+  if (ph.rfP.trail && (e.rfTrailT = (e.rfTrailT || 0) - dt) <= 0) { e.rfTrailT = 0.25; g.fx.push({ kind: 'scorch', x: e.x, y: e.y + 0.2, r: 0.7, t: 0, life: 2.5, dps: Math.round(100 * bal.bossDmg), tick: 0, by: e.D.name }); }
   // the time limit: on to the next phase (its Life set there), or, the last, the end of the fight
   if (e.rfPhT > ph.len && S.state !== 'death') {
     const th = S.B.thresholds[S.phase - 1];
@@ -171,6 +191,124 @@ function phaseRules(g, e, B, bal, dt) {
     }
   }
 }
+// ---- the arena's rules, in the browser, for its own player
+const QUIET = new Set(['sleep', 'intro', 'morph', 'death', 'deathhold', 'finale']);
+const hash = (a, b) => { let h = (a * 374761393 + b * 668265263) >>> 0; h = ((h ^ (h >>> 13)) * 1274126177) >>> 0; return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
+const tri = (u, span) => { const m = ((u % (2 * span)) + 2 * span) % (2 * span); return span - Math.abs(m - span); };   // there and back
+// where the phase's moving things are at time L (the same for every player: they follow the boss's phase clock)
+const SPOTS = (A, t) => [0, 1, 2, 3].map((k) => ({ x: A.x0 + A.w * (0.2 + 0.6 * ((k * 0.27 + t * 0.04) % 1)), y: A.y0 + A.h * (0.35 + 0.5 * ((k * 0.41 + t * 0.03) % 1)), r: 1.6 + 0.3 * Math.sin(t * 3 + k) }));
+const POOLS = (P, A, L) => Array.from({ length: P.pools.n || 3 }, (_, k) => ({ x: A.x0 + A.w * (0.5 + 0.3 * Math.sin(L * (P.pools.speed || 1.1) * 0.35 + k * 2.4)), y: A.y0 + A.h * (0.55 + 0.27 * Math.cos(L * (P.pools.speed || 1.1) * 0.29 + k * 1.7)), r: P.pools.r || 2.2 }));
+const DRAFTS = (P, A, L) => Array.from({ length: P.updraft.n || 2 }, (_, k) => A.x0 + A.w * (0.5 + 0.36 * Math.sin(L * (P.updraft.speed || 0.5) + k * Math.PI * 0.95)));
+const WELLS = (P, e, A, L) => (P.wells || []).map((w) => w.free
+  ? { ...w, x: A.x0 + 1 + tri(L * (w.vx || 1), A.w - 2), y: A.y0 + 1 + tri(L * (w.vy || 1) + 3, A.h - 2) }
+  : { ...w, x: e.x + Math.cos(L * (w.w || 0.6) + (w.ph || 0)) * (w.r || 0), y: e.y + Math.sin(L * (w.w || 0.6) + (w.ph || 0)) * (w.r || 0) * 0.8 });
+const FIELD = (P, L) => { const f = P.field, k = Math.floor(L / f.every), dirs = f.dirs || [[0, 1], [-1, 0], [0, -1], [1, 0]], d = dirs[k % dirs.length]; return { x: d[0] * f.mag, y: d[1] * f.mag }; };
+const EDGE = (P, L) => P.edge || (P.closing ? { w: P.closing.from + (P.closing.to - P.closing.from) * Math.min(1, Math.max(0, L - 2) / P.closing.over), dmg: P.closing.dmg } : null);
+const FLOOD = (L) => 1 + Math.sin(L * 0.8) * 0.4 + Math.min(1.6, L * 0.2);
+const CREASE = (e, A, n) => { const h = hash(n, e.nid || 7), a = [0, Math.PI / 2, Math.PI / 4, -Math.PI / 4][Math.floor(h * 4)]; return { cx: A.x0 + A.w / 2 + (hash(n, 3) - 0.5) * 4, cy: A.y0 + A.h / 2 + (hash(n, 5) - 0.5) * 3, nx: -Math.sin(a), ny: Math.cos(a), a }; };
+// the phase's clock in this browser: the server's (it comes with the boss) run on between its updates
+function clockOf(e, dt) {
+  if (!e.net) return (e.rfL = e.rfPhT || 0);
+  if (e.rfPhT !== e.rfSeen) { e.rfSeen = e.rfPhT; e.rfL = e.rfPhT || 0; } else e.rfL = (e.rfL || 0) + dt;
+  return e.rfL;
+}
+function arenaRules(g, e, B, bal, dt) {
+  const S = e.bx, ph = S && S.B.phases[S.phase], P = ph && ph.rfP, p = g.player;
+  if (!P || e.dead || !p || p.dead || QUIET.has(S.state) || Math.abs(p.x - e.x) > 30 || Math.abs(p.y - e.y) > 30) return;
+  const L = clockOf(e, dt), live = L > 2, A = box(e, B), dm = (x) => Math.round(x * bal.bossDmg), mine = (b) => b.from === 'e' && b.by === e.D.name;
+  if (e.rfLPh !== S.phase || !g.rfZ || g.rfZ.e !== e) { e.rfLPh = S.phase; g.rfZ = { e }; }   // this player's state for the phase
+  const Z = g.rfZ, tick = (k, per) => { Z[k] = (Z[k] || 0) - dt; if (Z[k] <= 0) { Z[k] = per; return true; } return false; };
+  const hurt = (d, by) => g.hurtPlayer(dm(d), by);
+  const mark = (x, y, r, tele, key) => { const s = B.shots[key] || {}; g.fx.push({ kind: 'zone', x, y, r, t: 0, delay: tele, life: tele + 0.15, dmg: dm(s.dmg || 80), by: e.D.name, done: false, colors: [s.color || '#ff6a4a', '#ffffff'] }); };
+  const push = (dx, dy) => g.moveCircle(p, dx, dy, 0.32);
+  const outside = (w) => p.x < A.x0 + w || p.x > A.x0 + A.w - w || p.y < A.y0 + w || p.y > A.y0 + A.h - w;
+  // the dark, the sandstorm: you see only round yourself
+  if (P.dark || P.sandstorm) { if (!(g.darkUntil > g.t)) g.darkStart = g.t; g.darkUntil = g.t + 0.7; g.darkR = P.dark ? 3.2 : 4.6; g.darkBy = e; }
+  if (!live) return;
+  // the lantern's cone sweeps the crypt
+  if (P.cone) { const c = P.cone, a = Math.PI / 2 + (c.speed || 40) * D2R * L, dx = p.x - e.x, dy = p.y - e.y, da = Math.atan2(Math.sin(Math.atan2(dy, dx) - a), Math.cos(Math.atan2(dy, dx) - a));
+    if (Math.hypot(dx, dy) < c.len && Math.abs(da) < (c.half || 22) * D2R && tick('cone', 0.5)) hurt(c.dmg || 45, 'lantern light'); }
+  // stand still too long and the floor strikes where you stand
+  if (P.still) { Z.st = p.moving ? Math.max(0, (Z.st || 0) - dt * 3) : (Z.st || 0) + dt; if (Z.st >= P.still.after) { Z.st = -0.6; mark(p.x, p.y, P.still.r || 1, 0.55, P.still.s); } }
+  // the flood rises from the walls
+  if (P.flood && outside(FLOOD(L)) && tick('flood', 0.5)) hurt(40, 'the flood');
+  // the mesmer: three seconds in four, a step toward it turns you away
+  if (P.mesmer && L % 4 < 3 && p.moving && p.vel) { const bx = e.x - p.x, by = e.y - p.y, d = Math.hypot(bx, by) || 1, dot = (p.vel.x * bx + p.vel.y * by) / d; if (dot > 0) push((-2 * dot * bx / d) * dt, (-2 * dot * by / d) * dt); }
+  // moonlight pools: outside them the dark bites
+  if (P.pools && !POOLS(P, A, L).some((o) => Math.hypot(p.x - o.x, p.y - o.y) < o.r) && tick('pools', 0.5)) hurt(P.pools.dmg || 30, 'the dark');
+  // frostbite: stand still a second and you freeze
+  if (P.frostbite) { Z.fb = p.moving ? 0 : (Z.fb || 0) + dt; if (Z.fb > 1 && !(p.frozenUntil > g.t)) { Z.fb = 0; p.frozenUntil = g.t + 1; g.float(p.x, p.y - 1, 'FROZEN', '#9fd8ff'); } }
+  // the edge of the arena: a drop, or light closing in
+  const E = EDGE(P, L); if (E && outside(E.w) && tick('edge', 0.5)) hurt(E.dmg || 60, P.closing ? 'collapsing light' : 'the drop');
+  // the wind turns round the room
+  if (P.wind) { const dx = p.x - (A.x0 + A.w / 2), dy = p.y - (A.y0 + A.h / 2), d = Math.hypot(dx, dy) || 1; push((-dy / d) * 1.2 * dt, (dx / d) * 1.2 * dt); }
+  // updrafts lift its shots
+  if (P.updraft) { const xs = DRAFTS(P, A, L), w = (P.updraft.w || 2.4) / 2; for (const b of g.projectiles) if (mine(b) && !b.frozen && xs.some((x) => Math.abs(b.x - x) < w)) b.y -= (P.updraft.push || 3) * dt * 0.6; }
+  // sunspots burn
+  if (P.sunspots && SPOTS(A, g.t).some((o) => Math.hypot(p.x - o.x, p.y - o.y) < o.r) && tick('sun', 0.5)) hurt(50, 'a sunspot');
+  // the gavel: whoever moves as it falls is struck down
+  if (P.gavel) { const G = P.gavel, k = Math.floor(L / G.every);
+    if (Z.gk !== undefined && k !== Z.gk) { if (p.moving) { hurt((B.shots[G.s] || {}).dmg || 90, 'the gavel'); p.frozenUntil = g.t + 0.5; g.float(p.x, p.y - 1, 'ORDER!', '#ff5a4a'); } else g.float(e.x, e.y - 2.5, 'ORDER!', '#ffd650'); }
+    Z.gk = k; }
+  // the stopped clock: its shots hang where they are, then go on
+  if (P.timestop) { const T = P.timestop, c = L % T.every;
+    if (L > T.every - T.dur && c >= T.every - T.dur) { if (!g.timeStop) { g.timeStop = { x: e.x, y: e.y, r: 40, t: T.every - c, rfx: true }; g.float(p.x, p.y - 1.4, 'TIME STOPS', '#fff0b0'); } }
+    else if (c >= T.every - T.dur - T.warn && !Z.tsw) { Z.tsw = true; g.float(e.x, e.y - 2.5, 'tick... tock...', '#fff0b0'); }
+    if (c < T.every - T.dur - T.warn) Z.tsw = false; }
+  // gravity: wells pull (and swallow shots), fields lean one way by turns, pulses push and pull
+  if (P.wells || P.field || P.pulse) {
+    const W = WELLS(P, e, A, L), F = P.field ? FIELD(P, L) : null;
+    const grav = (x, y) => { let gx = F ? F.x : 0, gy = F ? F.y : 0; for (const w of W) { const dx = w.x - x, dy = w.y - y, d = Math.hypot(dx, dy) || 1; if (d > w.R) continue; const k = w.str * (1 - d / w.R) * (d < 0.6 ? 0.3 : 1); gx += (dx / d) * k; gy += (dy / d) * k; } return [gx, gy]; };
+    const [gx, gy] = grav(p.x, p.y); if (!P.zerog) push(gx * 0.55 * dt, gy * 0.55 * dt);
+    for (const b of g.projectiles) { if (!mine(b) || b.frozen) continue;
+      if (W.some((w) => w.str > 0 && Math.hypot(w.x - b.x, w.y - b.y) < 0.45)) { b.life = 0; continue; }
+      const [bx, by] = grav(b.x, b.y); b.vx += bx * dt; b.vy += by * dt; b.a = Math.atan2(b.vy, b.vx); }
+    if (P.pulse) { const pu = P.pulse, k = Math.floor(L / pu.every);
+      if (Z.pk !== undefined && k !== Z.pk) { const mode = pu.alt ? (k % 2 ? 'push' : 'pull') : pu.mode || 'push', dx = p.x - e.x, dy = p.y - e.y, d = Math.hypot(dx, dy) || 1, s = (mode === 'push' ? 1 : -1) * pu.str;
+        p.gust = { vx: (dx / d) * s, vy: (dy / d) * s, until: g.t + 0.3 }; g.fx.push({ kind: 'ring', x: e.x, y: e.y, t: 0, max: 6, color: mode === 'push' ? '#c8a0ff' : '#5a3a9a' }); }
+      Z.pk = k; }
+  }
+  // zero gravity: you drift, slow to start and slow to stop
+  if (P.zerog && p.vel) { const v = (Z.zv = Z.zv || { x: 0, y: 0 }), k = Math.min(1, dt * 1.3); v.x += (p.vel.x - v.x) * k; v.y += (p.vel.y - v.y) * k; push((v.x - p.vel.x) * dt, (v.y - p.vel.y) * dt); }
+  // the spotlight hunts you: hold still in it and the audience throws a bouquet
+  if (P.spotlight) { const SP = P.spotlight, z = (Z.spot = Z.spot || { x: e.x, y: e.y, c: 0, cool: 0 });
+    if (z.cool > 0) z.cool -= dt; else { const dx = p.x - z.x, dy = p.y - z.y, d = Math.hypot(dx, dy); if (d > 0.05) { const k = Math.min(d, SP.speed * dt); z.x += (dx / d) * k; z.y += (dy / d) * k; } }
+    if (Math.hypot(p.x - z.x, p.y - z.y) < SP.r && z.cool <= 0) { z.c += dt; if (z.c >= SP.catch) { mark(p.x, p.y, 1.5, 0.75, SP.s); z.c = 0; z.cool = 1.4; g.float(p.x, p.y - 1, 'BRAVO!', '#ffd650'); } }
+    else z.c = Math.max(0, z.c - dt * 1.5); }
+  // the encore: where you have been erupts a moment later
+  if (P.encore && tick('enc', P.encore.every)) { if (Z.ex === undefined || Math.hypot(p.x - Z.ex, p.y - Z.ey) > 0.55) { Z.ex = p.x; Z.ey = p.y; mark(p.x, p.y, 0.85, P.encore.delay, P.encore.s); } }
+  // ink slows
+  for (const f of g.fx) if (f.ink && f.t >= 0 && Math.hypot(p.x - f.x, p.y - f.y) < f.r) { p.dragUntil = g.t + 0.15; p.dragF = f.ink; break; }
+  // the fold: a crease, then the far side's shots are folded over onto yours
+  if (P.fold) { const F = P.fold, n = Math.floor(L / F.every);
+    if (Z.fn !== undefined && n !== Z.fn && n > 0) { const C = CREASE(e, A, n), sp = (p.x - C.cx) * C.nx + (p.y - C.cy) * C.ny, flip = sp >= 0 ? -1 : 1;
+      for (const b of g.projectiles) { if (!mine(b)) continue; const sd = (b.x - C.cx) * C.nx + (b.y - C.cy) * C.ny; if (sd * flip <= 0) continue;
+        b.x -= 2 * sd * C.nx; b.y -= 2 * sd * C.ny; const dn = b.vx * C.nx + b.vy * C.ny; b.vx -= 2 * dn * C.nx; b.vy -= 2 * dn * C.ny; b.a = Math.atan2(b.vy, b.vx); }
+      g.vx({ k: 'shake', amt: 3 }); }
+    Z.fn = n; }
+}
+// the arena's rules, drawn on the ground (each the same for every player, but the spotlight: yours)
+function drawArena(r, g, e, B) {
+  const S = e.bx, ph = S && S.B.phases[S.phase], P = ph && ph.rfP;
+  if (!P || QUIET.has(S.state)) return;
+  const b = r.b, L = e.rfL || 0, A = box(e, B), [ox, oy] = r.proj(e.x, e.y), [ux, uy] = r.proj(e.x + 1, e.y), ts = Math.hypot(ux - ox, uy - oy);
+  const circle = (x, y, rad, fill, a, stroke) => { const [sx, sy] = r.proj(x, y); b.globalAlpha = a; b.beginPath(); b.arc(sx, sy, rad * ts, 0, TAU); if (stroke) { b.strokeStyle = fill; b.lineWidth = 2; b.stroke(); } else { b.fillStyle = fill; b.fill(); } b.globalAlpha = 1; };
+  const poly = (pts, fill, a) => { b.globalAlpha = a; b.fillStyle = fill; b.beginPath(); pts.forEach(([x, y], i) => { const [sx, sy] = r.proj(x, y); if (i) b.lineTo(sx, sy); else b.moveTo(sx, sy); }); b.closePath(); b.fill(); b.globalAlpha = 1; };
+  const band = (w, fill, a) => { const x0 = A.x0, y0 = A.y0, x1 = A.x0 + A.w, y1 = A.y0 + A.h;
+    for (const q of [[x0, y0, x1, y0 + w], [x0, y1 - w, x1, y1], [x0, y0 + w, x0 + w, y1 - w], [x1 - w, y0 + w, x1, y1 - w]]) poly([[q[0], q[1]], [q[2], q[1]], [q[2], q[3]], [q[0], q[3]]], fill, a); };
+  if (P.cone && L > 2) { const c = P.cone, a = Math.PI / 2 + (c.speed || 40) * D2R * L, h = (c.half || 22) * D2R, pts = [[e.x, e.y]]; for (let k = 0; k <= 8; k++) { const q = a - h + (2 * h * k) / 8; pts.push([e.x + Math.cos(q) * c.len, e.y + Math.sin(q) * c.len]); } poly(pts, '#ffe9a0', 0.22); }
+  if (P.flood) band(FLOOD(L), '#3a7ac8', 0.35);
+  const E = EDGE(P, L); if (E) band(E.w, P.closing ? '#fff6c8' : '#000000', P.closing ? 0.3 : 0.45);
+  if (P.pools) for (const o of POOLS(P, A, L)) circle(o.x, o.y, o.r, '#cfe8ff', 0.2);
+  if (P.sunspots) for (const o of SPOTS(A, g.t)) circle(o.x, o.y, o.r, '#ff9a2a', 0.3);
+  if (P.updraft) for (const x of DRAFTS(P, A, L)) { const w = (P.updraft.w || 2.4) / 2; poly([[x - w, A.y0], [x + w, A.y0], [x + w, A.y0 + A.h], [x - w, A.y0 + A.h]], '#d6eeff', 0.12); }
+  if (P.wells) for (const w of WELLS(P, e, A, L)) { circle(w.x, w.y, 0.6, '#1a0a2a', 0.8); circle(w.x, w.y, w.R, '#8a5ad0', 0.35, true); }
+  if (P.fold) { const F = P.fold, c = L % F.every; if (c >= F.every - F.warn) { const C = CREASE(e, A, Math.floor(L / F.every) + 1), dx = Math.cos(C.a) * 20, dy = Math.sin(C.a) * 20, [x0, y0] = r.proj(C.cx - dx, C.cy - dy), [x1, y1] = r.proj(C.cx + dx, C.cy + dy);
+    b.globalAlpha = 0.5 + 0.4 * Math.sin(g.t * 12); b.strokeStyle = '#ffffff'; b.lineWidth = 2; b.setLineDash([6, 5]); b.beginPath(); b.moveTo(x0, y0); b.lineTo(x1, y1); b.stroke(); b.setLineDash([]); b.globalAlpha = 1; } }
+  if (P.gavel) { const c = L % P.gavel.every; if (c >= P.gavel.every - P.gavel.warn) circle(e.x, e.y, 3 + Math.sin(g.t * 14) * 0.2, '#ff5a4a', 0.6, true); }
+  if (P.timestop && g.timeStop && g.timeStop.rfx) circle(e.x, e.y, 3.2, '#fff0b0', 0.4, true);
+  if (P.spotlight && g.rfZ && g.rfZ.e === e && g.rfZ.spot) circle(g.rfZ.spot.x, g.rfZ.spot.y, P.spotlight.r, '#fff6c8', 0.25);
+}
 // the kinds this translates (the rest wait for their boss's specials)
 const KINDS = new Set(['aim', 'ring', 'spiral', 'aoe', 'minion', 'laser', 'rain', 'wall', 'lines', 'implode', 'converge', 'flock', 'nova', 'beam', 'drop', 'spray', 'bolas', 'ahead', 'orbit', 'cloud', 'rift', 'wildfire', 'hedge', 'warp', 'seq']);
 // minions' own life: a life span, a burst when they fall (every frame, from the boss's update)
@@ -188,7 +326,7 @@ export function rfBossToBX(DATA, B) {
   P.forEach((ph, i) => {
     if (i) thresholds.push(Math.min(0.99, startOf(ph.hp)));
     phases[i + 1] = { move: MOVE_OF[ph.mv && ph.mv.m] || 'rf_center', rfMv: ph.mv, rfEm: (ph.em || []).filter((em) => KINDS.has(em.t)),
-      rage: !!ph.rage, len: ph.len || 60, invuln: !!ph.invuln, shield: !!ph.shield, heat: ph.heat || null, leash: ph.leash || null,
+      rfP: ph, rage: !!ph.rage, len: ph.len || 60, invuln: !!ph.invuln, shield: !!ph.shield, heat: ph.heat || null, leash: ph.leash || null,
       patterns: [{ name: ph.name, windup: 0.4, recover: 5.5, volleys: [{ form: 'special', name: 'rfEmit' }] }] };
   });
   const T2 = [bal.tiers[0] + 1, bal.tiers[1] + 1];
@@ -209,6 +347,9 @@ export function rfBossToBX(DATA, B) {
       const hot = S.B.phases[S.phase] && S.B.phases[S.phase].rage ? 0.8 : 1;   // (rage: a quarter faster)
       for (const q of R.list) if ((q.t -= dt) <= 0) { q.t = (q.em.e || (q.em.t === 'minion' ? 1e9 : 1.5)) * hot; fire(g, e, B, bal, q.em, q.vol++); }
     },
+    // the arena's rules, for the player in this browser
+    local(g, e, dt) { arenaRules(g, e, B, bal, dt); },
+    drawGround(r, g, e) { drawArena(r, g, e, B); },
     // can't be hurt: an invulnerable phase (until its time is up or its minions fall), or shielded outside its openings
     immune(g, e) { return !!e.rfImm; },                 // (worked out each frame where the fight runs: phaseRules; a shared boss brings it along)
     immuneText: 'INVULNERABLE',
@@ -220,6 +361,7 @@ export function rfBossToBX(DATA, B) {
       if (ph.rage) ring(40 + Math.sin(g.t * 6) * 3, '#ff3c50', 0.5);
       if (ph.invuln && e.rfImm) ring(34, '#9fd8ff', 0.55 + Math.sin(g.t * 6) * 0.25);
       if (ph.shield && e.rfImm) ring(36, '#ffd650', 0.6);
+      if ((ph.rfP.egg || ph.rfP.cocoon) && e.rfImm) ring(32 + Math.sin(g.t * 6) * 2, ph.rfP.egg ? '#ffcc33' : '#f4ecd8', 0.7);
       if (ph.leash) { b.globalAlpha = 0.18; b.strokeStyle = '#7ac85a'; b.lineWidth = 1; b.beginPath(); b.arc(sx, sy, ph.leash.len * 16, 0, TAU); b.stroke(); b.globalAlpha = 1; }
     },
     loot: [...(B.drops || []).map((d) => ({ id: `rf_${d.id}`, p: d.rarity === 'mythic' ? 0.02 : d.rarity === 'legendary' ? 0.08 : 0.2 })),
