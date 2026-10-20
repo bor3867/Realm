@@ -226,6 +226,7 @@ export class Game {
       status: { berserk: 0, armored: 0, invuln: 0 }, moving: false, dead: false, deadT: 0, lavaT: 0, quests: c.quests || [], lore: c.lore || [],
     };
     this.save.chars[idx] = this.player;      // the live object IS the save record
+    { const C = CLASSES[this.player.cls]; if (C && this.player.base) for (const s of STATS) if (this.player.base[s] > C.max[s]) this.player.base[s] = C.max[s]; }   // (caps lowered to 50: older heroes trimmed to them)
     this.player.hp = this.stat('hp');
     this.player.mp = this.stat('mp');
     this.realmMap = null;

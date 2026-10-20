@@ -937,3 +937,15 @@ html body #app #panel #who #petname .netstat.off { color: #8a8a8a; }
 #seals .q.seal i { width: 20px; font-size: 17px; }
 #seals .q.seal small { font-size: 13px; }
 #seals .hintline { font-size: 13px; }
+/* the HUD a size larger, still the whole of it on screen: drawn 1.15x, the panel is 1/1.15 of the window tall, and its
+   fixed size steps (slots, minimap) are chosen for that height (the window-height ladder above, each step x1.15) */
+body #app #panel { height: calc(100% / 1.15) !important; --slot: 54px; --mini: 196px; }
+@media (min-height: 1150px) { body #app #panel { --slot: 68px; } }
+@media (min-height: 1265px) { body #app #panel { --slot: 76px; } }
+@media (max-height: 989px) { body #app #panel { --slot: 54px; } }
+@media (max-height: 908px) { body #app #panel { --slot: 48px; } }
+@media (max-height: 846px) { body #app #panel { --slot: 42px; } }
+@media (max-height: 782px) { body #app #panel { --slot: 36px; } }
+@media (max-height: 713px) { body #app #panel { --slot: 30px; } }
+@media (max-height: 874px) { body #app #panel { --mini: 160px; } }
+@media (max-height: 759px) { body #app #panel { --mini: 124px; } }
