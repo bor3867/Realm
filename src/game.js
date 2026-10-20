@@ -664,7 +664,7 @@ export class Game {
     for (const c of m.camps || []) {                    // each camp: an evolved leader and its band, guarding the chest
       const chest = m.objects.find((o) => o.interact === 'chest' && Math.abs(o.x - c.x) < 0.1 && Math.abs(o.y - c.y) < 0.1);
       const lead = this.addEnemy(r.pick(GROUPS[c.biome]), c.x + 1.5, c.y + 1.5);
-      lead.kids = []; lead.childT = lead.D.every;
+      lead.kids = []; lead.childT = lead.D.every; lead.leash = 8; lead.hx = c.x; lead.hy = c.y;   // (they keep within 8 tiles of the chest)
       for (let k = 0; k < 4; k++) this.spawnChild(lead, r);
       if (chest) chest.guards = [lead, ...lead.kids];
     }
@@ -713,6 +713,7 @@ export class Game {
     if (isSolid(this.map, x, y)) return null;
     const kid = this.addEnemy(r.pick(parent.D.children), x, y);
     kid.parent = parent;
+    if (parent.leash) { kid.leash = parent.leash; kid.hx = parent.hx; kid.hy = parent.hy; }   // a camp's guard keeps to its chest
     parent.kids.push(kid);
     return kid;
   }
@@ -958,6 +959,7 @@ export class Game {
     this.reveal();
     const p = this.player, I = this.input;
     for (const k in p.status) p.status[k] = Math.max(0, p.status[k] - dt);
+    p.playT = (p.playT || 0) + dt;                               // (minutes active, for the death screen)
     p.hitT = Math.max(0, p.hitT - dt);
     if (p.danceT > 0) p.danceT -= dt;
     p.abilityT = Math.max(0, p.abilityT - dt);
@@ -1528,7 +1530,7 @@ export class Game {
   // time stop: frozen while inside the dial (bosses only for the first half)
   frozen(e) {
     const T = this.timeStop;
-    return !!(T && T.t > 0 && dist2(e.x, e.y, T.x, T.y) < T.r * T.r && (!(e.rb || e === this.boss) || T.t > T.dur * 0.5));
+    return !!(T && T.t > 0 && !T.rfx && dist2(e.x, e.y, T.x, T.y) < T.r * T.r && (!(e.rb || e === this.boss) || T.t > T.dur * 0.5));
   }
   updateTimeStop(dt) {
     const T = this.timeStop;
@@ -1656,6 +1658,7 @@ export class Game {
     b.k = shotScale(sprite, size, from);                      // big art is drawn (and hits) at the size its attack meant
     this.projectiles.push(b);
     if (from === 'p' && this.net) this.netShot(b);            // others see your shots (src/net.js)
+    if (from === 'p' && this.player && !this.netTargets) this.player.shotsFired = (this.player.shotsFired || 0) + 1;   // (for the death screen)
     return b;
   }
 
@@ -1705,6 +1708,7 @@ export class Game {
     d = Math.max(0, Math.round(d));                          // damage is always a whole number
     const hp0 = p.hp;
     p.hp -= d;
+    p.dmgTaken = (p.dmgTaken || 0) + d;                      // (for the death screen)
     this.gearPostHurt(d, hp0);
     this.rfPostHurt(d, hp0);
     p.hitT = 0.15;
@@ -1734,7 +1738,11 @@ export class Game {
     const p = this.player;
     p.hp = 0; p.dead = true; p.deadT = 0;
     const rep = this.fameReport(p), fame = rep.total, maxed = rep.maxed;
-    this.deathInfo = { cls: p.cls, level: p.level, fame, base: rep.base, bonuses: rep.bonuses, by, kills: p.kills, maxed, date: new Date().toISOString().slice(0, 10) };
+    this.deathInfo = { cls: p.cls, level: p.level, fame, base: rep.base, bonuses: rep.bonuses, by, kills: p.kills, maxed, date: new Date().toISOString().slice(0, 10),
+      name: (this.account && this.account.name) || CLASSES[p.cls].name, equip: p.equip.slice(), shots: p.shotsFired || 0, hits: p.shotsHit || 0, dmgTaken: p.dmgTaken || 0,
+      mins: Math.round((p.playT || 0) / 60), bossKills: p.bossKills || 0, dungeons: p.dungeons || 0, xp: p.totalXp || 0 };
+    // a gravestone where you fell (others in the same place see it too: src/net.js), its size by the fame you earned
+    if (this.map) (this.map.graves = this.map.graves || []).push({ x: p.x, y: p.y, name: this.deathInfo.name, level: p.level, cls: p.cls, fame, t: this.t });
     this.save.classFame = this.save.classFame || {};
     this.save.classFame[p.cls] = Math.max(this.save.classFame[p.cls] || 0, rep.base);
     this.save.fame += fame;
@@ -1823,6 +1831,7 @@ export class Game {
       if (!T && e.bx && e.bx.B.local) e.bx.B.local(this, e, dt);   // a boss's arena rules, felt by the player in this browser (src/bosses/rf_translate.js)
       if (e.net) { this.netPuppet(e, dt); continue; }
       if (T) { p = this.netNearest(e); if (!p) continue; this.player = p; }
+      if (e.leash) { const lh = dist(e.x, e.y, e.hx, e.hy), L1 = e.leash + 1; if (lh > L1) { e.x = e.hx + ((e.x - e.hx) / lh) * L1; e.y = e.hy + ((e.y - e.hy) / lh) * L1; } }   // a camp's guard: never far from its chest, however it moves (swoops, dashes, knockback)
       const d2 = dist2(e.x, e.y, p.x, p.y);
       if (d2 > (e.rb ? 40 * 40 : ACTIVE_R * ACTIVE_R)) continue;
       e.hurtT = Math.max(0, e.hurtT - dt);
@@ -2065,7 +2074,8 @@ export class Game {
     if (aggro && e.parent && !e.parent.dead && dist(e.x, e.y, e.parent.x, e.parent.y) > 13) { tx = e.parent.x; ty = e.parent.y; }
     if (e.lureTo && this.t < e.lureTo.until) { tx = e.lureTo.x; ty = e.lureTo.y; sp = D.speed * 1.2; }   // the striker's bell calls them
     if (e.rallyUntil > this.t) sp *= 1.35;                       // the war banner's aura
-    if (D.leash) { const lh = dist(tx, ty, e.hx, e.hy); if (lh > D.leash) { tx = e.hx + ((tx - e.hx) / lh) * D.leash; ty = e.hy + ((ty - e.hy) / lh) * D.leash; } }   // a doorway's guard keeps to its door
+    const LR = D.leash || e.leash;                               // a doorway's guard keeps to its door, a camp's to its chest
+    if (LR) { const lh = dist(tx, ty, e.hx, e.hy); if (lh > LR) { tx = e.hx + ((tx - e.hx) / lh) * LR; ty = e.hy + ((ty - e.hy) / lh) * LR; } }
     sp *= (1 - (e.slowF || 0)) * (e.enraged ? 1.5 : 1);
     if (ai === 'hop') return this.hopToward(e, tx, ty, sp, dt);
     if (ai === 'skitter') return this.skitterToward(e, tx, ty, sp, dt);
@@ -2189,23 +2199,17 @@ export class Game {
     if (e.rfC || e.rfBossP) return this.rfAbilityHit(e, dmg);   // an rf_ dungeon's creature or boss
     if (e.dead || e.state === 'dead') return 0;
     if (e.spawnT > 0) return 0;                                  // an elite still arriving
-    if (e.bulwarkT > this.t) { if (!quiet) this.float(x, y - 0.8, 'BULWARK', '#ff8fbf'); return 0; }   // the reef golem's shell
+    // (no monster blocks or is guarded any more: the reef golem's bulwark, the sentinel's ward, the conch's shell, a
+    // shield-bearer's front, a boss's guard all let blows through; a camp's chest is still guarded)
     if (e.asDormant) this.asWake(e);                              // the Vault Keeper wakes when struck
-    if (e.wardT > this.t) { if (!quiet) this.float(x, y - 0.8, 'WARDED', '#ffd690'); return 0; }   // an astrolabe sentinel's ring ward
     if (e.rallyUntil > this.t) dmg = Math.round(dmg * 0.7);       // an orc under the war banner
     if (e.surviveUntil > this.t) { if (!quiet) this.float(x, y - 0.8, 'SURVIVE!', '#ff8c1e'); return 0; }
     if (e.frenzyUntil > this.t) { if (!quiet) this.float(x, y - 0.8, e.D.bloodlust ? 'BLOODLUST' : 'INVULNERABLE', '#ff4a5a'); return 0; }
     if (e.invulnT > 0) { if (!quiet) this.float(x, y - 0.8, 'IMMUNE', '#8d88a0'); return 0; }
-    if (e.D && e.D.shell) {                                    // a flurry of hits sends the conch hermit into its shell
-      if (e.shellT > 0) { if (!quiet) this.float(x, y - 0.8, 'CLINK', '#c8e8ff'); return 0; }
-      e.shellHits = (e.shellLast > this.t - 0.6 ? e.shellHits || 0 : 0) + 1; e.shellLast = this.t;
-      if (e.shellHits >= 4 && !(e.shellCd > this.t)) { e.shellHits = 0; e.shellT = 1.5; e.shellCd = this.t + 4.5; e.state = 'move'; e.queue.length = 0; }   // then 3 s out, exposed
-    }
     if (e.rb && this.d4Immune(e, x, y, quiet)) return 0;
     if (e.D && e.D.bx && !e.bxKill && this.bxImmune(e, x, y, quiet)) return 0;
     if (e.id === 'sleepers_nightmare') this.d4LinkHit(e, dmg);
     if (e.rb) dmg = Math.round(dmg * this.d4DamageMult(e));
-    if (e.shieldBy && e.shieldBy.some((m) => !m.dead)) { if (!quiet) this.float(x, y - 0.8, 'SHIELDED', '#8af6ff'); return 0; }
     if (this.frozen(e)) dmg = Math.round(dmg * 1.3);           // caught in stopped time: every blow lands harder
     if (e.curseT > 0) dmg = Math.round(dmg * (1 + e.curseF));   // hexed
     if (e.reflectUntil > this.t) {                             // the Colossus's blazing core: your shot comes back
@@ -2304,6 +2308,7 @@ export class Game {
   }
   // a player projectile (or thrall bolt) connects: damage + every on-hit effect of its weapon
   playerHit(e, b) {
+    if (!b.counted && this.player) { b.counted = true; this.player.shotsHit = (this.player.shotsHit || 0) + 1; }   // (accuracy, for the death screen)
     const sp = b.sp;
     let base = b.dmg;
     if (sp && sp.accel) base = Math.round(base * (0.55 + 0.9 * Math.min(1, Math.hypot(b.vx, b.vy) / 22)));   // speed is damage
@@ -2577,8 +2582,8 @@ export class Game {
         for (const [mx, my] of spots.slice(0, M.shield.count)) {
           if (!isSolid(this.map, mx, my)) { const mn = this.addEnemy(M.shield.id || D.summon, mx, my); mn.minion = true; mn.seen = true; guard.push(mn); }
         }
-        e.shieldBy = guard;
-        this.banner(`${D.name} is shielded: kill its guard!`, 2200);
+        void guard;                                    // (its guard come to fight; they no longer shield it)
+        this.banner(`${D.name} calls its guard!`, 2200);
       }
       for (const f of M.fire || []) {
         if (f.delay) e.queue.push({ t: f.delay, atk: f });
@@ -3678,14 +3683,6 @@ export class Game {
           if (dist2(b.x, b.y, hx, hy) < rr * rr) {
             if (b.hit) { if (b.hit.has(e)) continue; b.hit.add(e); }
             if (e === this.boss && this.boss.state === 'phase') { alive = b.pierce; break; }
-            if (e.D && e.D.guard && e.state === 'move' && !e.stunT) {
-              const fa = angleTo(e.x, e.y, p.x, p.y), sa = Math.atan2(-b.vy, -b.vx);
-              if (Math.abs(((fa - sa + Math.PI * 3) % TAU) - Math.PI) < 1.2) {   // came from the front: blocked
-                this.float(...lift(b.x, b.y, 0.6), 'BLOCK', '#a8b8d8');
-                this.vx({ k: 'burst', x: b.x, y: b.y, n: 4, colors: ['#ffffff', '#a8b8d8'] });
-                alive = false; break;
-              }
-            }
             this.playerHit(e, b);
             if (!b.pierce) { alive = false; break; }
           }

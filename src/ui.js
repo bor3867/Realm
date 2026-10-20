@@ -1273,18 +1273,45 @@ export class UI {
     loop();
     o.querySelector('.cls').focus();
   }
+  // the death screen, RotMG's way: a gravestone with the hero standing before it, who killed them, the gear they died
+  // in, the fame they earned (and why), and the record of their life
   deathScreen() {
-    const d = this.g.deathInfo, g = this.g;
-    const o = this.overlay(`<div class="screen"><h1 style="color:#e2546a">You died</h1>
-      <h2>${CLASSES[d.cls].name}, level ${d.level} · killed by ${d.by}</h2>
-      <p>${d.kills} kills · ${d.maxed} stats maxed</p>
-      <div class="famebox">${d.level < MAX_LEVEL && !d.base ? '<p class="mut">Characters earn fame once they reach level 20.</p>' : ''}
-        <div class="fr"><span>Base fame</span><b>${d.base || 0}</b></div>
-        ${(d.bonuses || []).map(([n, v]) => `<div class="fr"><span>${n}</span><b>+${v}</b></div>`).join('')}
-        <div class="fr tot"><span>Total fame</span><b class="fame">+${d.fame}</b></div></div>
+    const d = this.g.deathInfo, g = this.g, C = CLASSES[d.cls];
+    const acc = d.shots ? Math.min(100, Math.round((d.hits / d.shots) * 100)) : 0;
+    const stat = (k, v) => `<div class="fr"><span>${k}</span><b>${v}</b></div>`;
+    const gear = (d.equip || []).map((id) => `<div class="dslot">${id ? `<div class="ico" style="background-image:url(${this.r.icon(id)})"></div>` : ''}</div>`).join('');
+    const o = this.overlay(`<div class="screen deathscr"><h1 style="color:#e2546a">${d.name || C.name} has died</h1>
+      <h2>${C.name}, level ${d.level} · killed by ${d.by}</h2>
+      <div class="dcols">
+        <div class="dleft"><canvas id="dgrave" width="160" height="150"></canvas><div class="dgear">${gear}</div></div>
+        <div class="dright">
+          <div class="famebox">${d.level < MAX_LEVEL && !d.base ? '<p class="mut">Characters earn fame once they reach level 20.</p>' : ''}
+            <div class="fr"><span>Base fame</span><b>${d.base || 0}</b></div>
+            ${(d.bonuses || []).map(([n, v]) => `<div class="fr"><span>${n}</span><b>+${v}</b></div>`).join('')}
+            <div class="fr tot"><span>Total fame</span><b class="fame">+${d.fame}</b></div></div>
+          <div class="famebox dstats">
+            ${stat('Monsters killed', d.kills || 0)}${stat('Bosses killed', d.bossKills || 0)}${stat('Dungeons completed', d.dungeons || 0)}
+            ${stat('Shots fired', d.shots || 0)}${stat('Accuracy', acc + '%')}${stat('Damage taken', d.dmgTaken || 0)}
+            ${stat('Stats maxed', `${d.maxed}/8`)}${stat('Experience', d.xp || 0)}${stat('Minutes active', d.mins || 0)}</div>
+        </div>
+      </div>
       <p>Account fame: <span class="fame">${g.save.fame}</span></p>
       <button class="btn" id="again">Continue</button></div>`);
+    this.drawGraveCard(o.querySelector('#dgrave'), d);
     o.querySelector('#again').onclick = () => { g.leaveToMenu(); this.titleScreen(); };
     o.querySelector('#again').focus();
+  }
+  // the gravestone on the death screen, the hero's sprite before it (the art at 4x, outlined, as everywhere)
+  drawGraveCard(cv, d) {
+    if (!cv) return;
+    const x = cv.getContext('2d'), P = 5, o = '#05040a', st = '#8d88a0', hi = '#c8c0d8', lo = '#5a5468';
+    x.imageSmoothingEnabled = false;
+    const R = (c, a, b, w, h) => { x.fillStyle = c; x.fillRect(a * P, b * P, w * P, h * P); };
+    // the stone: 16 x 22 pixels, rounded top, a cross cut in, on a plinth
+    R(o, 7, 1, 18, 2); R(o, 6, 3, 20, 20); R(st, 7, 2, 16, 20); R(st, 8, 1, 14, 2); R(hi, 7, 3, 2, 18); R(lo, 21, 4, 1, 17);
+    R(o, 14, 6, 2, 9); R(o, 11, 9, 8, 2);
+    R(o, 3, 22, 26, 5); R(lo, 4, 23, 24, 3);
+    const S = this.r.A.sheets[CLASSES[d.cls].sheet], A = S && S.guide.animations.front_idle;
+    if (S && A) { const F = S.guide.frameWidth, fr = outlinedFrame(S.img, A.col * F, A.row * F, F, F, 3); x.drawImage(fr, Math.round(cv.width / 2 - fr.width / 2) + 34, cv.height - fr.height - 4); }
   }
 }

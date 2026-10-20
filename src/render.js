@@ -59,6 +59,21 @@ const WEATHER = {
 const outlined = (ctx, t, x, y) => { ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = '#000'; ctx.strokeText(t, x, y); };
 const textFont = (px) => `700 ${Math.round(px)}px "Source Sans 3", "Segoe UI", sans-serif`;
 const MINI_ENEMY_RANGE = 18;
+// status icons over heads (Renderer.statusIcons): o outline, 1 main colour, 2 accent; 7 wide
+const STATUS_GLYPH = {
+  slow: ['ooooooo', 'o11111o', 'oo121oo', '.oo1oo.', '..ooo..'],
+  stun: ['...o...', '..o1o..', 'oo121oo', 'o12221o', 'oo121oo', '.o1o1o.', '.oo.oo.'],
+  burn: ['...o...', '..o1o..', '.o121o.', 'o12221o', 'o12221o', '.o111o.', '..ooo..'],
+  frozen: ['.o.o.o.', 'o1o1o1o', '.o111o.', 'o11211o', '.o111o.', 'o1o1o1o', '.o.o.o.'],
+  curse: ['.ooooo.', 'o11111o', 'o12121o', 'o11111o', '.o111o.', '.o1o1o.', '..ooo..'],
+  root: ['o.o.o.o', '1o1o1o1', 'o2o2o2o', '1o1o1o1', 'ooooooo'],
+  confuse: ['.ooooo.', 'o11111o', 'ooooo1o', '..o11oo', '..o1o..', '..ooo..', '..o1o..'],
+  sleep: ['ooooooo', 'o11111o', 'oooo1oo', '..o1oo.', '.o1oooo', 'o11111o', 'ooooooo'],
+  blind: ['..ooo..', '.o111o.', 'o11211o', '.o111o.', '..ooo..'],
+  broken: ['ooooooo', 'o11211o', 'o11211o', 'o12111o', '.o121o.', '..o1o..', '...o...'],
+  shield: ['ooooooo', 'o11111o', 'o12221o', 'o11211o', '.o111o.', '..o1o..', '...o...'],
+  up: ['...o...', '..o1o..', '.o121o.', 'o11211o', 'ooo1ooo', '..o1o..', '..ooo..'],
+};
 const MINI_GLYPH = {
   player: ['.ooo.', 'o121o', 'o222o', 'o121o', '.ooo.'],
   enemy: ['.ooo.', 'o111o', 'o112o', 'o111o', '.ooo.'],
@@ -195,6 +210,7 @@ export class Renderer {
     if (g.timeStop) this.timeDial(g, g.timeStop);
     for (const f of g.fx) if (f.kind === 'cloud' || f.kind === 'zone') this.groundFx(f, g);
     if (g.activeMap === m) for (const e of g.notable) if (e.bx && e.bx.B.drawGround && !e.dead) e.bx.B.drawGround(this, g, e);   // a boss's hazards on the ground
+    if (m.graves) this.drawGraves(g, m);                        // the fallen: a gravestone each, where they fell
     this.spGround(g);                                       // set-piece telegraphs (src/setpieces.js)
     if (m.mrClouds || m.mrPuddles) this.mireFx(g, m);
     if (m.asClocks || m.asDais) this.astralFx(g, m);
@@ -244,6 +260,7 @@ export class Renderer {
     this.drawZaps(dt);
     this.drawParticles(dt);
     this.drawSprFx(dt);
+    if (g.activeMap === m) this.statusIcons(g);                  // what ails each monster, and you: little icons over the head
     if (g.darkUntil > g.t && g.darkBy && !g.darkBy.dead) this.darkFx(g);
     if (g.inkUntil > g.t) this.inkFx(g);
     if (g.player.chill > 0 && !g.player.dead) this.chillFx(g);
@@ -1141,7 +1158,6 @@ export class Renderer {
     else if (e.dead && def.anims.death) { const A = def.anims.death; fr = A.frames[Math.min(A.frames.length - 1, Math.floor(e.deadT * A.fps))]; }
     else if (e.dead || e.shellT > 0) fr = fHurt;
     else if (e.state === 'tell' || e.state === 'charge' || e.state === 'attack') fr = fAtk;
-    else if (e.hurtT > 0.03) fr = fHurt;
     else fr = mv[Math.floor(g.t * (e.hop || e.sk || e.dive ? 9 : 5) + e.phase) % mv.length];
     const L = this.alive(g, e, sx, sy, 16), K = e.D.scale || 1;
     L.flip = !L.flip;                                       // the bundle's art faces right; the old sheets face left
@@ -1206,7 +1222,7 @@ export class Renderer {
     const rise = e.born !== undefined ? Math.min(1, (g.t - e.born) / 0.5) : 1;
     this.shadow(sx, sy, 10);
     const b = this.b; b.globalAlpha = rise;
-    this.spr(this.A.img.objects, (k % c) * TS, Math.floor(k / c) * TS, TS, TS, sx, sy + Math.round((1 - rise) * 10), 8, 8, false, e.hurtT > 0.03);
+    this.spr(this.A.img.objects, (k % c) * TS, Math.floor(k / c) * TS, TS, TS, sx, sy + Math.round((1 - rise) * 10), 8, 8, false, false);   // (no flash when hit)
     b.globalAlpha = 1;
     if (Math.random() < 0.15) this.parts.push({ x: e.x + (Math.random() - 0.5) * 0.6, y: e.y, z: 10, vx: 0, vy: 0, vz: 8, g: 0, life: 0.7, max: 0.7, color: e.id === 'war_banner' ? '#ff4a5a' : '#7aff9a' });
     if (e.hp < e.maxHp) this.hpBar(sx, sy + 3, e.hp / e.maxHp, 14);
@@ -1284,7 +1300,7 @@ export class Renderer {
       b.restore();
       if (Math.random() < 0.2) this.parts.push({ x: e.x + (Math.random() - 0.5) * 0.6, y: e.y, z: 10, vx: 0, vy: 0, vz: 10, g: 0, life: 0.4, max: 0.4, color: '#ff4a5a' });
     }
-    if (e.D.guard && e.state === 'move') {                // the shield is up: a glint on the side facing you
+    if (false) {                                          // (shields no longer block: no glint)
       const tx = this.cx - x, ty = this.cy - y, d = Math.hypot(tx, ty) || 1;
       const gx = Math.round(x + (tx / d) * F * 0.45), gy = Math.round(y - F * 0.45 + (ty / d) * F * 0.3);
       b.fillStyle = Math.floor(g.t * 6) % 2 ? '#ffffff' : '#a8b8d8';
@@ -2078,6 +2094,80 @@ export class Renderer {
       if (d) return d.foot[1] * 2 * (e.D.scale || 1) + 6;
     }
     return 16 * (e.warden ? 2 : (e.D && e.D.scale) || 1) + 6;
+  }
+  // gravestones, RotMG's way: a little cross for the young, a headstone, a great tomb for the famous; the name and
+  // level when you stand beside one
+  drawGraves(g, m) {
+    const b = this.b, p = g.player;
+    for (const G of m.graves) {
+      const [sx, sy] = this.proj(G.x, G.y), x = Math.round(sx), y = Math.round(sy);
+      if (x < -40 || y < -40 || x > b.canvas.width + 40 || y > b.canvas.height + 40) continue;
+      const big = G.fame >= 1000 ? 2 : G.fame >= 100 || G.level >= 20 ? 1 : 0, o = '#05040a', st = '#8d88a0', hi = '#c8c0d8', lo = '#5a5468';
+      b.fillStyle = 'rgba(0,0,0,0.35)'; b.fillRect(x - 6 - big * 2, y - 1, 13 + big * 4, 3);
+      if (big === 0) {                                      // a wooden cross
+        b.fillStyle = o; b.fillRect(x - 2, y - 13, 5, 14); b.fillRect(x - 5, y - 10, 11, 5);
+        b.fillStyle = '#8a6a3a'; b.fillRect(x - 1, y - 12, 3, 12); b.fillRect(x - 4, y - 9, 9, 3);
+      } else {                                              // a headstone (a great one: taller, wider, a plinth)
+        const w = big === 2 ? 14 : 10, h = big === 2 ? 18 : 13, x0 = x - (w >> 1), y0 = y - h;
+        b.fillStyle = o; b.fillRect(x0 - 1, y0 + 2, w + 2, h - 1); b.fillRect(x0 + 1, y0, w - 2, 3);
+        b.fillStyle = st; b.fillRect(x0, y0 + 2, w, h - 2); b.fillRect(x0 + 2, y0 + 1, w - 4, 2);
+        b.fillStyle = hi; b.fillRect(x0 + 1, y0 + 2, 2, h - 4);
+        b.fillStyle = lo; b.fillRect(x0 + w - 2, y0 + 3, 1, h - 4);
+        b.fillStyle = o; b.fillRect(x - 1, y0 + 4, 3, 1); b.fillRect(x - 3, y0 + 6, 7, 1); b.fillRect(x - 1, y0 + 4, 1, 5);   // R.I.P.: a cross cut in
+        if (big === 2) { b.fillStyle = o; b.fillRect(x0 - 3, y - 3, w + 6, 4); b.fillStyle = lo; b.fillRect(x0 - 2, y - 2, w + 4, 2); }
+      }
+      if (p && !p.dead && Math.hypot(p.x - G.x, p.y - G.y) < 2.5) {
+        b.font = textFont(8); b.textAlign = 'center';
+        const t1 = `${G.name || 'A hero'}`, t2 = `level ${G.level || 1}`;
+        outlined(b, t1, x, y - 24); b.fillStyle = '#ffffff'; b.fillText(t1, x, y - 24);
+        outlined(b, t2, x, y - 15); b.fillStyle = '#c8c0d8'; b.fillText(t2, x, y - 15);
+      }
+    }
+  }
+  // status icons over the head, RotMG's way: one small pixel glyph per effect, in a row (the slow, the stunned, the
+  // burning, the frozen, the cursed; on you also the rooted, confused, asleep, blinded, armour broken, and your boons)
+  statusIcons(g) {
+    const t = g.t, b = this.b;
+    const row = (list, e) => {
+      if (!list.length) return;
+      const [sx, sy] = this.proj(e.x, e.y), y = Math.round(sy - this.headPx(g, e) - 9), w = list.length * 8 - 1;
+      let x = Math.round(sx - w / 2);
+      for (const [name, c1, c2] of list) {
+        const G = STATUS_GLYPH[name];
+        for (let j = 0; j < G.length; j++) for (let i = 0; i < G[j].length; i++) {
+          const ch = G[j][i]; if (ch === '.') continue;
+          b.fillStyle = ch === 'o' ? '#05040a' : ch === '1' ? c1 : c2; b.fillRect(x + i, y + j, 1, 1);
+        }
+        x += 8;
+      }
+    };
+    for (const e of g.active || []) {
+      if (e.dead || e.under) continue;
+      const L = [];
+      if (e.stunT > 0) L.push(['stun', '#ffe060', '#ffffff']);
+      if (g.frozen && g.frozen(e)) L.push(['frozen', '#8af0ff', '#ffffff']);
+      if (e.slowT > 0 && e.slowF > 0) L.push(['slow', '#5a8ae0', '#c8e0ff']);
+      if (e.burn && e.burn.t > 0) L.push(['burn', '#ff7a1a', '#ffd650']);
+      if (e.curseT > 0) L.push(['curse', '#b06bff', '#05040a']);
+      row(L, e);
+    }
+    const p = g.player;
+    if (p && !p.dead) {
+      const L = [], on = (k) => p[k] > t, S = p.status || {};
+      if (on('frozenUntil')) L.push(['frozen', '#8af0ff', '#ffffff']);
+      if (S.asleep > 0) L.push(['sleep', '#c8a0ff', '#ffffff']);
+      if (on('owDazed')) L.push(['stun', '#ffe060', '#ffffff']);
+      if (g.invertUntil > t) L.push(['confuse', '#ff9ad8', '#ffffff']);
+      if (on('owRooted')) L.push(['root', '#7ac85a', '#3a6a2a']);
+      if ((on('dragUntil') && p.dragF < 1) || (g.chillSlow && g.chillSlow() < 1)) L.push(['slow', '#5a8ae0', '#c8e0ff']);
+      if (p.owBurn && p.owBurn.until > t) L.push(['burn', '#ff7a1a', '#ffd650']);
+      if (on('owInked')) L.push(['blind', '#8d88a0', '#05040a']);
+      if (on('owBroken')) L.push(['broken', '#a8a0b0', '#05040a']);
+      if (S.invuln > 0) L.push(['shield', '#ffd650', '#ffffff']);
+      if (S.armored > 0) L.push(['shield', '#5ac8ff', '#ffffff']);
+      if (S.berserk > 0) L.push(['up', '#ff4a5a', '#ffd0d8']);
+      row(L, p);
+    }
   }
   // ------------------------------------------------------------ HUD overlays
   // an overworld boss's mark on you (src/owbosses.js): each its own look, at your feet and round you, no words

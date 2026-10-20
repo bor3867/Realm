@@ -83,7 +83,7 @@ const methods = {
       if (m.eq) o.eq = m.eq;
       if (m.stats) o.stats = m.stats;
       if (m.fame !== undefined) o.fame = m.fame;
-      if (m.dead && !o.dead) o.deadT = 0;
+      if (m.dead && !o.dead) { o.deadT = 0; const M = this.map; if (M) (M.graves = M.graves || []).push({ x: m.x, y: m.y, name: m.name, level: m.lv, cls: m.cls, fame: o.fame || 0, t: this.t }); }   // another player fell: their grave
       o.dead = m.dead;
       if (m.sh) o.lastShot = this.t;
       if (m.ab && o.abilityT <= 0) o.abilityT = 0.5;
