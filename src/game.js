@@ -1227,6 +1227,7 @@ export class Game {
         slow: mod === 'slowfield', unwind: mod === 'unwind' ? Math.round((A.unwind || 0) * mult) : 0 };
       this.fx.push({ kind: 'ring', ...liftO(p.x, p.y, 0.4), t: 0, max: B.range, color: '#e3b95a' });
       this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.5), n: 30, colors: ['#e3b95a', '#fff6c8', '#8d88a0'] });
+      if (this.map.netWorld) for (const e of this.enemiesIn(p.x, p.y, B.range)) if (e.net) this.netEfx(e, 'freeze', A.stop);   // the monsters there are the server's: it holds them still
       this.vx({ k: 'shake', amt: 3 });
     } else if (type === 'godability') {
       for (const e of this.enemiesIn(p.x, p.y, B.range)) this.damageEnemy(e, B.dmg, ...lift(e.x, e.y, 0.5), true);
@@ -1531,6 +1532,8 @@ export class Game {
   }
   // time stop: frozen while inside the dial (bosses only for the first half)
   frozen(e) {
+    if (e.hp <= 0 || e.dead || (e.bx && (e.bx.state === 'death' || e.bx.state === 'deathhold' || e.bx.state === 'morph'))) return false;   // (never hold the dying or a boss changing phase: it must die, or move on)
+    if (e.frozenUntil > this.t) return true;              // frozen by a player's Stop Time in a shared place (the server holds it)
     const T = this.timeStop;
     return !!(T && T.t > 0 && !T.rfx && dist2(e.x, e.y, T.x, T.y) < T.r * T.r && (!(e.rb || e === this.boss) || T.t > T.dur * 0.5));
   }

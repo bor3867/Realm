@@ -156,6 +156,7 @@ export function makeWorld(seed, send, where = 'realm') {
         if (!e || e.dead || Math.hypot(e.x - q.x, e.y - q.y) > 20) continue;
         if (k === 'stun') { g.player = q; try { g.stun(e, Math.min(3, a)); } finally { g.player = anchor; } }
         else if (k === 'slow' && !e.rb) { e.slowT = Math.max(e.slowT || 0, Math.min(5, a)); e.slowF = Math.max(e.slowF || 0, Math.min(0.8, b)); }
+        else if (k === 'freeze') e.frozenUntil = Math.max(e.frozenUntil || 0, g.t + Math.min(5, a) * (e.rb || e.D.bx ? 0.5 : 1));   // Stop Time: held still (a boss half as long)
         else if (k === 'push' && !e.rb) { const n = Math.hypot(a, b), s = n > 2 ? 2 / n : 1; g.moveCircle(e, a * s, b * s, 0.35); }
       }
     },

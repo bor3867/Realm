@@ -347,7 +347,8 @@ const methods = {
     const d = Math.hypot(e.tx - e.x, e.ty - e.y);
     if (d > 5) { e.x = e.tx; e.y = e.ty; } else { const k = Math.min(1, dt * 10); e.x += (e.tx - e.x) * k; e.y += (e.ty - e.y) * k; }
     if (e.hurtT > 0) e.hurtT = Math.max(0, e.hurtT - dt);
-    if (e.burn && e.burn.t > 0) this.tickStatus(e, dt);
+    this.tickStatus(e, dt);                              // its burn ticks here (the damage is reported); a slow or curse you put on it wears off here too
+    if (e.stunT > 0) e.stunT -= dt;                       // (and a stun, between the server's word on it)
     if (e.slowT > 0 && e.slowF > 0 && (e.slowF !== e.netSF || e.slowT > (e.netST || 0) + 0.3)) { e.netSF = e.slowF; e.netST = e.slowT; this.netEfx(e, 'slow', e.slowT, e.slowF); }
     if (e.bx && e.bx.anim) e.bx.anim.update(dt);
   },
