@@ -102,6 +102,35 @@ Type commands in chat (`/` or Enter). Ids use underscores. Regenerate with `node
 
 - Overworld (`/boss`, `/spawn`): `brine_cathedral`, `wick_mother`, `orrery_of_winter`, `penitent_colossus`, `emily_the_yapper`, `the_fallen_star`
 - Three-phase (`/bx`, `/spawn`): `abyssal_kraken`, `thornheart_treant`, `glacius_frozen_wyrm`, `mother_mycelia`, `grand_orrery`, `gilded_sphinx`, `count_vesper`, `grinning_ringmaster`, `tidebound_lich`, `forgeheart_colossus`
+
+### Realmforge bosses on the three-phase engine (`/bx rfx_ID`)
+
+| Id | Boss | Phases | Specials |
+| --- | --- | --- | --- |
+| `rfx_mortis` | Gravewarden Mortis | 5 | cone, invuln, dark, still, rage |
+| `rfx_gutterlord` | The Gutterlord | 4 | flood, rage |
+| `rfx_mire` | Mother Mire | 5 | decoys, ritual, rage |
+| `rfx_cinder` | Forgemaster Cinder | 5 | heat, invuln, bellows, rage |
+| `rfx_matriarch` | The Pale Moth Matriarch | 4 | mesmer, cocoon, rage, pools |
+| `rfx_rime` | Rime | 5 | invuln, rage, frostbite |
+| `rfx_astraeus` | Astraeus | 4 | invuln, rage, closing |
+| `rfx_twins` | The Eclipse Twins | 4 | mv2, halves, tether, halflit, merged, rage |
+| `rfx_unmaker` | The Unmaker | 4 | reflect, rage |
+| `rfx_cantor` | The Cantor | 5 | beat, staff, downbeat, rage |
+| `rfx_elderbark` | Elderbark | 5 | braziers, leash, rage |
+| `rfx_roc` | Tempest Roc | 4 | wind, updraft, rage |
+| `rfx_ignis` | Ignis | 4 | invuln, egg, trail, rage, sunspots |
+| `rfx_cardinal` | The Ashen Cardinal | 4 | colors, blindAsh, rage |
+| `rfx_sarrukh` | Sarrukh | 5 | sandstorm, rage |
+| `rfx_magistrate` | The Brass Magistrate | 5 | gavel, timestop, rage |
+| `rfx_vitrea` | Vitrea | 5 | clones, panes, fracture, thousand, rage |
+| `rfx_ossian` | Abbot Ossian | 5 | wells, field, zerog, pulse, edge, rage |
+| `rfx_aion` | Aion | 5 | shield, puzzle, rage |
+| `rfx_vael` | Vael | 5 | warp, rage |
+| `rfx_morvane` | King Morvane | 6 | chess, chesspuzzle, rage, crownOrbit |
+| `rfx_gourdrick` | Lord Gourdrick | 5 | healEvery, snare, dome, curse, rage |
+| `rfx_mirabeau` | Mirabeau the Magnificent | 6 | spotlight, shell, encore, rage |
+| `rfx_orrigan` | Orrigan | 5 | fold, ink, rage |
 - Dungeon (`/spawn`, or `/boss` to go to it): `drowned_abbot`, `fallen_heart`, `the_archivist`, `the_unstruck_god`, `tidebound_lich`, `forgeheart_colossus`, `honey_queen`, `the_puppeteer`, `prism_wyrm`, `the_sleeper`, `unstruck`
 
 ## Pets

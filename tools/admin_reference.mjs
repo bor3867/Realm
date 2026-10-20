@@ -7,7 +7,10 @@ import { CLASSES } from '../src/data/classes.js';
 import { PET_KINDS, RARITY_ORDER, FAMILIES } from '../src/data/pets.js';
 import { BX } from '../src/bosses/index.js';
 import { RATING } from '../src/rf/balance.js';
+import { addRfBosses } from '../src/bosses/rf_translate.js';
 const RF = JSON.parse(readFileSync(new URL('../art/rf/data.json', import.meta.url), 'utf8'));
+const ours = Object.keys(BX).filter((k) => k !== 'framework_test');   // (before the translated ones join the list)
+addRfBosses(RF);
 const code = (s) => '`' + s + '`', list = (a) => a.map(code).join(', ');
 
 const L = [];
@@ -81,7 +84,12 @@ L.push('');
 
 L.push('## Boss ids', '');
 L.push('- Overworld (`/boss`, `/spawn`): ' + list(Object.keys(REALM_BOSSES)));
-L.push('- Three-phase (`/bx`, `/spawn`): ' + list(Object.keys(BX).filter((k) => k !== 'framework_test')));
+L.push('- Three-phase (`/bx`, `/spawn`): ' + list(ours));
+// the 24 translated onto the three-phase engine: `/bx rfx_<id>`, with the specials each one brings (to know what to test)
+const SPEC = (B) => [...new Set(B.phases.flatMap((ph) => Object.keys(ph).filter((k) => !['name', 'hp', 'mv', 'text', 'notes', 'em', 'len', 'invuln_note', 'crackMax', 'shoot'].includes(k))))];
+L.push('', '### Realmforge bosses on the three-phase engine (`/bx rfx_ID`)', '');
+table(['Id', 'Boss', 'Phases', 'Specials']);
+for (const B of RF.bosses) row(code('rfx_' + B.id), B.name, B.phases.length, SPEC(B).join(', ') || '-');
 L.push('- Dungeon (`/spawn`, or `/boss` to go to it): ' + list(Object.keys(DUNGEON_BOSSES)) + ', `unstruck`', '');
 
 L.push('## Pets', '');
