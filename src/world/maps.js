@@ -111,17 +111,17 @@ function bigProp(m, name, x, y) {
   m.solid[idx(m, x - 1, y)] = 1; m.solid[idx(m, x, y)] = 1;
 }
 export function nexus() {
-  const W = 76, H = 48, CX = 27, CY = 24;               // the meadow, plus the Pet Yard clearing out east
+  const W = 96, H = 60, CX = 34, CY = 30, OX = CX - 27, OY = CY - 24;   // the meadow (a third bigger, 2026-10-20), plus the Pet Yard clearing out east
   const m = makeMap('nexus', 'The Nexus', W, H, TID.hedge);
   const r = rng(0x7e55);
   const set = (x, y, t) => { if (x > 0 && y > 0 && x < W - 1 && y < H - 1) m.tiles[idx(m, x, y)] = t; };
   // the meadow: a ragged oval clearing in the hedge
   for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
-    const d = ((x - CX) / 24.5) ** 2 + ((y - CY) / 21.5) ** 2 + (Math.sin(x * 0.9) + Math.cos(y * 1.3)) * 0.03;
+    const d = ((x - CX) / 31) ** 2 + ((y - CY) / 26.5) ** 2 + (Math.sin(x * 0.9) + Math.cos(y * 1.3)) * 0.03;
     if (d < 1) set(x, y, TID.grass);
   }
   // the Pet Yard: a second clearing east of the market, joined by a cobbled path through the hedge
-  const YX = 63, YY = CY;
+  const YX = CX + 39, YY = CY;
   for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
     if (((x - YX) / 10.5) ** 2 + ((y - YY) / 10) ** 2 + (Math.sin(x * 1.1) + Math.cos(y * 0.9)) * 0.03 < 1) set(x, y, TID.grass);
   }
@@ -136,14 +136,14 @@ export function nexus() {
   lane(4, CY, CX, CY, 1, TID.cobble);                         // west to the vault
   lane(CX, CY, CX + 15, CY, 1, TID.cobble);                   // east to the market
   lane(CX, CY, CX, CY + 15, 1, TID.cobble);                   // south to the smithy
-  lane(CX - 13, 14, CX - 13, CY - 2, 0, TID.dirt);            // dirt track up to the training yard
+  lane(CX - 13, 14 + OY, CX - 13, CY - 2, 0, TID.dirt);       // dirt track up to the training yard
   lane(CX - 13, CY - 2, CX - 2, CY - 2, 0, TID.dirt);
   lane(CX + 6, CY - 9, CX + 11, CY - 9, 0, TID.dirt);         // track to the pond
   lane(CX + 6, CY - 9, CX + 6, CY - 2, 0, TID.dirt);
   // the firepit plaza
   for (let y = CY - 5; y <= CY + 5; y++) for (let x = CX - 5; x <= CX + 5; x++) if (dist(x, y, CX, CY) < 5.2) set(x, y, TID.cobble);
   // the training yard (NW): packed dirt, fenced
-  const TX0 = 6, TY0 = 7, TX1 = 18, TY1 = 14;
+  const TX0 = 6 + OX, TY0 = 7 + OY, TX1 = 18 + OX, TY1 = 14 + OY;
   for (let y = TY0; y <= TY1; y++) for (let x = TX0; x <= TX1; x++) set(x, y, TID.dirt);
   // the pond (NE)
   const PX = CX + 15, PY = CY - 11;
@@ -155,21 +155,24 @@ export function nexus() {
   put(m, 'campfire', CX, CY, true);
   put(m, 'bench_h', CX, CY - 3, false); put(m, 'bench_h', CX, CY + 3, false);
   put(m, 'bench_v', CX - 3, CY, false); put(m, 'bench_v', CX + 3, CY, false);
-  put(m, 'well', CX + 6, CY + 5, true, { interact: 'fountain', label: 'Drink from the well (heals)' });
+  put(m, 'well', CX + 6, CY + 5, true, { interact: 'fountain', label: 'Drink from the well (heals)', tag: 'WELL', hint: 'Drink to heal fully' });
+  // the guide by where you arrive, and the Dungeon Atlas by the fire
+  put(m, 'villager_guard', CX - 3, CY + 7, true, { interact: 'guide', label: 'Talk to the Nexus guide', tag: 'GUIDE', hint: 'New here? Talk to learn what everything is' });
+  put(m, 'bookshelf', CX + 5, CY - 6, true, { interact: 'atlas', label: 'Read the Dungeon Atlas', tag: 'DUNGEON ATLAS', hint: 'Every dungeon: how hard it is, its boss, where its portal drops' });
   for (const [x, y] of [[CX - 2, 5], [CX + 2, 5], [CX - 2, 13], [CX + 2, 13], [5, CY - 2], [5, CY + 2], [13, CY - 2], [13, CY + 2],
     [CX + 9, CY - 2], [CX + 9, CY + 2], [CX - 2, CY + 9], [CX + 2, CY + 9], [CX - 5, CY - 5], [CX + 5, CY - 5], [CX - 5, CY + 5]]) put(m, 'lamppost', x, y, true);
   // realm gate (north) and vault door (west)
   m.portals = [
-    { kind: 'realm', x: CX + 0.5, y: 3.5, label: 'Realm Portal', to: 'realm' },
-    { kind: 'vault', x: 3.5, y: CY + 0.5, label: 'Your Vault', to: 'vault' },
+    { kind: 'realm', x: CX + 0.5, y: 3.5, label: 'Realm Portal', to: 'realm', tag: 'REALM PORTAL', hint: 'Step in to fight. The farther from the beach, the stronger the monsters and the better the loot' },
+    { kind: 'vault', x: 3.5, y: CY + 0.5, label: 'Your Vault', to: 'vault', tag: 'YOUR VAULT', hint: 'Keep what you cannot carry. It grows with every Vault Chest you buy' },
   ];
   // the market (east): the Salt-Peddler's stall
   bigProp(m, 'market', CX + 16, CY - 1);
-  put(m, 'merchant', CX + 15, CY + 2, true, { interact: 'shop', label: 'Trade with the Salt-Peddler' });
+  put(m, 'merchant', CX + 15, CY + 2, true, { interact: 'shop', label: 'Trade with the Salt-Peddler', tag: 'MARKET', hint: 'Buy potions and gear; sell what you do not need' });
   for (const [x, y, s] of [[CX + 18, CY + 2, 'barrel'], [CX + 19, CY + 1, 'crate'], [CX + 13, CY - 2, 'crate'], [CX + 19, CY - 3, 'barrel']]) put(m, s, x, y, true);
   // the smithy (south)
   bigProp(m, 'smithy', CX + 1, CY + 17);
-  put(m, 'smith', CX - 3, CY + 15, true, { interact: 'forge', label: 'Use the Forge' });
+  put(m, 'smith', CX - 3, CY + 15, true, { interact: 'forge', label: 'Use the Forge', tag: 'THE FORGE', hint: 'Pay gold to raise your gear a tier (up to T11)' });
   put(m, 'anvil_block', CX + 4, CY + 15, true);
   put(m, 'barrel', CX - 5, CY + 17, true); put(m, 'crate', CX + 5, CY + 17, true);
   // homes, the inn, oaks
@@ -177,6 +180,9 @@ export function nexus() {
   bigProp(m, 'inn', CX + 10, CY + 9);
   bigProp(m, 'house', CX - 11, CY + 10);
   bigProp(m, 'cottage', CX - 17, CY + 4);
+  bigProp(m, 'house', CX - 22, CY - 14); bigProp(m, 'cottage', CX + 20, CY - 18); bigProp(m, 'house', CX + 19, CY + 19); bigProp(m, 'cottage', CX - 24, CY + 15);
+  for (const [x, y] of [[CX - 27, CY - 4], [CX + 26, CY + 12], [CX - 14, CY + 24], [CX + 6, CY + 24], [CX + 27, CY - 9], [CX - 8, CY - 22]]) bigProp(m, 'oak', x, y);
+  for (const [x, y] of [[CX - 20, CY], [CX + 20, CY - 10], [CX - 10, CY + 20], [CX + 12, CY + 20], [CX - 18, CY - 18]]) put(m, 'lamppost', x, y, true);
   for (const [x, y] of [[CX - 20, CY - 10], [CX + 21, CY + 6], [CX - 6, CY + 19], [CX + 12, CY + 16], [CX - 19, CY + 15], [CX + 8, CY - 15], [CX - 4, CY - 13]]) bigProp(m, 'oak', x, y);
   // the training yard: fence, dummies, hay, a sign
   for (let x = TX0; x <= TX1; x++) {
@@ -186,9 +192,9 @@ export function nexus() {
   for (let y = TY0; y <= TY1; y++) { put(m, 'fence_v', TX0 - 1, y, true); put(m, 'fence_v', TX1 + 1, y, true); }
   m.dummies = [[TX0 + 2.5, TY0 + 2.5], [TX0 + 6.5, TY0 + 1.5], [TX0 + 10.5, TY0 + 2.5], [TX0 + 4.5, TY0 + 5.5], [TX0 + 8.5, TY0 + 5.5]];
   put(m, 'haybale', TX0, TY1, true); put(m, 'haybale', TX1, TY0, true);
-  put(m, 'signpost', 14, TY1 + 2, true, { label: 'Training yard: hit the dummies to read your damage per second' });
-  put(m, 'board', CX + 8, CY - 3, true, { interact: 'board', label: 'Read the quest board' });       // quests
-  put(m, 'bard', CX - 3, CY - 3, true, { interact: 'bard', label: 'Listen to the bard' });            // a bard by the fire
+  put(m, 'signpost', 14 + OX, TY1 + 2, true, { label: 'Training yard: hit the dummies to read your damage per second', tag: 'TRAINING YARD', hint: 'Hit the dummies to see your damage per second' });
+  put(m, 'board', CX + 8, CY - 3, true, { interact: 'board', label: 'Read the quest board', tag: 'QUEST BOARD', hint: 'Take quests for gold, essence and fame' });       // quests
+  put(m, 'bard', CX - 3, CY - 3, true, { interact: 'bard', label: 'Listen to the bard', tag: 'BARD', hint: 'Listen for a little inspiration' });            // a bard by the fire
   bigProp(m, 'tent', CX - 15, CY - 1);                                                                // the fortune teller
   put(m, 'pedestal', CX - 15, CY + 1, true, { interact: 'fortune', label: 'Have your fortune told (100 gold)', hidden: true });
   // (the trophy statues of the great foes you have beaten stand in your vault now: see vaultRoom)
@@ -203,13 +209,13 @@ export function nexus() {
   for (let y = pen.y0; y <= pen.y1; y++) { if (Math.abs(y - YY) > 1) put(m, 'fence_v', pen.x0 - 1, y, true); put(m, 'fence_v', pen.x1 + 1, y, true); }
   for (let y = pen.y0; y <= pen.y1; y++) for (let x = pen.x0; x <= pen.x1; x++) if ((x + y) % 7 === 0) set(x, y, TID.dirt);
   put(m, 'haybale', pen.x1, pen.y0, true); put(m, 'haybale', pen.x1, pen.y1, true); put(m, 'barrel', pen.x1 - 1, pen.y0, true);
-  put(m, 'petkeeper', YX - 8, YY - 2, true, { interact: 'petyard', label: 'Visit the Petkeeper (pets, eggs, feeding)' });
+  put(m, 'petkeeper', YX - 8, YY - 2, true, { interact: 'petyard', label: 'Visit the Petkeeper (pets, eggs, feeding)', tag: 'PET YARD', hint: 'Hatch eggs, raise pets, choose the companion who heals you' });
   put(m, 'signpost', YX - 8, YY + 2, true, { label: 'The Pet Yard: hatch eggs, raise pets, and pick the companion who heals you' });
   for (const [x, y] of [[YX - 7, YY - 4], [YX - 7, YY + 4], [CX + 22, CY - 2], [CX + 22, CY + 2]]) put(m, 'lamppost', x, y, true);                  // the cat, by the fire
-  put(m, 'fishspot', PX - 6, PY + 2, true, { interact: 'fish', label: 'Fish in the pond' });         // the pond's little dock
-  for (let x = 4; x <= 13; x++) set(x, 40, TID.grass);                                          // a secret tunnel through the hedge...
-  for (let y = 38; y <= 42; y++) for (let x = 2; x <= 5; x++) set(x, y, TID.grass);              // ...to a grotto
-  put(m, 'lorestone', 3, 39, true, { interact: 'lore', lore: 15, label: 'Read the stone' });
+  put(m, 'fishspot', PX - 6, PY + 2, true, { interact: 'fish', label: 'Fish in the pond', tag: 'FISHING', hint: 'Cast a line: now and then something good bites' });         // the pond's little dock
+  for (let x = 4; x <= 13 + OX; x++) set(x, 40 + OY, TID.grass);                                 // a secret tunnel through the hedge...
+  for (let y = 38 + OY; y <= 42 + OY; y++) for (let x = 2; x <= 5; x++) set(x, y, TID.grass);     // ...to a grotto
+  put(m, 'lorestone', 3, 39 + OY, true, { interact: 'lore', lore: 15, label: 'Read the stone' });
   // pond dressing, pines and bushes along the hedge, stumps, a little clutter
   m.decor = [];
   for (let k = 0; k < 16; k++) {

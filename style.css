@@ -949,3 +949,9 @@ body #app #panel { height: 100% !important; --slot: 54px; --mini: 196px; }   /* 
 @media (max-height: 713px) { body #app #panel { --slot: 30px; } }
 @media (max-height: 874px) { body #app #panel { --mini: 160px; } }
 @media (max-height: 759px) { body #app #panel { --mini: 124px; } }
+/* the Dungeon Atlas (the Nexus): every dungeon, its danger, its master, where its portal drops */
+.screen.atlas table { margin: 10px auto; border-collapse: collapse; text-align: left; font-size: 14px; max-width: 920px; }
+.screen.atlas th { color: #ffd98a; font-weight: normal; padding: 4px 10px; border-bottom: 1px solid #3a3348; }
+.screen.atlas td { padding: 4px 10px; border-bottom: 1px solid #221d2c; color: #ece6f6; }
+.screen.atlas td.stars { color: #ffd650; white-space: nowrap; } .screen.atlas td.stars i { color: #3a3348; font-style: normal; }
+.screen.atlas td.mut { color: #9a94ac; }

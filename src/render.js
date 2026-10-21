@@ -2127,6 +2127,21 @@ export class Renderer {
       }
     }
   }
+  // the Nexus's signs: a name over every service, and close up (within 5 tiles) a line on how to use it (the one you
+  // stand at shows its own prompt: its name lifts above it)
+  nexusTags(g) {
+    const ctx = this.ctx, s = this.scale, p = g.player, W = ctx.canvas.width, H = ctx.canvas.height;
+    ctx.textAlign = 'center';
+    for (const o of [...g.map.objects, ...g.map.portals]) {
+      if (!o.tag || o.hidden) continue;
+      const [bx, by] = this.proj(o.x, o.y), x = bx * s, y = (by - (o.kind ? 30 : 26)) * s;
+      if (x < -120 || x > W + 120 || y < -40 || y > H + 40) continue;
+      const near = Math.hypot(p.x - o.x, p.y - o.y), at = g.nearNPC === o || g.nearPortal === o, ty = at ? y - s * 9 : y;
+      ctx.font = textFont(Math.max(16, s * 6));
+      outlined(ctx, o.tag, x, ty); ctx.fillStyle = '#ffd650'; ctx.fillText(o.tag, x, ty);
+      if (o.hint && near < 5 && !at) { ctx.font = textFont(Math.max(13, s * 4.3)); outlined(ctx, o.hint, x, y + s * 7); ctx.fillStyle = '#e8e4f0'; ctx.fillText(o.hint, x, y + s * 7); }
+    }
+  }
   // status icons over the head, RotMG's way: one small pixel glyph per effect, in a row (the slow, the stunned, the
   // burning, the frozen, the cursed; on you also the rooted, confused, asleep, blinded, armour broken, and your boons)
   statusIcons(g) {
@@ -2252,6 +2267,7 @@ export class Renderer {
       ctx.fillStyle = dps > 5000 ? '#ff4af0' : dps > 1500 ? '#ffd650' : dps ? '#7ad0a8' : '#8d88a0'; ctx.fillText(t1, x, y);
     }
     this.speech(g);
+    if (g.map.kind === 'nexus') this.nexusTags(g);              // what everything in the Nexus is (and, close up, how to use it)
     ctx.font = textFont(Math.max(13, s * 4 * 1.3));
     if (g.nearPortal) {
       const [bx, by] = this.proj(g.nearPortal.x, g.nearPortal.y);

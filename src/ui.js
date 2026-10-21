@@ -2,6 +2,9 @@
 import { CLASSES, STATS, STAT_NAMES, xpToNext, MAX_LEVEL, FAME_GOALS } from './data/classes.js';
 import { outlinedFrame } from './outline.js';
 import { ITEMS, itemLabel, specialLines, canEquip, SETS, SET_PIECES } from './data/items.js';
+import { ENEMIES, DUNGEONS, DUNGEON_RATING, DUNGEON_BOSSES, portalDrop2 } from './data/enemies.js';
+import { BX } from './bosses/index.js';
+const BIOME_NAME = { shore: 'Shore', lowlands: 'Lowland', fen: 'Fen', thornwood: 'Thornwood', steppe: 'Steppe', runeholt: 'Runeholt', dunes: 'Dune', godfall: 'Godfall', frostveil: 'Frostveil' };
 import { POT_STACK } from './game.js';
 import { ACTIONS, MINI_STEPS, keyLabel, resetSettings, keyName, keyParen } from './settings.js';
 import { PET_KINDS, RARITY, RARITY_ORDER, ABILITIES, PET_TICK, SHIELD_TICK, PET_MAX, petHeal, petMagic, petShield, petXpToNext, petCap, petMaxed, feedCost, feedValue, canMorph, FUSE_GOLD, petSprite, petName, abilityOrder, mainMaxed, petLevel } from './data/pets.js';
@@ -138,6 +141,24 @@ export class UI {
     cv.width = cv.height = 16;
     cv.getContext('2d').drawImage(this.r.A.img.objects, (k % c) * 16, Math.floor(k / c) * 16, 16, 16, 0, 0, 16, 16);
     return (this.petIcons[sprite] = cv.toDataURL());
+  }
+  // the Dungeon Atlas: every dungeon, its stars, its boss, and what drops its portal
+  openAtlas() {
+    this.modal = 'atlas';
+    const by = {};
+    for (const [id, D] of Object.entries(ENEMIES)) {
+      if (id.startsWith('rf') || !D || D.dummy) continue;
+      for (let k = 0; k < 6; k++) { const pd = portalDrop2(D, id); if (pd) { (by[pd[0]] = by[pd[0]] || new Set()).add(D.rb || D.boss || D.herald ? D.name : (BIOME_NAME[D.biome] || D.biome) + ' monsters'); break; } }
+    }
+    const rows = Object.entries(DUNGEONS).map(([id, d]) => ({ id, d, st: (DUNGEON_RATING[id] || [3])[0] })).sort((a, b) => a.st - b.st).map(({ id, d, st }) => {
+      const boss = BX[d.boss] ? BX[d.boss].name : DUNGEON_BOSSES[d.boss] ? DUNGEON_BOSSES[d.boss].name : '';
+      const from = [...(by[id] || [])].slice(0, 3).join(', ') || 'a key, or the deep realm';
+      return `<tr><td><b>${d.name}</b></td><td class="stars">${'★'.repeat(st)}<i>${'★'.repeat(5 - st)}</i></td><td>${boss}</td><td class="mut">${from}</td></tr>`;
+    }).join('');
+    const o = this.overlay(`<div class="screen atlas"><h1>The Dungeon Atlas</h1><h2>Every dungeon in the realm, easiest first. Keys (from the shop and from bosses) open a portal here in the Nexus.</h2>
+      <table><tr><th>Dungeon</th><th>Danger</th><th>Its master</th><th>Its portal drops from</th></tr>${rows}</table>
+      <button class="btn" id="mclose">Close${keyParen('settings')}</button></div>`);
+    o.querySelector('#mclose').onclick = () => this.closeModal();
   }
   openJournal(ev) {
     this.modal = 'journal';
@@ -781,6 +802,8 @@ export class UI {
         cat: ['The cat', 'A sleeping cat', `Petted ${g.player.petted || 0} times`, 'Pet'],
         bard: ['The bard', 'A bard by the fire', 'Songs, and a little inspiration', 'Listen'],
         fortune: ['Fortune teller', "Madame Ostra's tent", '100 gold for a glimpse of tomorrow', 'Pay'],
+        guide: ['The Nexus guide', 'New here?', 'What everything is, a line at a time', 'Talk'],
+        atlas: ['Dungeon Atlas', 'Every dungeon in the realm', 'How hard, whose, and where its portal drops', 'Read'],
       }[npc.interact] || ['', npc.label || '', '', 'Use'];
       $('portalkind').textContent = info[0]; $('portalname').textContent = info[1]; $('portalsub').textContent = info[2]; $('portalgo').textContent = info[3] + keyParen('portal');
     }
@@ -793,7 +816,7 @@ export class UI {
       if (ev.type === 'ground' || ev.type === 'map') this.refreshSlots();
       if (ev.type === 'map') { const f = $('fade'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); }
       if (ev.type === 'chat') this.renderChat();
-      if (ev.type === 'npc') { if (ev.which === 'shop') this.openShop(); else if (ev.which === 'board') this.openBoard(); else if (ev.which === 'waypoint') this.openWaypoints(ev.from); else if (ev.which === 'petyard') this.openPetYard(); else if (ev.which === 'journal') this.openJournal(ev); else this.openForge(); }
+      if (ev.type === 'npc') { if (ev.which === 'shop') this.openShop(); else if (ev.which === 'board') this.openBoard(); else if (ev.which === 'waypoint') this.openWaypoints(ev.from); else if (ev.which === 'petyard') this.openPetYard(); else if (ev.which === 'journal') this.openJournal(ev); else if (ev.which === 'atlas') this.openAtlas(); else this.openForge(); }
       if (ev.type === 'death') this.deathScreen();
     }
     if (this.bannerT > 0 && (this.bannerT -= dt) <= 0) $('banner').classList.add('hidden');

@@ -166,6 +166,16 @@ const FORTUNES = ['You will meet a tall, dark monster. It will be very rude.', '
   'The stars favour you today. +LUCK.', 'Beware the duck.', 'You will die... eventually. Not today, though. Probably.',
   'Your next dungeon will be cold. Bring a scarf.', 'Something in the Frozen Scriptorium has your name in it.', 'The cat says hello.'];
 
+// the Nexus guide's lines, in the order a new player needs them (talk again for the next)
+const NEXUS_GUIDE = [
+  'Welcome to the Nexus: the one safe place in the realm. Nothing can hurt you here. Talk to me again and I will show you round.',
+  'North, the Realm Portal. Step through to fight. The farther you go from the beach, the stronger the monsters and the better the loot.',
+  'West, your Vault: keep there what you cannot carry. East, the Salt-Peddler buys and sells. South, the Forge raises your gear a tier, for gold.',
+  'By the fire, the Quest Board has work for gold and fame, and the Dungeon Atlas tells you every dungeon, how hard it is, and where its portal drops.',
+  'Past the market, the Pet Yard: hatch eggs and raise a companion that heals you as you fight. The well heals you here; the dummies to the north-west show your damage.',
+  'One more thing. If you fall out there, that hero is gone for good; but the fame you earned stays with you. Good hunting.',
+];
+
 export class Game {
   constructor(assets, save) {
     this.A = assets;
@@ -3891,6 +3901,13 @@ export class Game {
     switch (o.interact) {
       case 'shop': case 'forge': case 'board': case 'petyard':  // the menus: the UI opens them (the talk key and the button both come here)
         this.events.push({ type: 'npc', which: o.interact }); break;
+      case 'guide': {                                      // the Nexus guide: what everything is, a line at a time
+        const L = NEXUS_GUIDE;
+        o.line = ((o.line ?? -1) + 1) % L.length;
+        say(L[o.line], '#e8d8a8');
+        break;
+      }
+      case 'atlas': this.events.push({ type: 'npc', which: 'atlas' }); break;   // the Dungeon Atlas (the UI shows it)
       case 'journal': {                                    // a page of the dungeon's story
         const D = this.map.def, S = (D && D.story) || [];
         this.events.push({ type: 'npc', which: 'journal', title: D.storyTitle || D.name, page: o.page, of: S.length, text: S[o.page] || '' });
