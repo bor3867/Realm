@@ -39,7 +39,7 @@ function moves() {
   const home = homeOf;
   const spd = (e, k = 1) => (e.rfMv && e.rfMv.spd ? e.rfMv.spd : 1.2) * k;
   const M = {
-    rf_center(g, e, dt) { const H = home(e); step(g, e, H.x, H.y, spd(e, 1.5), dt); },
+    rf_center(g, e, dt) { if (e.rfSlotX !== undefined) { e.x = e.rfSlotX; e.y = e.rfSlotY; return; } const H = home(e); step(g, e, H.x, H.y, spd(e, 1.5), dt); },   // (in the Thousandfold: at her place in the ring)
     rf_chase(g, e, dt) { const p = g.player; if (Math.hypot(p.x - e.x, p.y - e.y) > 2.5) step(g, e, p.x, p.y, spd(e), dt); },
     rf_strafe(g, e, dt) { const p = g.player, a = Math.atan2(e.y - p.y, e.x - p.x) + dt * 0.6; step(g, e, p.x + Math.cos(a) * 6, p.y + Math.sin(a) * 6, spd(e, 1.4), dt); },
     rf_orbit(g, e, dt) { const H = home(e), a = (e.rfA = (e.rfA || 0) + dt * 0.5); step(g, e, H.x + Math.cos(a) * 4, H.y + Math.sin(a) * 4, spd(e, 1.6), dt); },
@@ -72,6 +72,7 @@ function originsOf(e, B, src) {
   if (src === 'decoys' && P.decoys) return decoysOf(e, B, P);
   if (src === 'corners') { const A = box(e, B); return [[1.5, 1.5], [A.w - 1.5, 1.5], [1.5, A.h - 1.5], [A.w - 1.5, A.h - 1.5]].map(([x, y]) => ({ x: A.x0 + x, y: A.y0 + y })); }
   if (src === 'crown' && P.crownOrbit) return [crownAt(e, B, P.crownOrbit)];
+  if (src === 'ring' && P.thousand) return Array.from({ length: P.thousand.n || 8 }, (_, i) => slotAt(e, B, P, i));   // the Thousandfold: every one of them
   if (src === 'b2') { const n = e.rfNoct && !e.rfNoct.dead ? e.rfNoct : null; return n ? [{ x: n.x, y: n.y - 1 }] : null; }   // Noct
   return null;                                                   // (its body: b1, and for now b2 and the ring of mirrors too)
 }
@@ -97,6 +98,7 @@ function minionKind(B, bal, key, em) {
 
 // one emitter firing: their shot, our projectile
 function fire(g, e, B, bal, em, vol, org) {
+  const PH0 = e.bx.B.phases[e.bx.phase];
   const s = B.shots[em.s] || {};
   if (em.t === 'seq') { const st = em.steps && em.steps[vol % em.steps.length]; if (st) fire(g, e, B, bal, st, vol, org); return; }   // their steps, one a beat
   if (!B.shots[em.s] && em.t !== 'minion') return;
@@ -142,6 +144,11 @@ function fire(g, e, B, bal, em, vol, org) {
     const tele = em.tele || 0.8, act = Math.min(1.2, em.dur || 0.5), L = Math.max(A.w, A.h) + 6;
     if (em.at === 'cross') for (const sg of [-1, 1]) { const a = (Math.PI / 4) * sg + Math.PI / 2; laser(p.x - Math.cos(a) * L / 2, p.y - Math.sin(a) * L / 2, a, L, tele, act); }
     else if (em.at === 'sweep' || em.at === 'pendulum') for (let k = 0; k < 3; k++) laser(ox, oy, aim + (k - 1) * 0.35 + Math.sin(vol) * 0.4, L, tele + k * 0.35, act);
+    else if (em.reflect && PH0 && PH0.rfP.panes) { let x = ox, y = oy, a = aim, left = L, last = null;   // the Lightray: its bounces, one marked line each
+      for (let k = 0; k < 4 && left > 0.5; k++) { const ex = x + Math.cos(a) * left, ey = y + Math.sin(a) * left; let best = null, bp = null;
+        for (const P of PANES(e, B, PH0.rfP)) { if (P === last) continue; const h = segX(x, y, ex, ey, P); if (h && (!best || h.t < best.t)) { best = h; bp = P; } }
+        if (!best) { laser(x, y, a, left, tele, act); break; }
+        const seg = Math.hypot(best.x - x, best.y - y); laser(x, y, a, seg, tele, act); left -= seg; const [vx, vy] = reflectV(Math.cos(a), Math.sin(a), bp); a = Math.atan2(vy, vx); x = best.x + Math.cos(a) * 0.05; y = best.y + Math.sin(a) * 0.05; last = bp; } }
     else laser(ox, oy, aim, L, tele, act);
   }
   else if (em.t === 'rain') { const ang = (90 - (em.angle || 0)) * D2R; for (let k = 0; k < (em.n || 1); k++) shot(ang, A.x0 + rnd(0.05, 0.95) * A.w, A.y0 - 0.5, s.speed || 5, A.h + 2); }
@@ -172,7 +179,7 @@ function fire(g, e, B, bal, em, vol, org) {
 // a phase's own rules, every frame: its time limit, its invulnerability, its shield's openings, the hot floor, the leash
 function phaseRules(g, e, B, bal, dt) {
   const S = e.bx, ph = S.B.phases[S.phase];
-  if (!ph || S.state === 'death' || S.state === 'deathhold' || S.state === 'sleep' || S.state === 'intro') return;
+  if (!ph || S.state === 'death' || S.state === 'deathhold' || S.state === 'gone' || e.dead || S.state === 'sleep' || S.state === 'intro') return;
   if (e.rfPh !== S.phase) { e.rfPh = S.phase; e.rfPhT = 0; e.rfFreed = false; e.rfHadMins = false; e.rfOpen = 0; e.rfOpenNext = 6; e.rfHeatT = 0; e.rfPz = 'combat'; e.rfPzT = 0; e.rfPzR = 0; e.rfExpT = 0; e.rfPlN = 0; e.rfSock = 0; e.rfTx = 0; endPieces(e);
     e.rfRit = ''; e.rfRitT = ph.rfP.ritual ? ph.rfP.ritual.every - 3 : 0; e.rfStagT = 0; }
   if (S.state === 'morph') return;
@@ -183,6 +190,8 @@ function phaseRules(g, e, B, bal, dt) {
   if (ph.invuln && !e.rfFreed && e.rfHadMins && !mins.length) { e.rfFreed = true; g.banner(`${e.D.name} is exposed!`, 1800); }
   // the Eclipse Twins: Noct, his movement, his own life at the end
   if (B.twin) twinStep(g, e, B, bal, dt, ph);
+  // Vitrea: her reflections, her echoes' shots, the Thousandfold
+  if (B.phases.some((q) => q.clones || q.thousand)) vitreaStep(g, e, B, bal, dt, ph);
   // Lord Gourdrick's friends: Sir Rindley and Sister Honeydew
   if (B.allies) allyStep(g, e, B, bal, dt, ph);
   // Mother Mire's ritual: step on every rune before the brew boils
@@ -278,6 +287,11 @@ function arenaRules(g, e, B, bal, dt) {
     if ('ck' in Z && Z.ck !== e.rfCurseK && pr && Math.hypot(p.x - pr.x, p.y - pr.y) < 6) { p.hp = Math.min(g.stat('hp'), p.hp + 250); g.float(p.x, p.y - 1, '+250', '#7ae07a'); }
     Z.ck = e.rfCurseK;
   }
+  // the panes: her shots bounce off them (three times at most)
+  if (P.panes) { const PN = PANES(e, B, P);
+    for (const b of g.projectiles) { if (!mine(b)) continue; const px = b.rfPx ?? b.x, py = b.rfPy ?? b.y; b.rfPx = b.x; b.rfPy = b.y;
+      if ((b.rfRefl || 0) >= 3) continue;
+      for (const P2 of PN) { const h = segX(px, py, b.x, b.y, P2); if (!h) continue; const [vx, vy] = reflectV(b.vx, b.vy, P2); b.vx = vx; b.vy = vy; b.a = Math.atan2(vy, vx); b.x = h.x + vx * 0.02; b.y = h.y + vy * 0.02; b.rfPx = b.x; b.rfPy = b.y; b.rfRefl = (b.rfRefl || 0) + 1; break; } } }
   // the brew boiled over: those near are confused (keys turned about) for a while
   if (!('rit' in Z) || e.rfRitFail !== Z.rit) { const I = P.ritual && P.ritual.inflict; if ('rit' in Z && I && Math.hypot(p.x - e.x, p.y - e.y) < 16) { g.invertUntil = g.t + (I.t || 2.5); g.float(p.x, p.y - 1.2, 'CONFUSED', '#c8a0ff'); } Z.rit = e.rfRitFail; }
   // the dark, the sandstorm: you see only round yourself
@@ -387,6 +401,11 @@ function drawArena(r, g, e, B) {
     if (pr && pr.rfCurseUntil > g.t) { circle(pr.x, pr.y, 1.6, '#6a2a8a', 0.3); circle(pr.x, pr.y, 1.6, '#c8a0ff', 0.9, true); }
     if (pr && g.rfZ && g.rfZ.healFx > g.t) { const [ax, ay] = r.proj(pr.x, pr.y), [px2, py2] = r.proj(g.player.x, g.player.y); b.globalAlpha = 0.8; b.strokeStyle = '#9fffb0'; b.lineWidth = 3; b.beginPath(); b.moveTo(ax, ay - 16); b.lineTo(px2, py2 - 10); b.stroke(); b.globalAlpha = 1; }
   }
+  if (P.panes) for (const P2 of PANES(e, B, P)) {     // the panes: tall glass (a prism in its colours)
+    const [x1, y1] = r.proj(P2.x1, P2.y1), [x2, y2] = r.proj(P2.x2, P2.y2);
+    b.lineCap = 'round'; b.strokeStyle = '#05040a'; b.lineWidth = 7; b.beginPath(); b.moveTo(x1, y1 - 8); b.lineTo(x2, y2 - 8); b.stroke();
+    b.strokeStyle = P2.kind === 'prism' ? `hsl(${(g.t * 120) % 360},90%,70%)` : '#bfe6ff'; b.lineWidth = 4; b.beginPath(); b.moveTo(x1, y1 - 8); b.lineTo(x2, y2 - 8); b.stroke();
+    b.strokeStyle = '#ffffff'; b.lineWidth = 1; b.beginPath(); b.moveTo(x1, y1 - 9); b.lineTo(x2, y2 - 9); b.stroke(); b.lineCap = 'butt'; }
   if (e.rfRit) for (const q of runesOf(e.rfRit)) { circle(q.x, q.y, 0.85, q.done ? '#ffd650' : '#7a3ac8', q.done ? 0.55 : 0.35 + 0.2 * Math.sin(g.t * 8)); circle(q.x, q.y, 0.85, '#e8d0ff', 0.7, true); }
   if (P.crownOrbit) { const c = crownAt(e, B, P.crownOrbit); circle(c.x, c.y, 0.6, '#ffd650', 0.8); circle(c.x, c.y, 0.9, '#fff6c8', 0.5, true); }
   if (e.rfSock) { const S0 = socketAt(A); circle(S0.x, S0.y, 0.8, '#ffd650', 0.8, true); circle(S0.x, S0.y, 0.5, '#3a2a10', 0.5); }
@@ -489,6 +508,77 @@ function allyStep(g, e, B, bal, dt, ph) {
         if (e.rfDomeLit && g.t >= e.rfDomeUntil) { e.rfDomeLit = false; e.rfDomeK = (e.rfDomeK || 0) + 1; g.vx({ k: 'shake', amt: 6 }); }   // it falls (each browser: in or out)
       }
     }
+  }
+}
+// ---- Vitrea, the Thousandfold. Her reflections are the server's creatures in her own art (flipped, casting no shadow).
+// Mirror Image and Echoes: they stand where her mirror would put her (across the hall, or turned), some a moment late,
+// and fire what she fires (the late ones late); one spins its own spiral. The panes on the walls bounce her shots (in
+// your browser) and her Lightray, which marks every bounce. The Thousandfold: eight of her round the hall, one real;
+// a reflection you shoot shatters and fires back; 16 blows on the real one shatter them all, and they shuffle.
+const PANES = (e, B, P) => { const A = box(e, B); return (P.panes || []).map(([x1, y1, x2, y2, kind]) => ({ x1: A.x0 + x1 * A.w, y1: A.y0 + y1 * A.h, x2: A.x0 + x2 * A.w, y2: A.y0 + y2 * A.h, kind: kind || 'mirror' })); };
+function segX(ax, ay, bx, by, p) {
+  const dx = bx - ax, dy = by - ay, ex = p.x2 - p.x1, ey = p.y2 - p.y1, den = dx * ey - dy * ex;
+  if (Math.abs(den) < 1e-9) return null;
+  const t = ((p.x1 - ax) * ey - (p.y1 - ay) * ex) / den, u = ((p.x1 - ax) * dy - (p.y1 - ay) * dx) / den;
+  return t >= 0 && t <= 1 && u >= 0 && u <= 1 ? { t, x: ax + dx * t, y: ay + dy * t } : null;
+}
+function reflectV(vx, vy, p) { const ex = p.x2 - p.x1, ey = p.y2 - p.y1, L = Math.hypot(ex, ey) || 1, nx = -ey / L, ny = ex / L, d = vx * nx + vy * ny; return [vx - 2 * d * nx, vy - 2 * d * ny]; }
+function echoKind(B, hp) {
+  const id = `rfz_${B.id}_echo`;
+  if (!ENEMIES[id]) ENEMIES[id] = { name: 'a Reflection', biome: 'dungeon', hp, def: 0, speed: 0, xp: 0, r: 1.1, ai: 'rooted', aggro: 0, reg: `bx_rf_${B.id}/rf_${B.id}_echo`, scale: 2, contact: 0, attacks: [], loot: [] };
+  return id;
+}
+const slotAt = (e, B, P, i) => { const A = box(e, B), n = P.thousand.n || 8, r = P.thousand.r || 4.6, a = (e.rfPhT || 0) * 0.25 + (i * TAU) / n; return { x: A.x0 + A.w / 2 + Math.cos(a) * r, y: A.y0 + A.h / 2 + Math.sin(a) * r * 0.62 }; };
+function clonePos(e, B, c, S) {
+  const A = box(e, B), cx = A.x0 + A.w / 2, cy = A.y0 + A.h / 2, H = e.rfHist || [], tb = S.t - (c.delay || 0);
+  let q = { x: e.x, y: e.y }; for (let i = H.length - 1; i >= 0; i--) if (H[i].t <= tb) { q = H[i]; break; }
+  if (c.mode === 'mx') return { x: 2 * cx - q.x, y: q.y };
+  if (c.mode === 'my') return { x: q.x, y: 2 * cy - q.y };
+  if (c.mode === 'pt') return { x: 2 * cx - q.x, y: 2 * cy - q.y };
+  const a = (c.rot || 90) * D2R, dx = q.x - cx, dy = q.y - cy; return { x: cx + dx * Math.cos(a) - dy * Math.sin(a), y: cy + dx * Math.sin(a) + dy * Math.cos(a) };
+}
+function vitreaStep(g, e, B, bal, dt, ph) {
+  const S = e.bx, P = ph.rfP, who = g.netTargets && g.netTargets.length ? g.netTargets : [g.player];
+  const H = (e.rfHist = e.rfHist || []); H.push({ t: S.t, x: e.x, y: e.y }); while (H.length && H[0].t < S.t - 3) H.shift();
+  const mk = (x, y, friendly) => { const m = g.addEnemy(echoKind(B, 1), x, y); m.seen = true; m.noLoot = true; m.noShadow = true; m.flipArt = true; m.friendly = !!friendly; m.rfOf = e; return m; };
+  // Mirror Image, Echoes: her reflections where her mirrors put her (shots pass through them)
+  const CL = P.clones || [];
+  e.rfEchoes = (e.rfEchoes || []).filter((m) => !m.dead);
+  while (e.rfEchoes.length > CL.length) { const m = e.rfEchoes.pop(); m.noLoot = true; m.dead = true; m.deadT = 0; }
+  CL.forEach((c, i) => { const at = clonePos(e, B, c, S); let m = e.rfEchoes[i]; if (!m) m = e.rfEchoes[i] = mk(at.x, at.y, true); m.x = at.x; m.y = at.y; m.face = at.x < e.x;
+    if (c.em) for (const [k, em] of c.em.entries()) { const key = 'rfCe' + i + k; if ((m[key] = (m[key] ?? 0.6) - dt) <= 0) { m[key] = em.e || 1; m.rfCv = (m.rfCv || 0) + 1; fire(g, e, B, bal, em, m.rfCv, { x: m.x, y: m.y - 1 }); } } });
+  // their shots, late
+  if (e.rfEchoQ && e.rfEchoQ.length) { const now = e.rfEchoQ.filter((q) => q.at <= S.t); e.rfEchoQ = e.rfEchoQ.filter((q) => q.at > S.t); for (const q of now) { const at = clonePos(e, B, q.c, { t: S.t }); fire(g, e, B, bal, q.em, q.v, { x: at.x, y: at.y - 1 }); } }
+  if (!CL.length) e.rfEchoQ = [];
+  // the Thousandfold
+  const T = P.thousand;
+  e.rfMirrors = e.rfMirrors || [];
+  if (!T) { for (const m of e.rfMirrors) if (!m.dead) { m.noLoot = true; m.dead = true; m.deadT = 0; } e.rfMirrors = []; e.rfSlotX = undefined; e.rfSlotY = undefined; return; }
+  const n = T.n || 8;
+  if (e.rfTrue === undefined) { e.rfTrue = Math.floor(Math.random() * n); e.rfThHits = 0; e.rfLastHp = e.hp; g.banner('Eight of her. Only one is real: find the one with a shadow', 2600); }
+  const me = slotAt(e, B, P, e.rfTrue); e.rfSlotX = me.x; e.rfSlotY = me.y; e.x = me.x; e.y = me.y;
+  e.rfBroke = e.rfBroke || {};
+  for (let i = 0, k = 0; i < n; i++) {
+    if (i === e.rfTrue) continue;
+    const at = slotAt(e, B, P, i); let m = e.rfMirrors[k];
+    if (m && m.dead && !m.rfShattered) {                 // shot: it shatters and fires back
+      m.rfShattered = true; e.rfBroke[k] = S.t + 2.5;
+      const q = who.reduce((a, b) => (Math.hypot(b.x - m.x, b.y - m.y) < Math.hypot(a.x - m.x, a.y - m.y) ? b : a), who[0]), a = Math.atan2(q.y - m.y, q.x - m.x), s = B.shots.sliver || {};
+      for (let j = -1; j <= 1; j++) g.shoot('e', m.x, m.y - 1, a + j * 0.2, s.speed || 7, s.range || 9, Math.round((s.dmg || 90) * bal.bossDmg), `rfx_shots/${B.id}.sliver`, 0.35, false, e.D.name);
+    }
+    if ((!m || m.dead) && !(e.rfBroke[k] > S.t)) m = e.rfMirrors[k] = mk(at.x, at.y, false);
+    if (m && !m.dead) { m.x = at.x; m.y = at.y; }
+    k++;
+  }
+  // blows on the real one (each frame she lost Life counts one): at 16 every reflection shatters, and they shuffle
+  if (e.hp < e.rfLastHp) e.rfThHits++;
+  e.rfLastHp = e.hp;
+  if (T.shuffle && (e.rfShufT = (e.rfShufT ?? T.shuffle) - dt) <= 0) { e.rfShufT = T.shuffle; const was = e.rfTrue; while (n > 1 && e.rfTrue === was) e.rfTrue = Math.floor(Math.random() * n); g.banner('The reflections shuffle', 1400); }   // (every few seconds she trades places)
+  if (e.rfThHits >= (T.hits || 16)) {
+    e.rfThHits = 0; e.rfShufT = T.shuffle; g.banner('The true Vitrea cracks! Every reflection shatters', 2000);
+    const s = B.shots.shard || B.shots.sliver || {};
+    for (const m of e.rfMirrors) if (m && !m.dead) { for (let j = 0; j < 8; j++) g.shoot('e', m.x, m.y - 1, (j * TAU) / 8, s.speed || 6, s.range || 7, Math.round((s.dmg || 80) * bal.bossDmg), `rfx_shots/${B.id}.${B.shots.shard ? 'shard' : 'sliver'}`, 0.35, false, e.D.name); m.noLoot = true; m.dead = true; m.deadT = 0; m.rfShattered = true; }
+    e.rfMirrors = []; e.rfBroke = {}; for (let k = 0; k < n - 1; k++) e.rfBroke[k] = S.t + 2.5; e.rfTrue = Math.floor(Math.random() * n);   // (back in a moment)
   }
 }
 // ---- Mother Mire's ritual, on the server: runes appear; if the players between them step on every one before the cast
@@ -629,12 +719,13 @@ export function rfBossToBX(DATA, B) {
       const S = e.bx, R = S.rfEm;
       tickMinions(g, e, B, bal, dt);
       phaseRules(g, e, B, bal, dt);
-      if (S.state === 'death' || S.state === 'deathhold') { for (const m of [...(e.rfMins || []), e.rfNoct, e.rfKnight, e.rfPriest]) if (m && !m.dead) { m.noLoot = true; m.dead = true; m.deadT = 0; } endPieces(e); }   // (its creatures go with it)
+      if (S.state === 'death' || S.state === 'deathhold') { for (const m of [...(e.rfMins || []), ...(e.rfEchoes || []), ...(e.rfMirrors || []), e.rfNoct, e.rfKnight, e.rfPriest]) if (m && !m.dead) { m.noLoot = true; m.dead = true; m.deadT = 0; } endPieces(e); }   // (its creatures go with it)
       if (e.rfPz === 'still') return;                              // (time stopped: it waits too)
       if (e.rfStagT > 0) { e.rfStagT -= dt; return; }              // (staggered: a ritual broken)
       if (!R || S.t > R.until || S.state === 'morph' || S.state === 'death' || S.state === 'deathhold') return;
       const hot = S.B.phases[S.phase] && S.B.phases[S.phase].rage ? 0.8 : 1;   // (rage: a quarter faster)
-      for (const q of R.list) if ((q.t -= dt) <= 0) { q.t = (q.em.e || (q.em.t === 'minion' ? 1e9 : 1.5)) * hot; const O = originsOf(e, B, q.em.src), v = q.vol++; if (O) for (const o of O) fire(g, e, B, bal, q.em, v, o); else fire(g, e, B, bal, q.em, v); }
+      for (const q of R.list) if ((q.t -= dt) <= 0) { q.t = (q.em.e || (q.em.t === 'minion' ? 1e9 : 1.5)) * hot; const O = originsOf(e, B, q.em.src), v = q.vol++; if (O) for (const o of O) fire(g, e, B, bal, q.em, v, o); else fire(g, e, B, bal, q.em, v);
+        const CL = S.B.phases[S.phase].rfP.clones; if (CL && !q.em.src && q.em.t !== 'minion') for (const c of CL) if (c.mimic !== false) (e.rfEchoQ = e.rfEchoQ || []).push({ at: S.t + (c.delay || 0), em: q.em, v, c }); }   // (her reflections fire it too, late or not)
     },
     // the arena's rules, for the player in this browser
     local(g, e, dt) { arenaRules(g, e, B, bal, dt); },

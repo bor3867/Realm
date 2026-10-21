@@ -46,6 +46,8 @@ for bid, (keys, nph) in plan.items():
     for aid, ka in plan3.get(bid, []):                # its allies, drawn as monsters
         fa = {name: built['sprites'][k]['frames']['0'] for name, k in ka}; ma = [n for n in fa if n.startswith('f')]
         sheets[f'bx_rf_{bid}']['sprites'][f'rf_{bid}_{aid}'] = {'frames': fa, 'anims': {'move': {'frames': ma, 'fps': 6, 'loop': True}, 'attack': {'frames': ['atk'] if 'atk' in fa else ma[:1], 'fps': 6, 'loop': False}}, 'meta': {}}
+    if any(ph.get('clones') or ph.get('thousand') for ph in D['bosses'][[q['id'] for q in D['bosses']].index(bid)]['phases']):   # its reflections (Vitrea): her own frames, as a monster
+        sheets[f'bx_rf_{bid}']['sprites'][f'rf_{bid}_echo'] = {'frames': frames, 'anims': {'move': {'frames': move, 'fps': 6, 'loop': True}, 'attack': anims['attack']}, 'meta': {}}
     if bid in plan2:                                  # the second body, drawn as a monster ('move' and 'attack' clips)
         f2 = {name: built['sprites'][k]['frames']['0'] for name, k in plan2[bid]}; m2 = [n for n in f2 if n.startswith('f')]
         sheets[f'bx_rf_{bid}']['sprites'][f'rf_{bid}_2'] = {'frames': f2, 'anims': {'move': {'frames': m2, 'fps': 6, 'loop': True}, 'attack': {'frames': ['atk'] if 'atk' in f2 else m2[:1], 'fps': 6, 'loop': False}}, 'meta': {}}

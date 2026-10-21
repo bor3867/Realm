@@ -1174,11 +1174,12 @@ export class Renderer {
     else fr = mv[Math.floor(g.t * (e.hop || e.sk || e.dive ? 9 : 5) + e.phase) % mv.length];
     const L = this.alive(g, e, sx, sy, 16), K = e.D.scale || 1;
     L.flip = !L.flip;                                       // the bundle's art faces right; the old sheets face left
+    if (e.flipArt) L.flip = !L.flip;                        // (a mirror image: the other way round)
     if (e.fetch && g.t >= e.fetch.land) {                  // the crag dwarf's pick, lying where it fell
       const pd = C.get('pick') || (C.set('pick', this.R.resolve('ow2_shots/crag_dwarf.spinning_pick')), C.get('pick')), [qx, qy] = this.proj(e.fetch.x, e.fetch.y);
       if (pd) this.drawDef(pd, Object.keys(pd.frames)[0], Math.round(qx), Math.round(qy), { center: true });
     }
-    if (!e.dead) this.shadow(sx, sy, Math.max(6, (def.size[0] > 12 ? 18 : 12) * K - L.z * 0.5));
+    if (!e.dead && !e.noShadow) this.shadow(sx, sy, Math.max(6, (def.size[0] > 12 ? 18 : 12) * K - L.z * 0.5));   // (a reflection casts none)
     const x = sx + L.dx, y = sy + L.dy - L.z + 1, alpha = e.dead ? Math.max(0, 1 - e.deadT / 0.6) : Math.min(1, L.rise) * (e.asVeiled > g.t ? 0.22 : 1);   // a nebula weaver in its veil is all but hidden
     if (e.D.ability) this.eliteFx(g, e, def, fr, x, y, L);
     this.drawDef(def, fr, x, y, { flip: L.flip, alpha, scale: K });
