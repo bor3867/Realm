@@ -174,6 +174,17 @@ function fire(g, e, B, bal, em, vol, org) {
   else if (em.t === 'cloud' || em.t === 'rift' || em.t === 'wildfire') { for (let k = 0; k < (em.n || 1); k++) { let x = p.x, y = p.y; for (let j = 0; j < 12; j++) { x = A.x0 + rnd(0.1, 0.9) * A.w; y = A.y0 + rnd(0.15, 0.9) * A.h; if (Math.hypot(x - p.x, y - p.y) > (em.t === 'wildfire' ? 0 : 2.2) && Math.hypot(x - p.x, y - p.y) < (em.t === 'wildfire' ? 5.5 : 99)) break; } zone(x, y, em.r || (em.t === 'rift' ? 2.5 : 1.6), em.t === 'rift' ? 1.4 : 1); } }
   else if (em.t === 'hedge') { for (let k = 0; k < (em.n || 2); k++) { const y = A.y0 + rnd(0.35, 0.92) * A.h, g0 = A.x0 + rnd(0.1, 0.7) * A.w;
     for (const [x, len] of [[A.x0, g0 - A.x0], [g0 + 3, A.x0 + A.w - g0 - 3]]) if (len > 0.5) g.fx.push({ kind: 'lane', x, y, a: 0, len, w: 0.45, delay: 0.8, t: 0, life: 0.8 + (em.life || 4), dmg: Math.round((s.dmg || 60) * bal.bossDmg), by: e.D.name, hitT: 0 }); } }
+  else if (em.t === 'staff') {                                    // the Cantor's stave: a line lights, then a note slides along it from the arrow's side
+    const n = (PH0 && PH0.rfP.staff && PH0.rfP.staff.lines) || 5, used = new Set(), lead = em.lead || 0.7;
+    for (let k = 0; k < (em.n || 2); k++) { let i = 0; for (let j = 0; j < 8; j++) { i = Math.floor(Math.random() * n); if (!used.has(i) && i !== e.rfStaffLast) break; }
+      used.add(i); e.rfStaffLast = i; const dir = Math.random() < 0.5 ? 1 : -1, y = staffY(A, i, n);
+      g.fx.push({ kind: 'staffhint', x0: A.x0, y, len: A.w, dir, t: 0, life: lead });
+      (e.rfStaffQ = e.rfStaffQ || []).push({ left: lead, y, dir, s: em.s }); }
+  }
+  else if (em.t === 'along') {                                    // pearls rolling along the walls
+    const side = vol % 4, inset = 0.6, x = side === 0 || side === 2 ? (side === 0 ? A.x0 : A.x0 + A.w) : side === 1 ? A.x0 + inset : A.x0 + A.w - inset, y = side === 1 || side === 3 ? (side === 1 ? A.y0 + A.h : A.y0) : side === 0 ? A.y0 + inset : A.y0 + A.h - inset;
+    shot([0, -Math.PI / 2, Math.PI, Math.PI / 2][side], x, y, s.speed || 5, side % 2 ? A.h : A.w);
+  }
   else if (em.t === 'chess') {                                    // King Morvane's pieces: near you, each striking its own way
     const BD = BOARD(e, B), kinds = em.kinds || ['rook', 'bishop', 'queen'], L = A.w * 1.5, ks = B.shots[em.ks] ? em.ks : em.s, kd = Math.round(((B.shots[ks] || s).dmg || 80) * bal.bossDmg);
     for (let k = 0; k < (em.n || 1); k++) {
@@ -187,7 +198,16 @@ function fire(g, e, B, bal, em, vol, org) {
       g.fx.push({ kind: 'rfpiece', x, y, key: `rfx_shots/${B.id}.${kind}`, sz: BD.S * 0.9, t: 0, life: tl + du });   // the piece itself, standing on its square
     }
   }
-  else if (em.t === 'warp') { const n = em.n || 6; for (let k = 0; k < n; k++) { const a = (k * TAU) / n + rnd(-0.2, 0.2), r = 7; shot(a + Math.PI, p.x + Math.cos(a) * r, p.y + Math.sin(a) * r, s.speed || 5, r + 2); } }
+  else if (em.t === 'warp') {                                    // Starflight: stars stream out of the middle (see-through, harmless, till they're near)
+    const star = (a, key = em.s) => { const q = B.shots[key] || s, b = g.shoot('e', ox, oy, a, q.speed || 5, q.range || 14, Math.round((q.dmg || 70) * bal.bossDmg), `rfx_shots/${B.id}.${key}`, 0.35, false, e.D.name); if (b) { b.rfWarp = true; b.wox = ox; b.woy = oy; b.k = 0.3; b.harmless = b.ghost = true; } return b; };
+    const n = em.n || 6, mode = em.mode || 'scatter';
+    if (mode === 'gate') {                                           // a star gate: a gold wedge shows its gap, then the ring comes
+      e.rfGateA = e.rfGateA === undefined ? aim : e.rfGateA + (Math.random() < 0.5 ? 1 : -1) * rnd(0.35, 0.7);
+      e.rfGateGap = (em.gap || 60) * D2R; e.rfGateLeft = em.lead || 1.1; e.rfGateQ = { n, s: em.s, post: em.post, rot: vol * 0.07, ox, oy, star };
+    } else if (mode === 'aim') for (let k = 0; k < n; k++) star(aim + (k - (n - 1) / 2) * (em.sp || 8) * D2R);
+    else if (mode === 'spiral') for (let k = 0; k < (em.arms || 3); k++) star(vol * (em.step || 17) * D2R + (k * TAU) / (em.arms || 3));
+    else for (let k = 0; k < n; k++) star(rnd(0, TAU));
+  }
 }
 // a phase's own rules, every frame: its time limit, its invulnerability, its shield's openings, the hot floor, the leash
 function phaseRules(g, e, B, bal, dt) {
@@ -203,7 +223,13 @@ function phaseRules(g, e, B, bal, dt) {
   if (ph.invuln && !e.rfFreed && e.rfHadMins && !mins.length) { e.rfFreed = true; g.banner(`${e.D.name} is exposed!`, 1800); }
   // the Eclipse Twins: Noct, his movement, his own life at the end
   if (B.twin) twinStep(g, e, B, bal, dt, ph);
-  if (e.rfHide) e.rfImm = true;                                   // (in his cabinet: nothing reaches him)
+  if (e.rfStaffQ && e.rfStaffQ.length) { const A = box(e, B); for (const q of e.rfStaffQ) if ((q.left -= dt) <= 0) { const s = B.shots[q.s] || {}; g.shoot('e', q.dir > 0 ? A.x0 - 1 : A.x0 + A.w + 1, q.y, q.dir > 0 ? 0 : Math.PI, s.speed || 7, A.w + 3, Math.round((s.dmg || 80) * bal.bossDmg), `rfx_shots/${B.id}.${q.s}`, 0.35, false, e.D.name); }
+    e.rfStaffQ = e.rfStaffQ.filter((q) => q.left > 0); }
+  if (e.rfGateQ && (e.rfGateLeft -= dt) <= 0) { const q = e.rfGateQ, stp = TAU / q.n; e.rfGateQ = null; e.rfGateShow = 1.4;   // the star gate: a ring with its gap where the wedge was, the gap's edges gold
+    for (let k = 0; k < q.n; k++) { const a = k * stp + q.rot, dd = Math.atan2(Math.sin(a - e.rfGateA), Math.cos(a - e.rfGateA)); if (Math.abs(dd) < e.rfGateGap / 2) continue;
+      q.star(a, Math.abs(dd) < e.rfGateGap / 2 + stp && B.shots[q.post] ? q.post : q.s); } }
+  if (e.rfGateShow > 0) e.rfGateShow -= dt;
+  if (!ph.rfP.warp && (e.rfGateQ || e.rfGateA !== undefined)) { e.rfGateQ = null; e.rfGateA = undefined; e.rfGateShow = 0; }
   // Vitrea: her reflections, her echoes' shots, the Thousandfold
   if (B.phases.some((q) => q.clones || q.thousand)) vitreaStep(g, e, B, bal, dt, ph);
   // Lord Gourdrick's friends: Sir Rindley and Sister Honeydew
@@ -216,7 +242,8 @@ function phaseRules(g, e, B, bal, dt) {
   if (ph.rfP.puzzle) puzzleStep(g, e, B, bal, dt, ph.rfP);
   // a shield with no puzzle: openings every 9 s for 4 s
   else if (ph.shield && (e.rfOpenNext -= dt) <= 0) { e.rfOpenNext = 9; e.rfOpen = S.t + 4; g.banner('The shield falters!', 1600); }
-  e.rfImm = (ph.invuln && !e.rfFreed) || (ph.shield && !(ph.rfP.puzzle ? e.rfExpT > 0 : e.rfOpen > S.t)) || (B.twin && S.phase === B.phases.length && e.rfNoct && !e.rfNoct.dead && e.hp <= e.maxHp * 0.05) || !!ph.rfP.egg || !!ph.rfP.cocoon;   // can it be hurt right now
+  e.rfImm = (ph.invuln && !e.rfFreed) || (ph.shield && !(ph.rfP.puzzle ? e.rfExpT > 0 : e.rfOpen > S.t)) || (B.twin && S.phase === B.phases.length && e.rfNoct && !e.rfNoct.dead && e.hp <= e.maxHp * 0.05) || !!ph.rfP.egg || !!ph.rfP.cocoon
+    || !!e.rfHide || (!!ph.rfP.downbeat && beatOf(e) !== 3);   // (Mirabeau in his cabinet; the Cantor off the downbeat)   // can it be hurt right now
   // the trail: it leaves fire where it goes
   if (ph.rfP.trail && (e.rfTrailT = (e.rfTrailT || 0) - dt) <= 0) { e.rfTrailT = 0.25; g.fx.push({ kind: 'scorch', x: e.x, y: e.y + 0.2, r: 0.7, t: 0, life: 2.5, dps: Math.round(100 * bal.bossDmg), tick: 0, by: e.D.name }); }
   // the time limit: on to the next phase (its Life set there), or, the last, the end of the fight
@@ -280,6 +307,8 @@ function arenaRules(g, e, B, bal, dt) {
   // the still hour: its shots hang in the air; the lances, turned by the mirror, end there
   if (e.rfPz === 'still') { if (!g.timeStop || g.timeStop.rfx) g.timeStop = { x: e.x, y: e.y, r: 40, t: 0.3, rfx: true }; }
   if (!('lw' in Z) || e.rfLanceWin !== Z.lw) { if ('lw' in Z) for (const b of g.projectiles) if (b.rfLance) { b.life = 0; g.fx.push({ kind: 'ring', x: b.x, y: b.y, t: 0, max: 1.2, color: '#ffd650' }); } Z.lw = e.rfLanceWin; }
+  // Starflight: a star is see-through and harmless till it's 2.25 tiles out, and grows as it comes
+  if (P.warp) for (const b of g.projectiles) if (b.rfWarp && b.wox !== undefined) { const d = Math.hypot(b.x - b.wox, b.y - b.woy); b.k = Math.min(1.7, 0.3 + d / 4.5); b.harmless = b.ghost = b.k < 0.8; }
   // Day and Night: Lumen's shots hurt only on the day side of the drifting line, Noct's only on the night side (the
   // others go see-through); the tether between them burns
   if (P.halves) { const dx = DIVX(e, B, P, L);
@@ -417,6 +446,26 @@ function drawArena(r, g, e, B) {
     if (pr && pr.rfCurseUntil > g.t) { circle(pr.x, pr.y, 1.6, '#6a2a8a', 0.3); circle(pr.x, pr.y, 1.6, '#c8a0ff', 0.9, true); }
     if (pr && g.rfZ && g.rfZ.healFx > g.t) { const [ax, ay] = r.proj(pr.x, pr.y), [px2, py2] = r.proj(g.player.x, g.player.y); b.globalAlpha = 0.8; b.strokeStyle = '#9fffb0'; b.lineWidth = 3; b.beginPath(); b.moveTo(ax, ay - 16); b.lineTo(px2, py2 - 10); b.stroke(); b.globalAlpha = 1; }
   }
+  if (P.staff) for (let i = 0, n = P.staff.lines || 5; i < n; i++) {   // the stave: glowing grooves wall to wall
+    const y = staffY(A, i, n), [x0, sy] = r.proj(A.x0, y), [x1] = r.proj(A.x0 + A.w, y);
+    b.strokeStyle = '#05040a'; b.lineWidth = 4; b.globalAlpha = 0.5; b.beginPath(); b.moveTo(x0, sy); b.lineTo(x1, sy); b.stroke();
+    b.strokeStyle = '#5ac8e8'; b.lineWidth = 2; b.globalAlpha = 0.45; b.beginPath(); b.moveTo(x0, sy); b.lineTo(x1, sy); b.stroke(); b.globalAlpha = 1; }
+  if (ph.beat || P.beat) { const bt = beatOf(e), [cx, cy] = r.proj(e.x, e.y);      // the bar: four pips under him, the lit one the beat
+    for (let k = 0; k < 4; k++) { b.fillStyle = '#05040a'; b.fillRect(cx - 29 + k * 15, cy + 22, 12, 8); b.fillStyle = k === bt ? (k === 3 && P.downbeat ? '#fff6a8' : '#8afcff') : 'rgba(255,255,255,.22)'; b.fillRect(cx - 28 + k * 15, cy + 23, 10, 6); } }
+  if (P.downbeat && beatOf(e) === 3) { circle(e.x, e.y - 1, 2.6, '#fff6a8', 0.28); circle(e.x, e.y - 1, 2.6, '#fff6a8', 0.8, true); }   // the downbeat: he glows, and can be hurt
+  if (P.warp) {                                      // Starflight: the floor falls away; stars and far worlds stream out of the middle
+    const sp = P.warp.speed || 1, V = { x: e.x, y: e.y }, R0 = 0.3, R1 = Math.max(A.w, A.h) * 0.75;
+    poly([[A.x0, A.y0], [A.x0 + A.w, A.y0], [A.x0 + A.w, A.y0 + A.h], [A.x0, A.y0 + A.h]], '#03020e', 0.92);
+    circle(V.x, V.y, R1 * 0.6, '#5a3cb4', 0.14); circle(V.x, V.y, R1 * 0.3, '#7a5cd4', 0.12);
+    b.lineCap = 'round';
+    for (let k = 0; k < 55; k++) { const h = Math.sin(k * 12.9898) * 43758.5453, a = (h - Math.floor(h)) * TAU, u = (g.t * 0.32 * sp + k / 55) % 1, rr = R0 * Math.pow(R1 / R0, u), Ls = Math.min(1.4, rr * 0.18);
+      const [x1, y1] = r.proj(V.x + Math.cos(a) * rr, V.y + Math.sin(a) * rr), [x0, y0] = r.proj(V.x + Math.cos(a) * (rr - Ls), V.y + Math.sin(a) * (rr - Ls)), al = Math.min(1, rr / (R1 * 0.45)) * 0.55;
+      b.globalAlpha = al; b.strokeStyle = k % 5 === 0 ? '#ffd68c' : k % 5 === 1 ? '#a0c8ff' : '#f0f0ff'; b.lineWidth = 1 + al * 2; b.beginPath(); b.moveTo(x0, y0); b.lineTo(x1, y1); b.stroke(); }
+    b.globalAlpha = 1; b.lineCap = 'butt';
+    if (e.rfGateLeft > 0 || e.rfGateShow > 0) {     // the next gate's gap: a gold wedge, brighter as the ring comes
+      const k = e.rfGateLeft > 0 ? 0.1 + 0.16 * Math.max(0, 1 - e.rfGateLeft / 1.3) : 0.22 * Math.max(0, e.rfGateShow / 1.4), pts = [[V.x, V.y]];
+      for (let j = 0; j <= 10; j++) { const q = e.rfGateA - e.rfGateGap / 2 + (e.rfGateGap * j) / 10; pts.push([V.x + Math.cos(q) * R1, V.y + Math.sin(q) * R1]); }
+      poly(pts, '#ffe066', k); } }
   if (P.chess) { const BD = BOARD(e, B);             // the hall a chessboard: its dark squares dimmed, gold lines between
     for (let y = 0; y < BD.rows; y++) for (let x = 0; x < 8; x++) if ((x + y) % 2) poly([[BD.x0 + x * BD.S, BD.y0 + y * BD.S], [BD.x0 + (x + 1) * BD.S, BD.y0 + y * BD.S], [BD.x0 + (x + 1) * BD.S, BD.y0 + (y + 1) * BD.S], [BD.x0 + x * BD.S, BD.y0 + (y + 1) * BD.S]], '#3c2058', 0.3); }
   if (e.rfShSt && e.rfShSt !== 'rest') {              // Find the Lady: three cabinets, a ring round each when it's time to choose
@@ -627,6 +676,9 @@ function vitreaStep(g, e, B, bal, dt, ph) {
     e.rfMirrors = []; e.rfBroke = {}; for (let k = 0; k < n - 1; k++) e.rfBroke[k] = S.t + 2.5; e.rfTrue = Math.floor(Math.random() * n);   // (back in a moment)
   }
 }
+// ---- The Cantor: his stave's five lines across the chapel, the beat (four to a bar, 0.75s each) on the phase clock
+const staffY = (A, i, n) => A.y0 + A.h * (0.24 + (0.62 * i) / (n - 1));
+const beatOf = (e) => Math.floor((e.rfPhT || 0) / 0.75) % 4;
 // ---- King Morvane's board. In Checkmate and the Hollow Crown the hall is a chessboard eight squares wide: pieces appear
 // near you and strike their own ways (rook: row and column; bishop: diagonals; queen: both; knight: every L-jump away).
 // In the King's Gambit he sets a problem in the middle of the hall: white to move, mate in one. Stand on the square you
@@ -840,7 +892,7 @@ function puzzleStep(g, e, B, bal, dt, P) {
 const o_fail = (O) => !!(O && O.fail);
 function endPieces(e) { for (const m of (e.rfPzO && e.rfPzO.objs) || []) if (!m.dead) { m.noLoot = true; m.dead = true; m.deadT = 0; } e.rfPzO = null; }
 // the kinds this translates (the rest wait for their boss's specials)
-const KINDS = new Set(['chess', 'aim', 'ring', 'spiral', 'aoe', 'minion', 'laser', 'rain', 'wall', 'lines', 'implode', 'converge', 'flock', 'nova', 'beam', 'drop', 'spray', 'bolas', 'ahead', 'orbit', 'cloud', 'rift', 'wildfire', 'hedge', 'warp', 'seq']);
+const KINDS = new Set(['staff', 'along', 'chess', 'aim', 'ring', 'spiral', 'aoe', 'minion', 'laser', 'rain', 'wall', 'lines', 'implode', 'converge', 'flock', 'nova', 'beam', 'drop', 'spray', 'bolas', 'ahead', 'orbit', 'cloud', 'rift', 'wildfire', 'hedge', 'warp', 'seq']);
 // minions' own life: a life span, a burst when they fall (every frame, from the boss's update)
 function tickMinions(g, e, B, bal, dt) {
   for (const m of e.rfMins || []) {

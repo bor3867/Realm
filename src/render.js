@@ -243,7 +243,10 @@ export class Renderer {
       else if (f.kind === 'beam') this.beamFx(f, g);
       else if (f.kind === 'star') this.starFx(f, g);
       else if (f.kind === 'laser') this.laserFx(f, g);
-      else if (f.kind === 'rfpiece') { const a = Math.min(1, f.t * 5, (f.life - f.t) * 5); this.ctx.globalAlpha = Math.max(0, a); const [x, y] = this.proj(f.x, f.y), [x1] = this.proj(f.x + 1, f.y); this.spriteAt(this.ctx, f.key, x, y, f.sz, x1 - x); this.ctx.globalAlpha = 1; }   // a chess piece, standing on its square
+      else if (f.kind === 'staffhint') { const a = 0.25 + 0.6 * Math.min(1, f.t / f.life), [x0, y] = this.proj(f.x0, f.y), [x1] = this.proj(f.x0 + f.len, f.y), c = this.b;   // a stave line lighting before its note
+        c.globalAlpha = a; c.strokeStyle = '#8cdcff'; c.lineWidth = 5; c.beginPath(); c.moveTo(x0, y); c.lineTo(x1, y); c.stroke(); c.strokeStyle = '#ffffff'; c.lineWidth = 1; c.beginPath(); c.moveTo(x0, y); c.lineTo(x1, y); c.stroke();
+        const ax = f.dir > 0 ? x0 + 8 : x1 - 8; c.globalAlpha = 1; c.fillStyle = '#ffffff'; c.beginPath(); c.moveTo(ax, y - 9); c.lineTo(ax + f.dir * 16, y); c.lineTo(ax, y + 9); c.fill(); c.globalAlpha = 1; }
+      else if (f.kind === 'rfpiece') { const a = Math.min(1, f.t * 5, (f.life - f.t) * 5); this.b.globalAlpha = Math.max(0, a); const [x, y] = this.proj(f.x, f.y), [x1] = this.proj(f.x + 1, f.y); this.spriteAt(this.b, f.key, x, y, f.sz, x1 - x); this.b.globalAlpha = 1; }   // a chess piece, standing on its square
       else if (f.kind === 'sweep') this.sweepFx(f, g);
       else if (f.kind === 'ring') this.ringFx(f);
       else if (f.kind === 'orbitals') this.orbitalsFx(f, g);
