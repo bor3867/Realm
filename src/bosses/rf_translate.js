@@ -8,7 +8,7 @@
 //   laser   a marked line that burns: at you, crossed through you, or swept
 //   and the rest of their kinds as close as our shots and hazards allow (rain, walls, lines, implosions, converging,
 //   flocks, novas, beams, drops, sprays, bolas, ahead-of-you marks, sequences, clouds, rifts, hedges, wildfire).
-//   Still their engine's alone: chess boards, music staves, a worm's segments, beams that follow a laser, and the big
+//   Still their engine's alone: beams that follow a laser, and the big
 //   bespoke phases (Aion's puzzles, Vitrea's clones and panes, the twins, Gourdrick's allies, the shell game, rituals).
 // Their arena-wide patterns use a box the size of their arena (B.room) round the place the boss rose.
 // Their phase rules (specials, part 1): rage (it runs hotter: emitters a quarter faster, a red glow), len (a phase
@@ -47,13 +47,27 @@ function moves() {
     // swapping places among three spots, every so often (the other two hold its decoys)
     rf_swap(g, e, dt) { if ((e.rfSwT = (e.rfSwT || 0) + dt) >= ((e.rfMv && e.rfMv.every) || 2.5)) { e.rfSwT = 0; e.rfSw = ((e.rfSw || 0) + 1) % 3; g.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 12, colors: ['#7ac85a', '#2a4a1a'] }); }
       const q = swapAt(box(e, e.bx.B.rfData), e.rfSw || 0); e.x = q.x; e.y = q.y; },
+    // Sarrukh: the head steers (a turn at a time) after you, round the room's rim, or in a tight coil; the body follows
+    rf_worm(g, e, dt) { const A = box(e, e.bx.B.rfData), mv = e.rfMv || {}, t = e.rfPhT || 0, p = g.player; let tx = p.x, ty = p.y, turn = 2.2;
+      if (mv.aim === 'circuit') { const a = t * 0.42; tx = A.x0 + A.w / 2 + Math.cos(a) * A.w * 0.36; ty = A.y0 + A.h / 2 + Math.sin(a) * A.h * 0.36; turn = 2.6; }
+      else if (mv.aim === 'coil') { const a = t * 1.6; tx = A.x0 + A.w / 2 + Math.cos(a) * 2.7; ty = A.y0 + A.h / 2 + Math.sin(a) * 2.7; turn = 5; }
+      wormSteer(e, A, tx, ty, mv.spd || 3, turn, dt); },
+    // Sarrukh's burrow: surface, dive, a ripple that follows you, it locks (marked), and it erupts there
+    rf_burrow(g, e, dt) { const A = box(e, e.bx.B.rfData), p = g.player; e.rfBt = (e.rfBt || 0) + dt; e.rfBst = e.rfBst || 'surface';
+      if (e.rfBst === 'surface') { wormSteer(e, A, p.x, p.y, 1.6, 2, dt); if (e.rfBt > 1.4) { e.rfBst = 'dive'; e.rfBt = 0; } }
+      else if (e.rfBst === 'dive') { wormSteer(e, A, p.x, p.y, 2, 2, dt); if (e.rfBt > 0.4) { e.rfBst = 'follow'; e.rfBt = 0; e.rfDig = e.hidden = e.under = true; } }
+      else if (e.rfBst === 'follow') { const dx = p.x - e.x, dy = p.y - e.y, d = Math.hypot(dx, dy); if (d > 0.1) { const k = Math.min(d, 6 * dt); e.x += (dx / d) * k; e.y += (dy / d) * k; }
+        if (e.rfBt > 1) { e.rfBst = 'lock'; e.rfBt = 0; const s = e.bx.B.rfData.shots.erupt || {}; g.fx.push({ kind: 'zone', x: e.x, y: e.y, r: 1.7, t: 0, delay: 0.7, life: 0.85, dmg: Math.round((s.dmg || 140) * (e.bx.B.rfBal ? e.bx.B.rfBal.bossDmg : 1)), by: e.D.name, done: false, colors: ['#e0a85e', '#fff0c0'] }); } }
+      else if (e.rfBst === 'lock') { if (e.rfBt > 0.7) { e.rfBst = 'surface'; e.rfBt = 0; e.rfDig = e.hidden = e.under = false; e.rfWa = -Math.PI / 2;   // up it comes, its body out of the sand below it
+        e.rfHist = []; for (let k = 12; k >= 0; k--) e.rfHist.push({ x: e.x, y: e.y + k * 0.5 }); g.vx({ k: 'burst', x: e.x, y: e.y, n: 20, colors: ['#e0a85e', '#fff0c0', '#8a6a3a'] }); g.vx({ k: 'shake', amt: 5 }); e.rfErupt = (e.rfErupt || 0) + 1; } }
+      wormBody(e, (e.rfMv && e.rfMv.segs) || 9); },
     rf_fig8(g, e, dt) { const H = home(e), a = (e.rfA = (e.rfA || 0) + dt * 0.6); step(g, e, H.x + Math.sin(a) * 5, H.y + Math.sin(a * 2) * 2.5, spd(e, 1.6), dt); },
   };
   M.rf_middle = M.rf_center;
   return M;
 }
 const MOVE_OF = { middle: 'rf_center', center: 'rf_center', chase: 'rf_chase', strafe: 'rf_strafe', orbit: 'rf_orbit', wander: 'rf_wander', fig8: 'rf_fig8',
-  aisle: 'rf_strafe', mirror: 'rf_strafe', charge: 'rf_chase', dash: 'rf_chase', gravehop: 'rf_wander', worm: 'rf_wander', burrow: 'rf_wander', teleport: 'rf_wander', swap: 'rf_swap', leap: 'rf_chase', dive: 'rf_chase' };
+  aisle: 'rf_strafe', mirror: 'rf_strafe', charge: 'rf_chase', dash: 'rf_chase', gravehop: 'rf_wander', worm: 'rf_worm', burrow: 'rf_burrow', teleport: 'rf_wander', swap: 'rf_swap', leap: 'rf_chase', dive: 'rf_chase' };
 
 // where it rose: kept as plain numbers, so the browsers have it with the boss (a puppet: the server's, once it arrives)
 function homeOf(e) {
@@ -174,6 +188,11 @@ function fire(g, e, B, bal, em, vol, org) {
   else if (em.t === 'cloud' || em.t === 'rift' || em.t === 'wildfire') { for (let k = 0; k < (em.n || 1); k++) { let x = p.x, y = p.y; for (let j = 0; j < 12; j++) { x = A.x0 + rnd(0.1, 0.9) * A.w; y = A.y0 + rnd(0.15, 0.9) * A.h; if (Math.hypot(x - p.x, y - p.y) > (em.t === 'wildfire' ? 0 : 2.2) && Math.hypot(x - p.x, y - p.y) < (em.t === 'wildfire' ? 5.5 : 99)) break; } zone(x, y, em.r || (em.t === 'rift' ? 2.5 : 1.6), em.t === 'rift' ? 1.4 : 1); } }
   else if (em.t === 'hedge') { for (let k = 0; k < (em.n || 2); k++) { const y = A.y0 + rnd(0.35, 0.92) * A.h, g0 = A.x0 + rnd(0.1, 0.7) * A.w;
     for (const [x, len] of [[A.x0, g0 - A.x0], [g0 + 3, A.x0 + A.w - g0 - 3]]) if (len > 0.5) g.fx.push({ kind: 'lane', x, y, a: 0, len, w: 0.45, delay: 0.8, t: 0, life: 0.8 + (em.life || 4), dmg: Math.round((s.dmg || 60) * bal.bossDmg), by: e.D.name, hitT: 0 }); } }
+  else if (em.t === 'segside' || em.t === 'segout') {            // grit off the body: sideways (every other segment, turn about), or straight out of the coil
+    const S = segsOf(e), C = { x: A.x0 + A.w / 2, y: A.y0 + A.h / 2 }, par = vol % 2;
+    S.forEach((q, i) => { const prev = i ? S[i - 1] : { x: e.x, y: e.y }, a = Math.atan2(prev.y - q.y, prev.x - q.x);
+      if (em.t === 'segout') shot(Math.atan2(q.y - C.y, q.x - C.x), q.x, q.y - 0.4); else if (q.k % 2 === par) { shot(a + Math.PI / 2, q.x, q.y - 0.4); shot(a - Math.PI / 2, q.x, q.y - 0.4); } });
+  }
   else if (em.t === 'staff') {                                    // the Cantor's stave: a line lights, then a note slides along it from the arrow's side
     const n = (PH0 && PH0.rfP.staff && PH0.rfP.staff.lines) || 5, used = new Set(), lead = em.lead || 0.7;
     for (let k = 0; k < (em.n || 2); k++) { let i = 0; for (let j = 0; j < 8; j++) { i = Math.floor(Math.random() * n); if (!used.has(i) && i !== e.rfStaffLast) break; }
@@ -223,6 +242,8 @@ function phaseRules(g, e, B, bal, dt) {
   if (ph.invuln && !e.rfFreed && e.rfHadMins && !mins.length) { e.rfFreed = true; g.banner(`${e.D.name} is exposed!`, 1800); }
   // the Eclipse Twins: Noct, his movement, his own life at the end
   if (B.twin) twinStep(g, e, B, bal, dt, ph);
+  if (e.rfDig && (!ph.rfMv || ph.rfMv.m !== 'burrow')) { e.rfDig = e.hidden = e.under = false; e.rfBst = 'surface'; e.rfBt = 0; }   // (a new phase: it comes up)
+  if (e.rfSgN && (!ph.rfMv || (ph.rfMv.m !== 'worm' && ph.rfMv.m !== 'burrow'))) e.rfSgN = 0;
   if (e.rfStaffQ && e.rfStaffQ.length) { const A = box(e, B); for (const q of e.rfStaffQ) if ((q.left -= dt) <= 0) { const s = B.shots[q.s] || {}; g.shoot('e', q.dir > 0 ? A.x0 - 1 : A.x0 + A.w + 1, q.y, q.dir > 0 ? 0 : Math.PI, s.speed || 7, A.w + 3, Math.round((s.dmg || 80) * bal.bossDmg), `rfx_shots/${B.id}.${q.s}`, 0.35, false, e.D.name); }
     e.rfStaffQ = e.rfStaffQ.filter((q) => q.left > 0); }
   if (e.rfGateQ && (e.rfGateLeft -= dt) <= 0) { const q = e.rfGateQ, stp = TAU / q.n; e.rfGateQ = null; e.rfGateShow = 1.4;   // the star gate: a ring with its gap where the wedge was, the gap's edges gold
@@ -243,7 +264,7 @@ function phaseRules(g, e, B, bal, dt) {
   // a shield with no puzzle: openings every 9 s for 4 s
   else if (ph.shield && (e.rfOpenNext -= dt) <= 0) { e.rfOpenNext = 9; e.rfOpen = S.t + 4; g.banner('The shield falters!', 1600); }
   e.rfImm = (ph.invuln && !e.rfFreed) || (ph.shield && !(ph.rfP.puzzle ? e.rfExpT > 0 : e.rfOpen > S.t)) || (B.twin && S.phase === B.phases.length && e.rfNoct && !e.rfNoct.dead && e.hp <= e.maxHp * 0.05) || !!ph.rfP.egg || !!ph.rfP.cocoon
-    || !!e.rfHide || (!!ph.rfP.downbeat && beatOf(e) !== 3);   // (Mirabeau in his cabinet; the Cantor off the downbeat)   // can it be hurt right now
+    || !!e.rfHide || !!e.rfDig || (!!ph.rfP.downbeat && beatOf(e) !== 3);   // (Mirabeau in his cabinet; the Cantor off the downbeat)   // can it be hurt right now
   // the trail: it leaves fire where it goes
   if (ph.rfP.trail && (e.rfTrailT = (e.rfTrailT || 0) - dt) <= 0) { e.rfTrailT = 0.25; g.fx.push({ kind: 'scorch', x: e.x, y: e.y + 0.2, r: 0.7, t: 0, life: 2.5, dps: Math.round(100 * bal.bossDmg), tick: 0, by: e.D.name }); }
   // the time limit: on to the next phase (its Life set there), or, the last, the end of the fight
@@ -307,6 +328,8 @@ function arenaRules(g, e, B, bal, dt) {
   // the still hour: its shots hang in the air; the lances, turned by the mirror, end there
   if (e.rfPz === 'still') { if (!g.timeStop || g.timeStop.rfx) g.timeStop = { x: e.x, y: e.y, r: 40, t: 0.3, rfx: true }; }
   if (!('lw' in Z) || e.rfLanceWin !== Z.lw) { if ('lw' in Z) for (const b of g.projectiles) if (b.rfLance) { b.life = 0; g.fx.push({ kind: 'ring', x: b.x, y: b.y, t: 0, max: 1.2, color: '#ffd650' }); } Z.lw = e.rfLanceWin; }
+  // Sarrukh's body: touch a segment and it hurts
+  if (e.rfSgN) for (const q of segsOf(e)) if (Math.hypot(p.x - q.x, p.y - q.y) < 0.85) { if (tick('seg', 0.8)) hurt((B.shots.seg && B.shots.seg.dmg) || 100, `${e.D.name}'s body`); break; }
   // Starflight: a star is see-through and harmless till it's 2.25 tiles out, and grows as it comes
   if (P.warp) for (const b of g.projectiles) if (b.rfWarp && b.wox !== undefined) { const d = Math.hypot(b.x - b.wox, b.y - b.woy); b.k = Math.min(1.7, 0.3 + d / 4.5); b.harmless = b.ghost = b.k < 0.8; }
   // Day and Night: Lumen's shots hurt only on the day side of the drifting line, Noct's only on the night side (the
@@ -446,6 +469,11 @@ function drawArena(r, g, e, B) {
     if (pr && pr.rfCurseUntil > g.t) { circle(pr.x, pr.y, 1.6, '#6a2a8a', 0.3); circle(pr.x, pr.y, 1.6, '#c8a0ff', 0.9, true); }
     if (pr && g.rfZ && g.rfZ.healFx > g.t) { const [ax, ay] = r.proj(pr.x, pr.y), [px2, py2] = r.proj(g.player.x, g.player.y); b.globalAlpha = 0.8; b.strokeStyle = '#9fffb0'; b.lineWidth = 3; b.beginPath(); b.moveTo(ax, ay - 16); b.lineTo(px2, py2 - 10); b.stroke(); b.globalAlpha = 1; }
   }
+  if (e.rfDig) { const k = e.rfBst === 'lock' ? 1 : 0.6 + 0.4 * Math.sin(g.t * 14);   // under the sand: a ripple (still, once it's locked)
+    for (let j = 0; j < 3; j++) circle(e.x, e.y, 0.5 + j * 0.45 + (e.rfBst === 'lock' ? 0 : ((g.t * 2) % 1) * 0.4), '#8a6a3a', 0.55 * k * (1 - j * 0.25), true); }
+  if (e.rfSgN) { const S = segsOf(e);
+    for (let i = S.length - 1; i >= 0; i--) { const q = S[i], sc = i >= S.length - 3 ? 0.82 - 0.12 * (i - (S.length - 3)) : 1; circle(q.x, q.y + 0.35, 0.55 * sc, '#000000', 0.3);
+      const [sx, sy] = r.proj(q.x, q.y + Math.sin(g.t * 3 + i) * 0.06); r.spriteAt(b, `rfx_shots/${B.id}.seg`, sx, sy, 2.2 * sc, ts); } }
   if (P.staff) for (let i = 0, n = P.staff.lines || 5; i < n; i++) {   // the stave: glowing grooves wall to wall
     const y = staffY(A, i, n), [x0, sy] = r.proj(A.x0, y), [x1] = r.proj(A.x0 + A.w, y);
     b.strokeStyle = '#05040a'; b.lineWidth = 4; b.globalAlpha = 0.5; b.beginPath(); b.moveTo(x0, sy); b.lineTo(x1, sy); b.stroke();
@@ -676,6 +704,28 @@ function vitreaStep(g, e, B, bal, dt, ph) {
     e.rfMirrors = []; e.rfBroke = {}; for (let k = 0; k < n - 1; k++) e.rfBroke[k] = S.t + 2.5; e.rfTrue = Math.floor(Math.random() * n);   // (back in a moment)
   }
 }
+// ---- Sarrukh, the Dunesea Wyrm: a head that steers and a body of segments that follows its path. The segments are
+// plain numbers on it (rfSg<i>x/y, rfSgN of them), so every player sees the same body; touching one hurts (in your
+// browser), and each throws grit off its sides (or, in the Coil, straight out from the middle). Underground, it's none.
+function wormSteer(e, A, tx, ty, sp, turn, dt) {
+  const want = Math.atan2(ty - e.y, tx - e.x); let wa = e.rfWa ?? want, d = Math.atan2(Math.sin(want - wa), Math.cos(want - wa));
+  wa += Math.max(-turn * dt, Math.min(turn * dt, d)); e.rfWa = wa;
+  e.x = Math.max(A.x0 + 1, Math.min(A.x0 + A.w - 1, e.x + Math.cos(wa) * sp * dt)); e.y = Math.max(A.y0 + 1, Math.min(A.y0 + A.h - 1, e.y + Math.sin(wa) * sp * dt));
+  wormBody(e, (e.rfMv && e.rfMv.segs) || 9);
+}
+function wormBody(e, n) {
+  const h = (e.rfHist = e.rfHist || []), last = h[h.length - 1];
+  if (!last || Math.hypot(last.x - e.x, last.y - e.y) > 0.12) h.push({ x: e.x, y: e.y });
+  const gap = 0.95, need = (n + 2) * gap; let L = 0;
+  for (let i = h.length - 1; i > 0; i--) { L += Math.hypot(h[i].x - h[i - 1].x, h[i].y - h[i - 1].y); if (L > need) { h.splice(0, i - 1); break; } }
+  if (e.rfDig) { e.rfSgN = 0; return; }
+  let acc = 0, j = h.length - 1, px = e.x, py = e.y, k = 0;
+  for (k = 1; k <= n; k++) { const target = k * gap; let ok = false;
+    while (j > 0) { const q = h[j - 1], dd = Math.hypot(q.x - px, q.y - py); if (acc + dd >= target) { const t = (target - acc) / (dd || 1); px += (q.x - px) * t; py += (q.y - py) * t; acc = target; ok = true; break; } acc += dd; px = q.x; py = q.y; j--; }
+    if (!ok) break; e['rfSg' + (k - 1) + 'x'] = px; e['rfSg' + (k - 1) + 'y'] = py; }
+  e.rfSgN = k - 1;
+}
+const segsOf = (e) => Array.from({ length: e.rfSgN || 0 }, (_, i) => ({ x: e['rfSg' + i + 'x'], y: e['rfSg' + i + 'y'], k: i }));
 // ---- The Cantor: his stave's five lines across the chapel, the beat (four to a bar, 0.75s each) on the phase clock
 const staffY = (A, i, n) => A.y0 + A.h * (0.24 + (0.62 * i) / (n - 1));
 const beatOf = (e) => Math.floor((e.rfPhT || 0) / 0.75) % 4;
@@ -892,7 +942,7 @@ function puzzleStep(g, e, B, bal, dt, P) {
 const o_fail = (O) => !!(O && O.fail);
 function endPieces(e) { for (const m of (e.rfPzO && e.rfPzO.objs) || []) if (!m.dead) { m.noLoot = true; m.dead = true; m.deadT = 0; } e.rfPzO = null; }
 // the kinds this translates (the rest wait for their boss's specials)
-const KINDS = new Set(['staff', 'along', 'chess', 'aim', 'ring', 'spiral', 'aoe', 'minion', 'laser', 'rain', 'wall', 'lines', 'implode', 'converge', 'flock', 'nova', 'beam', 'drop', 'spray', 'bolas', 'ahead', 'orbit', 'cloud', 'rift', 'wildfire', 'hedge', 'warp', 'seq']);
+const KINDS = new Set(['segside', 'segout', 'staff', 'along', 'chess', 'aim', 'ring', 'spiral', 'aoe', 'minion', 'laser', 'rain', 'wall', 'lines', 'implode', 'converge', 'flock', 'nova', 'beam', 'drop', 'spray', 'bolas', 'ahead', 'orbit', 'cloud', 'rift', 'wildfire', 'hedge', 'warp', 'seq']);
 // minions' own life: a life span, a burst when they fall (every frame, from the boss's update)
 function tickMinions(g, e, B, bal, dt) {
   for (const m of e.rfMins || []) {
@@ -914,7 +964,7 @@ export function rfBossToBX(DATA, B) {
   const T2 = [bal.tiers[0] + 1, bal.tiers[1] + 1];
   return {
     id: `rfx_${B.id}`, art: `rf_${B.id}`, name: B.name, hp: Math.round(B.hp * bal.bossHp), def: bal.bossDef ?? Math.min(B.def || 0, 30), xp: Math.round(B.hp / 40),
-    r: 1.6, speed: 1.2, keep: 6, faces: false, thresholds, phases, rfData: B,
+    r: 1.6, speed: 1.2, keep: 6, faces: false, thresholds, phases, rfData: B, rfBal: bal,
     moves: moves(),
     specials: {
       // a phase's emitters, each on its own clock, for the length of the pattern
@@ -925,6 +975,7 @@ export function rfBossToBX(DATA, B) {
       tickMinions(g, e, B, bal, dt);
       phaseRules(g, e, B, bal, dt);
       if ((S.state === 'death' || S.state === 'deathhold') && e.rfShSt) shellEnd(e);
+      if ((S.state === 'death' || S.state === 'deathhold') && e.rfDig) { e.rfDig = e.hidden = e.under = false; }
       if (S.state === 'death' || S.state === 'deathhold') { for (const m of [...(e.rfMins || []), ...(e.rfEchoes || []), ...(e.rfMirrors || []), e.rfNoct, e.rfKnight, e.rfPriest]) if (m && !m.dead) { m.noLoot = true; m.dead = true; m.deadT = 0; } endPieces(e); }   // (its creatures go with it)
       if (e.rfPz === 'still') return;                              // (time stopped: it waits too)
       if (e.rfStagT > 0) { e.rfStagT -= dt; return; }              // (staggered: a ritual broken)

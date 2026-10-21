@@ -62,7 +62,7 @@ exploring (rooms, puzzles, traps). The 24 Realmforge bosses are translated from 
 Done: 25 of their 30 emitter kinds (aim, ring, spiral, aoe in its four shapes, minions with their own art, shot, life
 span and burst, lasers, rain, walls, lines, implosions, converging, flocks, novas, beams, drops, sprays, bolas, orbits,
 clouds, rifts, wildfire, hedges, warps, sequences, ahead-of-you), their movement styles, art, shots and loot. Admin:
-/bx rfx_<id>. Left to their specials: chess boards, music staves, a worm's segments, beams that follow a laser.
+/bx rfx_<id>. Left to their specials: beams that follow a laser.
 Specials done: rage, phase time limits (60 s unless set; the last ends the fight), invulnerable phases (freed when
 their minions fall), shields (openings every 9 s: a stand-in for Aion's puzzle), heat floors, leashes.
 Arena rules done (2026-10-20), each felt in the player's own browser on the phase clock the boss carries (B.local), so every
@@ -74,9 +74,9 @@ Shared puzzles done: Aion's still hours (time stops for all; crystals, the Sun D
 server owns, so everyone shatters and pushes the same ones; runes light in order for whoever steps on them), Mother
 Mire's ritual (anyone may step on the runes; broken, she staggers; boiled over, those near are confused), her swaps
 and decoys (the decoys fire too), shots from Cinder's corners and Morvane's crown.
-Done since: the Eclipse Twins (Noct a second body; Day and Night; the tether; Totality; the last-phase rule); Lord Gourdrick's friends (Sir Rindley, Sister Honeydew: charge, Rind Shield, heals, snare, Harvest Moon dome, curse); Vitrea (Mirror Image and Echoes that fire late, mirror and prism panes that bounce her shots, the Lightray that bounces off them, the Thousandfold: eight of her, one real, shattering reflections, shuffles); King Morvane's board (pieces striking their own ways; the King's Gambit, mate in one); Mirabeau's Find the Lady (three cabinets shuffling); Vael's Starflight (stars harmless till near, star gates); the Cantor's stave, downbeat and wall pearls.
+Done since: the Eclipse Twins (Noct a second body; Day and Night; the tether; Totality; the last-phase rule); Lord Gourdrick's friends (Sir Rindley, Sister Honeydew: charge, Rind Shield, heals, snare, Harvest Moon dome, curse); Vitrea (Mirror Image and Echoes that fire late, mirror and prism panes that bounce her shots, the Lightray that bounces off them, the Thousandfold: eight of her, one real, shattering reflections, shuffles); King Morvane's board (pieces striking their own ways; the King's Gambit, mate in one); Mirabeau's Find the Lady (three cabinets shuffling); Vael's Starflight (stars harmless till near, star gates); the Cantor's stave, downbeat and wall pearls; Sarrukh's body (segments following the head, touching hurts, grit off its sides or out of the coil; burrowing: a ripple that follows, locks and erupts).
 Next:
-the worm's segments, their arenas as our maps (shared),
+their arenas as our maps (shared),
 the rf_ dungeons' boss doors leading to them; then the older realm and dungeon bosses moved across.
 Fixed on the way: a player's blow on a shared monster now goes through the game's own damage step on the server, so a
 three-phase boss's phases, morphs, immunity and survive phases happen as they should (before, only its HP fell).
