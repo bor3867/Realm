@@ -1035,7 +1035,8 @@ export class Renderer {
     x.fillStyle = g.map.ambient || 'rgba(16,10,44,0.42)'; x.fillRect(0, 0, BW, BH);
     x.globalCompositeOperation = 'destination-out';
     const flick = 0.92 + Math.sin(g.t * 13) * 0.04 + Math.sin(g.t * 7.3) * 0.04;
-    const src = g.map.kind === 'dungeon' && !g.player.dead ? [...g.map.lights, { x: g.player.x, y: g.player.y, h: 0.5, r: 92, col: '#fff0d0' }] : g.map.lights;   // in a dungeon you carry a light
+    const src = g.map.kind === 'dungeon' && !g.player.dead ? [...g.map.lights, { x: g.player.x, y: g.player.y, h: 0.5, r: 92, col: '#fff0d0' }] : [...g.map.lights];
+    if (g.activeMap === g.map) for (const e of g.notable || []) if (e.bx && !e.dead && e.bx.B.lights) src.push(...e.bx.B.lights(g, e));   // a boss's own lights (the Unstruck's furnace, its anvil)   // in a dungeon you carry a light
     const lights = [];                                     // (a lamp's light sits up the screen, at its height: projUp)
     for (const L of src) { if (!g.seen(L.x, L.y)) continue; const [lx, ly] = this.projUp(L.x, L.y, L.h || 0); if (lx < -L.r || ly < -L.r || lx > BW + L.r || ly > BH + L.r) continue; lights.push({ lx, ly, R: L.r * (L.fire ? flick + Math.sin(g.t * 9 + L.x) * 0.03 : 1), fire: L.fire, col: L.col }); }
     for (const L of lights) {
@@ -1763,10 +1764,11 @@ export class Renderer {
     const b = this.b, live = f.t >= f.delay, L = f.len, n = Math.ceil(L * 2);
     for (let j = 0; j < n; j++) {
       const d = (j / n) * L, x = f.x + Math.cos(f.a) * d, y = f.y + Math.sin(f.a) * d, [sx, sy] = this.proj(x, y);
-      if (!live) { if ((j + Math.floor(g.t * 12)) % 3 === 0) { b.fillStyle = '#ff8c1e'; b.fillRect(Math.round(sx) - 1, Math.round(sy) - 1, 2, 2); } continue; }
-      b.fillStyle = (j + Math.floor(g.t * 20)) % 2 ? '#ffd84a' : '#ff8c1e';
+      const C = f.cols || ['#ff8c1e', '#ffd84a', '#ff8c1e', '#fff6c8'];   // (warning, two flickers, core: a lane may bring its own, the sea's blue)
+      if (!live) { if ((j + Math.floor(g.t * 12)) % 3 === 0) { b.fillStyle = C[0]; b.fillRect(Math.round(sx) - 1, Math.round(sy) - 1, 2, 2); } continue; }
+      b.fillStyle = (j + Math.floor(g.t * 20)) % 2 ? C[1] : C[2];
       b.fillRect(Math.round(sx) - 3, Math.round(sy) - 3, 6, 6);
-      b.fillStyle = '#fff6c8'; b.fillRect(Math.round(sx) - 1, Math.round(sy) - 1, 2, 2);
+      b.fillStyle = C[3]; b.fillRect(Math.round(sx) - 1, Math.round(sy) - 1, 2, 2);
     }
   }
   // the reworked weapons (src/weaponmech.js): a glyph on the ground, a phantom blow's mark, marks and stacks on enemies.

@@ -1,0 +1,244 @@
+{
+ "rf": true,
+ "meta": {
+  "name": "The Unstruck on the three-phase engine",
+  "version": 1
+ },
+ "sheets": {
+  "bx_unstruck_smith": {
+   "image": "unstruck_smith.png",
+   "kind": "boss",
+   "sprites": {
+    "unstruck_smith": {
+     "frames": {
+      "i1_0": [
+       0,
+       0,
+       48,
+       48
+      ],
+      "i1_1": [
+       48,
+       0,
+       48,
+       48
+      ],
+      "a1": [
+       96,
+       0,
+       48,
+       48
+      ],
+      "i2_0": [
+       144,
+       0,
+       48,
+       48
+      ],
+      "i2_1": [
+       192,
+       0,
+       48,
+       48
+      ],
+      "a2": [
+       240,
+       0,
+       48,
+       48
+      ],
+      "i3_0": [
+       0,
+       48,
+       48,
+       48
+      ],
+      "i3_1": [
+       48,
+       48,
+       48,
+       48
+      ],
+      "a3": [
+       96,
+       48,
+       48,
+       48
+      ],
+      "d0": [
+       144,
+       48,
+       48,
+       48
+      ],
+      "d1": [
+       192,
+       48,
+       48,
+       48
+      ],
+      "d2": [
+       240,
+       48,
+       48,
+       48
+      ]
+     },
+     "anims": {
+      "idle1": {
+       "frames": [
+        "i1_0",
+        "i1_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack1": {
+       "frames": [
+        "a1",
+        "a1",
+        "a1"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle2": {
+       "frames": [
+        "i2_0",
+        "i2_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack2": {
+       "frames": [
+        "a2",
+        "a2",
+        "a2"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle3": {
+       "frames": [
+        "i3_0",
+        "i3_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack3": {
+       "frames": [
+        "a3",
+        "a3",
+        "a3"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "d0",
+        "d1",
+        "d2"
+       ],
+       "fps": 3,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "Still Swinging",
+       "idle": "idle1",
+       "attack": "attack1"
+      },
+      "2": {
+       "name": "The Sea Comes In",
+       "idle": "idle2",
+       "attack": "attack2"
+      },
+      "3": {
+       "name": "Unstoppable",
+       "idle": "idle3",
+       "attack": "attack3"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "us_shots": {
+   "image": "us_shots.png",
+   "kind": "shot",
+   "sprites": {
+    "unstruck_smith.hammer": {
+     "frames": {
+      "0": [
+       0,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "unstruck_smith.spark": {
+     "frames": {
+      "0": [
+       8,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "unstruck_smith.rivet": {
+     "frames": {
+      "0": [
+       16,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "unstruck_smith.brine": {
+     "frames": {
+      "0": [
+       24,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "unstruck_smith.rust": {
+     "frames": {
+      "0": [
+       32,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "unstruck_smith.steam": {
+     "frames": {
+      "0": [
+       40,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    }
+   }
+  }
+ }
+}

@@ -199,14 +199,14 @@ export function makeWorld(seed, send, where = 'realm') {
       for (const [b, at] of steered) {
         if (!live.has(b) || b.life <= 0) { out.push({ k: 'sg', sid: b.sid, x: b.x, y: b.y }); steered.delete(b); continue; }
         if (Math.abs(b.x - at.x) > 0.02 || Math.abs(b.y - at.y) > 0.02 || b.vx !== at.vx || b.vy !== at.vy) {
-          const free = !b.ctl && !b.orc && !b.asSpiral && !b.asOrb && !b.toBoss;
+          const free = !b.ctl && !b.orc && !b.asSpiral && !b.asOrb && !b.toBoss && !b.usRet;
           out.push({ k: 'su', sid: b.sid, x: Math.round(b.x * 100) / 100, y: Math.round(b.y * 100) / 100, ...(free ? { vx: b.vx, vy: b.vy, a: b.a, life: b.life } : {}) });
           if (free) steered.delete(b); else steered.set(b, { x: b.x, y: b.y, vx: b.vx, vy: b.vy });
         }
       }
       for (const b of g.projectiles) if (!seenShots.has(b) && b.from === 'e') {
         b.sid = ++sid;
-        const held = !!(b.ctl || b.orc || b.asSpiral || b.asOrb || b.toBoss);
+        const held = !!(b.ctl || b.orc || b.asSpiral || b.asOrb || b.toBoss || b.usRet);   // (usRet: the Unstruck's hammer, coming back to its hand)
         if (held) steered.set(b, { x: b.x, y: b.y, vx: b.vx, vy: b.vy });
         const j = shotJSON(b); if (held) j.netHeld = true;
         out.push({ k: 'shot', b: j });
