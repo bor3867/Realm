@@ -974,7 +974,7 @@ export class Game {
     for (const k in p.status) p.status[k] = Math.max(0, p.status[k] - dt);
     p.playT = (p.playT || 0) + dt;                               // (minutes active, for the death screen)
     { const low = p.hp < this.stat('hp') * 0.25 && !p.dead && this.map.kind !== 'nexus';   // low health: a warning, once a dip
-      if (low && !p.lowWarned) { p.lowWarned = true; const P0 = this.pots()[0]; this.banner(P0 && P0.n ? `LOW HEALTH · drink a potion${keyParen('potion1')}` : 'LOW HEALTH · get clear!', 1400); this.sfx('hurt'); }
+      if (low && !p.lowWarned) { p.lowWarned = true; const P0 = this.pots()[0]; this.banner(P0 && P0.n ? `LOW HEALTH · drink a potion${keyParen('potion1')}, or to the Nexus${keyParen('nexus')}` : `LOW HEALTH · get clear, or to the Nexus${keyParen('nexus')}`, 1600); this.sfx('hurt'); }
       else if (!low && p.hp > this.stat('hp') * 0.5) p.lowWarned = false; }
     p.hitT = Math.max(0, p.hitT - dt);
     if (p.danceT > 0) p.danceT -= dt;
@@ -1728,6 +1728,7 @@ export class Game {
     const hp0 = p.hp;
     p.hp -= d;
     p.dmgTaken = (p.dmgTaken || 0) + d;                      // (for the death screen)
+    if (d > 0) { (p.lastHits = p.lastHits || []).push({ by: String(by || 'something'), d, t: this.t }); if (p.lastHits.length > 6) p.lastHits.shift(); }   // (what hit you: the death recap)
     this.gearPostHurt(d, hp0);
     this.rfPostHurt(d, hp0);
     p.hitT = 0.15;
@@ -1759,7 +1760,8 @@ export class Game {
     const rep = this.fameReport(p), fame = rep.total, maxed = rep.maxed;
     this.deathInfo = { cls: p.cls, level: p.level, fame, base: rep.base, bonuses: rep.bonuses, by, kills: p.kills, maxed, date: new Date().toISOString().slice(0, 10),
       name: (this.account && this.account.name) || CLASSES[p.cls].name, equip: p.equip.slice(), shots: p.shotsFired || 0, hits: p.shotsHit || 0, dmgTaken: p.dmgTaken || 0,
-      mins: Math.round((p.playT || 0) / 60), bossKills: p.bossKills || 0, dungeons: p.dungeons || 0, xp: p.totalXp || 0 };
+      mins: Math.round((p.playT || 0) / 60), bossKills: p.bossKills || 0, dungeons: p.dungeons || 0, xp: p.totalXp || 0,
+      lastHits: (p.lastHits || []).filter((h) => this.t - h.t < 8).map((h) => [h.by, h.d, Math.max(0, this.t - h.t)]) };
     // a gravestone where you fell (others in the same place see it too: src/net.js), its size by the fame you earned
     if (this.map) (this.map.graves = this.map.graves || []).push({ x: p.x, y: p.y, name: this.deathInfo.name, level: p.level, cls: p.cls, fame, t: this.t });
     this.save.classFame = this.save.classFame || {};

@@ -293,9 +293,18 @@ export class UI {
       inp.addEventListener('keydown', (e) => {
         e.stopPropagation();
         // keys that type nothing (the arrows, if they move you) still move you while you type
+        const H = (this.chatHist = this.chatHist || []);
+        if ((e.ctrlKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) || e.key === 'PageUp' || e.key === 'PageDown') {   // what you sent before
+          e.preventDefault();
+          if (!H.length) return;
+          this.histAt = Math.max(0, Math.min(H.length, (this.histAt ?? H.length) + (e.key === 'ArrowUp' || e.key === 'PageUp' ? -1 : 1)));
+          inp.value = H[this.histAt] || ''; return;
+        }
         if (e.key.length > 1 && !['Enter', 'Escape', 'Backspace', 'Delete', 'Tab', 'Home', 'End'].includes(e.key) && this.onHeldKey && this.onHeldKey(e.code, true)) { e.preventDefault(); return; }
         if (e.key === 'Enter') {
           const v = inp.value.trim();
+          if (v) { H.push(v); if (H.length > 30) H.shift(); }
+          this.histAt = undefined;
           if (v) {
             if (v.startsWith('/')) { this.g.say(v, '#8d88a0'); this.g.command(v); }
             else if (!this.g.netChat(v)) this.g.say(`${(this.g.account && this.g.account.name) || 'You'}: ${v}`, '#e9e4f2');   // online: everyone hears it
@@ -584,7 +593,7 @@ export class UI {
     $('baglootall').textContent = `Take all${keyParen('lootAll')}`;
     if (V && $('vwcount')) $('vwcount').textContent = `${V.filter(Boolean).length} / ${V.length} slots · buy Vault Chests to grow it`;
     $('groundlabel').onclick = V && !this.vaultOpen ? () => this.openVault() : null; $('groundlabel').style.cursor = V && !this.vaultOpen ? 'pointer' : '';
-    $('groundlabel').title = V ? 'Buy Vault Chests to grow your vault' : ''; $('groundlabel').textContent = V && !this.vaultOpen ? `Vault ${V.filter(Boolean).length}/${V.length} · open` : V ? `Vault ${V.filter(Boolean).length}/${V.length}` : g.nearBag && g.nearBag.soulbound ? 'Soulbound loot (yours alone)' : 'Loot bag';
+    $('groundlabel').title = V ? 'Buy Vault Chests to grow your vault' : ''; $('groundlabel').textContent = V && !this.vaultOpen ? `Vault ${V.filter(Boolean).length}/${V.length} · open` : V ? `Vault ${V.filter(Boolean).length}/${V.length}` : (g.nearBag && g.nearBag.soulbound ? 'Soulbound loot (yours alone)' : 'Loot bag') + (g.nearBag && g.nearBag.until - g.t < 30 ? ` · gone in ${Math.max(0, Math.ceil(g.nearBag.until - g.t))}s` : '');   // (a bag about to vanish says so)
   }
   // ---- the item tooltip: a header, the item's story, its numbers in tidy rows, then what's special about it
   showTip(name, i, ev) {
@@ -821,6 +830,7 @@ export class UI {
   // per-frame cheap updates
   tick(dt) {
     const g = this.g;
+    if (g.nearBag && g.nearBag.until - g.t < 31 && (this.bagTickT = (this.bagTickT || 0) - dt) <= 0) { this.bagTickT = 0.5; this.refreshSlots(); }   // (a vanishing bag's countdown)
     for (const ev of g.events.splice(0)) {
       if (ev.type === 'banner' || ev.type === 'toast') this.banner(ev.text, ev.ms || 1800);
       if (ev.type === 'ground' || ev.type === 'map') this.refreshSlots();
@@ -1343,6 +1353,7 @@ export class UI {
             ${stat('Monsters killed', d.kills || 0)}${stat('Bosses killed', d.bossKills || 0)}${stat('Dungeons completed', d.dungeons || 0)}
             ${stat('Shots fired', d.shots || 0)}${stat('Accuracy', acc + '%')}${stat('Damage taken', d.dmgTaken || 0)}
             ${stat('Stats maxed', `${d.maxed}/8`)}${stat('Experience', d.xp || 0)}${stat('Minutes active', d.mins || 0)}</div>
+          ${(d.lastHits || []).length ? `<div class="famebox drecap"><div class="fr tot"><span>Your last seconds</span><b></b></div>${d.lastHits.map(([by, dm, ago]) => `<div class="fr"><span>${String(by).replace(/[&<]/g, '')}</span><b class="bad">-${dm}</b></div>`).join('')}</div>` : ''}
         </div>
       </div>
       <p>Account fame: <span class="fame">${g.save.fame}</span></p>

@@ -957,3 +957,4 @@ body #app #panel { height: 100% !important; --slot: 54px; --mini: 196px; }   /* 
 .screen.atlas td.mut { color: #9a94ac; }
 /* QOL: an upgrade for you (in a bag or your backpack) wears a small green arrow */
 body #app .slot.up::before { content: ''; position: absolute; right: 3px; top: 3px; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 7px solid #5ae05a; filter: drop-shadow(0 0 1px #000); pointer-events: none; z-index: 3; }
+.deathscr .drecap .bad { color: #ff6a6a; }

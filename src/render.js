@@ -59,6 +59,15 @@ const WEATHER = {
 const outlined = (ctx, t, x, y) => { ctx.lineJoin = 'round'; ctx.lineWidth = 4; ctx.strokeStyle = '#000'; ctx.strokeText(t, x, y); };
 const textFont = (px) => `700 ${Math.round(px)}px "Source Sans 3", "Segoe UI", sans-serif`;
 const MINI_ENEMY_RANGE = 18;
+// a label in the game's pixel font (art/fonts/realm_pixel.ttf, 8 font pixels to the em: crisp at 8, 16, 24px), with a
+// hard rim one font pixel wide all round, as the HUD's text has
+function pixelLabel(ctx, text, x, y, size, color) {
+  const P = size / 8, X = Math.round(x), Y = Math.round(y);
+  ctx.font = `${size}px "Realm Pixel", "Pixelify Sans", monospace`; ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+  ctx.fillStyle = '#05040a';
+  for (const [dx, dy] of [[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [0, 1], [1, 1]]) ctx.fillText(text, X + dx * P, Y + dy * P);
+  ctx.fillStyle = color; ctx.fillText(text, X, Y);
+}
 // status icons over heads (Renderer.statusIcons): o outline, 1 main colour, 2 accent; 7 wide
 const STATUS_GLYPH = {
   slow: ['ooooooo', 'o11111o', 'oo121oo', '.oo1oo.', '..ooo..'],
@@ -187,6 +196,7 @@ export class Renderer {
     if (m.rf) { this.rfModLayer(g, m, 'drawFloor'); this.rfGround(g, m); this.rfAdd(g, m, add); }   // a Realmforge dungeon's things (src/rf/draw.js)
     for (const pt of m.portals) if (!pt.hidden) add(pt.x, pt.y, (sx, sy) => this.portal(g, pt, sx, sy));   // (a hidden one is a door drawn by its map)
     for (const bag of g.bags) {                                // a bag on a portal is drawn in front of it, never hidden inside
+      if (bag.until !== undefined && bag.until - g.t < 12 && Math.floor(g.t * 5) % 2) continue;   // (about to vanish: it blinks)
       const onPortal = m.portals.some((pt) => Math.abs(pt.x - bag.x) < 1.8 && Math.abs(pt.y - bag.y) < 1.8);
       const n0 = list.length;
       add(bag.x, bag.y, (sx, sy) => this.bag(g, bag, sx, sy));
@@ -2137,9 +2147,8 @@ export class Renderer {
       const [bx, by] = this.proj(o.x, o.y), x = bx * s, y = (by - (o.kind ? 30 : 26)) * s;
       if (x < -120 || x > W + 120 || y < -40 || y > H + 40) continue;
       const near = Math.hypot(p.x - o.x, p.y - o.y), at = g.nearNPC === o || g.nearPortal === o, ty = at ? y - s * 9 : y;
-      ctx.font = textFont(Math.max(16, s * 6));
-      outlined(ctx, o.tag, x, ty); ctx.fillStyle = '#ffd650'; ctx.fillText(o.tag, x, ty);
-      if (o.hint && near < 5 && !at) { ctx.font = textFont(Math.max(13, s * 4.3)); outlined(ctx, o.hint, x, y + s * 7); ctx.fillStyle = '#e8e4f0'; ctx.fillText(o.hint, x, y + s * 7); }
+      pixelLabel(ctx, o.tag, x, ty, 24, '#ffd650');                 // the HUD's pixel font, crisp at 8px steps, with a hard black rim
+      if (o.hint && near < 5 && !at) pixelLabel(ctx, o.hint, x, y + s * 7, 16, '#e8e4f0');
     }
   }
   // status icons over the head, RotMG's way: one small pixel glyph per effect, in a row (the slow, the stunned, the
@@ -2273,14 +2282,12 @@ export class Renderer {
       const [bx, by] = this.proj(g.nearPortal.x, g.nearPortal.y);
       const L = g.nearPortal.life, x = bx * s, y = (by - 20) * s;
       const t = `${keyHint('portal')}${g.nearPortal.label}${L !== undefined ? ` (${Math.ceil(L)}s)` : ''}`;   // the key shown is yours (none if unbound)
-      outlined(ctx, t, x, y);
-      ctx.fillStyle = '#f2c14e'; ctx.fillText(t, x, y);
+      pixelLabel(ctx, t, x, y, 16, '#f2c14e');
     }
     if (g.nearNPC && !g.nearPortal) {
       const [bx, by] = this.proj(g.nearNPC.x, g.nearNPC.y);
       const x = bx * s, y = (by - 20) * s, t = `${keyHint('portal')}${g.nearNPC.label}`;
-      outlined(ctx, t, x, y);
-      ctx.fillStyle = '#f2c14e'; ctx.fillText(t, x, y);
+      pixelLabel(ctx, t, x, y, 16, '#f2c14e');
     }
     let bar = null;
     const B = g.boss;
