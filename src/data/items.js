@@ -1420,3 +1420,16 @@ applyGearRework(ITEMS);
     seen.add(key(it));
   }
 }
+
+// ---- the top of the ladder (2026-10-20): every Mythic weapon clearly above a T12 of its kind, every Legendary between.
+// Measured with tools/bench_weapons.mjs (one target at DEF 0, against the T12 of the same kind): the low Mythics were
+// 1.26-1.38x, while two Legendaries were 1.8-2.1x. Each multiplies its shots' damage; its own mechanic is unchanged.
+const LADDER_TUNE = {
+  the_last_second: 1.3, sunless_psalter: 1.25, rf_worldheart: 1.2, rf_starbow: 1.15, rf_requiem: 1.15, rf_lighthouse: 1.15,
+  hammer_that_never_fell: 1.15, rf_unmaker: 1.1,                     // (Mythics brought up to ~1.5-1.7x their T12)
+  nightfall_scythe: 0.7, tidewraith_staff: 0.82,                      // (Legendaries brought below the Mythics: ~1.45-1.5x)
+};
+for (const [id, k] of Object.entries(LADDER_TUNE)) {
+  const W = BASE_ITEMS[id] && BASE_ITEMS[id].weapon;
+  if (W && Array.isArray(W.dmg)) W.dmg = W.dmg.map((d) => Math.round(d * k));
+}
