@@ -3202,7 +3202,7 @@ export class Game {
   eggDrop(e) {
     const D = e.D || {}, roll = R(), bossy = e.rb || e === this.boss;
     let r = null;
-    if (e.id === 'the_unstruck_god') r = roll < 0.02 ? 'divine' : roll < 0.08 ? 'legendary' : roll < 0.3 ? 'rare' : null;   // the only Divine eggs
+    if (e.id === 'the_unstruck_god' || e.id === 'unstruck_god') r = roll < 0.02 ? 'divine' : roll < 0.08 ? 'legendary' : roll < 0.3 ? 'rare' : null;   // the only Divine eggs
     else if (bossy && this.map.kind === 'dungeon') r = roll < 0.012 ? 'legendary' : roll < 0.07 ? 'rare' : roll < 0.2 ? 'uncommon' : null;
     else if (bossy) r = roll < 0.025 ? 'rare' : roll < 0.1 ? 'uncommon' : roll < 0.2 ? 'common' : null;
     else if (e.elite && D.ability) r = roll < 0.004 ? 'rare' : roll < 0.024 ? 'uncommon' : roll < 0.084 ? 'common' : null;   // elites: a raised egg chance
@@ -4131,7 +4131,7 @@ export class Game {
     if (this.konamiDone) return;
     this.konamiDone = true;
     const p = this.player;
-    this.banner('The Unstruck God nods. Just once.', 3600);
+    this.banner('Solkhar nods. Just once.', 3600);
     for (let k = 0; k < 6; k++) this.vx({ k: 'burst', x: p.x + Math.cos(k) * 2, y: p.y - 1 + Math.sin(k) * 2, n: 30, colors: ['#ff4af0', '#8af6ff', '#ffd650', '#7aff9a'] });
     this.save.fame += 1;
     this.sfx('rare');

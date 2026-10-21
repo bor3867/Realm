@@ -26,7 +26,7 @@ export const DUNGEON_ITEMS = {
   starless_band: { desc: 'A ring of night with no stars in it. Four dark stars orbit you and blot out shots.',
     passive: ORB({ kind: 'body', n: 4, r: 1.7, w: -2.4, dmg: 70, sprite: 'el_shots/void_seer.rift_star', scale: 1.2, block: { n: 1, rest: 3 } }) },
   // the Unstruck God's throne
-  crown_of_the_unstruck: { name: 'Band of the Unstruck Crown', desc: 'The crown, beaten into a ring. Four gilded motes keep their orbit round you, and nothing gets through them twice.',
+  crown_of_the_unstruck: { name: 'Band of the Sunthief\'s Crown', desc: 'The crown, beaten into a ring. Four gilded motes keep their orbit round you, and nothing gets through them twice.',
     passive: ORB({ kind: 'body', n: 4, r: 1.9, w: 2.6, dmg: 220, sprite: 'rx_shots/the_unstruck_god.orbit_mote', scale: 1.5, block: { n: 1, rest: 2 } }) },
   // Frostveil Hollows
   ring_of_the_wyrm: { desc: 'A scale from its coil, bent into a band. Three ice lances circle you; what they touch is chilled, and they turn shots aside.',

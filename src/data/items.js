@@ -1289,7 +1289,7 @@ for (const r of [
 ]) add({ type: 'ring', slot: 'ring', tier: 'UT', ut: true, mythic: true, bag: 'starfall', ...r });
 
 // the final boss's own prize
-add({ id: 'crown_of_the_unstruck', type: 'ring', slot: 'ring', tier: 'UT', ut: true, mythic: true, bag: 'starfall', name: 'Crown of the Unstruck',
+add({ id: 'crown_of_the_unstruck', type: 'ring', slot: 'ring', tier: 'UT', ut: true, mythic: true, bag: 'starfall', name: 'Crown of the Sunthief',
   bonus: { hp: 80, mp: 80, att: 6, def: 6, spd: 6, dex: 6, vit: 6, wis: 6 }, passive: { aegis: 5, kintsugi: 0.25 },
   desc: 'Small enough to wear on a finger now. Its wearer is struck less often, and hits back harder when they are.' });
 
@@ -1315,7 +1315,7 @@ for (const it of Object.values(BASE_ITEMS)) {
     'Hollowed by the Hollow Thanes. Something still echoes inside.',
     'Tempered in the Emberforge, a forge that has never once gone cold.',
     'A splinter of the god himself. It is warm, and it is listening.',
-    'Woven from what the Unstruck God left behind. Nothing has ever pierced it.',
+    'Woven from what Solkhar left behind. Nothing has ever pierced it.',
   ];
   const FAMILY = {
     sword: ['Heavy and honest: every swing is a promise.', 'Slow arcs, heavy cuts. Stand close and mean it.', 'Made for those who would rather be within arm\'s reach.'],

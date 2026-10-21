@@ -1,4 +1,4 @@
-# Realm of the Unstruck God
+# Melon Realms
 
 A top-down bullet-hell RPG with permadeath, tiered loot and original pixel art. Single-player, runs in the browser, no build step.
 
@@ -49,7 +49,7 @@ Then open http://localhost:5173.
    - **The Frozen Scriptorium** (upper-mid): the stacks. Three enormous halls of bookshelf aisles joined by single-file stairs, with reading rooms off them. The boss gate is sealed by a **rune puzzle**, a hidden lever and a warden. Boss: **The Archivist**.
    - **The Emberforge Depths** (upper): themed rooms (foundry, golemworks, smeltery, armory, bridge hall, quarters) joined by narrow bridges over lava. Sealed by golem wardens, **pressure plates** and a lever. Boss: **The Forgeheart Colossus**.
    - **The Heart of Godfall** (endgame): ten round chambers in a ring around the heart, joined by winding veins; one artery leads in. Sealed by **three wardens**. Boss: **The Fallen Heart**.
-   - **The Throne** (final): a colonnaded royal road through two champions' halls, each with a throne and a warden, to the throne room. Boss: **The Unstruck God**.
+   - **The Throne** (final): a colonnaded royal road through two champions' halls, each with a throne and a warden, to the throne room. Boss: **Solkhar, the Sunthief**.
    - Upper dungeons show a seal checklist under the minimap, and their unbroken seals glow on it. Secret rooms hide behind cracked walls, chests have to be broken open, some rooms are ambushes, and every dungeon tells its story in five journal pages.
 
    Every boss owns its mechanics; no two share a signature move:
@@ -65,7 +65,7 @@ Then open http://localhost:5173.
    | The Unstruck | QUENCH (a steaming checkerboard), hammers that come back |
    | Fallen Heart | artery streams, veins that fire in from the walls |
    | The Archivist | mirror copies, blinking |
-   | The Unstruck God | meteors that leave burning ground, the tether, orbiting blades |
+   | Solkhar, the Sunthief | judgement marks, a halo of blades, seams of molten gold, falling stars, the stolen sun that circles and flares (only his shadow is safe), and Unmade |
    | The Fallen Star | star mines, burning constellations |
    | The Tidebound Lich | the soul swap, lights out |
    | The Forgeheart Colossus | eruption lanes, the reflecting bulwark |

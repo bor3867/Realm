@@ -353,7 +353,7 @@ export const DUNGEONS = {
     hazardFx: { kind: 'zones', name: 'falling slag', every: 3.2, n: 3, r: 1.4, delay: 1.1, dmg: 95, spread: 4, stagger: 0.15, shards: 6, proj: 'slag', colors: ['#f2641a', '#ffc94a'] },
     chestLoot: [{ slot: 'weapon', tiers: [7, 9], p: 0.8 }, { slot: 'armor', tiers: [7, 10], p: 0.8 }, { slot: 'ability', tiers: [3, 4], p: 0.5 },
       { stat: true, p: 0.9 }, { id: 'pot_hp', p: 1 }, { id: 'cinder_saints_fist', p: 0.03 }, { id: 'bellwrights_mail', p: 0.03 }],
-    mobs: ['bellows_bound', 'mold_wrought'], elites: [], boss: 'unstruck_god', mobHp: 1 },   // (the Unstruck God, rebuilt on the boss framework: src/bosses/unstruck_god.js)
+    mobs: ['bellows_bound', 'mold_wrought'], elites: [], boss: 'unstruck', mobHp: 1 },
   heart: { name: 'The Heart of Godfall', floor: 'goldvein', wall: 'ribwall', hazard: 'lava', rooms: 13, portal: 'heart', style: 'heart',
     hazardFx: { kind: 'zones', name: 'a heartbeat', every: 4, n: 5, r: 1.7, delay: 1.0, dmg: 150, spread: 5, stagger: 0.06, shards: 8, proj: 'kintsugi', colors: ['#ff4a5a', '#f2c14e'] },
     chestLoot: [{ slot: 'weapon', tiers: [9, 10], p: 0.8 }, { slot: 'armor', tiers: [10, 11], p: 0.8 }, { slot: 'ability', tiers: [4, 5], p: 0.6 },
@@ -947,17 +947,17 @@ for (const B of [...Object.values(REALM_BOSSES), ...Object.values(DUNGEON_BOSSES
   pieces.forEach((id, k) => { hosts[k % hosts.length].loot.push({ id, p: 0.06 }); hosts[(k + 4) % hosts.length].loot.push({ id, p: 0.04 }); });
 }
 
-// ================================================================ THE FINAL BOSS: the Unstruck God, on his throne
-// Five phases that escalate through every trick the realm has taught you. (Admins: /portal throne, /tp throne, /boss unstruck_god)
-DUNGEONS.throne = { name: 'The Throne of the Unstruck God', floor: 'marble', wall: 'ribwall', hazard: 'lava', rooms: 3, portal: 'heart', style: 'heart',
+// ================================================================ THE FINAL BOSS: Solkhar, the Sunthief, on his throne
+// On the boss framework (src/bosses/unstruck_god.js). The old five-phase fight below stays for /boss unstruck_god. (Admins: /portal throne, /tp throne, /bx unstruck_god)
+DUNGEONS.throne = { name: 'The Throne of Solkhar', floor: 'marble', wall: 'ribwall', hazard: 'lava', rooms: 3, portal: 'heart', style: 'heart',
   bossW: 43, bossH: 35,
   hazardFx: { kind: 'zones', name: 'falling gold', every: 4.5, n: 4, r: 1.6, delay: 1.1, dmg: 110, spread: 5, stagger: 0.08, shards: 6, proj: 'goldshard', colors: ['#ffd650', '#ffffff'] },
   chestLoot: [{ slot: 'weapon', tiers: [9, 10], p: 1 }, { slot: 'armor', tiers: [10, 11], p: 1 }, { slot: 'ability', tiers: [5, 5], p: 0.8 },
     { slot: 'ring', tiers: [5, 5], p: 0.8 }, { stat: true, p: 1 }, { stat: true, p: 1 }],
   mobs: ['hollow_thane', 'gilded_cardinal', 'blood_seraph', 'cherub_husk', 'gilded_lancer'],
-  elites: ['hollow_jarl', 'seraph_husk', 'cathedral_engine'], boss: 'the_unstruck_god', mobHp: 2.6 };
+  elites: ['hollow_jarl', 'seraph_husk', 'cathedral_engine'], boss: 'unstruck_god', mobHp: 2.6 };
 DUNGEON_BOSSES.the_unstruck_god = {
-  name: 'The Unstruck God', biome: 'throne', sheet: 'godking', hp: 180000, def: 34, xp: 20000, r: 1.9, speed: 0.7, keep: 6, summon: 'cherub_husk',
+  name: 'Solkhar, the Sunthief', biome: 'throne', sheet: 'godking', hp: 180000, def: 34, xp: 20000, r: 1.9, speed: 0.7, keep: 6, summon: 'cherub_husk',
   phases: [
     { at: 1, name: 'I WAS NEVER STRUCK.', cycle: ['crown', 'judgment', 'solar', 'charge', 'crown'] },
     { at: 0.8, name: 'KNEEL BEFORE YOUR GOD.', open: 'court', cycle: ['verdict', 'crown', 'halo_of_ruin', 'judgment', 'gaze'] },
@@ -1756,7 +1756,7 @@ Object.assign(DUNGEONS.heart, { storyTitle: 'Prayers to a Fallen Heart', story: 
   'Its wardens feed it. Cut them down and the way to the heart will open.',
   'It remembers being a god. It does not remember losing.',
 ] });
-Object.assign(DUNGEONS.throne, { storyTitle: 'The Unstruck God Speaks', story: [
+Object.assign(DUNGEONS.throne, { storyTitle: 'Solkhar Speaks', story: [
   'I was never struck. Every smith tried. Every hammer broke.',
   'They called me unfinished, as if that were a weakness. An unfinished thing cannot end.',
   'My champions hold the seals. They chose to. Do not pity them.',

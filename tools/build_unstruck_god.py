@@ -35,6 +35,7 @@ class Cv:
         x, y = int(round(x)), int(round(y))
         if 0 <= x < N and 0 <= y < N: self.g[y][x] = c
     def rect(self, x0, y0, x1, y1, c):
+        x0, x1 = min(x0, x1), max(x0, x1); y0, y1 = min(y0, y1), max(y0, y1)
         for y in range(int(y0), int(y1) + 1):
             for x in range(int(x0), int(x1) + 1): self.p(x, y, c)
     def ell(self, cx, cy, rx, ry, c):
@@ -120,16 +121,36 @@ def god(act=1, f=0, attack=False):
         if act == 3 and k in (1, 4): h = 2
         c.line(24 + dx, hy - 5, 24 + dx * 1.15, hy - 5 - h, 'g'); c.p(24 + dx * 1.15, hy - 5 - h, 'y')
     c.rect(17, hy - 6, 31, hy - 5, 'G'); c.rect(18, hy - 6, 30, hy - 6, 'g')
-    # the head: a marble mask, featureless but for the eyes and a grim line of a mouth
-    c.ell(24, hy + 1, 6, 6.5, 'W'); c.ell(23.5, hy + 0.5, 5.2, 5.8, 'w'); c.ell(21.5, hy - 1, 1.6, 2.4, 'w')
-    c.rect(29, hy - 2, 29, hy + 4, 'm')                  # shade on the far side
-    eye = {1: 'c', 2: 'r', 3: 'C'}[act]
-    for ex in (21, 27):
-        c.rect(ex - 1, hy, ex + 1, hy + 1, 'o'); c.rect(ex - 1, hy, ex, hy, eye if not (act == 1 and f % 4 == 3) else 'o')
-        if act >= 2: c.p(ex + 1, hy + 1, 'R' if act == 2 else 'F')
-    c.rect(22, hy + 5, 26, hy + 5, 'm')                  # the mouth
+    # the head: a narrow marble mask tapering to a pointed chin, hollow cheeks, a heavy brow in a scowl over deep black
+    # sockets with slit eyes burning in them, and a wide jagged grin of teeth (act 3: the furnace showing through it)
+    for sx in (-1, 1):                                    # horns, curling up and out from the temples
+        for k in range(7):
+            c.p(24 + sx * (6 + k * 0.7), hy - 2 - k * 1.2 + (k * k) * 0.08, 'd' if k < 4 else 'G')
+            c.p(24 + sx * (6.6 + k * 0.7), hy - 2 - k * 1.2 + (k * k) * 0.08, 'k')
+    for y in range(hy - 6, hy + 10):
+        d = y - hy
+        half = 6.2 if d <= 1 else max(0.6, 6.2 - (d - 1) * 0.72)   # straight sides, then the long taper to the chin
+        c.rect(24 - half, y, 24 + half, y, 'w')
+        c.rect(24 + half * 0.35, y, 24 + half, y, 'W')    # the far side in shade
+    for sx in (-1, 1):                                    # hollow cheeks under the cheekbones
+        c.line(24 + sx * 5, hy + 2, 24 + sx * 3, hy + 6, 'm')
+    eye = {1: 'c', 2: 'r', 3: 'F'}[act]
+    glow = {1: 'h', 2: 'R', 3: 'y'}[act]
+    for sx in (-1, 1):
+        c.rect(24 + sx * 2, hy - 1, 24 + sx * 5, hy + 1, 'k')            # the socket
+        c.rect(24 + sx * 2, hy + 2, 24 + sx * 4, hy + 2, 'k')
+        c.line(24 + sx * 1, hy - 1, 24 + sx * 5, hy - 3, 'o')            # the brow, slanting down to the nose: a scowl
+        c.line(24 + sx * 1, hy - 2, 24 + sx * 5, hy - 4, 'm')
+        if not (act == 1 and f % 4 == 3):                                 # (the untouched god blinks, slowly)
+            c.rect(24 + sx * 2, hy, 24 + sx * 3, hy, eye); c.p(24 + sx * 3, hy - 1 if act > 1 else hy, glow)   # a slit of light
+    c.p(24, hy + 2, 'm'); c.p(24, hy + 3, 'm')            # the bridge of the nose
+    c.rect(20, hy + 5, 28, hy + 6, 'o')                   # the grin: dark, jagged, full of teeth
+    for x in range(20, 29, 2): c.p(x, hy + 5, 'w')
+    for x in range(21, 28, 2): c.p(x, hy + 6, 'W')
+    if act == 3: c.rect(22, hy + 6, 26, hy + 6, 'F')       # the furnace behind the teeth
+    c.p(19, hy + 4, 'o'); c.p(29, hy + 4, 'o')            # the corners turned up
     if act >= 2:                                          # the seam: molten gold splits the mask
-        pts = [(24, hy - 6), (25, hy - 3), (23, hy - 1), (25, hy + 2), (24, hy + 4), (25, hy + 7)]
+        pts = [(24, hy - 6), (25, hy - 3), (23, hy - 1), (25, hy + 2), (24, hy + 4), (25, hy + 8)]
         for (x0, y0), (x1, y1) in zip(pts, pts[1:]): c.line(x0, y0, x1, y1, 'g')
         if act == 3:
             for (x0, y0), (x1, y1) in zip(pts, pts[1:]): c.line(x0 + 1, y0, x1 + 1, y1, 'F')

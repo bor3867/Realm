@@ -78,7 +78,7 @@ Type commands in chat (`/` or Enter). Ids use underscores. Regenerate with `node
 | ★★★ | `scriptorium` | The Frozen Scriptorium | The Archivist |
 | ★★★ | `theatre` | The Gilded Marionette Theatre | Maestro Lucan, the Puppeteer |
 | ★★★★ | `astral` | The Astral Observatory | The Grand Orrery |
-| ★★★★ | `forge` | The Drowned Forge | The Unstruck God |
+| ★★★★ | `forge` | The Drowned Forge | The Unstruck |
 | ★★★★ | `hollowmoon` | Hollowmoon Carnival | The Grinning Ringmaster |
 | ★★★★ | `rf_atlas` | The Celestial Atlas | Vael |
 | ★★★★ | `rf_crater` | The Impact Crater | Astraeus |
@@ -96,7 +96,7 @@ Type commands in chat (`/` or Enter). Ids use underscores. Regenerate with `node
 | ★★★★★ | `rf_rift` | The Rift Beneath | The Unmaker |
 | ★★★★★ | `rf_stage` | The Velvet Stage | Mirabeau the Magnificent |
 | ★★★★★ | `spire` | The Prism Lighthouse | Aurelia, the Prism Wyrm |
-| ★★★★★ | `throne` | The Throne of the Unstruck God | The Unstruck God |
+| ★★★★★ | `throne` | The Throne of Solkhar | Solkhar, the Sunthief |
 
 ## Boss ids
 

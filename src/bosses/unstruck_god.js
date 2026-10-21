@@ -1,5 +1,5 @@
-// The Unstruck God: the Drowned Forge's master, rebuilt on the boss framework (2026-10-20). Never once struck in the war
-// that broke the world; the fight is the story of his first wound. Every bomb is marked before it falls: a ring on the
+// Solkhar, the Sunthief (once 'the Unstruck God'): the realm's last boss, on his Throne, rebuilt on the boss framework
+// (2026-10-20). Never once struck in the war that broke the world; the fight is the story of his first wound. Every bomb is marked before it falls: a ring on the
 // ground that fills as it arms (zones), a landing mark under each falling star (lobs), a line of light before each seam
 // (lasers), the sun swelling before it flares.
 //   I    The Untouched (100-70%): contempt. Judgement falls on you, a halo of blades turns, decrees sweep the hall.
@@ -9,6 +9,7 @@
 //        throwing embers; when it flares, only his own shadow is safe.
 //   Last: UNMADE (8%): he comes apart and the dark pours out: survive it, and he is broken.
 // Art: tools/build_unstruck_god.py ('bx_unstruck_god', shots 'ug_shots/unstruck_god.<name>').
+import { DUNGEON_BOSSES } from '../data/enemies.js';
 const TAU = Math.PI * 2, R = Math.random;
 const angleTo = (x0, y0, x1, y1) => Math.atan2(y1 - y0, x1 - x0);
 const arena = (e) => e.bx.arena || { x: e.x - 12, y: e.y - 10, w: 24, h: 18 };
@@ -98,8 +99,8 @@ const finale = {
 };
 
 export default {
-  id: 'unstruck_god', art: 'unstruck_god', shotSheet: 'ug_shots', name: 'The Unstruck God', biome: 'dungeon', hp: 300000, def: 30, xp: 16000,
-  r: 2.2, speed: 1.0, keep: 6, faces: false, spawnCentre: true, tempo: 0.8, dmgScale: 1.05, finale,
+  id: 'unstruck_god', art: 'unstruck_god', shotSheet: 'ug_shots', name: 'Solkhar, the Sunthief', biome: 'dungeon', hp: 650000, def: 34, xp: 30000,
+  r: 2.2, speed: 1.0, keep: 6, faces: false, spawnCentre: true, tempo: 0.72, dmgScale: 1.25, finale,   // (the last boss: a five-star throne)
   phases: {
     1: { move: 'center', pressure: [{ every: 2.4, special: 'scorn', delay: 2, dmg: 110 }], patterns: [
       { name: 'judgement', windup: 0.8, recover: 0.6, special: 'judgement', dmg: 120 },
@@ -123,7 +124,7 @@ export default {
     ] },
   },
   specials: { judgement, halo, decree, spears, scorn, seams, stars, wrath, bleed, flareTell, flare, embers },
-  onWake(g) { g.banner('THE UNSTRUCK GOD · never once struck, in ten thousand years', 3400); },
+  onWake(g) { g.banner('SOLKHAR, THE SUNTHIEF · never once struck, in ten thousand years', 3400); },
   onPhase(g, e, ph) {
     if (ph === 2) g.banner('HE BLEEDS · for the first time, the god bleeds', 3000);
     if (ph === 3) { g.banner('HE TEARS THE SUN FROM HIS CHEST', 3000); e.ugSA = 0; }
@@ -136,7 +137,7 @@ export default {
     e.ugSx = cx + Math.cos(e.ugSA) * Math.min(7, A.w / 2 - 2); e.ugSy = cy + Math.sin(e.ugSA) * Math.min(5.5, A.h / 2 - 2);
     if ((S.scorch = (S.scorch || 0) - dt) <= 0) { S.scorch = 0.45; mark(g, e, e.ugSx, e.ugSy, 1.6, 0.45, 120, SUN, 0); }
   },
-  onDeath(g, e) { e.ugSx = undefined; g.banner('THE UNSTRUCK GOD IS STRUCK DOWN', 3600); if (!g.netTargets && g.trophy) g.trophy('unstruck'); },
+  onDeath(g, e) { e.ugSx = undefined; g.banner('SOLKHAR IS STRUCK DOWN. THE SUN IS FREE.', 3600); },
   drawTop(r, g, e) {                                 // the stolen sun, and its swell before a flare (where his shadow falls)
     if (e.ugSx === undefined || e.dead) return;
     const b = r.b, [x, y] = r.proj(e.ugSx, e.ugSy), swell = e.ugFlareUntil > g.t ? 1 - (e.ugFlareUntil - g.t) / 1.6 : 0, R0 = 14 + swell * 10 + Math.sin(g.t * 8) * 1.5;
@@ -149,8 +150,6 @@ export default {
       b.beginPath(); b.moveTo(bx, by); b.arc(bx, by, 150, a - 0.42, a + 0.42); b.closePath(); b.fill(); b.globalAlpha = 1;
     }
   },
-  loot: [{ id: 'knuckle_of_the_unstruck', p: 0.15 }, { id: 'billet_of_the_first_oath', p: 0.15 }, { id: 'the_last_noon', p: 0.1 },
-    { slot: 'weapon', tiers: [9, 10], p: 1 }, { slot: 'armor', tiers: [9, 11], p: 1 }, { slot: 'ability', tiers: [4, 5], p: 0.8 }, { slot: 'ring', tiers: [4, 5], p: 0.8 },
-    { stat: true, p: 1 }, { stat: true, p: 1 }, { stat: true, p: 0.5 }],
+  get loot() { return DUNGEON_BOSSES.the_unstruck_god.loot; },
   lootLuck: 2,
 };
