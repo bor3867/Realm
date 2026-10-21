@@ -160,6 +160,18 @@ export class UI {
       <button class="btn" id="mclose">Close${keyParen('settings')}</button></div>`);
     o.querySelector('#mclose').onclick = () => this.closeModal();
   }
+  // the Hall of Legends: your fallen heroes (the best first) and the stars each class has earned
+  openLegends() {
+    this.modal = 'legends';
+    const s = this.g.save, G = [...(s.graveyard || [])].sort((a, b) => (b.fame || 0) - (a.fame || 0)).slice(0, 12);
+    const rows = G.map((d) => `<tr><td><b>${CLASSES[d.cls] ? CLASSES[d.cls].name : d.cls}</b></td><td>level ${d.level}</td><td class="stars">${d.fame || 0} fame</td><td class="mut">${String(d.by || '').replace(/[&<]/g, '')} · ${d.date || ''}</td></tr>`).join('') || '<tr><td class="mut" colspan="4">No legends yet. Go and make one.</td></tr>';
+    const stars = Object.keys(CLASSES).map((c) => { const f = (s.classFame || {})[c] || 0, n = FAME_GOALS.filter((x) => f >= x).length; return `<tr><td><b>${CLASSES[c].name}</b></td><td class="stars">${'★'.repeat(n)}<i>${'★'.repeat(5 - n)}</i></td><td class="mut">best ${f} fame</td><td></td></tr>`; }).join('');
+    const o = this.overlay(`<div class="screen atlas"><h1>The Hall of Legends</h1><h2>Your account: ${s.fame || 0} fame · best level ${s.bestLevel || 0}</h2>
+      <table><tr><th colspan="4">Your fallen heroes, the greatest first</th></tr>${rows}</table>
+      <table><tr><th colspan="4">Class stars (fame goals each class has reached)</th></tr>${stars}</table>
+      <button class="btn" id="mclose">Close${keyParen('settings')}</button></div>`);
+    o.querySelector('#mclose').onclick = () => this.closeModal();
+  }
   openJournal(ev) {
     this.modal = 'journal';
     const o = this.overlay(`<div class="screen journal"><h1>${ev.title}</h1><h2>Page ${ev.page + 1} of ${ev.of}</h2>
@@ -822,6 +834,7 @@ export class UI {
         bard: ['The bard', 'A bard by the fire', 'Songs, and a little inspiration', 'Listen'],
         fortune: ['Fortune teller', "Madame Ostra's tent", '100 gold for a glimpse of tomorrow', 'Pay'],
         guide: ['The Nexus guide', 'New here?', 'What everything is, a line at a time', 'Talk'],
+        legends: ['Hall of Legends', 'Your fallen heroes', 'And the stars each class has earned', 'Read'],
         atlas: ['Dungeon Atlas', 'Every dungeon in the realm', 'How hard, whose, and where its portal drops', 'Read'],
       }[npc.interact] || ['', npc.label || '', '', 'Use'];
       $('portalkind').textContent = info[0]; $('portalname').textContent = info[1]; $('portalsub').textContent = info[2]; $('portalgo').textContent = info[3] + keyParen('portal');
@@ -836,7 +849,7 @@ export class UI {
       if (ev.type === 'ground' || ev.type === 'map') this.refreshSlots();
       if (ev.type === 'map') { const f = $('fade'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); }
       if (ev.type === 'chat') this.renderChat();
-      if (ev.type === 'npc') { if (ev.which === 'shop') this.openShop(); else if (ev.which === 'board') this.openBoard(); else if (ev.which === 'waypoint') this.openWaypoints(ev.from); else if (ev.which === 'petyard') this.openPetYard(); else if (ev.which === 'journal') this.openJournal(ev); else if (ev.which === 'atlas') this.openAtlas(); else this.openForge(); }
+      if (ev.type === 'npc') { if (ev.which === 'shop') this.openShop(); else if (ev.which === 'board') this.openBoard(); else if (ev.which === 'waypoint') this.openWaypoints(ev.from); else if (ev.which === 'petyard') this.openPetYard(); else if (ev.which === 'journal') this.openJournal(ev); else if (ev.which === 'atlas') this.openAtlas(); else if (ev.which === 'legends') this.openLegends(); else this.openForge(); }
       if (ev.type === 'death') this.deathScreen();
     }
     if (this.bannerT > 0 && (this.bannerT -= dt) <= 0) $('banner').classList.add('hidden');

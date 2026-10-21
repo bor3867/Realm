@@ -302,6 +302,8 @@ export class Renderer {
     const Px = Math.round(this.px * TS), Py = Math.round(this.py * TS);
     const ox = Px - G / 2, oy = Py - G / 2;
     gc.fillStyle = '#0a080c'; gc.fillRect(0, 0, G, G);
+    const ART = m.artBg && this.A.img[m.artBg];
+    if (ART) { gc.imageSmoothingEnabled = false; gc.drawImage(ART, -ox, -oy); return; }   // a painted map (the Nexus): its art is the floor, 1:1
     const tx0 = Math.floor(ox / TS), ty0 = Math.floor(oy / TS), n = Math.ceil(G / TS) + 1;
     const anim = Math.floor(g.t * 2.2);
     if (!m.decorAt && m.decor) { m.decorAt = new Map(); for (const d of m.decor) m.decorAt.set(d.y * m.w + d.x, d.name); }
@@ -2143,11 +2145,12 @@ export class Renderer {
     const ctx = this.ctx, s = this.scale, p = g.player, W = ctx.canvas.width, H = ctx.canvas.height;
     ctx.textAlign = 'center';
     for (const o of [...g.map.objects, ...g.map.portals]) {
-      if (!o.tag || o.hidden) continue;
+      if (!o.tag && !o.hint) continue;
+      if (o.hidden && !o.tag && !o.hint) continue;
       const [bx, by] = this.proj(o.x, o.y), x = bx * s, y = (by - (o.kind ? 30 : 26)) * s;
       if (x < -120 || x > W + 120 || y < -40 || y > H + 40) continue;
       const near = Math.hypot(p.x - o.x, p.y - o.y), at = g.nearNPC === o || g.nearPortal === o, ty = at ? y - s * 9 : y;
-      pixelLabel(ctx, o.tag, x, ty, 24, '#ffd650');                 // the HUD's pixel font, crisp at 8px steps, with a hard black rim
+      if (o.tag) pixelLabel(ctx, o.tag, x, ty, 24, '#ffd650');      // the HUD's pixel font, crisp at 8px steps, with a hard black rim
       if (o.hint && near < 5 && !at) pixelLabel(ctx, o.hint, x, y + s * 7, 16, '#e8e4f0');
     }
   }

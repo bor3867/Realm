@@ -3914,6 +3914,7 @@ export class Game {
         break;
       }
       case 'atlas': this.events.push({ type: 'npc', which: 'atlas' }); break;   // the Dungeon Atlas (the UI shows it)
+      case 'legends': this.events.push({ type: 'npc', which: 'legends' }); break;   // the Hall of Legends (the UI shows it)
       case 'journal': {                                    // a page of the dungeon's story
         const D = this.map.def, S = (D && D.story) || [];
         this.events.push({ type: 'npc', which: 'journal', title: D.storyTitle || D.name, page: o.page, of: S.length, text: S[o.page] || '' });

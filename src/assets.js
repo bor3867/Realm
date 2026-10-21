@@ -19,7 +19,7 @@ const SHEETS = {
   godking: 'art/sprites/bosses/godking_sheet',
   pack_bosses: 'art/sprites/bosses/pack_bosses_sheet',
 };
-const IMAGES = ['tiles', 'objects', 'items', 'projectiles', 'decor', 'landmarks', 'fx'];
+const IMAGES = ['tiles', 'objects', 'items', 'projectiles', 'decor', 'landmarks', 'fx', 'nexus_art'];   // (nexus_art: the painted Nexus, tools/build_nexus_art.mjs)
 
 const loadImg = (src) => new Promise((ok, bad) => {
   const im = new Image();

@@ -1,5 +1,6 @@
 // Map generation: the Nexus (hub), the Realm (procedural island), the Drowned Forge (dungeon).
 import { rng, noise2, dist } from '../util.js';
+import { NEXUS_ART } from './nexus_art.js';
 
 export const TILE_NAMES = ['water', 'deep', 'sand', 'fen', 'mud', 'snow', 'runefloor', 'runeglyph',
   'ash', 'obsidian', 'marble', 'forge', 'forgewall', 'lava', 'void', 'chapelfloor', 'chapelwall', 'goldvein', 'ribwall',
@@ -110,7 +111,59 @@ function bigProp(m, name, x, y) {
   m.objects.push({ sprite: 'lm:' + name, x, y: y + 0.5, solid: false, big: true });
   m.solid[idx(m, x - 1, y)] = 1; m.solid[idx(m, x, y)] = 1;
 }
+// ------------------------------------------------------------------ THE NEXUS, painted (2026-10-21): the user's art is its floor
+// (art/world/nexus_art.png, 16 art pixels a tile, drawn 1:1); where you can walk comes from it (tools/build_nexus_art.mjs).
+// Its districts as the art names them: the Realm Gates (seven portals to the realm), the Wanderer's Bazaar (the vault,
+// the market), the Hall of Legends (your fallen heroes and your class stars; the training dummies), the Verdant Gardens
+// (the Pet Yard, the quest board, the Dungeon Atlas, the pond), the Emberworks (the Forge), the Crystal Plaza (the well
+// heals), the Spawn (the guide). The services stand at the art's own labels (their names are painted: no floating tag).
 export function nexus() {
+  const A = NEXUS_ART, W = A.w, H = A.h;
+  const m = makeMap('nexus', 'The Nexus', W, H, TID.hedge);
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) m.tiles[idx(m, x, y)] = A.rows[y][x] === '.' ? TID.cobble : TID.hedge;
+  const open = (x0, y0, x1, y1) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (x > 0 && y > 0 && x < W - 1 && y < H - 1) m.tiles[idx(m, x, y)] = TID.cobble; };
+  m.artBg = 'nexus_art';
+  m.rfMini = (i) => { const h = A.cols.slice(i * 6, i * 6 + 6); return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]; };
+  // the Realm Gates: seven painted portals, all to the realm (the blue one in the middle is the one named)
+  m.portals = [];
+  for (const gx of [24, 29, 35, 41, 47, 53, 58]) {
+    open(gx - 1, 8, gx + 1, 12);
+    m.portals.push({ kind: 'realm', x: gx + 0.5, y: 9.5, label: 'Realm Portal', to: 'realm', hidden: true,
+      ...(gx === 41 ? { tag: 'REALM PORTAL', hint: 'Step in to fight. The farther from the beach, the stronger the monsters and the better the loot' } : {}) });
+  }
+  // the Wanderer's Bazaar: the vault, the market (SHOP and TRADE)
+  m.portals.push({ kind: 'vault', x: 16.5, y: 22, label: 'Your Vault', to: 'vault', hidden: true, hint: 'Keep what you cannot carry. It grows with every Vault Chest you buy' });
+  put(m, 'merchant', 9, 29, true, { interact: 'shop', label: 'Trade with the Salt-Peddler', hint: 'Buy potions and gear; sell what you do not need' });
+  put(m, 'merchant', 19, 26, true, { interact: 'shop', label: 'Trade with the Salt-Peddler', hint: 'Buy potions and gear; sell what you do not need' });
+  // the Verdant Gardens: the Pet Yard, the quest board (GUILD), the Dungeon Atlas (EVENTS), the pond
+  put(m, 'petkeeper', 8, 44, true, { interact: 'petyard', label: 'Visit the Petkeeper (pets, eggs, feeding)', hint: 'Hatch eggs, raise pets, choose the companion who heals you' });
+  m.pen = { x0: 4, y0: 48, x1: 11, y1: 52 };
+  put(m, 'board', 19, 44, true, { interact: 'board', label: 'Read the quest board', hint: 'Take quests for gold, essence and fame' });
+  put(m, 'bookshelf', 14, 62, true, { interact: 'atlas', label: 'Read the Dungeon Atlas', hint: 'Every dungeon: how hard it is, its boss, where its portal drops' });
+  put(m, 'fishspot', 8, 58, true, { interact: 'fish', label: 'Fish in the pond', tag: 'FISHING', hint: 'Cast a line: now and then something good bites' });
+  // the Hall of Legends: your legends (LEADERBOARDS, ACHIEVEMENTS); the training dummies between the statues
+  put(m, 'banner', 71, 32, true, { interact: 'legends', label: 'Read the Hall of Legends', hint: 'Your fallen heroes, and the stars each class has earned' });
+  put(m, 'banner', 76, 24, true, { interact: 'legends', label: 'Read the Hall of Legends', hint: 'Your fallen heroes, and the stars each class has earned' });
+  m.dummies = [[64.5, 29.5], [68.5, 28.5], [72.5, 29.5], [66.5, 31.5], [70.5, 31.5]];
+  put(m, 'signpost', 66, 33, true, { label: 'Training dummies: hit them to read your damage per second', tag: 'TRAINING DUMMIES', hint: 'Hit them to see your damage per second' });
+  // the Emberworks: the Forge (FORGING)
+  put(m, 'smith', 75, 54, true, { interact: 'forge', label: 'Use the Forge', hint: 'Pay gold to raise your gear a tier (up to T11)' });
+  // the Crystal Plaza: the well heals; the Spawn: the guide
+  put(m, 'well', 41, 45, true, { interact: 'fountain', label: 'Drink from the crystal (heals)', tag: 'CRYSTAL WELL', hint: 'Drink to heal fully' });
+  open(39, 64, 43, 67);
+  put(m, 'villager_guard', 38, 65, true, { interact: 'guide', label: 'Talk to the Nexus guide', tag: 'GUIDE', hint: 'New here? Talk to learn what everything is' });
+  put(m, 'bard', 36, 47, true, { interact: 'bard', label: 'Listen to the bard', tag: 'BARD', hint: 'Listen for a little inspiration' });
+  put(m, 'cat', 43, 62, false, { interact: 'cat', label: 'Pet the cat' });
+  m.strolls = [[33, 40], [49, 40], [41, 52], [41, 20], [30, 30], [52, 30]];
+  m.villagers = [['villager_farmer', 0], ['villager_child', 2], ['villager_guard', 4]].map(([sp, k]) => ({ sprite: sp, x: m.strolls[k][0] + 0.5, y: m.strolls[k][1] + 0.5, goal: (k + 1) % 6, wait: 0 }));
+  m.decor = [];
+  m.spawn = { x: 41.5, y: 66 };
+  m.lights = null;                                             // (the art has its own light: no dusk over it)
+  finalize(m);
+  return m;
+}
+// the old meadow Nexus (before the painted one), kept for reference
+export function nexusMeadow() {
   const W = 96, H = 60, CX = 34, CY = 30, OX = CX - 27, OY = CY - 24;   // the meadow (a third bigger, 2026-10-20), plus the Pet Yard clearing out east
   const m = makeMap('nexus', 'The Nexus', W, H, TID.hedge);
   const r = rng(0x7e55);
