@@ -2294,7 +2294,7 @@ export class Renderer {
     }
     let bar = null;
     const B = g.boss;
-    if (B && B.state !== 'sleep' && B.state !== 'dead') bar = { name: 'THE UNSTRUCK', f: B.hp / B.maxHp, hot: B.phase === 2 };
+    if (B && B.state !== 'sleep' && B.state !== 'dead') bar = { name: 'The Unstruck', f: B.hp / B.maxHp, hot: B.phase === 2, e: B };
     else {
       let best = 22;
       for (const e of g.enemies) {
@@ -2302,20 +2302,53 @@ export class Renderer {
         const d = Math.hypot(e.x - g.player.x, e.y - g.player.y) - (e.rb ? 4 : e.warden ? 8 : 0);
         const surv = e.surviveUntil > g.t ? ` · SURVIVE ${Math.ceil(e.surviveUntil - g.t)}s` : e.frenzyUntil > g.t ? ` · ${e.D.bloodlust ? 'BLOODLUST' : 'FRENZY'} ${Math.ceil(e.frenzyUntil - g.t)}s` : '';
         const X = e.D.bx && g.bxBar ? g.bxBar(e) : null;
-        if (X && d < best) { best = d; bar = { name: `${e.D.name.toUpperCase()} · ${X.name.toUpperCase()}`, f: e.hp / e.maxHp, hot: X.phase > 1, immune: X.immune, pips: X.pips }; continue; }
-        if (d < best) { best = d; bar = { name: e.D.name.toUpperCase() + surv, f: surv ? (e.surviveUntil > g.t ? (e.surviveUntil - g.t) / 22 : (e.frenzyUntil - g.t) / (e.frenzyLen || 10)) : e.hp / e.maxHp, hot: e.phaseIdx > 0 || !!surv, immune: e.invulnT > 0 && !surv }; }
+        if (X && d < best) { best = d; bar = { name: e.D.name, sub: X.name, f: e.hp / e.maxHp, hot: X.phase > 1, immune: X.immune, pips: X.pips, e }; continue; }
+        if (d < best) { best = d; bar = { e, name: e.D.name + surv, f: surv ? (e.surviveUntil > g.t ? (e.surviveUntil - g.t) / 22 : (e.frenzyUntil - g.t) / (e.frenzyLen || 10)) : e.hp / e.maxHp, hot: e.phaseIdx > 0 || !!surv, immune: e.invulnT > 0 && !surv }; }
       }
     }
-    if (bar) {
-      const w = Math.min(this.c.width * 0.6, 560), x = (this.c.width - w) / 2, y = 58;   // below the gold / fame row, never under it
-      ctx.fillStyle = '#000'; ctx.fillRect(x - 3, y - 3, w + 6, 18);
-      ctx.fillStyle = '#5a0e1e'; ctx.fillRect(x, y, w, 12);
-      ctx.fillStyle = bar.immune ? '#8d88a0' : bar.hot ? '#ff7a1a' : '#f2c14e';
-      ctx.fillRect(x, y, w * Math.max(0, bar.f), 12);
-      for (const f of bar.pips || []) { ctx.fillStyle = '#000'; ctx.fillRect(Math.round(x + w * f) - 2, y - 3, 4, 18); ctx.fillStyle = bar.f > f ? '#fff6c8' : '#8a7a5a'; ctx.fillRect(Math.round(x + w * f) - 1, y - 1, 2, 14); }
-      ctx.font = textFont(Math.max(13, s * 3 * 1.3));
-      outlined(ctx, bar.name, this.c.width / 2, y + 30); ctx.fillStyle = '#e9e4f2'; ctx.fillText(bar.name, this.c.width / 2, y + 30);
-    }
+    if (bar) this.bossWidget(g, bar);
+  }
+  // the boss's health, RotMG's way (2026-10-21): a compact pill at the top right of the view, its Life in numbers on the
+  // bar, phase ticks, the boss's own likeness in a diamond badge at its end, its name and phase in small type under it
+  bossWidget(g, bar) {
+    const ctx = this.ctx, C = this.c, W = Math.round(Math.min(340, Math.max(230, C.width * 0.27))), H = 22, x = C.width - W - 22, y = 14, e = bar.e;
+    const hp = e && e.hp !== undefined ? Math.max(0, Math.ceil(e.hp)) : null, max = e && e.maxHp;
+    // the pill: a dark frame with a bright edge, the Life inside
+    ctx.fillStyle = '#05040a'; ctx.fillRect(x - 4, y - 4, W + 8, H + 8);
+    ctx.fillStyle = bar.immune ? '#6e6a80' : '#1e88c8'; ctx.fillRect(x - 2, y - 2, W + 4, H + 4);
+    ctx.fillStyle = '#05040a'; ctx.fillRect(x, y, W, H);
+    ctx.fillStyle = '#3a0c16'; ctx.fillRect(x + 2, y + 2, W - 4, H - 4);
+    const fw = Math.round((W - 4) * Math.max(0, Math.min(1, bar.f)));
+    ctx.fillStyle = bar.immune ? '#8d88a0' : bar.hot ? '#ff6a1a' : '#e8463a'; ctx.fillRect(x + 2, y + 2, fw, H - 4);
+    ctx.fillStyle = 'rgba(255,255,255,0.18)'; ctx.fillRect(x + 2, y + 2, fw, Math.round((H - 4) / 3));   // a shine along the top
+    for (const f of bar.pips || []) { const px = Math.round(x + 2 + (W - 4) * f); ctx.fillStyle = '#05040a'; ctx.fillRect(px - 1, y, 3, H); ctx.fillStyle = bar.f > f ? '#fff6c8' : '#8a7a5a'; ctx.fillRect(px, y + 2, 1, H - 4); }
+    const txt = hp !== null && max ? `${hp}/${max}` : `${Math.round(bar.f * 100)}%`;
+    pixelLabel(ctx, txt, x + W / 2 - 14, y + 17, 16, '#ffffff');
+    // the badge: a diamond at the pill's end with the boss's likeness in it
+    const bx = x + W - 2, by = y + H / 2, r = 22;
+    ctx.save(); ctx.translate(bx, by); ctx.rotate(Math.PI / 4);
+    ctx.fillStyle = '#05040a'; ctx.fillRect(-r / 1.41 - 3, -r / 1.41 - 3, r * 1.41 + 6, r * 1.41 + 6);
+    ctx.fillStyle = bar.immune ? '#6e6a80' : '#1e88c8'; ctx.fillRect(-r / 1.41 - 1, -r / 1.41 - 1, r * 1.41 + 2, r * 1.41 + 2);
+    ctx.fillStyle = '#1a1424'; ctx.fillRect(-r / 1.41 + 1, -r / 1.41 + 1, r * 1.41 - 2, r * 1.41 - 2);
+    ctx.restore();
+    const P = e && this.bossPortrait(e);
+    if (P) { const k = Math.min(30 / P.w, 30 / P.h); ctx.imageSmoothingEnabled = false; ctx.drawImage(P.img, P.x, P.y, P.w, P.h, Math.round(bx - (P.w * k) / 2), Math.round(by - (P.h * k) / 2), Math.round(P.w * k), Math.round(P.h * k)); }
+    // its name, and its phase, under the pill
+    ctx.textAlign = 'center';
+    pixelLabel(ctx, bar.name, x + W / 2 - 14, y + H + 22, 16, '#e9e4f2');
+    if (bar.sub) pixelLabel(ctx, bar.sub, x + W / 2 - 14, y + H + 40, 16, bar.immune ? '#c8c0d8' : '#ffd650');
+  }
+  // a boss's likeness for its badge: the first frame of its art (cached per art)
+  bossPortrait(e) {
+    const C = this.portraits || (this.portraits = new Map()), key = (e.bx && e.bx.B && e.bx.B.art) || e.D.reg || e.D.bx || e.id || e.D.name;
+    if (C.has(key)) return C.get(key);
+    let out = null;
+    try {
+      const def = (e.bx && e.bx.def) || (e.D.reg && this.R && this.R.resolve(e.D.reg));
+      if (def && def.frames) { const f = def.frames[Object.keys(def.frames)[0]]; if (f) out = { img: def.img, x: f.x, y: f.y, w: f.w, h: f.h }; }
+    } catch (err) { out = null; }
+    C.set(key, out);
+    return out;
   }
   // speech bubbles: a dark rounded box with a tail, above whoever is talking
   speech(g) {
