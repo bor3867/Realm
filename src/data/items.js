@@ -77,10 +77,12 @@ export const legacyId = (id) => {
 const RING_BONUS = { hp: 20, mp: 20, att: 1, def: 1, spd: 1, dex: 1, vit: 1, wis: 1 };
 // the user's Realmforge ladders replace our tiered weapons, armour and rings (docs/realmforge_port.md)
 import { RF_WEAPONS, RF_ARMOR, RF_RINGS, RF_UNIQUES } from './rf_items_data.js';
-export const TIER_CAP = { weapon: 13, armor: 13, ring: 3, ability: 5 };
+export const TIER_CAP = { weapon: 15, armor: 15, ring: 7, ability: 7 };
+// the tiers the loot tables reach before the gates lift them (the old ladders' tops; see rollLoot)
+const LADDER_CAP = { weapon: 13, armor: 13, ring: 3, ability: 5 };
 const OLD_CAP = { weapon: 10, armor: 11, ring: 5, ability: 5 };
 // a tier written for the old ladders (loot tables, shops), on the new one
-export const ladderTier = (slot, t) => Math.max(0, Math.min(TIER_CAP[slot], Math.round((t * TIER_CAP[slot]) / OLD_CAP[slot])));
+export const ladderTier = (slot, t) => Math.max(0, Math.min(LADDER_CAP[slot], Math.round((t * LADDER_CAP[slot]) / OLD_CAP[slot])));
 
 const BASE_ITEMS = {};
 // enchanted items are ids like 'gauntlet_t5~att2.crit1' (base~enchant+grade, dot-separated); the proxy builds them on demand,
@@ -153,23 +155,46 @@ function armor(type, t) {
   return { def: r1(2 + 0.9 * t), mp: 10 + 5 * t, wis: Math.floor(t / 2) };
 }
 
+// ---- the top of the ladders (2026-10-20): weapons and armour T14-T15, abilities T6-T7, rings T4-T7, each a step past
+// the tier below (art: tools/build_high_tiers.mjs). Who drops them: the gates in rollLoot.
+const HI_PRE = { 4: 'Moonsilver', 5: 'Starviolet', 6: 'Abyssal', 7: 'Radiant', 14: 'Abyssal', 15: 'Radiant' };
+const HI_NAME = (t, noun) => `${HI_PRE[t]} ${noun}`;
+const HI_DESC = { 4: "Silver from the moon's underside, cold to the touch.", 5: 'Set with a sliver of the violet between the stars.',
+  6: 'Drawn up out of the abyss under the world: it still remembers the dark.', 7: 'Made in the light that came before the sun: it burns without heat.',
+  14: 'Drawn up out of the abyss under the world: it still remembers the dark.', 15: 'Made in the light that came before the sun: it burns without heat.' };
+const HI_NOUN = { sword: 'Blade', dagger: 'Fang', bow: 'Longbow', staff: 'Staff', wand: 'Wand', heavy: 'Plate', leather: 'Hide', robe: 'Robe' };
+const HI_WEAPON = (type, t) => {                       // the T13, a step on for each tier (the step from T12 to T13)
+  const A = RF_WEAPONS[type][12], B = RF_WEAPONS[type][13], k = (i) => Math.pow(B.dmg[i] / A.dmg[i], t - 13) * (t === 15 ? 1.04 : 1);
+  return { ...B, name: HI_NAME(t, HI_NOUN[type]), desc: HI_DESC[t], dmg: [Math.round(B.dmg[0] * k(0)), Math.round(B.dmg[1] * k(1))] };
+};
+const HI_ARMOR = (type, t) => {
+  const A = RF_ARMOR[type][12].bonus, B = RF_ARMOR[type][13].bonus, bonus = {};
+  for (const [s, v] of Object.entries(B)) bonus[s] = v + Math.max(s === 'def' ? 2 : 1, v - (A[s] || 0)) * (t - 13);
+  return { name: HI_NAME(t, HI_NOUN[type]), desc: HI_DESC[t], bonus };
+};
+const RING_NOUN = { hp: 'Life', mp: 'Mana', att: 'Might', def: 'Warding', spd: 'Swiftness', dex: 'Skill', vit: 'Vigor', wis: 'Wisdom' };
+const HI_RING = (s, t) => {
+  const A = RF_RINGS[s][2].bonus, B = RF_RINGS[s][3].bonus, bonus = {};
+  for (const [k, v] of Object.entries(B)) bonus[k] = v + Math.max(k === 'hp' || k === 'mp' ? 15 : 1, v - (A[k] || 0)) * (t - 3);
+  return { name: `${HI_PRE[t]} Seal of ${RING_NOUN[s]}`, desc: HI_DESC[t], bonus };
+};
 for (const type of WEAPON_TYPES) {                      // our family's feel (rate, spread, piercing, size), Realmforge's numbers and art
   for (let t = 0; t <= TIER_CAP.weapon; t++) {
-    const F = RF_WEAPONS[type][t], W = weapon(type, Math.min(10, t));
-    add({ id: `${type}_t${t}`, type, slot: 'weapon', tier: t, name: F.name, desc: F.desc, reg: `rf_items/${type}_t${t}`,
-      weapon: rfPath({ ...W, dmg: F.dmg, count: F.count, range: F.range, speed: F.speed, proj: `rf_shots/${type}_t${t}` }, F.motion, type) });
+    const hi = t > 13, F = hi ? HI_WEAPON(type, t) : RF_WEAPONS[type][t], W = weapon(type, Math.min(10, t));
+    add({ id: `${type}_t${t}`, type, slot: 'weapon', tier: t, name: F.name, desc: F.desc, reg: hi ? `hi_items/${type}_t${t}` : `rf_items/${type}_t${t}`,
+      weapon: rfPath({ ...W, dmg: F.dmg, count: F.count, range: F.range, speed: F.speed, proj: hi ? `hi_shots/${type}_t${t}` : `rf_shots/${type}_t${t}` }, F.motion, type) });
   }
 }
 for (const type of ABILITY_TYPES) {
-  for (let t = 0; t <= 5; t++) add({ id: `${type}_t${t}`, type, slot: 'ability', tier: t, name: NAMES[type][t], ability: ability(type, t) });
+  for (let t = 0; t <= TIER_CAP.ability; t++) add({ id: `${type}_t${t}`, type, slot: 'ability', tier: t, name: t > 5 ? HI_NAME(t, NAMES[type][5].split(' ').at(-1)) : NAMES[type][t], ability: ability(type, t), ...(t > 5 ? { reg: `hi_items/${type}_t${t}`, desc: HI_DESC[t] } : {}) });
 }
 for (const type of ARMOR_TYPES) {
-  for (let t = 0; t <= TIER_CAP.armor; t++) { const F = RF_ARMOR[type][t]; add({ id: `${type}_t${t}`, type, slot: 'armor', tier: t, name: F.name, desc: F.desc, reg: `rf_items/${type}_t${t}`, bonus: { ...F.bonus } }); }
+  for (let t = 0; t <= TIER_CAP.armor; t++) { const hi = t > 13, F = hi ? HI_ARMOR(type, t) : RF_ARMOR[type][t]; add({ id: `${type}_t${t}`, type, slot: 'armor', tier: t, name: F.name, desc: F.desc, reg: hi ? `hi_items/${type}_t${t}` : `rf_items/${type}_t${t}`, bonus: { ...F.bonus } }); }
 }
 for (const s of STATS) {
   for (let t = 0; t <= TIER_CAP.ring; t++) {
-    const F = RF_RINGS[s][t];
-    add({ id: `ring_${s}_t${t}`, type: 'ring', slot: 'ring', tier: t, name: F.name, desc: F.desc, reg: `rf_items/ring_${s}_t${t}`, bonus: { ...F.bonus } });
+    const hi = t > 3, F = hi ? HI_RING(s, t) : RF_RINGS[s][t];
+    add({ id: `ring_${s}_t${t}`, type: 'ring', slot: 'ring', tier: t, name: F.name, desc: F.desc, reg: hi ? `hi_items/ring_${s}_t${t}` : `rf_items/ring_${s}_t${t}`, bonus: { ...F.bonus } });
   }
 }
 // consumables
@@ -986,6 +1011,7 @@ export function bagRank(it) {
   if (it.slot === 'consumable') return it.use && it.use.stat ? 1 : 0;
   if (it.enchants) return 1;
   const t = it.tier, small = it.slot === 'ability' || it.slot === 'ring';
+  if (small ? t >= 6 : t >= 14) return 2;                        // the new tops: a white bag
   return (small ? t >= 4 : t >= 8) ? 1 : 0;
 }
 export const bagFor = (items) => BAG_ORDER[Math.max(0, ...items.map(bagRank))];
@@ -1079,7 +1105,20 @@ export function maybeEnchant(id, chance = ENCHANT_CHANCE) {
   return `${id}~${out.join('.')}`;
 }
 
-export function rollLoot(table, luck = 1) {
+// who may drop how high (2026-10-20): T12 (abilities T5, rings T4) only from the realm's hard foes, T13 (T6, T5) only from
+// dungeon bosses, T14-T15 (T7, T6-T7) only from the hardest. A roll that reaches the gate below its source's may climb
+// a tier at a time (35% each), as far as its own gate allows; anything over the gate is brought down to it.
+//   mob: the realm's everyday monsters, dungeon monsters, chests      hard: elites, heralds, wardens, the godfall's monsters, realm bosses
+//   dboss: a dungeon's boss      top: the hardest bosses (the five-star dungeons', the Colossus, the Orrery)
+export const LOOT_GATE = { mob: { weapon: 11, armor: 11, ability: 4, ring: 3 }, hard: { weapon: 12, armor: 12, ability: 5, ring: 4 },
+  dboss: { weapon: 13, armor: 13, ability: 6, ring: 5 }, top: { weapon: 15, armor: 15, ability: 7, ring: 7 } };
+const GATE_BELOW = { mob: null, hard: 'mob', dboss: 'hard', top: 'dboss' };
+function gated(slot, t, rank) {
+  const cap = (LOOT_GATE[rank] || LOOT_GATE.mob)[slot], below = GATE_BELOW[rank];
+  if (below && t >= Math.min(LOOT_GATE[below][slot], LADDER_CAP[slot])) while (t < cap && R() < 0.35) t++;   // (from the gate below up: a hard foe's T11 may become T12)
+  return Math.min(t, cap);
+}
+export function rollLoot(table, luck = 1, rank = 'mob') {
   const out = [];
   for (const e of table) {
     if (R() > e.p * luck) continue;
@@ -1087,10 +1126,10 @@ export function rollLoot(table, luck = 1) {
     else if (e.stat) out.push(`stat_${R.pick(STATS)}`);
     else {
       const t = R.int(e.tiers[0], e.tiers[1]);
-      if (e.slot === 'ring') out.push(maybeEnchant(`ring_${R.pick(STATS)}_t${ladderTier('ring', t)}`));   // (tables were written for the old ladders)
+      if (e.slot === 'ring') out.push(maybeEnchant(`ring_${R.pick(STATS)}_t${gated('ring', ladderTier('ring', t), rank)}`));   // (tables were written for the old ladders)
       else {
         const type = R.pick(SLOT_TYPES[e.slot]);
-        out.push(maybeEnchant(`${type}_t${ladderTier(e.slot, t)}`));
+        out.push(maybeEnchant(`${type}_t${gated(e.slot, ladderTier(e.slot, t), rank)}`));
       }
     }
   }
@@ -1372,7 +1411,7 @@ applyGearRework(ITEMS);
   const FIT = { bellows: ['att', 'vit', 'hp'], seal: ['def', 'vit', 'hp'], halo: ['wis', 'spd', 'mp'], reliquary: ['wis', 'att', 'mp'],
     hookline: ['att', 'spd', 'hp'], mirror: ['dex', 'spd', 'hp'], kite: ['wis', 'dex', 'mp'], stopwatch: ['def', 'wis', 'mp'],
     runeward: ['att', 'def', 'hp'], hex: ['wis', 'dex', 'mp'] };
-  const MAIN = [1, 1, 2, 3, 3, 4], SIDE = [0, 1, 1, 1, 2, 3], POOL = [0, 0, 0, 20, 30, 40];
+  const MAIN = [1, 1, 2, 3, 3, 4, 5, 6], SIDE = [0, 1, 1, 1, 2, 3, 3, 4], POOL = [0, 0, 0, 20, 30, 40, 50, 60];
   for (const [type, [a, b, pool]] of Object.entries(FIT)) for (let t = 0; t <= TIER_CAP.ability; t++) {
     const it = ITEMS[`${type}_t${t}`];
     if (!it) continue;

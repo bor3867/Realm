@@ -16,7 +16,8 @@
   "realmforge/atlas_rf_foes.json",
   "resized/atlas_resized.json",
   "realmforge/atlas_rf_bx.json",
-  "unstruck/atlas_unstruck.json"
+  "unstruck/atlas_unstruck.json",
+  "hitiers/atlas_hitiers.json"
  ],
  "hover": "HOVER.json",
  "manifest": "MANIFEST.json"

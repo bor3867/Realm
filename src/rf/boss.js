@@ -165,7 +165,7 @@ const methods = {
     }
     const T = F.bal.tiers, T2 = [T[0] + 1, T[1] + 1];                     // a boss gives a tier better than its dungeon's chests
     items.push(...rollLoot([{ slot: 'weapon', tiers: T2, p: 0.8 }, { slot: 'armor', tiers: T2, p: 0.8 }, { slot: 'ring', tiers: [1, 3], p: 0.5 },
-      { slot: 'ability', tiers: [3, 5], p: 0.5 }, { stat: true, p: 0.6 }, { id: 'pot_hp', p: 1 }], 2.5));
+      { slot: 'ability', tiers: [3, 5], p: 0.5 }, { stat: true, p: 0.6 }, { id: 'pot_hp', p: 1 }], 2.5, (this.rfStars ? this.rfStars() : 3) >= 5 ? 'top' : 'dboss'));
     const A = F.A, bx = A.b1.x / TP + 1, by = A.b1.y / TP + 2;
     this.addBag(bx, by + 0.5, items);
     m.portals.push({ kind: 'realm', x: bx, y: by + 2, label: this.exitLabel(), to: 'realm' });

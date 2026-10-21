@@ -2,7 +2,7 @@
 // Pure state + update(); rendering and DOM live elsewhere.
 import { R, rng, clamp, dist, dist2, angleTo, TAU, CAM, lift, liftO, liftA, liftB, angleUp } from './util.js';
 import { CLASSES, START_KIT, STATS, MAX_LEVEL, FAME_XP, FAME_GOALS, xpToNext, moveSpeed, fireRate, dmgMult, hpRegen, mpRegen, mitigate } from './data/classes.js';
-import { ITEMS, SETS, rollLoot, bagFor, canEquip, TYPE_SLOT, BAG_ORDER, BAG_NAMES, WEAPON_TYPES, ARMOR_TYPES, ABILITY_TYPES, ADMIN_SET, TIER_CAP, ladderTier } from './data/items.js';
+import { ITEMS, SETS, rollLoot, bagFor, canEquip, TYPE_SLOT, BAG_ORDER, BAG_NAMES, WEAPON_TYPES, ARMOR_TYPES, ABILITY_TYPES, ADMIN_SET, TIER_CAP, ladderTier, LOOT_GATE } from './data/items.js';
 import { ENEMIES, PACKS, CAMP_LOOT, BIOME_SPAWNS, BOSS, REALM_BOSSES, PARENTS, HERALDS, BIOME_BOSS, EVENTS_TO_BOSS, GROUPS, DUNGEONS, DUNGEON_BOSSES, FIRECAMP_BANDS, DUNGEON_RATING, portalDrop2 as portalDrop } from './data/enemies.js';
 import { nexus, vaultRoom, realm, dungeon, isSolid, shotBlocked, biomeAt, randomTileInBiome, BIOMES, BIOME_RING, BIOME_LABEL, TID } from './world/maps.js';
 import { writeSave } from './save.js';
@@ -1792,6 +1792,19 @@ export class Game {
     if (p.level >= MAX_LEVEL) { p.xp = 0; this.banner('Level 20! From now on, every kill earns fame.', 3200); }
   }
   // what a character's death is worth: base fame plus RotMG-style bonuses
+  // a monster's rank for loot (LOOT_GATE, src/data/items.js): a dungeon's boss (the hardest: 'top'), the realm's hard foes, or everyday
+  lootRank(e) {
+    const m = this.map;
+    if (e.rb || e === this.boss) {
+      if (m && m.kind === 'dungeon') {
+        const id = Object.keys(DUNGEONS).find((k) => DUNGEONS[k] === m.def), stars = (DUNGEON_RATING[id] || [3])[0];
+        return stars >= 5 || ['forgeheart_colossus', 'grand_orrery'].includes(e.D.bx || e.id) ? 'top' : 'dboss';
+      }
+      return 'hard';
+    }
+    if (e.elite || e.herald || e.warden || e.D.biome === 'godfall') return 'hard';
+    return 'mob';
+  }
   fameReport(p) {
     const base = p.fame || 0, B = [];
     const maxed = STATS.filter((s) => p.base[s] >= CLASSES[p.cls].max[s]).length;
@@ -2295,7 +2308,7 @@ export class Game {
       }
       if (e.warden) this.breakSeal(`${e.D.name.split(',')[0]} falls.`);
       if (e.rb) { this.questEvent(this.map.kind === 'dungeon' ? 'dungeon' : 'rboss', e); this.trophy(e.id); if (this.map.kind === 'dungeon') this.player.dungeons = (this.player.dungeons || 0) + 1; else this.player.bossKills = (this.player.bossKills || 0) + 1; }
-      let items = e.noLoot ? [] : rollLoot(e.D.loot, e.D.lootLuck || 1);   // (an overworld boss's adds carry nothing)
+      let items = e.noLoot ? [] : rollLoot(e.D.loot, e.D.lootLuck || 1, this.lootRank(e));   // (how high it may drop: LOOT_GATE)   // (an overworld boss's adds carry nothing)
       if (this.map.kind === 'realm' && !e.rb) items = items.filter((id) => !String(id).startsWith('stat_') || R() < STAT_DROP_REALM);   // stat potions are scarcer out in the realm (2026-10-19)
       const egg = this.eggDrop(e);
       if (egg) items.push(egg);
@@ -3430,7 +3443,7 @@ export class Game {
     const uts = all.filter((it) => it.ut && !it.mythic && it.id !== 'crown_of_the_unstruck').map((it) => it.id);
     const myth = all.filter((it) => it.mythic && it.id !== 'crown_of_the_unstruck').map((it) => it.id);
     const C = CLASSES[this.player.cls], pick = (L) => L[Math.floor(R() * L.length)];
-    const out = [`${C.weapon}_t${R() < 0.5 ? TIER_CAP.weapon : TIER_CAP.weapon - 1}`, `${C.armor}_t${R() < 0.5 ? TIER_CAP.armor : TIER_CAP.armor - 1}`, `${C.ability}_t5`, `ring_${pick(STATS)}_t${TIER_CAP.ring}`];
+    const out = [`${C.weapon}_t${R() < 0.5 ? TIER_CAP.weapon : TIER_CAP.weapon - 1}`, `${C.armor}_t${R() < 0.5 ? TIER_CAP.armor : TIER_CAP.armor - 1}`, `${C.ability}_t${TIER_CAP.ability}`, `ring_${pick(STATS)}_t${TIER_CAP.ring}`];
     for (let k = 0; k < 3; k++) out.push(pick(uts));                                    // three relics, every time
     if (R() < 0.85) out.push(pick(myth));                                              // a mythic, almost always
     if (R() < 0.35) out.push(pick(myth));                                              // often two
@@ -3579,7 +3592,7 @@ export class Game {
     this.vx({ k: 'burst', x: B.x, y: B.y - 2, n: 60, colors: ['#f2641a', '#ffc94a', '#fff6c8', '#4f4b60'] });
     this.player.kills++;
     this.gainXp(BOSS.xp);
-    this.addBag(B.x - 1, B.y + 1, rollLoot(BOSS.loot));
+    this.addBag(B.x - 1, B.y + 1, rollLoot(BOSS.loot, 1, 'dboss'));
     if (R() < 0.25) this.portalNextToNexus = true;
     this.map.portals.push({ kind: 'realm', x: B.x + 1.5, y: B.y + 1, label: this.exitLabel(), to: 'realm', life: 90 });
     if (this.portalNextToNexus) {                      // sometimes the Forge opens the way to the god's heart
@@ -4147,7 +4160,7 @@ export class Game {
   }
   nextTierId(it) {
     if (it.ut || it.slot === 'consumable') return null;
-    const cap = TIER_CAP[it.slot];
+    const cap = LOOT_GATE.mob[it.slot] ?? TIER_CAP[it.slot];   // (the forge stops at the everyday tops: higher tiers must be won from hard foes and bosses)
     if (it.tier >= cap) return null;
     const [b, ench] = it.id.split('~');                 // enchantments survive the forge
     return b.replace(/_t\d+$/, `_t${it.tier + 1}`) + (ench ? '~' + ench : '');

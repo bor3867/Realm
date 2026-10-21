@@ -99,6 +99,8 @@ L.push('- Eggs: `egg_FAMILY_RARITY`, families ' + list(Object.keys(FAMILIES)), '
 
 L.push('## Item ids', '');
 L.push('- Find any id with `/items TEXT`. Keys: `key_DUNGEON` (the dungeons without `rf_`).');
+L.push('- Tiers: `TYPE_tN`, weapons and armour T0-T15, abilities T0-T7, rings `ring_STAT_tN` T0-T7 (e.g. `/give sword_t15`, `/give ring_att_t7`).');
+L.push('- Who drops the top (weapons/armour, abilities, rings): everyday and chests to T11/T4/T3; hard realm foes T12/T5/T4; dungeon bosses T13/T6/T5; the hardest (5-star dungeons, Colossus, Orrery) T14-15/T7/T7. The forge upgrades to T11/T4/T3.');
 L.push('- Enchanted: `ID~CODE` or `ID~CODE.CODE`, CODE = key + grade 1-3, e.g. `/give wand_t9~keen3.burning2`');
 L.push('- Enchant keys: ' + list(Object.keys(ENCHANTS)), '');
 
