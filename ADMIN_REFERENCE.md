@@ -78,7 +78,7 @@ Type commands in chat (`/` or Enter). Ids use underscores. Regenerate with `node
 | ★★★ | `scriptorium` | The Frozen Scriptorium | The Archivist |
 | ★★★ | `theatre` | The Gilded Marionette Theatre | Maestro Lucan, the Puppeteer |
 | ★★★★ | `astral` | The Astral Observatory | The Grand Orrery |
-| ★★★★ | `forge` | The Drowned Forge | The Unstruck |
+| ★★★★ | `forge` | The Drowned Forge | The Unstruck God |
 | ★★★★ | `hollowmoon` | Hollowmoon Carnival | The Grinning Ringmaster |
 | ★★★★ | `rf_atlas` | The Celestial Atlas | Vael |
 | ★★★★ | `rf_crater` | The Impact Crater | Astraeus |
@@ -101,7 +101,7 @@ Type commands in chat (`/` or Enter). Ids use underscores. Regenerate with `node
 ## Boss ids
 
 - Overworld (`/boss`, `/spawn`): `brine_cathedral`, `wick_mother`, `orrery_of_winter`, `penitent_colossus`, `emily_the_yapper`, `the_fallen_star`
-- Three-phase (`/bx`, `/spawn`): `abyssal_kraken`, `thornheart_treant`, `glacius_frozen_wyrm`, `mother_mycelia`, `grand_orrery`, `gilded_sphinx`, `count_vesper`, `grinning_ringmaster`, `tidebound_lich`, `forgeheart_colossus`
+- Three-phase (`/bx`, `/spawn`): `abyssal_kraken`, `thornheart_treant`, `glacius_frozen_wyrm`, `mother_mycelia`, `grand_orrery`, `gilded_sphinx`, `count_vesper`, `grinning_ringmaster`, `tidebound_lich`, `forgeheart_colossus`, `unstruck_god`
 
 ### Realmforge bosses on the three-phase engine (`/bx rfx_ID`)
 

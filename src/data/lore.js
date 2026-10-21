@@ -62,6 +62,7 @@ export const BOSS_SPEECH = {
   drowned_abbot: ['The mass will not be interrupted.', 'Hush. The water is rising.', 'Join the choir below.'],
   fallen_heart: ['BA-DUM.', 'I WAS A GOD.', 'YOU ARE SO SMALL.', 'FEEL IT BEAT.'],
   unstruck: ['THE FIRST BLOW IS MINE.', 'NEVER STRUCK. NEVER BROKEN.', 'THE ANVIL OPENS.'],
+  unstruck_god: ['KNEEL. NO ONE HAS EVER STRUCK ME.', 'I HELD THE SUN WHILE YOUR GODS BURNED.', 'YOU DARE MAKE ME BLEED?', 'THE DARK INSIDE ME IS OLDER THAN THE SUN.'],
   emily_the_yapper: ['Oh! Hi! Okay so ANYWAY-', 'Did I tell you about my cousin?', 'Wait wait wait, I wasn\'t finished.',
     'So then I said to the Astrolabe, I said-', 'You\'re a GREAT listener.', 'This one time? At the ice shelf?',
     'Hold on, it gets better.', 'Sorry, where was I? Oh right. ME.', 'Fish fact! Fish are delicious.', 'Are you even listening?!',

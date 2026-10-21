@@ -353,7 +353,7 @@ export const DUNGEONS = {
     hazardFx: { kind: 'zones', name: 'falling slag', every: 3.2, n: 3, r: 1.4, delay: 1.1, dmg: 95, spread: 4, stagger: 0.15, shards: 6, proj: 'slag', colors: ['#f2641a', '#ffc94a'] },
     chestLoot: [{ slot: 'weapon', tiers: [7, 9], p: 0.8 }, { slot: 'armor', tiers: [7, 10], p: 0.8 }, { slot: 'ability', tiers: [3, 4], p: 0.5 },
       { stat: true, p: 0.9 }, { id: 'pot_hp', p: 1 }, { id: 'cinder_saints_fist', p: 0.03 }, { id: 'bellwrights_mail', p: 0.03 }],
-    mobs: ['bellows_bound', 'mold_wrought'], elites: [], boss: 'unstruck', mobHp: 1 },
+    mobs: ['bellows_bound', 'mold_wrought'], elites: [], boss: 'unstruck_god', mobHp: 1 },   // (the Unstruck God, rebuilt on the boss framework: src/bosses/unstruck_god.js)
   heart: { name: 'The Heart of Godfall', floor: 'goldvein', wall: 'ribwall', hazard: 'lava', rooms: 13, portal: 'heart', style: 'heart',
     hazardFx: { kind: 'zones', name: 'a heartbeat', every: 4, n: 5, r: 1.7, delay: 1.0, dmg: 150, spread: 5, stagger: 0.06, shards: 8, proj: 'kintsugi', colors: ['#ff4a5a', '#f2c14e'] },
     chestLoot: [{ slot: 'weapon', tiers: [9, 10], p: 0.8 }, { slot: 'armor', tiers: [10, 11], p: 0.8 }, { slot: 'ability', tiers: [4, 5], p: 0.6 },
