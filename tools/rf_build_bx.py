@@ -16,6 +16,7 @@ bosses = Sheet('rf_bx', 'boss', cols=8, cell=34)
 shots = Sheet('rfx_shots', 'shot', cols=16, cell=16)
 plan = {}
 plan2 = {}
+plan3 = {}
 for B in D['bosses']:
     bid = B['id']
     keys = []
@@ -25,6 +26,11 @@ for B in D['bosses']:
     for i, g in enumerate(B.get('frames2') or []): k = f'{bid}#g{i}'; bosses.add(k, g, B['pal2']); keys2.append(('f%d' % i, k))
     if B.get('atk2'): bosses.add(f'{bid}#atk2', B['atk2'], B['pal2']); keys2.append(('atk', f'{bid}#atk2'))
     if keys2: plan2[bid] = keys2
+    for al in B.get('allies') or []:                  # a boss's allies (Lord Gourdrick's knight and priest): their own frames
+        ka = []
+        for i, g in enumerate(al['frames']): k = f"{bid}#{al['id']}{i}"; bosses.add(k, g, al['pal']); ka.append(('f%d' % i, k))
+        if al.get('atk'): bosses.add(f"{bid}#{al['id']}atk", al['atk'], al['pal']); ka.append(('atk', f"{bid}#{al['id']}atk"))
+        plan3.setdefault(bid, []).append((al['id'], ka))
     plan[bid] = (keys, [ph.get('name') or f'Phase {i + 1}' for i, ph in enumerate(B['phases'])])
     for sk, S in (B.get('shots') or {}).items():
         if S.get('grid'): shots.add(f'{bid}.{sk}', S['grid'], S['pal'])
@@ -37,6 +43,9 @@ for bid, (keys, nph) in plan.items():
              'death': {'frames': move[:1], 'fps': 4, 'loop': False}}
     phases = {str(i + 1): {'name': nm, 'idle': 'idle', 'attack': 'attack'} for i, nm in enumerate(nph or ['Phase 1'])}   # (each phase announced by its own name)
     sheets[f'bx_rf_{bid}'] = {'image': built['image'], 'kind': 'boss', 'sprites': {f'rf_{bid}': {'frames': frames, 'anims': anims, 'phases': phases, 'death': 'death', 'meta': {}}}}
+    for aid, ka in plan3.get(bid, []):                # its allies, drawn as monsters
+        fa = {name: built['sprites'][k]['frames']['0'] for name, k in ka}; ma = [n for n in fa if n.startswith('f')]
+        sheets[f'bx_rf_{bid}']['sprites'][f'rf_{bid}_{aid}'] = {'frames': fa, 'anims': {'move': {'frames': ma, 'fps': 6, 'loop': True}, 'attack': {'frames': ['atk'] if 'atk' in fa else ma[:1], 'fps': 6, 'loop': False}}, 'meta': {}}
     if bid in plan2:                                  # the second body, drawn as a monster ('move' and 'attack' clips)
         f2 = {name: built['sprites'][k]['frames']['0'] for name, k in plan2[bid]}; m2 = [n for n in f2 if n.startswith('f')]
         sheets[f'bx_rf_{bid}']['sprites'][f'rf_{bid}_2'] = {'frames': f2, 'anims': {'move': {'frames': m2, 'fps': 6, 'loop': True}, 'attack': {'frames': ['atk'] if 'atk' in f2 else m2[:1], 'fps': 6, 'loop': False}}, 'meta': {}}

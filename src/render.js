@@ -2450,7 +2450,7 @@ export class Renderer {
     // the realm only shows monsters close enough to matter; dungeons show every one on screen
     const R2 = MINI_ENEMY_RANGE * MINI_ENEMY_RANGE;
     for (const e of calm && g.activeMap === m ? g.active : g.enemies) {
-      if (e.dead || e.rb || e.herald || e.D.dummy || e.under || !near(e)) continue;
+      if (e.dead || e.rb || e.herald || e.D.dummy || e.under || e.friendly || !near(e)) continue;
       if (calm && (e.x - p.x) ** 2 + (e.y - p.y) ** 2 > R2) continue;
       mark(e.x, e.y, 'enemy', e.elite ? '#ffa030' : '#ff3c50', '#ffd0d8', false, 2);
     }

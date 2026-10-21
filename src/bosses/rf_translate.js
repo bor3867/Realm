@@ -183,6 +183,8 @@ function phaseRules(g, e, B, bal, dt) {
   if (ph.invuln && !e.rfFreed && e.rfHadMins && !mins.length) { e.rfFreed = true; g.banner(`${e.D.name} is exposed!`, 1800); }
   // the Eclipse Twins: Noct, his movement, his own life at the end
   if (B.twin) twinStep(g, e, B, bal, dt, ph);
+  // Lord Gourdrick's friends: Sir Rindley and Sister Honeydew
+  if (B.allies) allyStep(g, e, B, bal, dt, ph);
   // Mother Mire's ritual: step on every rune before the brew boils
   if (ph.rfP.ritual) ritualStep(g, e, B, bal, dt, ph.rfP.ritual);
   // Aion's still hour: the puzzle that brings the shield down
@@ -231,6 +233,7 @@ const FIELD = (P, L) => { const f = P.field, k = Math.floor(L / f.every), dirs =
 const EDGE = (P, L) => P.edge || (P.closing ? { w: P.closing.from + (P.closing.to - P.closing.from) * Math.min(1, Math.max(0, L - 2) / P.closing.over), dmg: P.closing.dmg } : null);
 const DIVX = (e, B, P, L) => { const A = box(e, B); return A.x0 + A.w / 2 + Math.sin(L * (P.halves.speed || 0.35)) * A.w * 0.28; };
 const noctOf = (g, e) => (e.rfNoct && !e.rfNoct.gone ? e.rfNoct : e.rfNoctNid && g.net && g.net.byId ? g.net.byId.get(e.rfNoctNid) || null : null);
+const allyOf = (g, e, key) => (e[key] && !e[key].gone ? e[key] : e[key + 'Nid'] && g.net && g.net.byId ? g.net.byId.get(e[key + 'Nid']) || null : null);
 const FLOOD = (L) => 1 + Math.sin(L * 0.8) * 0.4 + Math.min(1.6, L * 0.2);
 const CREASE = (e, A, n) => { const h = hash(n, e.nid || 7), a = [0, Math.PI / 2, Math.PI / 4, -Math.PI / 4][Math.floor(h * 4)]; return { cx: A.x0 + A.w / 2 + (hash(n, 3) - 0.5) * 4, cy: A.y0 + A.h / 2 + (hash(n, 5) - 0.5) * 3, nx: -Math.sin(a), ny: Math.cos(a), a }; };
 // the phase's clock in this browser: the server's (it comes with the boss) run on between its updates
@@ -259,6 +262,22 @@ function arenaRules(g, e, B, bal, dt) {
   if (P.tether) { const n = noctOf(g, e);
     if (n && !n.dead) { const ax = e.x, ay = e.y, bx = n.x - ax, by = n.y - ay, L2 = bx * bx + by * by || 1, k = Math.max(0, Math.min(1, ((p.x - ax) * bx + (p.y - ay) * by) / L2));
       if (Math.hypot(p.x - (ax + bx * k), p.y - (ay + by * k)) < 0.55 && tick('tether', 0.5)) hurt(P.tether.dmg || 100, 'the eclipse beam'); } }
+  // Gourdrick's friends, for you: the Rind Shield circling you stops shots; Honeydew's heals; the dome's verdict; the curse broken
+  if (B.allies) {
+    if (e.rfShieldUntil > g.t) { const a = g.t * 3.4, sx = p.x + Math.cos(a) * 1.25, sy = p.y + Math.sin(a) * 1.25;
+      for (const b of g.projectiles) if (b.from === 'e' && !b.harmless && Math.hypot(b.x - sx, b.y - sy) < 0.6) { b.life = 0; g.vx({ k: 'burst', x: b.x, y: b.y, n: 4, colors: ['#ffd650', '#7ac85a'] }); } }
+    const pr = allyOf(g, e, 'rfPriest');
+    if ('hk' in Z && Z.hk !== e.rfHealK && pr && !(pr.rfDownUntil > g.t) && Math.hypot(p.x - e.x, p.y - e.y) < 22) { const amt = 110; p.hp = Math.min(g.stat('hp'), p.hp + amt); g.float(p.x, p.y - 1, `+${amt}`, '#7ae07a'); Z.healFx = g.t + 0.45; }
+    Z.hk = e.rfHealK;
+    if ('dk' in Z && Z.dk !== e.rfDomeK) {
+      const inside = Math.hypot(p.x - e.rfDomeX, p.y - e.rfDomeY) <= (e.rfDomeR || 2.3);
+      if (!inside && Math.hypot(p.x - e.x, p.y - e.y) < 22) hurt(380, 'the Harvest Moon'); else if (inside) g.float(p.x, p.y - 1, 'SAFE', '#ffd650');
+      for (const b of g.projectiles) if (b.from === 'e' && Math.hypot(b.x - e.rfDomeX, b.y - e.rfDomeY) < (e.rfDomeR || 2.3)) b.life = 0;
+    }
+    Z.dk = e.rfDomeK;
+    if ('ck' in Z && Z.ck !== e.rfCurseK && pr && Math.hypot(p.x - pr.x, p.y - pr.y) < 6) { p.hp = Math.min(g.stat('hp'), p.hp + 250); g.float(p.x, p.y - 1, '+250', '#7ae07a'); }
+    Z.ck = e.rfCurseK;
+  }
   // the brew boiled over: those near are confused (keys turned about) for a while
   if (!('rit' in Z) || e.rfRitFail !== Z.rit) { const I = P.ritual && P.ritual.inflict; if ('rit' in Z && I && Math.hypot(p.x - e.x, p.y - e.y) < 16) { g.invertUntil = g.t + (I.t || 2.5); g.float(p.x, p.y - 1.2, 'CONFUSED', '#c8a0ff'); } Z.rit = e.rfRitFail; }
   // the dark, the sandstorm: you see only round yourself
@@ -357,6 +376,17 @@ function drawArena(r, g, e, B) {
   if (P.tether) { const n = noctOf(g, e); if (n && !n.dead) { const [ax, ay] = r.proj(e.x, e.y), [nx, ny] = r.proj(n.x, n.y);
     b.globalAlpha = 0.85; b.lineWidth = 5; b.strokeStyle = '#ffe9a0'; b.beginPath(); b.moveTo(ax, ay - 20); b.lineTo(nx, ny - 20); b.stroke();
     b.lineWidth = 2; b.strokeStyle = '#3a1a6a'; b.beginPath(); b.moveTo(ax, ay - 20); b.lineTo(nx, ny - 20); b.stroke(); b.globalAlpha = 1; } }
+  if (B.allies) {                                     // the shield round you, the dome, the snare, the curse, the heal beam
+    if (e.rfShieldUntil > g.t) { const a = g.t * 3.4; circle(g.player.x + Math.cos(a) * 1.25, g.player.y + Math.sin(a) * 1.25, 0.45, '#c8a040', 0.9); circle(g.player.x + Math.cos(a) * 1.25, g.player.y + Math.sin(a) * 1.25, 0.45, '#7ac85a', 0.9, true); }
+    if (e.rfDomeUntil > g.t) { const left = e.rfDomeUntil - g.t;
+      poly([[A.x0, A.y0], [A.x0 + A.w, A.y0], [A.x0 + A.w, A.y0 + A.h], [A.x0, A.y0 + A.h]], '#ff7a1a', 0.08 + 0.12 * (1 - Math.min(1, left / 3)));
+      circle(e.rfDomeX, e.rfDomeY, e.rfDomeR || 2.3, '#fff6c8', 0.22); circle(e.rfDomeX, e.rfDomeY, e.rfDomeR || 2.3, '#ffd650', 0.9, true);
+      const [dx, dy] = r.proj(e.rfDomeX, e.rfDomeY); b.fillStyle = '#ffffff'; b.font = '10px monospace'; b.textAlign = 'center'; b.fillText(String(Math.ceil(left)), dx, dy - 2); }
+    const kn = allyOf(g, e, 'rfKnight'), pr = allyOf(g, e, 'rfPriest');
+    if (kn && kn.rfSnareHp > 0) { circle(kn.x, kn.y, 1, '#2a6a2a', 0.5); circle(kn.x, kn.y, 1, '#7ac85a', 0.9, true); const [kx, ky] = r.proj(kn.x, kn.y); b.fillStyle = '#c8ff9a'; b.font = '10px monospace'; b.textAlign = 'center'; b.fillText(`vines ${kn.rfSnareHp}`, kx, ky - 36); }
+    if (pr && pr.rfCurseUntil > g.t) { circle(pr.x, pr.y, 1.6, '#6a2a8a', 0.3); circle(pr.x, pr.y, 1.6, '#c8a0ff', 0.9, true); }
+    if (pr && g.rfZ && g.rfZ.healFx > g.t) { const [ax, ay] = r.proj(pr.x, pr.y), [px2, py2] = r.proj(g.player.x, g.player.y); b.globalAlpha = 0.8; b.strokeStyle = '#9fffb0'; b.lineWidth = 3; b.beginPath(); b.moveTo(ax, ay - 16); b.lineTo(px2, py2 - 10); b.stroke(); b.globalAlpha = 1; }
+  }
   if (e.rfRit) for (const q of runesOf(e.rfRit)) { circle(q.x, q.y, 0.85, q.done ? '#ffd650' : '#7a3ac8', q.done ? 0.55 : 0.35 + 0.2 * Math.sin(g.t * 8)); circle(q.x, q.y, 0.85, '#e8d0ff', 0.7, true); }
   if (P.crownOrbit) { const c = crownAt(e, B, P.crownOrbit); circle(c.x, c.y, 0.6, '#ffd650', 0.8); circle(c.x, c.y, 0.9, '#fff6c8', 0.5, true); }
   if (e.rfSock) { const S0 = socketAt(A); circle(S0.x, S0.y, 0.8, '#ffd650', 0.8, true); circle(S0.x, S0.y, 0.5, '#3a2a10', 0.5); }
@@ -402,6 +432,62 @@ function twinStep(g, e, B, bal, dt, ph) {
       const x1 = Math.max(A.x0 + 1, Math.min(A.x0 + A.w - 1, n.x + Math.cos(a) * L)), y1 = Math.max(A.y0 + 1, Math.min(A.y0 + A.h - 1, n.y + Math.sin(a) * L)), len = Math.hypot(x1 - n.x, y1 - n.y);
       g.fx.push({ kind: 'lane', x: n.x, y: n.y, a, len, w: 0.9, delay: M.warn || 0.7, t: 0, life: (M.warn || 0.7) + len / (M.spd || 16) + 0.1, dmg: Math.round(140 * bal.bossDmg), by: n.D.name, hitT: 0, cols: ['#8a5ad0', '#c8a0ff', '#3a1a6a', '#ffffff'] });
       e.rfCharge = { x0: n.x, y0: n.y, x1, y1, at: g.t + (M.warn || 0.7), T: Math.max(0.1, len / (M.spd || 16)) };
+    }
+  }
+}
+// ---- Lord Gourdrick's friends (the server's creatures, friendly: your shots pass through them, but for the knight's
+// vines). Sir Rindley holds the left edge: he charges the Lord now and then, and hurls his Rind Shield to you (it circles
+// you 3.5 s and stops the shots it touches). Sister Honeydew holds the right edge: a beam of healing to you every 6 s.
+// Snare: the knight caught in vines (shoot them free: the Lord staggers; too slow and he goes down a while). Harvest
+// Moon: a dome near you, then the sky outside it burns. Rotten Harvest: the priest cursed (stand beside her to break it:
+// she heals you and the Lord staggers; too slow and rot bursts out of her). The rest happens where you play (arenaRules).
+function allyKind(B, al) {
+  const id = `rfz_${B.id}_${al.id}`;
+  if (!ENEMIES[id]) ENEMIES[id] = { name: al.name, biome: 'dungeon', hp: al.hp, def: 0, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 0, reg: `bx_rf_${B.id}/rf_${B.id}_${al.id}`, scale: 2, contact: 0, attacks: [], loot: [] };
+  return id;
+}
+function allyStep(g, e, B, bal, dt, ph) {
+  const S = e.bx, P = ph.rfP, A = box(e, B), who = g.netTargets && g.netTargets.length ? g.netTargets : [g.player], near = who.reduce((a, q) => (Math.hypot(q.x - e.x, q.y - e.y) < Math.hypot(a.x - e.x, a.y - e.y) ? q : a), who[0]);
+  const make = (al, x) => { const m = g.addEnemy(allyKind(B, al), x, A.y0 + A.h / 2); m.friendly = true; m.seen = true; m.noLoot = true; m.invulnT = 0; return m; };
+  for (const al of B.allies) {
+    const key = al.role === 'knight' ? 'rfKnight' : 'rfPriest';
+    if (!e[key] || e[key].dead) e[key] = make(al, al.role === 'knight' ? A.x0 + 1.5 : A.x0 + A.w - 1.5);
+    const m = e[key]; if (m.nid) e[key + 'Nid'] = m.nid;
+    const down = m.rfDownUntil > g.t;
+    // hold the sideline, level with the nearest player
+    if (!m.rfDash) { const ty = Math.max(A.y0 + 2, Math.min(A.y0 + A.h - 2, near.y)), tx = al.role === 'knight' ? A.x0 + 1.5 : A.x0 + A.w - 1.5, d = Math.hypot(tx - m.x, ty - m.y); if (d > 0.2 && !(m.rfSnareHp > 0) && !(m.rfCurseUntil > g.t)) g.moveCircle(m, ((tx - m.x) / d) * Math.min(d, 3 * dt), ((ty - m.y) / d) * Math.min(d, 3 * dt), 0.5); }
+    if (down || S.state === 'morph') continue;
+    if (al.role === 'knight') {
+      if (m.rfSnareHp > 0) {                               // snared: shoot the vines
+        if (g.t > m.rfSnareUntil) { m.rfSnareHp = 0; m.rfDownUntil = g.t + 6; g.banner('The vines take Sir Rindley down!', 1800); const s = B.shots.seed || {}; for (let k = 0; k < 12; k++) g.shoot('e', m.x, m.y - 0.5, (k / 12) * TAU, s.speed || 5, s.range || 7, Math.round((s.dmg || 70) * bal.bossDmg), `rfx_shots/${B.id}.seed`, 0.35, false, e.D.name); }
+        continue;
+      }
+      if (m.rfWasSnared) { m.rfWasSnared = false; e.rfStagT = 3; g.banner('Free! Now, together! (the Lord staggers)', 1800); m.rfChg = 0; }
+      if (m.rfDash) {                                     // the charge: to the Lord and back, a blow on the way
+        const D = m.rfDash; D.t += dt; const k = D.t < 0.45 ? D.t / 0.45 : D.t < 0.9 ? 1 - (D.t - 0.45) / 0.45 : 0;
+        m.x = D.x0 + (e.x - D.x0) * k; m.y = D.y0 + (e.y - D.y0) * k;
+        if (D.t >= 0.45 && !D.hit) { D.hit = true; e.netRawHit = true; try { g.damageEnemy(e, Math.round(e.maxHp * 0.01), e.x, e.y, true); } finally { e.netRawHit = false; } g.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 14, colors: ['#7ac85a', '#ffd650'] }); }
+        if (D.t >= 0.9) m.rfDash = null;
+      } else if ((m.rfChg = (m.rfChg ?? 3) - dt) <= 0) { m.rfChg = 6 + Math.random() * 2; m.rfDash = { t: 0, x0: m.x, y0: m.y }; }
+      if ((m.rfSh = (m.rfSh ?? 3) - dt) <= 0) { m.rfSh = P.shieldEvery || 8; e.rfShieldUntil = g.t + 3.5; }   // the Rind Shield, to you
+      if (P.snare && (e.rfSnT = (e.rfSnT || 0) + dt) >= P.snare.every) { e.rfSnT = 0; m.rfSnareHp = P.snare.hp; m.rfSnareUntil = g.t + P.snare.time; m.rfWasSnared = true; m.rfDash = null; g.banner(`"${P.snare.say || 'Caught you, little melon.'}" Sir Rindley is snared: shoot the vines!`, 2400); }
+    } else {
+      if (m.rfCurseUntil > g.t) {                          // cursed: stand beside her
+        if (who.some((q) => !q.dead && Math.hypot(q.x - m.x, q.y - m.y) < 1.6)) e.rfCurseProg = (e.rfCurseProg || 0) + dt;
+        if (e.rfCurseProg >= P.curse.need) { m.rfCurseUntil = 0; e.rfCurseK = (e.rfCurseK || 0) + 1; e.rfStagT = 2.5; g.banner('You broke the curse! Bless you! (the Lord staggers)', 2000); }
+        continue;
+      }
+      if (m.rfCursed) { m.rfCursed = false; if (!(e.rfCurseProg >= (P.curse ? P.curse.need : 0))) { m.rfDownUntil = g.t + 5; const s = B.shots.rot || {}; for (let k = 0; k < 14; k++) g.shoot('e', m.x, m.y - 0.5, (k / 14) * TAU, s.speed || 5, s.range || 7, Math.round((s.dmg || 80) * bal.bossDmg), `rfx_shots/${B.id}.rot`, 0.35, false, e.D.name); g.banner('The curse bursts out of her as rot!', 1800); } }
+      if ((m.rfHeal = (m.rfHeal ?? 2) - dt) <= 0) { m.rfHeal = P.healEvery || 6; e.rfHealK = (e.rfHealK || 0) + 1; }   // a beam of healing (each player's browser heals its own)
+      if (P.curse && (e.rfCuT = (e.rfCuT || 0) + dt) >= P.curse.every) { e.rfCuT = 0; m.rfCurseUntil = g.t + P.curse.time; m.rfCursed = true; e.rfCurseProg = 0; g.banner(`"${P.curse.say || 'Sleep, little priest.'}" Sister Honeydew is cursed: stand beside her!`, 2400); }
+      if (P.dome) {                                      // the Harvest Moon: her dome near the nearest player, then the sky burns
+        const c = (e.rfPhT || 0) % P.dome.every;
+        if (c >= P.dome.every - P.dome.warn && !(e.rfDomeUntil > g.t) && (e.rfPhT || 0) > P.dome.warn) {
+          const cx = A.x0 + A.w / 2, cy = A.y0 + A.h * 0.55, dx = cx - near.x, dy = cy - near.y, dl = Math.hypot(dx, dy) || 1, k = Math.min(dl, 2.5);
+          e.rfDomeX = near.x + (dx / dl) * k; e.rfDomeY = near.y + (dy / dl) * k; e.rfDomeUntil = g.t + (P.dome.every - c); e.rfDomeR = P.dome.r || 2.3; e.rfDomeLit = true;
+        }
+        if (e.rfDomeLit && g.t >= e.rfDomeUntil) { e.rfDomeLit = false; e.rfDomeK = (e.rfDomeK || 0) + 1; g.vx({ k: 'shake', amt: 6 }); }   // it falls (each browser: in or out)
+      }
     }
   }
 }
@@ -543,7 +629,7 @@ export function rfBossToBX(DATA, B) {
       const S = e.bx, R = S.rfEm;
       tickMinions(g, e, B, bal, dt);
       phaseRules(g, e, B, bal, dt);
-      if (S.state === 'death' || S.state === 'deathhold') { for (const m of [...(e.rfMins || []), e.rfNoct]) if (m && !m.dead) { m.noLoot = true; m.dead = true; m.deadT = 0; } endPieces(e); }   // (its creatures go with it)
+      if (S.state === 'death' || S.state === 'deathhold') { for (const m of [...(e.rfMins || []), e.rfNoct, e.rfKnight, e.rfPriest]) if (m && !m.dead) { m.noLoot = true; m.dead = true; m.deadT = 0; } endPieces(e); }   // (its creatures go with it)
       if (e.rfPz === 'still') return;                              // (time stopped: it waits too)
       if (e.rfStagT > 0) { e.rfStagT -= dt; return; }              // (staggered: a ritual broken)
       if (!R || S.t > R.until || S.state === 'morph' || S.state === 'death' || S.state === 'deathhold') return;
