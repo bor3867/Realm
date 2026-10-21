@@ -1958,6 +1958,60 @@ Object.assign(DUNGEONS.throne, { ambient: 'rgba(20,12,30,0.38)' });
     'It cannot be woken. It must be woken. Ring every alarm you can find, and run.',
   ] });
 
+  // ---- every dungeon tells its story as you go (2026-10-20, game.narrate): its first line as you arrive, the next with each
+  // seal you break, its last as you step into the boss's hall, and its epilogue when the boss falls. The six that had none:
+  Object.assign(DUNGEONS.frostveil, { storyTitle: 'Carved in the Ice', story: [
+    'The hollows were warm once. Then the wyrm came down from the peaks and lay across the hot springs.',
+    'Its breath froze the miners where they stood. Some of them are still standing.',
+    'Ice remembers. Every crack in these walls is a place it tried to break free of itself.',
+    'Glacius sleeps in the deepest hollow, curled round the last warm stone. Keep moving: what stands still here, freezes.',
+  ], epilogue: 'The wyrm is still at last. The springs run warm again, and somewhere above, the snow begins to melt.' });
+  Object.assign(DUNGEONS.mirerot, { storyTitle: 'A Hermit\'s Garden Book', story: [
+    'The grotto was a garden once, kept by a hermit who loved the mushrooms more than the light.',
+    'He fed them everything. When there was nothing left, he fed them himself.',
+    'The spores remember him. They walk in his shape, slowly, the way he used to.',
+    'At the bottom of the grotto the Mother waits, and every root in the mire is hers. Mind the spores.',
+  ], epilogue: 'The Mother withers. The rot goes quiet, and for the first time in years something green grows here.' });
+  Object.assign(DUNGEONS.astral, { storyTitle: 'The Astronomers\' Last Chart', story: [
+    'The astronomers built a machine to hold the heavens still, so that they could finish their charts.',
+    'It worked. The stars stopped. So did the astronomers, one by one, at their desks.',
+    'The Orrery went on turning without them. It began to correct the sky.',
+    'Every planet in its arms is a world it has already put in order. It would like to add yours.',
+  ], epilogue: 'The Orrery stops. Above the dome, for the first time in an age, a star falls.' });
+  Object.assign(DUNGEONS.sandscour, { storyTitle: 'Riddles on the Tomb Wall', story: [
+    'A queen was buried here with every riddle she ever loved, so that she would not be bored in the dark.',
+    'The tomb robbers learned the riddles the hard way. The sand is full of their answers.',
+    'The Sphinx guards her still. It does not want gold. It wants to be answered.',
+    'Its last riddle has no answer. That has never stopped it asking.',
+  ], epilogue: 'The Sphinx is silent. In the quiet, you think you hear the queen laugh.' });
+  Object.assign(DUNGEONS.keep, { storyTitle: 'The Last Feast', story: [
+    'The Count invited the whole valley to his last feast. No one has ever left.',
+    'The banquet is still laid. The guests are still seated. They have waited a long time for the wine.',
+    'The bats in the rafters were his servants. Some of them still bow when you pass.',
+    'Count Vesper does not drink wine. He has been saving himself for you.',
+  ], epilogue: 'Vesper is ash. Down in the valley, the church bells ring for the first time in a hundred years.' });
+  Object.assign(DUNGEONS.hollowmoon, { storyTitle: 'A Torn Handbill', story: [
+    'The carnival came to town under a hollow moon, and it never packed up.',
+    'Every night a new act. Every night one fewer face in the audience.',
+    'The performers stopped long ago. The Ringmaster makes them go on.',
+    'The big top is waiting. He has saved you the best seat in the house.',
+  ], epilogue: 'The show is over. The lights go out one by one, and the music, at last, stops.' });
+  // the endings of the rest
+  for (const [k, t] of Object.entries({
+    chapel: 'The Abbot\'s hymn ends mid-verse. The water in the chapel goes still.',
+    forge: 'The hammer falls silent. For the first time since the sea came in, the forge is quiet.',
+    heart: 'The Heart stops. Godfall shudders once, and does not beat again.',
+    scriptorium: 'The Archivist closes its last book. The ink in every page begins to thaw.',
+    throne: 'The sun he stole rises over the realm, free. No one will say again that he was never struck.',
+    crypt: 'The Lich\'s tide goes out, and does not come back. The kings can rest.',
+    ember: 'The Colossus cools. The Emberforge burns down to embers, as it should have long ago.',
+    hive: 'The Queen falls. The hive hums, uncertain, and then the bees go back to the flowers.',
+    theatre: 'The strings go slack. The marionettes fold into their boxes, and the curtain falls.',
+    spire: 'The wyrm shatters into colours. The lamp turns plain white again, and the ships come home.',
+    dream: 'The Sleeper wakes. The dream comes apart like mist, and you are standing in the realm again.',
+  })) if (DUNGEONS[k]) DUNGEONS[k].epilogue = t;
+
+
   DUNGEON_BOSSES.honey_queen = {
     name: 'Queen Melliflua, the Honeyed Mother', biome: 'hive', sheet: 'pack_bosses', hp: 52000, def: 6, xp: 4500, r: 1.5, speed: 1.0, keep: 6, summon: 'worker_bee',
     phases: [

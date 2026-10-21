@@ -73,6 +73,7 @@ export function makeWorld(seed, send, where = 'realm') {
   g.hurtPlayer = function (d, by, ap) { if (this.player !== anchor && this.player.netId) send(this.player.netId, { t: 'hurt', d: Math.round(d), by: String(by || ''), ap: !!ap }); else if (this.player === anchor) return; else hurt0(d, by, ap); };
   const vx0 = g.vx.bind(g), VX = new Set(['burst', 'boom', 'shake', 'heal', 'regfx', 'zap', 'spray', 'ring', 'glyph']);
   g.vx = function (v) { if (VX.has(v.k) && !v.e) out.push({ k: 'vx', v }); return vx0(v); };
+  g.netNarrate = (text) => out.push({ k: 'narrate', text: String(text) });   // a dungeon's story, told to everyone in it
   const banner0 = g.banner.bind(g);
   g.banner = function (text, ms, ...r) { out.push({ k: 'banner', text: String(text), ms }); return banner0(text, ms, ...r); };
   g.say = function () {};             // (the server's own chat goes nowhere)
@@ -223,7 +224,7 @@ export function makeWorld(seed, send, where = 'realm') {
       // to each player: the events near them, and (10 a second) the monsters near them
       for (const q of P.values()) {
         const near = (x, y, r = SEND_R) => Math.abs(x - q.x) < r && Math.abs(y - q.y) < r;
-        const mine = ev.filter((x) => (x.k === 'ostate' && near(x.x, x.y, 40)) || x.k === 'su' || x.k === 'sg' || x.k === 'banner' || x.k === 'tile' || x.k === 'obj' || x.k === 'exit' || (x.k === 'shot' && near(x.b.x, x.b.y)) || (x.k === 'fx' && near(x.f.x ?? x.f.x0, x.f.y ?? x.f.y0)) || (x.k === 'vx' && near(x.v.x ?? q.x, x.v.y ?? q.y)) || x.k === 'say');
+        const mine = ev.filter((x) => (x.k === 'ostate' && near(x.x, x.y, 40)) || x.k === 'su' || x.k === 'sg' || x.k === 'banner' || x.k === 'narrate' || x.k === 'tile' || x.k === 'obj' || x.k === 'exit' || (x.k === 'shot' && near(x.b.x, x.b.y)) || (x.k === 'fx' && near(x.f.x ?? x.f.x0, x.f.y ?? x.f.y0)) || (x.k === 'vx' && near(x.v.x ?? q.x, x.v.y ?? q.y)) || x.k === 'say');
         if (mine.length) send(q.netId, { t: 'wev', ev: mine });
         if (!sendNow) continue;
         const es = [], gone = [];

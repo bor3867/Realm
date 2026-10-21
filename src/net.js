@@ -331,6 +331,7 @@ const methods = {
       else if (x.k === 'fx') this.fx.push(x.f);
       else if (x.k === 'vx') this.vx(x.v);
       else if (x.k === 'banner') this.banner(x.text, x.ms);
+      else if (x.k === 'narrate') this.narrate(x.text);   // the dungeon's story, as the server tells it
       else if (x.k === 'say') { const e = this.net.byId.get(x.id); if (e) this.bubble(e, x.text, x.col); }
       else if (x.k === 'exit') {                         // the dungeon's master has fallen: the way out (for all; yours if you dealt a blow)
         const M = this.map;

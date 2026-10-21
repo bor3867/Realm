@@ -321,6 +321,7 @@ export class Game {
       (this.map.dummies || []).forEach(([x, y], k) => this.addEnemy(k >= 3 ? 'armored_dummy' : 'training_dummy', x, y));
     }
     this.banner(where === 'nexus' ? 'The Nexus' : this.map.name, 2200, where !== 'vault');
+    if (this.map.kind === 'dungeon') this.dungeonBeat('enter');   // its story begins
     this.sfx('portal');
     this.events.push({ type: 'map' });
   }
@@ -2321,6 +2322,7 @@ export class Game {
         if (pd && R() < pd[1]) this.openPortal(pd[0], e.x + (e.rb ? 1.5 : 0), e.y);
       } else if (e.rb && this.map.kind === 'dungeon') {
         this.map.portals.push({ kind: 'realm', x: e.x + 1.5, y: e.y + 1, label: this.exitLabel(), to: 'realm', life: 90 });
+        this.dungeonBeat('fallen');                          // its epilogue
       }
     }
     return d;
@@ -2943,6 +2945,7 @@ export class Game {
   // ---- dungeon atmosphere: each dungeon has its own hazard while you walk its halls
   updateDungeon(dt) {
     const m = this.map, def = m.def, p = this.player;
+    { const br = m.rooms && m.rooms[m.rooms.length - 1]; if (def && br && !(m.beats && m.beats.boss) && p.x > br.x && p.x < br.x + br.w && p.y > br.y && p.y < br.y + br.h) this.dungeonBeat('boss'); }   // into the boss's hall: the story's last line
     if (!def || m.netWorld) return;                       // (a shared dungeon's hazards and ambushes are the server's)
     const room = m.rooms.find((rm) => p.x > rm.x && p.x < rm.x + rm.w && p.y > rm.y && p.y < rm.y + rm.h);
     for (const rm of m.rooms) {                         // rooms can overlap, so check every one you're standing in
@@ -3016,12 +3019,40 @@ export class Game {
     }
   }
   // ---- dungeon seals and puzzles. The boss gate holds until every seal is broken.
+  // a line of the dungeon's story, told to you (in the chat, in its own colour); in a shared dungeon, the server tells everyone
+  narrate(text) {
+    if (!text || (this.narrated === text && this.t - (this.narratedT || 0) < 6)) return;   // (a shared dungeon may tell it twice: once is enough)
+    this.narrated = text; this.narratedT = this.t;
+    if (this.netNarrate) { this.netNarrate(text); return; }
+    this.say(`“${text}”`, '#e8d8a8');
+  }
+  // who waits at the end of this dungeon (its boss's name)
+  dungeonBossName(m = this.map) {
+    const id = m && m.def && m.def.boss;
+    return !id ? '' : BX[id] ? BX[id].name : DUNGEON_BOSSES[id] ? DUNGEON_BOSSES[id].name : id === 'unstruck' ? BOSS.name : '';
+  }
+  // its story beats: arriving, stepping into the boss's hall (once), the boss falling (once)
+  dungeonBeat(kind) {
+    const m = this.map, D = m && m.def;
+    if (!D || m.kind !== 'dungeon' || !D.story) return;
+    const S = D.story, beats = (m.beats = m.beats || {});
+    if (beats[kind]) return;
+    beats[kind] = true;
+    if (kind === 'enter') {
+      this.narrate(S[0]);
+      const boss = this.dungeonBossName();
+      this.say(m.seals ? `Break the ${m.seals} seals to open the way to ${boss || 'its master'}.` : `${boss || 'Its master'} waits at the end.`, '#c8b88a');
+    } else if (kind === 'boss') this.narrate(S[S.length - 1]);
+    else if (kind === 'fallen') this.narrate(D.epilogue);
+  }
   breakSeal(msg) {
     const m = this.map;
     if (!m.sealsLeft) return;
     m.sealsLeft--;
-    if (m.sealsLeft > 0) { this.banner(`${msg} A seal breaks (${m.seals - m.sealsLeft}/${m.seals}).`, 3000); this.sfx('rare'); return; }
+    const D = m.def, S = (D && D.story) || [], k = m.seals - m.sealsLeft;
+    if (m.sealsLeft > 0) { this.banner(`${msg} A seal breaks (${k}/${m.seals}).`, 3000); this.sfx('rare'); this.narrate(S[Math.min(k, S.length - 2)]); return; }   // (the story, a line a seal)
     this.banner(`${msg} The last seal breaks. The way to the boss is open!`, 3600);
+    this.narrate(`The gate grinds open. ${this.dungeonBossName() || 'Its master'} waits beyond it.`);
     for (const g of m.gates) {
       g.sprite = 'gate_open'; g.solid = false; m.solid[Math.floor(g.y) * m.w + Math.floor(g.x)] = 0;
       this.vx({ k: 'burst', ...liftO(g.x, g.y, 0.5), n: 20, colors: ['#ff4a5a', '#ffd650', '#ffffff'] });
