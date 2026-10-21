@@ -243,6 +243,7 @@ export class Renderer {
       else if (f.kind === 'beam') this.beamFx(f, g);
       else if (f.kind === 'star') this.starFx(f, g);
       else if (f.kind === 'laser') this.laserFx(f, g);
+      else if (f.kind === 'rfpiece') { const a = Math.min(1, f.t * 5, (f.life - f.t) * 5); this.ctx.globalAlpha = Math.max(0, a); const [x, y] = this.proj(f.x, f.y), [x1] = this.proj(f.x + 1, f.y); this.spriteAt(this.ctx, f.key, x, y, f.sz, x1 - x); this.ctx.globalAlpha = 1; }   // a chess piece, standing on its square
       else if (f.kind === 'sweep') this.sweepFx(f, g);
       else if (f.kind === 'ring') this.ringFx(f);
       else if (f.kind === 'orbitals') this.orbitalsFx(f, g);
@@ -2339,6 +2340,13 @@ export class Renderer {
     pixelLabel(ctx, bar.name, x + W / 2 - 14, y + H + 22, 16, '#e9e4f2');
     if (bar.sub) pixelLabel(ctx, bar.sub, x + W / 2 - 14, y + H + 40, 16, bar.immune ? '#c8c0d8' : '#ffd650');
   }
+  // a sprite's first frame, centred at screen x,y, size in tiles (ts: a tile's width on screen)
+  spriteAt(ctx, key, x, y, size, ts) {
+    const def = this.R && this.R.resolve(key), f = def && def.frames[Object.keys(def.frames)[0]]; if (!f) return;
+    if (!ts) { const [a] = this.proj(0, 0), [b] = this.proj(1, 0); ts = b - a; }
+    const w = size * ts, h = (w * f.h) / f.w; ctx.imageSmoothingEnabled = false; ctx.drawImage(def.img, f.x, f.y, f.w, f.h, Math.round(x - w / 2), Math.round(y - h * 0.6), Math.round(w), Math.round(h));
+  }
+  plabel(ctx, ...a) { pixelLabel(ctx, ...a); }
   // a boss's likeness for its badge: the first frame of its art (cached per art)
   bossPortrait(e) {
     const C = this.portraits || (this.portraits = new Map()), key = (e.bx && e.bx.B && e.bx.B.art) || e.D.reg || e.D.bx || e.id || e.D.name;

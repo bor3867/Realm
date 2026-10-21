@@ -174,6 +174,19 @@ function fire(g, e, B, bal, em, vol, org) {
   else if (em.t === 'cloud' || em.t === 'rift' || em.t === 'wildfire') { for (let k = 0; k < (em.n || 1); k++) { let x = p.x, y = p.y; for (let j = 0; j < 12; j++) { x = A.x0 + rnd(0.1, 0.9) * A.w; y = A.y0 + rnd(0.15, 0.9) * A.h; if (Math.hypot(x - p.x, y - p.y) > (em.t === 'wildfire' ? 0 : 2.2) && Math.hypot(x - p.x, y - p.y) < (em.t === 'wildfire' ? 5.5 : 99)) break; } zone(x, y, em.r || (em.t === 'rift' ? 2.5 : 1.6), em.t === 'rift' ? 1.4 : 1); } }
   else if (em.t === 'hedge') { for (let k = 0; k < (em.n || 2); k++) { const y = A.y0 + rnd(0.35, 0.92) * A.h, g0 = A.x0 + rnd(0.1, 0.7) * A.w;
     for (const [x, len] of [[A.x0, g0 - A.x0], [g0 + 3, A.x0 + A.w - g0 - 3]]) if (len > 0.5) g.fx.push({ kind: 'lane', x, y, a: 0, len, w: 0.45, delay: 0.8, t: 0, life: 0.8 + (em.life || 4), dmg: Math.round((s.dmg || 60) * bal.bossDmg), by: e.D.name, hitT: 0 }); } }
+  else if (em.t === 'chess') {                                    // King Morvane's pieces: near you, each striking its own way
+    const BD = BOARD(e, B), kinds = em.kinds || ['rook', 'bishop', 'queen'], L = A.w * 1.5, ks = B.shots[em.ks] ? em.ks : em.s, kd = Math.round(((B.shots[ks] || s).dmg || 80) * bal.bossDmg);
+    for (let k = 0; k < (em.n || 1); k++) {
+      const kind = kinds[Math.floor(Math.random() * kinds.length)], cl = (v, hi) => Math.max(0, Math.min(hi, v));
+      const c0 = cl(Math.floor((p.x - BD.x0) / BD.S) + Math.floor(Math.random() * 5) - 2, 7), r0 = cl(Math.floor((p.y - BD.y0) / BD.S) + Math.floor(Math.random() * 5) - 2, BD.rows - 1);
+      const x = BD.x0 + (c0 + 0.5) * BD.S, y = BD.y0 + (r0 + 0.5) * BD.S, tl = (em.tele || 1.4) + k * 0.35, du = Math.min(1, em.dur || 0.45);
+      if (kind === 'knight') { for (const [dx, dy] of [[1, 2], [2, 1], [-1, 2], [-2, 1], [1, -2], [2, -1], [-1, -2], [-2, -1]]) { const nx = c0 + dx, ny = r0 + dy; if (nx < 0 || nx > 7 || ny < 0 || ny >= BD.rows) continue;
+        g.fx.push({ kind: 'zone', x: BD.x0 + (nx + 0.5) * BD.S, y: BD.y0 + (ny + 0.5) * BD.S, r: BD.S * 0.48, t: 0, delay: tl, life: tl + 0.15, dmg: kd, by: e.D.name, done: false, colors: [(B.shots[ks] || s).color || '#ff3040', '#ffffff'] }); } }
+      else { const dirs = []; if (kind !== 'bishop') dirs.push([1, 0], [0, 1]); if (kind !== 'rook') dirs.push([1, 1], [1, -1]);
+        for (const [dx, dy] of dirs) { const a = Math.atan2(dy, dx); laser(x - Math.cos(a) * L, y - Math.sin(a) * L, a, L * 2, tl, du); } }
+      g.fx.push({ kind: 'rfpiece', x, y, key: `rfx_shots/${B.id}.${kind}`, sz: BD.S * 0.9, t: 0, life: tl + du });   // the piece itself, standing on its square
+    }
+  }
   else if (em.t === 'warp') { const n = em.n || 6; for (let k = 0; k < n; k++) { const a = (k * TAU) / n + rnd(-0.2, 0.2), r = 7; shot(a + Math.PI, p.x + Math.cos(a) * r, p.y + Math.sin(a) * r, s.speed || 5, r + 2); } }
 }
 // a phase's own rules, every frame: its time limit, its invulnerability, its shield's openings, the hot floor, the leash
@@ -190,12 +203,15 @@ function phaseRules(g, e, B, bal, dt) {
   if (ph.invuln && !e.rfFreed && e.rfHadMins && !mins.length) { e.rfFreed = true; g.banner(`${e.D.name} is exposed!`, 1800); }
   // the Eclipse Twins: Noct, his movement, his own life at the end
   if (B.twin) twinStep(g, e, B, bal, dt, ph);
+  if (e.rfHide) e.rfImm = true;                                   // (in his cabinet: nothing reaches him)
   // Vitrea: her reflections, her echoes' shots, the Thousandfold
   if (B.phases.some((q) => q.clones || q.thousand)) vitreaStep(g, e, B, bal, dt, ph);
   // Lord Gourdrick's friends: Sir Rindley and Sister Honeydew
   if (B.allies) allyStep(g, e, B, bal, dt, ph);
   // Mother Mire's ritual: step on every rune before the brew boils
   if (ph.rfP.ritual) ritualStep(g, e, B, bal, dt, ph.rfP.ritual);
+  if (ph.rfP.chesspuzzle) chessStep(g, e, B, bal, dt, ph.rfP.chesspuzzle); else if (e.rfCzSt) e.rfCzSt = '';
+  if (ph.rfP.shell) shellStep(g, e, B, bal, dt, ph.rfP.shell); else if (e.rfShSt) shellEnd(e);
   // Aion's still hour: the puzzle that brings the shield down
   if (ph.rfP.puzzle) puzzleStep(g, e, B, bal, dt, ph.rfP);
   // a shield with no puzzle: openings every 9 s for 4 s
@@ -401,6 +417,36 @@ function drawArena(r, g, e, B) {
     if (pr && pr.rfCurseUntil > g.t) { circle(pr.x, pr.y, 1.6, '#6a2a8a', 0.3); circle(pr.x, pr.y, 1.6, '#c8a0ff', 0.9, true); }
     if (pr && g.rfZ && g.rfZ.healFx > g.t) { const [ax, ay] = r.proj(pr.x, pr.y), [px2, py2] = r.proj(g.player.x, g.player.y); b.globalAlpha = 0.8; b.strokeStyle = '#9fffb0'; b.lineWidth = 3; b.beginPath(); b.moveTo(ax, ay - 16); b.lineTo(px2, py2 - 10); b.stroke(); b.globalAlpha = 1; }
   }
+  if (P.chess) { const BD = BOARD(e, B);             // the hall a chessboard: its dark squares dimmed, gold lines between
+    for (let y = 0; y < BD.rows; y++) for (let x = 0; x < 8; x++) if ((x + y) % 2) poly([[BD.x0 + x * BD.S, BD.y0 + y * BD.S], [BD.x0 + (x + 1) * BD.S, BD.y0 + y * BD.S], [BD.x0 + (x + 1) * BD.S, BD.y0 + (y + 1) * BD.S], [BD.x0 + x * BD.S, BD.y0 + (y + 1) * BD.S]], '#3c2058', 0.3); }
+  if (e.rfShSt && e.rfShSt !== 'rest') {              // Find the Lady: three cabinets, a ring round each when it's time to choose
+    for (let i = 0; i < 3; i++) { const x = e['rfSh' + i + 'x'], y = e['rfSh' + i + 'y']; if (x === undefined) continue;
+      if (e.rfShSt === 'choose') { circle(x, y + 0.4, 1.3, '#ffe066', 0.16 + 0.08 * Math.sin(g.t * 6 + i)); circle(x, y + 0.4, 1.3, '#ffe066', 0.7 + 0.25 * Math.sin(g.t * 6 + i), true);
+        if (i === e.rfShOn) { const [sx, sy] = r.proj(x, y + 0.4); b.strokeStyle = '#ffffff'; b.lineWidth = 4; b.beginPath(); b.arc(sx, sy, 1.3 * ts, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, (e.rfShHold || 0) / 0.5)); b.stroke(); } }
+      circle(x, y + 1.3, 1.1, '#000000', 0.4);
+      const [sx, sy] = r.proj(x, y); r.spriteAt(b, `rfx_shots/${B.id}.cabinet`, sx, sy, 2.9, ts);
+      if (e['rfShO' + i]) circle(x, y - 0.4, 1.4, i === e.rfShRev ? '#8cffe6' : '#ffc878', 0.45); }
+    if (e.rfShSt === 'choose') { b.textAlign = 'center'; const [sx, sy] = r.proj(e.rfSh1x, e.rfSh1y - 2.4); r.plabel(b, `Find the lady · ${(e.rfShLeft ?? 0).toFixed(1)}s`, sx, sy, 16, '#ffe066'); } }
+  if (e.rfCzSt && e.rfCzSt !== 'rest' && e.rfCzI >= 0) {                     // the King's Gambit: the problem, in the middle of the hall
+    const z = CHESS_PUZZLES[e.rfCzI], bd = czBoard(e, B), fade = e.rfCzSt === 'done' ? Math.max(0, 1 - (e.rfCzT || 0) / 1.4) : 1, sq = (c, rr) => czSq(e, B, c, rr);
+    for (let y = 0; y < 6; y++) for (let x = 0; x < 8; x++) poly([[bd.ox + x * bd.S, bd.oy + y * bd.S], [bd.ox + (x + 1) * bd.S, bd.oy + y * bd.S], [bd.ox + (x + 1) * bd.S, bd.oy + (y + 1) * bd.S], [bd.ox + x * bd.S, bd.oy + (y + 1) * bd.S]], (x + y) % 2 ? '#28100c' : '#d6a03c', ((x + y) % 2 ? 0.62 : 0.42) * fade);
+    const [bx0, by0] = r.proj(bd.ox, bd.oy), [bx1, by1] = r.proj(bd.ox + bd.S * 8, bd.oy + bd.S * 6);
+    b.globalAlpha = fade; b.strokeStyle = '#05040a'; b.lineWidth = 4; b.strokeRect(bx0 - 2, by0 - 2, bx1 - bx0 + 4, by1 - by0 + 4); b.strokeStyle = '#f0c058'; b.lineWidth = 2; b.strokeRect(bx0 - 1, by0 - 1, bx1 - bx0 + 2, by1 - by0 + 2);
+    const mc = sq(z.from[0], z.from[1]), [mx, my] = r.proj(mc.x, mc.y), px = bd.S * ts;
+    z.opts.forEach((q, k) => { const o = sq(q[0], q[1]), [qx, qy] = r.proj(o.x, o.y);
+      let col = `rgba(255,224,102,${0.55 + 0.35 * Math.sin(g.t * 6)})`;
+      if (e.rfCzSt === 'done' && k === e.rfCzPick) col = e.rfCzOk ? '#78ff8c' : '#ff3c46'; else if (e.rfCzSt === 'done' && !e.rfCzOk && k === z.ans) col = 'rgba(120,255,140,.7)';
+      b.fillStyle = col; b.globalAlpha = 0.28 * fade; b.fillRect(qx - px * 0.42, qy - px * 0.42, px * 0.84, px * 0.84); b.globalAlpha = fade;   // (a gold square you can stand on)
+      b.strokeStyle = col; b.lineWidth = 4; b.strokeRect(qx - px * 0.42, qy - px * 0.42, px * 0.84, px * 0.84);
+      b.setLineDash([4, 5]); b.lineWidth = 1.5; b.strokeStyle = 'rgba(255,224,102,.4)'; b.beginPath(); b.moveTo(mx, my); b.lineTo(qx, qy); b.stroke(); b.setLineDash([]);
+      if (e.rfCzSt === 'show' && k === e.rfCzOn) { b.strokeStyle = '#ffffff'; b.lineWidth = 4; b.beginPath(); b.arc(qx, qy, px * 0.34, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, (e.rfCzHold || 0) / 0.6)); b.stroke(); } });
+    for (const q of z.pieces) { if (e.rfCzSt === 'done' && e.rfCzOk && q[0] === 'bking') continue;
+      const o = sq(q[1], q[2]); let x = o.x, y = o.y;
+      if (e.rfCzSt === 'done' && q[1] === z.from[0] && q[2] === z.from[1] && e.rfCzPick >= 0) { const d = sq(...z.opts[e.rfCzPick]), k = Math.min(1, (e.rfCzT || 0) * 4); x += (d.x - x) * k; y += (d.y - y) * k; }
+      if (q[1] === z.from[0] && q[2] === z.from[1]) circle(x, y, bd.S * 0.55, '#ffe066', 0.3 * fade);
+      r.spriteAt(b, `rfx_shots/${B.id}.${q[0]}`, x, y, bd.S * 0.86); }
+    if (e.rfCzSt === 'show') { b.textAlign = 'center'; r.plabel(b, `Mate in one · ${z.name} · ${(e.rfCzLeft ?? 0).toFixed(1)}s`, (bx0 + bx1) / 2, by0 - 10, 16, '#ffe066'); }
+    b.globalAlpha = 1; }
   if (P.panes) for (const P2 of PANES(e, B, P)) {     // the panes: tall glass (a prism in its colours)
     const [x1, y1] = r.proj(P2.x1, P2.y1), [x2, y2] = r.proj(P2.x2, P2.y2);
     b.lineCap = 'round'; b.strokeStyle = '#05040a'; b.lineWidth = 7; b.beginPath(); b.moveTo(x1, y1 - 8); b.lineTo(x2, y2 - 8); b.stroke();
@@ -581,6 +627,113 @@ function vitreaStep(g, e, B, bal, dt, ph) {
     e.rfMirrors = []; e.rfBroke = {}; for (let k = 0; k < n - 1; k++) e.rfBroke[k] = S.t + 2.5; e.rfTrue = Math.floor(Math.random() * n);   // (back in a moment)
   }
 }
+// ---- King Morvane's board. In Checkmate and the Hollow Crown the hall is a chessboard eight squares wide: pieces appear
+// near you and strike their own ways (rook: row and column; bishop: diagonals; queen: both; knight: every L-jump away).
+// In the King's Gambit he sets a problem in the middle of the hall: white to move, mate in one. Stand on the square you
+// want to play for a moment. The mate shatters the Black King and staggers him; a wrong move, or none, and every black
+// piece strikes along its lines. The state is plain values on him, so every player sees the same problem.
+const BOARD = (e, B) => { const A = box(e, B), S = A.w / 8; return { S, x0: A.x0, y0: A.y0, rows: Math.max(1, Math.floor(A.h / S)) }; };
+const CHESS_PUZZLES = [
+  { name: 'Back-rank mate', mover: 'rook', pieces: [['bking', 6, 0], ['bpawn', 5, 1], ['bpawn', 6, 1], ['bpawn', 7, 1], ['wrook', 0, 4]], from: [0, 4], opts: [[0, 0], [0, 2], [3, 4], [6, 4]], ans: 0,
+    why: "the rook takes the back rank, and the king's own pawns keep it there" },
+  { name: "The queen's kiss", mover: 'queen', pieces: [['bking', 4, 0], ['wking', 4, 2], ['wqueen', 7, 4]], from: [7, 4], opts: [[7, 0], [4, 1], [7, 1], [4, 4]], ans: 1,
+    why: 'the queen lands right in front of the king, and your king guards her' },
+  { name: 'Smothered mate', mover: 'knight', pieces: [['bking', 7, 0], ['brook', 6, 0], ['bpawn', 6, 1], ['bpawn', 7, 1], ['wknight', 4, 3]], from: [4, 3], opts: [[6, 2], [2, 2], [5, 1], [3, 1]], ans: 2,
+    why: 'boxed in by its own pieces, the king has nowhere to go' },
+  { name: 'The rook ladder', mover: 'rook', pieces: [['bking', 3, 0], ['wrook', 0, 1], ['wrook', 7, 4]], from: [7, 4], opts: [[3, 4], [7, 1], [7, 0], [5, 4]], ans: 2,
+    why: 'one rook holds the second rank, the other checks along the first' },
+  { name: 'Opposition', mover: 'rook', pieces: [['bking', 2, 0], ['wking', 2, 2], ['wrook', 7, 3]], from: [7, 3], opts: [[7, 1], [2, 3], [7, 5], [7, 0]], ans: 3,
+    why: 'your king takes every square in front; the rook checks along the edge' },
+];
+const czBoard = (e, B) => { const A = box(e, B), S = Math.min((A.w * 0.8) / 8, (A.h * 0.6) / 6); return { S, ox: A.x0 + A.w / 2 - 4 * S, oy: A.y0 + A.h * 0.6 - 3 * S }; };
+const czSq = (e, B, c, r) => { const b = czBoard(e, B); return { x: b.ox + (c + 0.5) * b.S, y: b.oy + (r + 0.5) * b.S, S: b.S }; };
+function chessStep(g, e, B, bal, dt, C) {
+  const who = g.netTargets && g.netTargets.length ? g.netTargets : [g.player];
+  if (!e.rfCzSt) { e.rfCzSt = 'rest'; e.rfCzT = C.rest - 1; e.rfCzI = -1; }
+  e.rfCzT += dt;
+  if (e.rfCzSt === 'rest') { if (e.rfCzT >= C.rest) { let i; do i = Math.floor(Math.random() * CHESS_PUZZLES.length); while (i === e.rfCzI && CHESS_PUZZLES.length > 1);
+      e.rfCzI = i; e.rfCzSt = 'show'; e.rfCzT = 0; e.rfCzOn = -1; e.rfCzHold = 0; e.rfCzPick = -1; e.rfCzOk = false;
+      g.banner(`Checkmate in one: move the white ${CHESS_PUZZLES[i].mover}. Stand on a gold square to play it`, 3000); }
+    return; }
+  const z = CHESS_PUZZLES[e.rfCzI];
+  if (e.rfCzSt === 'show') {
+    let on = -1; z.opts.forEach((q, k) => { const c = czSq(e, B, q[0], q[1]); if (who.some((p) => !p.dead && Math.abs(p.x - c.x) < c.S * 0.42 && Math.abs(p.y - c.y) < c.S * 0.42)) on = k; });
+    if (on !== e.rfCzOn) { e.rfCzOn = on; e.rfCzHold = 0; }
+    if (on >= 0) e.rfCzHold += dt;
+    e.rfCzLeft = Math.max(0, C.time - e.rfCzT);
+    if (on >= 0 && e.rfCzHold >= 0.6) return czResolve(g, e, B, bal, on === z.ans, on);
+    if (e.rfCzT >= C.time) return czResolve(g, e, B, bal, false, -1);
+    return; }
+  if (e.rfCzSt === 'done' && e.rfCzT >= 1.4) { e.rfCzSt = 'rest'; e.rfCzT = 0; }
+}
+function czResolve(g, e, B, bal, ok, pick) {
+  const z = CHESS_PUZZLES[e.rfCzI]; e.rfCzSt = 'done'; e.rfCzT = 0; e.rfCzOk = ok; e.rfCzPick = pick;
+  if (ok) { const k = z.pieces.find((q) => q[0] === 'bking'), c = czSq(e, B, k[1], k[2]);
+    e.rfStagT = 3.5; e.rfCzWon = (e.rfCzWon || 0) + 1;
+    g.vx({ k: 'burst', x: c.x, y: c.y, n: 24, colors: ['#ffffff', '#ffe066', '#c8a0ff'] }); g.float(e.x, e.y - 3, 'CHECKMATE!', '#ffe066');
+    g.banner(`Checkmate! ${z.why[0].toUpperCase() + z.why.slice(1)}. (Morvane staggers)`, 2600); return; }
+  g.banner(pick < 0 ? '"Too slow. My move."' : '"A poor move. My move."', 2000);
+  const s = B.shots.royal || {}, L = box(e, B).w * 1.5, dmg = Math.round((s.dmg || 90) * bal.bossDmg);
+  for (const q of z.pieces) { if (q[0][0] !== 'b') continue; const c = czSq(e, B, q[1], q[2]);   // every black piece strikes along its lines
+    const dirs = q[0] === 'bpawn' ? [[1, 1], [-1, 1]] : q[0] === 'bking' ? [[1, 0], [0, 1], [1, 1], [1, -1]] : [[1, 0], [0, 1]];
+    for (const [dx, dy] of dirs) { const a = Math.atan2(dy, dx), pawn = q[0] === 'bpawn';
+      g.fx.push({ kind: 'laser', x0: pawn ? c.x : c.x - Math.cos(a) * L, y0: pawn ? c.y : c.y - Math.sin(a) * L, a, len: pawn ? c.S * 2.2 : L * 2, t: 0, tele: 0.9, act: 0.45, life: 1.45, dmg, by: e.D.name, hit: false }); } }
+}
+// ---- Mirabeau's Find the Lady. He steps into one of three cabinets, the doors close, and they shuffle (a swap at a
+// time, lifting over each other, each round a little faster). While hidden he is out of reach, and the cabinets throw
+// cards of their own. Then stand beside a cabinet for half a second to open it: his, and he stumbles out staggered;
+// the wrong one bursts into cards and doves; too slow, and both empties burst. Cabinets are plain values on him, so
+// every player watches the same shuffle (which one is his stays on the server till it opens).
+const shHome = (e, B, i) => { const A = box(e, B); return { x: A.x0 + A.w * (0.25 + 0.25 * i), y: A.y0 + A.h * 0.46 }; };
+function shellEnd(e) { e.rfShSt = ''; e.rfHide = false; e.hidden = false; e.under = false; e.rfSlotX = undefined; e.rfSlotY = undefined; }
+function shellStep(g, e, B, bal, dt, C) {
+  const who = g.netTargets && g.netTargets.length ? g.netTargets : [g.player], Z = (e.rfShZ = e.rfShZ || { round: 0 });
+  const cup = (i) => ({ x: e['rfSh' + i + 'x'], y: e['rfSh' + i + 'y'] }), put = (i, x, y) => { e['rfSh' + i + 'x'] = x; e['rfSh' + i + 'y'] = y; };
+  if (!e.rfShSt) { e.rfShSt = 'rest'; e.rfShT = C.rest - 1; for (let i = 0; i < 3; i++) { const h = shHome(e, B, i); put(i, h.x, h.y); } }
+  e.rfShT += dt;
+  if (e.rfShSt === 'rest') { if (e.rfShT >= C.rest) { Z.hid = Math.floor(Math.random() * 3); Z.round++; e.rfShSt = 'enter'; e.rfShT = 0; e.rfShOn = -1; e.rfShHold = 0; e.rfShRev = -1;
+      for (let i = 0; i < 3; i++) { const h = shHome(e, B, i); put(i, h.x, h.y); e['rfShO' + i] = false; }
+      g.banner(['"Find the lady!"', '"Keep your eye on the cabinet!"', '"Which one, which one?"'][(Z.round - 1) % 3], 2000); }
+    return; }
+  const mine = cup(Z.hid);
+  if (e.rfShSt === 'enter') {                         // he walks into his cabinet, and the doors close
+    e.rfSlotX = e.x + (mine.x - e.x) * Math.min(1, dt * 6); e.rfSlotY = e.y + (mine.y - e.y) * Math.min(1, dt * 6); e.x = e.rfSlotX; e.y = e.rfSlotY;
+    if (e.rfShT >= 1) { e.rfHide = e.hidden = e.under = true; e.rfShSt = 'shuffle'; e.rfShT = 0; Z.k = 0; Z.ct = 0; Z.from = null; Z.swaps = [];
+      for (let i = 0; i < C.swaps + Math.min(4, Z.round - 1); i++) { const a = Math.floor(Math.random() * 3); let b = Math.floor(Math.random() * 3); if (b === a) b = (a + 1) % 3; Z.swaps.push([a, b]); }
+      Z.dur = Math.max(0.3, 0.55 - 0.06 * (Z.round - 1)); }
+    return; }
+  if (e.rfShSt !== 'done') { e.rfSlotX = mine.x; e.rfSlotY = mine.y; e.x = mine.x; e.y = mine.y; }
+  if (e.rfShSt === 'shuffle' || e.rfShSt === 'choose') if ((Z.ct += dt) >= 1) { Z.ct = 0; const s = B.shots.card || {};   // the cabinets throw cards
+    for (let i = 0; i < 3; i++) { const c = cup(i), q = who.reduce((a, b) => (Math.hypot(b.x - c.x, b.y - c.y) < Math.hypot(a.x - c.x, a.y - c.y) ? b : a), who[0]), a0 = Math.atan2(q.y - c.y, q.x - c.x);
+      for (const d of [-0.18, 0.18]) g.shoot('e', c.x, c.y - 1, a0 + d, s.speed || 6, s.range || 9, Math.round((s.dmg || 70) * bal.bossDmg), `rfx_shots/${B.id}.card`, 0.35, false, e.D.name); } }
+  if (e.rfShSt === 'shuffle') {
+    const sw = Z.swaps[Z.k]; if (!sw) { e.rfShSt = 'choose'; e.rfShT = 0; return; }
+    const q = Math.min(1, e.rfShT / Z.dur), k = q < 0.5 ? 2 * q * q : 1 - Math.pow(-2 * q + 2, 2) / 2;
+    if (!Z.from) Z.from = [cup(sw[0]), cup(sw[1])];
+    const f = Z.from, lift = 1.4 * Math.sin(Math.PI * q);
+    put(sw[0], f[0].x + (f[1].x - f[0].x) * k, f[0].y + (f[1].y - f[0].y) * k - lift); put(sw[1], f[1].x + (f[0].x - f[1].x) * k, f[1].y + (f[0].y - f[1].y) * k + lift);
+    if (q >= 1) { put(sw[0], f[1].x, f[1].y); put(sw[1], f[0].x, f[0].y); Z.from = null; Z.k++; e.rfShT = 0; }
+    return; }
+  const open = (i) => { const c = cup(i); e['rfShO' + i] = true; if (i === Z.hid) return;
+    const cs = B.shots.card || {}, ds = B.shots.dove || cs;
+    for (let j = 0; j < 10; j++) g.shoot('e', c.x, c.y - 1, (j * TAU) / 10 + 0.2, cs.speed || 6, cs.range || 8, Math.round((cs.dmg || 70) * bal.bossDmg), `rfx_shots/${B.id}.card`, 0.35, false, e.D.name);
+    for (let j = 0; j < 6; j++) g.shoot('e', c.x, c.y - 1, (j * TAU) / 6, ds.speed || 4, ds.range || 8, Math.round((ds.dmg || 70) * bal.bossDmg), `rfx_shots/${B.id}.${B.shots.dove ? 'dove' : 'card'}`, 0.35, false, e.D.name);
+    g.vx({ k: 'burst', x: c.x, y: c.y - 1, n: 16, colors: ['#ffffff', '#ffd690', '#ff6a8a'] }); };
+  if (e.rfShSt === 'choose') {
+    let on = -1; for (let i = 0; i < 3; i++) { const c = cup(i); if (who.some((p) => !p.dead && Math.hypot(p.x - c.x, p.y - (c.y + 0.4)) < 1.3)) on = i; }
+    if (on !== e.rfShOn) { e.rfShOn = on; e.rfShHold = 0; }
+    if (on >= 0) e.rfShHold += dt;
+    e.rfShLeft = Math.max(0, C.time - e.rfShT);
+    const reveal = () => { e.rfShRev = Z.hid; e.rfShSt = 'done'; e.rfShT = 0; e.rfHide = e.hidden = e.under = false; };
+    if (on >= 0 && e.rfShHold >= 0.5) { open(on);
+      if (on === Z.hid) { e.rfStagT = 3.5; e.rfShWon = (e.rfShWon || 0) + 1; g.float(mine.x, mine.y - 3, 'TA-DA! STAGGERED', '#ffe066'); g.vx({ k: 'burst', x: mine.x, y: mine.y - 1, n: 24, colors: ['#8cffe6', '#ffffff', '#c8a0ff'] });
+        g.banner(['"You found me!"', '"Bravo, bravo!"', '"How did you...?"'][Math.floor(Math.random() * 3)] + ' (Mirabeau staggers)', 2200); }
+      else g.banner('"Wrong cabinet!"', 1600);
+      return reveal(); }
+    if (e.rfShT >= C.time) { for (let i = 0; i < 3; i++) if (i !== Z.hid) open(i); g.banner('"Too slow!"', 1600); return reveal(); }
+    return; }
+  if (e.rfShSt === 'done' && e.rfShT >= 1.2) { e.rfShSt = 'rest'; e.rfShT = 0; e.rfSlotX = undefined; e.rfSlotY = undefined; for (let i = 0; i < 3; i++) e['rfShO' + i] = false; }
+}
 // ---- Mother Mire's ritual, on the server: runes appear; if the players between them step on every one before the cast
 // ends it is broken (she staggers, three seconds without attacking); if not, the brew boils over (a ring of shots, and
 // each player near is confused for a while: their browser sees the count go up). The runes go out as one word: x:y:done|...
@@ -687,7 +840,7 @@ function puzzleStep(g, e, B, bal, dt, P) {
 const o_fail = (O) => !!(O && O.fail);
 function endPieces(e) { for (const m of (e.rfPzO && e.rfPzO.objs) || []) if (!m.dead) { m.noLoot = true; m.dead = true; m.deadT = 0; } e.rfPzO = null; }
 // the kinds this translates (the rest wait for their boss's specials)
-const KINDS = new Set(['aim', 'ring', 'spiral', 'aoe', 'minion', 'laser', 'rain', 'wall', 'lines', 'implode', 'converge', 'flock', 'nova', 'beam', 'drop', 'spray', 'bolas', 'ahead', 'orbit', 'cloud', 'rift', 'wildfire', 'hedge', 'warp', 'seq']);
+const KINDS = new Set(['chess', 'aim', 'ring', 'spiral', 'aoe', 'minion', 'laser', 'rain', 'wall', 'lines', 'implode', 'converge', 'flock', 'nova', 'beam', 'drop', 'spray', 'bolas', 'ahead', 'orbit', 'cloud', 'rift', 'wildfire', 'hedge', 'warp', 'seq']);
 // minions' own life: a life span, a burst when they fall (every frame, from the boss's update)
 function tickMinions(g, e, B, bal, dt) {
   for (const m of e.rfMins || []) {
@@ -719,9 +872,11 @@ export function rfBossToBX(DATA, B) {
       const S = e.bx, R = S.rfEm;
       tickMinions(g, e, B, bal, dt);
       phaseRules(g, e, B, bal, dt);
+      if ((S.state === 'death' || S.state === 'deathhold') && e.rfShSt) shellEnd(e);
       if (S.state === 'death' || S.state === 'deathhold') { for (const m of [...(e.rfMins || []), ...(e.rfEchoes || []), ...(e.rfMirrors || []), e.rfNoct, e.rfKnight, e.rfPriest]) if (m && !m.dead) { m.noLoot = true; m.dead = true; m.deadT = 0; } endPieces(e); }   // (its creatures go with it)
       if (e.rfPz === 'still') return;                              // (time stopped: it waits too)
       if (e.rfStagT > 0) { e.rfStagT -= dt; return; }              // (staggered: a ritual broken)
+      if (e.rfHide) return;                                        // (in a cabinet: only the cabinets throw)
       if (!R || S.t > R.until || S.state === 'morph' || S.state === 'death' || S.state === 'deathhold') return;
       const hot = S.B.phases[S.phase] && S.B.phases[S.phase].rage ? 0.8 : 1;   // (rage: a quarter faster)
       for (const q of R.list) if ((q.t -= dt) <= 0) { q.t = (q.em.e || (q.em.t === 'minion' ? 1e9 : 1.5)) * hot; const O = originsOf(e, B, q.em.src), v = q.vol++; if (O) for (const o of O) fire(g, e, B, bal, q.em, v, o); else fire(g, e, B, bal, q.em, v);

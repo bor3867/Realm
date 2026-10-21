@@ -74,9 +74,9 @@ Shared puzzles done: Aion's still hours (time stops for all; crystals, the Sun D
 server owns, so everyone shatters and pushes the same ones; runes light in order for whoever steps on them), Mother
 Mire's ritual (anyone may step on the runes; broken, she staggers; boiled over, those near are confused), her swaps
 and decoys (the decoys fire too), shots from Cinder's corners and Morvane's crown.
-Done since: the Eclipse Twins (Noct a second body; Day and Night; the tether; Totality; the last-phase rule); Lord Gourdrick's friends (Sir Rindley, Sister Honeydew: charge, Rind Shield, heals, snare, Harvest Moon dome, curse); Vitrea (Mirror Image and Echoes that fire late, mirror and prism panes that bounce her shots, the Lightray that bounces off them, the Thousandfold: eight of her, one real, shattering reflections, shuffles).
-Next: Morvane's chess,
-Mirabeau's shell game, Vael's warp, the Cantor's staves, the worm's segments, their arenas as our maps (shared),
+Done since: the Eclipse Twins (Noct a second body; Day and Night; the tether; Totality; the last-phase rule); Lord Gourdrick's friends (Sir Rindley, Sister Honeydew: charge, Rind Shield, heals, snare, Harvest Moon dome, curse); Vitrea (Mirror Image and Echoes that fire late, mirror and prism panes that bounce her shots, the Lightray that bounces off them, the Thousandfold: eight of her, one real, shattering reflections, shuffles); King Morvane's board (pieces striking their own ways; the King's Gambit, mate in one); Mirabeau's Find the Lady (three cabinets shuffling).
+Next:
+Vael's warp, the Cantor's staves, the worm's segments, their arenas as our maps (shared),
 the rf_ dungeons' boss doors leading to them; then the older realm and dungeon bosses moved across.
 Fixed on the way: a player's blow on a shared monster now goes through the game's own damage step on the server, so a
 three-phase boss's phases, morphs, immunity and survive phases happen as they should (before, only its HP fell).
