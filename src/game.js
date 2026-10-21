@@ -2231,6 +2231,7 @@ export class Game {
     }
   }
   damageEnemy(e, dmg, x, y, quiet = false, crit = false) {
+    if (e.linkTo && !e.linkTo.dead && e.linkTo !== e) return this.damageEnemy(e.linkTo, dmg, x, y, quiet, crit);   // a body that is part of another (the Eclipse Twins' Noct)
     if (e.rfC || e.rfBossP) return this.rfAbilityHit(e, dmg);   // an rf_ dungeon's creature or boss
     if (e.dead || e.state === 'dead') return 0;
     if (e.spawnT > 0) return 0;                                  // an elite still arriving

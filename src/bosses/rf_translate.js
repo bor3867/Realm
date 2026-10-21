@@ -72,6 +72,7 @@ function originsOf(e, B, src) {
   if (src === 'decoys' && P.decoys) return decoysOf(e, B, P);
   if (src === 'corners') { const A = box(e, B); return [[1.5, 1.5], [A.w - 1.5, 1.5], [1.5, A.h - 1.5], [A.w - 1.5, A.h - 1.5]].map(([x, y]) => ({ x: A.x0 + x, y: A.y0 + y })); }
   if (src === 'crown' && P.crownOrbit) return [crownAt(e, B, P.crownOrbit)];
+  if (src === 'b2') { const n = e.rfNoct && !e.rfNoct.dead ? e.rfNoct : null; return n ? [{ x: n.x, y: n.y - 1 }] : null; }   // Noct
   return null;                                                   // (its body: b1, and for now b2 and the ring of mirrors too)
 }
 // the arena-sized box round the place it rose (their arena's columns and rows)
@@ -100,7 +101,8 @@ function fire(g, e, B, bal, em, vol, org) {
   if (em.t === 'seq') { const st = em.steps && em.steps[vol % em.steps.length]; if (st) fire(g, e, B, bal, st, vol, org); return; }   // their steps, one a beat
   if (!B.shots[em.s] && em.t !== 'minion') return;
   const p = g.player, [ox, oy] = org ? [org.x, org.y] : g.bxOrigin(e), aim = Math.atan2(p.y - 0.4 - oy, p.x - ox), A = box(e, B), dmg = Math.round((s.dmg || 60) * bal.bossDmg);
-  const shot = (a, x = ox, y = oy, sp = s.speed || 5, rg = s.range || 8) => g.shoot('e', x, y, a, sp, rg, dmg, `rfx_shots/${B.id}.${em.s}`, 0.35, false, e.D.name);
+  const SIDE = e.bx.B.phases[e.bx.phase] && e.bx.B.phases[e.bx.phase].rfP.halves ? (em.src === 'b2' ? 'night' : 'day') : null;   // (Day and Night: whose side it hurts on)
+  const shot = (a, x = ox, y = oy, sp = s.speed || 5, rg = s.range || 8) => { const b = g.shoot('e', x, y, a, sp, rg, dmg, `rfx_shots/${B.id}.${em.s}`, 0.35, false, e.D.name); if (SIDE && b) b.rfSide = SIDE; return b; };
   const INK = em.ink && e.bx.B.phases[e.bx.phase] && e.bx.B.phases[e.bx.phase].rfP.ink;
   const zone = (x, y, r, delay) => {
     g.fx.push({ kind: 'zone', x, y, r, t: 0, delay, life: delay + 0.15, dmg: Math.round((s.dmg || 80) * bal.bossDmg), by: e.D.name, done: false, colors: [s.color || '#ff6a4a', '#ffffff'] });
@@ -179,13 +181,15 @@ function phaseRules(g, e, B, bal, dt) {
   const mins = (e.rfMins || []).filter((m) => !m.dead);
   if (mins.length) e.rfHadMins = true;
   if (ph.invuln && !e.rfFreed && e.rfHadMins && !mins.length) { e.rfFreed = true; g.banner(`${e.D.name} is exposed!`, 1800); }
+  // the Eclipse Twins: Noct, his movement, his own life at the end
+  if (B.twin) twinStep(g, e, B, bal, dt, ph);
   // Mother Mire's ritual: step on every rune before the brew boils
   if (ph.rfP.ritual) ritualStep(g, e, B, bal, dt, ph.rfP.ritual);
   // Aion's still hour: the puzzle that brings the shield down
   if (ph.rfP.puzzle) puzzleStep(g, e, B, bal, dt, ph.rfP);
   // a shield with no puzzle: openings every 9 s for 4 s
   else if (ph.shield && (e.rfOpenNext -= dt) <= 0) { e.rfOpenNext = 9; e.rfOpen = S.t + 4; g.banner('The shield falters!', 1600); }
-  e.rfImm = (ph.invuln && !e.rfFreed) || (ph.shield && !(ph.rfP.puzzle ? e.rfExpT > 0 : e.rfOpen > S.t)) || !!ph.rfP.egg || !!ph.rfP.cocoon;   // can it be hurt right now
+  e.rfImm = (ph.invuln && !e.rfFreed) || (ph.shield && !(ph.rfP.puzzle ? e.rfExpT > 0 : e.rfOpen > S.t)) || (B.twin && S.phase === B.phases.length && e.rfNoct && !e.rfNoct.dead && e.hp <= e.maxHp * 0.05) || !!ph.rfP.egg || !!ph.rfP.cocoon;   // can it be hurt right now
   // the trail: it leaves fire where it goes
   if (ph.rfP.trail && (e.rfTrailT = (e.rfTrailT || 0) - dt) <= 0) { e.rfTrailT = 0.25; g.fx.push({ kind: 'scorch', x: e.x, y: e.y + 0.2, r: 0.7, t: 0, life: 2.5, dps: Math.round(100 * bal.bossDmg), tick: 0, by: e.D.name }); }
   // the time limit: on to the next phase (its Life set there), or, the last, the end of the fight
@@ -225,6 +229,8 @@ const WELLS = (P, e, A, L) => (P.wells || []).map((w) => w.free
   : { ...w, x: e.x + Math.cos(L * (w.w || 0.6) + (w.ph || 0)) * (w.r || 0), y: e.y + Math.sin(L * (w.w || 0.6) + (w.ph || 0)) * (w.r || 0) * 0.8 });
 const FIELD = (P, L) => { const f = P.field, k = Math.floor(L / f.every), dirs = f.dirs || [[0, 1], [-1, 0], [0, -1], [1, 0]], d = dirs[k % dirs.length]; return { x: d[0] * f.mag, y: d[1] * f.mag }; };
 const EDGE = (P, L) => P.edge || (P.closing ? { w: P.closing.from + (P.closing.to - P.closing.from) * Math.min(1, Math.max(0, L - 2) / P.closing.over), dmg: P.closing.dmg } : null);
+const DIVX = (e, B, P, L) => { const A = box(e, B); return A.x0 + A.w / 2 + Math.sin(L * (P.halves.speed || 0.35)) * A.w * 0.28; };
+const noctOf = (g, e) => (e.rfNoct && !e.rfNoct.gone ? e.rfNoct : e.rfNoctNid && g.net && g.net.byId ? g.net.byId.get(e.rfNoctNid) || null : null);
 const FLOOD = (L) => 1 + Math.sin(L * 0.8) * 0.4 + Math.min(1.6, L * 0.2);
 const CREASE = (e, A, n) => { const h = hash(n, e.nid || 7), a = [0, Math.PI / 2, Math.PI / 4, -Math.PI / 4][Math.floor(h * 4)]; return { cx: A.x0 + A.w / 2 + (hash(n, 3) - 0.5) * 4, cy: A.y0 + A.h / 2 + (hash(n, 5) - 0.5) * 3, nx: -Math.sin(a), ny: Math.cos(a), a }; };
 // the phase's clock in this browser: the server's (it comes with the boss) run on between its updates
@@ -246,6 +252,13 @@ function arenaRules(g, e, B, bal, dt) {
   // the still hour: its shots hang in the air; the lances, turned by the mirror, end there
   if (e.rfPz === 'still') { if (!g.timeStop || g.timeStop.rfx) g.timeStop = { x: e.x, y: e.y, r: 40, t: 0.3, rfx: true }; }
   if (!('lw' in Z) || e.rfLanceWin !== Z.lw) { if ('lw' in Z) for (const b of g.projectiles) if (b.rfLance) { b.life = 0; g.fx.push({ kind: 'ring', x: b.x, y: b.y, t: 0, max: 1.2, color: '#ffd650' }); } Z.lw = e.rfLanceWin; }
+  // Day and Night: Lumen's shots hurt only on the day side of the drifting line, Noct's only on the night side (the
+  // others go see-through); the tether between them burns
+  if (P.halves) { const dx = DIVX(e, B, P, L);
+    for (const b of g.projectiles) if (b.rfSide && b.by === e.D.name) { const hurts = b.rfSide === 'day' ? p.x < dx : p.x >= dx; b.harmless = !hurts; b.ghost = !hurts; } }
+  if (P.tether) { const n = noctOf(g, e);
+    if (n && !n.dead) { const ax = e.x, ay = e.y, bx = n.x - ax, by = n.y - ay, L2 = bx * bx + by * by || 1, k = Math.max(0, Math.min(1, ((p.x - ax) * bx + (p.y - ay) * by) / L2));
+      if (Math.hypot(p.x - (ax + bx * k), p.y - (ay + by * k)) < 0.55 && tick('tether', 0.5)) hurt(P.tether.dmg || 100, 'the eclipse beam'); } }
   // the brew boiled over: those near are confused (keys turned about) for a while
   if (!('rit' in Z) || e.rfRitFail !== Z.rit) { const I = P.ritual && P.ritual.inflict; if ('rit' in Z && I && Math.hypot(p.x - e.x, p.y - e.y) < 16) { g.invertUntil = g.t + (I.t || 2.5); g.float(p.x, p.y - 1.2, 'CONFUSED', '#c8a0ff'); } Z.rit = e.rfRitFail; }
   // the dark, the sandstorm: you see only round yourself
@@ -338,11 +351,59 @@ function drawArena(r, g, e, B) {
     for (let i = 0; i < e.rfPlN; i++) { const pl = plateAt(A, i), lit = ord.indexOf(i) < (e.rfNext || 0), [sx, sy] = r.proj(pl.x, pl.y);
       circle(pl.x, pl.y, 0.7, lit ? '#ffd650' : '#8a7ad0', lit ? 0.6 : 0.35); circle(pl.x, pl.y, 0.7, '#fff6c8', 0.7, true);
       b.fillStyle = '#ffffff'; b.font = '12px monospace'; b.textAlign = 'center'; b.fillText(['I', 'II', 'III', 'IV', 'V'][ord.indexOf(i)] || '', sx, sy + 4); } }
+  if (P.halves) { const dx = DIVX(e, B, P, L), [x0, y0] = r.proj(dx, A.y0), [x1, y1] = r.proj(dx, A.y0 + A.h);
+    poly([[A.x0, A.y0], [dx, A.y0], [dx, A.y0 + A.h], [A.x0, A.y0 + A.h]], '#ffe9a0', 0.08); poly([[dx, A.y0], [A.x0 + A.w, A.y0], [A.x0 + A.w, A.y0 + A.h], [dx, A.y0 + A.h]], '#1a0a3a', 0.25);
+    b.globalAlpha = 0.8; b.strokeStyle = '#ffffff'; b.lineWidth = 2; b.beginPath(); b.moveTo(x0, y0); b.lineTo(x1, y1); b.stroke(); b.globalAlpha = 1; }
+  if (P.tether) { const n = noctOf(g, e); if (n && !n.dead) { const [ax, ay] = r.proj(e.x, e.y), [nx, ny] = r.proj(n.x, n.y);
+    b.globalAlpha = 0.85; b.lineWidth = 5; b.strokeStyle = '#ffe9a0'; b.beginPath(); b.moveTo(ax, ay - 20); b.lineTo(nx, ny - 20); b.stroke();
+    b.lineWidth = 2; b.strokeStyle = '#3a1a6a'; b.beginPath(); b.moveTo(ax, ay - 20); b.lineTo(nx, ny - 20); b.stroke(); b.globalAlpha = 1; } }
   if (e.rfRit) for (const q of runesOf(e.rfRit)) { circle(q.x, q.y, 0.85, q.done ? '#ffd650' : '#7a3ac8', q.done ? 0.55 : 0.35 + 0.2 * Math.sin(g.t * 8)); circle(q.x, q.y, 0.85, '#e8d0ff', 0.7, true); }
   if (P.crownOrbit) { const c = crownAt(e, B, P.crownOrbit); circle(c.x, c.y, 0.6, '#ffd650', 0.8); circle(c.x, c.y, 0.9, '#fff6c8', 0.5, true); }
   if (e.rfSock) { const S0 = socketAt(A); circle(S0.x, S0.y, 0.8, '#ffd650', 0.8, true); circle(S0.x, S0.y, 0.5, '#3a2a10', 0.5); }
   if (e.rfTx) { circle(e.rfTx, e.rfTy, 0.7, '#ffd650', 0.5); circle(e.rfTx, e.rfTy, 0.7, '#ffffff', 0.8, true); }
   if (P.spotlight && g.rfZ && g.rfZ.e === e && g.rfZ.spot) circle(g.rfZ.spot.x, g.rfZ.spot.y, P.spotlight.r, '#fff6c8', 0.25);
+}
+// ---- the Eclipse Twins (Lumen, the boss; Noct, a second body the server owns): Noct's hits go to Lumen until the last
+// phase, when he has his own Life; he chases, orbits opposite Lumen, merges with him, then charges along marked lines. In
+// the last phase Lumen will not fall while Noct stands, and a Noct who falls more than 10 s before Lumen comes back.
+function twinKind(B, bal) {
+  const id = `rfz_${B.id}_2`;
+  if (!ENEMIES[id]) ENEMIES[id] = { name: String(B.title || '').split(' and ')[1] || 'the Twin', biome: 'dungeon', hp: Math.round(B.hp * bal.bossHp * 0.25), def: bal.bossDef ?? 0, speed: 0, xp: 0, r: 1.2,
+    ai: 'rooted', aggro: 0, reg: `bx_rf_${B.id}/rf_${B.id}_2`, scale: 2, contact: 0, attacks: [], loot: [] };
+  return id;
+}
+function twinStep(g, e, B, bal, dt, ph) {
+  const S = e.bx, P = ph.rfP, last = S.phase === B.phases.length, q = g.player;
+  let n = e.rfNoct;
+  if (!n || (n.dead && !last)) {                        // Noct rises (and, but in the last phase, never stays down)
+    n = e.rfNoct = g.addEnemy(twinKind(B, bal), e.x + 3, e.y); n.seen = true; n.noLoot = true; n.rfTwinOf = e;
+    if (last) n.hp = Math.round(n.maxHp * 0.5);
+  }
+  if (n.nid) e.rfNoctNid = n.nid;
+  n.linkTo = last ? null : e;                           // his hits are Lumen's, till the end
+  if (last && !e.rfLastSeen) { e.rfLastSeen = true; n.hp = n.maxHp; g.banner(`${B.title || 'The twins'} split apart: kill them both, close together`, 2600); }
+  if (last && n.dead) {
+    e.rfNoctDown = e.rfNoctDown ?? S.t;
+    if (S.t - e.rfNoctDown > 10 && !e.dead) { e.rfNoctDown = undefined; n = e.rfNoct = g.addEnemy(twinKind(B, bal), e.x + 3, e.y); n.seen = true; n.noLoot = true; n.hp = Math.round(n.maxHp * 0.5); g.banner(`${String(B.title || '').split(' and ')[0] || 'Lumen'} calls ${n.D.name} back!`, 2400); }
+    return;
+  }
+  e.rfNoctDown = undefined;
+  const M = P.mv2 || { m: 'center' }, A = box(e, B), H = homeOf(e);
+  const step = (tx, ty, sp) => { const dx = tx - n.x, dy = ty - n.y, d = Math.hypot(dx, dy); if (d > 0.15) g.moveCircle(n, (dx / d) * Math.min(d, sp * dt), (dy / d) * Math.min(d, sp * dt), 0.8); };
+  if (M.m === 'chase') { const d = Math.hypot(q.x - n.x, q.y - n.y); if (d > (M.keep || 5)) step(q.x, q.y, M.spd || 2.4); }
+  else if (M.m === 'orbit') step(2 * H.x - e.x, 2 * H.y - e.y, 4);           // opposite Lumen round the middle
+  else if (M.m === 'center') step(e.x + 1.2, e.y, 6);                         // merged: at his side
+  else if (M.m === 'charge') {                                               // a marked line, then the charge
+    const C = e.rfCharge;
+    if (C && g.t >= C.at) { const k = Math.min(1, (g.t - C.at) / C.T); n.x = C.x0 + (C.x1 - C.x0) * k; n.y = C.y0 + (C.y1 - C.y0) * k; if (k >= 1) e.rfCharge = null; }
+    else if (!C && (e.rfChargeT = (e.rfChargeT ?? M.every ?? 2.2) - dt) <= 0) {
+      e.rfChargeT = M.every || 2.2;
+      const a = Math.atan2(q.y - n.y, q.x - n.x), L = Math.min(12, Math.hypot(q.x - n.x, q.y - n.y) + 3);
+      const x1 = Math.max(A.x0 + 1, Math.min(A.x0 + A.w - 1, n.x + Math.cos(a) * L)), y1 = Math.max(A.y0 + 1, Math.min(A.y0 + A.h - 1, n.y + Math.sin(a) * L)), len = Math.hypot(x1 - n.x, y1 - n.y);
+      g.fx.push({ kind: 'lane', x: n.x, y: n.y, a, len, w: 0.9, delay: M.warn || 0.7, t: 0, life: (M.warn || 0.7) + len / (M.spd || 16) + 0.1, dmg: Math.round(140 * bal.bossDmg), by: n.D.name, hitT: 0, cols: ['#8a5ad0', '#c8a0ff', '#3a1a6a', '#ffffff'] });
+      e.rfCharge = { x0: n.x, y0: n.y, x1, y1, at: g.t + (M.warn || 0.7), T: Math.max(0.1, len / (M.spd || 16)) };
+    }
+  }
 }
 // ---- Mother Mire's ritual, on the server: runes appear; if the players between them step on every one before the cast
 // ends it is broken (she staggers, three seconds without attacking); if not, the brew boils over (a ring of shots, and
@@ -482,7 +543,7 @@ export function rfBossToBX(DATA, B) {
       const S = e.bx, R = S.rfEm;
       tickMinions(g, e, B, bal, dt);
       phaseRules(g, e, B, bal, dt);
-      if (S.state === 'death' || S.state === 'deathhold') { for (const m of e.rfMins || []) if (!m.dead) { m.noLoot = true; m.dead = true; m.deadT = 0; } endPieces(e); }   // (its creatures go with it)
+      if (S.state === 'death' || S.state === 'deathhold') { for (const m of [...(e.rfMins || []), e.rfNoct]) if (m && !m.dead) { m.noLoot = true; m.dead = true; m.deadT = 0; } endPieces(e); }   // (its creatures go with it)
       if (e.rfPz === 'still') return;                              // (time stopped: it waits too)
       if (e.rfStagT > 0) { e.rfStagT -= dt; return; }              // (staggered: a ritual broken)
       if (!R || S.t > R.until || S.state === 'morph' || S.state === 'death' || S.state === 'deathhold') return;
@@ -493,7 +554,12 @@ export function rfBossToBX(DATA, B) {
     local(g, e, dt) { arenaRules(g, e, B, bal, dt); },
     drawGround(r, g, e) { drawArena(r, g, e, B); },
     // can't be hurt: an invulnerable phase (until its time is up or its minions fall), or shielded outside its openings
-    immune(g, e) { return !!e.rfImm; },                 // (worked out each frame where the fight runs: phaseRules; a shared boss brings it along)
+    immune(g, e) {
+      if (e.rfImm) return true;
+      const ph = e.bx.B.phases[e.bx.phase];
+      if (ph && ph.rfP.halflit) { const a0 = (e.rfL ?? e.rfPhT ?? 0) * 0.6, q = g.player, a = Math.atan2(q.y - e.y, q.x - e.x); return Math.cos(a - a0) < 0; }   // (Totality: struck from the dark side, nothing)
+      return false;
+    },                 // (worked out each frame where the fight runs: phaseRules; a shared boss brings it along)
     immuneText: 'INVULNERABLE',
     // what the phase looks like on it: rage's red glow, an invulnerable ring, the hour's gold shield, the leash's reach
     draw(r, g, e, sx, sy) {
@@ -504,6 +570,9 @@ export function rfBossToBX(DATA, B) {
       if (ph.invuln && e.rfImm) ring(34, '#9fd8ff', 0.55 + Math.sin(g.t * 6) * 0.25);
       if (ph.shield && e.rfImm) ring(36, '#ffd650', 0.6);
       if (ph.rfP.decoys && e.bx.def && e.bx.anim) for (const d of decoysOf(e, B, ph.rfP)) { const [dx, dy] = r.proj(d.x, d.y); b.globalAlpha = 0.45; r.drawDef(e.bx.def, e.bx.anim.frame, dx, dy, { scale: 1 }); b.globalAlpha = 1; }   // her decoys
+      if (ph.rfP.halflit) {                               // Totality: the bright half turns (only blows from that side land)
+        const a0 = (e.rfL ?? e.rfPhT ?? 0) * 0.6; b.globalAlpha = 0.3; b.fillStyle = '#ffe066'; b.beginPath(); b.arc(sx, sy - 24, 44, a0 - Math.PI / 2, a0 + Math.PI / 2); b.lineTo(sx, sy - 24); b.fill();
+        b.fillStyle = '#0a0418'; b.globalAlpha = 0.45; b.beginPath(); b.arc(sx, sy - 24, 44, a0 + Math.PI / 2, a0 + Math.PI * 1.5); b.lineTo(sx, sy - 24); b.fill(); b.globalAlpha = 1; }
       if (e.rfStagT > 0) { b.fillStyle = '#ffe066'; b.font = '10px monospace'; b.textAlign = 'center'; b.fillText('STAGGERED', sx, sy - 60); }
       if ((ph.rfP.egg || ph.rfP.cocoon) && e.rfImm) ring(32 + Math.sin(g.t * 6) * 2, ph.rfP.egg ? '#ffcc33' : '#f4ecd8', 0.7);
       if (ph.leash) { b.globalAlpha = 0.18; b.strokeStyle = '#7ac85a'; b.lineWidth = 1; b.beginPath(); b.arc(sx, sy, ph.leash.len * 16, 0, TAU); b.stroke(); b.globalAlpha = 1; }
