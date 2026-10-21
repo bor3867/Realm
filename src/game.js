@@ -973,6 +973,9 @@ export class Game {
     const p = this.player, I = this.input;
     for (const k in p.status) p.status[k] = Math.max(0, p.status[k] - dt);
     p.playT = (p.playT || 0) + dt;                               // (minutes active, for the death screen)
+    { const low = p.hp < this.stat('hp') * 0.25 && !p.dead && this.map.kind !== 'nexus';   // low health: a warning, once a dip
+      if (low && !p.lowWarned) { p.lowWarned = true; const P0 = this.pots()[0]; this.banner(P0 && P0.n ? `LOW HEALTH · drink a potion${keyParen('potion1')}` : 'LOW HEALTH · get clear!', 1400); this.sfx('hurt'); }
+      else if (!low && p.hp > this.stat('hp') * 0.5) p.lowWarned = false; }
     p.hitT = Math.max(0, p.hitT - dt);
     if (p.danceT > 0) p.danceT -= dt;
     p.abilityT = Math.max(0, p.abilityT - dt);
@@ -4291,6 +4294,8 @@ export class Game {
     if (this.map && this.map.netWorld && this.netWorldCmd && this.netWorldCmd(line, (cmd || '').toLowerCase(), args)) { say('(sent to the server: everyone here sees it)'); return; }
     switch ((cmd || '').toLowerCase()) {
       case 'help':
+        say('Player: /teleport NAME (to someone here)  /dance  · Enter to chat, Esc for settings and your keys.');
+        if (!this.adminOk()) break;
         say('/admin  /backpack  /maxlevel  /level N  /maxstats  /heal  /god  /give ITEM [N]  /give dungeon ID (its whole loot set)  /items TEXT  /spawn ID [N] (any monster, elite or boss)  /boss ID  ' +
             '/bx BOSS (a three-phase boss beside you)  /kraken  /treant  /melon  /event BIOME  /adminchest [N] (best loot)  /keys [dungeon N] (dungeon keys)  /pet [kind rarity max]  /star (a falling star in Godfall)  /seals (open a dungeon boss gate)  /progress BIOME N  /gold N  /essence N  /bosses  /tp LAND|nexus|realm|DUNGEON (lands: shore fen runeholt godfall dunes thornwood steppe lowlands)  /killall  /clearbags  /fame N  /portal DUNGEON  (all ids: ADMIN_REFERENCE.md; final boss: /portal throne)');
         break;
@@ -4489,8 +4494,8 @@ export class Game {
   openPortal(to, x, y, life = 40) {
     if (this.netPortal && this.netPortal(to, x, y, life)) return;   // in the shared realm the server opens it for everyone (src/net.js)
     if (to.startsWith('rf_')) return this.rfOpenPortal(to, x, y, life);   // a Realmforge dungeon (src/rf/host.js)
-    const D = DUNGEONS[to];
-    this.map.portals.push({ kind: D.portal, x, y, label: D.name, to, life });
+    const D = DUNGEONS[to], st = (DUNGEON_RATING[to] || [0])[0], boss = this.dungeonBossName({ def: D });
+    this.map.portals.push({ kind: D.portal, x, y, label: `${D.name} ${'★'.repeat(st)}${boss ? ' · ' + boss : ''}`, to, life });
     this.say(`A portal to ${D.name} has opened!`, '#3befff');
   }
   usePortal() {

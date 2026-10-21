@@ -557,12 +557,13 @@ export class UI {
           el.style.setProperty('--rc', rarityColor(it));
           el.classList.add('has'); el.classList.remove('ghost'); el.classList.toggle('mythic', !!it.mythic); el.classList.toggle('ut', !!it.ut && !it.mythic && !it.admin);
           el.classList.toggle('admin', !!it.admin); el.classList.toggle('ench', !!it.enchants); el.classList.toggle('legend', !!it.legendary);
+          el.classList.toggle('up', (name === 'ground' || name === 'inv') && this.isUpgrade(it));   // (an upgrade for you: a green arrow)
         } else {
           ico.classList.remove('sweep');
           const C = name === 'equip' && this.g.player ? CLASSES[this.g.player.cls] : null;
           const ghost = C ? [`${C.weapon}_t0`, `${C.ability}_t0`, `${C.armor}_t0`, 'ring_hp_t0'][i] : null || (name === 'pots' ? ['pot_hp', 'pot_mp'][i] : null);   // an empty potion button shows its potion, dimmed
           ico.style.backgroundImage = ghost ? `url(${this.r.icon(ghost)})` : ''; ico.style.backgroundSize = '100% 100%';
-          tier.innerHTML = name === 'pots' ? `<b class="none">0</b>/${POT_STACK}` : ''; el.classList.remove('has', 'mythic', 'ut', 'admin', 'ench', 'legend'); el.classList.toggle('ghost', !!ghost);
+          tier.innerHTML = name === 'pots' ? `<b class="none">0</b>/${POT_STACK}` : ''; el.classList.remove('has', 'mythic', 'ut', 'admin', 'ench', 'legend', 'up'); el.classList.toggle('ghost', !!ghost);
         }
       });
     }
@@ -613,6 +614,15 @@ export class UI {
     this.tip.style.setProperty('--rc', '#5ac8ff');
     this.tip.classList.remove('hidden');
     this.placeTip(ev);
+  }
+  // is this better than what you wear in its slot? (one you can use, a higher tier, or a slot you have empty)
+  isUpgrade(it) {
+    const p = this.g.player, k = { weapon: 0, ability: 1, armor: 2, ring: 3 }[it && it.slot];
+    if (!p || k === undefined || !canEquip(p.cls, it)) return false;
+    const cur = p.equip[k] && ITEMS[p.equip[k]];
+    if (!cur) return true;
+    const rank = (q) => (q.mythic ? 30 : q.legendary ? 25 : q.ut ? 20 : 0) + (typeof q.tier === 'number' ? q.tier : 0);
+    return rank(it) > rank(cur);
   }
   tipHTML(it, id, name) {
     const g = this.g, row = (k, v, cls = '') => `<div class="kv ${cls}"><span>${k}</span><b>${v}</b></div>`;
@@ -1336,9 +1346,12 @@ export class UI {
         </div>
       </div>
       <p>Account fame: <span class="fame">${g.save.fame}</span></p>
-      <button class="btn" id="again">Continue</button></div>`);
+      <button class="btn" id="again">Continue</button><button class="btn" id="same">Play again as a ${C.name}</button></div>`);
     this.drawGraveCard(o.querySelector('#dgrave'), d);
     o.querySelector('#again').onclick = () => { g.leaveToMenu(); this.titleScreen(); };
+    o.querySelector('#same').onclick = () => {                          // straight back in: a new hero of the same class
+      g.leaveToMenu(); g.newCharacter(d.cls); g.startPlaying(g.save.chars.length - 1); this.closeOverlay();
+    };
     o.querySelector('#again').focus();
   }
   // the gravestone on the death screen, the hero's sprite before it (the art at 4x, outlined, as everywhere)
