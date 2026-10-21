@@ -26,7 +26,7 @@ export const DEFAULTS = {
   vignette: false,        // RotMG has no vignette: off by default, the edges stay clean
   groundLight: true,     // soft pools of light and shadow over the terrain
   damageNumbers: true,
-  lookAhead: false,       // the camera sits ahead of you: you near the bottom of the screen, more of what is in front
+  lookAhead: true,        // the camera sits ahead of you: you below the middle of the screen, more of what is in front (RotMG's way: on by default)
   volume: 0.5,
   muted: false,
 };
@@ -49,6 +49,7 @@ export function loadSettings() {
   } catch { /* fall back to defaults */ }
   // older saves bound Enter to portals; Enter now opens chat
   if (s.binds.portal.includes('Enter') && s.binds.chat.includes('Enter')) s.binds.portal = s.binds.portal.map((c) => (c === 'Enter' ? null : c));
+  if (!s.lookV2) { s.lookAhead = true; s.lookV2 = true; }   // (2026-10-21: look-ahead became the default, as RotMG plays; once for older settings too)
   CUR = s;
   return s;
 }

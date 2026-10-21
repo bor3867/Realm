@@ -22,7 +22,7 @@ import { keyHint } from './settings.js';
 import { SHOT_BOXES } from './data/shot_boxes.js';
 
 const TS = 16;
-const LOOK = 0.18;                                       // how far down the screen look-ahead puts you
+const LOOK = 0.15;                                       // how far down the screen look-ahead puts you (about 65% down, as RotMG)
 // the Grand Orrery's pink bolts are drawn as lasers; its yellow shards and rings hold still (their flicker was too much)
 const LASER = { 'bx_shots/grand_orrery.star_bolt': ['#d02ab8', '#ff8af0'] };
 const STILL = new Set(['bx_shots/grand_orrery.brass_shard', 'bx_shots/grand_orrery.eclipse_ring', 'bx_shots/grand_orrery.corona_flare', 'bx_shots/grand_orrery.moon_shard']);
