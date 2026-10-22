@@ -441,9 +441,9 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 .tile { background: #0d0c12; border: 1px solid #2c2938; border-radius: 10px; padding: 8px 10px; }
 .tile small { display: block; color: #8a849e; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
 .tile b { font-size: 22px; color: #f2efe8; } .tile.f b { color: #ffb84a; } .tile.g b { color: #ffd650; } .tile.e b { color: #c8a0ff; }
-.classfame { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-.cf { display: flex; align-items: center; gap: 6px; background: #0d0c12; border-radius: 8px; padding: 4px 8px; border: 1px solid #2c2938; }
-.cf canvas { width: 32px; height: 32px; image-rendering: pixelated; } .cf b { font-size: 13px; flex: 1; }
+.classfame { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }   /* (minmax: a long name never pushes a column out of the panel) */
+.cf { display: grid; grid-template-columns: 32px minmax(0, 1fr); column-gap: 8px; align-items: center; background: #0d0c12; border-radius: 8px; padding: 4px 8px; border: 1px solid #2c2938; min-width: 0; }   /* the class, its name, its stars under the name */
+.cf canvas { grid-row: span 2; width: 32px; height: 32px; image-rendering: pixelated; } .cf b { font-size: 13px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; } .cf .stars { line-height: 1.1; } .cf b, .cf .stars { text-align: left; justify-self: start; }
 .stars { color: #ffd650; font-size: 12px; letter-spacing: -1px; } .stars i { color: #3a3648; font-style: normal; }
 .screen.home { padding-top: 10px; }
 .screen.home .btn.back { position: absolute; left: 18px; top: 14px; border-radius: 8px; }
