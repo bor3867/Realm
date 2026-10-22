@@ -8,9 +8,9 @@
 //   laser   a marked line that burns: at you, crossed through you, or swept
 //   and the rest of their kinds as close as our shots and hazards allow (rain, walls, lines, implosions, converging,
 //   flocks, novas, beams, drops, sprays, bolas, ahead-of-you marks, sequences, clouds, rifts, hedges, wildfire).
-//   Still their engine's alone: beams that follow a laser, and the big
-//   bespoke phases (Aion's puzzles, Vitrea's clones and panes, the twins, Gourdrick's allies, the shell game, rituals).
-// Their arena-wide patterns use a box the size of their arena (B.room) round the place the boss rose.
+//   Each boss's own specials are below too (Aion's puzzles, Vitrea's clones and panes, the twins, Gourdrick's allies,
+//   Morvane's board, the shell game, rituals, staves, the worm, Starflight, lasting beams).
+// Their arena-wide patterns use the boss's own room (rfa_<id>), or, summoned elsewhere, a box that size round where it rose.
 // Their phase rules (specials, part 1): rage (it runs hotter: emitters a quarter faster, a red glow), len (a phase
 // lasts so long, 60 s unless it says; then the next, and the last ends the fight, as their engine had it), invuln (it
 // cannot be hurt that phase; its minions falling ends it early), shield (the hour shields it but for short openings:
