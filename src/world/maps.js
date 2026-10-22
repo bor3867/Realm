@@ -54,12 +54,27 @@ export const SKINS = [null,
   ['ap_tiles/vault_floor', 'asmarble'], ['ap_tiles/vault_floor_plain', 'asmarble'],
   // the Nexus: flagstones a/b, trim, the rune inlay, the wall's top, pool water, the chasm, bridges, the bazaar's sand a/b, the gardens' grass a/b and flowers, the forge's brick
   ['nx_tiles/nexus_stone_a', 'nxstone'], ['nx_tiles/nexus_stone_b', 'nxstone'], ['nx_tiles/nexus_trim', 'nxtrim'], ['nx_tiles/nexus_inlay', 'nxinlay'],
-  ['nx_tiles/nexus_wall_top', 'nxwall'], ['nx_tiles/nexus_water', 'nxwater'], ['nx_tiles/nexus_chasm', 'nxchasm'], ['nx_tiles/nexus_bridge', 'nxbridge'],
+  ['nx_tiles/nexus_wall_top', 'nxwall'], ['nx_tiles/nexus_water', 'nxwater', { foam: 'nx_tiles/nexus_foam' }], ['nx_tiles/nexus_chasm', 'nxchasm'], ['nx_tiles/nexus_bridge', 'nxbridge'],
   ['nx_tiles/nexus_sand_a', 'nxsand'], ['nx_tiles/nexus_sand_b', 'nxsand'], ['nx_tiles/nexus_grass_a', 'nxgrass'], ['nx_tiles/nexus_grass_b', 'nxgrass'],
-  ['nx_tiles/nexus_flowers', 'nxgrass'], ['nx_tiles/nexus_brick', 'nxbrick']];
+  ['nx_tiles/nexus_flowers', 'nxgrass'], ['nx_tiles/nexus_brick', 'nxbrick'],
+  // the Nexus, second pass: more flagstones, the crystal's dais, the other bridge, ember brick, and the water that flows
+  // ({ flow }: every tile on one frame, stepping fast, so the current runs on unbroken; { foam }: foam where it meets anything else)
+  ['nx_tiles/nexus_stone_c', 'nxstone'], ['nx_tiles/nexus_stone_d', 'nxstone'], ['nx_tiles/nexus_stone_e', 'nxstone'], ['nx_tiles/nexus_dais', 'nxstone'],
+  ['nx_tiles/nexus_bridge_h', 'nxbridge'], ['nx_tiles/nexus_brick_ember', 'nxbrick'],
+  ['nx_tiles/nexus_spring', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }], ['nx_tiles/nexus_rapids_0', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }], ['nx_tiles/nexus_rapids_4', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }],
+  ['nx_tiles/nexus_fall_0_near', 'nxchasm', { flow: 1 }], ['nx_tiles/nexus_fall_0_far', 'nxchasm', { flow: 1 }], ['nx_tiles/nexus_fall_4_near', 'nxchasm', { flow: 1 }], ['nx_tiles/nexus_fall_4_far', 'nxchasm', { flow: 1 }],
+  ['nx_tiles/nexus_flow_0_0', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }], ['nx_tiles/nexus_flow_0_1', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }],
+  ['nx_tiles/nexus_flow_1_0', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }], ['nx_tiles/nexus_flow_1_1', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }],
+  ['nx_tiles/nexus_flow_2_0', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }], ['nx_tiles/nexus_flow_2_1', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }],
+  ['nx_tiles/nexus_flow_3_0', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }], ['nx_tiles/nexus_flow_3_1', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }],
+  ['nx_tiles/nexus_flow_4_0', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }], ['nx_tiles/nexus_flow_4_1', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }],
+  ['nx_tiles/nexus_flow_5_0', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }], ['nx_tiles/nexus_flow_5_1', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }],
+  ['nx_tiles/nexus_flow_6_0', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }], ['nx_tiles/nexus_flow_6_1', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }],
+  ['nx_tiles/nexus_flow_7_0', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }], ['nx_tiles/nexus_flow_7_1', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }]];
 // a wall skin's face: drawn under the wall, toward the camera, so walls stand up (RotMG-style)
 export const WALL_FACE = { nxwall: 'nx_tiles/nexus_wall_side', fvwall: 'ex_tiles/frostveil_wall_side', mrwall: 'ex_tiles/mirerot_wall_side', aswall: 'ex_tiles/astral_wall_side', sdwall: 'ex_tiles/sandscour_wall_side', ckwall: 'd2_tiles/crimson_keep_wall_side', ckwin: 'd2_tiles/crimson_keep_wall_window', hmwall: 'd2_tiles/hollowmoon_wall_side' };
 export const SKIN_TID = SKINS.map((s) => (s ? TID[s[1]] : -1));
+export const SKIN_OPT = SKINS.map((s) => (s && s[2]) || null);   // a skin's drawing options (flow, foam)
 export const SK = Object.fromEntries(SKINS.map((s, k) => [s ? s[0].split('/')[1].replace(/^(shore|lowlands|midlands|highlands|godlands)_/, '') + (s[1] === 'deep' || s[1] === 'steppe' || s[1] === 'ckwin' ? '@' + s[1] : '') : '-', k]));
 // a fixed per-tile hash (0..1), so jitter and dithering never disturb the generator's random stream
 const hash01 = (x, y) => { let h = Math.imul(x, 374761393) + Math.imul(y, 668265263); h = Math.imul(h ^ (h >>> 13), 1274126177); return ((h ^ (h >>> 16)) >>> 0) / 4294967296; };
@@ -124,58 +139,86 @@ function bigProp(m, name, x, y) {
 // the Crystal Plaza (the great crystal and its well), the Arrival (the guide).
 export function nexus() {
   // The Nexus, built in true 8x8 tiles (2026-10-22; tools/build_nexus_tiles.py): a crystal plaza of flagstones over a
-  // starry chasm, its districts on their own platforms joined by bridges. Walls rim each platform; the pools and the
-  // chasm stop you. The crystal, the waterfalls, the braziers and the banners are animated objects.
-  const W = 76, H = 66, CX = 38, CY = 34;
+  // starry chasm, its districts on their own platforms joined by bridges. Walls rim each platform; the water and the
+  // chasm stop you. Where the water comes from: the great crystal weeps it. A stream falls from its tip onto the dais,
+  // wells out round the dais, swirls round the pool, runs off down two channels (footbridges cross them) and spills
+  // over the plaza's edge into the chasm. The corner basins' fountains are shards of it; a spring feeds the pond.
+  const W = 84, H = 72, CX = 42, CY = 37;
   const m = makeMap('nexus', 'The Nexus', W, H, TID.nxchasm);
   const r = rng(0x9e55);
   const at = (x, y) => (x < 0 || y < 0 || x >= W || y >= H ? -1 : m.tiles[idx(m, x, y)]);
   const set = (x, y, t) => { if (x > 0 && y > 0 && x < W - 1 && y < H - 1) m.tiles[idx(m, x, y)] = t; };
   const rect = (x0, y0, x1, y1, t) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) set(x, y, t); };
   const oct = (cx, cy, rx, ry, cut, t) => { for (let y = cy - ry; y <= cy + ry; y++) for (let x = cx - rx; x <= cx + rx; x++) if (Math.abs(x - cx) + Math.abs(y - cy) <= cut) set(x, y, t); };
+  const skinOf = new Map(), skin = (x, y, k) => skinOf.set(idx(m, x, y), k);
   // ---- the platforms
-  oct(CX, CY, 14, 14, 20, TID.nxstone);                                    // the Crystal Plaza
-  rect(CX - 2, 9, CX + 2, CY - 13, TID.nxstone);                           // the causeway north
-  rect(CX - 16, 3, CX + 16, 10, TID.nxstone);                              // the Realm Gates
+  oct(CX, CY, 17, 17, 23, TID.nxstone);                                    // the Crystal Plaza
+  rect(CX - 2, 9, CX + 2, CY - 16, TID.nxstone);                           // the causeway north
+  rect(CX - 18, 3, CX + 18, 10, TID.nxstone);                              // the Realm Gates
   rect(3, CY - 15, 19, CY + 1, TID.nxsand);                                // the Bazaar (west)
   rect(W - 20, CY - 15, W - 4, CY + 1, TID.nxstone);                       // the Hall of Legends (east)
   rect(3, CY + 6, 21, H - 4, TID.nxgrass);                                 // the Gardens (south-west)
   rect(W - 21, CY + 6, W - 4, H - 10, TID.nxbrick);                        // the Emberworks (south-east)
-  rect(CX - 2, CY + 13, CX + 2, H - 13, TID.nxstone);                      // the causeway south
+  rect(CX - 2, CY + 16, CX + 2, H - 13, TID.nxstone);                      // the causeway south
   rect(CX - 7, H - 13, CX + 7, H - 3, TID.nxstone);                        // the Arrival
-  // ---- water: the plaza's great pool round the crystal's island, four corner pools, the garden pond
-  oct(CX, CY, 6, 5, 8, TID.nxwater);
-  rect(CX - 1, CY - 1, CX + 1, CY + 1, TID.nxstone);                       // the crystal's island
-  for (const [dx, dy] of [[-9, -9], [9, -9], [-9, 9], [9, 9]]) oct(CX + dx, CY + dy, 2, 2, 2, TID.nxwater);
+  // ---- water: the great pool round the crystal's dais, its two channels, four corner basins, the garden pond
+  oct(CX, CY, 8, 7, 11, TID.nxwater);
+  rect(CX - 2, CY - 2, CX + 2, CY + 2, TID.nxstone);                       // the crystal's island
+  rect(CX - 17, CY - 1, CX - 9, CY + 1, TID.nxwater); rect(CX + 9, CY - 1, CX + 17, CY + 1, TID.nxwater);
+  const basins = [[-11, -11], [11, -11], [-11, 11], [11, 11]];
+  for (const [dx, dy] of basins) oct(CX + dx, CY + dy, 2, 2, 2, TID.nxwater);
   oct(9, H - 12, 3, 2, 4, TID.nxwater);
-  // ---- trim round the water (walkable), the rune ring round the great pool
+  // ---- trim round the water (walkable; the island's edge too), the rune ring round the pool
   const ring = [];
   for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) if (at(x, y) === TID.nxstone && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => at(x + dx, y + dy) === TID.nxwater)) ring.push([x, y]);
   for (const [x, y] of ring) set(x, y, TID.nxtrim);
-  for (let a = 0; a < 32; a++) { const t = (a / 32) * Math.PI * 2, x = Math.round(CX + Math.cos(t) * 9.5), y = Math.round(CY + Math.sin(t) * 8.5); if (at(x, y) === TID.nxstone && a % 2 === 0) set(x, y, TID.nxinlay); }
+  for (let a = 0; a < 40; a += 2) { const t = (a / 40) * Math.PI * 2, x = Math.round(CX + Math.cos(t) * 11.5), y = Math.round(CY + Math.sin(t) * 10.5); if (at(x, y) === TID.nxstone) set(x, y, TID.nxinlay); }
   // ---- walls: a rim of stone wherever a platform meets the chasm (a parapet you can't walk through)
   const near8 = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1], [1, -1], [-1, -1]], rim = [];
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (at(x, y) === TID.nxchasm && near8.some(([dx, dy]) => { const t = at(x + dx, y + dy); return t >= 0 && t !== TID.nxchasm && t !== TID.nxwall; })) rim.push([x, y]);
   for (const [x, y] of rim) m.tiles[idx(m, x, y)] = TID.nxwall;
-  // ---- bridges over the chasm (their two ends cut through the rims)
-  const bridge = (x0, y0, x1, y1) => rect(x0, y0, x1, y1, TID.nxbridge);
-  bridge(20, CY - 7, CX - 12, CY - 6);                                     // to the Bazaar
-  bridge(CX + 12, CY - 7, W - 21, CY - 6);                                 // to the Hall of Legends
+  // ---- the spillways: each channel breaks through the rim and pours off into the chasm
+  for (const s of [-1, 1]) for (let y = CY - 1; y <= CY + 1; y++) {
+    set(CX + s * 18, y, TID.nxwater); skin(CX + s * 18, y, s < 0 ? 'nexus_rapids_4' : 'nexus_rapids_0');
+    for (const [k, part] of [[19, 'near'], [20, 'far']]) if (at(CX + s * k, y) === TID.nxchasm) skin(CX + s * k, y, `nexus_fall_${s < 0 ? 4 : 0}_${part}`);
+  }
+  // ---- bridges over the chasm (their two ends cut through the rims), and footbridges over the channels
+  const bridge = (x0, y0, x1, y1, across) => { rect(x0, y0, x1, y1, TID.nxbridge); if (across) for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) skin(x, y, 'nexus_bridge_h'); };
+  bridge(20, CY - 7, CX - 16, CY - 6, true);                               // to the Bazaar
+  bridge(CX + 16, CY - 7, W - 21, CY - 6, true);                           // to the Hall of Legends
   bridge(14, CY + 2, 15, CY + 5);                                          // the Bazaar down to the Gardens
-  bridge(22, CY + 9, CX - 11, CY + 10);                                    // the Gardens to the plaza
-  bridge(CX + 11, CY + 9, W - 22, CY + 10);                                // the plaza to the Emberworks
-  // ---- the skins: flagstones and grass vary, tile by tile
+  bridge(22, CY + 9, CX - 14, CY + 10, true);                              // the Gardens to the plaza
+  bridge(CX + 14, CY + 9, W - 22, CY + 10, true);                          // the plaza to the Emberworks
+  bridge(CX - 13, CY - 1, CX - 12, CY + 1); bridge(CX + 12, CY - 1, CX + 13, CY + 1);   // over the channels
+  // ---- the water's way: welling out round the dais, swirling round the pool, drawn off down the channels
+  for (let y = CY - 8; y <= CY + 8; y++) for (let x = CX - 17; x <= CX + 17; x++) {
+    if (at(x, y) !== TID.nxwater || skinOf.has(idx(m, x, y))) continue;
+    const dx = x - CX, dy = y - CY, ch = Math.max(Math.abs(dx), Math.abs(dy));
+    let a;
+    if (ch === 3) a = Math.atan2(dy, dx);                                  // off the dais
+    else if (Math.abs(dy) <= 1 && Math.abs(dx) >= 6) a = dx < 0 ? Math.PI : 0;   // into a channel
+    else a = Math.atan2(dy, dx) + Math.PI / 2 - 0.4;                       // round the pool, drifting outward
+    const d = ((Math.round(a / (Math.PI / 4)) % 8) + 8) % 8;
+    skin(x, y, `nexus_flow_${d}_${r() < 0.5 ? 0 : 1}`);
+  }
+  for (const [dx, dy] of basins) skin(CX + dx, CY + dy, 'nexus_spring');
+  skin(9, H - 12, 'nexus_spring');
+  for (let y = CY - 1; y <= CY + 1; y++) for (let x = CX - 1; x <= CX + 1; x++) skin(x, y, 'nexus_dais');
+  // ---- the skins: flagstones, grass and brick vary, tile by tile
   m.skin = new Uint8Array(W * H);
-  const ONE = { [TID.nxtrim]: 'nexus_trim', [TID.nxinlay]: 'nexus_inlay', [TID.nxwall]: 'nexus_wall_top', [TID.nxwater]: 'nexus_water', [TID.nxchasm]: 'nexus_chasm', [TID.nxbridge]: 'nexus_bridge', [TID.nxbrick]: 'nexus_brick' };
-  const pick = (t) => { const h = r(); if (t === TID.nxstone) return h < 0.5 ? 'nexus_stone_a' : 'nexus_stone_b'; if (t === TID.nxgrass) return h < 0.12 ? 'nexus_flowers' : h < 0.55 ? 'nexus_grass_a' : 'nexus_grass_b';
+  const ONE = { [TID.nxtrim]: 'nexus_trim', [TID.nxinlay]: 'nexus_inlay', [TID.nxwall]: 'nexus_wall_top', [TID.nxwater]: 'nexus_water', [TID.nxchasm]: 'nexus_chasm', [TID.nxbridge]: 'nexus_bridge' };
+  const pick = (t) => { const h = r();
+    if (t === TID.nxstone) return h < 0.32 ? 'nexus_stone_a' : h < 0.64 ? 'nexus_stone_b' : h < 0.8 ? 'nexus_stone_c' : h < 0.96 ? 'nexus_stone_d' : 'nexus_stone_e';
+    if (t === TID.nxgrass) return h < 0.12 ? 'nexus_flowers' : h < 0.55 ? 'nexus_grass_a' : 'nexus_grass_b';
+    if (t === TID.nxbrick) return h < 0.15 ? 'nexus_brick_ember' : 'nexus_brick';
     if (t === TID.nxsand) return h < 0.5 ? 'nexus_sand_a' : 'nexus_sand_b'; return ONE[t]; };
-  for (let i = 0; i < W * H; i++) { const k = SK[pick(m.tiles[i])]; if (k !== undefined) m.skin[i] = k; }
-  // ---- the Crystal Plaza: the great crystal on its island, shards round the pool, braziers at its four corners
+  for (let i = 0; i < W * H; i++) { const k = SK[skinOf.get(i) || pick(m.tiles[i])]; if (k !== undefined) m.skin[i] = k; }
+  // ---- the Crystal Plaza: the great crystal over its dais, shards standing in the pool, the well, braziers, fountains
   put(m, 'nx_objects/nexus_crystal_pillar', CX, CY, true);
-  put(m, 'nx_objects/nexus_shard', CX, CY + 7, true, { interact: 'fountain', label: 'Drink from the crystal (heals)', tag: 'CRYSTAL WELL', hint: 'Drink to heal fully' });
-  for (const [dx, dy] of [[-4, -3], [4, -3], [-5, 2], [5, 2], [-2, 4], [2, 4]]) put(m, 'nx_objects/nexus_shard', CX + dx, CY + dy, false);
-  for (const [dx, dy] of [[-4, -8], [4, -8], [-4, 8], [4, 8]]) put(m, 'nx_objects/nexus_brazier', CX + dx, CY + dy, false);
-  for (const [dx, dy] of [[-9, -9], [9, -9], [-9, 9], [9, 9]]) put(m, 'nx_objects/nexus_waterfall', CX + dx, CY + dy - 2, false);   // each corner pool fed from above
+  put(m, 'nx_objects/nexus_shard', CX, CY + 9, true, { interact: 'fountain', label: 'Drink from the crystal (heals)', tag: 'CRYSTAL WELL', hint: 'Drink to heal fully' });
+  for (const [dx, dy] of [[-6, -3], [6, -3], [-6, 3], [6, 3], [-3, -5], [3, -5], [-3, 5], [3, 5]]) put(m, 'nx_objects/nexus_shard', CX + dx, CY + dy, false);
+  for (const [dx, dy] of [[-6, -11], [6, -11], [-6, 11], [6, 11]]) put(m, 'nx_objects/nexus_brazier', CX + dx, CY + dy, false);
+  for (const [dx, dy] of basins) put(m, 'nx_objects/nexus_fountain', CX + dx, CY + dy, false);
   // ---- the Realm Gates: seven portals in a row, banners between, braziers at the ends
   m.portals = [];
   for (let k = 0; k < 7; k++) {
@@ -184,7 +227,7 @@ export function nexus() {
       ...(k === 3 ? { tag: 'REALM PORTAL', hint: 'Step in to fight. The farther from the beach, the stronger the monsters and the better the loot' } : {}) });
     if (k < 6) put(m, 'nx_objects/nexus_banner_red', gx + 2, 4, false);
   }
-  for (const x of [CX - 15, CX + 15]) put(m, 'nx_objects/nexus_brazier', x, 8, false);
+  for (const x of [CX - 17, CX + 17]) put(m, 'nx_objects/nexus_brazier', x, 8, false);
   // ---- the Bazaar: the vault, the two merchants, stalls
   m.portals.push({ kind: 'vault', x: 6.5, y: CY - 12, label: 'Your Vault', to: 'vault', tag: 'VAULT', hint: 'Keep what you cannot carry. It grows with every Vault Chest you buy' });
   put(m, 'merchant', 8, CY - 6, true, { interact: 'shop', label: 'Trade with the Salt-Peddler', tag: 'SHOP', hint: 'Buy potions and gear; sell what you do not need' });
@@ -212,8 +255,9 @@ export function nexus() {
   put(m, 'bard', CX - 7, CY + 9, true, { interact: 'bard', label: 'Listen to the bard', tag: 'BARD', hint: 'Listen for a little inspiration' });
   put(m, 'cat', CX + 4, H - 6, false, { interact: 'cat', label: 'Pet the cat' });
   for (const x of [CX - 6, CX + 6]) put(m, 'nx_objects/nexus_lamp', x, H - 11, false);
-  m.strolls = [[CX - 10, CY], [CX + 10, CY], [CX, CY + 11], [CX, CY - 11], [CX - 7, CY - 9], [CX + 7, CY - 9]];
-  m.villagers = [['villager_farmer', 0], ['villager_child', 2], ['villager_guard', 4]].map(([sp, k]) => ({ sprite: sp, x: m.strolls[k][0] + 0.5, y: m.strolls[k][1] + 0.5, goal: (k + 1) % 6, wait: 0 }));
+  // the villagers' rounds: a loop round the pool, crossing the channels by their footbridges
+  m.strolls = [[CX - 12, CY - 5], [CX - 5, CY - 12], [CX + 5, CY - 12], [CX + 12, CY - 5], [CX + 12, CY + 5], [CX + 5, CY + 12], [CX - 5, CY + 12], [CX - 12, CY + 5]];
+  m.villagers = [['villager_farmer', 0], ['villager_child', 3], ['villager_guard', 6]].map(([sp, k]) => ({ sprite: sp, x: m.strolls[k][0] + 0.5, y: m.strolls[k][1] + 0.5, goal: (k + 1) % 8, wait: 0 }));
   m.decor = [];
   m.spawn = { x: CX + 0.5, y: H - 6 };
   m.lights = null;

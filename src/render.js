@@ -12,7 +12,7 @@ import { rxFrame } from './remaster.js';
 // Treant, not as champions (2026-10-19; whole sizes only)
 const RB_BIG = new Set(['brine_cathedral', 'wick_mother', 'orrery_of_winter', 'penitent_colossus', 'emily_the_yapper', 'the_fallen_star']);
 const rbK = (e) => (RB_BIG.has(e.id) ? 2 : 1);
-import { TILE_NAMES, BIOMES, biomeAt, objectsIn, SKINS, SKIN_TID, TID, FLAT, WALL_FACE } from './world/maps.js';
+import { TILE_NAMES, BIOMES, biomeAt, objectsIn, SKINS, SKIN_TID, SKIN_OPT, TID, FLAT, WALL_FACE } from './world/maps.js';
 import { hoverY } from './registry.js';
 import { CLASSES } from './data/classes.js';
 import { ITEMS, iconIndex } from './data/items.js';
@@ -326,7 +326,7 @@ export class Renderer {
     const ART = m.artCanvas || (m.artBg && this.A.img[m.artBg]);   // (a boss's room: painted by their room painter)
     if (ART) { gc.imageSmoothingEnabled = false; gc.drawImage(ART, -ox, -oy); return; }   // a painted map (the Nexus): its art is the floor, 1:1
     const tx0 = Math.floor(ox / TS), ty0 = Math.floor(oy / TS), n = Math.ceil(G / TS) + 1;
-    const anim = Math.floor(g.t * 2.2);
+    const anim = Math.floor(g.t * 8.8);                   // (flowing water steps at this; everything else at a quarter of it)
     if (!m.decorAt && m.decor) { m.decorAt = new Map(); for (const d of m.decor) m.decorAt.set(d.y * m.w + d.x, d.name); }
     if (this.chunkMap !== m) { this.chunkMap = m; this.chunks = new Map(); this.fogs = new Map(); }
     const C = GROUND_CHUNK, cx0 = Math.floor(tx0 / C), cy0 = Math.floor(ty0 / C), cx1 = Math.floor((tx0 + n) / C), cy1 = Math.floor((ty0 + n) / C);
@@ -358,16 +358,17 @@ export class Renderer {
   keepChunk(cache, key, K) { cache.delete(key); cache.set(key, K); if (cache.size > 600) cache.delete(cache.keys().next().value); return K; }
   groundChunk(g, m, cx, cy, anim) {
     const key = cx * 65536 + cy, K0 = this.chunks.get(key), base = this.chunkSig(m, cx, cy, 1, false);
-    if (K0 && K0.base === base && (!K0.moving || K0.anim === anim)) return this.keepChunk(this.chunks, key, K0);
+    if (K0 && K0.base === base && (!K0.moving || (K0.moving === 2 ? K0.anim === anim : K0.anim >> 2 === anim >> 2))) return this.keepChunk(this.chunks, key, K0);
     const C = GROUND_CHUNK, K = K0 || { c: Object.assign(document.createElement('canvas'), { width: C * TS, height: C * TS }) };
     const ctx = K.c.getContext('2d'); ctx.imageSmoothingEnabled = false; ctx.clearRect(0, 0, C * TS, C * TS);
-    let moving = false;
-    for (let ty = cy * C; ty < cy * C + C; ty++) for (let tx = cx * C; tx < cx * C + C; tx++) moving = this.groundTile(ctx, m, tx, ty, (tx - cx * C) * TS, (ty - cy * C) * TS, anim) || moving;
+    let moving = 0;
+    for (let ty = cy * C; ty < cy * C + C; ty++) for (let tx = cx * C; tx < cx * C + C; tx++) moving = Math.max(moving, this.groundTile(ctx, m, tx, ty, (tx - cx * C) * TS, (ty - cy * C) * TS, anim));
     K.base = base; K.moving = moving; K.anim = anim;
     return this.keepChunk(this.chunks, key, K);
   }
-  // one tile of ground, drawn at (dx, dy) of a chunk; true if it animates
-  groundTile(gc, m, tx, ty, dx, dy, anim) {
+  // one tile of ground, drawn at (dx, dy) of a chunk; 0 if still, 1 if it animates, 2 if it flows (redrawn every step)
+  groundTile(gc, m, tx, ty, dx, dy, fast) {
+    const anim = fast >> 2;
     const W = this.W, tiles = this.A.img.tiles, cols = W.tilesCols, edges = W.edges, prio = W.priority;
     const cell = (i, x, y) => gc.drawImage(tiles, (i % cols) * TS, Math.floor(i / cols) * TS, TS, TS, x, y, TS, TS);
     const name = (x, y) => (x < 0 || y < 0 || x >= m.w || y >= m.h ? 'void' : TILE_NAMES[m.tiles[y * m.w + x]]);
@@ -375,17 +376,27 @@ export class Renderer {
     const SA = m.skin ? this.skinArt() : null, sk = m.skin;
     const skinned = (x, y) => { if (!sk || x < 0 || y < 0 || x >= m.w || y >= m.h) return false; const j = y * m.w + x, k = sk[j]; return k > 0 && SKIN_TID[k] === m.tiles[j]; };
     const nm = name(tx, ty), T = W.tiles[nm];
-    if (m.seen && (tx < 0 || ty < 0 || tx >= m.w || ty >= m.h || !m.seen[ty * m.w + tx])) { gc.fillStyle = '#000'; gc.fillRect(dx, dy, TS, TS); return false; }
-    if (m.rf) { this.rfGroundTile(gc, m, tx, ty, dx, dy); return false; }   // a Realmforge dungeon: its own painted map (src/rf/draw.js)
+    if (m.seen && (tx < 0 || ty < 0 || tx >= m.w || ty >= m.h || !m.seen[ty * m.w + tx])) { gc.fillStyle = '#000'; gc.fillRect(dx, dy, TS, TS); return 0; }
+    if (m.rf) { this.rfGroundTile(gc, m, tx, ty, dx, dy); return 0; }   // a Realmforge dungeon: its own painted map (src/rf/draw.js)
     const h = ((tx * 73856093) ^ (ty * 19349663)) >>> 0;
-    let moving = false;
+    let moving = 0;
     if (SA && skinned(tx, ty)) {
-      const A = SA[sk[ty * m.w + tx]], f = A.fr[A.fr.length > 1 ? (anim + ((tx * 7 + ty * 3) >> 2)) % A.fr.length : 0];
-      if (A.fr.length > 1) moving = true;
+      const k = sk[ty * m.w + tx], A = SA[k], O = SKIN_OPT[k];
+      // a flowing skin (the Nexus's water): every tile on the same frame, stepping fast, so the current runs on unbroken
+      const f = A.fr[A.fr.length < 2 ? 0 : O && O.flow ? fast % A.fr.length : (anim + ((tx * 7 + ty * 3) >> 2)) % A.fr.length];
+      if (A.fr.length > 1) moving = O && O.flow ? 2 : 1;
       if (A.img) gc.drawImage(A.img, f.x, f.y, f.w, f.h, dx, dy, TS, TS);
+      if (O && O.foam && A.foam !== null) {                  // foam where the water meets anything that isn't water
+        const F = A.foam || (A.foam = this.foamArt(O.foam));
+        if (F) for (let d = 0; d < 4; d++) {
+          const x = tx + DIRS[d][0], y = ty + DIRS[d][1];
+          if (x < 0 || y < 0 || x >= m.w || y >= m.h || m.tiles[y * m.w + x] === m.tiles[ty * m.w + tx]) continue;
+          const q = F[d][fast % F[d].length]; gc.drawImage(F.img, q.x, q.y, q.w, q.h, dx, dy, TS, TS); moving = 2;
+        }
+      }
     } else if (T) {
       const v = T.variants > 1 ? ((h >>> 4) ^ (h >>> 13)) % T.variants : 0;            // RotMG-style: variants scattered at random
-      if (T.frames > 1) moving = true;
+      if (T.frames > 1) moving = 1;
       cell(T.i + v * T.frames + (T.frames > 1 ? (anim + ((tx * 7 + ty * 3) >> 2)) % T.frames : 0), dx, dy);
     }
     const pm = prio[nm];
@@ -393,14 +404,14 @@ export class Renderer {
     for (let d = 0; d < 4; d++) {
       const nn = name(tx + DIRS[d][0], ty + DIRS[d][1]);
       if (water) {
-        if (prio[nn] !== undefined) { cell(edges.foam + (anim % 3) * 4 + d, dx, dy); moving = true; }   // shoreline foam
+        if (prio[nn] !== undefined) { cell(edges.foam + (anim % 3) * 4 + d, dx, dy); moving = Math.max(moving, 1); }   // shoreline foam
       } else if (pm !== undefined && prio[nn] > pm && !skinned(tx + DIRS[d][0], ty + DIRS[d][1])) cell(edges[nn] + d, dx, dy);   // dithered biome blend (a skinned neighbour blends by its tiles instead)
     }
     if (m.decorAt) {
       const dn = m.decorAt.get(ty * m.w + tx);
       if (dn && (h >>> 9) % 3 === 0) {                     // RotMG ground is mostly bare: only a third of the clutter
         const na = (W.decorAnim || {})[dn], k = W.decor[dn] + (na ? Math.floor(anim * 0.6 + tx * 0.7 + ty * 0.3) % na : 0), dc = W.decorCols;
-        if (na) moving = true;
+        if (na) moving = Math.max(moving, 1);
         gc.drawImage(this.A.img.decor, (k % dc) * TS, Math.floor(k / dc) * TS, TS, TS, dx, dy, TS, TS);
       }
     }
@@ -469,6 +480,14 @@ export class Renderer {
       for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 100) { r += d[i]; g += d[i + 1]; b += d[i + 2]; n++; }
       return n ? [r / n, g / n, b / n] : null;
     } catch { return null; }
+  }
+  // a foam overlay's frames, by side (DIRS order): its frames are named side * n + step
+  foamArt(key) {
+    const def = this.R && this.R.resolve(key);
+    if (!def) return null;
+    const names = Object.keys(def.frames), n = names.length / 4, F = [0, 1, 2, 3].map((d) => names.slice(d * n, d * n + n).map((q) => def.frames[q]));
+    F.img = def.img;
+    return F;
   }
   skinArt() {
     if (this.skinA) return this.skinA;

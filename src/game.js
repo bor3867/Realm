@@ -3774,13 +3774,13 @@ export class Game {
         else { v.tx = 0; v.wait = 1 + R() * 4; }
       }
     }
-    // nexus villagers walk their rounds
+    // nexus villagers walk their rounds, stop to stop (each stop sees the next: they go round the water, never across it)
     for (const v of m.villagers || []) {
       if (v.wait > 0) { v.wait -= dt; v.moving = false; continue; }
       const [gx, gy] = m.strolls[v.goal], tx = gx + 0.5, ty = gy + 0.5, d = dist(v.x, v.y, tx, ty);
       v.moving = d > 0.2;
       if (v.moving) { const st = Math.min(d, 1.3 * dt), ox = v.x; v.x += ((tx - v.x) / d) * st; v.y += ((ty - v.y) / d) * st; v.face = v.x < ox; }
-      else { v.goal = Math.floor(R() * m.strolls.length); v.wait = 2 + R() * 4; if (R() < 0.35) this.bubble(v, R.pick(VILLAGER_LINES), '#ffffff'); }
+      else { v.goal = (v.goal + (R() < 0.5 ? 1 : m.strolls.length - 1)) % m.strolls.length; v.wait = 2 + R() * 4; if (R() < 0.35) this.bubble(v, R.pick(VILLAGER_LINES), '#ffffff'); }
     }
     // waypoints and named sites: discovered when you first walk up to them
     if (m.kind === 'realm' && (this.frameN || 0) % 10 === 0) {
