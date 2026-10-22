@@ -676,6 +676,20 @@ export function realm(seed) {
     for (let y = sy - 2; y <= sy + 2; y++) for (let x = sx - 2; x <= sx + 2; x++) if (!plain(x, y)) { m.tiles[idx(m, x, y)] = TID.sand; m.skin[idx(m, x, y)] = SK.wet_sand; }
     m.decor = m.decor.filter((d) => Math.abs(d.x - sx) > 1 || Math.abs(d.y - sy) > 1);
   }
+  // things you talk to stand apart: two within two tiles and you couldn't tell which one F reaches. The lesser goes
+  // (a dig spot first, then a lore stone or a shrine); waypoints, wells, altars and the rest stay
+  {
+    const rank = (o) => (o.interact === 'dig' ? 0 : o.interact === 'lore' || o.interact === 'shrine' ? 1 : 2), talk = m.objects.filter((o) => o.interact && o.interact !== 'chest');
+    const grid = new Map(), key = (x, y) => (x >> 3) + ',' + (y >> 3), gone = new Set();
+    for (const o of talk) { const k = key(Math.floor(o.x), Math.floor(o.y)); if (!grid.has(k)) grid.set(k, []); grid.get(k).push(o); }
+    for (const o of talk) {
+      if (gone.has(o) || rank(o) === 2) continue;
+      const ox = Math.floor(o.x), oy = Math.floor(o.y);
+      for (let dy = -8; dy <= 8 && !gone.has(o); dy += 8) for (let dx = -8; dx <= 8 && !gone.has(o); dx += 8)
+        for (const q of grid.get(key(ox + dx, oy + dy)) || []) if (q !== o && !gone.has(q) && Math.hypot(q.x - o.x, q.y - o.y) < 2.5 && rank(q) >= rank(o)) { gone.add(o); break; }
+    }
+    if (gone.size) m.objects = m.objects.filter((o) => !gone.has(o));
+  }
   finalize(m);
   {                                                            // landmarks mark their base solid directly: clear any near the beach too
     const sx = Math.floor(m.spawn.x), sy = Math.floor(m.spawn.y);
@@ -2013,8 +2027,9 @@ export function dungeon(seed, def) {
         let ok = true;
         const turns = r.int(2, 3);
         for (let t = 0; t <= turns && ok; t++) {
-          const len = r.int(2, 5);
+          const len = r.int(3, 5);                                    // (three tiles at least between mirrors: you can tell which one you are beside)
           for (let st = 0; st < len; st++) { x += d[0]; y += d[1]; if (x <= x0 || y <= y0 || x >= x1 || y >= y1 || used.has(x + ',' + y) || m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) { ok = false; break; } used.add(x + ',' + y); }
+          if (ok && t < turns && m.objects.some((o) => o.interact && Math.max(Math.abs(Math.floor(o.x) - x), Math.abs(Math.floor(o.y) - y)) <= 2)) ok = false;   // (a mirror keeps clear of pages and anything else you talk to)
           if (ok && t < turns) { const back = r.chance(0.5), nd = back ? [d[1], d[0]] : [-d[1], -d[0]]; mir.push({ x, y, need: back ? 1 : 0 }); d = nd; }
         }
         const rx = x + d[0], ry = y + d[1];
@@ -2025,7 +2040,8 @@ export function dungeon(seed, def) {
         if (beam.mirrors.every((M) => m.objects.find((o) => o.x === M.x + 0.5 && o.y === M.y + 0.5).state === M.need)) { const o = m.objects.find((q) => q.x === mir[0].x + 0.5 && q.y === mir[0].y + 0.5); o.state = 1 - o.state; o.sprite = o.state ? 'mirror_b' : 'mirror_a'; }
         for (let j = 0; j < 2; j++) {                                   // a decoy or two
           const dx = r.int(x0 + 1, x1 - 1), dy = r.int(y0 + 1, y1 - 1);
-          if (!used.has(dx + ',' + dy) && !m.objects.some((o) => Math.floor(o.x) === dx && Math.floor(o.y) === dy)) { const st = r.int(0, 1); put(m, st ? 'mirror_b' : 'mirror_a', dx, dy, true, { interact: 'mirror', state: st, label: 'Turn the mirror' }); }
+          const crowded = [...used].some((q) => { const [ux, uy] = q.split(',').map(Number); return Math.max(Math.abs(ux - dx), Math.abs(uy - dy)) <= 2; }) || m.objects.some((o) => Math.max(Math.abs(Math.floor(o.x) - dx), Math.abs(Math.floor(o.y) - dy)) <= 2);
+          if (!crowded) { const st = r.int(0, 1); put(m, st ? 'mirror_b' : 'mirror_a', dx, dy, true, { interact: 'mirror', state: st, label: 'Turn the mirror' }); }   // (a decoy keeps two clear tiles from the beam's path and everything else)
         }
         put(m, 'receiver_off', rx, ry, true, { receiver: true });
         (m.beams = m.beams || []).push(beam);
