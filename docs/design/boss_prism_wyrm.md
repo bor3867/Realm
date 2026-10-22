@@ -33,4 +33,4 @@ gap.
 - Too slow (about 11.4 s) and the lighthouse turns white: a burst under every player.
 
 ## Numbers
-380,000 Life, 36 DEF, 16,000 XP. Her loot is her old table.
+130,000 Life (380,000 before the balance pass: a lone player bared her two-thirds of the time and needed over 13 minutes), 36 DEF, 16,000 XP. Her loot is her old table.

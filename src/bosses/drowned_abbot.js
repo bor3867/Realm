@@ -141,8 +141,8 @@ const finale = {
 };
 
 export default {
-  id: 'drowned_abbot', art: 'drowned_abbot', shotSheet: 'abbot_shots', name: 'Abbot Morrow, the Drowned', biome: 'chapel', hp: 16000, def: 8, xp: 2600,
-  r: 1.4, speed: 0.9, keep: 6, faces: true, tempo: 0.95, finale,
+  id: 'drowned_abbot', art: 'drowned_abbot', shotSheet: 'abbot_shots', name: 'Abbot Morrow, the Drowned', biome: 'chapel', hp: 64000, def: 8, xp: 2600,
+  dmgScale: 1.25, r: 1.4, speed: 0.9, keep: 6, faces: true, tempo: 0.95, finale,
   phases: {
     1: { move: 'pace', patterns: [
       { name: 'the censer swung', windup: 0.6, recover: 0.7, special: 'censer', n: 9, arc: 1.6, dmg: 48 },

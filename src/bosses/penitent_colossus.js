@@ -34,8 +34,8 @@ const finale = {
 };
 
 export default {
-  id: 'penitent_colossus', art: 'penitent_colossus', shotSheet: 'last_shots', name: 'The Penitent Colossus', biome: 'godfall', hp: 42000, def: 26, xp: 7000,
-  r: 1.7, speed: 0.4, keep: 6, faces: false, tempo: 1, finale,
+  id: 'penitent_colossus', art: 'penitent_colossus', shotSheet: 'last_shots', name: 'The Penitent Colossus', biome: 'godfall', hp: 168000, def: 26, xp: 7000,
+  dmgScale: 1.6, r: 1.7, speed: 0.4, keep: 6, faces: false, tempo: 1, finale,
   phases: {
     1: { move: 'pace', pressure: [{ every: 14, special: 'kneel', warn: 1.4, dur: 2 }], patterns: [
       { name: 'its gaze', windup: 0.6, recover: 0.7, special: 'gaze', waves: 3, dmg: 60 },

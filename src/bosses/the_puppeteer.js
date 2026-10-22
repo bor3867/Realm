@@ -102,7 +102,7 @@ function bowHits(g, e) {
 
 export default {
   id: 'the_puppeteer', art: 'the_puppeteer', shotSheet: 'hollow_shots', name: 'Maestro Lucan, the Puppeteer', biome: 'theatre', hp: 140000, def: 22, xp: 9000,
-  r: 1.5, speed: 1.2, keep: 7, faces: true, tempo: 0.9, finale,
+  dmgScale: 0.8, r: 1.5, speed: 1.2, keep: 7, faces: true, tempo: 0.9, finale,
   phases: {
     1: { move: 'pace', patterns: [
       { name: 'a jig', windup: 0.5, recover: 0.6, special: 'jig', waves: 3, dmg: 72 },

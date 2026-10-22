@@ -133,8 +133,8 @@ const finale = {
 };
 
 export default {
-  id: 'the_archivist', art: 'the_archivist', shotSheet: 'archivist_shots', name: 'The Archivist', biome: 'scriptorium', hp: 34000, def: 24, xp: 9000,
-  r: 1.4, speed: 0.8, keep: 6, faces: true, tempo: 0.95, finale,
+  id: 'the_archivist', art: 'the_archivist', shotSheet: 'archivist_shots', name: 'The Archivist', biome: 'scriptorium', hp: 136000, def: 24, xp: 9000,
+  dmgScale: 1.7, r: 1.4, speed: 0.8, keep: 6, faces: true, tempo: 0.95, finale,
   phases: {
     1: { move: 'pace', patterns: [
       { name: 'the index', windup: 0.6, recover: 0.6, special: 'index', refs: 1, dmg: 70 },

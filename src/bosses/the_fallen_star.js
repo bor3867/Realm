@@ -53,8 +53,8 @@ function shaded(e, p) {                                    // is a mine between 
 function novaHits(g, e) { const p = g.player; if (!p.dead && !shaded(e, p)) g.hurtPlayer(g.bxDmg(e, 380), `${e.D.name}'s supernova`); }
 
 export default {
-  id: 'the_fallen_star', art: 'the_fallen_star', shotSheet: 'last_shots', name: 'The Fallen Star', biome: 'godfall', hp: 60000, def: 20, xp: 8000,
-  r: 1.5, speed: 0.9, keep: 5, faces: false, tempo: 1, finale,
+  id: 'the_fallen_star', art: 'the_fallen_star', shotSheet: 'last_shots', name: 'The Fallen Star', biome: 'godfall', hp: 240000, def: 20, xp: 8000,
+  dmgScale: 6, r: 1.5, speed: 0.9, keep: 5, faces: false, tempo: 1, finale,
   phases: {
     1: { move: 'pace', patterns: [
       { name: 'embers', windup: 0.5, recover: 0.7, special: 'embers', n: 18, dmg: 50 },

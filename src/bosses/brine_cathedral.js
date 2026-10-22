@@ -31,8 +31,8 @@ const finale = {
 function riteToll(g, e, V) { const q = target(g, e); ring(g, e, e.x, e.y - 1, 36, { shot: 'toll', speed: 3.2, range: 14, dmg: 70 }, V.k * 0.3, angleTo(e.x, e.y, q.x, q.y) + (R() - 0.5) * 1.2, 5); g.vx({ k: 'shake', amt: 6 }); g.float(e.x, e.y - 3, 'DONG', '#f2d070'); }
 
 export default {
-  id: 'brine_cathedral', art: 'brine_cathedral', shotSheet: 'last_shots', name: 'The Brine Cathedral', biome: 'shore', hp: 7000, def: 4, xp: 900,
-  r: 1.5, speed: 0.9, keep: 5, faces: false, tempo: 1, finale,
+  id: 'brine_cathedral', art: 'brine_cathedral', shotSheet: 'last_shots', name: 'The Brine Cathedral', biome: 'shore', hp: 28000, def: 4, xp: 900,
+  dmgScale: 1.4, r: 1.5, speed: 0.9, keep: 5, faces: false, tempo: 1, finale,
   phases: {
     1: { move: 'pace', patterns: [
       { name: 'the bell tolls', windup: 0.7, recover: 0.7, special: 'toll', rings: 2, dmg: 40 },

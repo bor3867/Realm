@@ -33,8 +33,8 @@ const finale = {
 function gutter(g, e, V) { const q = target(g, e); ring(g, e, e.x, e.y - 1, 30, { shot: 'flame', speed: 3.4, range: 14, dmg: 55 }, V.k * 0.2, angleTo(e.x, e.y, q.x, q.y) + (R() - 0.5) * 1.5, 4); }
 
 export default {
-  id: 'wick_mother', art: 'wick_mother', shotSheet: 'last_shots', name: 'The Wick-Mother', biome: 'fen', hp: 15000, def: 10, xp: 2200,
-  r: 1.4, speed: 0.6, keep: 6, faces: false, tempo: 1, finale,
+  id: 'wick_mother', art: 'wick_mother', shotSheet: 'last_shots', name: 'The Wick-Mother', biome: 'fen', hp: 60000, def: 10, xp: 2200,
+  dmgScale: 3, r: 1.4, speed: 0.6, keep: 6, faces: false, tempo: 1, finale,
   phases: {
     1: { move: 'pace', patterns: [
       { name: 'a flare', windup: 0.6, recover: 0.7, special: 'flare', waves: 3, dmg: 36 },

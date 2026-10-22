@@ -51,9 +51,11 @@ function brood(g, e, V) {
 function hatchStep(g, e) {
   for (const c of e.hqBrood || []) if (!c.dead && g.t >= c.hqHatch) {     // it hatches: two workers
     c.noLoot = true; c.dead = true; c.deadT = 0; g.vx({ k: 'burst', x: c.x, y: c.y - 0.5, n: 14, colors: HONEY });
-    for (let k = 0; k < 2; k++) { const b = g.addEnemy('worker_bee', c.x + (k ? 0.6 : -0.6), c.y); b.seen = true; b.aggro = true; b.noLoot = true; }
+    e.hqBees = (e.hqBees || []).filter((b) => !b.dead);
+    for (let k = 0; k < 2 && e.hqBees.length < 6; k++) { const b = g.addEnemy('worker_bee', c.x + (k ? 0.6 : -0.6), c.y); b.seen = true; b.aggro = true; b.noLoot = true; b.hqGone = g.t + 22; e.hqBees.push(b); }   // (six of hers at most, and each flies off after a while)
   }
   e.hqBrood = (e.hqBrood || []).filter((c) => !c.dead);
+  for (const b of e.hqBees || []) if (!b.dead && g.t >= b.hqGone) { b.noLoot = true; b.dead = true; b.deadT = 0; }
 }
 
 // ---- II: honey rain (sticky pools), the waggle dance
@@ -85,7 +87,7 @@ const finale = {
 
 export default {
   id: 'honey_queen', art: 'honey_queen', shotSheet: 'hollow_shots', name: 'Queen Melliflua, the Honeyed Mother', biome: 'hive', hp: 52000, def: 6, xp: 4500,
-  r: 1.5, speed: 1.0, keep: 6, faces: true, tempo: 0.95, finale,
+  dmgScale: 2.5, r: 1.5, speed: 1.0, keep: 6, faces: true, tempo: 0.95, finale,
   phases: {
     1: { move: 'pace', pressure: [{ every: 16, special: 'song', dur: 4, r: 7, dmg: 40 }], patterns: [
       { name: 'hex-stings', windup: 0.6, recover: 0.6, special: 'hexsting', rings: 2, dmg: 46 },
@@ -121,7 +123,7 @@ export default {
       if (d < 2.2 && (e.hqStingT = (e.hqStingT || 0) - dt) <= 0) { e.hqStingT = 0.6; g.hurtPlayer(g.bxDmg(e, 50), `${e.D.name}'s stingers`); } }
     for (const f of g.fx) if (f.ink && f.kind === 'scorch' && f.t >= 0 && f.by === e.D.name && Math.hypot(p.x - f.x, p.y - f.y) < f.r) { p.dragUntil = g.t + 0.15; p.dragF = f.ink; break; }
   },
-  onDeath(g, e) { for (const c of e.hqBrood || []) if (!c.dead) { c.noLoot = true; c.dead = true; c.deadT = 0; } g.banner('THE QUEEN FALLS SILENT. THE HIVE STOPS HUMMING.', 3400); },
+  onDeath(g, e) { for (const c of [...(e.hqBrood || []), ...(e.hqBees || [])]) if (!c.dead) { c.noLoot = true; c.dead = true; c.deadT = 0; } g.banner('THE QUEEN FALLS SILENT. THE HIVE STOPS HUMMING.', 3400); },
   lights(g, e) { return [{ x: e.x, y: e.y, h: 1.6, r: 100, col: '#ffd060' }]; },
   drawGround(r, g, e) {
     const b = r.b;

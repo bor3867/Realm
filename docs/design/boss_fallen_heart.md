@@ -19,7 +19,7 @@ prayers." "Count them: they are getting faster." "It remembers being a god."
 
 ## Phase II: The Saints Pray
 - Ghostly saints kneel round the room (3 in phase II, every 15 s; 2 in phase III, every 19 s).
-- Each saint sends a beam of prayer into the heart. While a prayer reaches it, the heart heals (0.35% of its Life a
+- Each saint sends a beam of prayer into the heart. While a prayer reaches it, the heart heals (0.05% of its Life a
   second per prayer) and beats faster.
 - **Stand in a beam** for 1.2 s to intercept it: the saint fades. The beam turns red while someone holds it back.
 - Saints finish praying and go after 13 s.

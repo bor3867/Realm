@@ -72,7 +72,7 @@ function prayers(g, e, dt) {
       s.noLoot = true; s.dead = true; s.deadT = 0; g.vx({ k: 'burst', x: s.x, y: s.y - 1, n: 16, colors: ['#e8e0f8', '#ffffff'] }); g.float(s.x, s.y - 2, 'INTERCEPTED', '#e8e0f8');
       e.fhIntercepted = (e.fhIntercepted || 0) + 1; continue;
     }
-    if (!inBeam) { e.hp = Math.min(e.maxHp, e.hp + e.maxHp * 0.0035 * dt); e.fhDrinking = true; }   // it drinks the prayer
+    if (!inBeam) { e.hp = Math.min(e.maxHp, e.hp + e.maxHp * 0.0005 * dt); e.fhDrinking = true; }   // it drinks the prayer
     if ((s.fhLeft -= dt) <= 0) { s.noLoot = true; s.dead = true; s.deadT = 0; g.float(e.x, e.y - 3, 'AMEN', '#ffd650'); }   // (its prayer said; it goes)
   }
   e.fhSaints = (e.fhSaints || []).filter((s) => !s.dead);
@@ -117,7 +117,7 @@ function lastBeatHits(g, e) {
 }
 
 export default {
-  id: 'fallen_heart', art: 'fallen_heart', shotSheet: 'heart_shots', name: 'The Fallen Heart', biome: 'heart', hp: 100000, def: 40, xp: 16000,
+  id: 'fallen_heart', art: 'fallen_heart', shotSheet: 'heart_shots', name: 'The Fallen Heart', biome: 'heart', hp: 400000, def: 40, xp: 16000,
   r: 2.2, speed: 0, keep: 0, faces: false, spawnCentre: true, tempo: 0.9, finale,
   phases: {
     1: { move: 'hold', patterns: [

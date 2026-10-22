@@ -31,6 +31,9 @@ function crescents(g, e, V) {
   const A = box(e), cx = A.x + A.w / 2, cy = A.y + A.h / 2, rot = R() * TAU, n = V.n || 16, r = Math.max(A.w, A.h) * 0.5;
   for (let k = 0; k < n; k++) { const a = rot + (k * TAU) / n, x = cx + Math.cos(a) * r, y = cy + Math.sin(a) * r * (A.h / A.w); g.bxShot(e, x, y, angleTo(x, y, cx, cy) + 0.25, { shot: 'moon', speed: 4.2, range: r * 2, dmg: V.dmg || 115 }); }
 }
+// it reaches for you: a fan of stars at each of you (its one aimed attack; the rest of the dream drifts)
+function reach(g, e, V) { const [ox, oy] = g.bxOrigin(e); for (let w = 0; w < (V.waves || 2); w++) e.bx.vol.push({ t: w * 0.3, V: { form: 'special', name: 'reachFan', w, dmg: V.dmg } }); }
+function reachFan(g, e, V) { const [ox, oy] = g.bxOrigin(e); for (const q of players(g)) { const a = angleTo(ox, oy, q.x, q.y); for (let k = -2; k <= 2; k++) g.bxShot(e, ox, oy, a + k * 0.16 + (V.w % 2) * 0.08, { shot: 'star', speed: 6.5, range: 13, dmg: V.dmg || 100 }); } }
 // ---- II: the dream turns. It sleeps unhurt; its nightmare-self walks, and blows on it reach the Sleeper
 function dreamshift(g, e, V) {
   if (e.slNight && !e.slNight.dead) { e.slShiftUntil = g.t + (V.dur || 11); return; }
@@ -62,13 +65,14 @@ const finale = {
 
 export default {
   id: 'the_sleeper', art: 'the_sleeper', shotSheet: 'last_shots', name: 'The Sleeper, Who Dreams the Realm', biome: 'dream', hp: 520000, def: 40, xp: 22000,
-  r: 1.7, speed: 1.0, keep: 7, faces: true, tempo: 0.9, finale,
+  dmgScale: 2.2, r: 1.7, speed: 1.0, keep: 7, faces: true, tempo: 0.9, finale,
   phases: {
     1: { move: 'pace', patterns: [
       { name: 'counting sheep', windup: 0.6, recover: 0.6, special: 'sheep', rows: 3, n: 7, dmg: 120 },
       { name: 'a lullaby', windup: 0.6, recover: 0.6, special: 'lullaby', waves: 3, dmg: 60 },
       { name: 'blinking stars', windup: 0.6, recover: 0.6, special: 'stars', n: 22, dmg: 100 },
       { name: 'a tide of moons', windup: 0.8, recover: 0.6, special: 'crescents', n: 16, dmg: 115 },
+      { name: 'it reaches for you', windup: 0.5, recover: 0.6, special: 'reach', waves: 2, dmg: 100 },
     ] },
     2: { move: 'pace', patterns: [
       { name: 'the dream turns', windup: 1.0, recover: 0.5, special: 'dreamshift', dur: 11 },
@@ -76,6 +80,7 @@ export default {
       { name: 'blinking stars', windup: 0.5, recover: 0.6, special: 'stars', n: 24, dmg: 100 },
       { name: 'a tide of moons', windup: 0.6, recover: 0.6, special: 'crescents', n: 18, dmg: 115 },
       { name: 'a lullaby', windup: 0.5, recover: 0.6, special: 'lullaby', waves: 3, dmg: 60 },
+      { name: 'it reaches for you', windup: 0.4, recover: 0.5, special: 'reach', waves: 3, dmg: 105 },
     ] },
     3: { move: 'pace', patterns: [
       { name: 'dream logic', windup: 1.0, recover: 0.6, special: 'dreamlogic', dur: 4.5 },
@@ -84,9 +89,10 @@ export default {
       { name: 'blinking stars', windup: 0.5, recover: 0.5, special: 'stars', n: 26, dmg: 102 },
       { name: 'counting sheep', windup: 0.5, recover: 0.5, special: 'sheep', rows: 4, n: 8, dmg: 122 },
       { name: 'a lullaby', windup: 0.5, recover: 0.5, special: 'lullaby', waves: 4, dmg: 62 },
+      { name: 'it reaches for you', windup: 0.4, recover: 0.4, special: 'reach', waves: 3, dmg: 110 },
     ] },
   },
-  specials: { sheep, sheepRow, lullaby, zzz, stars, crescents, dreamshift, dreamlogic },
+  specials: { sheep, sheepRow, lullaby, zzz, stars, crescents, dreamshift, dreamlogic, reach, reachFan },
   onWake(g) { g.banner('THE SLEEPER · it dreams of you. Keep moving: stillness is sleep.', 3200); },
   onPhase(g, e, ph) { if (ph === 2) g.banner('THE DREAM TURNS', 2400); if (ph === 3) g.banner('THE NIGHTMARE WAKES', 2400); },
   update(g, e) { if (e.slShiftUntil > 0 && g.t >= e.slShiftUntil) endShift(g, e); if (e.slNight && e.slNight.dead) { e.slNight = null; e.slShiftUntil = 0; } },
