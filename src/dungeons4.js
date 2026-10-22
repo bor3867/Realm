@@ -78,7 +78,7 @@ export const D4 = {
     if (B && B.D.drowsy && B.state !== 'sleep' && !p.dead) {
       p.drowsy = Math.max(0, Math.min(1, (p.drowsy || 0) + (p.moving ? -0.22 : 0.3) * dt));
       if (p.drowsy >= 1) { p.drowsy = 0; p.status.asleep = 1.5; this.banner('You fall asleep!', 1400); this.float(...lift(p.x, p.y, 1.4), 'Zzz', '#c8b0ff'); }
-    } else if (p.drowsy) p.drowsy = Math.max(0, p.drowsy - dt);
+    } else if (p.drowsy && !(this.map && this.map.bxDrowsy)) p.drowsy = Math.max(0, p.drowsy - dt);   // (the Sleeper on the three-phase engine keeps its own: src/bosses/the_sleeper.js)
     if (B && B.D.prismatic) this.updateLens(B, dt);
   },
   d4Box(e) { const A = this.arenaBox(e); return { x: A.x0, y: A.y0, w: A.x1 - A.x0, h: A.y1 - A.y0 }; },

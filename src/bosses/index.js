@@ -20,10 +20,17 @@ import the_archivist from './the_archivist.js';
 import honey_queen from './honey_queen.js';
 import the_puppeteer from './the_puppeteer.js';
 import prism_wyrm from './prism_wyrm.js';
+import the_sleeper from './the_sleeper.js';
+import brine_cathedral from './brine_cathedral.js';
+import wick_mother from './wick_mother.js';
+import orrery_of_winter from './orrery_of_winter.js';
+import penitent_colossus from './penitent_colossus.js';
+import emily_the_yapper from './emily_the_yapper.js';
+import the_fallen_star from './the_fallen_star.js';
 
 export const BX = { framework_test, abyssal_kraken, thornheart_treant, glacius_frozen_wyrm, mother_mycelia, grand_orrery, gilded_sphinx, count_vesper, grinning_ringmaster,
   tidebound_lich, forgeheart_colossus, unstruck_god, unstruck_smith, drowned_abbot, fallen_heart, the_archivist,
-  honey_queen, the_puppeteer, prism_wyrm };
+  honey_queen, the_puppeteer, prism_wyrm, the_sleeper, brine_cathedral, wick_mother, orrery_of_winter, penitent_colossus, emily_the_yapper, the_fallen_star };
 
 // the enemy definition the rest of the game sees (spawnRealmBoss, loot, the boss bar)
 export function bxEnemyDef(id) {

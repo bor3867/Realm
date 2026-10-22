@@ -877,7 +877,7 @@ export class Game {
     }
   }
   spawnRealmBoss(id, at, def) {
-    const D = def || REALM_BOSSES[id];
+    const D = BX[id] && !(def && def.bx) ? bxEnemyDef(id) : def || REALM_BOSSES[id];   // (a boss rebuilt on the three-phase engine always rises as that)
     const pos = at || randomTileInBiome(this.map, BIOMES.indexOf(D.biome), R, this.player, 22);
     if (!pos) return null;
     const e = { id, rb: true, D: { ...D, aggro: 16, attacks: [] }, x: pos.x, y: pos.y, hx: pos.x, hy: pos.y,
@@ -2233,7 +2233,7 @@ export class Game {
     }
   }
   damageEnemy(e, dmg, x, y, quiet = false, crit = false) {
-    if (e.linkTo && !e.linkTo.dead && e.linkTo !== e) return this.damageEnemy(e.linkTo, dmg, x, y, quiet, crit);   // a body that is part of another (the Eclipse Twins' Noct)
+    if (e.linkTo && !e.linkTo.dead && e.linkTo !== e) { const L = e.linkTo; L.linkHit = true; try { return this.damageEnemy(L, dmg, x, y, quiet, crit); } finally { L.linkHit = false; } }   // a body that is part of another (the Eclipse Twins' Noct; the Sleeper's nightmare-self, whose wounds reach it while it dreams)
     if (e.friendly) {                                            // a boss's friend (Gourdrick's knight and priest): your blows pass, but for a snared knight's vines
       if (!(e.rfSnareHp > 0)) return 0;
       if (!e.net) { e.rfSnareHp--; if (!quiet) this.float(x, y - 0.8, e.rfSnareHp > 0 ? `VINES ${e.rfSnareHp}` : 'FREE!', '#7ac85a'); return 0; }
@@ -2272,6 +2272,7 @@ export class Game {
       return d;
     }
     if (this.map.ckCandles || (this.map.def && this.map.def.style === 'keep')) d = this.ckDamage(e, d);   // the Keep: thralls burn in candlelight
+    if (e.D && e.D.bx && !e.bxKill && e.bx && e.bx.B.hitScale) d = Math.round(d * e.bx.B.hitScale(this, e));   // (a boss that takes more or less, by its state: Emily mid-sentence, or out of breath)
     if (e.D && e.D.bx && !e.bxKill) d = this.bxClamp(e, d);
     e.hp -= d; e.hurtT = 0.12;
     if (e.D && e.D.melon) { e.melonHurt = this.t; this.vx({ k: 'regfx', key: 'mx_effects/melon_hit', x, y: y - 0.2, fps: 14 }); }

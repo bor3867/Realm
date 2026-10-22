@@ -81,7 +81,7 @@ room itself. An rf_ dungeon's boss door leads there; in a shared rf_ dungeon the
 boss room for the group (one per dungeon room; it hosts the boss, so everyone fights the same one).
 Lasting beams done: Mother Mire's ray turns after you, the Cantor's and Elderbark's sweep round them, the Magistrate's
 pendulum swings; marked first, stopped by walls, the angle on the boss so all see one beam.
-Next: the older bosses, redesigned one at a time on the three-phase engine (done: Abbot Morrow, the Sunken Chapel; the Fallen Heart; the Archivist; the Honey Queen; the Puppeteer; the Prism Wyrm).
+Next: the older bosses, redesigned one at a time on the three-phase engine (done: Abbot Morrow, the Sunken Chapel; the Fallen Heart; the Archivist; the Honey Queen; the Puppeteer; the Prism Wyrm; the Sleeper; and the six realm bosses: the Brine Cathedral, the Wick-Mother, the Orrery of Winter, the Penitent Colossus, Emily and the Fallen Star). Every boss is now on it.
 Fixed on the way: a player's blow on a shared monster now goes through the game's own damage step on the server, so a
 three-phase boss's phases, morphs, immunity and survive phases happen as they should (before, only its HP fell).
 

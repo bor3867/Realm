@@ -1,0 +1,1462 @@
+{
+ "rf": true,
+ "meta": {
+  "name": "The last seven older bosses on the three-phase engine",
+  "version": 1
+ },
+ "sheets": {
+  "bx_the_sleeper": {
+   "image": "the_sleeper.png",
+   "kind": "boss",
+   "sprites": {
+    "the_sleeper": {
+     "frames": {
+      "i1_0": [
+       0,
+       0,
+       48,
+       48
+      ],
+      "i1_1": [
+       48,
+       0,
+       48,
+       48
+      ],
+      "a1": [
+       96,
+       0,
+       48,
+       48
+      ],
+      "i2_0": [
+       144,
+       0,
+       48,
+       48
+      ],
+      "i2_1": [
+       192,
+       0,
+       48,
+       48
+      ],
+      "a2": [
+       240,
+       0,
+       48,
+       48
+      ],
+      "i3_0": [
+       0,
+       48,
+       48,
+       48
+      ],
+      "i3_1": [
+       48,
+       48,
+       48,
+       48
+      ],
+      "a3": [
+       96,
+       48,
+       48,
+       48
+      ],
+      "d0": [
+       144,
+       48,
+       48,
+       48
+      ],
+      "d1": [
+       192,
+       48,
+       48,
+       48
+      ],
+      "d2": [
+       240,
+       48,
+       48,
+       48
+      ]
+     },
+     "anims": {
+      "idle1": {
+       "frames": [
+        "i1_0",
+        "i1_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack1": {
+       "frames": [
+        "a1",
+        "a1",
+        "a1"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle2": {
+       "frames": [
+        "i2_0",
+        "i2_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack2": {
+       "frames": [
+        "a2",
+        "a2",
+        "a2"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle3": {
+       "frames": [
+        "i3_0",
+        "i3_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack3": {
+       "frames": [
+        "a3",
+        "a3",
+        "a3"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "d0",
+        "d1",
+        "d2"
+       ],
+       "fps": 3,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "It Dreams of You",
+       "idle": "idle1",
+       "attack": "attack1"
+      },
+      "2": {
+       "name": "The Dream Turns",
+       "idle": "idle2",
+       "attack": "attack2"
+      },
+      "3": {
+       "name": "The Nightmare Wakes",
+       "idle": "idle3",
+       "attack": "attack3"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_brine_cathedral": {
+   "image": "brine_cathedral.png",
+   "kind": "boss",
+   "sprites": {
+    "brine_cathedral": {
+     "frames": {
+      "i1_0": [
+       0,
+       0,
+       48,
+       48
+      ],
+      "i1_1": [
+       48,
+       0,
+       48,
+       48
+      ],
+      "a1": [
+       96,
+       0,
+       48,
+       48
+      ],
+      "i2_0": [
+       144,
+       0,
+       48,
+       48
+      ],
+      "i2_1": [
+       192,
+       0,
+       48,
+       48
+      ],
+      "a2": [
+       240,
+       0,
+       48,
+       48
+      ],
+      "i3_0": [
+       0,
+       48,
+       48,
+       48
+      ],
+      "i3_1": [
+       48,
+       48,
+       48,
+       48
+      ],
+      "a3": [
+       96,
+       48,
+       48,
+       48
+      ],
+      "d0": [
+       144,
+       48,
+       48,
+       48
+      ],
+      "d1": [
+       192,
+       48,
+       48,
+       48
+      ],
+      "d2": [
+       240,
+       48,
+       48,
+       48
+      ]
+     },
+     "anims": {
+      "idle1": {
+       "frames": [
+        "i1_0",
+        "i1_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack1": {
+       "frames": [
+        "a1",
+        "a1",
+        "a1"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle2": {
+       "frames": [
+        "i2_0",
+        "i2_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack2": {
+       "frames": [
+        "a2",
+        "a2",
+        "a2"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle3": {
+       "frames": [
+        "i3_0",
+        "i3_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack3": {
+       "frames": [
+        "a3",
+        "a3",
+        "a3"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "d0",
+        "d1",
+        "d2"
+       ],
+       "fps": 3,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "The Bells Toll",
+       "idle": "idle1",
+       "attack": "attack1"
+      },
+      "2": {
+       "name": "The Doors Close",
+       "idle": "idle2",
+       "attack": "attack2"
+      },
+      "3": {
+       "name": "The Cathedral Floods",
+       "idle": "idle3",
+       "attack": "attack3"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_wick_mother": {
+   "image": "wick_mother.png",
+   "kind": "boss",
+   "sprites": {
+    "wick_mother": {
+     "frames": {
+      "i1_0": [
+       0,
+       0,
+       48,
+       48
+      ],
+      "i1_1": [
+       48,
+       0,
+       48,
+       48
+      ],
+      "a1": [
+       96,
+       0,
+       48,
+       48
+      ],
+      "i2_0": [
+       144,
+       0,
+       48,
+       48
+      ],
+      "i2_1": [
+       192,
+       0,
+       48,
+       48
+      ],
+      "a2": [
+       240,
+       0,
+       48,
+       48
+      ],
+      "i3_0": [
+       0,
+       48,
+       48,
+       48
+      ],
+      "i3_1": [
+       48,
+       48,
+       48,
+       48
+      ],
+      "a3": [
+       96,
+       48,
+       48,
+       48
+      ],
+      "d0": [
+       144,
+       48,
+       48,
+       48
+      ],
+      "d1": [
+       192,
+       48,
+       48,
+       48
+      ],
+      "d2": [
+       240,
+       48,
+       48,
+       48
+      ]
+     },
+     "anims": {
+      "idle1": {
+       "frames": [
+        "i1_0",
+        "i1_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack1": {
+       "frames": [
+        "a1",
+        "a1",
+        "a1"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle2": {
+       "frames": [
+        "i2_0",
+        "i2_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack2": {
+       "frames": [
+        "a2",
+        "a2",
+        "a2"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle3": {
+       "frames": [
+        "i3_0",
+        "i3_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack3": {
+       "frames": [
+        "a3",
+        "a3",
+        "a3"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "d0",
+        "d1",
+        "d2"
+       ],
+       "fps": 3,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "The Wick Is Lit",
+       "idle": "idle1",
+       "attack": "attack1"
+      },
+      "2": {
+       "name": "The Wick Catches",
+       "idle": "idle2",
+       "attack": "attack2"
+      },
+      "3": {
+       "name": "Burned to the Bone",
+       "idle": "idle3",
+       "attack": "attack3"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_orrery_of_winter": {
+   "image": "orrery_of_winter.png",
+   "kind": "boss",
+   "sprites": {
+    "orrery_of_winter": {
+     "frames": {
+      "i1_0": [
+       0,
+       0,
+       48,
+       48
+      ],
+      "i1_1": [
+       48,
+       0,
+       48,
+       48
+      ],
+      "a1": [
+       96,
+       0,
+       48,
+       48
+      ],
+      "i2_0": [
+       144,
+       0,
+       48,
+       48
+      ],
+      "i2_1": [
+       192,
+       0,
+       48,
+       48
+      ],
+      "a2": [
+       240,
+       0,
+       48,
+       48
+      ],
+      "i3_0": [
+       0,
+       48,
+       48,
+       48
+      ],
+      "i3_1": [
+       48,
+       48,
+       48,
+       48
+      ],
+      "a3": [
+       96,
+       48,
+       48,
+       48
+      ],
+      "d0": [
+       144,
+       48,
+       48,
+       48
+      ],
+      "d1": [
+       192,
+       48,
+       48,
+       48
+      ],
+      "d2": [
+       240,
+       48,
+       48,
+       48
+      ]
+     },
+     "anims": {
+      "idle1": {
+       "frames": [
+        "i1_0",
+        "i1_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack1": {
+       "frames": [
+        "a1",
+        "a1",
+        "a1"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle2": {
+       "frames": [
+        "i2_0",
+        "i2_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack2": {
+       "frames": [
+        "a2",
+        "a2",
+        "a2"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle3": {
+       "frames": [
+        "i3_0",
+        "i3_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack3": {
+       "frames": [
+        "a3",
+        "a3",
+        "a3"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "d0",
+        "d1",
+        "d2"
+       ],
+       "fps": 3,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "The Hour Turns",
+       "idle": "idle1",
+       "attack": "attack1"
+      },
+      "2": {
+       "name": "The Rings Realign",
+       "idle": "idle2",
+       "attack": "attack2"
+      },
+      "3": {
+       "name": "Absolute Winter",
+       "idle": "idle3",
+       "attack": "attack3"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_penitent_colossus": {
+   "image": "penitent_colossus.png",
+   "kind": "boss",
+   "sprites": {
+    "penitent_colossus": {
+     "frames": {
+      "i1_0": [
+       0,
+       0,
+       48,
+       48
+      ],
+      "i1_1": [
+       48,
+       0,
+       48,
+       48
+      ],
+      "a1": [
+       96,
+       0,
+       48,
+       48
+      ],
+      "i2_0": [
+       144,
+       0,
+       48,
+       48
+      ],
+      "i2_1": [
+       192,
+       0,
+       48,
+       48
+      ],
+      "a2": [
+       240,
+       0,
+       48,
+       48
+      ],
+      "i3_0": [
+       0,
+       48,
+       48,
+       48
+      ],
+      "i3_1": [
+       48,
+       48,
+       48,
+       48
+      ],
+      "a3": [
+       96,
+       48,
+       48,
+       48
+      ],
+      "d0": [
+       144,
+       48,
+       48,
+       48
+      ],
+      "d1": [
+       192,
+       48,
+       48,
+       48
+      ],
+      "d2": [
+       240,
+       48,
+       48,
+       48
+      ]
+     },
+     "anims": {
+      "idle1": {
+       "frames": [
+        "i1_0",
+        "i1_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack1": {
+       "frames": [
+        "a1",
+        "a1",
+        "a1"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle2": {
+       "frames": [
+        "i2_0",
+        "i2_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack2": {
+       "frames": [
+        "a2",
+        "a2",
+        "a2"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle3": {
+       "frames": [
+        "i3_0",
+        "i3_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack3": {
+       "frames": [
+        "a3",
+        "a3",
+        "a3"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "d0",
+        "d1",
+        "d2"
+       ],
+       "fps": 3,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "It Kneels",
+       "idle": "idle1",
+       "attack": "attack1"
+      },
+      "2": {
+       "name": "It Remembers Its Crimes",
+       "idle": "idle2",
+       "attack": "attack2"
+      },
+      "3": {
+       "name": "Penance",
+       "idle": "idle3",
+       "attack": "attack3"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_emily_the_yapper": {
+   "image": "emily_the_yapper.png",
+   "kind": "boss",
+   "sprites": {
+    "emily_the_yapper": {
+     "frames": {
+      "i1_0": [
+       0,
+       0,
+       48,
+       48
+      ],
+      "i1_1": [
+       48,
+       0,
+       48,
+       48
+      ],
+      "a1": [
+       96,
+       0,
+       48,
+       48
+      ],
+      "i2_0": [
+       144,
+       0,
+       48,
+       48
+      ],
+      "i2_1": [
+       192,
+       0,
+       48,
+       48
+      ],
+      "a2": [
+       240,
+       0,
+       48,
+       48
+      ],
+      "i3_0": [
+       0,
+       48,
+       48,
+       48
+      ],
+      "i3_1": [
+       48,
+       48,
+       48,
+       48
+      ],
+      "a3": [
+       96,
+       48,
+       48,
+       48
+      ],
+      "d0": [
+       144,
+       48,
+       48,
+       48
+      ],
+      "d1": [
+       192,
+       48,
+       48,
+       48
+      ],
+      "d2": [
+       240,
+       48,
+       48,
+       48
+      ]
+     },
+     "anims": {
+      "idle1": {
+       "frames": [
+        "i1_0",
+        "i1_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack1": {
+       "frames": [
+        "a1",
+        "a1",
+        "a1"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle2": {
+       "frames": [
+        "i2_0",
+        "i2_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack2": {
+       "frames": [
+        "a2",
+        "a2",
+        "a2"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle3": {
+       "frames": [
+        "i3_0",
+        "i3_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack3": {
+       "frames": [
+        "a3",
+        "a3",
+        "a3"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "d0",
+        "d1",
+        "d2"
+       ],
+       "fps": 3,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "Okay So Anyway",
+       "idle": "idle1",
+       "attack": "attack1"
+      },
+      "2": {
+       "name": "Emily Has a LOT to Say",
+       "idle": "idle2",
+       "attack": "attack2"
+      },
+      "3": {
+       "name": "She Will Not Be Interrupted",
+       "idle": "idle3",
+       "attack": "attack3"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_the_fallen_star": {
+   "image": "the_fallen_star.png",
+   "kind": "boss",
+   "sprites": {
+    "the_fallen_star": {
+     "frames": {
+      "i1_0": [
+       0,
+       0,
+       48,
+       48
+      ],
+      "i1_1": [
+       48,
+       0,
+       48,
+       48
+      ],
+      "a1": [
+       96,
+       0,
+       48,
+       48
+      ],
+      "i2_0": [
+       144,
+       0,
+       48,
+       48
+      ],
+      "i2_1": [
+       192,
+       0,
+       48,
+       48
+      ],
+      "a2": [
+       240,
+       0,
+       48,
+       48
+      ],
+      "i3_0": [
+       0,
+       48,
+       48,
+       48
+      ],
+      "i3_1": [
+       48,
+       48,
+       48,
+       48
+      ],
+      "a3": [
+       96,
+       48,
+       48,
+       48
+      ],
+      "d0": [
+       144,
+       48,
+       48,
+       48
+      ],
+      "d1": [
+       192,
+       48,
+       48,
+       48
+      ],
+      "d2": [
+       240,
+       48,
+       48,
+       48
+      ]
+     },
+     "anims": {
+      "idle1": {
+       "frames": [
+        "i1_0",
+        "i1_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack1": {
+       "frames": [
+        "a1",
+        "a1",
+        "a1"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle2": {
+       "frames": [
+        "i2_0",
+        "i2_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack2": {
+       "frames": [
+        "a2",
+        "a2",
+        "a2"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle3": {
+       "frames": [
+        "i3_0",
+        "i3_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack3": {
+       "frames": [
+        "a3",
+        "a3",
+        "a3"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "d0",
+        "d1",
+        "d2"
+       ],
+       "fps": 3,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "It Falls",
+       "idle": "idle1",
+       "attack": "attack1"
+      },
+      "2": {
+       "name": "It Burns Brighter",
+       "idle": "idle2",
+       "attack": "attack2"
+      },
+      "3": {
+       "name": "Supernova",
+       "idle": "idle3",
+       "attack": "attack3"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "last_kin": {
+   "image": "last_kin.png",
+   "kind": "enemy",
+   "sprites": {
+    "alarm": {
+     "frames": {
+      "alarm0": [
+       0,
+       0,
+       24,
+       24
+      ],
+      "alarm1": [
+       24,
+       0,
+       24,
+       24
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "alarm0",
+        "alarm1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "alarm1"
+       ],
+       "fps": 3,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "mine": {
+     "frames": {
+      "mine0": [
+       48,
+       0,
+       24,
+       24
+      ],
+      "mine1": [
+       72,
+       0,
+       24,
+       24
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "mine0",
+        "mine1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "mine1"
+       ],
+       "fps": 3,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "chick": {
+     "frames": {
+      "chick0": [
+       96,
+       0,
+       24,
+       24
+      ],
+      "chick1": [
+       120,
+       0,
+       24,
+       24
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "chick0",
+        "chick1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "chick1"
+       ],
+       "fps": 3,
+       "loop": false
+      }
+     },
+     "meta": {}
+    }
+   }
+  },
+  "last_shots": {
+   "image": "last_shots.png",
+   "kind": "shot",
+   "sprites": {
+    "the_sleeper.z": {
+     "frames": {
+      "0": [
+       0,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "the_sleeper.sheep": {
+     "frames": {
+      "0": [
+       8,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "the_sleeper.moon": {
+     "frames": {
+      "0": [
+       16,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "the_sleeper.star": {
+     "frames": {
+      "0": [
+       24,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "brine_cathedral.bubble": {
+     "frames": {
+      "0": [
+       32,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "brine_cathedral.toll": {
+     "frames": {
+      "0": [
+       40,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "brine_cathedral.claw": {
+     "frames": {
+      "0": [
+       48,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "wick_mother.flame": {
+     "frames": {
+      "0": [
+       56,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "wick_mother.wax": {
+     "frames": {
+      "0": [
+       0,
+       8,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "orrery_of_winter.flake": {
+     "frames": {
+      "0": [
+       8,
+       8,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "orrery_of_winter.moon": {
+     "frames": {
+      "0": [
+       16,
+       8,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "penitent_colossus.shard": {
+     "frames": {
+      "0": [
+       24,
+       8,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "penitent_colossus.lash": {
+     "frames": {
+      "0": [
+       32,
+       8,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "emily_the_yapper.yap": {
+     "frames": {
+      "0": [
+       40,
+       8,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "emily_the_yapper.snowball": {
+     "frames": {
+      "0": [
+       48,
+       8,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "emily_the_yapper.fish": {
+     "frames": {
+      "0": [
+       56,
+       8,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "the_fallen_star.ember": {
+     "frames": {
+      "0": [
+       0,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "the_fallen_star.flare": {
+     "frames": {
+      "0": [
+       8,
+       16,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    }
+   }
+  }
+ }
+}
