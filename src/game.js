@@ -352,7 +352,7 @@ export class Game {
       const it = id && ITEMS[id];
       if (it && it.bonus && it.bonus[s]) v += it.bonus[s];
     }
-    return v + (this.setState().bonus[s] || 0) + this.rfStat(s);   // (+ a Realmforge unique's moment: src/rf/uniqmech.js)
+    return v + (this.setState().bonus[s] || 0) + this.rfStat(s) + this.armStat(s);   // (+ the Hosanna set: src/armory.js)   // (+ a Realmforge unique's moment: src/rf/uniqmech.js)
   }
   // class sets: how many pieces of each are worn, and the bonuses that unlocks (the Conductor's Band adds a piece)
   setState() {
@@ -1069,6 +1069,7 @@ export class Game {
     this.haloTick(dt);
     this.sigilTick(dt);                                  // the ability sigils' queued beats (src/sigils.js)
     this.mythTick(dt);                                   // the Mythic abilities (src/mythics.js)
+    this.armTick(dt);                                    // the Mad God Armory (src/armory.js)
     this.gearTick(dt); this.rfTick(dt);                                   // armour and ring mechanics (src/gearmech.js)                                   // the special Halos' shapes (src/halos.js)                                 // whatever circles you (src/orbiters.js)
     if (P.lowregen && p.hp < this.stat('hp') * 0.35) p.hp = Math.min(this.stat('hp'), p.hp + P.lowregen * dt);
     if (P.aegis && !p.aegisUp) { p.aegisT = (p.aegisT || 0) - dt; if (p.aegisT <= 0) p.aegisUp = true; }
@@ -1668,7 +1669,6 @@ export class Game {
     }
     const b = { from, x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, life: range / Math.max(0.01, speed),
       dmg, sprite, r: size, pierce, hit: pierce ? new Set() : null, a, by };
-    if (from === 'e') { const S = this.curShooter; b.vol = `${this.frameN || 0}:${by}:${S ? S.uid || (S.uid = (this.uidN = (this.uidN || 0) + 1)) : 0}`; }   // one volley: one shooter's, this instant (two of a pack firing together are two blows)
     b.k = shotScale(sprite, size, from);                      // big art is drawn (and hits) at the size its attack meant
     this.projectiles.push(b);
     if (from === 'p' && this.net) this.netShot(b);            // others see your shots (src/net.js)
@@ -1687,6 +1687,7 @@ export class Game {
     dmg = this.owDmg(dmg, by);                             // an overworld boss hits harder (src/owbosses.js)
     const p = this.player;
     if (p.dead || p.status.invuln > 0 || this.map.kind === 'nexus' || this.god) return;
+    if (p.armS && this.armPreHurt()) return;                // Empyrean's wings, Null Walker's phase (src/armory.js)
     const P = this.passive();
     if (P.dodge && R() < P.dodge) { this.float(...lift(p.x, p.y, 1.2), 'DODGE', '#8af6ff'); return; }
     if (P.aegis && p.aegisUp) {
@@ -1725,6 +1726,7 @@ export class Game {
     p.dmgTaken = (p.dmgTaken || 0) + d;                      // (for the death screen)
     if (d > 0) { (p.lastHits = p.lastHits || []).push({ by: String(by || 'something'), d, t: this.t }); if (p.lastHits.length > 6) p.lastHits.shift(); }   // (what hit you: the death recap)
     this.gearPostHurt(d, hp0);
+    if (p.armS) this.armPostHurt();
     this.rfPostHurt(d, hp0);
     p.hitT = 0.15;
     this.sfx('hurt');
@@ -2253,7 +2255,8 @@ export class Game {
       if (!quiet) this.float(x, y - 0.8, 'REFLECTED', '#ffffff');
       return 0;
     }
-    let d = e.netRawHit ? Math.round(dmg) : mitigate(dmg, e.D ? e.D.def : 0, false);   // (a player's blow on the server: Defense already taken off)
+    if (this.player && this.player.armS) dmg = this.armTaken(e, dmg);   // asleep, crowned (src/armory.js)
+    let d = e.netRawHit ? Math.round(dmg) : mitigate(dmg, e.D ? (this.armAP || e.armBreakT > this.t ? 0 : e.D.def) : 0, false);   // (armour-piercing, or armour broken: the Mad God Armory)   // (a player's blow on the server: Defense already taken off)
     if (this.map.ckCandles || (this.map.def && this.map.def.style === 'keep')) d = this.ckDamage(e, d);   // the Keep: thralls burn in candlelight
     if (e.D && e.D.bx && !e.bxKill && e.bx && e.bx.B.hitScale) d = Math.round(d * e.bx.B.hitScale(this, e));   // (a boss that takes more or less, by its state: Emily mid-sentence, or out of breath)
     if (e.D && e.D.bx && !e.bxKill) d = this.bxClamp(e, d);
@@ -2339,7 +2342,10 @@ export class Game {
     let base = b.dmg;
     if (sp && sp.accel) base = Math.round(base * (0.55 + 0.9 * Math.min(1, Math.hypot(b.vx, b.vy) / 22)));   // speed is damage
     const { dmg, crit } = this.hitDamage(e, base, sp);
-    const dealt = this.damageEnemy(e, dmg, b.x, b.y, false, crit);
+    this.armAP = !!b.armAP;                                 // (a Mad God Armory shot that ignores Defense)
+    let dealt = 0;
+    try { dealt = this.damageEnemy(e, dmg, b.x, b.y, false, crit); } finally { this.armAP = false; }
+    if (dealt && b.from === 'p' && this.player.armS) { if (b.arm) this.armHit(e, b, dealt); this.armAnyHit(e, b, dealt); }   // (src/armory.js)
     if (dealt && this.player.runeSigil) this.sigilOnHit(e);   // a rune sigil answers your hits inside it
     if (dealt && b.from === 'p') this.gearOnHit(e, b, dealt);   // armour and rings that count your hits (src/gearmech.js)
     if (dealt && b.from === 'p') this.rfOnHit(e, b, dealt);     // Realmforge uniques (src/rf/uniqmech.js)
@@ -2421,10 +2427,8 @@ export class Game {
   lobLand(b) {
     const p = this.player, L = b.lob, S0 = this.curShooter;
     this.curShooter = L;                                     // (its shards: one volley of their own, the lob's)
-    L.uid = L.uid || (this.uidN = (this.uidN || 0) + 1);
     if (!p.dead && dist2(p.x, p.y, L.x1, L.y1) < L.r * L.r) {
       this.hurtPlayer(b.dmg, b.by);
-      (this.hitVols = this.hitVols || new Map()).set(`${this.frameN || 0}:${b.by}:${L.uid}`, this.t);   // its shards are the same blow
     }
     try { this.lobShards(b, L); } finally { this.curShooter = S0; }
   }
@@ -3198,6 +3202,8 @@ export class Game {
     if (R() < 0.85) out.push(pick(myth));                                              // a mythic, almost always
     if (R() < 0.35) out.push(pick(myth));                                              // often two
     if (R() < 0.15) out.push('crown_of_the_unstruck');                                 // and now and then, the crown itself
+    const arm = ARMORY_IDS.filter((id) => !ITEMS[id].adminOnly);                       // the Mad God Armory: only admin chests drop it (for now), never the Hosanna set
+    out.push(pick(arm)); if (R() < 0.4) out.push(pick(arm));
     for (let k = 0; k < 3; k++) out.push(`stat_${pick(STATS)}`);
     if (R() < 0.35) out.push(eggId(R.pick(Object.keys(FAMILIES)), R() < 0.25 ? 'legendary' : 'rare'));
     if (R() < 0.35) out.push(`key_${pick(Object.keys(DUNGEONS))}`);
@@ -3300,6 +3306,7 @@ export class Game {
           if (dist2(b.x, b.y, ...lift(p.x, p.y, 0.5)) < 0.4) b.life = 0;
         }
       }
+      if (b.arm && b.from === 'p') this.armShotTick(b, dt);   // a Mad God Armory shot: its own path, homing, eating shots (src/armory.js)
       if (!b.orb) { b.x += b.vx * dt; b.y += b.vy * dt; }
       if (b.dust && (b.dustT = (b.dustT || 0) - dt) <= 0) { b.dustT = 0.025; this.vx({ k: 'trail', x: b.x, y: b.y, colors: b.dust }); }   // its trail: glowing dust that hangs where it passed, and fades
       b.life -= dt;
@@ -3309,13 +3316,14 @@ export class Game {
         if (b.from === 'p' && b.life > 0 && (m.kind !== 'nexus' || m.nexusChests)) this.hitObject(b.x, b.y + 0.3, b.dmg);
         if (sp && sp.split && sp.split.onEnd && !b.child && b.from === 'p') this.splitShot(b, sp.split);
         if (sp && sp.mech && b.from === 'p') this.mechEnd(b);
+        if (b.arm && b.from === 'p') this.armShotEnd(b);
         continue;
       }
       let alive = true;
       if (b.from === 'p' && m.rf && this.rfShotHits(b)) alive = false;   // a Realmforge creature (src/rf/host.js)
       if (b.from === 'p' && m.rfBoss && this.rfBossShot(b)) alive = false;   // a Realmforge boss and its arena (src/rf/boss.js)
       if (b.from === 'p') {
-        if (alive) for (const e of targets) {
+        if (alive && !b.armNoHit) for (const e of targets) {
           if (e.dead || e.state === 'dead' || e.under) continue;
           if (e.friendly && !(e.rfSnareHp > 0)) continue;           // (your shots pass through a boss's friends)
           const rr = e.D.r + b.r;
@@ -3329,22 +3337,19 @@ export class Game {
       } else if (!p.dead && !b.ghost && !b.harmless) {
         if (Math.abs(b.x - p.x) < 2.5 && Math.abs(b.y - p.y) < 3 && this.shotHitsPlayer(b, p)) {
           alive = false;
-          // one volley, one hit: the rest of a shotgun blast / cage / wall that lands with it in the same instant is
-          // absorbed. Only in that instant: a shot from the same volley that reaches you later (an orbiting ring, a
-          // spiral arm, a wall you walk back into) hurts like any other. (It used to be absorbed for good: you were
-          // hit, the shot vanished, and nothing happened.)
-          this.hitVols = this.hitVols || new Map();
-          const seen = this.hitVols.get(b.vol);
-          if (seen === undefined || this.t - seen > 0.12) { this.hitVols.set(b.vol, this.t); this.hurtPlayer(b.dmg, this.killerName(b), !!b.ap); }   // armour-piercing shots ignore Defense
+          // every shot that reaches you hurts, RotMG's way (2026-10-22: a "one volley, one hit" rule used to swallow the
+          // rest of a blast that landed in the same instant, and every shot from the shared world, which arrives without
+          // its volley, counted as one volley: most enemy shots vanished on you and did nothing)
+          this.hurtPlayer(b.dmg, this.killerName(b), !!b.ap);   // armour-piercing shots ignore Defense
           if (b.pull) { const s = Math.hypot(b.vx, b.vy) || 1; this.moveCircle(p, (-b.vx / s) * b.pull, (-b.vy / s) * b.pull, 0.32); }   // a void orb drags you toward its caster
           if (b.drowsy) p.drowsy = Math.min(1, (p.drowsy || 0) + b.drowsy);
           if (b.chill) this.addChill(b.chill);
           if (b.sig) this.owSig(b);
           if (b.poison) this.poison(b.poison);
-          if (this.hitVols.size > 300) for (const [k, v] of this.hitVols) if (this.t - v > 6) this.hitVols.delete(k);
         }
       }
       if (alive) keep.push(b);
+      else if (b.arm && b.from === 'p') this.armShotEnd(b);   // (it struck: its end too)
     }
     this.projectiles = keep;
   }

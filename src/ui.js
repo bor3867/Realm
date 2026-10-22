@@ -651,7 +651,7 @@ export class UI {
     if (!p || k === undefined || !canEquip(p.cls, it)) return false;
     const cur = p.equip[k] && ITEMS[p.equip[k]];
     if (!cur) return true;
-    const rank = (q) => (q.mythic ? 30 : q.legendary ? 25 : q.ut ? 20 : 0) + (typeof q.tier === 'number' ? q.tier : 0);
+    const rank = (q) => (q.arm ? { UT: 20, Legendary: 25, Mythic: 30, Celestial: 32, Divine: 35 }[q.armTier] : (q.mythic ? 30 : q.legendary ? 25 : q.ut ? 20 : 0) + (typeof q.tier === 'number' ? q.tier : 0));
     return rank(it) > rank(cur);
   }
   tipHTML(it, id, name) {

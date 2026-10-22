@@ -7,6 +7,7 @@ import { lift } from './util.js';
 import { installWalls } from './walls.js';
 import { installRFRender } from './rf/draw.js';
 import { installRFBossRender } from './rf/boss.js';
+import { installArmoryDraw } from './armory_draw.js';
 import { rxFrame } from './remaster.js';
 import { drawIcon as armIcon, glowDraw as armGlow } from './armory_art.js';
 // the overworld bosses on the old 48px sheet, drawn twice life-size so they read as bosses beside the Kraken and the
@@ -286,7 +287,9 @@ export class Renderer {
     if (g.map.kind === 'dungeon') this.d4Fx(g);                  // the newer dungeons' lights, beams and strings (over the dark)
     if (m.rf) { this.rfModLayer(g, m, 'drawTop'); this.rfLight(g, m); this.rfModLayer(g, m, 'drawLight'); this.rfTop(g, m); }   // their module's top, their light, then their shots
     if (m.rfBoss) this.rfBossBar(g, m);
+    this.armGround(g);                                          // the Mad God Armory's marks and zones (src/armory_draw.js)
     this.drawProjectiles(g, dt);
+    this.armTop(g);
     if (g.activeMap === m) for (const e of g.notable) if (e.bx && e.bx.B.drawTop && !e.dead) e.bx.B.drawTop(this, g, e);   // a boss's layer over the bullets (the Orrery's umbra)
     this.drawZaps(dt);
     this.drawParticles(dt);
@@ -2609,3 +2612,4 @@ export class Renderer {
 installWalls(Renderer);
 installRFRender(Renderer);
 installRFBossRender(Renderer);
+installArmoryDraw(Renderer);

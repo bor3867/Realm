@@ -1485,8 +1485,8 @@ export const armId = (name) => 'arm_' + name.toLowerCase().replace(/'/g, '').rep
 export const ARMORY_IDS = [];
 for (const A of ARMORY) {
   const s = A.st, type = ARM_TYPE[A.cls], id = armId(A.name);
-  const it = { id, type, slot: TYPE_SLOT[type] || (type === 'relic' ? 'ability' : 'weapon'), name: A.name, desc: A.desc, tier: A.tier, ut: true, arm: A,
-    mythic: A.tier === 'Mythic', armTier: A.tier, adminOnly: A.tier === 'Divine', anyClass: type === 'relic' };
+  const it = { id, type, slot: TYPE_SLOT[type] || (type === 'relic' ? 'ability' : 'weapon'), name: A.name, desc: A.desc, tier: A.tier, arm: A, armTier: A.tier,   // (not ut or mythic: the game's relic pickers leave them be)
+    adminOnly: A.tier === 'Divine', anyClass: type === 'relic' };
   if (A.set) it.armSet = A.set;
   const bonus = {};
   for (const [k, v] of Object.entries(s.equip || {})) bonus[ARM_STAT[k]] = v;
