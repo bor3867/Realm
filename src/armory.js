@@ -145,7 +145,7 @@ const methods = {
     if (this.armHeld(ID('Empyrean')) && p.hp > 0 && p.hp < max * 0.3 && !((S.wingCd || 0) > this.t)) {   // Unfolding
       S.wingsT = this.t + 1.5; S.wingCd = this.t + 30;
       this.armSay(p.x, p.y - 0.4, 'UNFOLDING', '#fff3c4'); this.armHeal(max * 0.15, '#fff3c4');
-      this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.6), n: 30, colors: ['#ffffff', '#fff3c4'] }); this.vx({ k: 'shake', amt: 4 });
+      this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.6), n: 30, colors: ['#ffffff', '#fff3c4'] });
     }
   },
 
@@ -348,11 +348,11 @@ const FIRE = {
     }
     const aim = this.armAim(), d = Math.min(9, dist(p.x, p.y, aim.x, aim.y)), ang = Math.atan2(aim.y - p.y, aim.x - p.x);
     const tx = p.x + Math.cos(ang) * d, ty = p.y + Math.sin(ang) * d;
-    const smite = (x, y, dmgR, big) => {
+    const smite = (x, y, dmgR) => {                        // (no screen shake: the user's call, 2026-10-22)
       this.armVis({ k: 'smiteMark', x, y, life: 0.2 });
       this.armLater(0.2, () => {
         this.armVis({ k: 'pillar', x, y, life: 0.42 });
-        this.vx({ k: 'shake', amt: big ? 4 : 2 }); this.vx({ k: 'burst', x, y: y - 0.3, n: 22, colors: ['#ffffff', '#fff1b8', '#f2b53a'] });
+        this.vx({ k: 'burst', x, y: y - 0.3, n: 22, colors: ['#ffffff', '#fff1b8', '#f2b53a'] });
         for (const e of this.armNear(x, y, 1.5)) this.armHurt(e, dmgR, e.x, e.y - 0.5, { id, ap: true });
       });
     };
@@ -362,7 +362,7 @@ const FIRE = {
     let n = 0;
     for (const e of this.projectiles) if (e.from === 'e' && e.life > 0 && Math.hypot(e.x - p.x, e.y - p.y) < 13) { e.life = 0; n++; }
     if (n) this.armLater(0.2, () => this.armSay(p.x, p.y - 1.5, `LET THERE BE LIGHT · ${n} SHOTS UNMADE`, '#fff1b8'));
-    for (let i = 0; i < 7; i++) { const aa = (i / 7) * TAU - Math.PI / 2; this.armLater(i * 0.08, () => smite(tx + Math.cos(aa) * 1.55, ty + Math.sin(aa) * 1.55, EX(A, 0), i === 6)); }
+    for (let i = 0; i < 7; i++) { const aa = (i / 7) * TAU - Math.PI / 2; this.armLater(i * 0.08, () => smite(tx + Math.cos(aa) * 1.55, ty + Math.sin(aa) * 1.55, EX(A, 0))); }
     this.armLater(0.3, () => { const ab = full ? 0.35 : 0.2; this.armHeal(max * ab, '#fff1b8'); this.armSay(p.x, p.y - 0.3, `ABSOLUTION +${Math.round(max * ab)}`, '#fff1b8'); });
   },
   // shots fly to your cursor and feed a black hole (max 20 mass); stop firing 0.4s and it collapses, then spits back what it swallowed
