@@ -982,52 +982,6 @@ export class Renderer {
       b.strokeStyle = o.lock > 0 ? `rgba(255,74,90,${0.5 + o.lock})` : 'rgba(255,251,224,0.28)'; b.lineWidth = 1;
       b.setLineDash([3, 3]); b.beginPath(); b.moveTo(x0, y0); b.lineTo(x1, y1); b.stroke(); b.setLineDash([]);
     }
-    // the Wyrm's lens pedestals: heat rings, and the focused beam
-    for (const Pd of S.peds || []) {
-      const [x, y] = P(Pd.o.x, Pd.o.y);
-      b.strokeStyle = Pd.cool ? 'rgba(120,120,140,0.7)' : '#fffbe0'; b.lineWidth = 1;
-      b.beginPath(); b.arc(x, y - 2, 9, 0, Math.PI * 2); b.stroke();
-      if (Pd.heat > 0) { b.strokeStyle = Pd.heat > 0.75 ? '#ff4a5a' : '#ffd650'; b.lineWidth = 2; b.beginPath(); b.arc(x, y - 2, 9, -Math.PI / 2, -Math.PI / 2 + Pd.heat * Math.PI * 2); b.stroke(); }
-      if (Pd.cool) { b.fillStyle = 'rgba(255,255,255,0.8)'; b.font = '6px monospace'; b.fillText(Math.ceil(Pd.cool), x - 2, y - 14); }
-      if (Pd.beam) beam([[Pd.beam.x0, Pd.beam.y0 + 0.5], [Pd.beam.x1, Pd.beam.y1 + 0.5]], 3, '#ffffff', 'rgba(255,240,170,0.45)');
-    }
-    // the Puppeteer's trapdoors: wooden hatches in the boards; each flickers when its moment comes, the last burns gold
-    for (const H of S.hatches || []) {
-      const [x, y] = P(H.x, H.y), lit = g.t >= H.at, last = H === S.hatches[S.hatches.length - 1];
-      b.fillStyle = '#1a0e08'; b.fillRect(Math.round(x) - 8, Math.round(y) - 5, 16, 10);
-      b.fillStyle = lit ? (last ? (Math.floor(g.t * 12) % 2 ? '#ffd650' : '#ffffff') : '#c8962a') : '#5a3a22';
-      b.fillRect(Math.round(x) - 7, Math.round(y) - 4, 14, 8);
-      b.fillStyle = '#1a0e08'; b.fillRect(Math.round(x) - 7, Math.round(y), 14, 1); b.fillRect(Math.round(x), Math.round(y) - 4, 1, 8);
-    }
-    // the curtain: velvet drawing in from both wings
-    if (S.curtain) {
-      const C = S.curtain, k = g.curtainK(C), half = C.box.w * C.close * k;
-      for (const side of [0, 1]) {
-        const xa = side ? C.box.x + C.box.w - half : C.box.x, xb = side ? C.box.x + C.box.w : C.box.x + half;
-        const c0 = P(xa, C.box.y), c1 = P(xb, C.box.y), c2 = P(xb, C.box.y + C.box.h), c3 = P(xa, C.box.y + C.box.h);
-        b.fillStyle = k > 0.85 ? 'rgba(150,20,40,0.78)' : 'rgba(150,20,40,0.45)';
-        b.beginPath(); b.moveTo(...c0); b.lineTo(...c1); b.lineTo(...c2); b.lineTo(...c3); b.closePath(); b.fill();
-        b.strokeStyle = 'rgba(255,214,80,0.8)'; b.lineWidth = 1; b.stroke();
-      }
-    }
-    // the sunbeam: a pale column narrowing onto you
-    if (S.sun) {
-      const SB = S.sun, [x, y] = P(SB.x, SB.y), R0 = SB.r * TS, live = SB.t > 0.7;
-      b.globalCompositeOperation = 'lighter';
-      const gr = b.createRadialGradient(x, y, 0, x, y, R0 * 1.4);
-      gr.addColorStop(0, live ? 'rgba(255,255,230,0.7)' : 'rgba(255,255,230,0.25)'); gr.addColorStop(1, 'rgba(255,240,170,0)');
-      b.fillStyle = gr; b.beginPath(); b.arc(x, y, R0 * 1.4, 0, Math.PI * 2); b.fill();
-      b.fillStyle = live ? 'rgba(255,255,220,0.18)' : 'rgba(255,255,220,0.08)'; b.fillRect(x - R0 * 0.6, y - 200, R0 * 1.2, 200);
-      b.globalCompositeOperation = 'source-over';
-      if (!live && Math.floor(g.t * 12) % 2) { b.strokeStyle = '#ff4a5a'; b.beginPath(); b.arc(x, y, R0, 0, Math.PI * 2); b.stroke(); }
-    }
-    // honey drips: a shadow that grows before the drop lands
-    for (const Dp of S.drips || []) {
-      if (Dp.done) continue;
-      const [x, y] = P(Dp.x, Dp.y), k = 1 - Math.max(0, Dp.t) / Dp.T;
-      b.fillStyle = `rgba(90,50,0,${0.2 + k * 0.35})`; b.beginPath(); b.ellipse(x, y, Dp.r * TS * k, Dp.r * TS * k * 0.7, 0, 0, Math.PI * 2); b.fill();
-      b.strokeStyle = '#ffb830'; b.lineWidth = 1; b.beginPath(); b.ellipse(x, y, Dp.r * TS, Dp.r * TS * 0.7, 0, 0, Math.PI * 2); b.stroke();
-    }
     // fading bridges: they shimmer before they go
     for (const sp of m.spans || []) {
       if (!sp.warn || Math.floor(g.t * 10) % 2 === 0) continue;
@@ -1038,8 +992,6 @@ export class Renderer {
         const [sx, sy] = P(x + 0.5, y + 0.5); b.fillRect(sx - 6, sy - 6, 12, 12);
       }
     }
-    // the dream turned nightmare: the room bleeds red
-    if (S.shift) { b.fillStyle = `rgba(120,0,40,${0.16 + Math.sin(g.t * 3) * 0.05})`; b.fillRect(0, 0, this.buf.width, this.buf.height); }
     if (g.invertUntil > g.t) { b.fillStyle = `rgba(180,120,255,${0.08 + Math.sin(g.t * 6) * 0.04})`; b.fillRect(0, 0, this.buf.width, this.buf.height); }
     // over you: the mask you carry, how drowsy you are, the Zs of sleep
     if (!p.dead) {

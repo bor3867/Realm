@@ -1879,7 +1879,7 @@ export class Game {
       if ((e.asDormant || e.asWakeT > 0) && this.asDormantTick(e, dt)) continue;      // the Vault Keeper, asleep or waking (src/astral.js)
       if (e.D.ability && this.updateEliteAbility(e, dt, Math.sqrt(d2))) continue;   // an elite using its ability
       if (e.stunT > 0) { e.stunT -= dt; continue; }
-      if (e.rb) { if (e.D.bx) this.updateBx(e, dt, Math.sqrt(d2)); else this.updateRealmBoss(e, dt, Math.sqrt(d2)); continue; }
+      if (e.rb) { if (e.D.bx) this.updateBx(e, dt, Math.sqrt(d2)); continue; }   // (every boss is on the three-phase engine: src/bossx.js)
       if (e.kids) {
         e.kids = e.kids.filter((k) => !k.dead);
         e.childT -= dt;
@@ -2248,10 +2248,7 @@ export class Game {
     if (e.surviveUntil > this.t) { if (!quiet) this.float(x, y - 0.8, 'SURVIVE!', '#ff8c1e'); return 0; }
     if (e.frenzyUntil > this.t) { if (!quiet) this.float(x, y - 0.8, e.D.bloodlust ? 'BLOODLUST' : 'INVULNERABLE', '#ff4a5a'); return 0; }
     if (e.invulnT > 0) { if (!quiet) this.float(x, y - 0.8, 'IMMUNE', '#8d88a0'); return 0; }
-    if (e.rb && this.d4Immune(e, x, y, quiet)) return 0;
     if (e.D && e.D.bx && !e.bxKill && this.bxImmune(e, x, y, quiet)) return 0;
-    if (e.id === 'sleepers_nightmare') this.d4LinkHit(e, dmg);
-    if (e.rb) dmg = Math.round(dmg * this.d4DamageMult(e));
     if (this.frozen(e)) dmg = Math.round(dmg * 1.3);           // caught in stopped time: every blow lands harder
     if (e.curseT > 0) dmg = Math.round(dmg * (1 + e.curseF));   // hexed
     if (e.reflectUntil > this.t) {                             // the Colossus's blazing core: your shot comes back
@@ -2491,251 +2488,6 @@ export class Game {
   }
 
   // ------------------------------------------------------------- realm bosses (scripted events)
-  updateRealmBoss(e, dt, d) {
-    const p = this.player, D = e.D;
-    if (e.surviveUntil && this.t >= e.surviveUntil && !e.dead) {   // you lived through it: it burns out and falls
-      e.surviveUntil = 0; e.invulnT = 0;
-      this.banner(`${D.name} burns out. You survived!`, 3000);
-      this.damageEnemy(e, e.hp * 10 + 1e7, e.x, e.y - 1);
-      return;
-    }
-    if (e.state === 'sleep') {                         // dungeon bosses wait in their room
-      const R0 = e.room;
-      if (p.x > R0.x && p.x < R0.x + R0.w && p.y > R0.y && p.y < R0.y + R0.h) {
-        e.state = 'idle'; e.st = 1.2; this.banner(D.name.toUpperCase(), 2600); this.vx({ k: 'shake', amt: 5 }); this.sfx('boss');
-      }
-      return;
-    }
-    this.rxPhaseTick(e, dt);                             // the remaster's phases 2 and 3 (src/remaster.js)
-    this.spAmbient(e, dt);                               // a boss's own background layer (src/setpieces.js)
-    if (this.bossD4Tick(e, dt)) return;
-    e.st -= dt;
-    e.invulnT = Math.max(0, e.invulnT - dt);
-    for (const q of e.queue) q.t -= dt;
-    while (e.queue.length && e.queue[0].t <= 0) { const q = e.queue.shift(); this.firePattern(e, q.atk, true); }
-    const [ox, oy] = this.up(e.x, e.y, 1.4);
-    for (const S of e.spirals || []) {
-      S.t -= dt; S.acc -= dt;
-      while (S.acc <= 0 && S.t > 0) {
-        S.acc += S.every; S.spin += S.turn;
-        for (let k = 0; k < S.arms; k++) this.shoot('e', ox, oy, S.spin + (k / S.arms) * TAU, S.speed, S.range, S.dmg, S.proj, 0.38, false, D.name);
-      }
-    }
-    if (e.spirals) e.spirals = e.spirals.filter((S) => S.t > 0);
-    if (e.stream) {
-      const S = e.stream;
-      S.t -= dt; S.acc -= dt;
-      while (S.acc <= 0 && S.t > 0) {
-        S.acc += S.every;
-        const a = angleTo(ox, oy, ...this.up(p.x, p.y, 0.4)) + Math.sin(this.t * 7) * S.wobble;
-        this.shoot('e', ox, oy, a, S.speed, S.range, S.dmg, S.proj, 0.4, false, D.name);
-      }
-      if (S.t <= 0) e.stream = null;
-    }
-    const engaged = d < D.aggro && !p.dead;
-    if (e.state === 'tell') {
-      if (e.st > 0) return;
-      const M = e.move;
-      if (M.blink) this.bossBlink(e, M.blink);
-      if (M.say) { e.sayT = 0; this.speak(e, 'see', 1); }        // Emily simply cannot help herself
-      if (M.dash) { const a = angleTo(e.x, e.y, p.x, p.y); e.dashing = { vx: Math.cos(a) * M.dash.speed, vy: Math.sin(a) * M.dash.speed, t: M.dash.dur, acc: 0, D: M.dash }; }
-      if (M.orbit) e.orbiting = { t: M.orbit.dur, a: angleTo(p.x, p.y, e.x, e.y), speed: M.orbit.speed, r: M.orbit.r };
-      if (M.zones) this.bossZones(e, M.zones);
-      if (M.gapring) this.gapRing(e, M.gapring);
-      if (M.sweep) this.fx.push({ kind: 'sweep', e, n: M.sweep.n, a0: R() * TAU, w: M.sweep.speed * (R() < 0.5 ? 1 : -1), len: M.sweep.len || 12,
-        t: 0, tele: 0.8, life: 0.8 + M.sweep.dur, dmg: M.sweep.dmg, by: D.name, hitT: 0 });
-      if (M.pull) e.pulling = { force: M.pull.force, t: M.pull.dur };
-      if (M.arena) {
-        const rm = e.room;
-        this.arena = { x: rm ? rm.cx + 0.5 : e.x, y: rm ? rm.cy + 0.5 : e.y, r0: M.arena.r0, r1: M.arena.r1, t: 0, dur: M.arena.dur, dmg: M.arena.dmg, tick: 0, owner: e };
-        this.banner('The walls close in!', 2000);
-      }
-      if (M.flood && e.room) this.floodRoom(e.room, M.flood.ring);
-      // ---- signature mechanics (each belongs to exactly one boss)
-      if (M.meteor) this.meteors(e, M.meteor);
-      this.bossD4Move(e, M);                                // the four newer dungeons' bosses (src/dungeons4.js)
-      // ---- wave 3 signatures, one more per boss
-      const by = D.name, box = this.arenaBox(e);
-      if (M.tidewall) this.fx.push({ kind: 'tidewall', e, t: 0, life: M.tidewall.n * M.tidewall.every + 0.2, next: 0, left: M.tidewall.n, box, ...M.tidewall, by });
-      if (M.seekers) for (let k = 0; k < M.seekers.n; k++) {
-        const a = (k / M.seekers.n) * TAU, b = this.shoot('e', e.x, e.y - 1, a, M.seekers.speed, M.seekers.speed * M.seekers.life, M.seekers.dmg, M.seekers.proj, 0.5, false, by);
-        b.mv = { seek: M.seekers.turn || 2.2 }; b.burst = { n: M.seekers.burst, dmg: Math.round(M.seekers.dmg * 0.6), proj: M.seekers.proj };
-      }
-      if (M.rotor) this.fx.push({ kind: 'rotor', e, t: 0, life: M.rotor.dur, acc: 0, a: R() * TAU, dir: 1, flipT: M.rotor.flip, ...M.rotor, by });
-      if (M.blitz) this.fx.push({ kind: 'blitz', e, t: 0, life: M.blitz.n * 0.8 + 0.3, step: 0, left: M.blitz.n, phaseT: 0, ...M.blitz, by });
-      if (M.ricochet) for (let k = 0; k < M.ricochet.n; k++) {
-        const a = angleTo(e.x, e.y, p.x, p.y) + (k - (M.ricochet.n - 1) / 2) * 0.35, b = this.shoot('e', e.x, e.y - 1, a, M.ricochet.speed, 40, M.ricochet.dmg, M.ricochet.proj, 0.45, false, by);
-        b.bounce = M.ricochet.bounces || 3; b.life = M.ricochet.life || 6;
-      }
-      if (M.lattice) {                                    // a grid of stars hangs around you, then all fly the same way at once
-        const L = M.lattice, a = r4(), cx = p.x, cy = p.y;
-        for (let i = -L.size; i <= L.size; i++) for (let j = -L.size; j <= L.size; j++) {
-          if (Math.abs(i) + Math.abs(j) < 1) continue;
-          const x = cx + i * L.gap, y = cy + j * L.gap;
-          if (isSolid(this.map, x, y)) continue;
-          const b = this.shoot('e', x - Math.cos(a) * 0.01, y, a, L.speed, 14, L.dmg, L.proj, 0.4, false, by);
-          b.mv = { hold: L.delay };
-        }
-      }
-      if (M.whirlpool) this.fx.push({ kind: 'whirlpool', e, t: 0, life: M.whirlpool.dur, cx: p.x, cy: p.y, spawned: false, ...M.whirlpool, by });
-      if (M.pulse) this.fx.push({ kind: 'pulse', e, t: 0, life: M.pulse.n * M.pulse.every + 0.1, next: 0, left: M.pulse.n, rot: R() * TAU, ...M.pulse, by });
-      if (M.mirror) { this.mirrorBy = { name: by, cx: box.cx, cy: box.cy, until: this.t + M.mirror.dur }; this.banner('The Archivist reflects. Watch both sides!', 1800); }
-      if (M.eclipse) this.fx.push({ kind: 'eclipse', e, t: 0, life: M.eclipse.waves * M.eclipse.every + 0.1, next: 0, left: M.eclipse.waves, rot: R() * TAU, ...M.eclipse, by });
-      if (M.echo) this.fx.push({ kind: 'echo', e, t: 0, life: M.echo.dur + M.echo.delay, hist: [], acc: 0, ...M.echo, by });
-      if (M.frenzyFire) this.banner(M.frenzyFire, 1600);
-      if (M.tether) { e.tether = { r: M.tether.r, t: M.tether.dur, dmg: M.tether.dmg, tick: 0.6 }; this.banner('Stay close: the tether burns!', 1800); }
-      if (M.orbitals) {
-        const O = M.orbitals;
-        this.fx.push({ kind: 'orbitals', e, n: O.n, r0: O.r0, r1: O.r1, spin: O.spin * (R() < 0.5 ? 1 : -1), a0: R() * TAU, t: 0, life: O.dur, dmg: O.dmg, proj: O.proj, hitT: 0, by: D.name });
-      }
-      if (M.bounce) { const a = angleTo(e.x, e.y, p.x, p.y); e.dashing = { vx: Math.cos(a) * M.bounce.speed, vy: Math.sin(a) * M.bounce.speed, t: M.bounce.dur, acc: 0, D: M.bounce, bounces: M.bounce.bounces, n: 0 }; }
-      if (M.edgefire) {
-        const E = M.edgefire, R0 = E.r || 12;
-        for (let w = 0; w < (E.waves || 1); w++) {
-          const off = R() * TAU;
-          for (let k = 0; k < E.n; k++) {
-            const a = off + (k / E.n) * TAU, sx = e.x + Math.cos(a) * R0, sy = e.y + Math.sin(a) * R0;
-            const b = this.shoot('e', sx, sy, a + Math.PI + (R() - 0.5) * 0.2, E.speed, R0 * 2, E.dmg, E.proj, 0.4, false, D.name);
-            if (w) { b.x -= b.vx * w * 0.35; b.y -= b.vy * w * 0.35; b.life += w * 0.35; }
-          }
-        }
-      }
-      if (M.mines) {
-        const Mn = M.mines;
-        for (let k = 0; k < Mn.n; k++) {
-          const a = R() * TAU, d = 1.5 + R() * Mn.spread;
-          this.fx.push({ kind: 'mine', x: p.x + Math.cos(a) * d, y: p.y + Math.sin(a) * d, t: 0, life: Mn.delay + k * 0.12, shards: Mn.shards, dmg: Mn.dmg, proj: Mn.proj, by: D.name });
-        }
-      }
-      if (M.constellation) {
-        const C = M.constellation, pts = [];
-        for (let k = 0; k < C.n; k++) { const a = (k / C.n) * TAU + R() * 0.6, d = C.r * (0.7 + R() * 0.5); pts.push([p.x + Math.cos(a) * d, p.y + Math.sin(a) * d]); }
-        this.fx.push({ kind: 'constellation', pts, t: 0, tele: C.delay, life: C.delay + C.dur, dmg: C.dmg, hitT: 0, by: D.name });
-      }
-      if (M.clones) this.makeClones(e, M.clones.n);
-      // the Tidebound Lich: it takes your place, and it puts out the lights
-      if (M.soulswap) { this.fx.push({ kind: 'soulswap', e, t: 0, delay: M.soulswap.delay, life: M.soulswap.delay + 0.3, dmg: M.soulswap.dmg, proj: M.soulswap.proj, by: D.name }); this.banner('The Lich reaches for your soul...', 1600); }
-      if (M.darkness) { this.darkStart = this.t; this.darkUntil = this.t + M.darkness.dur; this.darkR = M.darkness.r; this.darkBy = e; this.banner('The candles gutter out.', 1800); }
-      // the Forgeheart Colossus: roads of fire, and a core that throws your shots back
-      if (M.lanes) {
-        const Ln = M.lanes, a0 = (e.laneTurn = (e.laneTurn || 0) + 1) * (Math.PI / Ln.n / 2) + angleTo(e.x, e.y, p.x, p.y);
-        for (let k = 0; k < Ln.n; k++) this.fx.push({ kind: 'lane', e, x: e.x, y: e.y, a: a0 + (k / Ln.n) * TAU, len: Ln.len, w: Ln.w || 0.8, t: 0, delay: Ln.delay, life: Ln.delay + Ln.dur, dmg: Ln.dmg, hitT: 0, by: D.name });
-      }
-      if (M.setpiece) e.spUntil = this.t + this.spStart(e, M.setpiece);   // a set piece: it plays out before the boss moves on (src/setpieces.js)
-      if (M.reflect) { e.reflectUntil = this.t + M.reflect.dur; e.reflectDmg = M.reflect.dmg; e.reflectProj = M.reflect.proj; this.banner('Its core blazes white: hold your fire!', 1800); }
-      if (M.shield) {                                  // invulnerable until its summoned guard is dead
-        const guard = [];
-        const rm = e.room, spots = M.shield.corners && rm
-          ? [[rm.x + 3, rm.y + 3], [rm.x + rm.w - 4, rm.y + 3], [rm.x + 3, rm.y + rm.h - 4], [rm.x + rm.w - 4, rm.y + rm.h - 4]].map(([x, y]) => [x + 0.5, y + 0.5])
-          : Array.from({ length: M.shield.count }, (_, k) => [e.x + Math.cos((k / M.shield.count) * TAU) * 2.5, e.y + Math.sin((k / M.shield.count) * TAU) * 2.5]);
-        for (const [mx, my] of spots.slice(0, M.shield.count)) {
-          if (!isSolid(this.map, mx, my)) { const mn = this.addEnemy(M.shield.id || D.summon, mx, my); mn.minion = true; mn.seen = true; guard.push(mn); }
-        }
-        void guard;                                    // (its guard come to fight; they no longer shield it)
-        this.banner(`${D.name} calls its guard!`, 2200);
-      }
-      for (const f of M.fire || []) {
-        if (f.delay) e.queue.push({ t: f.delay, atk: f });
-        else this.firePattern(e, f);
-      }
-      e.queue.sort((a, b) => a.t - b.t);
-      const sp = [...(M.spiral ? [M.spiral] : []), ...(M.spirals || [])];
-      e.spirals = (e.spirals || []).concat(sp.map((S) => ({ ...S, t: S.dur, acc: 0, spin: e.spin || 0 })));
-      if (M.stream) e.stream = { ...M.stream, t: M.stream.dur, acc: 0 };
-      if (M.invuln) e.invulnT = M.invuln;
-      if (M.summon) {
-        for (let k = 0; k < M.summon; k++) {
-          const a = (k / M.summon) * TAU, mx = e.x + Math.cos(a) * 2, my = e.y + Math.sin(a) * 2;
-          if (!isSolid(this.map, mx, my)) { const mn = this.addEnemy(D.summon, mx, my); mn.minion = true; }
-        }
-      }
-      e.state = 'attack';
-      e.st = Math.max(0.35, ...sp.map((S) => S.dur), M.stream ? M.stream.dur : 0, M.invuln || 0, M.dash ? M.dash.dur : 0, M.orbit ? M.orbit.dur : 0, e.spUntil > this.t ? e.spUntil - this.t : 0);
-      return;
-    }
-    if (e.dashing) {                                   // a charge: barrels at where you were, shedding shots
-      const Dd = e.dashing;
-      Dd.t -= dt; Dd.acc -= dt;
-      const ox = e.x, oy = e.y;
-      this.moveCircle(e, Dd.vx * dt, Dd.vy * dt, 0.6);
-      if (Dd.D.trail && Dd.acc <= 0) {
-        Dd.acc = Dd.D.trail.every || 0.12;
-        const a0 = Math.atan2(Dd.vy, Dd.vx);
-        for (const s0 of [-1, 1]) this.shoot('e', ...lift(e.x, e.y, 0.8), a0 + s0 * Math.PI / 2, Dd.D.trail.speed || 3, Dd.D.trail.range || 5, Dd.D.trail.dmg, Dd.D.trail.proj, 0.4, false, D.name);
-      }
-      if (dist2(e.x, e.y, p.x, p.y) < (D.r + 0.4) ** 2 && !Dd.hitP) { Dd.hitP = true; this.hurtPlayer(Dd.D.dmg || 100, D.name); }
-      const stuck = Math.abs(e.x - ox) + Math.abs(e.y - oy) < 1e-4;
-      if (stuck && Dd.bounces && Dd.n < Dd.bounces) {          // Emily's belly slide: off the wall and back at you
-        Dd.n++; Dd.hitP = false;
-        const a = angleTo(e.x, e.y, p.x, p.y) + (R() - 0.5) * 0.5, sp0 = Math.hypot(Dd.vx, Dd.vy);
-        Dd.vx = Math.cos(a) * sp0; Dd.vy = Math.sin(a) * sp0; Dd.t = Math.max(Dd.t, 0.6);
-        this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.5), n: 16, colors: ['#ffffff', '#a8e2ff'] }); this.vx({ k: 'shake', amt: 3 });
-      } else if (Dd.t <= 0 || stuck) {
-        if (Dd.D.slam) this.bossZones(e, { ...Dd.D.slam, at: 'self' });
-        e.dashing = null;
-      }
-    }
-    if (e.pulling) {                                   // the undertow: you're dragged toward it
-      e.pulling.t -= dt;
-      const d0 = dist(p.x, p.y, e.x, e.y);
-      if (d0 > 1.6 && !p.dead) this.moveCircle(p, ((e.x - p.x) / d0) * e.pulling.force * dt, ((e.y - p.y) / d0) * e.pulling.force * dt, PLAYER_R);
-      if (Math.random() < 0.5) this.vx({ k: 'suck', x: e.x, y: e.y, px: p.x, py: p.y });
-      if (e.pulling.t <= 0) e.pulling = null;
-    }
-    if (e.tether) {                                    // the Unstruck God's tether: wander outside the ring and it burns
-      const T = e.tether;
-      T.t -= dt; T.tick -= dt;
-      if (!p.dead && dist(p.x, p.y, e.x, e.y) > T.r && T.tick <= 0) { T.tick = 0.5; this.hurtPlayer(T.dmg, 'the tether'); }
-      if (T.t <= 0) e.tether = null;
-    }
-    if (e.orbiting) {                                  // circles you while it works
-      const O = e.orbiting;
-      O.t -= dt; O.a += O.speed * dt;
-      const tx = p.x + Math.cos(O.a) * O.r, ty = p.y + Math.sin(O.a) * O.r, dd = dist(e.x, e.y, tx, ty);
-      if (dd > 0.05) { const st = Math.min(dd, (D.speed + 4) * dt); this.moveCircle(e, ((tx - e.x) / dd) * st, ((ty - e.y) / dd) * st, 0.6); }
-      if (O.t <= 0) e.orbiting = null;
-    }
-    if (e.state === 'attack') {
-      if (e.st > 0) return;
-      const enr = e.hp < e.maxHp * 0.2 ? 0.6 : 1;      // enraged below 20%: barely pauses between moves
-      e.state = 'idle'; e.st = e.move.recover * enr; e.special = false;
-      return;
-    }
-    // idle: reposition, then pick the next move from the current phase
-    if (engaged && D.mstyle && this.spMove(e, dt, D.mstyle, d)) { /* its own way of moving (src/setpieces.js) */ }
-    else if (engaged) {
-      const a = angleTo(p.x, p.y, e.x, e.y);
-      const tx = p.x + Math.cos(a) * D.keep, ty = p.y + Math.sin(a) * D.keep;
-      const dd = dist(e.x, e.y, tx, ty);
-      const step = Math.min(dd, D.speed * (e.hp < e.maxHp * 0.2 ? 1.6 : 1) * dt);
-      if (dd > 0.3) this.moveCircle(e, ((tx - e.x) / dd) * step, ((ty - e.y) / dd) * step, 0.6);
-    } else this.moveEnemy(e, dt, false, d);
-    if (e.st > 0 || !engaged) return;
-    const ratio = e.hp / e.maxHp;
-    let pi = 0;
-    D.phases.forEach((ph, i) => { if (ratio <= ph.at) pi = i; });
-    if (pi !== e.phaseIdx) {                       // phase break: immune, special pose, a shockwave, new script
-      e.phaseIdx = pi; e.cycleIdx = 0;
-      if (D.phases[pi].frenzy) { e.frenzyUntil = this.t + D.phases[pi].frenzy; e.frenzyLen = D.phases[pi].frenzy; }
-      this.onPhaseD4(e, D.phases[pi]);
-      e.sayT = 0; this.speak(e, 'see', 1);
-      this.banner(D.phases[pi].name || `${D.name} grows desperate!`, 2400);
-      const first = Object.values(D.moves).find((mv) => mv.fire)?.fire[0];
-      const open = D.phases[pi].open && D.moves[D.phases[pi].open];
-      e.move = open ? { ...open, special: true, tell: Math.max(1.2, open.tell), invuln: Math.max(1.2, open.invuln || 0) }
-        : { special: true, tell: 1.4, invuln: 1.4, recover: 0.6, fire: first ? [{ ...first, pattern: 'radial', count: 16, delay: 0 }] : [] };
-      e.invulnT = e.move.invuln; e.special = true; e.state = 'tell'; e.st = e.move.tell;
-      for (const c of this.enemies) if (c.cloneOf === e && !c.dead) { c.dead = true; c.deadT = 0; this.vx({ k: 'burst', x: c.x, y: c.y - 1, n: 20, colors: ['#ffffff', '#8af6ff'] }); }
-      this.vx({ k: 'shake', amt: 6 });
-      return;
-    }
-    const PH = D.phases[pi], cyc = e.frenzyUntil > this.t || !PH.after ? PH.cycle : PH.after;   // a frenzy phase runs its own script, then settles
-    if ((e.talkT = (e.talkT === undefined ? 0 : e.talkT) - 1) <= 0) { e.talkT = e.id === 'emily_the_yapper' ? 2 + Math.floor(R() * 3) : 10 + Math.floor(R() * 8); e.sayT = 0; this.speak(e, 'see', 1); }
-    { const mv = cyc[e.cycleIdx++ % cyc.length]; e.move = D.moves[mv === 'rx' ? `rx${e.rxPhase || 1}` : mv] || D.moves[mv]; }   // 'rx': the remaster's attack for the phase it's in
-    e.special = !!e.move.special;
-    e.state = 'tell'; e.st = e.move.tell;
-    if (e.move.blink) { e.blinkTo = this.blinkSpot(e, e.move.blink.r); e.st = Math.max(e.st, 0.9); }
-  }
   blinkSpot(e, r0) {
     const p = this.player;
     for (let k = 0; k < 12; k++) {
@@ -2746,39 +2498,6 @@ export class Game {
   }
 
   // the edges of a boss room sink under black water, shrinking the arena
-  floodRoom(rm, ring) {
-    const m = this.map, p = this.player;
-    for (let y = rm.y; y < rm.y + rm.h; y++) for (let x = rm.x; x < rm.x + rm.w; x++) {
-      const edge = Math.min(x - rm.x, rm.x + rm.w - 1 - x, y - rm.y, rm.y + rm.h - 1 - y);
-      if (edge < ring) { m.tiles[y * m.w + x] = TID.water; m.solid[y * m.w + x] = 1; }
-    }
-    m.miniDirty = true;
-    p.x = Math.max(rm.x + ring + 1, Math.min(rm.x + rm.w - ring - 1, p.x));
-    p.y = Math.max(rm.y + ring + 1, Math.min(rm.y + rm.h - ring - 1, p.y));
-    this.vx({ k: 'shake', amt: 5 });
-    this.banner('The chapel floods!', 1800);
-  }
-  // mirror echoes: fragile copies that fight alongside it; the real one hides among them
-  makeClones(e, n) {
-    const D = e.D;
-    for (let k = 0; k < n; k++) {
-      const a = (k / n) * TAU + R(), x = e.x + Math.cos(a) * 4, y = e.y + Math.sin(a) * 3;
-      if (isSolid(this.map, x, y)) continue;
-      const cyc = D.phases[0].cycle.filter((c) => !D.moves[c].special);
-      const c = { id: e.id, rb: true, cloneOf: e, D: { ...D, name: D.name + ' (echo)', phases: [{ at: 1, cycle: cyc.length ? cyc : D.phases[0].cycle }] },
-        x, y, hx: x, hy: y, hp: Math.round(e.maxHp * 0.05), maxHp: Math.round(e.maxHp * 0.05), state: 'idle', st: 0.8 + k * 0.4, queue: [], spin: 0,
-        invulnT: 0, phaseIdx: 0, cycleIdx: k, deadT: 0, hurtT: 0, wx: x, wy: y, wt: 0, phase: R() * TAU, cds: [], room: e.room, born: this.t };
-      this.enemies.push(c);
-    }
-    this.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 40, colors: ['#ffffff', '#8af6ff', '#cfffff'] });
-    this.banner(`${D.name} splits into echoes!`, 2000);
-  }
-  // the room a boss fights in (or a box around it in the open realm)
-  arenaBox(e) {
-    const rm = e.room;
-    if (rm) return { x0: rm.x + 0.5, y0: rm.y + 0.5, x1: rm.x + rm.w - 0.5, y1: rm.y + rm.h - 0.5, cx: rm.cx + 0.5, cy: rm.cy + 0.5 };
-    return { x0: e.x - 12, y0: e.y - 10, x1: e.x + 12, y1: e.y + 10, cx: e.x, cy: e.y };
-  }
   updateBossFx(dt) {
     const p = this.player;
     for (const f of this.fx) {
@@ -2943,14 +2662,6 @@ export class Game {
     }
   }
   // meteors: huge telegraphed impacts around you that leave the ground burning
-  meteors(e, Mt) {
-    const p = this.player;
-    for (let k = 0; k < Mt.n; k++) {
-      const a = R() * TAU, d = k === 0 ? 0 : R() * Mt.spread, delay = Mt.delay + k * (Mt.stagger || 0.2);
-      this.fx.push({ kind: 'meteor', x: p.x + Math.cos(a) * d, y: p.y + Math.sin(a) * d, r: Mt.r, t: 0, delay, life: delay + 0.3, dmg: Mt.dmg, burn: Mt.burn, by: e.D.name, done: false });
-    }
-  }
-  // a full ring of shots with one gap: find it, or take the hit
   gapRing(e, G) {
     const [ox, oy] = this.up(e.x, e.y, e.rb ? 1.4 : 2.3), p = this.player;
     const gapAt = angleTo(ox, oy, p.x, p.y) + (R() - 0.5) * 1.6;
