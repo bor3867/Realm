@@ -56,7 +56,7 @@ Type commands in chat (`/` or Enter). Ids use underscores. Regenerate with `node
 
 | Stars | Id | Name | Boss |
 | --- | --- | --- | --- |
-| ★ | `chapel` | The Sunken Chapel | The Drowned Abbot |
+| ★ | `chapel` | The Sunken Chapel | Abbot Morrow, the Drowned |
 | ★ | `hive` | The Honeyed Hollow | Queen Melliflua, the Honeyed Mother |
 | ★ | `rf_chapel` | The Sunken Chapel | The Cantor |
 | ★ | `rf_oasis` | The Buried Oasis | Sarrukh |
@@ -101,7 +101,7 @@ Type commands in chat (`/` or Enter). Ids use underscores. Regenerate with `node
 ## Boss ids
 
 - Overworld (`/boss`, `/spawn`): `brine_cathedral`, `wick_mother`, `orrery_of_winter`, `penitent_colossus`, `emily_the_yapper`, `the_fallen_star`
-- Three-phase (`/bx`, `/spawn`): `abyssal_kraken`, `thornheart_treant`, `glacius_frozen_wyrm`, `mother_mycelia`, `grand_orrery`, `gilded_sphinx`, `count_vesper`, `grinning_ringmaster`, `tidebound_lich`, `forgeheart_colossus`, `unstruck_god`, `unstruck_smith`
+- Three-phase (`/bx`, `/spawn`): `abyssal_kraken`, `thornheart_treant`, `glacius_frozen_wyrm`, `mother_mycelia`, `grand_orrery`, `gilded_sphinx`, `count_vesper`, `grinning_ringmaster`, `tidebound_lich`, `forgeheart_colossus`, `unstruck_god`, `unstruck_smith`, `drowned_abbot`
 
 ### Realmforge bosses on the three-phase engine (`/bx rfx_ID`)
 

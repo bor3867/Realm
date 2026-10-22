@@ -14,9 +14,10 @@ import tidebound_lich from './tidebound_lich.js';
 import forgeheart_colossus from './forgeheart_colossus.js';
 import unstruck_god from './unstruck_god.js';
 import unstruck_smith from './unstruck_smith.js';
+import drowned_abbot from './drowned_abbot.js';
 
 export const BX = { framework_test, abyssal_kraken, thornheart_treant, glacius_frozen_wyrm, mother_mycelia, grand_orrery, gilded_sphinx, count_vesper, grinning_ringmaster,
-  tidebound_lich, forgeheart_colossus, unstruck_god, unstruck_smith };
+  tidebound_lich, forgeheart_colossus, unstruck_god, unstruck_smith, drowned_abbot };
 
 // the enemy definition the rest of the game sees (spawnRealmBoss, loot, the boss bar)
 export function bxEnemyDef(id) {

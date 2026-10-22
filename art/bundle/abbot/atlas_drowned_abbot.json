@@ -1,0 +1,303 @@
+{
+ "rf": true,
+ "meta": {
+  "name": "Abbot Morrow on the three-phase engine",
+  "version": 1
+ },
+ "sheets": {
+  "bx_drowned_abbot": {
+   "image": "drowned_abbot.png",
+   "kind": "boss",
+   "sprites": {
+    "drowned_abbot": {
+     "frames": {
+      "i1_0": [
+       0,
+       0,
+       48,
+       48
+      ],
+      "i1_1": [
+       48,
+       0,
+       48,
+       48
+      ],
+      "a1": [
+       96,
+       0,
+       48,
+       48
+      ],
+      "i2_0": [
+       144,
+       0,
+       48,
+       48
+      ],
+      "i2_1": [
+       192,
+       0,
+       48,
+       48
+      ],
+      "a2": [
+       240,
+       0,
+       48,
+       48
+      ],
+      "i3_0": [
+       0,
+       48,
+       48,
+       48
+      ],
+      "i3_1": [
+       48,
+       48,
+       48,
+       48
+      ],
+      "a3": [
+       96,
+       48,
+       48,
+       48
+      ],
+      "d0": [
+       144,
+       48,
+       48,
+       48
+      ],
+      "d1": [
+       192,
+       48,
+       48,
+       48
+      ],
+      "d2": [
+       240,
+       48,
+       48,
+       48
+      ]
+     },
+     "anims": {
+      "idle1": {
+       "frames": [
+        "i1_0",
+        "i1_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack1": {
+       "frames": [
+        "a1",
+        "a1",
+        "a1"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle2": {
+       "frames": [
+        "i2_0",
+        "i2_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack2": {
+       "frames": [
+        "a2",
+        "a2",
+        "a2"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle3": {
+       "frames": [
+        "i3_0",
+        "i3_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack3": {
+       "frames": [
+        "a3",
+        "a3",
+        "a3"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "d0",
+        "d1",
+        "d2"
+       ],
+       "fps": 3,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "The Sermon Begins",
+       "idle": "idle1",
+       "attack": "attack1"
+      },
+      "2": {
+       "name": "The Water Rises",
+       "idle": "idle2",
+       "attack": "attack2"
+      },
+      "3": {
+       "name": "Mass for the Drowned",
+       "idle": "idle3",
+       "attack": "attack3"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "abbot_bell": {
+   "image": "abbot_bell.png",
+   "kind": "enemy",
+   "sprites": {
+    "bell": {
+     "frames": {
+      "b0": [
+       0,
+       0,
+       24,
+       24
+      ],
+      "b1": [
+       24,
+       0,
+       24,
+       24
+      ],
+      "b2": [
+       48,
+       0,
+       24,
+       24
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "b0"
+       ],
+       "fps": 2,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "b1",
+        "b2",
+        "b1",
+        "b0"
+       ],
+       "fps": 10,
+       "loop": false
+      }
+     },
+     "meta": {}
+    }
+   }
+  },
+  "abbot_shots": {
+   "image": "abbot_shots.png",
+   "kind": "shot",
+   "sprites": {
+    "drowned_abbot.tidebolt": {
+     "frames": {
+      "0": [
+       0,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "drowned_abbot.bellpearl": {
+     "frames": {
+      "0": [
+       8,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "drowned_abbot.bubble": {
+     "frames": {
+      "0": [
+       16,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "drowned_abbot.page": {
+     "frames": {
+      "0": [
+       24,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "drowned_abbot.ember": {
+     "frames": {
+      "0": [
+       32,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "drowned_abbot.toll": {
+     "frames": {
+      "0": [
+       40,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "drowned_abbot.glass": {
+     "frames": {
+      "0": [
+       48,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    }
+   }
+  }
+ }
+}
