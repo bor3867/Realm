@@ -9,7 +9,6 @@ import { readFileSync } from 'node:fs';
 globalThis.localStorage = { getItem: () => null, setItem: () => {} };
 const { buildRegistry } = await import('../src/registry.js');
 const { Game } = await import('../src/game.js');
-const { REALM_BOSSES, DUNGEON_BOSSES } = await import('../src/data/enemies.js');
 const { BX, bxEnemyDef } = await import('../src/bosses/index.js');
 const B0 = new URL('../art/bundle/', import.meta.url), J = (q) => JSON.parse(readFileSync(new URL(q, B0), 'utf8')), idx = J('index.json');
 const reg = buildRegistry(idx.atlases.map((a) => ({ pack: a.split('/')[0], json: J(a) })), J(idx.hover), (q) => q);
@@ -26,7 +25,7 @@ function fresh(id, where, tier) {
   p.equip = [`wand_t${tier}`, p.equip[1], `robe_t${tier}`, `ring_hp_t${Math.min(3, Math.round(tier / 4))}`];
   let e;
   if (where) { g.enter(where); e = g.enemies.find((q) => q.D.bx === id || q.id === id); const A = e.room; p.x = A.x + A.w / 2; p.y = A.y + A.h - 3; }
-  else { g.enter('realm'); g.enemies = g.map.enemies = []; e = BX[id] ? g.spawnRealmBoss(id, { x: p.x, y: p.y - 5 }, bxEnemyDef(id)) : g.spawnRealmBoss(id, { x: p.x, y: p.y - 5 }, REALM_BOSSES[id]); }
+  else { g.enter('realm'); g.enemies = g.map.enemies = []; e = g.spawnRealmBoss(id, { x: p.x, y: p.y - 5 }, bxEnemyDef(id)); }
   g.maintainRealm = () => {}; g.eventClock = () => {};
   return { g, p, e };
 }

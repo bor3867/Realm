@@ -8,7 +8,6 @@ import { readFileSync } from 'node:fs';
 globalThis.localStorage = { getItem: () => null, setItem: () => {} };
 const { buildRegistry } = await import('../src/registry.js');
 const { Game } = await import('../src/game.js');
-const { REALM_BOSSES } = await import('../src/data/enemies.js');
 const { BX, bxEnemyDef } = await import('../src/bosses/index.js');
 const B0 = new URL('../art/bundle/', import.meta.url), J = (q) => JSON.parse(readFileSync(new URL(q, B0), 'utf8')), idx = J('index.json');
 const reg = buildRegistry(idx.atlases.map((a) => ({ pack: a.split('/')[0], json: J(a) })), J(idx.hover), (q) => q);
@@ -21,7 +20,7 @@ function fresh(id, land) {
   const p = g.player; g.gainXp(999999); const t = TIER[land];
   p.equip = [`wand_t${t}`, p.equip[1], `robe_t${t}`, `ring_hp_t${Math.min(3, Math.round(t / 4))}`];
   const at = { x: p.x, y: p.y - 5 };
-  const e = BX[id] ? g.spawnRealmBoss(id, at, bxEnemyDef(id)) : g.spawnRealmBoss(id, at, REALM_BOSSES[id]);
+  const e = g.spawnRealmBoss(id, at, bxEnemyDef(id));
   return { g, p, e };
 }
 const rows = [];

@@ -36,5 +36,5 @@ export const BX = { framework_test, abyssal_kraken, thornheart_treant, glacius_f
 export function bxEnemyDef(id) {
   const B = BX[id];
   return { name: B.name, biome: B.biome || 'dungeon', hp: B.hp, def: B.def || 0, xp: B.xp || 1000, r: B.r || 1.6, speed: B.speed || 1.2,
-    keep: B.keep || 6, aggro: 30, bx: id, phases: [{ at: 1, cycle: [] }], moves: {}, loot: B.loot || [], lootLuck: B.lootLuck || 1 };
+    keep: B.keep || 6, aggro: 30, bx: id, loot: B.loot || [], lootLuck: B.lootLuck || 1 };
 }

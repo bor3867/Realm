@@ -73,8 +73,8 @@ L.push('- Classes: ' + list(Object.keys(CLASSES)), '');
 L.push('## Dungeons', '');
 const dg = [];
 for (const [id, D] of Object.entries(DUNGEONS)) {
-  const B = BX[D.boss] || DUNGEON_BOSSES[D.boss];
-  dg.push([(DUNGEON_RATING[id] || [3])[0], id, D.name, B ? B.name : D.boss === 'unstruck' ? 'The Unstruck' : '']);
+  const B = BX[D.boss];
+  dg.push([(DUNGEON_RATING[id] || [3])[0], id, D.name, B ? B.name : '']);
 }
 for (const d of RF.dungeons) { const B = RF.bosses.find((b) => b.id === d.boss); dg.push([RATING[d.id] || 3, 'rf_' + d.id, d.name, B ? B.name : '']); }
 dg.sort((a, b) => a[0] - b[0] || a[1].localeCompare(b[1]));
@@ -90,7 +90,7 @@ const SPEC = (B) => [...new Set(B.phases.flatMap((ph) => Object.keys(ph).filter(
 L.push('', '### Realmforge bosses on the three-phase engine (`/bx rfx_ID`)', '');
 table(['Id', 'Boss', 'Phases', 'Specials']);
 for (const B of RF.bosses) row(code('rfx_' + B.id), B.name, B.phases.length, SPEC(B).join(', ') || '-');
-L.push('- Dungeon (`/spawn`, or `/boss` to go to it): ' + list(Object.keys(DUNGEON_BOSSES)) + ', `unstruck`', '');
+L.push('- Dungeon (`/boss` to go to it): ' + list(Object.keys(DUNGEON_BOSSES).filter((k) => k !== 'the_unstruck_god').concat(['unstruck', 'unstruck_god'])), '');
 
 L.push('## Pets', '');
 L.push('- Lines: ' + list(Object.keys(PET_KINDS)));

@@ -12,15 +12,8 @@ const BXS = (boss, shot) => `bx_shots/${boss}.${shot}`, BX2 = (boss, shot) => `b
 // ---------------------------------------------------------------- the toolkit
 const tools = {
   spBy(e) { return e.D.name; },
-  spLv(e) { return e.bx ? e.bx.phase : e.rxPhase || 1; },
-  spDmg(e, k = 1) {
-    if (e.bx) return Math.round(this.bxDmg(e, 100) * k);
-    if (e.spD === undefined) {
-      const all = Object.values(e.D.moves || {}).flatMap((M) => M.fire || []).map((f) => f.dmg).filter(Boolean);
-      e.spD = all.length ? all.reduce((a, b) => a + b, 0) / all.length : 60;
-    }
-    return Math.round(e.spD * k);
-  },
+  spLv(e) { return e.bx ? e.bx.phase : 1; },
+  spDmg(e, k = 1) { return Math.round((e.bx ? this.bxDmg(e, 100) : 60) * k); },
   spArena(e) {
     const A = (e.bx && e.bx.arena) || e.room;
     if (A) return { x: A.x, y: A.y, w: A.w, h: A.h, cx: A.x + A.w / 2, cy: A.y + A.h / 2, r: Math.min(A.w, A.h) / 2 - 1 };

@@ -131,7 +131,7 @@ Type commands in chat (`/` or Enter). Ids use underscores. Regenerate with `node
 | `rfx_gourdrick` | Lord Gourdrick | 5 | healEvery, snare, dome, curse, rage |
 | `rfx_mirabeau` | Mirabeau the Magnificent | 6 | spotlight, shell, encore, rage |
 | `rfx_orrigan` | Orrigan | 5 | fold, ink, rage |
-- Dungeon (`/spawn`, or `/boss` to go to it): `drowned_abbot`, `fallen_heart`, `the_archivist`, `the_unstruck_god`, `tidebound_lich`, `forgeheart_colossus`, `honey_queen`, `the_puppeteer`, `prism_wyrm`, `the_sleeper`, `unstruck`
+- Dungeon (`/boss` to go to it): `drowned_abbot`, `fallen_heart`, `the_archivist`, `tidebound_lich`, `forgeheart_colossus`, `honey_queen`, `the_puppeteer`, `prism_wyrm`, `the_sleeper`, `unstruck`, `unstruck_god`
 
 ## Pets
 

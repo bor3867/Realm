@@ -772,7 +772,7 @@ export class Game {
       if (elite) { e.elite = true; e.hp = e.maxHp = Math.round(e.maxHp * 2.4); }
       if (e.D.children) { e.kids = []; e.childT = e.D.every * 1.5; }
     });
-    const bossHp = BX[def.boss] ? BX[def.boss].hp : DUNGEON_BOSSES[def.boss].hp;
+    const bossHp = BX[def.boss].hp;
     const maxDep = Math.max(1, ...m.rooms.map((q) => q.dep || 0));
     // a WARDEN: one of the dungeon's champions, swollen with the seal it guards. Slow to kill, brutal to stand near.
     const warden = (rm) => {
@@ -804,11 +804,8 @@ export class Game {
     if (def.extraSpawns) spawn(def.extraSpawns(m));                   // things a dungeon places itself (Mirerot's lashers)
     this.spawnPending = spawn; this.dungeonFill = fill;
     const br = m.rooms[m.rooms.length - 1];
-    if (BX[def.boss]) {                         // a Realm Update boss: it waits at the far side of its arena
+    {                                                   // its boss (three-phase engine) waits at the far side of its arena
       const b = this.spawnRealmBoss(def.boss, { x: br.cx + 0.5, y: BX[def.boss].spawnCentre ? br.cy + 0.5 : br.y + 11 }, bxEnemyDef(def.boss));
-      b.state = 'sleep'; b.room = br;
-    } else {
-      const b = this.spawnRealmBoss(def.boss, { x: br.cx + 0.5, y: br.cy - 1 }, DUNGEON_BOSSES[def.boss]);
       b.state = 'sleep'; b.room = br;
     }
   }
@@ -872,7 +869,8 @@ export class Game {
     }
   }
   spawnRealmBoss(id, at, def) {
-    const D = BX[id] && !(def && def.bx) ? bxEnemyDef(id) : def || REALM_BOSSES[id];   // (a boss rebuilt on the three-phase engine always rises as that)
+    const D = def && def.bx ? def : BX[id] ? bxEnemyDef(id) : null;   // (every boss fights on the three-phase engine)
+    if (!D) return null;
     const pos = at || randomTileInBiome(this.map, BIOMES.indexOf(D.biome), R, this.player, 22);
     if (!pos) return null;
     const e = { id, rb: true, D: { ...D, aggro: 16, attacks: [] }, x: pos.x, y: pos.y, hx: pos.x, hy: pos.y,
@@ -2254,13 +2252,6 @@ export class Game {
       return 0;
     }
     let d = e.netRawHit ? Math.round(dmg) : mitigate(dmg, e.D ? e.D.def : 0, false);   // (a player's blow on the server: Defense already taken off)
-    const SV = e.rb && !e.survived && e.D.phases && e.D.phases.find((ph) => ph.survive);
-    if (SV && e.hp - d <= e.maxHp * SV.at) {                 // the last of its life: it refuses to die, and you must survive it
-      d = Math.max(0, Math.round(e.hp - e.maxHp * SV.at));
-      e.hp = e.maxHp * SV.at; e.survived = true; e.surviveUntil = this.t + SV.survive; e.st = 0;
-      this.banner(SV.name || `${e.D.name} cannot be hurt. SURVIVE!`, 3200); this.vx({ k: 'shake', amt: 8 }); this.sfx('boss');
-      return d;
-    }
     if (this.map.ckCandles || (this.map.def && this.map.def.style === 'keep')) d = this.ckDamage(e, d);   // the Keep: thralls burn in candlelight
     if (e.D && e.D.bx && !e.bxKill && e.bx && e.bx.B.hitScale) d = Math.round(d * e.bx.B.hitScale(this, e));   // (a boss that takes more or less, by its state: Emily mid-sentence, or out of breath)
     if (e.D && e.D.bx && !e.bxKill) d = this.bxClamp(e, d);
@@ -3716,7 +3707,7 @@ export class Game {
     if (kind === 'emily') {
       const at = randomTileInBiome(m, BIOMES.indexOf('runeholt'), R, p, 14) || randomTileInBiome(m, Math.max(0, biomeAt(m, p.x, p.y)), R, p, 14);
       if (!at) return;
-      const e = this.spawnRealmBoss('emily_the_yapper', at, REALM_BOSSES.emily_the_yapper);
+      const e = this.spawnRealmBoss('emily_the_yapper', at);
       if (!e) return;
       this.banner('Emily, the Yapper has waddled into the Runeholt. You can hear her from here.', 3400);
       this.sfx('boss');
@@ -3740,7 +3731,7 @@ export class Game {
       { slot: 'ability', tiers: [4, 5], p: 0.8 }, { stat: true, p: 1 }, { stat: true, p: 1 }, { id: 'mystery_box', p: 1 }, { id: 'shard_of_the_first_star', p: 0.05 }];
     const chest = { sprite: 'chest', x: x + 0.5, y: y + 4.5, solid: true, interact: 'chest', starLoot: loot, guards: [] };
     if (!isSolid(m, chest.x, chest.y)) { m.objects.push(chest); m.solid[Math.floor(chest.y) * m.w + x] = 1; }
-    const boss = this.spawnRealmBoss('the_fallen_star', { x: x + 0.5, y: y + 0.5 }, REALM_BOSSES.the_fallen_star);
+    const boss = this.spawnRealmBoss('the_fallen_star', { x: x + 0.5, y: y + 0.5 });
     if (boss) { boss.st = 3.5; boss.invulnT = 3.5; chest.guards = [boss]; }
     for (let k = 0; k < 16; k++) this.fx.push({ kind: 'star', x: x + 0.5 + (R() - 0.5) * 10, y: y + 0.5 + (R() - 0.5) * 10, t: 0, life: 1.4 + k * 0.08, delay: 0.8 + k * 0.08, r: 1.4, dmg: 0, done: false });
     this.vx({ k: 'shake', amt: 9 });
@@ -3939,12 +3930,9 @@ export class Game {
         if (left.length) this.addBag(p.x, p.y + 0.4, left);
         this.events.push({ type: 'ground' }); say(`Gave ${ids.length} × ${it.name}.`); break;
       }
-      case 'spawn': {                                     // any monster, elite or boss by id (the Unstruck: /boss unstruck)
-        const id = args[0];
+      case 'spawn': {                                     // any monster, elite or boss by id
+        const id = ({ the_unstruck_god: 'unstruck_god', unstruck: 'unstruck_smith', the_unstruck: 'unstruck_smith' })[args[0]] || args[0];
         if (BX[id]) { const e = this.spawnRealmBoss(id, near(7), bxEnemyDef(id)); if (e) say(`${e.D.name} (${e.D.hp} life).`); break; }
-        if (REALM_BOSSES[id]) { this.spawnRealmBoss(id, near(6)); say(`Spawned ${REALM_BOSSES[id].name}.`); break; }
-        if (DUNGEON_BOSSES[id]) { const e = this.spawnRealmBoss(id, near(6), DUNGEON_BOSSES[id]); if (e) say(`Spawned ${e.D.name}.`); break; }
-        if (id === 'unstruck') { say('The Unstruck lives only in its forge: /boss unstruck.'); break; }
         if (!ENEMIES[id]) { say(`Unknown id. Monsters, elites and bosses: see ADMIN_REFERENCE.md (or /bosses).`); break; }
         for (let k = 0; k < Math.min(30, n(args[1], 1)); k++) {
           const at = near(3 + (k % 4)), e = this.addEnemy(id, at.x, at.y);
@@ -3956,11 +3944,11 @@ export class Game {
         const id = ({ emily: 'emily_the_yapper', penguin: 'emily_the_yapper', unstruck_god: 'the_unstruck_god', god: 'the_unstruck_god' })[args[0]] || args[0] || BIOME_BOSS[BIOMES[Math.max(0, biomeAt(this.map, p.x, p.y))]];
         const dz = { drowned_abbot: 'chapel', fallen_heart: 'heart', unstruck: 'forge', unstruck_smith: 'forge', the_archivist: 'scriptorium', the_unstruck_god: 'throne', tidebound_lich: 'crypt', forgeheart_colossus: 'ember' }[id];
         if (dz) { this.enter(dz); const br = this.map.rooms.at(-1); p.x = br.cx; p.y = br.cy + 7; say(`Into ${this.map.name}.`); break; }
-        if (!REALM_BOSSES[id]) { say(`Bosses: ${Object.keys(REALM_BOSSES).join(', ')}, unstruck, drowned_abbot, fallen_heart`); break; }
+        if (!REALM_BOSSES[id]) { say(`Realm bosses: ${Object.keys(REALM_BOSSES).join(', ')}. Dungeon bosses take you to their dungeon: /bosses`); break; }
         if (this.map.kind !== 'realm') { say('Realm bosses only spawn in the realm. /tp realm first.'); break; }
         this.spawnRealmBoss(id, near(6)); break;
       }
-      case 'bosses': say(`Realm: ${Object.keys(REALM_BOSSES).join(', ')} | Dungeon: ${Object.keys(DUNGEON_BOSSES).join(', ')}, unstruck | Three-phase: ${Object.keys(BX).join(', ')} (all work with /spawn)`); break;
+      case 'bosses': say(`Realm (/boss): ${Object.keys(REALM_BOSSES).join(', ')} | Every boss (/spawn): ${Object.keys(BX).join(', ')}`); break;
       case 'seals': {
         if (this.map.kind !== 'dungeon' || !this.map.sealsLeft) { say('No seals here.'); break; }
         while (this.map.sealsLeft) this.breakSeal('By admin decree.');
