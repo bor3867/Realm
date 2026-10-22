@@ -155,7 +155,7 @@ export function weightOf(D) {
   return (D.wk = WEIGHT[w || 'normal'] || WEIGHT.normal);
 }
 const AIMED = new Set(['aimed', 'shotgun', 'wall', 'beam', 'burst', 'cage']);   // attacks aimed at you, which want a clear line
-const TALKY = new Set(['scope', 'mask', 'maskstand', 'mirror', 'sigil', 'alarm', 'journal', 'petyard', 'shop', 'forge', 'board', 'talk', 'lore', 'wish', 'altar', 'dig', 'fish', 'cat', 'bard', 'fortune', 'waypoint', 'riddle', 'mystery']);
+const TALKY = new Set(['scope', 'mask', 'maskstand', 'mirror', 'sigil', 'alarm', 'journal', 'petyard', 'shop', 'forge', 'board', 'talk', 'lore', 'wish', 'altar', 'dig', 'fish', 'cat', 'bard', 'fortune', 'waypoint', 'riddle', 'mystery', 'guide', 'atlas', 'legends']);
 const VILLAGER_LINES = ['Lovely evening.', 'Did you hear the bells last night?', 'Mind the cat. She bites.', 'The Peddler overcharged me again.',
   'My cousin went into the realm. He came back a toad.', 'Is it always dusk here? Huh.', 'Watch out for the Golden Duck. It\'s a scam.',
   'Nice weather for adventuring!', 'I\'ve never seen the sun. Have you?', 'Hey, you\'re the one who pets the cat!'];
@@ -170,9 +170,9 @@ const FORTUNES = ['You will meet a tall, dark monster. It will be very rude.', '
 const NEXUS_GUIDE = [
   'Welcome to the Nexus: the one safe place in the realm. Nothing can hurt you here. Talk to me again and I will show you round.',
   'North, the Realm Portal. Step through to fight. The farther you go from the beach, the stronger the monsters and the better the loot.',
-  'West, your Vault: keep there what you cannot carry. East, the Salt-Peddler buys and sells. South, the Forge raises your gear a tier, for gold.',
-  'By the fire, the Quest Board has work for gold and fame, and the Dungeon Atlas tells you every dungeon, how hard it is, and where its portal drops.',
-  'Past the market, the Pet Yard: hatch eggs and raise a companion that heals you as you fight. The well heals you here; the dummies to the north-west show your damage.',
+  'West, the Bazaar: your Vault keeps what you cannot carry, and the Salt-Peddlers buy and sell. South-east, in the Emberworks, the Forge raises your gear a tier, for gold.',
+  'South-west, in the Gardens, the Quest Board has work for gold and fame, and the Dungeon Atlas tells you every dungeon, how hard it is, and where its portal drops.',
+  'The Petkeeper in the Gardens hatches eggs and raises a companion that heals you as you fight. The Crystal Well heals you here; the dummies in the Hall of Legends, to the east, show your damage.',
   'One more thing. If you fall out there, that hero is gone for good; but the fame you earned stays with you. Good hunting.',
 ];
 

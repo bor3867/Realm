@@ -1,6 +1,5 @@
 // Map generation: the Nexus (hub), the Realm (procedural island), the Drowned Forge (dungeon).
 import { rng, noise2, dist } from '../util.js';
-import { NEXUS_ART } from './nexus_art.js';
 
 export const TILE_NAMES = ['water', 'deep', 'sand', 'fen', 'mud', 'snow', 'runefloor', 'runeglyph',
   'ash', 'obsidian', 'marble', 'forge', 'forgewall', 'lava', 'void', 'chapelfloor', 'chapelwall', 'goldvein', 'ribwall',
@@ -9,9 +8,11 @@ export const TILE_NAMES = ['water', 'deep', 'sand', 'fen', 'mud', 'snow', 'runef
   'combfloor', 'waxwall', 'honey', 'stageboards', 'velvetwall', 'prismfloor', 'crystalwall', 'dreamfloor', 'dreamwall', 'starvoid', 'dreambridge', 'fadebridge', 'fadegone',
   'cliff', 'rift', 'fvsnow', 'fvice', 'fvwater', 'fvwall', 'mrmud', 'mrmoss', 'mrboard', 'mrwall', 'asmarble', 'asgrate', 'asvoid', 'aswall', 'sdsand', 'sdtomb', 'quicksand', 'sdwall', 'ckstone', 'ckcarpet', 'ckmarble', 'ckblood', 'ckwall', 'ckwin', 'hmsaw', 'hmboard', 'hmcheck', 'hmspin', 'hmwall',
   // the user's Realmforge dungeons (src/rf/host.js): one name per tile code of theirs; their art is drawn per dungeon
-  'rf_wall', 'rf_floor', 'rf_path', 'rf_pit', 'rf_secret', 'rf_gate', 'rf_haz', 'rf_liq', 'rf_ice', 'rf_bridge', 'rf_tog', 'rf_break', 'rf_conv', 'rf_deep'];
+  'rf_wall', 'rf_floor', 'rf_path', 'rf_pit', 'rf_secret', 'rf_gate', 'rf_haz', 'rf_liq', 'rf_ice', 'rf_bridge', 'rf_tog', 'rf_break', 'rf_conv', 'rf_deep',
+  // the Nexus, built in true 8x8 tiles (tools/build_nexus_tiles.py)
+  'nxstone', 'nxtrim', 'nxinlay', 'nxwall', 'nxwater', 'nxchasm', 'nxbridge', 'nxsand', 'nxgrass', 'nxbrick'];
 export const TID = Object.fromEntries(TILE_NAMES.map((n, i) => [n, i]));
-const SOLID_TILES = new Set([TID.water, TID.deep, TID.forgewall, TID.void, TID.chapelwall, TID.ribwall, TID.hedge, TID.bramble, TID.cryptwall, TID.emberwall, TID.cryptwater,
+const SOLID_TILES = new Set([TID.nxwall, TID.nxwater, TID.nxchasm, TID.water, TID.deep, TID.forgewall, TID.void, TID.chapelwall, TID.ribwall, TID.hedge, TID.bramble, TID.cryptwall, TID.emberwall, TID.cryptwater,
   TID.waxwall, TID.velvetwall, TID.crystalwall, TID.dreamwall, TID.starvoid, TID.fadegone, TID.cliff, TID.fvwall, TID.mrwall, TID.aswall, TID.sdwall, TID.ckwall, TID.ckwin, TID.hmwall]);
 export const BIOMES = ['shore', 'fen', 'runeholt', 'godfall', 'dunes', 'thornwood', 'steppe', 'lowlands'];
 // how deep in each land lies: 0 the coast ... 3 the god's fall. The three newer lands share a ring with an older one.
@@ -50,9 +51,14 @@ export const SKINS = [null,
   // Astral Observatory Plus: inlaid and cracked marble, star-map inlays, skylights, brass walkways, the star vault's floor
   ['ap_tiles/astral_marble_inlay', 'asmarble'], ['ap_tiles/astral_marble_cracked', 'asmarble'], ['ap_tiles/astral_constellation_inlay', 'asmarble'],
   ['ap_tiles/astral_constellation_inlay_b', 'asmarble'], ['ap_tiles/astral_skylight', 'asmarble'], ['ap_tiles/astral_brass_walkway', 'asgrate'],
-  ['ap_tiles/vault_floor', 'asmarble'], ['ap_tiles/vault_floor_plain', 'asmarble']];
+  ['ap_tiles/vault_floor', 'asmarble'], ['ap_tiles/vault_floor_plain', 'asmarble'],
+  // the Nexus: flagstones a/b, trim, the rune inlay, the wall's top, pool water, the chasm, bridges, the bazaar's sand a/b, the gardens' grass a/b and flowers, the forge's brick
+  ['nx_tiles/nexus_stone_a', 'nxstone'], ['nx_tiles/nexus_stone_b', 'nxstone'], ['nx_tiles/nexus_trim', 'nxtrim'], ['nx_tiles/nexus_inlay', 'nxinlay'],
+  ['nx_tiles/nexus_wall_top', 'nxwall'], ['nx_tiles/nexus_water', 'nxwater'], ['nx_tiles/nexus_chasm', 'nxchasm'], ['nx_tiles/nexus_bridge', 'nxbridge'],
+  ['nx_tiles/nexus_sand_a', 'nxsand'], ['nx_tiles/nexus_sand_b', 'nxsand'], ['nx_tiles/nexus_grass_a', 'nxgrass'], ['nx_tiles/nexus_grass_b', 'nxgrass'],
+  ['nx_tiles/nexus_flowers', 'nxgrass'], ['nx_tiles/nexus_brick', 'nxbrick']];
 // a wall skin's face: drawn under the wall, toward the camera, so walls stand up (RotMG-style)
-export const WALL_FACE = { fvwall: 'ex_tiles/frostveil_wall_side', mrwall: 'ex_tiles/mirerot_wall_side', aswall: 'ex_tiles/astral_wall_side', sdwall: 'ex_tiles/sandscour_wall_side', ckwall: 'd2_tiles/crimson_keep_wall_side', ckwin: 'd2_tiles/crimson_keep_wall_window', hmwall: 'd2_tiles/hollowmoon_wall_side' };
+export const WALL_FACE = { nxwall: 'nx_tiles/nexus_wall_side', fvwall: 'ex_tiles/frostveil_wall_side', mrwall: 'ex_tiles/mirerot_wall_side', aswall: 'ex_tiles/astral_wall_side', sdwall: 'ex_tiles/sandscour_wall_side', ckwall: 'd2_tiles/crimson_keep_wall_side', ckwin: 'd2_tiles/crimson_keep_wall_window', hmwall: 'd2_tiles/hollowmoon_wall_side' };
 export const SKIN_TID = SKINS.map((s) => (s ? TID[s[1]] : -1));
 export const SK = Object.fromEntries(SKINS.map((s, k) => [s ? s[0].split('/')[1].replace(/^(shore|lowlands|midlands|highlands|godlands)_/, '') + (s[1] === 'deep' || s[1] === 'steppe' || s[1] === 'ckwin' ? '@' + s[1] : '') : '-', k]));
 // a fixed per-tile hash (0..1), so jitter and dithering never disturb the generator's random stream
@@ -111,54 +117,106 @@ function bigProp(m, name, x, y) {
   m.objects.push({ sprite: 'lm:' + name, x, y: y + 0.5, solid: false, big: true });
   m.solid[idx(m, x - 1, y)] = 1; m.solid[idx(m, x, y)] = 1;
 }
-// ------------------------------------------------------------------ THE NEXUS, painted (2026-10-21): the user's art is its floor
-// (art/world/nexus_art.png, 16 art pixels a tile, drawn 1:1); where you can walk comes from it (tools/build_nexus_art.mjs).
-// Its districts as the art names them: the Realm Gates (seven portals to the realm), the Wanderer's Bazaar (the vault,
-// the market), the Hall of Legends (your fallen heroes and your class stars; the training dummies), the Verdant Gardens
-// (the Pet Yard, the quest board, the Dungeon Atlas, the pond), the Emberworks (the Forge), the Crystal Plaza (the well
-// heals), the Spawn (the guide). The services stand at the art's own labels (their names are painted: no floating tag).
+// ------------------------------------------------------------------ THE NEXUS (rebuilt 2026-10-22 in true 8x8 tiles; the painted
+// one before it was the user's art laid as a floor, walked over like a carpet). Its districts: the Realm Gates (seven
+// portals to the realm), the Bazaar (the vault, the market), the Hall of Legends (your fallen heroes and class stars; the
+// training dummies), the Gardens (the Pet Yard, the quest board, the Dungeon Atlas, the pond), the Emberworks (the Forge),
+// the Crystal Plaza (the great crystal and its well), the Arrival (the guide).
 export function nexus() {
-  const A = NEXUS_ART, W = A.w, H = A.h;
-  const m = makeMap('nexus', 'The Nexus', W, H, TID.hedge);
-  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) m.tiles[idx(m, x, y)] = A.rows[y][x] === '.' ? TID.cobble : TID.hedge;
-  const open = (x0, y0, x1, y1) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (x > 0 && y > 0 && x < W - 1 && y < H - 1) m.tiles[idx(m, x, y)] = TID.cobble; };
-  m.artBg = 'nexus_art';
-  m.rfMini = (i) => { const h = A.cols.slice(i * 6, i * 6 + 6); return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)]; };
-  // the Realm Gates: seven painted portals, all to the realm (the blue one in the middle is the one named)
+  // The Nexus, built in true 8x8 tiles (2026-10-22; tools/build_nexus_tiles.py): a crystal plaza of flagstones over a
+  // starry chasm, its districts on their own platforms joined by bridges. Walls rim each platform; the pools and the
+  // chasm stop you. The crystal, the waterfalls, the braziers and the banners are animated objects.
+  const W = 76, H = 66, CX = 38, CY = 34;
+  const m = makeMap('nexus', 'The Nexus', W, H, TID.nxchasm);
+  const r = rng(0x9e55);
+  const at = (x, y) => (x < 0 || y < 0 || x >= W || y >= H ? -1 : m.tiles[idx(m, x, y)]);
+  const set = (x, y, t) => { if (x > 0 && y > 0 && x < W - 1 && y < H - 1) m.tiles[idx(m, x, y)] = t; };
+  const rect = (x0, y0, x1, y1, t) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) set(x, y, t); };
+  const oct = (cx, cy, rx, ry, cut, t) => { for (let y = cy - ry; y <= cy + ry; y++) for (let x = cx - rx; x <= cx + rx; x++) if (Math.abs(x - cx) + Math.abs(y - cy) <= cut) set(x, y, t); };
+  // ---- the platforms
+  oct(CX, CY, 14, 14, 20, TID.nxstone);                                    // the Crystal Plaza
+  rect(CX - 2, 9, CX + 2, CY - 13, TID.nxstone);                           // the causeway north
+  rect(CX - 16, 3, CX + 16, 10, TID.nxstone);                              // the Realm Gates
+  rect(3, CY - 15, 19, CY + 1, TID.nxsand);                                // the Bazaar (west)
+  rect(W - 20, CY - 15, W - 4, CY + 1, TID.nxstone);                       // the Hall of Legends (east)
+  rect(3, CY + 6, 21, H - 4, TID.nxgrass);                                 // the Gardens (south-west)
+  rect(W - 21, CY + 6, W - 4, H - 10, TID.nxbrick);                        // the Emberworks (south-east)
+  rect(CX - 2, CY + 13, CX + 2, H - 13, TID.nxstone);                      // the causeway south
+  rect(CX - 7, H - 13, CX + 7, H - 3, TID.nxstone);                        // the Arrival
+  // ---- water: the plaza's great pool round the crystal's island, four corner pools, the garden pond
+  oct(CX, CY, 6, 5, 8, TID.nxwater);
+  rect(CX - 1, CY - 1, CX + 1, CY + 1, TID.nxstone);                       // the crystal's island
+  for (const [dx, dy] of [[-9, -9], [9, -9], [-9, 9], [9, 9]]) oct(CX + dx, CY + dy, 2, 2, 2, TID.nxwater);
+  oct(9, H - 12, 3, 2, 4, TID.nxwater);
+  // ---- trim round the water (walkable), the rune ring round the great pool
+  const ring = [];
+  for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) if (at(x, y) === TID.nxstone && [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => at(x + dx, y + dy) === TID.nxwater)) ring.push([x, y]);
+  for (const [x, y] of ring) set(x, y, TID.nxtrim);
+  for (let a = 0; a < 32; a++) { const t = (a / 32) * Math.PI * 2, x = Math.round(CX + Math.cos(t) * 9.5), y = Math.round(CY + Math.sin(t) * 8.5); if (at(x, y) === TID.nxstone && a % 2 === 0) set(x, y, TID.nxinlay); }
+  // ---- walls: a rim of stone wherever a platform meets the chasm (a parapet you can't walk through)
+  const near8 = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1], [1, -1], [-1, -1]], rim = [];
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) if (at(x, y) === TID.nxchasm && near8.some(([dx, dy]) => { const t = at(x + dx, y + dy); return t >= 0 && t !== TID.nxchasm && t !== TID.nxwall; })) rim.push([x, y]);
+  for (const [x, y] of rim) m.tiles[idx(m, x, y)] = TID.nxwall;
+  // ---- bridges over the chasm (their two ends cut through the rims)
+  const bridge = (x0, y0, x1, y1) => rect(x0, y0, x1, y1, TID.nxbridge);
+  bridge(20, CY - 7, CX - 12, CY - 6);                                     // to the Bazaar
+  bridge(CX + 12, CY - 7, W - 21, CY - 6);                                 // to the Hall of Legends
+  bridge(14, CY + 2, 15, CY + 5);                                          // the Bazaar down to the Gardens
+  bridge(22, CY + 9, CX - 11, CY + 10);                                    // the Gardens to the plaza
+  bridge(CX + 11, CY + 9, W - 22, CY + 10);                                // the plaza to the Emberworks
+  // ---- the skins: flagstones and grass vary, tile by tile
+  m.skin = new Uint8Array(W * H);
+  const ONE = { [TID.nxtrim]: 'nexus_trim', [TID.nxinlay]: 'nexus_inlay', [TID.nxwall]: 'nexus_wall_top', [TID.nxwater]: 'nexus_water', [TID.nxchasm]: 'nexus_chasm', [TID.nxbridge]: 'nexus_bridge', [TID.nxbrick]: 'nexus_brick' };
+  const pick = (t) => { const h = r(); if (t === TID.nxstone) return h < 0.5 ? 'nexus_stone_a' : 'nexus_stone_b'; if (t === TID.nxgrass) return h < 0.12 ? 'nexus_flowers' : h < 0.55 ? 'nexus_grass_a' : 'nexus_grass_b';
+    if (t === TID.nxsand) return h < 0.5 ? 'nexus_sand_a' : 'nexus_sand_b'; return ONE[t]; };
+  for (let i = 0; i < W * H; i++) { const k = SK[pick(m.tiles[i])]; if (k !== undefined) m.skin[i] = k; }
+  // ---- the Crystal Plaza: the great crystal on its island, shards round the pool, braziers at its four corners
+  put(m, 'nx_objects/nexus_crystal_pillar', CX, CY, true);
+  put(m, 'nx_objects/nexus_shard', CX, CY + 7, true, { interact: 'fountain', label: 'Drink from the crystal (heals)', tag: 'CRYSTAL WELL', hint: 'Drink to heal fully' });
+  for (const [dx, dy] of [[-4, -3], [4, -3], [-5, 2], [5, 2], [-2, 4], [2, 4]]) put(m, 'nx_objects/nexus_shard', CX + dx, CY + dy, false);
+  for (const [dx, dy] of [[-4, -8], [4, -8], [-4, 8], [4, 8]]) put(m, 'nx_objects/nexus_brazier', CX + dx, CY + dy, false);
+  for (const [dx, dy] of [[-9, -9], [9, -9], [-9, 9], [9, 9]]) put(m, 'nx_objects/nexus_waterfall', CX + dx, CY + dy - 2, false);   // each corner pool fed from above
+  // ---- the Realm Gates: seven portals in a row, banners between, braziers at the ends
   m.portals = [];
-  for (const gx of [24, 29, 35, 41, 47, 53, 58]) {
-    open(gx - 1, 8, gx + 1, 12);
-    m.portals.push({ kind: 'realm', x: gx + 0.5, y: 9.5, label: 'Realm Portal', to: 'realm', hidden: true,
-      ...(gx === 41 ? { tag: 'REALM PORTAL', hint: 'Step in to fight. The farther from the beach, the stronger the monsters and the better the loot' } : {}) });
+  for (let k = 0; k < 7; k++) {
+    const gx = CX - 12 + k * 4;
+    m.portals.push({ kind: 'realm', x: gx + 0.5, y: 5.5, label: 'Realm Portal', to: 'realm',
+      ...(k === 3 ? { tag: 'REALM PORTAL', hint: 'Step in to fight. The farther from the beach, the stronger the monsters and the better the loot' } : {}) });
+    if (k < 6) put(m, 'nx_objects/nexus_banner_red', gx + 2, 4, false);
   }
-  // the Wanderer's Bazaar: the vault, the market (SHOP and TRADE)
-  m.portals.push({ kind: 'vault', x: 16.5, y: 22, label: 'Your Vault', to: 'vault', hidden: true, hint: 'Keep what you cannot carry. It grows with every Vault Chest you buy' });
-  put(m, 'merchant', 9, 29, true, { interact: 'shop', label: 'Trade with the Salt-Peddler', hint: 'Buy potions and gear; sell what you do not need' });
-  put(m, 'merchant', 19, 26, true, { interact: 'shop', label: 'Trade with the Salt-Peddler', hint: 'Buy potions and gear; sell what you do not need' });
-  // the Verdant Gardens: the Pet Yard, the quest board (GUILD), the Dungeon Atlas (EVENTS), the pond
-  put(m, 'petkeeper', 8, 44, true, { interact: 'petyard', label: 'Visit the Petkeeper (pets, eggs, feeding)', hint: 'Hatch eggs, raise pets, choose the companion who heals you' });
-  m.pen = { x0: 4, y0: 48, x1: 11, y1: 52 };
-  put(m, 'board', 19, 44, true, { interact: 'board', label: 'Read the quest board', hint: 'Take quests for gold, essence and fame' });
-  put(m, 'bookshelf', 14, 62, true, { interact: 'atlas', label: 'Read the Dungeon Atlas', hint: 'Every dungeon: how hard it is, its boss, where its portal drops' });
-  put(m, 'fishspot', 8, 58, true, { interact: 'fish', label: 'Fish in the pond', tag: 'FISHING', hint: 'Cast a line: now and then something good bites' });
-  // the Hall of Legends: your legends (LEADERBOARDS, ACHIEVEMENTS); the training dummies between the statues
-  put(m, 'banner', 71, 32, true, { interact: 'legends', label: 'Read the Hall of Legends', hint: 'Your fallen heroes, and the stars each class has earned' });
-  put(m, 'banner', 76, 24, true, { interact: 'legends', label: 'Read the Hall of Legends', hint: 'Your fallen heroes, and the stars each class has earned' });
-  m.dummies = [[64.5, 29.5], [68.5, 28.5], [72.5, 29.5], [66.5, 31.5], [70.5, 31.5]];
-  put(m, 'signpost', 66, 33, true, { label: 'Training dummies: hit them to read your damage per second', tag: 'TRAINING DUMMIES', hint: 'Hit them to see your damage per second' });
-  // the Emberworks: the Forge (FORGING)
-  put(m, 'smith', 75, 54, true, { interact: 'forge', label: 'Use the Forge', hint: 'Pay gold to raise your gear a tier (up to T11)' });
-  // the Crystal Plaza: the well heals; the Spawn: the guide
-  put(m, 'well', 41, 45, true, { interact: 'fountain', label: 'Drink from the crystal (heals)', tag: 'CRYSTAL WELL', hint: 'Drink to heal fully' });
-  open(39, 64, 43, 67);
-  put(m, 'villager_guard', 38, 65, true, { interact: 'guide', label: 'Talk to the Nexus guide', tag: 'GUIDE', hint: 'New here? Talk to learn what everything is' });
-  put(m, 'bard', 36, 47, true, { interact: 'bard', label: 'Listen to the bard', tag: 'BARD', hint: 'Listen for a little inspiration' });
-  put(m, 'cat', 43, 62, false, { interact: 'cat', label: 'Pet the cat' });
-  m.strolls = [[33, 40], [49, 40], [41, 52], [41, 20], [30, 30], [52, 30]];
+  for (const x of [CX - 15, CX + 15]) put(m, 'nx_objects/nexus_brazier', x, 8, false);
+  // ---- the Bazaar: the vault, the two merchants, stalls
+  m.portals.push({ kind: 'vault', x: 6.5, y: CY - 12, label: 'Your Vault', to: 'vault', tag: 'VAULT', hint: 'Keep what you cannot carry. It grows with every Vault Chest you buy' });
+  put(m, 'merchant', 8, CY - 6, true, { interact: 'shop', label: 'Trade with the Salt-Peddler', tag: 'SHOP', hint: 'Buy potions and gear; sell what you do not need' });
+  put(m, 'merchant', 15, CY - 10, true, { interact: 'shop', label: 'Trade with the Salt-Peddler', hint: 'Buy potions and gear; sell what you do not need' });
+  for (const [x, y] of [[5, CY - 8], [12, CY - 13], [17, CY - 3], [5, CY - 1]]) put(m, 'nx_objects/nexus_stall', x, y, false);
+  for (const [x, y] of [[11, CY - 4], [18, CY - 14]]) put(m, 'nx_objects/nexus_lamp', x, y, false);
+  // ---- the Hall of Legends: its banner (the legends), the training dummies
+  put(m, 'banner', W - 12, CY - 13, true, { interact: 'legends', label: 'Read the Hall of Legends', tag: 'LEGENDS', hint: 'Your fallen heroes, and the stars each class has earned' });
+  for (const x of [W - 18, W - 15, W - 9, W - 6]) put(m, 'nx_objects/nexus_banner_red', x, CY - 14, false);
+  m.dummies = [[W - 15.5, CY - 4.5], [W - 12.5, CY - 5.5], [W - 9.5, CY - 4.5], [W - 14, CY - 2], [W - 11, CY - 2]];
+  put(m, 'signpost', W - 17, CY - 2, true, { label: 'Training dummies: hit them to read your damage per second', tag: 'TRAINING DUMMIES', hint: 'Hit them to see your damage per second' });
+  // ---- the Gardens: the pet yard, the quest board, the Dungeon Atlas, the pond; blossom trees and flowers
+  put(m, 'petkeeper', 7, CY + 9, true, { interact: 'petyard', label: 'Visit the Petkeeper (pets, eggs, feeding)', tag: 'PETS', hint: 'Hatch eggs, raise pets, choose the companion who heals you' });
+  m.pen = { x0: 4, y0: CY + 11, x1: 11, y1: CY + 15 };
+  put(m, 'board', 17, CY + 9, true, { interact: 'board', label: 'Read the quest board', tag: 'QUESTS', hint: 'Take quests for gold, essence and fame' });
+  put(m, 'bookshelf', 18, H - 8, true, { interact: 'atlas', label: 'Read the Dungeon Atlas', tag: 'ATLAS', hint: 'Every dungeon: how hard it is, its boss, where its portal drops' });
+  put(m, 'fishspot', 13, H - 12, true, { interact: 'fish', label: 'Fish in the pond', tag: 'FISHING', hint: 'Cast a line: now and then something good bites' });
+  for (const [x, y] of [[4, CY + 18], [19, CY + 15], [5, H - 6], [16, H - 5], [20, CY + 20]]) put(m, 'nx_objects/nexus_blossom_tree', x, y, true);
+  for (const [x, y, gold] of [[13, CY + 13, 0], [8, CY + 20, 1], [18, CY + 19, 0], [11, H - 7, 1]]) put(m, gold ? 'nx_objects/nexus_flower_bush_gold' : 'nx_objects/nexus_flower_bush', x, y, false);
+  // ---- the Emberworks: the Forge, braziers
+  put(m, 'smith', W - 12, CY + 11, true, { interact: 'forge', label: 'Use the Forge', tag: 'FORGE', hint: 'Pay gold to raise your gear a tier (up to T11)' });
+  for (const [x, y] of [[W - 17, CY + 8], [W - 7, CY + 8], [W - 17, H - 12], [W - 7, H - 12]]) put(m, 'nx_objects/nexus_brazier', x, y, false);
+  // ---- the Arrival: the guide, the bard by the plaza, the cat, lamps
+  put(m, 'villager_guard', CX - 4, H - 7, true, { interact: 'guide', label: 'Talk to the Nexus guide', tag: 'GUIDE', hint: 'New here? Talk to learn what everything is' });
+  put(m, 'bard', CX - 7, CY + 9, true, { interact: 'bard', label: 'Listen to the bard', tag: 'BARD', hint: 'Listen for a little inspiration' });
+  put(m, 'cat', CX + 4, H - 6, false, { interact: 'cat', label: 'Pet the cat' });
+  for (const x of [CX - 6, CX + 6]) put(m, 'nx_objects/nexus_lamp', x, H - 11, false);
+  m.strolls = [[CX - 10, CY], [CX + 10, CY], [CX, CY + 11], [CX, CY - 11], [CX - 7, CY - 9], [CX + 7, CY - 9]];
   m.villagers = [['villager_farmer', 0], ['villager_child', 2], ['villager_guard', 4]].map(([sp, k]) => ({ sprite: sp, x: m.strolls[k][0] + 0.5, y: m.strolls[k][1] + 0.5, goal: (k + 1) % 6, wait: 0 }));
   m.decor = [];
-  m.spawn = { x: 41.5, y: 66 };
-  m.lights = null;                                             // (the art has its own light: no dusk over it)
+  m.spawn = { x: CX + 0.5, y: H - 6 };
+  m.lights = null;
   finalize(m);
   return m;
 }

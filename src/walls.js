@@ -16,12 +16,13 @@ import { TILE_NAMES, TID, WALL_FACE } from './world/maps.js';
 const TS = 16;
 const C = 8;                                                  // = GROUND_CHUNK in render.js
 export const WALL_TILES = new Set(['forgewall', 'chapelwall', 'ribwall', 'cryptwall', 'emberwall', 'waxwall', 'velvetwall', 'crystalwall', 'dreamwall',
-  'fvwall', 'mrwall', 'aswall', 'sdwall', 'ckwall', 'ckwin', 'hmwall', 'rf_wall', 'rf_secret', 'rf_tog', 'rf_break'].map((n) => TID[n]).filter((t) => t !== undefined));
+  'fvwall', 'mrwall', 'aswall', 'sdwall', 'ckwall', 'ckwin', 'hmwall', 'rf_wall', 'rf_secret', 'rf_tog', 'rf_break', 'nxwall'].map((n) => TID[n]).filter((t) => t !== undefined));
 // how tall each stands, in screen pixels (a tile is 16): castle and chapel walls loom, hedges come to the chest
-const WALL_H = { ckwall: 24, ckwin: 24, chapelwall: 20, ribwall: 20, crystalwall: 20, hedge: 11 };
+const WALL_H = { nxwall: 20, ckwall: 24, ckwin: 24, chapelwall: 20, ribwall: 20, crystalwall: 20, hedge: 11 };
 const heightOf = (name) => WALL_H[name] || 16;
 // each material's face: its courses, its tint, its mood (heavy forge iron, cold crypt stone, tall castle blocks, ...)
 const MAT = {
+  nxwall: { course: 8, tint: [70, 76, 100], tk: 0.1 },
   forgewall: { course: 4, tint: [58, 32, 16], tk: 0.18, rivet: true }, emberwall: { course: 4, tint: [70, 24, 10], tk: 0.2, rivet: true },
   chapelwall: { course: 8, tint: [70, 60, 40], tk: 0.08 }, ckwall: { course: 8, tint: [60, 20, 28], tk: 0.12 }, ckwin: { course: 8, tint: [60, 20, 28], tk: 0.12 },
   cryptwall: { course: 5, tint: [70, 90, 120], tk: 0.18 }, ribwall: { course: 10, tint: [110, 90, 60], tk: 0.12, rib: true },

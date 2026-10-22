@@ -23,7 +23,8 @@
   "heart/atlas_fallen_heart.json",
   "archivist/atlas_the_archivist.json",
   "hollow/atlas_hollow_bosses.json",
-  "last/atlas_last_bosses.json"
+  "last/atlas_last_bosses.json",
+  "nexus/atlas_nexus.json"
  ],
  "hover": "HOVER.json",
  "manifest": "MANIFEST.json"
