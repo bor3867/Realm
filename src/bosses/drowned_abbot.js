@@ -24,7 +24,7 @@ function mark(g, e, x, y, r, delay, dmg, colors, shards, shot) {
 
 // ---- the bells: four, hung in the corners of the nave. Rooted, harmless, never broken: a blow on one rings it
 const BELL = 'abbot_bell', RING = 520;
-if (!ENEMIES[BELL]) ENEMIES[BELL] = { name: 'a Drowned Bell', biome: 'chapel', hp: 1e6, def: 0, speed: 0, xp: 0, r: 0.8, ai: 'rooted', aggro: 0, reg: 'abbot_bell/bell', scale: 1.2, contact: 0, attacks: [], loot: [] };
+if (!ENEMIES[BELL]) ENEMIES[BELL] = { name: 'a Drowned Bell', biome: 'chapel', hp: 1e6, def: 0, speed: 0, xp: 0, r: 0.8, ai: 'rooted', aggro: 0, reg: 'abbot_bell/bell', scale: 1.2, noBar: true, contact: 0, attacks: [], loot: [] };
 const bellSpots = (e) => { const A = arena(e), i = 2.6; return [[A.x + i, A.y + i], [A.x + A.w - i, A.y + i], [A.x + i, A.y + A.h - i], [A.x + A.w - i, A.y + A.h - i]]; };
 function hangBells(g, e) {
   e.abBells = (e.abBells || []).filter((b) => !b.dead);

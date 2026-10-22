@@ -1156,7 +1156,7 @@ export class Renderer {
     this.sprK = 1;
     if (!e.dead) this.mechanicFx(g, e, sx + L.dx, sy + L.dy - L.z, S.img, col * 16, meta.row * 16, 16, L);
     if (!e.dead && e.elite && Math.random() < (e.warden ? 0.6 : 0.35)) this.parts.push({ x: e.x + (Math.random() - 0.5) * 0.8, y: e.y, z: 4 + Math.random() * 12, vx: 0, vy: 0, vz: 4, g: 0, life: 0.6, max: 0.6, color: Math.random() < 0.5 ? (e.warden ? '#ff4a5a' : '#ffd650') : '#ffffff' });
-    if (!e.dead && e.hp < e.maxHp) this.hpBar(sx, sy + 3, e.hp / e.maxHp, 12);
+    if (!e.dead && e.hp < e.maxHp && !e.D.noBar) this.hpBar(sx, sy + 3, e.hp / e.maxHp, 12);
     if (!e.dead && e.stunT > 0) this.stunStars(g, sx, sy, 18);
   }
   // a Realm Update monster (registry art, 4 frames: two to move, attack, hurt), with the same body language as the rest
@@ -1193,7 +1193,7 @@ export class Renderer {
       if (h > 0.15 && Math.floor(g.t * (4 + h * 10)) % 2) this.drawDef(def, fr, x, y, { flip: L.flip, flash: true, alpha: 0.12 + h * 0.3, scale: K });
       if (Math.random() < h * 0.6) this.parts.push({ x: e.x + (Math.random() - 0.5) * 0.6, y: e.y, z: 4 + Math.random() * 6, vx: 0, vy: 0, vz: 10, g: 0, life: 0.5, max: 0.5, color: Math.random() < 0.5 ? '#ff7a1a' : '#ffc94a' });
     }
-    if (!e.dead && e.hp < e.maxHp) this.hpBar(sx, sy + 3, e.hp / e.maxHp, e.D.ability ? 20 : 12);
+    if (!e.dead && e.hp < e.maxHp && !e.D.noBar) this.hpBar(sx, sy + 3, e.hp / e.maxHp, e.D.ability ? 20 : 12);
     if (!e.dead && e.stunT > 0) this.stunStars(g, sx, sy, 18);
     if (e.bulwarkT > g.t && !e.dead) {                       // the reef golem's coral shell
       const b = this.b, pulse = 0.6 + 0.4 * Math.sin(g.t * 8);
@@ -1243,7 +1243,7 @@ export class Renderer {
     this.spr(this.A.img.objects, (k % c) * TS, Math.floor(k / c) * TS, TS, TS, sx, sy + Math.round((1 - rise) * 10), 8, 8, false, false);   // (no flash when hit)
     b.globalAlpha = 1;
     if (Math.random() < 0.15) this.parts.push({ x: e.x + (Math.random() - 0.5) * 0.6, y: e.y, z: 10, vx: 0, vy: 0, vz: 8, g: 0, life: 0.7, max: 0.7, color: e.id === 'war_banner' ? '#ff4a5a' : '#7aff9a' });
-    if (e.hp < e.maxHp) this.hpBar(sx, sy + 3, e.hp / e.maxHp, 14);
+    if (e.hp < e.maxHp && !e.D.noBar) this.hpBar(sx, sy + 3, e.hp / e.maxHp, 14);
   }
   // the Giant Watermelon: idle (a glint sweeps, the leaf sways), cracked at 66% and 33%, a hurt flash per stage,
   // the burst as it dies; its soft shadow is in the art

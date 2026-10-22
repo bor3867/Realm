@@ -20,7 +20,8 @@
   "hitiers/atlas_hitiers.json",
   "unstruck/atlas_unstruck_smith.json",
   "abbot/atlas_drowned_abbot.json",
-  "heart/atlas_fallen_heart.json"
+  "heart/atlas_fallen_heart.json",
+  "archivist/atlas_the_archivist.json"
  ],
  "hover": "HOVER.json",
  "manifest": "MANIFEST.json"

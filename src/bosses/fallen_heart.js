@@ -47,7 +47,7 @@ function shardFan(g, e, V) { const q = target(g, e), a = angleTo(e.x, e.y - 1, q
 
 // ---- II: the saints, and their prayers
 const SAINT = 'fh_saint';
-if (!ENEMIES[SAINT]) ENEMIES[SAINT] = { name: 'a Praying Saint', biome: 'heart', hp: 1e6, def: 0, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 0, reg: 'heart_saint/saint', scale: 1.4, contact: 0, attacks: [], loot: [] };
+if (!ENEMIES[SAINT]) ENEMIES[SAINT] = { name: 'a Praying Saint', biome: 'heart', hp: 1e6, def: 0, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 0, reg: 'heart_saint/saint', scale: 1.4, noBar: true, contact: 0, attacks: [], loot: [] };
 const saintsOf = (g, e) => e.fhSaints || g.enemies.filter((q) => !q.dead && q.D && q.D.reg === 'heart_saint/saint');
 function kneel(g, e, n) {                                  // saints kneel round the room, each a beam of prayer to it
   const A = arena(e), m = g.map;
