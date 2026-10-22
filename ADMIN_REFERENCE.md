@@ -26,7 +26,7 @@ Type commands in chat (`/` or Enter). Ids use underscores. Regenerate with `node
 | `/essence N` | Add essence |
 | `/fame N` | Add account fame (default 100) |
 | `/pet [LINE] [RARITY] [max]` | Add a pet (max: every ability capped) |
-| `/tp WHERE` | Teleport: a land, `realm`, `nexus`, a dungeon id, or X Y |
+| `/tp WHERE` | Teleport: a land, `realm`, `nexus`, a dungeon id (`rf_<id>` too), `rfa_<id>` (that boss in its own room, e.g. `rfa_morvane`), or X Y |
 | `/portal DUNGEON` | Open a dungeon portal beside you |
 | `/seals` | Break every seal on a boss gate |
 | `/spawn ID [N]` | Spawn any monster, elite or boss near you |

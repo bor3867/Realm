@@ -101,6 +101,12 @@ const methods = {
     else if (m.t === 'wlog') { if (this.map.netWorld) { for (const a of m.tiles) this.netTile(a); for (const o of m.objs) this.netObj(o); } }
     else if (m.t === 'portal') {                          // a dungeon opened in the shared realm: everyone's way in
       const M = this.map, D = DUNGEON_DEFS[m.to];
+      if (String(m.to).startsWith('rfa_')) {              // the boss's room, opened for the group: the door now leads there
+        if (!M || !M.netIid) return;
+        for (const q of M.portals) if (q.to === m.to) { q.netIid = m.iid; q.netSeed = m.seed; }
+        if (this.netWantArena === m.to) { this.netWantArena = null; this.netEnterNext = { iid: m.iid, seed: m.seed }; this.travel(m.to); }
+        return;
+      }
       if (!M || !M.netWorld || (M.kind !== 'realm' && M.kind !== 'nexus') || (!D && !String(m.to).startsWith('rf_'))) return;
       if (D) { M.portals.push({ kind: D.portal, x: m.x, y: m.y, label: D.name, to: m.to, life: m.life, netIid: m.iid, netSeed: m.seed }); this.say(`A portal to ${D.name} has opened!`, '#3befff'); }
       else { const n0 = M.portals.length; this.rfOpenPortal(m.to, m.x, m.y, m.life); for (const q of M.portals.slice(n0)) { q.netIid = m.iid; q.netSeed = m.seed; } }   // (an rf_ dungeon's own portal art)

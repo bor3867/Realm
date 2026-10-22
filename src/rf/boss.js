@@ -10,6 +10,7 @@ import { lift } from '../util.js';
 import { rollLoot, ITEMS } from '../data/items.js';
 import { mitigate, moveSpeed } from '../data/classes.js';
 import { bandOfBoss } from './balance.js';
+import { BX, bxEnemyDef } from '../bosses/index.js';
 
 export const RFB = { dropUt: 0.2, dropLeg: 0.08, dropMyth: 0.02, phaseMax: 60 };   // a boss's own uniques, by rarity (HP and damage: src/rf/balance.js)
 const DPR = 1.6, TP = 30;                                                      // their pixels to a tile; 30 * 1.6 = 48 = 16 * 3
@@ -31,8 +32,52 @@ const HOST = {
 };
 let DATA = null;
 export function bossData(D) { DATA = D; if (!S && D) S = makeBoss(D, HOST); }
+export function arenaData(D) { DATA = D; }                                 // (the server: the rooms' layouts, no painter)
 
 const methods = {
+  // A boss's own room, as one of our dungeons (rfa_<id>): its walls, throne and pillars from the room's layout, its
+  // floor painted by their room painter (in the browser), and the boss translated to our engine (src/bosses/
+  // rf_translate.js) standing in it. A dungeon of ours, so the server can host it and a group fights it together.
+  rfArenaMap(where) {
+    const id = where.slice(4), B = DATA && DATA.bosses.find((b) => b.id === id), rows = B && B.room && B.room.map;
+    if (!rows || !rows.length) return null;
+    const w = rows[0].length, h = rows.length;
+    const m = { kind: 'dungeon', name: B.name, w, h, tiles: new Uint8Array(w * h).fill(TID.rf_floor), solid: new Uint8Array(w * h), biome: new Int8Array(w * h).fill(-1),
+      objects: [], portals: [], rooms: [], rfArena: id, shotPass: new Set(), spawn: { x: w / 2, y: h - 3 } };
+    const wall = (x, y) => { if (x < 0 || y < 0 || x >= w || y >= h) return; m.tiles[y * w + x] = TID.rf_wall; m.solid[y * w + x] = 1; };
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      const ch = rows[y][x];
+      if (ch === '#') wall(x, y);
+      else if (ch === 'L') { for (const [dx, dy] of [[0, 0], [1, 0], [0, 1], [1, 1]]) wall(x + dx, y + dy); }   // the throne, two by two
+      else if (ch === 'b' || ch === 'c' || ch === '=') { m.solid[y * w + x] = 1; m.shotPass.add(y * w + x); }      // pillars, urns, the pool's rim: they stop you, not shots
+    }
+    // the inner floor: where the fight is (their arena's bounds: a column in from the sides, two rows down from the top)
+    m.rfArenaBox = { x0: 1, y0: 2, w: w - 2, h: h - 3 };
+    for (let k = 0; k < 6 && m.solid[Math.floor(m.spawn.y) * w + Math.floor(m.spawn.x)]; k++) m.spawn.y -= 1;   // (stand on the floor)
+    if (typeof document !== 'undefined') this.rfArenaArt(m, B);
+    m.seen = null;                                                              // lit: no fog
+    return m;
+  },
+  // the room painted their way, scaled to our 16 pixels a tile, laid as the floor (as the Nexus's art is)
+  rfArenaArt(m, B) {
+    try {
+      if (!S) return;
+      const A = S.start(B), bg = A.roomBg && A.roomBg[0]; if (!bg) return;
+      const c = document.createElement('canvas'); c.width = m.w * 16; c.height = m.h * 16;
+      const x = c.getContext('2d'); x.imageSmoothingEnabled = false; x.drawImage(bg, 0, 0, bg.width, bg.height, 0, 0, c.width, c.height);
+      m.artCanvas = c;
+      const d = x.getImageData(0, 0, c.width, c.height).data;
+      m.rfMini = (i) => { const tx = i % m.w, ty = (i / m.w) | 0, q = ((ty * 16 + 8) * c.width + tx * 16 + 8) * 4; return [d[q], d[q + 1], d[q + 2]]; };
+    } catch (err) { m.artCanvas = null; }
+  },
+  // the boss, asleep on its floor till you step in; a way back out where you arrive
+  rfArenaPopulate(m) {
+    const id = 'rfx_' + m.rfArena, A = m.rfArenaBox;
+    if (!BX[id]) return;
+    const e = this.spawnRealmBoss(id, { x: A.x0 + A.w / 2, y: A.y0 + A.h * 0.38 }, bxEnemyDef(id));
+    if (e) { e.state = 'sleep'; e.rfAx0 = A.x0; e.rfAy0 = A.y0; e.rfAw = A.w; e.rfAh = A.h; e.room = { x: A.x0, y: A.y0, w: A.w, h: A.h - 4 }; }   // (it wakes when you're past the doorway)
+    m.portals.push({ kind: 'realm', x: m.spawn.x, y: m.spawn.y + 1.2, label: this.exitLabel(), to: 'realm' });
+  },
   // the boss room of a Realmforge dungeon, as our map
   rfBossMap(where) {
     const id = where.slice(8), B = DATA && DATA.bosses.find((b) => b.id === id);

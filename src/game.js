@@ -292,6 +292,7 @@ export class Game {
       if (!this.realmMap) this.realmMap = realm(this.netSeed() || ((Date.now() & 0xffffff) | 1));   // the shared realm when online (src/net.js)
       this.map = this.realmMap;
     } else if (DUNGEONS[where]) this.map = dungeon((opt && opt.seed) || ((Date.now() & 0xffffff) | 3), DUNGEONS[where]);
+    else if (where.startsWith('rfa_')) { const m = this.rfArenaMap(where); if (!m) { this.banner('That boss is not ready.', 2000); return; } this.map = m; }   // a boss's own room (src/rf/boss.js)
     else if (where.startsWith('rf_boss:')) { const m = this.rfBossMap(where); if (!m) { this.banner('That boss is not ready.', 2000); return; } this.map = m; }
     else if (where.startsWith('rf_')) { const m = this.rfMap(where, opt && opt.seed); if (!m) { this.banner('That dungeon is not ready.', 2000); return; } this.map = m; if (opt && opt.iid) m.netIid = opt.iid; }   // (a shared portal: the same layout for all)
     this.projectiles = [];
@@ -310,6 +311,7 @@ export class Game {
     if (where === 'realm' && !this.map.populated) this.populateRealm();
     if (where === 'realm' || where === 'nexus') this.netWorldCheck();   // the server runs these monsters (src/net.js)
     if (this.map.rf) this.map.portals.push({ kind: 'realm', x: this.map.spawn.x, y: this.map.spawn.y + 1.5, label: this.exitLabel(), to: 'realm' });
+    if (this.map.rfArena) { this.rfArenaPopulate(this.map); if (opt && opt.iid) { this.map.netIid = opt.iid; this.netWorldCheck(); } }   // (shared: the server's boss)
     if (DUNGEONS[where]) {
       this.populateDungeon(DUNGEONS[where]);
       if (opt && opt.iid) { this.map.netIid = opt.iid; this.netWorldCheck(); }   // a shared dungeon (src/net.js)
@@ -4445,7 +4447,7 @@ export class Game {
       case 'tp': {
         const w = (args[0] || '').toLowerCase();
         if (w === 'nexus') { this.enter('nexus'); break; }
-        if (DUNGEONS[w] || w.startsWith('rf_')) { this.enter(w); break; }
+        if (DUNGEONS[w] || w.startsWith('rf_') || w.startsWith('rfa_')) { this.enter(w); break; }   // (rfa_<id>: a boss's own room)
         if (this.map.kind !== 'realm') this.enter('realm');
         const bi = BIOMES.indexOf(w);
         if (bi >= 0) { const at = randomTileInBiome(this.map, bi, R, null); if (at) { p.x = at.x; p.y = at.y; } }
@@ -4516,6 +4518,8 @@ export class Game {
     }
     if (!this.nearPortal) return;
     const pt = this.nearPortal;
+    if (pt.to.startsWith('rfa_') && this.map.netIid && !pt.netIid && this.net && this.net.open) {   // a shared dungeon's boss door: the server opens one room for the group
+      this.netWantArena = pt.to; this.net.ws.send(JSON.stringify({ t: 'portal', to: pt.to, x: +pt.x.toFixed(2), y: +pt.y.toFixed(2), life: 120 })); this.banner('The door grinds open...', 1500); return; }
     if (pt.life !== undefined && !pt.netIid) this.map.portals = this.map.portals.filter((x) => x !== pt);   // used portals close (a shared one stays for the others)
     if (pt.netIid) { this.netEnterNext = { iid: pt.netIid, seed: pt.netSeed }; }
     this.travel(pt.to);

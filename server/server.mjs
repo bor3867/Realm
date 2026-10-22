@@ -56,6 +56,7 @@ let nextIid = 1;
 const worldOf = (room) => (room === REALM ? world : room === 'nexus' ? nexusWorld : room && dungeons.has(room) ? dungeons.get(room).world : null);
 const roomOk = (room) => typeof room === 'string' && (ROOM.test(room) || dungeons.has(room));
 let nextId = 1;
+const arenaOf = new Map();                        // a shared rf_ dungeon's room -> its boss room (one for the group)
 
 // ---- WebSocket framing (RFC 6455): text frames, masked from browsers, unmasked from us
 function frame(text) {
@@ -115,6 +116,18 @@ function onMessage(c, text) {
   if (m.t === 'hits' && worldOf(c.room) && Array.isArray(m.list)) {   // your blows on the shared monsters
     const W = worldOf(c.room);
     for (const h of m.list.slice(0, 60)) if (Array.isArray(h)) W.hit(c.id, num(h[0], 0, 1e9), num(h[1], 0, 1e6));
+    return;
+  }
+  if (m.t === 'portal' && world && typeof c.room === 'string' && c.room.startsWith('dg:') && /^rfa_[a-z]+$/.test(m.to)) {   // a shared dungeon's boss door: one room for the group
+    const had = arenaOf.get(c.room);
+    if (had && dungeons.has(had.room)) { send(c, { t: 'portal', iid: had.iid, seed: had.seed, to: m.to, x: num(m.x, 0, 4096), y: num(m.y, 0, 4096), life: 120 }); return; }
+    if (dungeons.size >= 12 || (c.arenaT || 0) > Date.now()) return;
+    c.arenaT = Date.now() + 2000;
+    const iid = nextIid++, seed = randomInt(1, 0xffffff) | 3, room = 'dg:' + iid;
+    try { const dw = makeWorld(seed, (id, obj) => { const t = clients.get(id); if (t) send(t, obj); }, m.to); dw.onBag = (x, y, items) => publicBag(room, x, y, items); dungeons.set(room, { world: dw, to: m.to, until: Date.now() + 15 * 60 * 1000 }); }
+    catch (err) { console.error('arena', m.to, err); return; }
+    arenaOf.set(c.room, { room, iid, seed });
+    toRoom(c.room, { t: 'portal', iid, seed, to: m.to, x: num(m.x, 0, 4096), y: num(m.y, 0, 4096), life: 120 });
     return;
   }
   if (m.t === 'portal' && world && (c.room === REALM || c.room === 'nexus') && (DUNGEONS[m.to] || /^rf_[a-z_]+$/.test(m.to))) {   // a dungeon opened in the shared realm or the Nexus

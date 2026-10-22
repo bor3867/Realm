@@ -92,6 +92,7 @@ function originsOf(e, B, src) {
 }
 // the arena-sized box round the place it rose (their arena's columns and rows)
 function box(e, B) {
+  if (e.rfAw) return { x0: e.rfAx0, y0: e.rfAy0, w: e.rfAw, h: e.rfAh };   // in its own room: the room
   const H = homeOf(e), map = (B.room && B.room.map) || [];
   const w = Math.max(14, Math.min(26, (map[0] || '').length || 18)), h = Math.max(10, Math.min(20, map.length || 14));
   return { x0: H.x - w / 2, y0: H.y - h / 2, w, h };

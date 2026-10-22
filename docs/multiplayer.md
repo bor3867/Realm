@@ -75,9 +75,11 @@ server owns, so everyone shatters and pushes the same ones; runes light in order
 Mire's ritual (anyone may step on the runes; broken, she staggers; boiled over, those near are confused), her swaps
 and decoys (the decoys fire too), shots from Cinder's corners and Morvane's crown.
 Done since: the Eclipse Twins (Noct a second body; Day and Night; the tether; Totality; the last-phase rule); Lord Gourdrick's friends (Sir Rindley, Sister Honeydew: charge, Rind Shield, heals, snare, Harvest Moon dome, curse); Vitrea (Mirror Image and Echoes that fire late, mirror and prism panes that bounce her shots, the Lightray that bounces off them, the Thousandfold: eight of her, one real, shattering reflections, shuffles); King Morvane's board (pieces striking their own ways; the King's Gambit, mate in one); Mirabeau's Find the Lady (three cabinets shuffling); Vael's Starflight (stars harmless till near, star gates); the Cantor's stave, downbeat and wall pearls; Sarrukh's body (segments following the head, touching hurts, grit off its sides or out of the coil; burrowing: a ripple that follows, locks and erupts).
-Next:
-their arenas as our maps (shared),
-the rf_ dungeons' boss doors leading to them; then the older realm and dungeon bosses moved across.
+Done (2026-10-21): each boss's own room as a dungeon map (rfa_<id>, src/rf/boss.js rfArenaMap): walls, throne and pillars
+from its layout, the floor painted by the room painter, the boss asleep on it till you step in, its mechanics' box the
+room itself. An rf_ dungeon's boss door leads there; in a shared rf_ dungeon the door asks the server, which opens one
+boss room for the group (one per dungeon room; it hosts the boss, so everyone fights the same one).
+Next: beams that follow a laser; then the older realm and dungeon bosses moved across.
 Fixed on the way: a player's blow on a shared monster now goes through the game's own damage step on the server, so a
 three-phase boss's phases, morphs, immunity and survive phases happen as they should (before, only its HP fell).
 

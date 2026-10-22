@@ -306,7 +306,7 @@ export class Renderer {
     const Px = Math.round(this.px * TS), Py = Math.round(this.py * TS);
     const ox = Px - G / 2, oy = Py - G / 2;
     gc.fillStyle = '#0a080c'; gc.fillRect(0, 0, G, G);
-    const ART = m.artBg && this.A.img[m.artBg];
+    const ART = m.artCanvas || (m.artBg && this.A.img[m.artBg]);   // (a boss's room: painted by their room painter)
     if (ART) { gc.imageSmoothingEnabled = false; gc.drawImage(ART, -ox, -oy); return; }   // a painted map (the Nexus): its art is the floor, 1:1
     const tx0 = Math.floor(ox / TS), ty0 = Math.floor(oy / TS), n = Math.ceil(G / TS) + 1;
     const anim = Math.floor(g.t * 2.2);

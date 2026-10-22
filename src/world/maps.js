@@ -711,6 +711,7 @@ export function shotBlocked(m, x, y) {
   if (!isSolid(m, x, y)) return false;
   const xi = Math.floor(x), yi = Math.floor(y);
   if (xi < 0 || yi < 0 || xi >= m.w || yi >= m.h) return true;
+  if (m.shotPass && m.shotPass.has(yi * m.w + xi)) return false;   // (an arena's pillars and urns)
   const t = m.tiles[yi * m.w + xi];
   return !(t === TID.water || t === TID.deep);
 }

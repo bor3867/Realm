@@ -63,6 +63,10 @@ trail 13, line 12, spiral 7, summon 7, pulse 5, snipe 4, heal 3, and 9 rarer). 2
   by minions ends when they fall, phases turn on HP, fake deaths rise once, the death plays its lines and bursts, then
   XP, a bag (its uniques by rarity) and the exit. All 24 run through every phase to death. Not yet: balance (their
   HP is raw: 42,000 for Mortis), their arena sprites turn with the camera (drawn flat into the floor layer).
+- **Boss rooms on our engine (2026-10-21).** A dungeon's boss door now opens `rfa_<id>`: the boss's room built from its
+  layout as our map, its floor painted by their room painter, and the boss translated to our engine (src/bosses/
+  rf_translate.js) in it, so the server can host it and a group fights it together. `rf_boss:<id>` (their engine's
+  fight) is still there for comparison.
 - **Phase 2c done: the portals are in the realm.** `tools/rf_build_foes.py` makes the 46 overworld foes the portals
   name (Gravekeepers, Bog Witches, ...) into realm enemies: each wears the art of the closest creature in its own
   dungeon (by name, else by role), fights like it at its land's strength, lives in the closest of our lands, and drops

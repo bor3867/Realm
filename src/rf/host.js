@@ -118,7 +118,7 @@ const methods = {
     R.pots = E.pots;
     if (E.banner && E.banner !== R.banner) { R.banner = E.banner; this.banner(E.banner.t, 2200, false); }
     if (E.M.bossDoor && !R.door && E.atDoor) {                 // the boss's door: it opens onto the boss's own room
-      R.door = { kind: 'dungeon', hidden: true, x: E.M.bossDoor.x + 0.5, y: E.M.bossDoor.y + 1, label: E.B.name, to: `rf_boss:${E.B.id}` };
+      R.door = { kind: 'dungeon', hidden: true, x: E.M.bossDoor.x + 0.5, y: E.M.bossDoor.y + 1, label: E.B.name, to: `rfa_${E.B.id}` };
       m.portals.push(R.door);
       this.banner(`${E.B.name} waits beyond this door.`, 2500);
     }
