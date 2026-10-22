@@ -17,9 +17,13 @@ import unstruck_smith from './unstruck_smith.js';
 import drowned_abbot from './drowned_abbot.js';
 import fallen_heart from './fallen_heart.js';
 import the_archivist from './the_archivist.js';
+import honey_queen from './honey_queen.js';
+import the_puppeteer from './the_puppeteer.js';
+import prism_wyrm from './prism_wyrm.js';
 
 export const BX = { framework_test, abyssal_kraken, thornheart_treant, glacius_frozen_wyrm, mother_mycelia, grand_orrery, gilded_sphinx, count_vesper, grinning_ringmaster,
-  tidebound_lich, forgeheart_colossus, unstruck_god, unstruck_smith, drowned_abbot, fallen_heart, the_archivist };
+  tidebound_lich, forgeheart_colossus, unstruck_god, unstruck_smith, drowned_abbot, fallen_heart, the_archivist,
+  honey_queen, the_puppeteer, prism_wyrm };
 
 // the enemy definition the rest of the game sees (spawnRealmBoss, loot, the boss bar)
 export function bxEnemyDef(id) {

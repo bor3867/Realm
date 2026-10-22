@@ -1,0 +1,755 @@
+{
+ "rf": true,
+ "meta": {
+  "name": "The Honey Queen, the Puppeteer and the Prism Wyrm on the three-phase engine",
+  "version": 1
+ },
+ "sheets": {
+  "bx_honey_queen": {
+   "image": "honey_queen.png",
+   "kind": "boss",
+   "sprites": {
+    "honey_queen": {
+     "frames": {
+      "i1_0": [
+       0,
+       0,
+       48,
+       48
+      ],
+      "i1_1": [
+       48,
+       0,
+       48,
+       48
+      ],
+      "a1": [
+       96,
+       0,
+       48,
+       48
+      ],
+      "i2_0": [
+       144,
+       0,
+       48,
+       48
+      ],
+      "i2_1": [
+       192,
+       0,
+       48,
+       48
+      ],
+      "a2": [
+       240,
+       0,
+       48,
+       48
+      ],
+      "i3_0": [
+       0,
+       48,
+       48,
+       48
+      ],
+      "i3_1": [
+       48,
+       48,
+       48,
+       48
+      ],
+      "a3": [
+       96,
+       48,
+       48,
+       48
+      ],
+      "d0": [
+       144,
+       48,
+       48,
+       48
+      ],
+      "d1": [
+       192,
+       48,
+       48,
+       48
+      ],
+      "d2": [
+       240,
+       48,
+       48,
+       48
+      ]
+     },
+     "anims": {
+      "idle1": {
+       "frames": [
+        "i1_0",
+        "i1_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack1": {
+       "frames": [
+        "a1",
+        "a1",
+        "a1"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle2": {
+       "frames": [
+        "i2_0",
+        "i2_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack2": {
+       "frames": [
+        "a2",
+        "a2",
+        "a2"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle3": {
+       "frames": [
+        "i3_0",
+        "i3_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack3": {
+       "frames": [
+        "a3",
+        "a3",
+        "a3"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "d0",
+        "d1",
+        "d2"
+       ],
+       "fps": 3,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "The Queen Rises",
+       "idle": "idle1",
+       "attack": "attack1"
+      },
+      "2": {
+       "name": "The Hive Swarms",
+       "idle": "idle2",
+       "attack": "attack2"
+      },
+      "3": {
+       "name": "The Queen Is Furious",
+       "idle": "idle3",
+       "attack": "attack3"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_the_puppeteer": {
+   "image": "the_puppeteer.png",
+   "kind": "boss",
+   "sprites": {
+    "the_puppeteer": {
+     "frames": {
+      "i1_0": [
+       0,
+       0,
+       48,
+       48
+      ],
+      "i1_1": [
+       48,
+       0,
+       48,
+       48
+      ],
+      "a1": [
+       96,
+       0,
+       48,
+       48
+      ],
+      "i2_0": [
+       144,
+       0,
+       48,
+       48
+      ],
+      "i2_1": [
+       192,
+       0,
+       48,
+       48
+      ],
+      "a2": [
+       240,
+       0,
+       48,
+       48
+      ],
+      "i3_0": [
+       0,
+       48,
+       48,
+       48
+      ],
+      "i3_1": [
+       48,
+       48,
+       48,
+       48
+      ],
+      "a3": [
+       96,
+       48,
+       48,
+       48
+      ],
+      "d0": [
+       144,
+       48,
+       48,
+       48
+      ],
+      "d1": [
+       192,
+       48,
+       48,
+       48
+      ],
+      "d2": [
+       240,
+       48,
+       48,
+       48
+      ]
+     },
+     "anims": {
+      "idle1": {
+       "frames": [
+        "i1_0",
+        "i1_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack1": {
+       "frames": [
+        "a1",
+        "a1",
+        "a1"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle2": {
+       "frames": [
+        "i2_0",
+        "i2_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack2": {
+       "frames": [
+        "a2",
+        "a2",
+        "a2"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle3": {
+       "frames": [
+        "i3_0",
+        "i3_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack3": {
+       "frames": [
+        "a3",
+        "a3",
+        "a3"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "d0",
+        "d1",
+        "d2"
+       ],
+       "fps": 3,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "Comedy",
+       "idle": "idle1",
+       "attack": "attack1"
+      },
+      "2": {
+       "name": "Tragedy",
+       "idle": "idle2",
+       "attack": "attack2"
+      },
+      "3": {
+       "name": "Silence",
+       "idle": "idle3",
+       "attack": "attack3"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "bx_prism_wyrm": {
+   "image": "prism_wyrm.png",
+   "kind": "boss",
+   "sprites": {
+    "prism_wyrm": {
+     "frames": {
+      "i1_0": [
+       0,
+       0,
+       48,
+       48
+      ],
+      "i1_1": [
+       48,
+       0,
+       48,
+       48
+      ],
+      "a1": [
+       96,
+       0,
+       48,
+       48
+      ],
+      "i2_0": [
+       144,
+       0,
+       48,
+       48
+      ],
+      "i2_1": [
+       192,
+       0,
+       48,
+       48
+      ],
+      "a2": [
+       240,
+       0,
+       48,
+       48
+      ],
+      "i3_0": [
+       0,
+       48,
+       48,
+       48
+      ],
+      "i3_1": [
+       48,
+       48,
+       48,
+       48
+      ],
+      "a3": [
+       96,
+       48,
+       48,
+       48
+      ],
+      "d0": [
+       144,
+       48,
+       48,
+       48
+      ],
+      "d1": [
+       192,
+       48,
+       48,
+       48
+      ],
+      "d2": [
+       240,
+       48,
+       48,
+       48
+      ]
+     },
+     "anims": {
+      "idle1": {
+       "frames": [
+        "i1_0",
+        "i1_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack1": {
+       "frames": [
+        "a1",
+        "a1",
+        "a1"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle2": {
+       "frames": [
+        "i2_0",
+        "i2_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack2": {
+       "frames": [
+        "a2",
+        "a2",
+        "a2"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle3": {
+       "frames": [
+        "i3_0",
+        "i3_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack3": {
+       "frames": [
+        "a3",
+        "a3",
+        "a3"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "d0",
+        "d1",
+        "d2"
+       ],
+       "fps": 3,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "The Lantern Turns",
+       "idle": "idle1",
+       "attack": "attack1"
+      },
+      "2": {
+       "name": "Prismatic",
+       "idle": "idle2",
+       "attack": "attack2"
+      },
+      "3": {
+       "name": "Overcharge",
+       "idle": "idle3",
+       "attack": "attack3"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "hollow_kin": {
+   "image": "hollow_kin.png",
+   "kind": "enemy",
+   "sprites": {
+    "brood": {
+     "frames": {
+      "brood0": [
+       0,
+       0,
+       24,
+       24
+      ],
+      "brood1": [
+       24,
+       0,
+       24,
+       24
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "brood0",
+        "brood1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "brood0"
+       ],
+       "fps": 3,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "understudy": {
+     "frames": {
+      "under0": [
+       48,
+       0,
+       24,
+       24
+      ],
+      "under1": [
+       72,
+       0,
+       24,
+       24
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "under0",
+        "under1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "under0"
+       ],
+       "fps": 3,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "image": {
+     "frames": {
+      "image0": [
+       96,
+       0,
+       24,
+       24
+      ],
+      "image1": [
+       120,
+       0,
+       24,
+       24
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "image0",
+        "image1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "image0"
+       ],
+       "fps": 3,
+       "loop": false
+      }
+     },
+     "meta": {}
+    }
+   }
+  },
+  "hollow_shots": {
+   "image": "hollow_shots.png",
+   "kind": "shot",
+   "sprites": {
+    "honey_queen.sting": {
+     "frames": {
+      "0": [
+       0,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "honey_queen.bee": {
+     "frames": {
+      "0": [
+       8,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "honey_queen.nectar": {
+     "frames": {
+      "0": [
+       16,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "honey_queen.glob": {
+     "frames": {
+      "0": [
+       24,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "honey_queen.note": {
+     "frames": {
+      "0": [
+       32,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "the_puppeteer.string": {
+     "frames": {
+      "0": [
+       40,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "the_puppeteer.blade": {
+     "frames": {
+      "0": [
+       48,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "the_puppeteer.ribbon": {
+     "frames": {
+      "0": [
+       56,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "the_puppeteer.mask": {
+     "frames": {
+      "0": [
+       0,
+       8,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "prism_wyrm.bolt": {
+     "frames": {
+      "0": [
+       8,
+       8,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "prism_wyrm.shard": {
+     "frames": {
+      "0": [
+       16,
+       8,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "prism_wyrm.pane": {
+     "frames": {
+      "0": [
+       24,
+       8,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "prism_wyrm.ray": {
+     "frames": {
+      "0": [
+       32,
+       8,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    }
+   }
+  }
+ }
+}
