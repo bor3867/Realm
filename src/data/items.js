@@ -5,6 +5,7 @@ import { applyDungeonItems, orbitLine } from './dungeon_items.js';
 import { applyWeaponRework, mechLine } from './weapon_rework.js';
 import { applyAbilityRework, HALO_TEXT, sigilLine, MYTHIC_TEXT } from './ability_rework.js';
 import { applyGearRework, gearLine } from './gear_rework.js';
+import { ARMORY } from './armory_data.js';
 
 const METAL = ['Rust', 'Iron', 'Bronze', 'Steel', 'Verdigris', 'Cobalt', 'Crimson', 'Violet', 'Sunforged', 'Obsidian', 'Rune-White', 'Bloodgold'];
 const NAMES = {
@@ -52,7 +53,7 @@ export const TYPE_SLOT = {
   glassmail: 'armor', stormcloak: 'armor', brasscoat: 'armor',
   bellows: 'ability', seal: 'ability', halo: 'ability', reliquary: 'ability', hookline: 'ability', runeward: 'ability', hex: 'ability',
   plate: 'armor', coat: 'armor', vestment: 'armor', shroud: 'armor', oilskin: 'armor', ring: 'ring',
-  godweapon: 'weapon', godability: 'ability', godarmor: 'armor', godring: 'ring' };
+  godweapon: 'weapon', godability: 'ability', godarmor: 'armor', godring: 'ring', relic: 'ability' };
 export const TYPE_CLASS = { gauntlet: 'brawler', bellows: 'brawler', coat: 'brawler', tongs: 'forge_knight', seal: 'forge_knight', plate: 'forge_knight',
   sunrod: 'priest', halo: 'priest', vestment: 'priest', lantern: 'summoner', reliquary: 'summoner', shroud: 'summoner',
   harpoon: 'harpooner', hookline: 'harpooner', oilskin: 'harpooner', rapier: 'duelist', mirror: 'duelist', glassmail: 'duelist',
@@ -61,7 +62,7 @@ export const TYPE_CLASS = { gauntlet: 'brawler', bellows: 'brawler', coat: 'braw
 const TYPE_LABEL = { sword: 'Sword', dagger: 'Dagger', bow: 'Bow', staff: 'Staff', wand: 'Wand', heavy: 'Heavy Armor', leather: 'Leather Armor', robe: 'Robe', gauntlet: 'Gauntlet', tongs: 'Tongs', sunrod: 'Sun-Rod', bellows: 'Bellows', seal: 'Oath-Seal', halo: 'Halo', plate: 'Forgeplate',
   coat: 'Soot-Coat', vestment: 'Vestment', ring: 'Ring', lantern: 'Soul-Lantern', reliquary: 'Reliquary', shroud: 'Shroud', harpoon: 'Harpoon',
   hookline: 'Grapple Line', oilskin: 'Oilskin', rapier: 'Rapier', mirror: 'Mirror', glassmail: 'Glassmail', coil: 'Coil', kite: 'Storm Kite',
-  stormcloak: 'Stormcloak', pendulum: 'Pendulum', stopwatch: 'Stopwatch', runeward: 'Rune-Ward', hex: 'Grimoire', brasscoat: 'Brasscoat', godweapon: 'Admin Weapon', godability: 'Admin Ability', godarmor: 'Admin Armor', godring: 'Admin Ring' };
+  stormcloak: 'Stormcloak', pendulum: 'Pendulum', stopwatch: 'Stopwatch', runeward: 'Rune-Ward', hex: 'Grimoire', brasscoat: 'Brasscoat', godweapon: 'Admin Weapon', godability: 'Admin Ability', godarmor: 'Admin Armor', godring: 'Admin Ring', relic: 'Ability' };
 export const WEAPON_TYPES = ['sword', 'dagger', 'bow', 'staff', 'wand'];                 // RotMG weapon families, shared between classes
 export const ABILITY_TYPES = ['bellows', 'seal', 'halo', 'reliquary', 'hookline', 'mirror', 'kite', 'stopwatch', 'runeward', 'hex'];
 export const ARMOR_TYPES = ['heavy', 'leather', 'robe'];
@@ -985,6 +986,7 @@ export function itemLabel(it) {
   if (it.type === 'backpack') return 'Consumable · Character upgrade';
   if (it.slot === 'consumable') return 'Consumable';
   if (it.admin) return `ADMIN · ${TYPE_LABEL[it.type]} · any class`;
+  if (it.arm) return `${it.armTier === 'UT' ? 'Untiered' : it.armTier} · ${it.arm.cls === 'Tome' ? 'Tome' : it.arm.st.ability ? 'Ability · ' + it.arm.st.ability : it.arm.cls}${it.anyClass ? ' · any class' : ''}${it.adminOnly ? ' · admin only' : ''}`;   // (the armory's own words)
   const users = usableBy(it), who = users.length && users.length < 8 ? ` · ${users.map((c) => CLASSES[c].name).join(', ')}` : '';
   return `${it.mythic ? 'Mythic' : it.ut ? 'Untiered' : 'T' + it.tier} ${TYPE_LABEL[it.type]}${who}`;
 }
@@ -996,7 +998,7 @@ export function iconIndex(world, it) {
   return world.items[it.type] + it.tier;
 }
 export const usableBy = (it) => Object.keys(CLASSES).filter((c) => [CLASSES[c].weapon, CLASSES[c].ability, CLASSES[c].armor].includes(it.type));
-export const canEquip = (cls, it) => !['weapon', 'ability', 'armor'].includes(it.slot) || it.admin || usableBy(it).includes(cls);
+export const canEquip = (cls, it) => !['weapon', 'ability', 'armor'].includes(it.slot) || it.admin || it.anyClass || usableBy(it).includes(cls);
 
 // ---- bags: colour tells you what's inside before you walk over
 // RotMG-style: brown for the everyday, purple for the good stuff, white for relics; mythics come in a white bag
@@ -1471,4 +1473,34 @@ const LADDER_TUNE = {
 for (const [id, k] of Object.entries(LADDER_TUNE)) {
   const W = BASE_ITEMS[id] && BASE_ITEMS[id].weapon;
   if (W && Array.isArray(W.dmg)) W.dmg = W.dmg.map((d) => Math.round(d * k));
+}
+
+// ---- the Mad God Armory (src/data/armory_data.js): 28 items, made exactly from the user's armory. Their own tiers
+// (Untiered, Mythic, Legendary, Celestial, Divine); the Divine tier is the priest's Hosanna set, admin-only (it never
+// drops: /give or /armory). it.arm is the armory entry; src/armory.js runs what each one does. They are made last,
+// after every pass above, so none of them changes an armory item: each is exactly as the armory has it.
+const ARM_TYPE = { Staff: 'staff', Wand: 'wand', Bow: 'bow', Dagger: 'dagger', Ability: 'relic', Tome: 'halo', Robe: 'robe', Ring: 'ring' };
+const ARM_STAT = { DEF: 'def', SPD: 'spd', DEX: 'dex', WIS: 'wis', ATT: 'att', VIT: 'vit', HP: 'hp', MP: 'mp' };
+export const armId = (name) => 'arm_' + name.toLowerCase().replace(/'/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+export const ARMORY_IDS = [];
+for (const A of ARMORY) {
+  const s = A.st, type = ARM_TYPE[A.cls], id = armId(A.name);
+  const it = { id, type, slot: TYPE_SLOT[type] || (type === 'relic' ? 'ability' : 'weapon'), name: A.name, desc: A.desc, tier: A.tier, ut: true, arm: A,
+    mythic: A.tier === 'Mythic', armTier: A.tier, adminOnly: A.tier === 'Divine', anyClass: type === 'relic' };
+  if (A.set) it.armSet = A.set;
+  const bonus = {};
+  for (const [k, v] of Object.entries(s.equip || {})) bonus[ARM_STAT[k]] = v;
+  if (Object.keys(bonus).length) it.bonus = bonus;
+  if (it.slot === 'weapon') {
+    const n = s.shots || 1, flags = s.flags || [];
+    it.weapon = { dmg: [...s.dmg], count: n, arc: n > 1 ? ((s.arc || 0) * Math.PI / 180) * (n - 1) : 0, speed: s.speed / 10, range: (s.speed * s.lt) / 10000,
+      rate: s.rof, proj: `arm:${id}:0`, size: 0.4, pierce: flags.includes('MultiHit'), special: { armory: id } };
+    if (s.target) it.weapon.target = s.target;
+    if (flags.includes('ArmorPiercing')) it.weapon.armorPierce = true;
+    if (flags.includes('PassesCover')) it.weapon.passesCover = true;
+  }
+  if (it.slot === 'ability') it.ability = { cost: s.mp || 0, cd: s.cd || 0, armory: id };
+  if (s.passive) it.passive = { armory: id };
+  add(it);
+  ARMORY_IDS.push(id);
 }

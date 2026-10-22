@@ -2,7 +2,7 @@
 // Pure state + update(); rendering and DOM live elsewhere.
 import { R, rng, clamp, dist, dist2, angleTo, TAU, CAM, lift, liftO, liftA, liftB, angleUp } from './util.js';
 import { CLASSES, START_KIT, STATS, MAX_LEVEL, FAME_XP, FAME_GOALS, xpToNext, moveSpeed, fireRate, dmgMult, hpRegen, mpRegen, mitigate } from './data/classes.js';
-import { ITEMS, SETS, rollLoot, bagFor, canEquip, TYPE_SLOT, BAG_ORDER, BAG_NAMES, WEAPON_TYPES, ARMOR_TYPES, ABILITY_TYPES, ADMIN_SET, TIER_CAP, ladderTier, LOOT_GATE } from './data/items.js';
+import { ITEMS, SETS, rollLoot, bagFor, canEquip, TYPE_SLOT, BAG_ORDER, BAG_NAMES, WEAPON_TYPES, ARMOR_TYPES, ABILITY_TYPES, ADMIN_SET, TIER_CAP, ladderTier, LOOT_GATE, ARMORY_IDS } from './data/items.js';
 import { ENEMIES, PACKS, CAMP_LOOT, BIOME_SPAWNS, REALM_BOSSES, PARENTS, HERALDS, BIOME_BOSS, EVENTS_TO_BOSS, GROUPS, DUNGEONS, DUNGEON_BOSSES, FIRECAMP_BANDS, DUNGEON_RATING, portalDrop2 as portalDrop } from './data/enemies.js';
 import { nexus, vaultRoom, realm, dungeon, isSolid, shotBlocked, biomeAt, randomTileInBiome, BIOMES, BIOME_RING, BIOME_LABEL, TID } from './world/maps.js';
 import { writeSave } from './save.js';
@@ -27,6 +27,7 @@ import { installWeaponMech } from './weaponmech.js';
 import { installHalos } from './halos.js';
 import { installSigils } from './sigils.js';
 import { installMythics } from './mythics.js';
+import { installArmory } from './armory.js';
 import { installGearMech } from './gearmech.js';
 import { BX, bxEnemyDef } from './bosses/index.js';
 import { installRF } from './rf/host.js';
@@ -1037,7 +1038,7 @@ export class Game {
       this.vx({ k: 'muzzle', x: ox + Math.cos(a) * 0.5, y: oy + Math.sin(a) * 0.5, proj: W.proj });
       this.sfx('shoot', p.cls);
       const sp = W.special || null;
-      const cnt = sp && sp.mech && this.mechVolley(W, sp, ox, oy, a, mult) ? 0 : W.count || 1;   // a reworked weapon fires its own volley (src/weaponmech.js); one that names no count fires one shot
+      const cnt = (sp && sp.mech && this.mechVolley(W, sp, ox, oy, a, mult)) || (sp && sp.armory && this.armoryVolley(W, sp, ox, oy, a, mult)) ? 0 : W.count || 1;   // (a Mad God Armory weapon: src/armory.js)   // a reworked weapon fires its own volley (src/weaponmech.js); one that names no count fires one shot
       const vol = [];
       for (let k = 0; k < cnt; k++) {
         const off = cnt > 1 ? (k / (cnt - 1) - 0.5) * (W.arc || 0) : 0;
@@ -1118,6 +1119,7 @@ export class Game {
     const id = p.equip[1];
     if (!id) return;
     const A = ITEMS[id].ability;
+    if (A.armory) { this.armoryAbility(id, A); return; }   // a Mad God Armory ability (src/armory.js)
     if (A.sigil && p.abilityT <= 0 && p.sigil && p.sigil.S === A.sigil && this.sigilTrigger()) return;   // the second press sets the sigil off (src/sigils.js)
     const cost = this.rfAbilityCost(A.cost);              // (a Realmforge robe or ring can lower it: src/rf/uniqmech.js)
     if (p.mp < cost) { this.toast('Not enough mana.'); return; }
@@ -3867,7 +3869,7 @@ export class Game {
         say('Player: /teleport NAME (to someone here)  /dance  · Enter to chat, Esc for settings and your keys.');
         if (!this.adminOk()) break;
         say('/admin  /backpack  /maxlevel  /level N  /maxstats  /heal  /god  /give ITEM [N]  /give dungeon ID (its whole loot set)  /items TEXT  /spawn ID [N] (any monster, elite or boss)  /boss ID  ' +
-            '/bx BOSS (a three-phase boss beside you)  /kraken  /treant  /melon  /event BIOME  /adminchest [N] (best loot)  /keys [dungeon N] (dungeon keys)  /pet [kind rarity max]  /star (a falling star in Godfall)  /seals (open a dungeon boss gate)  /progress BIOME N  /gold N  /essence N  /bosses  /tp LAND|nexus|realm|DUNGEON (lands: shore fen runeholt godfall dunes thornwood steppe lowlands)  /killall  /clearbags  /fame N  /portal DUNGEON  (all ids: ADMIN_REFERENCE.md; final boss: /portal throne)');
+            '/bx BOSS (a three-phase boss beside you)  /kraken  /treant  /melon  /event BIOME  /adminchest [N] (best loot)  /armory [TIER] (the Mad God Armory)  /keys [dungeon N] (dungeon keys)  /pet [kind rarity max]  /star (a falling star in Godfall)  /seals (open a dungeon boss gate)  /progress BIOME N  /gold N  /essence N  /bosses  /tp LAND|nexus|realm|DUNGEON (lands: shore fen runeholt godfall dunes thornwood steppe lowlands)  /killall  /clearbags  /fame N  /portal DUNGEON  (all ids: ADMIN_REFERENCE.md; final boss: /portal throne)');
         break;
       case 'maxlevel': {
         const C = CLASSES[p.cls];
@@ -3911,6 +3913,14 @@ export class Game {
         const q = (args.join(' ') || '').toLowerCase();
         const hits = Object.values(ITEMS).filter((it) => it.id.includes(q) || it.name.toLowerCase().includes(q)).slice(0, 14);
         say(hits.length ? hits.map((it) => it.id).join(', ') : 'No matching items.'); break;
+      }
+      case 'armory': {                                     // /armory [TIER]: the Mad God Armory's items (tiers: ut mythic legendary celestial divine; divine is the Hosanna set)
+        const t = (args[0] || '').toLowerCase(), ids = ARMORY_IDS.filter((id) => !t || ITEMS[id].armTier.toLowerCase() === t || (t === 'hosanna' && ITEMS[id].armSet));
+        if (!ids.length) { say('Tiers: ut, mythic, legendary, celestial, divine (the Hosanna set). Or /armory for all 28.'); break; }
+        const left = [];
+        for (const id of ids) { const f = p.inv.indexOf(null); if (f >= 0) p.inv[f] = id; else left.push(id); }
+        if (left.length) this.addBag(p.x, p.y + 0.4, left);
+        this.events.push({ type: 'ground' }); say(`Gave ${ids.length} armory item${ids.length > 1 ? 's' : ''}${left.length ? ' (the rest in a bag at your feet)' : ''}.`); break;
       }
       case 'give': {
         if ((args[0] || '').toLowerCase() === 'dungeon') {        // /give dungeon ID: every item its boss can drop
@@ -4158,6 +4168,7 @@ installWeaponMech(Game);
 installHalos(Game);
 installSigils(Game);
 installMythics(Game);
+installArmory(Game);
 installGearMech(Game);
 installMelon(Game);
 installRealmEvents(Game);

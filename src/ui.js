@@ -4,6 +4,8 @@ import { outlinedFrame } from './outline.js';
 import { ITEMS, itemLabel, specialLines, canEquip, SETS, SET_PIECES } from './data/items.js';
 import { ENEMIES, DUNGEONS, DUNGEON_RATING, DUNGEON_BOSSES, portalDrop2 } from './data/enemies.js';
 import { BX } from './bosses/index.js';
+import { armoryTip, ARM_COL } from './armory_tip.js';
+import { drawIcon as armIcon } from './armory_art.js';
 const BIOME_NAME = { shore: 'Shore', lowlands: 'Lowland', fen: 'Fen', thornwood: 'Thornwood', steppe: 'Steppe', runeholt: 'Runeholt', dunes: 'Dune', godfall: 'Godfall', frostveil: 'Frostveil' };
 import { POT_STACK } from './game.js';
 import { ACTIONS, MINI_STEPS, keyLabel, resetSettings, keyName, keyParen } from './settings.js';
@@ -26,6 +28,7 @@ const hudIcon = (k) => { const G = HUD_ICON[k]; let r = '';
   G.forEach((row, y) => [...row].forEach((c, x) => { if (c === '#') r += `<rect x="${x}" y="${y}" width="1" height="1"/>`; }));
   return `<svg viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`; };
 export function rarityColor(it) {
+  if (it.arm) return ARM_COL[it.armTier];                // (the Mad God Armory's own tier colours)
   if (it.admin) return '#ff4af0';
   if (it.mythic) return '#8af6ff';
   if (it.legendary) return '#ffe9a0';
@@ -553,25 +556,31 @@ export class UI {
     return c ? c[i] : null;
   }
   refreshSlots() {
-    this.shines = [];
+    this.shines = []; this.armIcons = [];
     let sn = 0;
     for (const name of ['equip', 'inv', 'ground', 'pots']) {
       this.slots[name].forEach((el, i) => {
         const id = this.itemAt(name, i), ico = el.children[1], tier = el.children[2];
         if (id) {
           const it = ITEMS[id];
-          ico.style.backgroundImage = `url(${this.r.icon(id)})`;
+          ico.style.backgroundImage = it.arm ? '' : `url(${this.r.icon(id)})`;
           ico.style.backgroundSize = '100% 100%';
+          let acv = ico.querySelector('canvas.arm');
+          if (it.arm) {                                        // a Mad God Armory item: drawn live, as the armory draws it (src/armory_art.js)
+            if (!acv) { acv = document.createElement('canvas'); acv.className = 'arm'; ico.appendChild(acv); }
+            const px = Math.round((ico.clientWidth || 48) * (window.devicePixelRatio || 1)); if (acv.width !== px) acv.width = acv.height = px;
+            this.armIcons.push({ cv: acv, A: it.arm, seed: (sn * 977) % 5000 });
+          } else if (acv) acv.remove();
           // now and then the item catches the light: its own shine frames when it has them, a sweep when it doesn't
-          const rd = it.reg && this.r.R && this.r.R.resolve(it.reg), own = !!(rd && rd.frames.shine1);
-          if (own) this.shines.push({ ico, id, off: (sn * 0.77) % 5, legend: !!(it.legendary && rd.frames.twinkle0), f: '0' });
+          const rd = it.reg && this.r.R && this.r.R.resolve(it.reg), own = !!(rd && rd.frames.shine1) || !!it.arm;
+          if (own && !it.arm) this.shines.push({ ico, id, off: (sn * 0.77) % 5, legend: !!(it.legendary && rd.frames.twinkle0), f: '0' });
           ico.classList.toggle('sweep', !own && name !== 'pots');
           if (!own) { ico.style.setProperty('--m', `url(${this.r.icon(id)})`); ico.style.setProperty('--d', `${-((sn * 0.77) % 6).toFixed(2)}s`); }
           sn++;
-          if (name === 'pots') { const n = this.g.pots()[i].n; tier.innerHTML = `<b class="${n >= POT_STACK ? 'full' : ''}">${n}</b>/${POT_STACK}`; } else tier.textContent = it.admin ? 'ADMIN' : it.mythic ? 'M' : it.legendary ? 'L' : it.ut ? 'UT' : it.use && it.use.egg ? RARITY[it.use.egg].name[0] : it.tier === null ? '' : 'T' + it.tier;
+          if (name === 'pots') { const n = this.g.pots()[i].n; tier.innerHTML = `<b class="${n >= POT_STACK ? 'full' : ''}">${n}</b>/${POT_STACK}`; } else tier.textContent = it.arm ? { UT: 'UT', Mythic: 'M', Legendary: 'L', Celestial: 'C', Divine: 'D' }[it.armTier] : it.admin ? 'ADMIN' : it.mythic ? 'M' : it.legendary ? 'L' : it.ut ? 'UT' : it.use && it.use.egg ? RARITY[it.use.egg].name[0] : it.tier === null ? '' : 'T' + it.tier;
           const tb = typeof it.tier === 'number' ? (it.tier >= 12 ? 'b5' : it.tier >= 10 ? 'b4' : it.tier >= 7 ? 'b3' : it.tier >= 4 ? 'b2' : 'b1') : '';   // a tier's colour band: the number is never the only cue
           tier.className = 'tier' + (it.ut ? ' ut' : '') + (tb && name !== 'pots' ? ` tt ${tb}` : '');
-          if (name !== 'pots' && /^(T\d{1,2}|UT|M|L)$/.test(tier.textContent)) {   // drawn in the pixel font: clean at any slot size
+          if (name !== 'pots' && /^(T\d{1,2}|UT|M|L|C|D)$/.test(tier.textContent)) {   // drawn in the pixel font: clean at any slot size
             const col = getComputedStyle(tier).color || '#d8d8d8', txt = tier.textContent;
             tier.textContent = ''; const im = new Image(); im.src = pixelTag(txt, col); im.className = 'pxtag'; im.alt = txt; tier.appendChild(im);
           }
@@ -580,7 +589,7 @@ export class UI {
           el.classList.toggle('admin', !!it.admin); el.classList.toggle('ench', !!it.enchants); el.classList.toggle('legend', !!it.legendary);
           el.classList.toggle('up', (name === 'ground' || name === 'inv') && this.isUpgrade(it));   // (an upgrade for you: a green arrow)
         } else {
-          ico.classList.remove('sweep');
+          ico.classList.remove('sweep'); const acv0 = ico.querySelector('canvas.arm'); if (acv0) acv0.remove();
           const C = name === 'equip' && this.g.player ? CLASSES[this.g.player.cls] : null;
           const ghost = C ? [`${C.weapon}_t0`, `${C.ability}_t0`, `${C.armor}_t0`, 'ring_hp_t0'][i] : null || (name === 'pots' ? ['pot_hp', 'pot_mp'][i] : null);   // an empty potion button shows its potion, dimmed
           ico.style.backgroundImage = ghost ? `url(${this.r.icon(ghost)})` : ''; ico.style.backgroundSize = '100% 100%';
@@ -646,6 +655,12 @@ export class UI {
     return rank(it) > rank(cur);
   }
   tipHTML(it, id, name) {
+    if (it.arm) {                                          // a Mad God Armory item: the armory's own tooltip (src/armory_tip.js)
+      const worn = this.g.player ? this.g.player.equip.filter(Boolean).map((x) => ITEMS[x] && ITEMS[x].arm && ITEMS[x].arm.name).filter(Boolean) : [];
+      let h = armoryTip(it, worn);
+      if (this.g.player && !this.canUse(it)) h += `<div class="bad nope">Not usable by ${CLASSES[this.g.player.cls].name}</div>`;
+      return h + this.tipKeys(it, id, name);
+    }
     const g = this.g, row = (k, v, cls = '') => `<div class="kv ${cls}"><span>${k}</span><b>${v}</b></div>`;
     const badge = it.admin ? 'ADMIN' : it.mythic ? 'MYTHIC' : it.legendary ? 'LEGENDARY' : it.use && it.use.egg && RARITY[it.use.egg] ? RARITY[it.use.egg].name.toUpperCase() : it.ut ? 'UT' : it.tier === null || it.tier === undefined ? '' : 'T' + it.tier;
     let h = `<div class="th"><div><h4>${it.name}</h4><div class="t">${itemLabel(it)}</div></div>${badge ? `<span class="badge">${badge}</span>` : ''}</div>`;
@@ -728,6 +743,11 @@ export class UI {
     }
     if (it.enchants) h += `<div class="ench"><div class="eh">✦ Enchanted</div>${it.enchants.map((e) => `<div class="${e.unique ? 'eu' : 'ev'}">${e.unique ? '★ ' : ''}${e.text}</div>`).join('')}</div>`;
     if (g.player && it.slot !== 'consumable' && !(!it.type || ['ring'].includes(it.type)) && !this.canUse(it)) h += `<div class="bad nope">Not usable by ${CLASSES[g.player.cls].name}</div>`;
+    return h + this.tipKeys(it, id, name);
+  }
+  // what the mouse does with it, under the tooltip
+  tipKeys(it, id, name) {
+    let h = '';
     if (name) {
       const use = it.slot === 'consumable' ? 'use' : name === 'equip' ? 'unequip' : 'equip';
       const keys = name === 'ground' ? ['Double-click: take'] : [`Double-click: ${use}`, `Right-click: ${it.slot === 'consumable' ? 'use' : 'equip'} now`];
@@ -855,6 +875,7 @@ export class UI {
     if (this.bannerT > 0 && (this.bannerT -= dt) <= 0) $('banner').classList.add('hidden');
     this.chatAcc = (this.chatAcc || 0) + dt;
     if (this.chatAcc > 1) { this.chatAcc = 0; if (!this.chatOpen()) this.renderChat(); }   // let old lines fade
+    if (this.armIcons && this.armIcons.length) { const now = performance.now(); for (const q of this.armIcons) if (q.cv.isConnected) armIcon(q.cv, q.A, now, false, q.seed); }   // the armory's items, live
     this.shineT = (this.shineT || 0) + dt;
     for (const s of this.shines || []) {                     // the item art's own shine (every 5 s), and a legendary's twinkle
       const t = (this.shineT + s.off) % 5, f = t < 0.3 ? ['shine1', 'shine2', 'shine3'][Math.floor(t / 0.1)]

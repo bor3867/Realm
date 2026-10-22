@@ -108,7 +108,7 @@ for (const [id, E] of Object.entries(EFFECTS)) {
   for (const it of Object.values(ITEMS)) if (it.ability && it.ability.sig) taken.add(it.ability.sig.kind + it.ability.sig.n);
   let k = 0;
   for (const it of Object.values(ITEMS)) {
-    if (it.base || it.admin || !(it.ut || it.mythic || it.legendary) || !it.ability || it.ability.sig || it.ability.halo || it.ability.sigil || it.ability.myth || !DRAWS_OWN.has(it.type)) continue;
+    if (it.base || it.admin || it.arm || !(it.ut || it.mythic || it.legendary) || !it.ability || it.ability.sig || it.ability.halo || it.ability.sigil || it.ability.myth || !DRAWS_OWN.has(it.type)) continue;
     let sig;
     for (let tries = 0; tries < 60; tries++, k++) { const kind = KINDS[k % 6], n = 4 + (Math.floor(k / 6) % 9); if (!taken.has(kind + n)) { sig = { kind, n, dmg: 120 + (k % 5) * 15 }; taken.add(kind + n); k++; break; } }
     it.ability.sig = sig;
@@ -118,7 +118,7 @@ for (const [id, E] of Object.entries(EFFECTS)) {
 if (ITEMS.wand_of_hoarfrost) Object.assign(ITEMS.wand_of_hoarfrost.weapon, { speed: 13, range: 8.6, size: 0.5 });
 
 // ---- unique shots, themed by where an item comes from
-const special = () => Object.values(ITEMS).filter((it) => !it.base && (it.ut || it.mythic || it.legendary) && !it.admin);
+const special = () => Object.values(ITEMS).filter((it) => !it.base && (it.ut || it.mythic || it.legendary) && !it.admin && !it.arm);   // (the armory's items keep their own shots)
 function droppers() {
   const by = {};
   const note = (owner, loot) => { for (const l of loot || []) if (l.id) (by[l.id] = by[l.id] || []).push(owner); };

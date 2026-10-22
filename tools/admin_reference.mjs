@@ -1,7 +1,7 @@
 // Writes ADMIN_REFERENCE.md: a quick reference for the admin commands and the ids they take, from the game data.
 //   node tools/admin_reference.mjs
 import { readFileSync, writeFileSync } from 'node:fs';
-import { ENCHANTS } from '../src/data/items.js';
+import { ENCHANTS, ITEMS, ARMORY_IDS } from '../src/data/items.js';
 import { REALM_BOSSES, DUNGEON_BOSSES, DUNGEONS, DUNGEON_RATING } from '../src/data/enemies.js';
 import { CLASSES } from '../src/data/classes.js';
 import { PET_KINDS, RARITY_ORDER, FAMILIES } from '../src/data/pets.js';
@@ -37,6 +37,7 @@ for (const [c, d] of [
   ['/give dungeon ID', 'Give a dungeon boss\'s whole loot set'],
   ['/items TEXT', 'Search item ids and names'],
   ['/keys [DUNGEON] [N]', 'A key for every dungeon, or N for one'],
+  ['/armory [TIER]', 'The Mad God Armory: all 28 items, or one tier (`ut`, `mythic`, `legendary`, `celestial`, `divine`; divine is the admin-only Hosanna set, also `/armory hosanna`)'],
   ['/adminchest [N]', 'Up to 5 admin chests (top-tier loot); online, every player here gets their own'],
   ['/chickens [N]', 'Up to 20 XP chickens (2000 XP each); online, for every player here (shared ones in the realm)'],
   ['/gold N', 'Add gold (default 1000)'],
@@ -103,6 +104,11 @@ L.push('- Tiers: `TYPE_tN`, weapons and armour T0-T15, abilities T0-T7, rings `r
 L.push('- Who drops the top (weapons/armour, abilities, rings): everyday and chests to T11/T4/T3; hard realm foes T12/T5/T4; dungeon bosses T13/T6/T5; the hardest (5-star dungeons, Colossus, Orrery) T14-15/T7/T7. The forge upgrades to T11/T4/T3.');
 L.push('- Enchanted: `ID~CODE` or `ID~CODE.CODE`, CODE = key + grade 1-3, e.g. `/give wand_t9~keen3.burning2`');
 L.push('- Enchant keys: ' + list(Object.keys(ENCHANTS)), '');
+
+L.push('## The Mad God Armory', '', '- `/armory` gives all 28, `/armory TIER` one tier; `/give ID` one item. The Divine tier is the Hosanna set (the priest): admin-only, it never drops.', '');
+table(['Id', 'Name', 'Tier', 'Kind']);
+for (const id of ARMORY_IDS) { const it = ITEMS[id], A = it.arm; row(code(id), A.name, A.tier === 'UT' ? 'Untiered' : A.tier, A.st.ability ? 'Ability · ' + A.st.ability : A.cls); }
+L.push('');
 
 writeFileSync(new URL('../ADMIN_REFERENCE.md', import.meta.url), L.join('\n'));
 console.log('wrote ADMIN_REFERENCE.md:', L.length, 'lines');

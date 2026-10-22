@@ -958,3 +958,25 @@ body #app #panel { height: 100% !important; --slot: 54px; --mini: 196px; }   /* 
 /* QOL: an upgrade for you (in a bag or your backpack) wears a small green arrow */
 body #app .slot.up::before { content: ''; position: absolute; right: 3px; top: 3px; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 7px solid #5ae05a; filter: drop-shadow(0 0 1px #000); pointer-events: none; z-index: 3; }
 .deathscr .drecap .bad { color: #ff6a6a; }
+
+/* the Mad God Armory's items (src/armory_tip.js, src/armory_art.js): drawn live in their slots; their tooltip as the armory lays it out */
+.slot .ico { position: relative; }
+.slot .ico canvas.arm { position: absolute; inset: -25%; width: 150%; height: 150%; image-rendering: pixelated; pointer-events: none; }
+#tooltip .arm-tip { border-top: 2px solid var(--tc); }
+#tooltip .arm-role { display: inline-block; margin-top: 5px; font-size: 10px; letter-spacing: .06em; color: #17181d; background: var(--tc); padding: 2px 6px; font-weight: 700; }
+#tooltip .arm-tip .kv b.arm-v { color: #f2c94c; }
+#tooltip .arm-flags { color: #b9c3ff; font-size: 13px; }
+#tooltip .arm-eq { font-size: 13px; display: flex; flex-wrap: wrap; gap: 4px 10px; }
+#tooltip .arm-eq .lbl, #tooltip .arm-shots .lbl { color: #9d9fae; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; }
+#tooltip .arm-eq .pos { color: #86efac; font-weight: 700; } #tooltip .arm-eq .neg { color: #ff8a8a; font-weight: 700; }
+#tooltip .arm-special { margin: 0; padding: 8px 12px 8px 28px; color: #e3d7ff; font-size: 13px; display: flex; flex-direction: column; gap: 3px; }
+#tooltip .arm-special li::marker { color: var(--tc); }
+#tooltip .arm-special li.price { color: #ff9a9a; } #tooltip .arm-special li.price::marker { color: #ff6b6b; }
+#tooltip .arm-shots { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+#tooltip .arm-shot { width: 28px; height: 28px; background-size: 100% 100%; image-rendering: pixelated; }
+#tooltip .arm-set { margin: 0 12px 8px; padding: 8px 10px; border: 1px solid #fff1b8; background: linear-gradient(135deg, #2d2a22, #22232a); font-size: 12px; }
+#tooltip .arm-setname { color: #fff1b8; font-weight: 700; letter-spacing: .04em; margin-bottom: 4px; }
+#tooltip .arm-pieces { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 4px; }
+#tooltip .arm-pieces span { padding: 1px 5px; border: 1px solid #4c4e5a; color: #9d9fae; } #tooltip .arm-pieces span.on { border-color: #fff1b8; color: #fff1b8; }
+#tooltip .arm-set ul { margin: 0; padding-left: 16px; color: #9d9fae; } #tooltip .arm-set li.on { color: #e8e2cc; } #tooltip .arm-set b { color: #fff1b8; margin-right: 4px; }
+#tooltip .arm-sb { padding: 4px 12px 8px; color: #c3a6ff; font-size: 11px; letter-spacing: .05em; }

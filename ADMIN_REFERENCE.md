@@ -20,6 +20,7 @@ Type commands in chat (`/` or Enter). Ids use underscores. Regenerate with `node
 | `/give dungeon ID` | Give a dungeon boss's whole loot set |
 | `/items TEXT` | Search item ids and names |
 | `/keys [DUNGEON] [N]` | A key for every dungeon, or N for one |
+| `/armory [TIER]` | The Mad God Armory: all 28 items, or one tier (`ut`, `mythic`, `legendary`, `celestial`, `divine`; divine is the admin-only Hosanna set, also `/armory hosanna`) |
 | `/adminchest [N]` | Up to 5 admin chests (top-tier loot); online, every player here gets their own |
 | `/chickens [N]` | Up to 20 XP chickens (2000 XP each); online, for every player here (shared ones in the realm) |
 | `/gold N` | Add gold (default 1000) |
@@ -146,3 +147,38 @@ Type commands in chat (`/` or Enter). Ids use underscores. Regenerate with `node
 - Who drops the top (weapons/armour, abilities, rings): everyday and chests to T11/T4/T3; hard realm foes T12/T5/T4; dungeon bosses T13/T6/T5; the hardest (5-star dungeons, Colossus, Orrery) T14-15/T7/T7. The forge upgrades to T11/T4/T3.
 - Enchanted: `ID~CODE` or `ID~CODE.CODE`, CODE = key + grade 1-3, e.g. `/give wand_t9~keen3.burning2`
 - Enchant keys: `hp`, `mp`, `att`, `def`, `spd`, `dex`, `vit`, `wis`, `keen`, `sharp`, `burning`, `frost`, `vampiric`, `arcing`, `volatile`, `thrifty`, `potent`, `evasive`, `warded`, `mending`, `feasting`, `soulful`, `restless`, `thorned`, `furious`, `shardsong`, `smoulder`, `gravedust`, `phoenix`, `headsman`
+
+## The Mad God Armory
+
+- `/armory` gives all 28, `/armory TIER` one tier; `/give ID` one item. The Divine tier is the Hosanna set (the priest): admin-only, it never drops.
+
+| Id | Name | Tier | Kind |
+| --- | --- | --- | --- |
+| `arm_fractured_orbit` | Fractured Orbit | Untiered | Staff |
+| `arm_mirror_maw` | Mirror Maw | Untiered | Wand |
+| `arm_gravity_alchemist` | Gravity Alchemist | Untiered | Bow |
+| `arm_time_echo` | Time Echo | Untiered | Dagger |
+| `arm_hollow_lantern` | Hollow Lantern | Untiered | Wand |
+| `arm_blood_blossom` | Blood Blossom | Untiered | Staff |
+| `arm_void_leech` | Void Leech | Untiered | Wand |
+| `arm_celestial_weaver` | Celestial Weaver | Untiered | Bow |
+| `arm_serpents_reach` | Serpent's Reach | Untiered | Dagger |
+| `arm_hosanna` | Hosanna | Divine | Wand |
+| `arm_singularity_core` | Singularity Core | Mythic | Staff |
+| `arm_glass_psalm` | Glass Psalm | Mythic | Wand |
+| `arm_starfall_engine` | Starfall Engine | Mythic | Bow |
+| `arm_phantom_thread` | Phantom Thread | Mythic | Dagger |
+| `arm_apocalypse_chorus` | Apocalypse Chorus | Mythic | Ability · Barrage |
+| `arm_bone_garden` | Bone Garden | Legendary | Staff |
+| `arm_dream_eater` | Dream Eater | Legendary | Wand |
+| `arm_eclipse_hunter` | Eclipse Hunter | Legendary | Bow |
+| `arm_thousand_steps` | Thousand Steps | Legendary | Dagger |
+| `arm_reality_unbound` | Reality Unbound | Legendary | Ability · Distort |
+| `arm_the_hunger` | The Hunger | Celestial | Staff |
+| `arm_paradox_script` | Paradox Script | Celestial | Wand |
+| `arm_world_ripper` | World Ripper | Celestial | Bow |
+| `arm_null_walker` | Null Walker | Celestial | Dagger |
+| `arm_the_last_verse` | The Last Verse | Celestial | Ability · Mandala |
+| `arm_gloria` | Gloria | Divine | Ability · Hymn |
+| `arm_empyrean` | Empyrean | Divine | Robe |
+| `arm_aureole` | Aureole | Divine | Ring |

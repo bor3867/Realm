@@ -8,6 +8,7 @@ import { installWalls } from './walls.js';
 import { installRFRender } from './rf/draw.js';
 import { installRFBossRender } from './rf/boss.js';
 import { rxFrame } from './remaster.js';
+import { drawIcon as armIcon, glowDraw as armGlow } from './armory_art.js';
 // the overworld bosses on the old 48px sheet, drawn twice life-size so they read as bosses beside the Kraken and the
 // Treant, not as champions (2026-10-19; whole sizes only)
 const RB_BIG = new Set(['brine_cathedral', 'wick_mother', 'orrery_of_winter', 'penitent_colossus', 'emily_the_yapper', 'the_fallen_star']);
@@ -1912,6 +1913,19 @@ export class Renderer {
     return c;
   }
   // a laser bolt: a soft coloured glow round a hard white core, along its flight
+  // a Mad God Armory shot, drawn as the armory draws it: its frames, pulse and glow in the item's colour. pr.armSc is
+  // the armory's pixel scale for it (4 unless its mechanic says otherwise: 40 screen px a tile there, 16 here);
+  // pr.armSpin spins it (radians a second) instead of pointing it along its flight
+  armShot(pr, g) {
+    const [, id, k] = pr.sprite.split(':'), it = ITEMS[id], A = it && it.arm;
+    if (!A) return;
+    const def = A.shots[+k] || A.shots[0], U = this.U || 1, sc = pr.armSc || 4, scale = Math.max(1, Math.round(sc * 0.4 * U));
+    const [x, y] = this.proj(pr.x, pr.y), t = performance.now() + pr.x * 40;
+    const rot = pr.armSpin ? g.t * pr.armSpin : pr.a + this.th + Math.PI / 4;
+    const b = this.b; b.save(); b.translate(Math.round(x), Math.round(y)); b.scale(1 / U, 1 / U);
+    armGlow(b, def, scale, t, A.glow, 0, 0, rot, pr.armAlpha ?? 1, pr.armK || 1, 0.8);
+    b.restore();
+  }
   laserShot(pr, [glow, mid]) {
     const b = this.b, [x, y] = this.proj(pr.x, pr.y), a = pr.a + this.th, k = pr.k || 1;
     b.save(); b.translate(Math.round(x), Math.round(y)); b.rotate(a); b.scale(k, k);
@@ -1928,6 +1942,7 @@ export class Renderer {
     const trailP = Math.min(0.4, 240 / (g.projectiles.length + 1));
     for (const pr of g.projectiles) {
       if (pr.hidden) continue;                                     // an opening in a set piece's formation
+      if (pr.sprite.startsWith('arm:')) { this.armShot(pr, g); continue; }   // a Mad God Armory shot (src/armory_art.js)
       if (pr.sprite.includes('/') && this.R) {                       // a Realm Update shot (registry)
         const def = pr.def || (pr.def = this.R.resolve(pr.sprite));
         if (def) {
@@ -2523,6 +2538,10 @@ export class Renderer {
     this.icons = this.icons || {}; this.iconBox = this.iconBox || {};
     const key = frame && frame !== '0' ? id + '|' + frame : id;
     if (this.icons[key]) return this.icons[key];
+    if (ITEMS[id] && ITEMS[id].arm) {                      // a Mad God Armory item: its first frame and glow, as the armory draws it
+      const cv = document.createElement('canvas'); cv.width = cv.height = 96; armIcon(cv, ITEMS[id].arm, 1000);
+      return (this.icons[key] = cv.toDataURL());
+    }
     if (key !== id) this.icon(id);                          // frame 0 first: it sets the box every frame shares
     const k = iconIndex(this.W, ITEMS[id]), c = this.W.itemsCols;
     const src = document.createElement('canvas'); src.width = src.height = 16;
