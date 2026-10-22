@@ -62,7 +62,7 @@ exploring (rooms, puzzles, traps). The 24 Realmforge bosses are translated from 
 Done: 25 of their 30 emitter kinds (aim, ring, spiral, aoe in its four shapes, minions with their own art, shot, life
 span and burst, lasers, rain, walls, lines, implosions, converging, flocks, novas, beams, drops, sprays, bolas, orbits,
 clouds, rifts, wildfire, hedges, warps, sequences, ahead-of-you), their movement styles, art, shots and loot. Admin:
-/bx rfx_<id>. Left to their specials: beams that follow a laser.
+/bx rfx_<id>. All their specials are in.
 Specials done: rage, phase time limits (60 s unless set; the last ends the fight), invulnerable phases (freed when
 their minions fall), shields (openings every 9 s: a stand-in for Aion's puzzle), heat floors, leashes.
 Arena rules done (2026-10-20), each felt in the player's own browser on the phase clock the boss carries (B.local), so every
@@ -79,7 +79,9 @@ Done (2026-10-21): each boss's own room as a dungeon map (rfa_<id>, src/rf/boss.
 from its layout, the floor painted by the room painter, the boss asleep on it till you step in, its mechanics' box the
 room itself. An rf_ dungeon's boss door leads there; in a shared rf_ dungeon the door asks the server, which opens one
 boss room for the group (one per dungeon room; it hosts the boss, so everyone fights the same one).
-Next: beams that follow a laser; then the older realm and dungeon bosses moved across.
+Lasting beams done: Mother Mire's ray turns after you, the Cantor's and Elderbark's sweep round them, the Magistrate's
+pendulum swings; marked first, stopped by walls, the angle on the boss so all see one beam.
+Next: the older realm and dungeon bosses moved across.
 Fixed on the way: a player's blow on a shared monster now goes through the game's own damage step on the server, so a
 three-phase boss's phases, morphs, immunity and survive phases happen as they should (before, only its HP fell).
 

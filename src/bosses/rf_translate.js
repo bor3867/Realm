@@ -158,7 +158,11 @@ function fire(g, e, B, bal, em, vol, org) {
   else if (em.t === 'laser') {
     const tele = em.tele || 0.8, act = Math.min(1.2, em.dur || 0.5), L = Math.max(A.w, A.h) + 6;
     if (em.at === 'cross') for (const sg of [-1, 1]) { const a = (Math.PI / 4) * sg + Math.PI / 2; laser(p.x - Math.cos(a) * L / 2, p.y - Math.sin(a) * L / 2, a, L, tele, act); }
-    else if (em.at === 'sweep' || em.at === 'pendulum') for (let k = 0; k < 3; k++) laser(ox, oy, aim + (k - 1) * 0.35 + Math.sin(vol) * 0.4, L, tele + k * 0.35, act);
+    else if (em.at === 'track' || em.at === 'sweep' || em.at === 'pendulum') {   // a beam that lasts: it follows you, turns, or swings
+      if (em.at !== 'track' && e.rfBeam && e.rfBeamPh === e.bx.phase) return;      // (a lasting one is already turning)
+      Object.assign(e, { rfBeam: em.at, rfBeamPh: e.bx.phase, rfBeamS: em.s, rfBeamN: em.arms || 1, rfBeamL: em.len || Math.max(A.w, A.h), rfBeamTele: em.tele || 1,
+        rfBeamLeft: em.at === 'track' ? em.dur || 2 : 1e9, rfBeamA: em.at === 'pendulum' ? Math.PI / 2 : aim, rfBeamW: ((em.at === 'track' ? em.turn : em.sweep) || 30) * D2R,
+        rfBeamArc: (em.arc || 120) * D2R, rfBeamPer: em.period || 4, rfBeamT: 0 }); }
     else if (em.reflect && PH0 && PH0.rfP.panes) { let x = ox, y = oy, a = aim, left = L, last = null;   // the Lightray: its bounces, one marked line each
       for (let k = 0; k < 4 && left > 0.5; k++) { const ex = x + Math.cos(a) * left, ey = y + Math.sin(a) * left; let best = null, bp = null;
         for (const P of PANES(e, B, PH0.rfP)) { if (P === last) continue; const h = segX(x, y, ex, ey, P); if (h && (!best || h.t < best.t)) { best = h; bp = P; } }
@@ -251,6 +255,7 @@ function phaseRules(g, e, B, bal, dt) {
     for (let k = 0; k < q.n; k++) { const a = k * stp + q.rot, dd = Math.atan2(Math.sin(a - e.rfGateA), Math.cos(a - e.rfGateA)); if (Math.abs(dd) < e.rfGateGap / 2) continue;
       q.star(a, Math.abs(dd) < e.rfGateGap / 2 + stp && B.shots[q.post] ? q.post : q.s); } }
   if (e.rfGateShow > 0) e.rfGateShow -= dt;
+  if (e.rfBeam) beamStep(g, e, dt);
   if (!ph.rfP.warp && (e.rfGateQ || e.rfGateA !== undefined)) { e.rfGateQ = null; e.rfGateA = undefined; e.rfGateShow = 0; }
   // Vitrea: her reflections, her echoes' shots, the Thousandfold
   if (B.phases.some((q) => q.clones || q.thousand)) vitreaStep(g, e, B, bal, dt, ph);
@@ -329,6 +334,9 @@ function arenaRules(g, e, B, bal, dt) {
   // the still hour: its shots hang in the air; the lances, turned by the mirror, end there
   if (e.rfPz === 'still') { if (!g.timeStop || g.timeStop.rfx) g.timeStop = { x: e.x, y: e.y, r: 40, t: 0.3, rfx: true }; }
   if (!('lw' in Z) || e.rfLanceWin !== Z.lw) { if ('lw' in Z) for (const b of g.projectiles) if (b.rfLance) { b.life = 0; g.fx.push({ kind: 'ring', x: b.x, y: b.y, t: 0, max: 1.2, color: '#ffd650' }); } Z.lw = e.rfLanceWin; }
+  // a lasting beam: touch it live and it burns
+  if (e.rfBeam && !(e.rfBeamTele > 0)) for (const a of beamArms(e)) { const ux = Math.cos(a), uy = Math.sin(a), t = Math.max(0, Math.min(beamReach(g.map, e, a), (p.x - e.x) * ux + (p.y - e.y) * uy));
+    if (Math.hypot(p.x - e.x - ux * t, p.y - e.y - uy * t) < 0.55) { if (tick('beam', 0.35)) hurt((B.shots[e.rfBeamS] && B.shots[e.rfBeamS].dmg) || 90, `${e.D.name}'s ${(B.shots[e.rfBeamS] && B.shots[e.rfBeamS].name) || 'beam'}`); break; } }
   // Sarrukh's body: touch a segment and it hurts
   if (e.rfSgN) for (const q of segsOf(e)) if (Math.hypot(p.x - q.x, p.y - q.y) < 0.85) { if (tick('seg', 0.8)) hurt((B.shots.seg && B.shots.seg.dmg) || 100, `${e.D.name}'s body`); break; }
   // Starflight: a star is see-through and harmless till it's 2.25 tiles out, and grows as it comes
@@ -470,6 +478,14 @@ function drawArena(r, g, e, B) {
     if (pr && pr.rfCurseUntil > g.t) { circle(pr.x, pr.y, 1.6, '#6a2a8a', 0.3); circle(pr.x, pr.y, 1.6, '#c8a0ff', 0.9, true); }
     if (pr && g.rfZ && g.rfZ.healFx > g.t) { const [ax, ay] = r.proj(pr.x, pr.y), [px2, py2] = r.proj(g.player.x, g.player.y); b.globalAlpha = 0.8; b.strokeStyle = '#9fffb0'; b.lineWidth = 3; b.beginPath(); b.moveTo(ax, ay - 16); b.lineTo(px2, py2 - 10); b.stroke(); b.globalAlpha = 1; }
   }
+  if (e.rfBeam) { const live = !(e.rfBeamTele > 0), col = (B.shots[e.rfBeamS] && B.shots[e.rfBeamS].color) || '#ffe9a0', [sx, sy] = r.proj(e.x, e.y - 0.6);
+    for (const a of beamArms(e)) { const RL = beamReach(g.map, e, a), [tx, ty] = r.proj(e.x + Math.cos(a) * RL, e.y - 0.6 + Math.sin(a) * RL);
+      b.lineCap = 'round';
+      if (!live) { if (Math.floor(g.t * 14) % 2) { b.globalAlpha = 0.8; b.strokeStyle = '#ff4a5a'; b.lineWidth = 2; b.setLineDash([6, 5]); b.beginPath(); b.moveTo(sx, sy); b.lineTo(tx, ty); b.stroke(); b.setLineDash([]); } }
+      else { b.globalAlpha = 0.35; b.strokeStyle = col; b.lineWidth = 14; b.beginPath(); b.moveTo(sx, sy); b.lineTo(tx, ty); b.stroke();
+        b.globalAlpha = 0.9; b.lineWidth = 6; b.beginPath(); b.moveTo(sx, sy); b.lineTo(tx, ty); b.stroke();
+        b.strokeStyle = '#ffffff'; b.lineWidth = 2; b.beginPath(); b.moveTo(sx, sy); b.lineTo(tx, ty); b.stroke(); }
+      b.globalAlpha = 1; b.lineCap = 'butt'; } }
   if (e.rfDig) { const k = e.rfBst === 'lock' ? 1 : 0.6 + 0.4 * Math.sin(g.t * 14);   // under the sand: a ripple (still, once it's locked)
     for (let j = 0; j < 3; j++) circle(e.x, e.y, 0.5 + j * 0.45 + (e.rfBst === 'lock' ? 0 : ((g.t * 2) % 1) * 0.4), '#8a6a3a', 0.55 * k * (1 - j * 0.25), true); }
   if (e.rfSgN) { const S = segsOf(e);
@@ -727,6 +743,27 @@ function wormBody(e, n) {
   e.rfSgN = k - 1;
 }
 const segsOf = (e) => Array.from({ length: e.rfSgN || 0 }, (_, i) => ({ x: e['rfSg' + i + 'x'], y: e['rfSg' + i + 'y'], k: i }));
+// ---- Beams that last: Mother Mire's ray turns after you (so many degrees a second, for its two seconds), the Cantor's
+// light and Elderbark's lashes sweep round him, the Magistrate's pendulum swings below him. Marked first, then live.
+// The angle is a plain number on the boss (rfBeamA), so all see the same beam; each browser feels its own player's touch.
+function beamStep(g, e, dt) {
+  if (e.rfBeamPh !== e.bx.phase || e.bx.state === 'morph' || e.bx.state === 'death' || e.bx.state === 'deathhold') { e.rfBeam = ''; return; }
+  e.rfBeamT += dt;
+  if (e.rfBeamTele > 0) { e.rfBeamTele -= dt; if (e.rfBeam !== 'track') return; }
+  if (e.rfBeam === 'track') { const who = g.netTargets && g.netTargets.length ? g.netTargets : [g.player], q = who.reduce((a, b) => (Math.hypot(b.x - e.x, b.y - e.y) < Math.hypot(a.x - e.x, a.y - e.y) ? b : a), who[0]);
+    const want = Math.atan2(q.y - e.y, q.x - e.x), d = Math.atan2(Math.sin(want - e.rfBeamA), Math.cos(want - e.rfBeamA)), k = e.rfBeamTele > 0 ? 3 : 1;   // (marked: it settles on you; live: it chases slower)
+    e.rfBeamA += Math.max(-e.rfBeamW * k * dt, Math.min(e.rfBeamW * k * dt, d));
+    if (e.rfBeamTele <= 0 && (e.rfBeamLeft -= dt) <= 0) e.rfBeam = ''; }
+  else if (e.rfBeam === 'sweep') e.rfBeamA += e.rfBeamW * dt;
+  else e.rfBeamA = Math.PI / 2 + (e.rfBeamArc / 2) * Math.sin((TAU * e.rfBeamT) / e.rfBeamPer);
+}
+const beamArms = (e) => Array.from({ length: e.rfBeamN || 1 }, (_, k) => e.rfBeamA + (k * TAU) / (e.rfBeamN || 1));
+function beamReach(m, e, a) {                                     // as far as the first wall (pillars let it by)
+  const L = e.rfBeamL || 10; if (!m || !m.solid) return L;
+  for (let d = 0.5; d < L; d += 0.25) { const x = Math.floor(e.x + Math.cos(a) * d), y = Math.floor(e.y + Math.sin(a) * d), i = y * m.w + x;
+    if (x < 0 || y < 0 || x >= m.w || y >= m.h) return d; if (m.solid[i] && !(m.shotPass && m.shotPass.has(i)) && !m.rfSolid) return d; }
+  return L;
+}
 // ---- The Cantor: his stave's five lines across the chapel, the beat (four to a bar, 0.75s each) on the phase clock
 const staffY = (A, i, n) => A.y0 + A.h * (0.24 + (0.62 * i) / (n - 1));
 const beatOf = (e) => Math.floor((e.rfPhT || 0) / 0.75) % 4;

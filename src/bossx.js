@@ -335,7 +335,7 @@ export const BXF = {
   // ---------------------------------------------------------------- the arena: doors lock while it lives
   bxLockArena(e, lock) {
     const m = this.map, A = e.room;
-    if (!A || m.kind !== 'dungeon') return;
+    if (!A || m.kind !== 'dungeon' || m.rfArena) return;           // (a boss's own room has no doors to lock: its way out stays open)
     if (lock) {
       e.bx.locks = [];
       for (let x = A.x - 1; x <= A.x + A.w; x++) for (let y = A.y - 1; y <= A.y + A.h; y++) {
