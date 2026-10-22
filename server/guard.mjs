@@ -17,7 +17,7 @@ export const LIMIT = { HIT_MAX: 12000, DPS_1S: 25000, DPS_10S: 150000, SPEED: 22
 const PURSE = { gold: [15000, 60000], fame: [3000, 25000], essence: [2500, 15000] };
 const PURSE_NEW = { gold: 2e6, fame: 2e6, essence: 5e5 };       // a new account's uploaded progress, at most
 
-export const itemOk = (id, admin) => { if (id === null || id === undefined) return true; if (typeof id !== 'string' || id.length > 120) return false; try { const it = ITEMS[id]; return !!it && (admin || !it.admin); } catch { return false; } };
+export const itemOk = (id, admin) => { if (id === null || id === undefined) return true; if (typeof id !== 'string' || id.length > 120) return false; try { const it = ITEMS[id]; return !!it && (admin || !(it.admin || it.adminOnly)); } catch { return false; } };   // (admin-only: the admin kit, and the Hosanna set)
 
 // a save, made fit to keep: { save, notes } (notes: what was taken out or clamped, for the server's log)
 export function checkSave(next, prev, { admin = false, minutes = 0, upload = false } = {}) {
