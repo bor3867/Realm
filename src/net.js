@@ -63,13 +63,6 @@ const methods = {
     else if (m.t === 'bags') { if (this.map) { this.bags = this.map.bags = this.bags.filter((b) => !b.shared); for (const b of m.list) this.netBag(b); } }
     else if (m.t === 'bag') this.netBag(m);
     else if (m.t === 'chest') this.netChest(m);
-    else if (m.t === 'bossdead') {                        // the old-style boss fell on the server: your rewards if you hit it
-      const B = this.boss;
-      if (!B || !B.net || B.state === 'dead') return;
-      B.x = B.tx; B.y = B.ty;
-      if (m.credit) { B.netKill = true; this.killBoss(); }
-      else { B.state = 'dead'; B.deadT = 0; B.hp = 0; this.vx({ k: 'shake', amt: 8 }); }
-    }
     else if (m.t === 'oopen') { const o = this.map && this.map.netWorld && this.netObj2(m.i, m.k); if (o) { o.guards = null; this.breakChest(o); this.map.brk = null; } }   // you hit it: your loot
     else if (m.t === 'ofloat') { const o = this.map && this.netObj2(m.i, m.k); if (o) this.float(o.x, o.y - 1, m.text, '#8d88a0'); }
     else if ((m.t === 'dropped' || m.t === 'took') && N.pending) { const f = N.pending.get(m.rid); if (f) { N.pending.delete(m.rid); f(m); } }
@@ -268,8 +261,6 @@ const methods = {
     m.netWorld = true; N.byId.clear(); N.held = new Map();
     for (const o of m.objects) if (o.guards) o.guards = null;   // (camp chests: the server's guards are the ones that count)
     this.enemies = m.enemies = [];
-    // the Drowned Forge's old-style boss: kept as a puppet of the server's (its arena is the same for all)
-    if (this.boss && m.kind === 'dungeon') { Object.assign(this.boss, { net: true, tx: this.boss.x, ty: this.boss.y }); } else this.boss = null;
   },
   // the server is gone: the realm runs its own monsters again
   netWorldOff() {
@@ -284,14 +275,6 @@ const methods = {
     if (!M || !M.netWorld) return;
     const off = this.t - (m.T || 0), TIMED = /Until$|^born$/;              // the server's clock to ours
     for (const s of m.es) for (const k in s) if (TIMED.test(k) && typeof s[k] === 'number') s[k] += off;
-    if (m.boss && this.boss && this.boss.net) {                            // the old-style boss
-      const { x, y, ...rest } = m.boss;
-      for (const k in rest) if (TIMED.test(k) && typeof rest[k] === 'number') rest[k] += off;
-      if (this.boss.state === 'dead') delete rest.state;
-      Object.assign(this.boss, rest);
-      if (x !== undefined) this.boss.tx = x;
-      if (y !== undefined) this.boss.ty = y;
-    }
     for (const s of m.es) {
       let e = N.byId.get(s.nid);
       if (!e) {

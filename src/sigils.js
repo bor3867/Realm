@@ -36,7 +36,7 @@ const methods = {
     const shot = (a, speed, range, d, pierce = true) => { const b = this.shoot('p', ox, oy, a, speed, range, d, G.proj, 0.45, pierce); b.child = true; return b; };
     const ring = (n, a0, d, range = r + 1) => { for (let k = 0; k < n; k++) shot(a0 + (k / n) * TAU, 9, range, d); };
     const near = () => this.enemiesIn(x, y, r);
-    const small = (e) => e !== this.boss && !e.rb && !(e.D && e.D.dummy);
+    const small = (e) => !e.rb && !(e.D && e.D.dummy);
     switch (S.theme) {
       case 'encore':
         if (S.pattern === 'heavy') { for (const e of near()) this.damageEnemy(e, dmg * 2, ...lift(e.x, e.y, 0.5)); this.vx({ k: 'shake', amt: 2 }); }

@@ -222,7 +222,6 @@ export class Renderer {
     const drawn = g.activeMap === m ? new Set(g.active) : null;
     if (drawn) { for (const e of g.notable) drawn.add(e); for (const e of g.enemies) if (e.dead && e.deadT < 1.4) drawn.add(e); }
     for (const e of drawn || g.enemies) add(e.x, e.y, (sx, sy) => this.enemy(g, e, sx, sy));
-    if (g.boss) add(g.boss.x, g.boss.y, (sx, sy) => this.boss(g, g.boss, sx, sy));
     add(g.player.x, g.player.y, (sx, sy) => this.player(g, g.player, sx, sy));
     for (const o of g.netHere()) add(o.x, o.y, (sx, sy) => this.player(g, o, sx, sy));   // the other players (src/net.js)
     for (const L of g.player.orbsLive || []) add(...lift(L.B.x, L.B.y, -0.5), () => this.orbiter(g, L));   // what circles you (src/orbiters.js)
@@ -752,10 +751,10 @@ export class Renderer {
   }
   // rotating laser sweeps around a boss: thin warning lines first, then the beams turn
   sweepFx(f, g) {
-    const b = this.b, E = f.e, [ox, oy] = this.proj(...g.up(E.x, E.y, E === g.boss ? 2.3 : 1.4));
+    const b = this.b, E = f.e, [ox, oy] = this.proj(...g.up(E.x, E.y, 1.4));
     const live = f.t >= f.tele, rot = live ? f.w * (f.t - f.tele) : 0;
     for (let k = 0; k < f.n; k++) {
-      const a = f.a0 + (k / f.n) * Math.PI * 2 + rot, [ex, ey] = this.proj(...g.up(E.x, E.y, E === g.boss ? 2.3 : 1.4).map((v, i) => v + (i ? Math.sin(a) : Math.cos(a)) * f.len));
+      const a = f.a0 + (k / f.n) * Math.PI * 2 + rot, [ex, ey] = this.proj(...g.up(E.x, E.y, 1.4).map((v, i) => v + (i ? Math.sin(a) : Math.cos(a)) * f.len));
       const n = Math.max(2, Math.round(Math.hypot(ex - ox, ey - oy)));
       if (!live) {
         if (Math.floor(g.t * 14) % 2) continue;
@@ -1434,20 +1433,6 @@ export class Renderer {
       }
     }
   }
-  boss(g, B, sx, sy) {
-    const S = this.A.sheets.unstruck, Gd = S.guide, F = Gd.frameWidth, A = Gd.animations;
-    let a = A.idle, f = 0;
-    const st = B.state;
-    if (st === 'dead') { a = A.death; f = Math.min(3, Math.floor(B.deadT * 4)); }
-    else if (st === 'phase') { a = A.phase; f = B.st < 0.9 ? 1 : 0; }
-    else if (A[st]) a = A[st];
-    else if (st === 'spin' || st === 'tell_spin') { a = A.phase; f = 1; }
-    else f = Math.floor(g.t * 3) % 2;
-    const [cx, cy] = a.cells[Math.min(f, a.cells.length - 1)];
-    if (st !== 'dead') this.shadow(sx, sy, 44);
-    const rx = rxFrame(this.R, g, B);
-    this.spr(rx ? rx.img : S.img, rx ? rx.x : cx * F, rx ? rx.y : cy * F, F, F, sx, sy, Gd.pivot.x, Gd.pivot.y, false, false);
-  }
   player(g, p, sx, sy) {
     const C = CLASSES[p.cls], S = this.A.sheets[C.sheet], A = S.guide.animations;
     let name, flip = false, frame = 0;
@@ -2108,7 +2093,7 @@ export class Renderer {
     if (e.rfH) return e.rfH + 6;                                 // a Realmforge creature or boss (src/rf/draw.js)
     if (e.bx && e.bx.def) return e.bx.def.foot[1] * 2 + 6;
     if (e.rb && rbK(e) > 1) return 88;                           // an overworld boss, twice life-size
-    if (e === g.boss || (e.rb && !e.D.reg)) return 44;
+    if (e.rb && !e.D.reg) return 44;
     if (e.D && e.D.reg) {
       const C = this.objDefs || (this.objDefs = new Map());
       let d = C.get(e.D.reg);
@@ -2300,9 +2285,7 @@ export class Renderer {
       pixelLabel(ctx, t, x, y, 16, '#f2c14e');
     }
     let bar = null;
-    const B = g.boss;
-    if (B && B.state !== 'sleep' && B.state !== 'dead') bar = { name: 'The Unstruck', f: B.hp / B.maxHp, hot: B.phase === 2, e: B };
-    else {
+    {
       let best = 22;
       for (const e of g.enemies) {
         if (!(e.rb || e.herald || (e.warden && e.seen !== false)) || e.dead || e.cloneOf) continue;
@@ -2375,7 +2358,7 @@ export class Renderer {
     for (const B of g.bubbles) {
       if (B.e && !B.e.dead && B.e.x !== undefined) { B.x = B.e.x; B.y = B.e.y; }
       const [bx, by] = this.proj(B.x, B.y), age = g.t - B.t0, life = B.big ? 3.6 : 2.6;
-      const hgt = B.e && B.e.rb ? (rbK(B.e) > 1 ? 98 : 54) : B.e && B.e.D && B.e.D.sheet === 'champions' ? 30 : B.e === g.boss ? 64 : 22;
+      const hgt = B.e && B.e.rb ? (rbK(B.e) > 1 ? 98 : 54) : B.e && B.e.D && B.e.D.sheet === 'champions' ? 30 : 22;
       const x = bx * s, y = (by - hgt) * s - Math.min(1, age * 8) * 4;
       const w = ctx.measureText(B.text).width + 14, h = Math.max(16, s * 5.5);
       ctx.globalAlpha = Math.min(1, (life - age) * 3, age * 10);
@@ -2519,7 +2502,6 @@ export class Renderer {
     }
     for (const bag of g.bags) if (bag.rare || !calm) { if (bag.rare) mark(bag.x, bag.y, 'rarebag', '#ffffff', '#ffffff', false, 2); else mark(bag.x, bag.y, 'bag', '#c98a22', '#f2c14e', false, 1); }
     for (const e of g.activeMap === m ? g.notable : g.enemies) if (e.rb && !e.dead) { if (EVENT_BOSS.has(e.id)) mark(e.x, e.y, 'ufo', blink ? '#3ac8a0' : '#2a8a70', '#b8ffe8', true, 2); else mark(e.x, e.y, 'boss', blink ? '#ffffff' : (BOSS_TINT[e.D.biome] || BOSS_TINT.dungeon), '#05040a', true, 2); }   // (the boss crest, tinted by its land; an event boss, the UFO)
-    if (g.boss && g.boss.state !== 'dead') mark(g.boss.x, g.boss.y, 'boss', blink ? '#ffffff' : '#ff8a2a', '#05040a', true, 2);
     // the other players here: blue dots (click one to teleport to them: src/main.js)
     for (const o of g.netHere()) {
       if (o.dead) continue;

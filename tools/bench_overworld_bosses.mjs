@@ -36,7 +36,6 @@ for (const [id, land] of Object.entries(BOSSES)) {
     const a = Math.atan2(p.y - e.y, p.x - e.x); p.x = e.x + Math.cos(a) * 5; p.y = e.y + Math.sin(a) * 5;
     if (isNaN(p.x)) { p.x = e.x; p.y = e.y + 5; }
     I.fire = true; I.aimX = e.x; I.aimY = e.y - 1; g.update(dt);
-    if (g.boss && g.boss !== e && !e.dead && e.hp <= 0) break;
   }
   const kill = Math.round(t);
   // idle

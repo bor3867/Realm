@@ -95,7 +95,7 @@ const methods = {
             f.done = true;
             const x = f.x1, y = f.y1 + 0.5;
             for (const e of this.enemiesIn(x, y, f.r)) {
-              if (e !== this.boss && !e.rb && !(e.D && e.D.dummy)) { const d = dist(e.x, e.y, x, y) || 1, s = Math.min(d - 0.4, 2.4); if (s > 0) this.moveCircle(e, ((x - e.x) / d) * s, ((y - e.y) / d) * s, 0.35); }
+              if (!e.rb && !(e.D && e.D.dummy)) { const d = dist(e.x, e.y, x, y) || 1, s = Math.min(d - 0.4, 2.4); if (s > 0) this.moveCircle(e, ((x - e.x) / d) * s, ((y - e.y) / d) * s, 0.35); }
               this.damageEnemy(e, Math.round(f.dmg * 0.5), ...lift(e.x, e.y, 0.5));
             }
             for (let j = 0; j < 7; j++) { const b = this.shoot('p', x, y - 0.5, f.a + (j - 3) * 0.16, 10, 4, Math.round(f.dmg * 0.6), 'bubble', 0.45, true); b.child = true; }
@@ -167,7 +167,7 @@ const methods = {
     for (const o of L) {
       o.page13 = 2;                                                       // (passed on: it goes no further)
       o.curseT = Math.max(o.curseT || 0, 5); o.curseF = Math.max(o.curseF && o.curseT > 0 ? o.curseF : 0, e.curseF || 0.3);
-      if (o !== this.boss && !o.rb) { o.slowT = Math.max(o.slowT || 0, 5); o.slowF = Math.max(o.slowF || 0, 0.3); }
+      if (!o.rb) { o.slowT = Math.max(o.slowT || 0, 5); o.slowF = Math.max(o.slowF || 0, 0.3); }
       this.vx({ k: 'zap', ...liftA(e.x, e.y, 0.5), ...liftB(o.x, o.y, 0.5) });
     }
   },

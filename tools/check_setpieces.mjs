@@ -1,12 +1,11 @@
 // Headless check of the boss set pieces (docs/design/10_boss_setpieces.md): each of the 25 runs to its end on its own
-// boss, fires, telegraphs where it says it does, leaves no steered bullets behind, and costs little time per frame;
-// each original boss moves its own way.
+// boss, fires, telegraphs where it says it does, leaves no steered bullets behind, and costs little time per frame.
 //   node tools/check_setpieces.mjs
 import { readFileSync } from 'node:fs';
 globalThis.localStorage = { getItem: () => null, setItem: () => {} };
 const { buildRegistry } = await import('../src/registry.js');
 const { Game } = await import('../src/game.js');
-const { SP, OLD_SP, BX_SP } = await import('../src/setpieces.js');
+const { SP, BX_SP } = await import('../src/setpieces.js');
 const { REALM_BOSSES } = await import('../src/data/enemies.js');
 const { isSolid } = await import('../src/world/maps.js');
 const B0 = new URL('../art/bundle/', import.meta.url), J = (q) => JSON.parse(readFileSync(new URL(q, B0), 'utf8')), idx = J('index.json');
@@ -27,18 +26,16 @@ const setup = (id) => {
     e = g.spawnRealmBoss(id, at);
   }
   else if (id === 'abyssal_kraken' || id === 'thornheart_treant') { g.enter('realm'); g.enemies = g.map.enemies = []; e = g.spawnEventBoss(id, false); g.player.x = e.home.x; g.player.y = e.home.y + 4; }
-  else if (id === 'the_unstruck') { g.enter('forge'); const br = g.map.rooms.find((n) => n.boss) || g.map.rooms.at(-1); g.player.x = br.cx + 0.5; g.player.y = br.cy + 4; for (let k = 0; k < 200; k++) live(); e = g.boss; }
   else { g.enter(DZ[id]); const br = g.map.rooms.find((n) => n.boss) || g.map.rooms.at(-1); g.player.x = br.x + br.w / 2; g.player.y = br.y + br.h - 5; }
   for (let k = 0; k < 400 && !e; k++) { live(); e = g.enemies.find((q) => q.id === id || (q.D && q.D.bx === id)); }
   for (let k = 0; k < 200; k++) live();
   return { g, e, live };
 };
-const runs = [...Object.entries(OLD_SP).map(([id, [sp]]) => [id, sp]), ...Object.entries(BX_SP).map(([id, [, sp]]) => [id, sp]), ['the_unstruck', 'anvil_rhythm']];
+const runs = Object.entries(BX_SP).map(([id, [, sp]]) => [id, sp]);
 for (const [id, sp] of runs) {
   const { g, e, live } = setup(id);
   if (!e) { bad(`${id}: no boss`); continue; }
   e.hp = Math.round(e.maxHp * 0.3);                        // its last phase: the set piece at its hardest
-  if (e.rxPhase !== undefined || e === g.boss) { e.rxPhase = 3; }
   g.spClear();
   const before = g.projectiles.length, marks0 = 0;
   const seen = new Set(g.projectiles);
@@ -56,18 +53,6 @@ for (const [id, sp] of runs) {
   console.log(`${id.padEnd(20)} ${sp.padEnd(15)} shots ${String(fired).padStart(4)} | telegraphs ${marks} | ${(ms / frames).toFixed(2)} ms/frame` + (ok ? ' | OK' : ''));
   if (!ok) bad(`${id} ${sp}: fired ${fired}, steered bullets left ${stuck}, still running ${active}`);
   void before; void marks0;
-}
-{                                                          // the original bosses move their own way
-  for (const [id, [, style]] of Object.entries(OLD_SP)) {
-    if (!style) continue;
-    const { g, e, live } = setup(id);
-    if (!e) continue;
-    let path = 0, x = e.x, y = e.y;
-    const px = g.player.x, py = g.player.y;               // you walk a slow circle (some bosses move relative to you)
-    for (let k = 0; k < 60 * 10; k++) { const t = k / 60; g.moveCircle(g.player, px + Math.cos(t * 0.6) * 2.5 - g.player.x, py + Math.sin(t * 0.6) * 2.5 - g.player.y, 0.32); live(); path += Math.hypot(e.x - x, e.y - y); x = e.x; y = e.y; }
-    console.log(`  ${id.padEnd(20)} moves '${style}': ${path.toFixed(1)} tiles in 10 s`);
-    if (path < 3) bad(`${id} barely moves (${path.toFixed(1)})`);
-  }
 }
 console.log(fail ? `${fail} problem(s)` : 'all OK');
 process.exit(fail ? 1 : 0);

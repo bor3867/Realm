@@ -135,7 +135,7 @@ for (const cls of ['brawler', 'forge_knight', 'priest', 'summoner', 'harpooner',
     g.enter(d);
     const br = g.map.rooms.at(-1); p.x = br.cx + 0.5; p.y = br.cy + 5;
     const seen = new Set();
-    const B = () => g.boss || g.enemies.find((e) => e.rb && !e.cloneOf);
+    const B = () => g.enemies.find((e) => e.rb && !e.cloneOf);
     for (let i = 0; i < 30; i++) g.update(1 / 60);
     const marks = [1, 0.7, 0.44, 0.17, 0.08];
     for (const hpFrac of marks) {
@@ -199,7 +199,7 @@ for (const d of Object.keys(DUNGEONS)) {
     I.fire = false; chests += o.opened ? 1 : 0;
   }
   const br = m.rooms.at(-1); p.x = br.cx; p.y = br.cy + 4; step(20);
-  log.push(`${d}: enemies ${g.enemies.filter((e) => !e.dead).length}, chests opened ${chests}, ambushes left ${m.rooms.filter((r) => r.pending).length}, boss ${g.boss ? g.boss.state : (g.enemies.find((e) => e.rb) || {}).state}`);
+  log.push(`${d}: enemies ${g.enemies.filter((e) => !e.dead).length}, chests opened ${chests}, ambushes left ${m.rooms.filter((r) => r.pending).length}, boss ${(g.enemies.find((e) => e.rb) || {}).state}`);
 }
 
 // every special weapon and passive at least fires without throwing

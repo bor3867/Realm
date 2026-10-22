@@ -142,7 +142,7 @@ const methods = {
     const T = THEME[theme] || THEME.arcane;
     if (T.burn) this.ignite(e, T.burn, t);
     if (T.bleed) this.ignite(e, T.bleed, t);
-    if (T.slow && e !== this.boss && !e.rb) { e.slowT = Math.max(e.slowT || 0, t); e.slowF = Math.max(e.slowF || 0, T.slow); }
+    if (T.slow && !e.rb) { e.slowT = Math.max(e.slowT || 0, t); e.slowF = Math.max(e.slowF || 0, T.slow); }
     if (T.curse) { e.curseF = Math.max(e.curseT > 0 ? e.curseF || 0 : 0, T.curse); e.curseT = Math.max(e.curseT || 0, t); }
   },
   // ------------------------------------------------------------ in flight
@@ -328,7 +328,7 @@ const methods = {
       }
       if (f.kind === 'wphantom' && !f.done && f.t >= f.delay) {
         f.done = true;
-        for (const e of this.enemiesIn(...lift(f.x, f.y, 0.3), f.r)) { this.damageEnemy(e, f.dmg, ...lift(e.x, e.y, 0.5), true); if (f.stun && e !== this.boss && !e.rb) this.stun(e, f.stun); }
+        for (const e of this.enemiesIn(...lift(f.x, f.y, 0.3), f.r)) { this.damageEnemy(e, f.dmg, ...lift(e.x, e.y, 0.5), true); if (f.stun && !e.rb) this.stun(e, f.stun); }
         this.vx({ k: 'burst', ...liftO(f.x, f.y, 0.3), n: 12, colors: f.col });
         this.fx.push({ kind: 'ring', ...liftO(f.x, f.y, 0.3), t: 0, max: f.r, color: f.col[0] });
         this.vx({ k: 'shake', amt: 2 });

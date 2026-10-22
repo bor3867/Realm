@@ -54,7 +54,6 @@ for (const [id, [where, tier]] of Object.entries(BOSSES)) {
   for (; t < 900 && !e.dead && e.hp > 0; t += dt) {
     const B = brain(g, p, e); p.x = B.sx; p.y = B.sy; p.drowsy = 0; if (p.status) p.status.asleep = 0;   // (a real player keeps moving: the Sleeper's stillness)
     I.fire = true; I.aimX = B.tx.x; I.aimY = B.tx.y - 1; g.update(dt);
-    if (g.boss && g.boss !== e && !e.dead && e.hp <= 0) break;
   }
   const kill = Math.round(t);
   ({ g, p, e } = fresh(id, where, tier));

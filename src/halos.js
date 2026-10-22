@@ -75,7 +75,7 @@ const methods = {
             for (const e of this.enemiesIn(f.x, f.y, f.r + 0.5)) {
               this.damageEnemy(e, f.dmg, ...lift(e.x, e.y, 0.5), true);
               e.curseF = Math.max(e.curseT > 0 ? e.curseF || 0 : 0, 0.15); e.curseT = Math.max(e.curseT || 0, 4);
-              if (e !== this.boss && !e.rb) this.stun(e, 0.6);
+              if (!e.rb) this.stun(e, 0.6);
             }
             this.vx({ k: 'shake', amt: 1 });
           }

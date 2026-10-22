@@ -11,11 +11,10 @@ const BXS = (boss, shot) => `bx_shots/${boss}.${shot}`, BX2 = (boss, shot) => `b
 
 // ---------------------------------------------------------------- the toolkit
 const tools = {
-  spBy(e) { return e === this.boss ? 'The Unstruck' : e.D.name; },
+  spBy(e) { return e.D.name; },
   spLv(e) { return e.bx ? e.bx.phase : e.rxPhase || 1; },
   spDmg(e, k = 1) {
     if (e.bx) return Math.round(this.bxDmg(e, 100) * k);
-    if (e === this.boss) return Math.round(70 * k);
     if (e.spD === undefined) {
       const all = Object.values(e.D.moves || {}).flatMap((M) => M.fire || []).map((f) => f.dmg).filter(Boolean);
       e.spD = all.length ? all.reduce((a, b) => a + b, 0) / all.length : 60;
@@ -65,7 +64,7 @@ const tools = {
   spUpdate(dt) {
     if (this.spActive && this.spActive.length) {
       for (const A of this.spActive) {
-        const e = A.e, gone = e === this.boss ? !this.boss || this.boss.state === 'dead' : e.dead || (e.bx && ['death', 'morph', 'finale'].includes(e.bx.state));
+        const e = A.e, gone = e.dead || (e.bx && ['death', 'morph', 'finale'].includes(e.bx.state));
         if (gone) { A.done = true; continue; }
         A.P.t += dt; this.spCur = A;
         A.S.tick(this, e, A.P, dt, A.P.t);
@@ -77,7 +76,7 @@ const tools = {
       const live = new Set(this.projectiles);
       this.spCtlList = this.spCtlList.filter((b) => {
         if (!b.ctl || !live.has(b)) return false;
-        const owner = b.spOf, dead = !owner || (owner === this.boss ? this.boss.state === 'dead' : owner.dead);
+        const owner = b.spOf, dead = !owner || owner.dead;
         if (dead) { b.life = 0; return false; }
         if (b.ctl(b, dt)) { if (b.ctl) b.ctl = null; return false; }
         b.vx = 0; b.vy = 0; b.life = Math.max(b.life, 1);

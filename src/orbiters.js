@@ -50,7 +50,7 @@ const methods = {
           if (e.dead || (B.hit.get(e) || 0) > this.t) continue;
           B.hit.set(e, this.t + 0.4);
           this.damageEnemy(e, Math.round((O.dmg || 80) * mult), ...lift(e.x, e.y, 0.5), false);
-          if (O.slow && e !== this.boss) { e.slowT = 1; e.slowF = Math.max(e.slowF || 0, O.slow); }
+          if (O.slow) { e.slowT = 1; e.slowF = Math.max(e.slowF || 0, O.slow); }
           if (O.burn) this.ignite(e, Math.round(O.burn * mult), 2);
           if (O.heal) p.hp = Math.min(this.stat('hp'), p.hp + O.heal);
         }

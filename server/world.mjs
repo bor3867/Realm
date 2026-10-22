@@ -80,9 +80,6 @@ export function makeWorld(seed, send, where = 'realm') {
   // lighter for a small server: no chest prompts for the stand-in; the slow clocks (events, the melon, quirks) once a
   // second with the time they missed
   g.openChests = function () {};
-  // the Drowned Forge's old-style boss (this.boss): it thinks about the nearest player too
-  const ub0 = g.updateBoss.bind(g);
-  g.updateBoss = function (dt) { const q = this.boss && nearest(this.boss); if (!q) return ub0(dt); this.player = q; try { return ub0(dt); } finally { this.player = anchor; } };
   // loot: the world's roll keeps only what goes in a brown bag, and that lies in a public bag for all here (server.mjs);
   // everything finer, each player who fought it rolls for themselves (their own bag)
   let onBag = null;
@@ -165,7 +162,7 @@ export function makeWorld(seed, send, where = 'realm') {
     player(id, s) { const q = P.get(id); if (q) { q.x = s.x; q.y = s.y; q.dead = !!s.dead; q.hp = s.hp; } },
     // a player's shot (or ability) took d off a monster: the server's tally, and its death if it falls
     hit(id, eid, d) {
-      const q = P.get(id), e = g.enemies.find((o) => o.nid === eid) || (g.boss && g.boss.nid === eid ? g.boss : null);
+      const q = P.get(id), e = g.enemies.find((o) => o.nid === eid);
       if (!q || !e || e.dead || e.state === 'dead' || !(d > 0)) return;
       if (Math.hypot(e.x - q.x, e.y - q.y) > 20) return;             // (out of reach: ignored)
       d = Math.min(d, Math.max(5000, e.maxHp * 0.25));             // (no one blow takes more than a quarter, or 5000)
@@ -186,12 +183,6 @@ export function makeWorld(seed, send, where = 'realm') {
       g.update(dt);
       anchor.hp = 1e9; anchor.dead = false; g.mode = 'play';
       for (const e of g.enemies) if (!e.nid) e.nid = ++nid;
-      const UB = g.boss; if (UB && !UB.nid) UB.nid = ++nid;
-      if (UB && UB.state === 'dead' && !UB.netGone) {                       // the old-style boss falls: rewards for those who hit it, the way out for all
-        UB.netGone = true;
-        for (const q of P.values()) send(q.netId, { t: 'bossdead', nid: UB.nid, credit: !!(UB.netHitBy && UB.netHitBy.has(q.netId)) });
-        out.push({ k: 'exit', x: UB.x, y: UB.y, name: 'The Unstruck' });
-      }
       if (dung) for (const e of g.enemies) if (e.rb && e.dead && !e.netExit) { e.netExit = true; out.push({ k: 'exit', x: e.x, y: e.y, name: e.D.name }); }   // its master falls: a way out for all
       for (let i = objN; i < g.map.objects.length; i++) { const j = safe(g.map.objects[i]); log.objs.push(j); out.push({ k: 'obj', o: j }); }   // (things the world added this tick)
       if (g.bags && g.bags.length > 40) g.bags.length = 0;                       // (the server's own loot: nobody's)
@@ -239,13 +230,7 @@ export function makeWorld(seed, send, where = 'realm') {
           for (const k in s) if (s[k] !== L[k]) { dlt[k] = s[k]; n++; }
           if (n) { es.push(dlt); q.net.last.set(e.nid, s); }
         }
-        let boss;
-        if (UB && !UB.netGone && near(UB.x, UB.y, 48)) {                        // the old-style boss: what changed
-          const s = plain(UB), L = q.net.lastBoss || {}; boss = { nid: UB.nid };
-          for (const k in s) if (s[k] !== L[k]) boss[k] = s[k];
-          q.net.lastBoss = s;
-        }
-        if (es.length || gone.length || boss) send(q.netId, { t: 'ws', T: Math.round(g.t * 1000) / 1000, es, gone, ...(boss ? { boss } : {}) });
+        if (es.length || gone.length) send(q.netId, { t: 'ws', T: Math.round(g.t * 1000) / 1000, es, gone });
       }
     },
   };

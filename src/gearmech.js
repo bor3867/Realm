@@ -65,7 +65,7 @@ const methods = {
       for (const e of this.enemiesIn(p.x, p.y, G.bigpulse.r)) {
         this.damageEnemy(e, Math.round(G.bigpulse.dmg * this.gmult()), ...lift(e.x, e.y, 0.5), true);
         e.curseF = Math.max(e.curseT > 0 ? e.curseF || 0 : 0, 0.15); e.curseT = Math.max(e.curseT || 0, 3);
-        if (e !== this.boss && !e.rb) { e.slowT = Math.max(e.slowT || 0, 2); e.slowF = Math.max(e.slowF || 0, 0.3); }
+        if (!e.rb) { e.slowT = Math.max(e.slowT || 0, 2); e.slowF = Math.max(e.slowF || 0, 0.3); }
       }
       this.fx.push({ kind: 'ring', ...liftO(p.x, p.y, 0.4), t: 0, max: G.bigpulse.r, color: G.bigpulse.col || '#ffb04a' });
     }
@@ -92,7 +92,7 @@ const methods = {
       e.ctl = (e.ctlT > this.t - 2 ? e.ctl || 0 : 0) + 1; e.ctlT = this.t;
       if (e.ctl >= G.control.every && !(e.ctlCd > this.t)) {
         e.ctl = 0; e.ctlCd = this.t + 3;                          // (capped: once every 3 s per enemy)
-        if (e !== this.boss && !e.rb) { e.slowT = Math.max(e.slowT || 0, 1.5); e.slowF = Math.max(e.slowF || 0, G.control.slow); }
+        if (!e.rb) { e.slowT = Math.max(e.slowT || 0, 1.5); e.slowF = Math.max(e.slowF || 0, G.control.slow); }
         e.curseF = Math.max(e.curseT > 0 ? e.curseF || 0 : 0, G.control.weaken); e.curseT = Math.max(e.curseT || 0, 1.5);
         e.wmark = { until: this.t + 1.5, col: G.control.col || '#7ae0e0' };
       }
@@ -118,7 +118,7 @@ const methods = {
     if (G.conductor && S.beatSrc !== 'w') { S.beatSrc = 'w'; S.beat = (S.beat || 0) + 1; this.conductorBeat(G.conductor); }
     if (G.stillwater && S.pool && S.pool.moved) {             // moved on from a charged pool: the ripple at the old spot
       const P0 = S.pool; S.pool = null;
-      for (const o of this.enemiesIn(P0.x, P0.y, 2.2)) { this.damageEnemy(o, Math.round(G.stillwater.dmg * m), ...lift(o.x, o.y, 0.5), true); if (o !== this.boss && !o.rb) { o.slowT = Math.max(o.slowT || 0, 2); o.slowF = Math.max(o.slowF || 0, 0.4); } }
+      for (const o of this.enemiesIn(P0.x, P0.y, 2.2)) { this.damageEnemy(o, Math.round(G.stillwater.dmg * m), ...lift(o.x, o.y, 0.5), true); if (!o.rb) { o.slowT = Math.max(o.slowT || 0, 2); o.slowF = Math.max(o.slowF || 0, 0.4); } }
       this.fx.push({ kind: 'ring', ...liftO(P0.x, P0.y, 0.3), t: 0, max: 2.2, color: '#9ad8ff' });
     }
     void dealt;
@@ -155,7 +155,7 @@ const methods = {
     if (G.motion && S.charge > 0.05) { S.empower = { until: this.t + 2.5, f: G.motion.bonus * S.charge }; S.charge = 0; this.float(...lift(p.x, p.y, 1.4), 'EMPOWERED', '#ffd6f0'); }
     if (G.openhand && S.stance >= G.openhand.need) {          // the open palm: a pushing wave, and a barrier for one blow
       S.stance = 0;
-      for (const e of this.enemiesIn(p.x, p.y, 3.5)) if (e !== this.boss && !e.rb && !(e.D && e.D.dummy)) { const d = dist(e.x, e.y, p.x, p.y) || 1; this.moveCircle(e, ((e.x - p.x) / d) * 2, ((e.y - p.y) / d) * 2, 0.35); }
+      for (const e of this.enemiesIn(p.x, p.y, 3.5)) if (!e.rb && !(e.D && e.D.dummy)) { const d = dist(e.x, e.y, p.x, p.y) || 1; this.moveCircle(e, ((e.x - p.x) / d) * 2, ((e.y - p.y) / d) * 2, 0.35); }
       S.barrier = { cap: Math.round(this.stat('hp') * 0.3), col: '#fff2a8' };
       this.fx.push({ kind: 'ring', ...liftO(p.x, p.y, 0.4), t: 0, max: 3.5, color: '#fff2a8' });
     }
@@ -180,7 +180,7 @@ const methods = {
     }
     if (G.tideeye && S.tide && !S.tide.dead) {
       const e = S.tide; S.tide = null; e.acc = 0;
-      if (e !== this.boss && !e.rb && !(e.D && e.D.dummy)) { const d = dist(e.x, e.y, p.x, p.y) || 1; this.moveCircle(e, ((p.x - e.x) / d) * 1.5, ((p.y - e.y) / d) * 1.5, 0.35); }
+      if (!e.rb && !(e.D && e.D.dummy)) { const d = dist(e.x, e.y, p.x, p.y) || 1; this.moveCircle(e, ((p.x - e.x) / d) * 1.5, ((p.y - e.y) / d) * 1.5, 0.35); }
       const aa = angleUp(ox, oy, e.x, e.y, 0.5);
       for (let k = -1; k <= 1; k++) this.gshot(ox, oy, aa + k * 0.1, Math.round(G.tideeye.dmg * m), 'tide_wave', 12, 8);
     }
@@ -227,7 +227,7 @@ const methods = {
       if (f.h === 'mushroom' && dist(p.x, p.y, f.x, f.y) < f.r) p.hp = Math.min(this.stat('hp'), p.hp + f.heal * dt);
       if (f.h === 'pod' && !f.done) {
         const e = this.enemiesIn(f.x, f.y, 1.2)[0];
-        if (e) { f.done = true; f.life = 0; for (const o of this.enemiesIn(f.x, f.y, 1.6)) this.damageEnemy(o, o === this.boss || o.rb ? Math.round(f.dmg * 0.5) : f.dmg, ...lift(o.x, o.y, 0.5)); this.vx({ k: 'burst', x: f.x, y: f.y, n: 10, colors: ['#7ad04a', '#a86a3a'] }); }
+        if (e) { f.done = true; f.life = 0; for (const o of this.enemiesIn(f.x, f.y, 1.6)) this.damageEnemy(o, o.rb ? Math.round(f.dmg * 0.5) : f.dmg, ...lift(o.x, o.y, 0.5)); this.vx({ k: 'burst', x: f.x, y: f.y, n: 10, colors: ['#7ad04a', '#a86a3a'] }); }
       }
     }
   },

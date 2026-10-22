@@ -6,7 +6,6 @@
 //   their two new shots every few seconds.
 import { REALM_BOSSES, DUNGEON_BOSSES } from './data/enemies.js';
 
-const TAU = Math.PI * 2;
 const R = Math.random;
 const S = (boss, shot) => `rx_shots/${boss}.${shot}`;
 // attack shapes for the new shots (the old boss engine's patterns, with a movement each)
@@ -53,7 +52,6 @@ const avgDmg = (D) => {
   const all = Object.values(D.moves || {}).flatMap((M) => M.fire || []).map((f) => f.dmg).filter(Boolean);
   return all.length ? Math.round(all.reduce((a, b) => a + b, 0) / all.length) : 60;
 };
-const artPhase = (frac) => (frac > 0.66 ? 1 : frac > 0.33 ? 2 : 3);
 for (const [id, [shots, forms]] of Object.entries(RX_BOSSES)) {
   const D = REALM_BOSSES[id] || DUNGEON_BOSSES[id];
   if (!D || !D.phases) continue;
@@ -71,38 +69,6 @@ for (const [id, [shots, forms]] of Object.entries(RX_BOSSES)) {
 const methods = {
   // the remaster's art for a boss (null if it has none)
   rxDef(id) { const r = this.A.reg; return r ? r.resolve(`rx_${id}/${id}`) : null; },
-  // morphs: at 66% and 33% a boss with phase art becomes its next phase
-  rxPhaseTick(e, dt) {
-    const id = e === this.boss ? 'the_unstruck' : e.id, def = this.rxDef(id);
-    if (!def || e.dead) return;
-    if (e.rxMorph) { e.rxMorph.t += dt; if (e.rxMorph.t >= 0.7) e.rxMorph = null; }
-    const n = artPhase(e.hp / e.maxHp);
-    if (!e.rxPhase) e.rxPhase = n;
-    if (n <= e.rxPhase) return;
-    const from = e.rxPhase;
-    e.rxPhase = n; e.rxMorph = { from, to: n, t: 0 };
-    if (e !== this.boss) e.invulnT = Math.max(e.invulnT || 0, 0.7);
-    const name = this.D_name(e);
-    this.projectiles = this.projectiles.filter((b) => !(b.from === 'e' && b.by === name));
-    const names = def.meta.phaseNames || {};
-    this.banner(`${(names[n] || name).toUpperCase()}`, 2400); this.vx({ k: 'shake', amt: 6 }); this.sfx('boss');
-  },
-  D_name(e) { return e.D ? e.D.name : 'The Unstruck'; },
-  // the Unstruck has its own engine: its new shots (two per phase) come on a timer
-  rxUnstruck(B, dt) {
-    if (!B || B.state === 'dead' || !B.rxPhase) return;
-    if ((B.rxT = (B.rxT ?? 2.5) - dt) > 0) return;
-    B.rxT = B.rxPhase === 1 ? 4.2 : 3.2;
-    const [shots, forms] = RX_BOSSES.the_unstruck, n = B.rxPhase, p = this.player, ox = B.x, oy = B.y - 1.4, aim = Math.atan2(p.y - oy, p.x - ox);
-    for (const k of [0, 1]) {
-      const A = F[forms[(n - 1) * 2 + k]], proj = S('the_unstruck', shots[(n - 1) * 2 + k]), cnt = A.count || 8;
-      for (let i = 0; i < cnt; i++) {
-        const a = A.pattern === 'radial' || A.pattern === 'cross' ? (i / cnt) * TAU + (k ? 0.2 : 0) : aim + (cnt > 1 ? (i / (cnt - 1) - 0.5) * (A.arc || 0.8) : 0);
-        const b = this.shoot('e', ox, oy, a, A.speed, A.range === 99 ? 14 : A.range, 70, proj, 0.45, false, 'The Unstruck');
-        if (A.mv) b.mv = { ...A.mv };
-      }
-    }
-  },
   // monsters: now and then their new shot instead of their usual one; champions keep theirs for the signature
   rxAlt(e, A) {
     if (e.rb || !e.D || !A || !A.proj) return A;
@@ -134,9 +100,9 @@ const methods = {
 
 // which frame of the remaster's art to draw now (null: phase 1's own row)
 export function rxFrame(Rg, g, e) {
-  const id = e === g.boss ? 'the_unstruck' : e.id, def = Rg && Rg.resolve(`rx_${id}/${id}`);
+  const id = e.id, def = Rg && Rg.resolve(`rx_${id}/${id}`);
   if (!def) return null;
-  const dead = e === g.boss ? e.state === 'dead' : e.dead;
+  const dead = e.dead;
   let fn;
   if (dead) fn = `death_${Math.min(3, Math.floor((e.deadT || 0) * 5))}`;
   else if (e.rxMorph) fn = `p${e.rxMorph.from}_to_p${e.rxMorph.to}_${Math.min(3, Math.floor(e.rxMorph.t * 6))}`;

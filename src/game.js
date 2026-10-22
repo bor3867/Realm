@@ -3,7 +3,7 @@
 import { R, rng, clamp, dist, dist2, angleTo, TAU, CAM, lift, liftO, liftA, liftB, angleUp } from './util.js';
 import { CLASSES, START_KIT, STATS, MAX_LEVEL, FAME_XP, FAME_GOALS, xpToNext, moveSpeed, fireRate, dmgMult, hpRegen, mpRegen, mitigate } from './data/classes.js';
 import { ITEMS, SETS, rollLoot, bagFor, canEquip, TYPE_SLOT, BAG_ORDER, BAG_NAMES, WEAPON_TYPES, ARMOR_TYPES, ABILITY_TYPES, ADMIN_SET, TIER_CAP, ladderTier, LOOT_GATE } from './data/items.js';
-import { ENEMIES, PACKS, CAMP_LOOT, BIOME_SPAWNS, BOSS, REALM_BOSSES, PARENTS, HERALDS, BIOME_BOSS, EVENTS_TO_BOSS, GROUPS, DUNGEONS, DUNGEON_BOSSES, FIRECAMP_BANDS, DUNGEON_RATING, portalDrop2 as portalDrop } from './data/enemies.js';
+import { ENEMIES, PACKS, CAMP_LOOT, BIOME_SPAWNS, REALM_BOSSES, PARENTS, HERALDS, BIOME_BOSS, EVENTS_TO_BOSS, GROUPS, DUNGEONS, DUNGEON_BOSSES, FIRECAMP_BANDS, DUNGEON_RATING, portalDrop2 as portalDrop } from './data/enemies.js';
 import { nexus, vaultRoom, realm, dungeon, isSolid, shotBlocked, biomeAt, randomTileInBiome, BIOMES, BIOME_RING, BIOME_LABEL, TID } from './world/maps.js';
 import { writeSave } from './save.js';
 import { keyParen } from './settings.js';
@@ -304,7 +304,6 @@ export class Game {
     if (p) { p.hook = null; p.pull = null; p.dash = null; }
     this.bags = this.map.bags = (this.map.bags || []).filter((b) => b.until === undefined || b.until > this.t);   // (bags that ran out while you were away are gone)
     this.enemies = this.map.enemies || (this.map.enemies = []);
-    this.boss = null;
     p.x = this.map.spawn.x; p.y = this.map.spawn.y;
     this.unstick(p);
     this.realmReturn = null;                              // dungeons let out onto the beach
@@ -662,7 +661,6 @@ export class Game {
     const p = this.player;
     if (p && !p.dead) test(p, 0.7, 1.6);
     for (const e of this.active || []) if (!e.dead) test(e, e.hitUp || 0.6, e.rb ? 3.2 : 1.6);
-    if (this.boss && this.boss.state !== 'dead') test(this.boss, 2.3, 3.5);
     if (this.map && this.map.rf && this.map.rf.E) for (const e of this.map.rf.E.en_ || []) if (e.hp > 0 && !e.hidden) test(e, 0.6, 1.6);   // a Realmforge creature
     return best;
   }
@@ -774,7 +772,7 @@ export class Game {
       if (elite) { e.elite = true; e.hp = e.maxHp = Math.round(e.maxHp * 2.4); }
       if (e.D.children) { e.kids = []; e.childT = e.D.every * 1.5; }
     });
-    const bossHp = def.boss === 'unstruck' ? BOSS.hp : BX[def.boss] ? BX[def.boss].hp : DUNGEON_BOSSES[def.boss].hp;
+    const bossHp = BX[def.boss] ? BX[def.boss].hp : DUNGEON_BOSSES[def.boss].hp;
     const maxDep = Math.max(1, ...m.rooms.map((q) => q.dep || 0));
     // a WARDEN: one of the dungeon's champions, swollen with the seal it guards. Slow to kill, brutal to stand near.
     const warden = (rm) => {
@@ -806,10 +804,7 @@ export class Game {
     if (def.extraSpawns) spawn(def.extraSpawns(m));                   // things a dungeon places itself (Mirerot's lashers)
     this.spawnPending = spawn; this.dungeonFill = fill;
     const br = m.rooms[m.rooms.length - 1];
-    if (def.boss === 'unstruck') {
-      this.boss = { x: br.cx + 0.5, y: br.cy + 0.5, hp: BOSS.hp, maxHp: BOSS.hp, state: 'sleep', st: 0, phase: 1,
-        cycle: 0, room: br, deadT: 0, hurtT: 0, fireT: 0, spin: 0 };
-    } else if (BX[def.boss]) {                         // a Realm Update boss: it waits at the far side of its arena
+    if (BX[def.boss]) {                         // a Realm Update boss: it waits at the far side of its arena
       const b = this.spawnRealmBoss(def.boss, { x: br.cx + 0.5, y: BX[def.boss].spawnCentre ? br.cy + 0.5 : br.y + 11 }, bxEnemyDef(def.boss));
       b.state = 'sleep'; b.room = br;
     } else {
@@ -895,15 +890,15 @@ export class Game {
     if (R() > chance || (e.sayT && this.t < e.sayT)) return;
     if (this.bubbles.filter((b) => this.t - b.t0 < 2.4).length >= 3) return;
     let lines;
-    if (e.rb || e === this.boss) lines = BOSS_SPEECH[e === this.boss ? 'unstruck' : e.id];
+    if (e.rb) lines = BOSS_SPEECH[e.id];
     else if (e.herald && kind === 'see') lines = HERALD_SPEECH;
     else lines = (SPEECH[e.id] || {})[kind] || (BIOME_SPEECH[e.D && e.D.biome] || {})[kind];
     if (!lines || !lines.length) return;
     e.sayT = this.t + 6;
-    this.bubble(e, R.pick(lines), e.rb || e === this.boss ? '#ffd650' : '#ffffff');
+    this.bubble(e, R.pick(lines), e.rb ? '#ffd650' : '#ffffff');
   }
   bubble(e, text, col = '#ffffff') {
-    this.bubbles.push({ e, x: e.x, y: e.y, text, t0: this.t, col, big: !!(e.rb || e === this.boss) });
+    this.bubbles.push({ e, x: e.x, y: e.y, text, t0: this.t, col, big: !!e.rb });
     if (this.bubbles.length > 12) this.bubbles.shift();
   }
   // ------------------------------------------------------------- update
@@ -929,7 +924,6 @@ export class Game {
     this.updateHatch(dt);
     this.spUpdate(dt);                                   // boss set pieces (src/setpieces.js)
     this.updateEnemies(dt);
-    if (this.boss) this.updateBoss(dt);
     this.updateAllies(dt);
     this.updateBossFx(dt);
     this.updateDecoys(dt);
@@ -1086,7 +1080,7 @@ export class Game {
         p.auraT = 0.5;
         for (const e of this.enemiesIn(p.x, p.y, P.aura.r)) {
           if (P.aura.dps) this.damageEnemy(e, Math.round(P.aura.dps * 0.5), ...lift(e.x, e.y, 0.5), true);
-          if (P.aura.slow && e !== this.boss) { e.slowT = 0.7; e.slowF = Math.max(e.slowF || 0, P.aura.slow); }
+          if (P.aura.slow) { e.slowT = 0.7; e.slowF = Math.max(e.slowF || 0, P.aura.slow); }
         }
         if (P.aura.dps) this.vx({ k: 'aura', x: p.x, y: p.y, r: P.aura.r, cold: !!P.aura.slow });
       }
@@ -1233,7 +1227,7 @@ export class Game {
       for (const e of this.enemiesIn(at.x, at.y, C.r)) {
         e.curseT = C.t; e.curseF = Math.max(e.curseF && e.curseT > 0 ? e.curseF : 0, C.f);
         if (mod === 'ashcurse') this.ignite(e, Math.round(120 * mult), C.t);
-        if (e !== this.boss && !e.rb) { e.slowT = Math.max(e.slowT || 0, C.t); e.slowF = Math.max(e.slowF || 0, 0.3); }
+        if (!e.rb) { e.slowT = Math.max(e.slowT || 0, C.t); e.slowF = Math.max(e.slowF || 0, 0.3); }
       }
       for (let k = 0; k < B.count; k++) this.shoot('p', ...lift(at.x, at.y, 0.5), (k / B.count) * TAU, 8, B.range, Math.round(B.dmg * mult), B.proj, 0.45, false);
       this.vx({ k: 'burst', ...liftO(at.x, at.y, 0.5), n: 30, colors: ['#ab82f2', '#7af4ff', '#e6ffff'] });
@@ -1270,14 +1264,13 @@ export class Game {
   // enemies (and the dungeon boss) inside a circle
   enemiesIn(x, y, r) {
     const out = (this.active || this.enemies).filter((e) => !e.dead && !e.under && e.state !== 'sleep' && dist2(e.x, e.y, x, y) < (r + e.D.r) ** 2);
-    if (this.boss && this.boss.state !== 'sleep' && this.boss.state !== 'dead' && dist2(this.boss.x, this.boss.y, x, y) < (r + BOSS.r) ** 2) out.push(this.boss);
     if (this.map.rf || this.map.rfBoss) out.push(...this.rfIn(x, y, r));   // an rf_ dungeon's creatures and boss (src/rf/host.js)
     return out;
   }
   stun(e, t) {
     if (e.net) this.netEfx(e, 'stun', t);                     // a shared monster: the server holds it still (src/net.js)
     if (e.rfC) { e.lock = Math.max(e.lock || 0, t); return; }   // an rf_ creature: held still
-    if (e === this.boss || e.rb) { this.float(e.x, e.y - 2, 'UNSHAKEN', '#8d88a0'); return; }
+    if (e.rb) { this.float(e.x, e.y - 2, 'UNSHAKEN', '#8d88a0'); return; }
     if (e.D && e.D.dummy) return;
     e.stunT = Math.max(e.stunT || 0, e.herald ? t * 0.5 : t);
     e.state = 'move'; e.queue.length = 0;
@@ -1294,7 +1287,7 @@ export class Game {
         D.hit.add(e); this.damageEnemy(e, D.dmg, ...lift(e.x, e.y, 0.5));
       }
       if (D.mod === 'vortex') {                         // the conch drags everything along behind you
-        for (const e of this.enemiesIn(p.x, p.y, 2.6)) if (e !== this.boss && !e.rb && !(e.D && e.D.dummy)) this.moveCircle(e, D.vx * dt * 0.85, D.vy * dt * 0.85, 0.35);
+        for (const e of this.enemiesIn(p.x, p.y, 2.6)) if (!e.rb && !(e.D && e.D.dummy)) this.moveCircle(e, D.vx * dt * 0.85, D.vy * dt * 0.85, 0.35);
       }
       if ((D.mod === 'trail' || D.mod === 'inferno') && (D.trailT -= dt) <= 0) {
         D.trailT = 0.05;
@@ -1388,7 +1381,7 @@ export class Game {
       for (const e of this.enemiesIn(H.x, H.y + 0.4, 0.45)) {
         if (H.caught.includes(e)) continue;
         this.damageEnemy(e, H.dmg, ...lift(e.x, e.y, 0.5));
-        if (e === this.boss || e.rb || e.dead || (e.D && e.D.dummy)) {   // too big to move: the line hauls you to it instead
+        if (e.rb || e.dead || (e.D && e.D.dummy)) {   // too big to move: the line hauls you to it instead
           H.state = 'done';
           p.pull = { x: e.x - Math.cos(H.a) * 2, y: e.y - Math.sin(H.a) * 2, t: 0.9 };
           break;
@@ -1551,7 +1544,7 @@ export class Game {
     if (e.hp <= 0 || e.dead || (e.bx && (e.bx.state === 'death' || e.bx.state === 'deathhold' || e.bx.state === 'morph'))) return false;   // (never hold the dying or a boss changing phase: it must die, or move on)
     if (e.frozenUntil > this.t) return true;              // frozen by a player's Stop Time in a shared place (the server holds it)
     const T = this.timeStop;
-    return !!(T && T.t > 0 && !T.rfx && dist2(e.x, e.y, T.x, T.y) < T.r * T.r && (!(e.rb || e === this.boss) || T.t > T.dur * 0.5));
+    return !!(T && T.t > 0 && !T.rfx && dist2(e.x, e.y, T.x, T.y) < T.r * T.r && (!e.rb || T.t > T.dur * 0.5));
   }
   updateTimeStop(dt) {
     const T = this.timeStop;
@@ -1569,7 +1562,7 @@ export class Game {
     this.timeStop = null;
     if (T.slow || T.unwind) {                           // the time you stopped comes back for them
       for (const e of this.enemiesIn(T.x, T.y, T.r)) {
-        if (T.slow && e !== this.boss && !e.rb) { e.slowT = 3; e.slowF = Math.max(e.slowF || 0, 0.5); }
+        if (T.slow && !e.rb) { e.slowT = 3; e.slowF = Math.max(e.slowF || 0, 0.5); }
         if (T.unwind) this.damageEnemy(e, T.unwind, ...lift(e.x, e.y, 0.5), true);
       }
       if (T.unwind) { this.fx.push({ kind: 'ring', ...liftO(T.x, T.y, 0.4), t: 0, max: T.r, color: '#fff6c8' }); this.vx({ k: 'shake', amt: 5 }); }
@@ -1606,7 +1599,7 @@ export class Game {
       const T = a.tgt;
       let tx, ty;
       if (T) {
-        const k = this.allies.indexOf(a), ang = k * 2.4 + a.ph * 0.2, r0 = Math.min(0.35, ((T === this.boss ? BOSS.r : T.D.r) || 0.5) * 0.5);
+        const k = this.allies.indexOf(a), ang = k * 2.4 + a.ph * 0.2, r0 = Math.min(0.35, (T.D.r || 0.5) * 0.5);
         tx = T.x + Math.cos(ang) * r0; ty = T.y + Math.sin(ang) * r0 * 0.6;          // right on top of it
       } else { const ang = a.ph * 0.5; tx = p.x + Math.cos(ang) * 1.4; ty = p.y + Math.sin(ang) * 1.4; }
       if (dist(a.x, a.y, p.x, p.y) > 11) { tx = p.x; ty = p.y; }
@@ -1813,7 +1806,7 @@ export class Game {
   // a monster's rank for loot (LOOT_GATE, src/data/items.js): a dungeon's boss (the hardest: 'top'), the realm's hard foes, or everyday
   lootRank(e) {
     const m = this.map;
-    if (e.rb || e === this.boss) {
+    if (e.rb) {
       if (m && m.kind === 'dungeon') {
         const id = Object.keys(DUNGEONS).find((k) => DUNGEONS[k] === m.def), stars = (DUNGEON_RATING[id] || [3])[0];
         return stars >= 5 || ['forgeheart_colossus', 'grand_orrery'].includes(e.D.bx || e.id) ? 'top' : 'dboss';
@@ -1919,7 +1912,7 @@ export class Game {
       if (aggro && D.heal && (e.healT = (e.healT === undefined ? D.heal.every : e.healT) - dt) <= 0) {   // menders mend
         e.healT = D.heal.every;
         for (const o of this.enemiesIn(e.x, e.y, D.heal.r)) {
-          if (o === e || o === this.boss || o.dead || o.hp >= o.maxHp) continue;
+          if (o === e || o.dead || o.hp >= o.maxHp) continue;
           o.hp = Math.min(o.maxHp, o.hp + o.maxHp * D.heal.pct);
           this.vx({ k: 'heal', ...liftA(e.x, e.y, 0.6), ...liftB(o.x, o.y, 0.6) });
           this.float(...lift(o.x, o.y, 1.2), '+', '#7aff9a');
@@ -2260,7 +2253,7 @@ export class Game {
       if (!quiet) this.float(x, y - 0.8, 'REFLECTED', '#ffffff');
       return 0;
     }
-    let d = e.netRawHit ? Math.round(dmg) : mitigate(dmg, e.D ? e.D.def : BOSS.def, false);   // (a player's blow on the server: Defense already taken off)
+    let d = e.netRawHit ? Math.round(dmg) : mitigate(dmg, e.D ? e.D.def : 0, false);   // (a player's blow on the server: Defense already taken off)
     const SV = e.rb && !e.survived && e.D.phases && e.D.phases.find((ph) => ph.survive);
     if (SV && e.hp - d <= e.maxHp * SV.at) {                 // the last of its life: it refuses to die, and you must survive it
       d = Math.max(0, Math.round(e.hp - e.maxHp * SV.at));
@@ -2286,7 +2279,6 @@ export class Game {
     }
     if (e.net && !e.netKill && e.hp <= 0) e.hp = 1;             // a shared monster dies when the server says so (src/net.js)
     if (e.hp <= 0 && !e.dead) {
-      if (e === this.boss) { this.killBoss(); return d; }
       e.dead = true; e.deadT = 0;
       if (e.soulT) this.sigilOnKill(e);                         // a soul-marked kill gives Mana back (src/sigils.js)
       if (e.page13 === 1) this.mythPageDeath(e);                // the Thirteenth Page passes its hex on (src/mythics.js)
@@ -2363,7 +2355,7 @@ export class Game {
     const p = this.player;
     if (sp.lifesteal) p.hp = Math.min(this.stat('hp'), p.hp + dealt * sp.lifesteal);
     if (sp.burn) this.ignite(e, sp.burn.dps, sp.burn.t);
-    if (sp.slow && e !== this.boss && !e.rb) { e.slowT = sp.slow.t; e.slowF = sp.slow.f; }
+    if (sp.slow && !e.rb) { e.slowT = sp.slow.t; e.slowF = sp.slow.f; }
     if (sp.curse) { e.curseF = Math.max(e.curseT > 0 ? e.curseF || 0 : 0, sp.curse.f); e.curseT = Math.max(e.curseT || 0, sp.curse.t); }
     if (sp.explode) {
       for (const o of this.enemiesIn(b.x, b.y, sp.explode.r)) if (o !== e) this.damageEnemy(o, Math.round(b.dmg * sp.explode.f), ...lift(o.x, o.y, 0.5), true);
@@ -2386,7 +2378,7 @@ export class Game {
         const c = this.shoot('p', b.x, b.y, (k / sp.quake.n) * TAU, 7, 3, Math.round(b.dmg * sp.quake.f), sp.quake.proj, 0.4, true);
         c.child = true;
       }
-      if (sp.quake.stun && e !== this.boss && !e.rb && R() < 0.35) this.stun(e, sp.quake.stun);
+      if (sp.quake.stun && !e.rb && R() < 0.35) this.stun(e, sp.quake.stun);
       this.vx({ k: 'shake', amt: 2 });
     }
   }
@@ -2591,7 +2583,7 @@ export class Game {
       if (f.e.dead || f.e.state === 'dead') { f.life = 0; continue; }
       f.hitT -= dt;
       if (f.hitT > 0) continue;
-      const [ox, oy] = this.up(f.e.x, f.e.y, f.e === this.boss ? 2.3 : 1.4), [hx, hy] = this.up(p.x, p.y, 0.45);
+      const [ox, oy] = this.up(f.e.x, f.e.y, 1.4), [hx, hy] = this.up(p.x, p.y, 0.45);
       for (let k = 0; k < f.n; k++) {
         const a = f.a0 + (k / f.n) * TAU + f.w * (f.t - f.tele), dx = Math.cos(a), dy = Math.sin(a);
         const u = Math.max(0, Math.min(f.len, (hx - ox) * dx + (hy - oy) * dy));
@@ -2763,7 +2755,7 @@ export class Game {
   // who waits at the end of this dungeon (its boss's name)
   dungeonBossName(m = this.map) {
     const id = m && m.def && m.def.boss;
-    return !id ? '' : BX[id] ? BX[id].name : DUNGEON_BOSSES[id] ? DUNGEON_BOSSES[id].name : id === 'unstruck' ? BOSS.name : '';
+    return !id ? '' : BX[id] ? BX[id].name : DUNGEON_BOSSES[id] ? DUNGEON_BOSSES[id].name : '';
   }
   // its story beats: arriving, stepping into the boss's hall (once), the boss falling (once)
   dungeonBeat(kind) {
@@ -2965,7 +2957,7 @@ export class Game {
     return pd && ITEMS[`key_${pd[0]}`] && R() < pd[1] * 0.15 ? `key_${pd[0]}` : null;     // whatever could drop a portal can, rarely, drop its key
   }
   eggDrop(e) {
-    const D = e.D || {}, roll = R(), bossy = e.rb || e === this.boss;
+    const D = e.D || {}, roll = R(), bossy = e.rb;
     let r = null;
     if (e.id === 'the_unstruck_god' || e.id === 'unstruck_god') r = roll < 0.02 ? 'divine' : roll < 0.08 ? 'legendary' : roll < 0.3 ? 'rare' : null;   // the only Divine eggs
     else if (bossy && this.map.kind === 'dungeon') r = roll < 0.012 ? 'legendary' : roll < 0.07 ? 'rare' : roll < 0.2 ? 'uncommon' : null;
@@ -3228,144 +3220,9 @@ export class Game {
     this.vx({ k: 'shake', amt: 3 });
     this.sfx('rare');
   }
-  // ------------------------------------------------------------- boss: THE UNSTRUCK
-  updateBoss(dt) {
-    const B = this.boss, p = this.player;
-    if (B.state === 'dead') { B.deadT += dt; return; }
-    if (B.net) { this.netPuppet(B, dt); return; }        // the server's boss (src/net.js): it glides where the server has it
-    this.rxPhaseTick(B, dt); this.rxUnstruck(B, dt); this.spUnstruck(B, dt);    // the remaster's phases 2 and 3 (src/remaster.js)
-    B.hurtT = Math.max(0, B.hurtT - dt);
-    this.tickStatus(B, dt);
-    if (B.state === 'dead' || this.frozen(B)) return;
-    const inRoom = p.x > B.room.x && p.x < B.room.x + B.room.w && p.y > B.room.y && p.y < B.room.y + B.room.h;
-    if (B.state === 'sleep') {
-      if (inRoom) { B.state = 'idle'; B.st = 1.5; this.banner('THE UNSTRUCK', 2600); this.sfx('boss'); }
-      return;
-    }
-    B.st -= dt;
-    const enr = B.hp < B.maxHp * 0.25 ? 0.7 : 1;
-    // drift toward the player, staying in the room
-    const tx = clamp(p.x, B.room.x + 4, B.room.x + B.room.w - 4), ty = clamp(p.y - 2, B.room.y + 5, B.room.y + B.room.h - 4);
-    const dd = dist(B.x, B.y, tx, ty);
-    const walk = B.state === 'idle' ? 0.9 : B.state === 'spin' ? 2.2 : 0;     // it walks you down while it spins
-    if (dd > 0.3 && walk) { B.x += ((tx - B.x) / dd) * walk * dt; B.y += ((ty - B.y) / dd) * walk * dt; }
-    if (B.state === 'spin' && B.phase >= 2 && (B.slagT = (B.slagT || 0) - dt) <= 0) {
-      B.slagT = 1.1;
-      this.bossZones(B, { n: 3, r: 1.6, delay: 0.9, dmg: 150, spread: 3.5, stagger: 0.12, shards: 6, proj: 'molten', colors: ['#f2641a', '#ffc94a'] });
-    }
-    if (B.phase === 1 && B.hp < B.maxHp * 0.6) { B.phase = 2; B.state = 'phase'; B.st = 1.8; this.banner('The anvil opens.', 1800); return; }
-    if (B.phase === 2 && B.hp < B.maxHp * 0.3) {
-      B.phase = 3; B.state = 'phase'; B.st = 2.0; B.cycle = 0;
-      this.banner('The first blow is struck. The Unstruck breaks open!', 2600);
-      this.vx({ k: 'shake', amt: 8 });
-      return;
-    }
-    const [ox, oy] = this.up(B.x, B.y, 2.3);
-    const aim = angleTo(ox, oy, ...this.up(p.x, p.y, 0.4));
-    if (B.state === 'attack_beam') {
-      B.fireT -= dt;
-      if (B.fireT <= 0) { B.fireT = 0.13; this.shoot('e', ox, oy + 0.6, aim + Math.sin(this.t * 9) * 0.25, 10, 12, 125, 'furnacebeam', 0.4, false, 'The Unstruck'); }
-    }
-    if (B.state === 'spin') {
-      B.fireT -= dt;
-      if (B.fireT <= 0) {
-        B.fireT = 0.24 * enr; B.spin += 0.3;
-        for (let k = 0; k < 4; k++) this.shoot('e', ox, oy, B.spin + (k / 4) * TAU, 5.5, 10, 115, 'hammerlet', 0.45, false, 'The Unstruck');
-      }
-    }
-    if (B.st > 0) return;
-    // state machine
-    const next = (s, t) => { B.state = s; B.st = t; };
-    switch (B.state) {
-      case 'phase': case 'idle': {
-        const seq = B.phase === 1 ? ['tell_radial', 'tell_beam'] : B.phase === 2 ? ['tell_radial', 'tell_lines', 'tell_beam', 'tell_spin']
-          : ['tell_cata', 'tell_gap', 'tell_sweep', 'tell_beam', 'tell_lines', 'tell_spin', 'tell_radial'];
-        const s = seq[B.cycle++ % seq.length];
-        next(s, (s === 'tell_beam' ? 0.75 : 0.6) * enr);
-        break;
-      }
-      case 'tell_radial': {
-        const rings = B.phase === 1 ? 1 : 2;
-        for (let r = 0; r < rings; r++) {
-          for (let k = 0; k < 14; k++) {
-            const a = (k / 14) * TAU + r * 0.22;
-            this.projectiles.push({ from: 'e', x: ox, y: oy, vx: Math.cos(a) * (4.5 - r * 0.8), vy: Math.sin(a) * (4.5 - r * 0.8), life: 3, dmg: 150, sprite: 'molten', r: 0.4, a, by: 'The Unstruck' });
-          }
-        }
-        this.fx.push({ kind: 'ring', x: ox, y: oy, t: 0, max: 5, color: '#ffc94a' });
-        this.vx({ k: 'shake', amt: 4 });
-        if (B.phase >= 2) this.bossZones(B, { n: 5, r: 1.8, delay: 1.0, dmg: 160, spread: 4.5, stagger: 0.1, shards: 8, proj: 'molten', colors: ['#f2641a', '#ffc94a'] });
-        next('attack_radial', 0.3); break;
-      }
-      case 'attack_radial': next('idle', 1.1 * enr); break;
-      case 'tell_beam': next('attack_beam', 1.4); break;
-      case 'attack_beam': next('idle', 1.0 * enr); break;
-      case 'tell_spin': next('spin', 2.2); break;
-      case 'tell_cata': {                              // phase 3: hammer rings + a beam at once
-        for (let r2 = 0; r2 < 2; r2++) {
-          for (let k = 0; k < 12; k++) {
-            const a = (k / 12) * TAU + r2 * 0.26;
-            this.projectiles.push({ from: 'e', x: ox, y: oy, vx: Math.cos(a) * (3 + r2), vy: Math.sin(a) * (3 + r2), life: 3, dmg: 140, sprite: 'hammerlet', r: 0.45, a, by: 'The Unstruck' });
-          }
-        }
-        this.vx({ k: 'shake', amt: 6 });
-        next('attack_beam', 1.6); break;
-      }
-      case 'spin': next('idle', 0.9 * enr); break;
-      case 'tell_lines': {                             // hammer-fall: rows of slams march across the forge
-        const a = angleTo(B.x, B.y, p.x, p.y), px0 = -Math.sin(a), py0 = Math.cos(a);
-        for (let row = 0; row < 4; row++) for (let k = -4; k <= 4; k++) {
-          const x = B.x + Math.cos(a) * (2 + row * 2.2) + px0 * k * 1.6, y = B.y + Math.sin(a) * (2 + row * 2.2) + py0 * k * 1.6;
-          this.fx.push({ kind: 'zone', x, y, r: 0.9, t: 0, delay: 0.8 + row * 0.35, life: 1.2 + row * 0.35, dmg: 110, by: 'The Unstruck', done: false, colors: ['#f2641a', '#ffc94a'] });
-        }
-        this.banner('The hammers fall!', 1400);
-        next('attack_radial', 1.6); break;
-      }
-      case 'tell_sweep': {                             // QUENCH: the forge floor steams in a checkerboard, then the safe squares swap
-        const cx = B.room.cx + 0.5, cy = B.room.cy + 0.5, sz = 3;
-        for (let wave = 0; wave < 2; wave++) for (let gx = -5; gx <= 5; gx++) for (let gy = -4; gy <= 4; gy++) {
-          if (Math.abs(gx + gy + wave) % 2 === 0) continue;
-          this.fx.push({ kind: 'zone', x: cx + gx * sz, y: cy + gy * sz, r: 1.45, t: 0, delay: 1.1 + wave * 1.4, life: 1.5 + wave * 1.4, dmg: 130,
-            by: 'The Unstruck', done: false, colors: ['#cfe8ff', '#8a9ab8'] });
-        }
-        this.banner('QUENCH!', 1200);
-        next('spin', 3.2); break;
-      }
-      case 'tell_gap': {                               // phase 3: hammers thrown out in a ring... that come spinning back
-        for (let w = 0; w < 2; w++) for (let k = 0; k < 14; k++) {
-          const b = this.shoot('e', ox, oy, (k / 14) * TAU + w * 0.22, 6 - w, 9, 150, 'hammerlet', 0.45, false, 'The Unstruck');
-          b.mv = { boomer: 1.0 + w * 0.25 };
-        }
-        this.vx({ k: 'shake', amt: 5 });
-        next('attack_radial', 0.6); break;
-      }
-      default: next('idle', 1);
-    }
-  }
   trophy(id) {
     const t = this.save.trophies || (this.save.trophies = []);
     if (!t.includes(id)) { t.push(id); this.toast('A new statue will stand in your vault.'); this.persist(); }
-  }
-  killBoss() {
-    const B = this.boss;
-    this.player.dungeons = (this.player.dungeons || 0) + 1;
-    this.questEvent('dungeon', B);
-    this.trophy('unstruck');
-    B.state = 'dead'; B.deadT = 0; B.hp = 0;
-    this.boss.hp = 0;
-    this.vx({ k: 'shake', amt: 8 });
-    this.vx({ k: 'burst', x: B.x, y: B.y - 2, n: 60, colors: ['#f2641a', '#ffc94a', '#fff6c8', '#4f4b60'] });
-    this.player.kills++;
-    this.gainXp(BOSS.xp);
-    this.addBag(B.x - 1, B.y + 1, rollLoot(BOSS.loot, 1, 'dboss'));
-    if (R() < 0.25) this.portalNextToNexus = true;
-    this.map.portals.push({ kind: 'realm', x: B.x + 1.5, y: B.y + 1, label: this.exitLabel(), to: 'realm', life: 90 });
-    if (this.portalNextToNexus) {                      // sometimes the Forge opens the way to the god's heart
-      this.portalNextToNexus = false;
-      this.map.portals.push({ kind: 'heart', x: B.x - 2, y: B.y + 1, label: DUNGEONS.heart.name, to: 'heart', life: 90 });
-      this.say('Something deeper stirs... a portal to The Heart of Godfall!', '#ff4a5a');
-    }
-    this.banner('The Unstruck falls silent.', 3000);
   }
 
   // ------------------------------------------------------------- projectiles & world
@@ -3373,7 +3230,7 @@ export class Game {
     const p = this.player, m = this.map;
     const keep = [];
     const act = this.active || this.enemies;
-    const targets = this.boss && this.boss.state !== 'sleep' && this.boss.state !== 'dead' ? [...act, this.boss] : act;
+    const targets = act;
     const T = this.timeStop && this.timeStop.t > 0 ? this.timeStop : null;
     for (const b of this.projectiles) {
       const sp = b.sp;
@@ -3419,7 +3276,7 @@ export class Game {
             if (d2 < bd) { bd = d2; best = e; }
           }
           if (best) {
-            const [hx, hy] = this.up(best.x, best.y, best === this.boss ? 2.3 : best.hitUp || (best.rb ? 1.4 : 0.5));
+            const [hx, hy] = this.up(best.x, best.y, best.hitUp || (best.rb ? 1.4 : 0.5));
             const want = Math.atan2(hy - b.y, hx - b.x), cur = Math.atan2(b.vy, b.vx);
             let da = ((want - cur + Math.PI * 3) % TAU) - Math.PI;
             da = Math.max(-sp.homing * dt, Math.min(sp.homing * dt, da));
@@ -3468,11 +3325,10 @@ export class Game {
         if (alive) for (const e of targets) {
           if (e.dead || e.state === 'dead' || e.under) continue;
           if (e.friendly && !(e.rfSnareHp > 0)) continue;           // (your shots pass through a boss's friends)
-          const rr = (e === this.boss ? BOSS.r : e.D.r) + b.r;
-          const [hx, hy] = this.up(e.x, e.y, e === this.boss ? 2.3 : e.hitUp || (e.rb ? 1.4 : 0.5));
+          const rr = e.D.r + b.r;
+          const [hx, hy] = this.up(e.x, e.y, e.hitUp || (e.rb ? 1.4 : 0.5));
           if (dist2(b.x, b.y, hx, hy) < rr * rr) {
             if (b.hit) { if (b.hit.has(e)) continue; b.hit.add(e); }
-            if (e === this.boss && this.boss.state === 'phase') { alive = b.pierce; break; }
             this.playerHit(e, b);
             if (!b.pierce) { alive = false; break; }
           }
@@ -3501,7 +3357,7 @@ export class Game {
   }
   killerName(b) {
     const by = { pearl: 'Brine Pilgrim', brine: 'Lantern Jelly', toll: 'The Bell-Taken', bile: 'Peat Saint', shard: 'Frozen Executioner',
-      rune: 'Cairn Crawler', blade: 'Hollow Thane', smoke: 'Censer-Magistrate', molten: this.boss ? 'The Unstruck' : 'the Drowned Forge' };
+      rune: 'Cairn Crawler', blade: 'Hollow Thane', smoke: 'Censer-Magistrate', molten: 'the Drowned Forge' };
     return b.by || by[b.sprite] || 'the Realm';
   }
   updateWorld(dt) {
@@ -3896,7 +3752,7 @@ export class Game {
     const p = this.player;
     p.danceT = 3;
     for (const e of this.enemiesIn(p.x, p.y, 7)) {
-      if (e.rb || e === this.boss || (e.D && e.D.dummy)) continue;
+      if (e.rb || (e.D && e.D.dummy)) continue;
       e.stunT = Math.max(e.stunT || 0, 1.2);
       if (R() < 0.4) this.bubble(e, R.pick(['...nice moves.', '?', 'Is it... dancing?', 'I wish I could dance.', '*taps foot*']));
     }
@@ -4067,7 +3923,7 @@ export class Game {
       }
       case 'give': {
         if ((args[0] || '').toLowerCase() === 'dungeon') {        // /give dungeon ID: every item its boss can drop
-          const D = DUNGEONS[(args[1] || '').toLowerCase()], B = D && (BX[D.boss] || DUNGEON_BOSSES[D.boss] || (D.boss === 'unstruck' ? BOSS : null));
+          const D = DUNGEONS[(args[1] || '').toLowerCase()], B = D && (BX[D.boss] || DUNGEON_BOSSES[D.boss]);
           if (!B) { say(`Dungeons: ${Object.keys(DUNGEONS).join(', ')}`); break; }
           const ids = [...new Set((B.loot || []).filter((l) => l.id && ITEMS[l.id] && !/^(pot_|stat_)/.test(l.id)).map((l) => l.id))], left = [];
           for (const id of ids) { const f = p.inv.indexOf(null); if (f >= 0) p.inv[f] = id; else left.push(id); }
@@ -4098,7 +3954,7 @@ export class Game {
       }
       case 'boss': {
         const id = ({ emily: 'emily_the_yapper', penguin: 'emily_the_yapper', unstruck_god: 'the_unstruck_god', god: 'the_unstruck_god' })[args[0]] || args[0] || BIOME_BOSS[BIOMES[Math.max(0, biomeAt(this.map, p.x, p.y))]];
-        const dz = { drowned_abbot: 'chapel', fallen_heart: 'heart', unstruck: 'forge', the_archivist: 'scriptorium', the_unstruck_god: 'throne', tidebound_lich: 'crypt', forgeheart_colossus: 'ember' }[id];
+        const dz = { drowned_abbot: 'chapel', fallen_heart: 'heart', unstruck: 'forge', unstruck_smith: 'forge', the_archivist: 'scriptorium', the_unstruck_god: 'throne', tidebound_lich: 'crypt', forgeheart_colossus: 'ember' }[id];
         if (dz) { this.enter(dz); const br = this.map.rooms.at(-1); p.x = br.cx; p.y = br.cy + 7; say(`Into ${this.map.name}.`); break; }
         if (!REALM_BOSSES[id]) { say(`Bosses: ${Object.keys(REALM_BOSSES).join(', ')}, unstruck, drowned_abbot, fallen_heart`); break; }
         if (this.map.kind !== 'realm') { say('Realm bosses only spawn in the realm. /tp realm first.'); break; }
@@ -4191,7 +4047,6 @@ export class Game {
         let k = 0;
         const R = Math.min(200, n(args[0], 15));
         for (const e of this.enemies) if (!e.dead && !(e.D && e.D.dummy) && dist(e.x, e.y, p.x, p.y) < R) { this.forceKill(e); k++; }
-        if (this.boss && this.boss.state !== 'dead' && dist(this.boss.x, this.boss.y, p.x, p.y) < R + 5) this.killBoss();
         say(`Killed ${k}.`); break;
       }
       case 'kill': {                                       // /kill [name]: the nearest monster (or the nearest by that name), immune or not
@@ -4204,7 +4059,6 @@ export class Game {
       case 'clear': {                                      // /clear: every monster in this place gone (no loot), immune bosses too; the dummies stay
         let k = 0;
         for (const e of this.enemies) if (!e.dead && !(e.D && e.D.dummy)) { e.noLoot = true; e.dead = true; e.deadT = 0; e.hp = 0; k++; }
-        if (this.boss && this.boss.state !== 'dead') { this.boss.state = 'dead'; this.boss = null; k++; }
         this.projectiles = this.projectiles.filter((b) => b.from !== 'e');
         this.fx = this.fx.filter((f) => !f.dmg);
         say(`Cleared ${k} monster${k === 1 ? '' : 's'}.`); break;
@@ -4306,7 +4160,7 @@ export class Game {
     if (where.startsWith('rf_')) return this.rfDest(where);         // a Realmforge dungeon or boss room (src/rf/host.js)
     const D = DUNGEONS[where];
     if (!D) return { name: where, stars: 0, sub: '' };
-    const boss = BX[D.boss] ? BX[D.boss].name : DUNGEON_BOSSES[D.boss] ? DUNGEON_BOSSES[D.boss].name : D.boss === 'unstruck' ? 'The Unstruck' : '';
+    const boss = BX[D.boss] ? BX[D.boss].name : DUNGEON_BOSSES[D.boss] ? DUNGEON_BOSSES[D.boss].name : '';
     return { name: D.name, stars: (DUNGEON_RATING[where] || [3])[0], sub: boss ? `Its master: ${boss}` : '' };
   }
 }
