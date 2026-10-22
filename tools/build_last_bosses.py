@@ -1,5 +1,6 @@
 # Art for the last seven older bosses on the three-phase engine: the Sleeper and the six realm bosses
-# (src/bosses/the_sleeper.js, brine_cathedral.js, wick_mother.js, orrery_of_winter.js, penitent_colossus.js,
+# (the six realm bosses keep their original sprites in play: see src/render.js realmBossOld; theirs here only pace the
+# engine's clips) (src/bosses/the_sleeper.js, brine_cathedral.js, wick_mother.js, orrery_of_winter.js, penitent_colossus.js,
 # emily_the_yapper.js, the_fallen_star.js). Each: two idle frames and an attack frame a phase, a three-frame death,
 # shots, and any helpers. All drawn with tools/pixcanvas.py.
 #   The Sleeper         - a vast moth-pale dreamer curled on a cloud, nightcap, eyes shut; II: a nightmare face splitting

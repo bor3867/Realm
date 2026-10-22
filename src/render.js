@@ -102,6 +102,23 @@ const MINI_GLYPH = {
   waypoint: ['.ooo.', 'o121o', '.o1o.', '.o1o.', 'o111o', 'ooooo'],
   site: ['o.o.o', '.o1o.', 'o121o', '.o1o.', 'o.o.o'],
 };
+// the minimap's larger icons (2026-10-22, from the user's reference set: our own drawings in that style). Written plain,
+// outlined here: '1' its colour, '2' its second colour
+const ringGlyph = (rows) => { const h = rows.length + 2, w = rows[0].length + 2, g = Array.from({ length: h }, (_, y) => Array.from({ length: w }, (_, x) => (rows[y - 1] && rows[y - 1][x - 1]) || '.'));
+  return g.map((r, y) => r.map((c, x) => (c !== '.' ? c : [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => g[y + dy] && g[y + dy][x + dx] && g[y + dy][x + dx] !== '.' && g[y + dy][x + dx] !== 'o') ? 'o' : '.')).join('')); };
+Object.assign(MINI_GLYPH, {
+  boss: ringGlyph(['1.........1', '11.......11', '.11.....11.', '..1111111..', '.111111111.', '.112111211.', '.111111111.', '..1121211..', '...11111...', '....1.1....']),   // a boss: the horned crest
+  miniboss: ringGlyph(['.111111.', '11111111', '12211221', '12211221', '11111111', '.111111.', '..1..1..']),   // a miniboss: the skull
+  ufo: ringGlyph(['....222....', '...22222...', '.111111111.', '11211211211', '.111111111.', '..1.....1..']),   // an event boss
+  rarebag: ringGlyph(['..1.1..', '...1...', '..111..', '.11111.', '1111111', '1111111', '1111111', '.11111.']),   // the white bag
+  beacon: ringGlyph(['...2...', '...1...', '..111..', '..121..', '.11211.', '.11111.', '1111111']),   // a dungeon's portal, by how hard it is
+  danger: ringGlyph(['....1....', '...111...', '...121...', '..11211..', '..11211..', '.1111111.', '.1112111.', '111111111']),   // a guarded camp
+});
+// a boss's tint on the minimap, by its land (the reference's coloured boss crests)
+const BOSS_TINT = { shore: '#3a8af0', fen: '#3ac85a', runeholt: '#e8e4f0', godfall: '#ff3a3a', chapel: '#2a7ac8', heart: '#ff4a6a', scriptorium: '#7ad0ff', hive: '#ffa020',
+  theatre: '#c84ad8', prism: '#b88aff', dream: '#ff7ab8', dungeon: '#a02ad8' };
+const EVENT_BOSS = new Set(['emily_the_yapper', 'the_fallen_star', 'abyssal_kraken', 'thornheart_treant']);
+
 
 export class Renderer {
   constructor(canvas, mini, assets) {
@@ -1383,18 +1400,32 @@ export class Renderer {
     this.b.globalAlpha = 1;
     if (S.B.draw) S.B.draw(this, g, e, sx, sy);
   }
+  // the overworld bosses keep the sprites they always had, though they fight on the three-phase engine now: their sheet
+  // in realm_bosses, and the remaster's later phases, morphs and death (src/remaster.js), read from the engine's state
+  oldRealmArt(e) { const S = this.A.sheets.realm_bosses; return e.D.bx && S && S.guide && S.guide.bosses[e.id] ? S : null; }
+  bxAsOld(g, e) {
+    const S = e.bx, st = S ? S.state : 'idle', dying = st === 'death' || st === 'deathhold' || st === 'gone';
+    if (dying && e.rbDieAt === undefined) e.rbDieAt = g.t;
+    if (st === 'morph' && e.rbMorphAt === undefined) e.rbMorphAt = g.t; if (st !== 'morph') e.rbMorphAt = undefined;
+    return Object.assign(Object.create(e), { state: st === 'windup' ? 'tell' : st === 'release' ? 'attack' : 'idle', dead: e.dead || dying, deadT: e.dead ? 1 + (e.deadT || 0) : dying ? g.t - e.rbDieAt : 0,
+      rxPhase: S ? S.phase : 1, rxMorph: st === 'morph' ? { from: Math.max(1, S.phase - 1), to: S.phase, t: g.t - e.rbMorphAt } : null, special: false });
+  }
   realmBoss(g, e, sx, sy) {
-    if (e.D.bx) return this.bxBoss(g, e, sx, sy);
+    if (e.D.bx && !this.oldRealmArt(e)) return this.bxBoss(g, e, sx, sy);
+    if (e.D.bx) { const V = this.bxAsOld(g, e); if (V.dead && !e.dead && V.deadT > 1.2) return; return this.realmBossOld(g, e, V, sx, sy); }
+    return this.realmBossOld(g, e, e, sx, sy);
+  }
+  realmBossOld(g, e, V, sx, sy) {
     if (e.blinkTo && e.state === 'tell') this.blinkMark(g, e.blinkTo);
-    const S = this.A.sheets[e.D.sheet || 'realm_bosses'], Gd = S.guide, F = Gd.frameWidth, row = Gd.bosses[e.id].row;
+    const S = this.A.sheets[(!e.D.bx && e.D.sheet) || 'realm_bosses'], Gd = S.guide, F = Gd.frameWidth, row = Gd.bosses[e.id].row;
     let col;
-    if (e.dead) col = 7 + Math.min(2, Math.floor(e.deadT * 3));
-    else if (e.special && (e.state === 'tell' || e.state === 'attack')) col = 6;
-    else if (e.state === 'tell') col = 4;
-    else if (e.state === 'attack') col = 5;
+    if (V.dead) col = 7 + Math.min(2, Math.floor(V.deadT * 3));
+    else if (V.special && (V.state === 'tell' || V.state === 'attack')) col = 6;
+    else if (V.state === 'tell') col = 4;
+    else if (V.state === 'attack') col = 5;
     else col = Math.floor(g.t * 5 + e.phase) % 4;
     const K = rbK(e);
-    if (!e.dead) this.shadow(sx, sy, (F > 48 ? 46 : 34) * (K > 1 ? 1.6 : 1));
+    if (!V.dead) this.shadow(sx, sy, (F > 48 ? 46 : 34) * (K > 1 ? 1.6 : 1));
     const L = this.alive(g, e, sx, sy, F * K, true);
     if (e.tether) {                                       // the tether: a golden ring you must stay inside
       const b = this.b, R = e.tether.r * TS;
@@ -1403,7 +1434,7 @@ export class Renderer {
     }
     if (e.cloneOf) this.b.globalAlpha = 0.55 + Math.sin(g.t * 6 + e.phase) * 0.15;
     const blaze = !e.dead && e.reflectUntil > g.t;          // the Colossus's bulwark: it flashes white while it reflects
-    const rx = rxFrame(this.R, g, e);                      // the remaster's phase 2/3, morphs and death (src/remaster.js)
+    const rx = rxFrame(this.R, g, V);                      // the remaster's phase 2/3, morphs and death (src/remaster.js)
     this.sprK = K;
     this.liveSpr(rx ? rx.img : S.img, rx ? rx.x : col * F, rx ? rx.y : row * F, F, sx + L.dx, sy + L.dy, Gd.pivot.x, Gd.pivot.y, L, blaze && Math.floor(g.t * 10) % 2 === 0);
     this.sprK = 1;
@@ -2352,6 +2383,8 @@ export class Renderer {
   plabel(ctx, ...a) { pixelLabel(ctx, ...a); }
   // a boss's likeness for its badge: the first frame of its art (cached per art)
   bossPortrait(e) {
+    const OS = this.oldRealmArt(e) || (e.rb && !e.D.bx && this.A.sheets[e.D.sheet || 'realm_bosses'] && this.A.sheets[e.D.sheet || 'realm_bosses'].guide.bosses[e.id] ? this.A.sheets[e.D.sheet || 'realm_bosses'] : null);
+    if (OS) { const F = OS.guide.frameWidth; return { img: OS.img, x: 0, y: OS.guide.bosses[e.id].row * F, w: F, h: F }; }   // (an overworld boss: its own sheet)
     const C = this.portraits || (this.portraits = new Map()), key = (e.bx && e.bx.B && e.bx.B.art) || e.D.reg || e.D.bx || e.id || e.D.name;
     if (C.has(key)) return C.get(key);
     let out = null;
@@ -2464,13 +2497,13 @@ export class Renderer {
     for (const e of calm && g.activeMap === m ? g.active : g.enemies) {
       if (e.dead || e.rb || e.herald || e.D.dummy || e.under || e.friendly || !near(e)) continue;
       if (calm && (e.x - p.x) ** 2 + (e.y - p.y) ** 2 > R2) continue;
-      mark(e.x, e.y, 'enemy', e.elite ? '#ffa030' : '#ff3c50', '#ffd0d8', false, 2);
+      if (e.elite) mark(e.x, e.y, 'miniboss', '#ff8a2a', '#05040a', false, 2); else mark(e.x, e.y, 'enemy', '#ff3c50', '#ffd0d8', false, 2);   // (an elite: a miniboss's skull)
     }
     if (calm) {
       for (const c of m.camps || []) {                                   // camps still holding their chest
         if (!near(c)) continue;
         const chest = c.chest !== undefined ? c.chest : (c.chest = m.objects.find((o) => o.interact === 'chest' && Math.abs(o.x - c.x) < 0.1 && Math.abs(o.y - c.y) < 0.1) || null);
-        if (chest && !chest.opened && near(c)) mark(c.x, c.y, 'camp', '#ff7a1a', '#ffd650');
+        if (chest && !chest.opened && near(c)) mark(c.x, c.y, 'danger', '#ff2a2a', '#05040a', false, 2);   // (a guarded camp)
       }
       for (const o of objectsIn(m, x0 - 1, y0 - 1, x0 + V + 1, y0 + V + 1)) {
         if (!near(o)) continue;
@@ -2492,13 +2525,16 @@ export class Renderer {
       }
     }
     if (m.rf || m.rfBoss) this.rfMiniMarks(g, m, mark);          // a Realmforge dungeon's creatures, doors, chests, fonts (src/rf/draw.js)
-    for (const pt of m.portals) if (!pt.hidden) mark(pt.x, pt.y, 'portal', '#3befff', '#0a2a40');
+    for (const pt of m.portals) if (!pt.hidden) {   // a dungeon's portal is a beacon, rookie to veteran by its stars; the way home stays a portal
+      const st = ((pt.label || '').match(/★/g) || []).length;
+      if (st) mark(pt.x, pt.y, 'beacon', st <= 2 ? '#9ae8ff' : st <= 3 ? '#4aa0ff' : '#2050e0', '#ffffff', false, 2); else mark(pt.x, pt.y, 'portal', '#3befff', '#0a2a40');
+    }
     for (const s0 of g.sealStatus ? g.sealStatus() : []) {      // every unbroken seal glows on the minimap, even in the fog
       if (s0.done) continue;
       const pulse = Math.floor(g.t * 4) % 2 === 0;
-      mark(s0.x, s0.y, s0.kind === 'warden' ? 'crown' : s0.kind === 'lever' ? 'diamond' : 'quest', s0.kind === 'warden' ? (pulse ? '#ff4a5a' : '#ffb0b8') : s0.kind === 'lever' ? (pulse ? '#ffd650' : '#fff6c8') : (pulse ? '#8af0ff' : '#ffffff'), '#05040a', true);
+      mark(s0.x, s0.y, s0.kind === 'warden' ? 'miniboss' : s0.kind === 'lever' ? 'diamond' : 'quest', s0.kind === 'warden' ? (pulse ? '#ff4a5a' : '#ffb0b8') : s0.kind === 'lever' ? (pulse ? '#ffd650' : '#fff6c8') : (pulse ? '#8af0ff' : '#ffffff'), '#05040a', true);
     }
-    for (const e of g.activeMap === m ? g.notable : g.enemies) if (e.herald && !e.dead) mark(e.x, e.y, 'crown', '#f2c14e', '#ff4a5a', true);
+    for (const e of g.activeMap === m ? g.notable : g.enemies) if (e.herald && !e.dead) mark(e.x, e.y, 'miniboss', blink ? '#ff4ad8' : '#ff9ae8', '#05040a', true, 2);   // (a herald: a miniboss)
     for (const e of g.activeMap === m ? g.notable : g.enemies) if (e.D.melon && !e.dead) mark(e.x, e.y, 'star', blink ? '#5ae05a' : '#ff6a7a', '#ffffff', true);
     for (const ev of m.events || []) {                       // fallen stars and coin thieves
       if (ev.chest && ev.chest.opened) continue;
@@ -2510,9 +2546,9 @@ export class Renderer {
     for (const q of p.quests || []) if (q.kind === 'fetch' && q.realm === m.seed && !q.done) {   // where your fetch quest waits
       mark(q.x, q.y, 'quest', blink ? '#7aff9a' : '#c8ffd6', '#ffffff', true);
     }
-    for (const bag of g.bags) if (bag.rare || !calm) mark(bag.x, bag.y, 'bag', bag.rare ? '#ffffff' : '#c98a22', bag.rare ? '#b06bff' : '#f2c14e', false, bag.rare ? 2 : 1);
-    for (const e of g.activeMap === m ? g.notable : g.enemies) if (e.rb && !e.dead) mark(e.x, e.y, 'skull', blink ? '#ff2a2a' : '#ff8a8a', '#05040a', true);
-    if (g.boss && g.boss.state !== 'dead') mark(g.boss.x, g.boss.y, 'skull', blink ? '#ff2a2a' : '#ff8a8a', '#05040a', true);
+    for (const bag of g.bags) if (bag.rare || !calm) { if (bag.rare) mark(bag.x, bag.y, 'rarebag', '#ffffff', '#ffffff', false, 2); else mark(bag.x, bag.y, 'bag', '#c98a22', '#f2c14e', false, 1); }
+    for (const e of g.activeMap === m ? g.notable : g.enemies) if (e.rb && !e.dead) { if (EVENT_BOSS.has(e.id)) mark(e.x, e.y, 'ufo', blink ? '#3ac8a0' : '#2a8a70', '#b8ffe8', true, 2); else mark(e.x, e.y, 'boss', blink ? '#ffffff' : (BOSS_TINT[e.D.biome] || BOSS_TINT.dungeon), '#05040a', true, 2); }   // (the boss crest, tinted by its land; an event boss, the UFO)
+    if (g.boss && g.boss.state !== 'dead') mark(g.boss.x, g.boss.y, 'boss', blink ? '#ffffff' : '#ff8a2a', '#05040a', true, 2);
     // the other players here: blue dots (click one to teleport to them: src/main.js)
     for (const o of g.netHere()) {
       if (o.dead) continue;
