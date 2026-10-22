@@ -1,0 +1,273 @@
+{
+ "rf": true,
+ "meta": {
+  "name": "The Fallen Heart on the three-phase engine",
+  "version": 1
+ },
+ "sheets": {
+  "bx_fallen_heart": {
+   "image": "fallen_heart.png",
+   "kind": "boss",
+   "sprites": {
+    "fallen_heart": {
+     "frames": {
+      "i1_0": [
+       0,
+       0,
+       48,
+       48
+      ],
+      "i1_1": [
+       48,
+       0,
+       48,
+       48
+      ],
+      "a1": [
+       96,
+       0,
+       48,
+       48
+      ],
+      "i2_0": [
+       144,
+       0,
+       48,
+       48
+      ],
+      "i2_1": [
+       192,
+       0,
+       48,
+       48
+      ],
+      "a2": [
+       240,
+       0,
+       48,
+       48
+      ],
+      "i3_0": [
+       0,
+       48,
+       48,
+       48
+      ],
+      "i3_1": [
+       48,
+       48,
+       48,
+       48
+      ],
+      "a3": [
+       96,
+       48,
+       48,
+       48
+      ],
+      "d0": [
+       144,
+       48,
+       48,
+       48
+      ],
+      "d1": [
+       192,
+       48,
+       48,
+       48
+      ],
+      "d2": [
+       240,
+       48,
+       48,
+       48
+      ]
+     },
+     "anims": {
+      "idle1": {
+       "frames": [
+        "i1_0",
+        "i1_1"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack1": {
+       "frames": [
+        "a1",
+        "a1",
+        "a1"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle2": {
+       "frames": [
+        "i2_0",
+        "i2_1"
+       ],
+       "fps": 4,
+       "loop": true
+      },
+      "attack2": {
+       "frames": [
+        "a2",
+        "a2",
+        "a2"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle3": {
+       "frames": [
+        "i3_0",
+        "i3_1"
+       ],
+       "fps": 5,
+       "loop": true
+      },
+      "attack3": {
+       "frames": [
+        "a3",
+        "a3",
+        "a3"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "d0",
+        "d1",
+        "d2"
+       ],
+       "fps": 2,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "It Still Beats",
+       "idle": "idle1",
+       "attack": "attack1"
+      },
+      "2": {
+       "name": "The Saints Pray",
+       "idle": "idle2",
+       "attack": "attack2"
+      },
+      "3": {
+       "name": "It Remembers Being a God",
+       "idle": "idle3",
+       "attack": "attack3"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "heart_saint": {
+   "image": "heart_saint.png",
+   "kind": "enemy",
+   "sprites": {
+    "saint": {
+     "frames": {
+      "s0": [
+       0,
+       0,
+       24,
+       24
+      ],
+      "s1": [
+       24,
+       0,
+       24,
+       24
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "s0",
+        "s1"
+       ],
+       "fps": 2,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "s0"
+       ],
+       "fps": 2,
+       "loop": false
+      }
+     },
+     "meta": {}
+    }
+   }
+  },
+  "heart_shots": {
+   "image": "heart_shots.png",
+   "kind": "shot",
+   "sprites": {
+    "fallen_heart.gaze": {
+     "frames": {
+      "0": [
+       0,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "fallen_heart.kintsugi": {
+     "frames": {
+      "0": [
+       8,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "fallen_heart.blood": {
+     "frames": {
+      "0": [
+       16,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "fallen_heart.prayer": {
+     "frames": {
+      "0": [
+       24,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "fallen_heart.ichor": {
+     "frames": {
+      "0": [
+       32,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    }
+   }
+  }
+ }
+}
