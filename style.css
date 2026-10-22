@@ -980,3 +980,14 @@ body #app .slot.up::before { content: ''; position: absolute; right: 3px; top: 3
 #tooltip .arm-pieces span { padding: 1px 5px; border: 1px solid #4c4e5a; color: #9d9fae; } #tooltip .arm-pieces span.on { border-color: #fff1b8; color: #fff1b8; }
 #tooltip .arm-set ul { margin: 0; padding-left: 16px; color: #9d9fae; } #tooltip .arm-set li.on { color: #e8e2cc; } #tooltip .arm-set b { color: #fff1b8; margin-right: 4px; }
 #tooltip .arm-sb { padding: 4px 12px 8px; color: #c3a6ff; font-size: 11px; letter-spacing: .05em; }
+
+/* the class picker: every class on one screen, the one you point at described underneath (2026-10-22) */
+.classes.pick { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; max-width: 900px; margin: 14px auto 10px; }
+.classes.pick .cls { padding: 10px 6px 12px; text-align: center; min-width: 0; }
+.classes.pick .cls canvas { width: 72px; height: 72px; margin-bottom: 6px; }
+.classes.pick .cls h3 { font-size: 14px; overflow-wrap: anywhere; }
+.classes.pick .cls .t { color: #8d88a0; font-size: 10px; margin-top: 3px; overflow-wrap: anywhere; }
+.clsinfo { max-width: 900px; margin: 0 auto 14px; min-height: 92px; box-sizing: border-box; padding: 10px 14px; background: var(--panel); border: 2px solid var(--edge); text-align: left; }
+.clsinfo h3 { margin: 0 0 4px; font-size: 14px; color: var(--gold); }
+.clsinfo p { margin: 0; color: #b8b2c8; font-size: 12px; line-height: 1.45; }
+@media (max-width: 760px) { .classes.pick { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); } }

@@ -1342,9 +1342,15 @@ export class UI {
   classScreen() {
     const ids = Object.keys(CLASSES);
     const o = this.overlay(`<div class="screen"><h1>Choose a class</h1><h2>Death is permanent. Your vault and fame are not.</h2>
-      <div class="classes">${ids.map((id) => `<button class="cls" data-id="${id}"><canvas width="96" height="96" data-c="${id}"></canvas>
-        <h3>${CLASSES[id].name}</h3><div class="t" style="color:#8d88a0;font-size:10px">${CLASSES[id].design}</div><p>${CLASSES[id].blurb}</p></button>`).join('')}</div>
+      <div class="classes pick">${ids.map((id) => `<button class="cls" data-id="${id}"><canvas width="96" height="96" data-c="${id}"></canvas>
+        <h3>${CLASSES[id].name}</h3><div class="t">${CLASSES[id].design}</div></button>`).join('')}</div>
+      <div class="clsinfo"><h3></h3><p></p></div>
       <button class="btn" id="back">Back</button></div>`);
+    // one card per class, small enough that all of them fit on one screen; the one you point at is described below
+    // (the cards used to carry their whole description and ran off the screen: 2026-10-22)
+    const info = o.querySelector('.clsinfo'), show = (id) => { info.querySelector('h3').textContent = `${CLASSES[id].name} · ${CLASSES[id].design}`; info.querySelector('p').textContent = CLASSES[id].blurb; };
+    show(ids[0]);
+    o.querySelectorAll('.cls').forEach((b) => { b.onmouseenter = () => show(b.dataset.id); b.onfocus = () => show(b.dataset.id); });
     o.querySelectorAll('.cls').forEach((b) => { b.onclick = () => { this.closeOverlay(); if (!this.g.newCharacter(b.dataset.id)) this.titleScreen('All slots are full.'); }; });
     o.querySelector('#back').onclick = () => this.titleScreen();
     // animated previews: cycle walk -> attack -> ability
