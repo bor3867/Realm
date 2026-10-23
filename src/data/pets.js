@@ -1,6 +1,7 @@
 // Pets: a companion that follows you everywhere and heals you. (Phase 7, docs/design/07_pets.md: the bodies are Pets v2's
 // 20 lines, baby -> evolved -> divine by the main ability's level; the systems below are ours.) Each pet has abilities that level up on their own:
-//   Heal (Life), Magic Heal (Mana), and from Rare upward, Shield (a ward that soaks damage).
+//   Heal (Life) and Magic Heal (Mana). (Rare and up used to add Shield, a ward that soaked damage: gone 2026-10-22,
+//   the user found it made it seem you couldn't be hit.)
 // Feed it gear (paying gold or fame) to level its abilities: the meal's power is split, most to the pet's main ability.
 // Rarity caps the ability levels. Two pets of the same rarity whose abilities are all maxed can MORPH into one pet of
 // the next rarity, keeping their levels and raising the cap, all the way to Divine at level 100.
@@ -54,10 +55,8 @@ export const RARITY = {
 export const ABILITIES = {
   heal: { name: 'Heal', what: 'Life' },
   magic: { name: 'Magic Heal', what: 'Mana' },
-  shield: { name: 'Shield', what: 'a damage-soaking ward' },
 };
 export const PET_TICK = 4;                                   // seconds between heals
-export const SHIELD_TICK = 12;                               // seconds between shields
 export const PET_MAX = 12;                                   // pets you can keep
 export const petXpToNext = (level) => 8 + level * 4;
 
@@ -70,20 +69,19 @@ export function upgradePet(p) {
     p.ab = { heal: { lv: L, xp: 0 }, magic: { lv: L, xp: 0 } };
     delete p.level; delete p.xp;
   }
-  if (RARITY_ORDER.indexOf(p.rarity) >= 2 && !p.ab.shield) p.ab.shield = { lv: 1, xp: 0 };
+  delete p.ab.shield;                                        // (the old Shield ability: no more)
   return p;
 }
 export const petCap = (p) => RARITY[p.rarity].max;
 export const abilityOrder = (p) => {                        // the pet's main ability is the one its kind leans toward
   const K = PET_KINDS[p.kind], first = K.magic > K.heal ? 'magic' : 'heal';
-  return [first, first === 'heal' ? 'magic' : 'heal', 'shield'].filter((a) => p.ab[a]);
+  return [first, first === 'heal' ? 'magic' : 'heal'].filter((a) => p.ab[a]);
 };
 export const SHARE = [1, 0.65, 0.35];                         // how a meal is split between the first, second and third ability
 export const petLevel = (p) => Math.round(Object.values(p.ab).reduce((s, a) => s + a.lv, 0) / Object.keys(p.ab).length);
 export const petMaxed = (p) => Object.values(p.ab).every((a) => a.lv >= petCap(p));
 export const petHeal = (p) => Math.round((4 + p.ab.heal.lv * 1.1) * PET_KINDS[p.kind].heal);
 export const petMagic = (p) => Math.round((3 + p.ab.magic.lv * 0.7) * PET_KINDS[p.kind].magic);
-export const petShield = (p) => (p.ab.shield ? Math.round(20 + p.ab.shield.lv * 6) : 0);
 export const feedCost = (p) => ({ gold: 10 + petLevel(p) * 5, fame: 1 + Math.floor(petLevel(p) / 8) });
 
 // ---- feed power: what an item is worth as a meal. Tiered gear by tier; relics by how hard their source is to beat.
@@ -124,7 +122,6 @@ export function hatchKind(family, r = Math.random) {
 }
 export function newPet(kind, rarity, lv = 1) {
   const p = upgradePet({ id: 'pet' + Date.now().toString(36) + Math.floor(Math.random() * 99999).toString(36), kind, rarity, ab: { heal: { lv, xp: 0 }, magic: { lv, xp: 0 } } });
-  if (p.ab.shield) p.ab.shield.lv = lv;
   return p;
 }
 // feed a pet: split the meal between its abilities, level them up to the cap. Returns the abilities that levelled.

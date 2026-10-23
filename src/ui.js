@@ -9,7 +9,7 @@ import { drawIcon as armIcon } from './armory_art.js';
 const BIOME_NAME = { shore: 'Shore', lowlands: 'Lowland', fen: 'Fen', thornwood: 'Thornwood', steppe: 'Steppe', runeholt: 'Runeholt', dunes: 'Dune', godfall: 'Godfall', frostveil: 'Frostveil' };
 import { POT_STACK } from './game.js';
 import { ACTIONS, MINI_STEPS, keyLabel, resetSettings, keyName, keyParen } from './settings.js';
-import { PET_KINDS, RARITY, RARITY_ORDER, ABILITIES, PET_TICK, SHIELD_TICK, PET_MAX, petHeal, petMagic, petShield, petXpToNext, petCap, petMaxed, feedCost, feedValue, canMorph, FUSE_GOLD, petSprite, petName, abilityOrder, mainMaxed, petLevel } from './data/pets.js';
+import { PET_KINDS, RARITY, RARITY_ORDER, ABILITIES, PET_TICK, PET_MAX, petHeal, petMagic, petXpToNext, petCap, petMaxed, feedCost, feedValue, canMorph, FUSE_GOLD, petSprite, petName, abilityOrder, mainMaxed, petLevel } from './data/pets.js';
 import { loadAccounts, saveAccounts, saveKeyFor, hashPassword, loadSave, normalizeSave, getSession, setSession } from './save.js';
 
 const $ = (id) => document.getElementById(id);
@@ -188,7 +188,7 @@ export class UI {
       const A = q.ab[k], cap = petCap(q), need = petXpToNext(A.lv), full = A.lv >= cap;
       return `<div class="pab${i === 0 ? ' main' : ''}"><span>${ABILITIES[k].name}${i === 0 ? ' <em>main</em>' : ''}</span><b>${A.lv}/${cap}</b><div class="pxp"><i style="width:${full ? 100 : Math.round(100 * A.xp / need)}%"></i></div></div>`;
     }).join('');
-    const effect = (q) => `Every ${PET_TICK}s: +${petHeal(q)} Life, +${petMagic(q)} Mana${q.ab.shield ? ` · every ${SHIELD_TICK}s: a ${petShield(q)} ward` : ''}`;
+    const effect = (q) => `Every ${PET_TICK}s: +${petHeal(q)} Life, +${petMagic(q)} Mana`;
     const card = (q, extra) => {
       const Rr = RARITY[q.rarity];
       const tag = petMaxed(q) ? ' · <span class="maxed">MAXED</span>' : Rr.morph && mainMaxed(q) ? ' · <span class="maxed">READY TO FUSE</span>' : '';
@@ -1015,12 +1015,12 @@ export class UI {
     if (this.petKey === key) return;
     this.petKey = key;
     const ab = abilityOrder(P).map((k, i) => {
-      const A = P.ab[k], full = A.lv >= cap, val = k === 'heal' ? `+${petHeal(P)} Life` : k === 'magic' ? `+${petMagic(P)} Mana` : `a ${petShield(P)} ward`;
+      const A = P.ab[k], full = A.lv >= cap, val = k === 'heal' ? `+${petHeal(P)} Life` : `+${petMagic(P)} Mana`;
       return `<div class="pv-ab${i === 0 ? ' main' : ''}"><span>${ABILITIES[k].name}${i === 0 ? ' · main' : ''}</span><b>${A.lv}<small>/${cap}</small></b><em>${val}</em><div class="pxp"><i style="width:${full ? 100 : Math.round(100 * A.xp / petXpToNext(A.lv))}%"></i></div></div>`;
     }).join('');
     el.innerHTML = `<div class="pv-head"><span class="ico pet" style="background-image:url(${this.petIcon(petSprite(P))})"></span><div><b style="color:${Rr.color}">${petName(P)}</b>
       <small>${Rr.name} · level ${petLevel(P)}${Rr.morph && mainMaxed(P) ? ' · ready to fuse' : ''}</small></div></div>${ab}
-      <div class="pv-foot">${q ? `next heal in ${Math.max(0, Math.ceil(q.tick))}s` : 'resting'} · every ${PET_TICK}s${P.ab.shield ? ` · ward every ${SHIELD_TICK}s` : ''}</div>`;
+      <div class="pv-foot">${q ? `next heal in ${Math.max(0, Math.ceil(q.tick))}s` : 'resting'} · every ${PET_TICK}s</div>`;
   }
   banner(text, ms) {
     const b = $('banner');

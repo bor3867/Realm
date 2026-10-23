@@ -38,7 +38,7 @@ import { installNet } from './net.js';
 import { assignItemShots } from './data/uniques.js';
 import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUEST_HUNTS, FETCH_ITEMS } from './data/lore.js';
 
-import { PET_KINDS, RARITY, PET_TICK, SHIELD_TICK, PET_MAX, petHeal, petMagic, petShield, petCap, petLevel, feedCost, feedValue, hatchKind, newPet, upgradePet, feed, canMorph, morph, FUSE_GOLD, petSprite, petName, petStage, START_LV, FAMILIES, eggId } from './data/pets.js';
+import { PET_KINDS, RARITY, PET_TICK, PET_MAX, petHeal, petMagic, petCap, petLevel, feedCost, feedValue, hatchKind, newPet, upgradePet, feed, canMorph, morph, FUSE_GOLD, petSprite, petName, petStage, START_LV, FAMILIES, eggId } from './data/pets.js';
 const PLAYER_R = 0.32;
 // hits follow the art. You are an upright capsule a little inside your sprite (feet to the top of your head); a shot is a
 // capsule along its flight the size of its visible pixels (src/data/shot_boxes.js, made by tools/shot_boxes.mjs),
@@ -2984,11 +2984,6 @@ export class Game {
     const hp = this.stat('hp'), mp = this.stat('mp');
     if (p.hp < hp) { const h = Math.min(petHeal(P), hp - p.hp); p.hp += h; this.float(p.x - 0.4, p.y - 1.5, `+${h}`, '#5ef08a'); this.vx({ k: 'heal', ...liftA(q.x, q.y, 0.4), ...liftB(p.x, p.y, 0.6) }); }
     if (p.mp < mp) { const m = Math.min(petMagic(P), mp - p.mp); p.mp += m; this.float(p.x + 0.4, p.y - 1.5, `+${m}`, '#6ab4ff'); }
-    if (P.ab.shield && (q.shieldT = (q.shieldT ?? 2) - PET_TICK) <= 0) {   // the shield: a ward that soaks the next blows
-      q.shieldT = SHIELD_TICK;
-      const w = petShield(P);
-      if ((p.ward || 0) < w) { p.ward = w; p.wardMax = w; p.wardT = SHIELD_TICK; this.float(...lift(p.x, p.y, 1.9), `ward ${w}`, '#46f5d6'); }
-    }
   }
   // feed your companion an item, paying gold or fame. The meal is split between its abilities (see pets.js).
   feedPet(cont, i, pay = 'gold') {
