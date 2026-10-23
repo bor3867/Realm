@@ -122,7 +122,7 @@ const methods = {
         b.fillStyle = gr; b.fillRect(x - ww, 0, ww * 2, y + 3);
         const r = b.createRadialGradient(x, y, 2, x, y, 1.5 * TS); r.addColorStop(0, `rgba(255,255,255,${k})`); r.addColorStop(1, 'rgba(255,227,154,0)'); b.fillStyle = r; b.beginPath(); b.ellipse(x, y, 1.5 * TS, 0.55 * TS, 0, 0, 7); b.fill(); b.restore();
       }
-      else if (v.k === 'halo') { const [x, y] = this.proj(v.x, v.y - 0.5); this.armHaloOver(x, y, k, true, 4); }   // Judgment: the same halo, four times the size, over the target
+      else if (v.k === 'halo') { const H = art('Hosanna'), [x, y] = this.proj(v.x, v.y - 0.5); this.armSpr(H.shots[1], 18, x, y, '#fff1b8', t * 2, k, 1.6); }
       else if (v.k === 'meteor') { const [x, y] = this.proj(v.x, v.y), u = age / v.life, sx = x + 104 * (1 - u) * (TS / 40) * 2.5, sy = y - 132 * (1 - u) * (TS / 40) * 2.5; const S2 = art('Starfall Engine'); this.armSpr(S2.shots[0], 3 + v.n, sx, sy, '#fb923c', Math.atan2(y - sy, x - sx) + Math.PI / 4); }
       else if (v.k === 'eclipse' && v.e) { const [x, y] = this.proj(v.e.x, v.e.y - 0.5), kk = Math.sin(Math.PI * (age / v.life)); b.save(); b.globalCompositeOperation = 'lighter'; const gr = b.createRadialGradient(x, y, 6, x, y, 26); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(0.4, `rgba(255,241,168,${0.8 * kk})`); gr.addColorStop(1, 'rgba(255,160,60,0)'); b.fillStyle = gr; b.beginPath(); b.arc(x, y, 26, 0, 7); b.fill(); b.restore(); }
       else if (v.k === 'slash') { const [x, y] = this.proj(v.x, v.y - 0.5); b.save(); b.strokeStyle = v.col ? `rgba(245,232,255,${k})` : `rgba(233,213,255,${k})`; b.lineWidth = 2 * k + 1; b.beginPath(); b.moveTo(x - 12, y + 10); b.lineTo(x + 12, y - 10); b.stroke(); b.restore(); }
@@ -177,16 +177,16 @@ const methods = {
     }
   },
   // a halo: a thin flat ring of gold light, its back half behind your head, its front half bright, a soft glow round it
-  armHaloOver(x, y, a, full, z = 1) {
-    const b = this.b, rx = 6 * z, ry = 2 * z, n = Math.round(40 * z);
+  armHaloOver(x, y, a, full) {
+    const b = this.b, rx = 6, ry = 2;
     b.save(); b.globalAlpha = a;
     b.globalCompositeOperation = 'lighter';                // the glow
-    const gr = b.createRadialGradient(x, y, 1, x, y, rx + 4 * z); gr.addColorStop(0, 'rgba(255,241,184,0)'); gr.addColorStop(0.6, `rgba(255,226,140,${full ? 0.45 : 0.25})`); gr.addColorStop(1, 'rgba(255,226,140,0)');
-    b.fillStyle = gr; b.beginPath(); b.ellipse(x, y, rx + 4 * z, ry + 3 * z, 0, 0, Math.PI * 2); b.fill();
+    const gr = b.createRadialGradient(x, y, 1, x, y, rx + 4); gr.addColorStop(0, 'rgba(255,241,184,0)'); gr.addColorStop(0.6, `rgba(255,226,140,${full ? 0.45 : 0.25})`); gr.addColorStop(1, 'rgba(255,226,140,0)');
+    b.fillStyle = gr; b.beginPath(); b.ellipse(x, y, rx + 4, ry + 3, 0, 0, Math.PI * 2); b.fill();
     b.globalCompositeOperation = 'source-over';
-    for (let k = 0; k < n; k++) {                        // the band, pixel by pixel round the ellipse
-      const t = (k / n) * Math.PI * 2, px = Math.round(x + Math.cos(t) * rx), py = Math.round(y + Math.sin(t) * ry), front = Math.sin(t) > 0;
-      b.fillStyle = front ? '#fff1b8' : '#c8922e'; b.fillRect(px, py, z > 1 ? 2 : 1, 1);
+    for (let k = 0; k < 40; k++) {                       // the band, pixel by pixel round the ellipse
+      const t = (k / 40) * Math.PI * 2, px = Math.round(x + Math.cos(t) * rx), py = Math.round(y + Math.sin(t) * ry), front = Math.sin(t) > 0;
+      b.fillStyle = front ? '#fff1b8' : '#c8922e'; b.fillRect(px, py, 1, 1);
       if (front && Math.abs(Math.cos(t)) < 0.5) { b.fillStyle = '#ffffff'; b.fillRect(px, py, 1, 1); }
     }
     b.fillStyle = '#f6c453'; b.fillRect(Math.round(x - rx), Math.round(y), 1, 1); b.fillRect(Math.round(x + rx), Math.round(y), 1, 1);
