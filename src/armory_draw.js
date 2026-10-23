@@ -134,8 +134,9 @@ const methods = {
     if (S.stutter && t - S.stutter < 0.26) { b.save(); b.fillStyle = 'rgba(20,0,40,.6)'; b.fillRect(0, 0, this.buf.width, this.buf.height); b.fillStyle = 'rgba(245,232,255,.12)'; for (let y = 0; y < this.buf.height; y += 4) b.fillRect(0, y, this.buf.width, 1); b.restore(); }
     // on the player: Hosanna's halo, the Aureole's gathering halo, Empyrean's wings, the hydra's heads, the counters
     const [px, py] = this.proj(p.x, p.y);
-    if (g.armHeld && g.armHeld(this.armId('Hosanna'))) { const H = art('Hosanna'); this.armSpr(H.shots[1], 2, px, py - 22, '#fff1b8', 0, 0.9, 0.9); }
-    if (g.armHeld && g.armHeld(this.armId('Aureole'))) { const AU = art('Aureole'), ch = S.halo || 0; this.armSpr(AU.shots[0], 4, px, py - 24, '#fff3c4', 0, 0.35 + 0.65 * ch, ch >= 1 ? 1.8 : 0.6 * ch); }
+    // a halo over your head (Hosanna, or the Aureole's gathering Crown of Light: dim while it gathers, bright when full)
+    const hos = g.armHeld && g.armHeld(this.armId('Hosanna')), aur = g.armHeld && g.armHeld(this.armId('Aureole'));
+    if (hos || aur) { const ch = aur ? S.halo || 0 : 1; this.armHaloOver(px, py - 18 + Math.sin(now / 420) * 1, aur ? 0.4 + 0.6 * ch : 0.9, aur && ch >= 1); }
     if (S.wingsT > t) {
       const E = art('Empyrean'), def = E.shots[1], U = this.U || 1, scale = Math.max(1, Math.round(5 * (TS / 40) * U)), img = sprAt(def, scale, now), gl = glowLayer(def, scale, frameOf(def, now)[0], '#fff3c4'), k = Math.min(1, (S.wingsT - t) / 0.25);
       for (const s of [-1, 1]) { b.save(); b.translate(px + s * 10, py - 14); b.scale((-s) / U, 1 / U); b.globalAlpha = k; b.globalCompositeOperation = 'lighter'; b.drawImage(gl, -gl.width / 2, -gl.height / 2); b.globalCompositeOperation = 'source-over'; b.drawImage(img, -img.width / 2, -img.height / 2); b.restore(); }
@@ -174,6 +175,23 @@ const methods = {
       if (e.armSleepT > t) { b.save(); b.font = '6px monospace'; b.fillStyle = '#c4b5fd'; for (let i = 0; i < 3; i++) { const u = (t / 0.7 + i / 3) % 1; b.globalAlpha = 1 - u; b.fillText('z', x + 4 + u * 6, y - 10 - u * 10); } b.restore(); }
       if (e.armCrownT > t) this.armSpr(AU.shots[0], 2, x, y - 14, '#fff3c4', 0, 0.9);
     }
+  },
+  // a halo: a thin flat ring of gold light, its back half behind your head, its front half bright, a soft glow round it
+  armHaloOver(x, y, a, full) {
+    const b = this.b, rx = 6, ry = 2;
+    b.save(); b.globalAlpha = a;
+    b.globalCompositeOperation = 'lighter';                // the glow
+    const gr = b.createRadialGradient(x, y, 1, x, y, rx + 4); gr.addColorStop(0, 'rgba(255,241,184,0)'); gr.addColorStop(0.6, `rgba(255,226,140,${full ? 0.45 : 0.25})`); gr.addColorStop(1, 'rgba(255,226,140,0)');
+    b.fillStyle = gr; b.beginPath(); b.ellipse(x, y, rx + 4, ry + 3, 0, 0, Math.PI * 2); b.fill();
+    b.globalCompositeOperation = 'source-over';
+    for (let k = 0; k < 40; k++) {                       // the band, pixel by pixel round the ellipse
+      const t = (k / 40) * Math.PI * 2, px = Math.round(x + Math.cos(t) * rx), py = Math.round(y + Math.sin(t) * ry), front = Math.sin(t) > 0;
+      b.fillStyle = front ? '#fff1b8' : '#c8922e'; b.fillRect(px, py, 1, 1);
+      if (front && Math.abs(Math.cos(t)) < 0.5) { b.fillStyle = '#ffffff'; b.fillRect(px, py, 1, 1); }
+    }
+    b.fillStyle = '#f6c453'; b.fillRect(Math.round(x - rx), Math.round(y), 1, 1); b.fillRect(Math.round(x + rx), Math.round(y), 1, 1);
+    if (full) { const sp = Math.floor(performance.now() / 90) % 40, t = (sp / 40) * Math.PI * 2; b.fillStyle = '#ffffff'; b.fillRect(Math.round(x + Math.cos(t) * rx), Math.round(y + Math.sin(t) * ry) - 1, 1, 2); }   // a glint running round it when the crown is ready
+    b.restore();
   },
   armId(name) { return 'arm_' + name.toLowerCase().replace(/'/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, ''); },
 };
