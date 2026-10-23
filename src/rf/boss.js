@@ -12,7 +12,7 @@ import { mitigate, moveSpeed } from '../data/classes.js';
 import { bandOfBoss } from './balance.js';
 import { BX, bxEnemyDef } from '../bosses/index.js';
 
-export const RFB = { dropUt: 0.2, dropLeg: 0.08, dropMyth: 0.02, phaseMax: 60 };   // a boss's own uniques, by rarity (HP and damage: src/rf/balance.js)
+export const RFB = { dropUt: 0.05, dropLeg: 0.02, dropMyth: 0.005, phaseMax: 60 };   // a boss's own uniques, by rarity: about one in twelve kills (was 0.2/0.08/0.02, one in three: 2026-10-22) (HP and damage: src/rf/balance.js)
 const DPR = 1.6, TP = 30;                                                      // their pixels to a tile; 30 * 1.6 = 48 = 16 * 3
 let S = null;
 const HOST = {

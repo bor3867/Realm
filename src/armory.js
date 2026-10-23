@@ -359,9 +359,7 @@ const FIRE = {
     if (!judg) { smite(tx, ty, A.st.dmg); return; }
     this.armSay(tx, ty - 2, 'JUDGMENT', '#fff6d6');
     this.armVis({ k: 'halo', x: tx, y: ty, life: 0.9 });
-    let n = 0;
-    for (const e of this.projectiles) if (e.from === 'e' && e.life > 0 && Math.hypot(e.x - p.x, e.y - p.y) < 13) { e.life = 0; n++; }
-    if (n) this.armLater(0.2, () => this.armSay(p.x, p.y - 1.5, `LET THERE BE LIGHT · ${n} SHOTS UNMADE`, '#fff1b8'));
+    // (Judgment no longer unmakes the enemy shots on screen: unfair and no fun against bosses, the user's call 2026-10-22)
     for (let i = 0; i < 7; i++) { const aa = (i / 7) * TAU - Math.PI / 2; this.armLater(i * 0.08, () => smite(tx + Math.cos(aa) * 1.55, ty + Math.sin(aa) * 1.55, EX(A, 0))); }
     this.armLater(0.3, () => { const ab = full ? 0.35 : 0.2; this.armHeal(max * ab, '#fff1b8'); this.armSay(p.x, p.y - 0.3, `ABSOLUTION +${Math.round(max * ab)}`, '#fff1b8'); });
   },
