@@ -134,6 +134,7 @@ const BIOME_TARGET = { shore: 210, fen: 170, runeholt: 125, godfall: 85 };
 const TILES_PER_GROUP = [1700, 1600, 1200, 560];
 const parentTarget = (m, b) => Math.round((m.area ? m.area[BIOMES.indexOf(b)] : 60000) / TILES_PER_GROUP[BIOME_RING[BIOMES.indexOf(b)]]);
 const MAX_REALM_BOSSES = 3;
+const ENEMY_DMG = 1.5;                                      // every enemy hits this many times its number (see enemyScale)
 // things you walk up to and press F on
 // Phase 7: an egg's burst frame (its hatch clip: 9 frames at 6 fps), how hard each land is, and the families it keeps
 const HATCH_BURST = 8 / 6;
@@ -1696,7 +1697,7 @@ export class Game {
       this.fx.push({ kind: 'ring', ...liftO(p.x, p.y, 0.5), t: 0, max: 1.2, color: '#f2c14e' });
       return;
     }
-    if (!ignoreDef) dmg = Math.round(dmg * this.danger());
+    if (!ignoreDef) dmg = Math.round(dmg * this.enemyScale());
     let d = mitigate(dmg, this.stat('def'), ignoreDef);
     if (p.ward > 0) {                                        // the Runeblade's ward drinks the blow first
       const w = Math.min(p.ward, d); p.ward -= w; d -= w;
@@ -1742,6 +1743,19 @@ export class Game {
   }
   // how hard the world hits where you stand: about 55% on the coast, rising smoothly to 95% at the
   // god's heart. Dungeons have their own level.
+  // how hard enemies hit you here (2026-10-22: the user barely took damage). Every enemy's damage is 1.5 times its
+  // number; the realm's lands still taper it a little toward the shore (75% at the edge to 100% at the centre: each
+  // land's monsters are already stronger inward), and a dungeon by its rating. It used to be danger() alone, which
+  // halved realm damage at the shore and took 5-45% off everywhere, so with Defense on top most blows did 15%.
+  enemyScale() {
+    const m = this.map, p = this.player;
+    let k = 1;
+    if (m.rf || m.rfBoss) k = 1;
+    else if (m.kind === 'dungeon') k = (DUNGEON_RATING[Object.keys(DUNGEONS).find((q) => DUNGEONS[q] === m.def)] || [3, 0.85])[1];
+    else if (m.kind === 'realm') { const C = m.w / 2, d = Math.min(1, dist(p.x, p.y, C, C) / (C * 0.9)); k = 0.75 + 0.25 * (1 - d); }
+    return k * ENEMY_DMG;
+  }
+  // how deep in the realm you are (0.5 at the shore to 0.95 at the centre): the land's stars; a dungeon's rating
   danger() {
     const m = this.map, p = this.player;
     if (m.rf || m.rfBoss) return 1;                       // a Realmforge dungeon: its band already sets its numbers (src/rf/balance.js)
