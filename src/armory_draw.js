@@ -176,14 +176,11 @@ const methods = {
       if (e.armCrownT > t) this.armSpr(AU.shots[0], 2, x, y - 14, '#fff3c4', 0, 0.9);
     }
   },
-  // a halo: a thin flat ring of gold light, its back half behind your head, its front half bright, a soft glow round it
+  // a halo: a thin flat ring of gold light, its back half darker, its front half bright (no round glow: it read as a
+  // second, older ring behind it)
   armHaloOver(x, y, a, full) {
     const b = this.b, rx = 6, ry = 2;
     b.save(); b.globalAlpha = a;
-    b.globalCompositeOperation = 'lighter';                // the glow
-    const gr = b.createRadialGradient(x, y, 1, x, y, rx + 4); gr.addColorStop(0, 'rgba(255,241,184,0)'); gr.addColorStop(0.6, `rgba(255,226,140,${full ? 0.45 : 0.25})`); gr.addColorStop(1, 'rgba(255,226,140,0)');
-    b.fillStyle = gr; b.beginPath(); b.ellipse(x, y, rx + 4, ry + 3, 0, 0, Math.PI * 2); b.fill();
-    b.globalCompositeOperation = 'source-over';
     for (let k = 0; k < 40; k++) {                       // the band, pixel by pixel round the ellipse
       const t = (k / 40) * Math.PI * 2, px = Math.round(x + Math.cos(t) * rx), py = Math.round(y + Math.sin(t) * ry), front = Math.sin(t) > 0;
       b.fillStyle = front ? '#fff1b8' : '#c8922e'; b.fillRect(px, py, 1, 1);
