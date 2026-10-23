@@ -298,7 +298,9 @@ const methods = {
       N.byId.delete(nid);
       if (how === -1) { this.enemies = M.enemies = this.enemies.filter((o) => o !== e); continue; }   // out of sight
       e.x = e.tx; e.y = e.ty;
-      if (how === 1) { e.netKill = true; e.hp = 0; e.spawnT = 0; e.bulwarkT = 0; e.wardT = 0; this.damageEnemy(e, 1, e.x, e.y, true); }   // yours too: your rewards
+      // (bxKill: a three-phase boss is in its death clip by now, immune; this blow is only the kill, so it must land:
+      // without it a shared boss never died for you, and dropped nothing. 2026-10-22)
+      if (how === 1) { e.netKill = true; e.bxKill = true; e.hp = 0; e.spawnT = 0; e.bulwarkT = 0; e.wardT = 0; this.damageEnemy(e, 1, e.x, e.y, true); }   // yours too: your rewards
       if (!e.dead) { e.dead = true; e.deadT = 0; this.vx({ k: 'death', e, big: !!e.rb }); }
     }
   },
