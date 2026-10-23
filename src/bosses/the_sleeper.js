@@ -65,7 +65,8 @@ const finale = {
 
 export default {
   id: 'the_sleeper', art: 'the_sleeper', shotSheet: 'last_shots', name: 'The Sleeper, Who Dreams the Realm', biome: 'dream', hp: 520000, def: 40, xp: 22000,
-  dmgScale: 2.2, r: 1.7, speed: 1.0, keep: 7, faces: true, tempo: 0.9, finale,
+  // dmgScale was 2.2: every hit took 46% (after every enemy began to hit 1.5x, 2026-10-22: tools/bench_boss_hits.mjs)
+  dmgScale: 1.45, r: 1.7, speed: 1.0, keep: 7, faces: true, tempo: 0.9, finale,
   phases: {
     1: { move: 'pace', patterns: [
       { name: 'counting sheep', windup: 0.6, recover: 0.6, special: 'sheep', rows: 3, n: 7, dmg: 120 },

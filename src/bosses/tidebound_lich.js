@@ -78,7 +78,7 @@ function undertow(g, e, V) {
 
 export default {
   id: 'tidebound_lich', name: 'The Tidebound Lich', biome: 'dungeon', hp: 180000, def: 26, xp: 10000, r: 2, speed: 1.3, keep: 7, faces: true,
-  tempo: 0.75, dmgScale: 1.2,
+  tempo: 0.75, dmgScale: 0.85,   // (was 1.2: a two-star dungeon's boss killed a player standing still in 1s (after every enemy began to hit 1.5x, 2026-10-22: tools/bench_boss_hits.mjs))
   phases: {
     1: { move: 'pace', pressure: [{ every: 0.75, special: 'driftBolt', delay: 1.2, dmg: 80 }], patterns: [
       { name: 'soul bolts', windup: 0.6, recover: 0.5, special: 'bolts', dmg: 80 },

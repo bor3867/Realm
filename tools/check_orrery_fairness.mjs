@@ -30,7 +30,9 @@ function setup(seed) {
   let hits = 0;
   const hurt = g.hurtPlayer.bind(g);
   const tally = {};
-  g.hurtPlayer = (d, by, x) => { if (by) { hits++; const S = o.bx || {}, k = (S.sing ? 'sing:' + S.sing.stage : S.nova2 ? 'nova:' + (S.nova2.kind || 'horizon') : S.pat ? S.pat.name : S.state) + ' / ' + by; tally[k] = (tally[k] || 0) + 1; if (process.env.TWHEN && S.pat && S.pat.name === process.env.TWHEN) { console.log(globalThis.CUR + '  hit at +' + (g.t - S.twT).toFixed(1) + 's of ' + S.pat.name); } } hurt(d, by, x); };
+  let lastHit = -9;                                         // (a touch: shots landing together in one tenth of a second are one touch; since 2026-10-22 each
+                                                            // of them hurts, but the question here is whether there is a way through)
+  g.hurtPlayer = (d, by, x) => { if (by && g.t - lastHit >= 0.1) { lastHit = g.t; hits++; const S = o.bx || {}, k = (S.sing ? 'sing:' + S.sing.stage : S.nova2 ? 'nova:' + (S.nova2.kind || 'horizon') : S.pat ? S.pat.name : S.state) + ' / ' + by; tally[k] = (tally[k] || 0) + 1; if (process.env.TWHEN && S.pat && S.pat.name === process.env.TWHEN) { console.log(globalThis.CUR + '  hit at +' + (g.t - S.twT).toFixed(1) + 's of ' + S.pat.name); } } hurt(d, by, x); };
   p.x = L.cx + 0.5; p.y = L.cy + 8;
   for (let k = 0; k < 60 * 4; k++) { p.hp = 1e9; p.dead = false; g.update(1 / 60); }
   return { g, o, L, p, tally, hits: () => hits, reset: () => { hits = 0; for (const k in tally) delete tally[k]; } };
@@ -150,7 +152,7 @@ for (const kind of ['expert', 'strafer', 'still']) {
   results[kind] = row;
   if (kind === 'expert' && process.argv.includes('--why')) console.log('expert was hit by:', JSON.stringify(row.why));
 }
-console.log('hits per section (one hit = one shot or hazard that touched you)');
+console.log('hits per section (one hit = one touch: the shots or hazards that reached you within a tenth of a second)');
 console.log('section'.padEnd(13) + ['expert', 'strafer', 'still'].map((k) => k.padStart(9)).join(''));
 let unfair = [];
 for (const s of SECTIONS) {

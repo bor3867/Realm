@@ -31,7 +31,8 @@ const finale = {
 
 export default {
   id: 'emily_the_yapper', art: 'emily_the_yapper', shotSheet: 'last_shots', name: 'Emily, the Yapper', biome: 'runeholt', hp: 80000, def: 14, xp: 3600,
-  dmgScale: 1.6, r: 1.5, speed: 0.8, keep: 5, faces: true, tempo: 1, finale,
+  // dmgScale was 1.6: her biggest blow took 43% (after every enemy began to hit 1.5x, 2026-10-22: tools/bench_boss_hits.mjs)
+  dmgScale: 1.3, r: 1.5, speed: 0.8, keep: 5, faces: true, tempo: 1, finale,
   phases: {
     1: { move: 'pace', patterns: [
       { name: 'snowballs', windup: 0.5, recover: 0.6, special: 'snowballs', waves: 3, dmg: 34 },

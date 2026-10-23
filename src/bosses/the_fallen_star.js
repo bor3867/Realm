@@ -50,11 +50,14 @@ function shaded(e, p) {                                    // is a mine between 
     if (da < Math.atan2(0.9, dm)) return true; }
   return false;
 }
-function novaHits(g, e) { const p = g.player; if (!p.dead && !shaded(e, p)) g.hurtPlayer(g.bxDmg(e, 380), `${e.D.name}'s supernova`); }
+// the Supernova: about three quarters of a Godfall player's Life (it was 380 at a scale of 6, three times a Life (after every enemy began to hit 1.5x, 2026-10-22: tools/bench_boss_hits.mjs))
+function novaHits(g, e) { const p = g.player; if (!p.dead && !shaded(e, p)) g.hurtPlayer(g.bxDmg(e, 220), `${e.D.name}'s supernova`); }
 
 export default {
   id: 'the_fallen_star', art: 'the_fallen_star', shotSheet: 'last_shots', name: 'The Fallen Star', biome: 'godfall', hp: 240000, def: 20, xp: 8000,
-  dmgScale: 6, r: 1.5, speed: 0.9, keep: 5, faces: false, tempo: 1, finale,
+  // dmgScale was 6 (set while the realm halved every blow): its embers hit for 300 and its comet run for 480, a
+  // Godfall player's whole Life (after every enemy began to hit 1.5x, 2026-10-22: tools/bench_boss_hits.mjs)
+  dmgScale: 1.6, r: 1.5, speed: 0.9, keep: 5, faces: false, tempo: 1, finale,
   phases: {
     1: { move: 'pace', patterns: [
       { name: 'embers', windup: 0.5, recover: 0.7, special: 'embers', n: 18, dmg: 50 },

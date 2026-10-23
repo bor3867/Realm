@@ -16,7 +16,7 @@ export const OW_BOSSES = {
   orrery_of_winter: { hp: 1.6, dmg: 2.8, adds: { id: 'frost_wraith', n: 2, every: 13, near: 'boss', life: 25 } },
   emily_the_yapper: { hp: 1.6, dmg: 2.6, adds: { id: 'emily_chick', n: 4, every: 10, near: 'boss', life: 25 } },
   penitent_colossus: { hp: 1.3, dmg: 1.0, adds: null },   // (already the hardest by the dodging bot: Life only)
-  the_fallen_star: { hp: 1.1, dmg: 1.8, adds: { id: 'rift_wraith', n: 2, every: 14, near: 'boss', life: 25 } },
+  the_fallen_star: { hp: 1.1, dmg: 1.3, adds: { id: 'rift_wraith', n: 2, every: 14, near: 'boss', life: 25 } },
 };
 
 // Round two (2026-10-19, "every boss should have these things that make sense"): each boss's signature threat, a

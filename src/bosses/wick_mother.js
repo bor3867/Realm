@@ -34,7 +34,8 @@ function gutter(g, e, V) { const q = target(g, e); ring(g, e, e.x, e.y - 1, 30, 
 
 export default {
   id: 'wick_mother', art: 'wick_mother', shotSheet: 'last_shots', name: 'The Wick-Mother', biome: 'fen', hp: 60000, def: 10, xp: 2200,
-  dmgScale: 3, r: 1.4, speed: 0.6, keep: 6, faces: false, tempo: 1, finale,
+  // dmgScale was 3: her biggest blow took 40% (after every enemy began to hit 1.5x, 2026-10-22: tools/bench_boss_hits.mjs)
+  dmgScale: 2.5, r: 1.4, speed: 0.6, keep: 6, faces: false, tempo: 1, finale,
   phases: {
     1: { move: 'pace', patterns: [
       { name: 'a flare', windup: 0.6, recover: 0.7, special: 'flare', waves: 3, dmg: 36 },

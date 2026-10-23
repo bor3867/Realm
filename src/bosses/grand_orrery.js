@@ -832,7 +832,7 @@ const finale = {
 
 export default {
   id: 'grand_orrery', name: 'The Grand Orrery', biome: 'dungeon', hp: 520000, def: 30, xp: 17000, r: 2.2, speed: 1.2, keep: 8, faces: false, spawnCentre: true,
-  tempo: 0.68, dmgScale: 1.6, finale, morphSpeed: 0.4, morphGrace: 6.5,
+  tempo: 0.68, dmgScale: 0.95, finale,   // (was 1.6: a normal hit took 38% of a tier-11 player's Life (after every enemy began to hit 1.5x, 2026-10-22: tools/bench_boss_hits.mjs)) morphSpeed: 0.4, morphGrace: 6.5,
   scaleFor: (g, e) => (e.bx.sing ? 1.1 : e.bx.phase >= 3 ? 1.75 : 1),   // swollen in its Collapse; crushed small as a singularity            // in its Collapse the machine swells to nearly twice its size
   finale2,
   // its death: the clip at less than half speed, then it hangs on its last frame, shaking, and bursts in rings of light

@@ -100,7 +100,7 @@ const finale = {
 
 export default {
   id: 'unstruck_god', art: 'unstruck_god', shotSheet: 'ug_shots', name: 'Solkhar, the Sunthief', biome: 'dungeon', hp: 650000, def: 34, xp: 30000,
-  r: 2.2, speed: 1.0, keep: 6, faces: false, spawnCentre: true, tempo: 0.72, dmgScale: 1.25, finale,   // (the last boss: a five-star throne)
+  r: 2.2, speed: 1.0, keep: 6, faces: false, spawnCentre: true, tempo: 0.72, dmgScale: 0.9, finale,   // (dmgScale was 1.25: a normal hit took 33% (after every enemy began to hit 1.5x, 2026-10-22: tools/bench_boss_hits.mjs)) (the last boss: a five-star throne)
   phases: {
     1: { move: 'center', pressure: [{ every: 2.4, special: 'scorn', delay: 2, dmg: 110 }], patterns: [
       { name: 'judgement', windup: 0.8, recover: 0.6, special: 'judgement', dmg: 120 },
