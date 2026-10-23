@@ -130,8 +130,7 @@ const methods = {
       else if (v.k === 'rewind') { const [x0, y0] = this.proj(v.x0, v.y0), [x1, y1] = this.proj(p.x, p.y - 0.5), u = age / v.life; b.save(); b.strokeStyle = `rgba(129,140,248,${1 - u})`; b.lineWidth = 1.5; b.setLineDash([1, 3]); b.beginPath(); b.moveTo(x0, y0); b.lineTo(x0 + (x1 - x0) * u, y0 + (y1 - y0) * u); b.stroke(); b.restore(); }
       else if (v.k === 'poly') { b.save(); b.fillStyle = `rgba(147,197,253,${0.35 * k})`; b.beginPath(); v.pts.forEach((q, i) => { const [x, y] = this.proj(q.x, q.y); i ? b.lineTo(x, y) : b.moveTo(x, y); }); b.closePath(); b.fill(); b.restore(); }
     }
-    // Judgment's flash, Null Walker's stutter
-    if (S.flash && t - S.flash < 0.16) { b.save(); b.fillStyle = `rgba(255,250,230,${0.55 * (1 - (t - S.flash) / 0.16)})`; b.fillRect(0, 0, this.buf.width, this.buf.height); b.restore(); }
+    // Null Walker's stutter (Judgment no longer flashes the screen: the user's call, 2026-10-22)
     if (S.stutter && t - S.stutter < 0.26) { b.save(); b.fillStyle = 'rgba(20,0,40,.6)'; b.fillRect(0, 0, this.buf.width, this.buf.height); b.fillStyle = 'rgba(245,232,255,.12)'; for (let y = 0; y < this.buf.height; y += 4) b.fillRect(0, y, this.buf.width, 1); b.restore(); }
     // on the player: Hosanna's halo, the Aureole's gathering halo, Empyrean's wings, the hydra's heads, the counters
     const [px, py] = this.proj(p.x, p.y);

@@ -358,7 +358,7 @@ const FIRE = {
     };
     if (!judg) { smite(tx, ty, A.st.dmg); return; }
     this.armSay(tx, ty - 2, 'JUDGMENT', '#fff6d6');
-    S.flash = this.t; this.armVis({ k: 'halo', x: tx, y: ty, life: 0.9 });
+    this.armVis({ k: 'halo', x: tx, y: ty, life: 0.9 });
     let n = 0;
     for (const e of this.projectiles) if (e.from === 'e' && e.life > 0 && Math.hypot(e.x - p.x, e.y - p.y) < 13) { e.life = 0; n++; }
     if (n) this.armLater(0.2, () => this.armSay(p.x, p.y - 1.5, `LET THERE BE LIGHT · ${n} SHOTS UNMADE`, '#fff1b8'));
