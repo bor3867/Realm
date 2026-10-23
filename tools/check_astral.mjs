@@ -77,7 +77,7 @@ for (let s = 1; s <= seeds; s++) {
     const keep = g.enemies;
     const one = (id) => { const e = g.addEnemy(id, p.x + 4, p.y); e.seen = true; return e; };
     const sen = one('astrolabe_sentinel'); sen.abilCd = 0; g.asEliteEffect(sen);
-    if (!(sen.wardT > g.t) || g.damageEnemy(sen, 500, sen.x, sen.y, true) !== 0) problems.push('the Alignment ward did not block');
+    if (g.damageEnemy(sen, 500, sen.x, sen.y, true) === 0) problems.push('the Alignment ward blocked a blow (monsters never block: every blow lands)');
     const hound = one('comet_hound'); hound.abil = { t: 0 }; g.asEliteEffect(hound); g.active = [hound];
     for (let k = 0; k < 40; k++) { g.updateEliteAbility(hound, 1 / 60, 4); g.asGuardians(1 / 60); }
     if (!(m.asFire || []).length) problems.push('the comet dash left no trail');
