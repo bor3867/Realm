@@ -1127,11 +1127,13 @@ export function rollLoot(table, luck = 1, rank = 'mob') {
     if (e.id) out.push(maybeEnchant(e.id));
     else if (e.stat) out.push(`stat_${R.pick(STATS)}`);
     else {
-      const t = R.int(e.tiers[0], e.tiers[1]);
-      if (e.slot === 'ring') out.push(maybeEnchant(`ring_${R.pick(STATS)}_t${gated('ring', ladderTier('ring', t), rank)}`));   // (tables were written for the old ladders)
+      // e.type / e.ring: that kind exactly (an overworld boss lists every class's); e.ladder: its tiers are today's,
+      // not the old ladders the older tables were written for
+      const t = R.int(e.tiers[0], e.tiers[1]), L = (s) => (e.ladder ? t : ladderTier(s, t));
+      if (e.slot === 'ring') out.push(maybeEnchant(`ring_${e.ring || R.pick(STATS)}_t${gated('ring', L('ring'), rank)}`));
       else {
-        const type = R.pick(SLOT_TYPES[e.slot]);
-        out.push(maybeEnchant(`${type}_t${gated(e.slot, ladderTier(e.slot, t), rank)}`));
+        const type = e.type || R.pick(SLOT_TYPES[e.slot]);
+        out.push(maybeEnchant(`${type}_t${gated(e.slot, L(e.slot), rank)}`));
       }
     }
   }
