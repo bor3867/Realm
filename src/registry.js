@@ -242,18 +242,37 @@ export function buildRegistry(atlases, hover, img = () => null) {
   return R;
 }
 
+// a file that fails is tried again (4 times in all, waiting a little longer each time, past any cache): while GitHub
+// Pages republishes the site after a push, a file can be missing for a few seconds, and one missing sheet used to stop
+// the whole game loading (2026-10-22)
+const wait = (ms) => new Promise((ok) => setTimeout(ok, ms));
+export async function fetchJSON(url, tries = 4) {
+  for (let k = 0; ; k++) {
+    try { const r = await fetch(k ? url + (url.includes('?') ? '&' : '?') + 'r=' + Date.now() : url); if (!r.ok) throw new Error('missing ' + url); return await r.json(); }
+    catch (err) { if (k >= tries - 1) throw err; await wait(700 * (k + 1)); }
+  }
+}
+export function imageLoaded(im, src, tries = 4) {
+  return new Promise((ok, bad) => {
+    let k = 0;
+    if (im.complete && im.naturalWidth) { ok(); return; }
+    im.onload = ok;
+    im.onerror = () => { if (++k >= tries) bad(new Error('missing ' + src)); else setTimeout(() => { im.src = src + (src.includes('?') ? '&' : '?') + 'r=' + Date.now(); }, 700 * k); };
+  });
+}
+
 // the browser loader: fetch every atlas, decode each sheet once, find boss feet
 export async function loadRegistry() {
-  const idx = await (await fetch(BASE + 'index.json')).json();
-  const atlases = await Promise.all(idx.atlases.map(async (a) => ({ pack: a.split('/')[0], json: await (await fetch(BASE + a)).json() })));
-  const hover = await (await fetch(BASE + idx.hover)).json();
+  const idx = await fetchJSON(BASE + 'index.json');
+  const atlases = await Promise.all(idx.atlases.map(async (a) => ({ pack: a.split('/')[0], json: await fetchJSON(BASE + a) })));
+  const hover = await fetchJSON(BASE + idx.hover);
   const imgs = new Map();
   const img = (path) => {
     if (!imgs.has(path)) { const im = new Image(); im.src = BASE + path; imgs.set(path, im); }
     return imgs.get(path);
   };
   const R = buildRegistry(atlases, hover, img);
-  await Promise.all([...imgs.values()].map((im) => new Promise((ok, bad) => { if (im.complete && im.naturalWidth) ok(); else { im.onload = ok; im.onerror = () => bad(new Error('missing ' + im.src)); } })));
+  await Promise.all([...imgs.entries()].map(([path, im]) => imageLoaded(im, BASE + path)));
   for (const d of R.defs.values()) if (d.needsFoot) d.foot = footFromPixels(d);
   R.images = imgs;
   return R;

@@ -1,5 +1,5 @@
 // Loads every PNG sheet + its JSON frame guide produced by tools/*.py, then the Realm Update sprite registry.
-import { loadRegistry } from './registry.js';
+import { loadRegistry, fetchJSON, imageLoaded } from './registry.js';
 const SHEETS = {
   brawler: 'art/sprites/player/brawler/forgefist_sheet',
   forge_knight: 'art/sprites/player/forge_knight/anvilheart_sheet',
@@ -21,16 +21,8 @@ const SHEETS = {
 };
 const IMAGES = ['tiles', 'objects', 'items', 'projectiles', 'decor', 'landmarks', 'fx'];
 
-const loadImg = (src) => new Promise((ok, bad) => {
-  const im = new Image();
-  im.onload = () => ok(im);
-  im.onerror = () => bad(new Error('missing ' + src));
-  im.src = src;
-});
-const loadJSON = (src) => fetch(src).then((r) => {
-  if (!r.ok) throw new Error('missing ' + src);
-  return r.json();
-});
+const loadImg = (src) => { const im = new Image(), done = imageLoaded(im, src).then(() => im); im.src = src; return done; };   // (tried again if it fails: src/registry.js)
+const loadJSON = (src) => fetchJSON(src);
 
 export async function loadAssets() {
   const A = { sheets: {}, img: {} };
