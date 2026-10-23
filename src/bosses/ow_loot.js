@@ -1,7 +1,7 @@
 // The overworld bosses' loot (the user's call, 2026-10-22): RotMG's way, every class's tiered gear in the boss's own
 // band, each piece on its own small chance, so whatever you play there is a fair chance at something of yours; the
 // boss's own relics (whatever its table held: its uniques and the class set pieces it guards) each on a small chance,
-// about one relic in four kills between them; and its potions. Bands by the boss's land, in today's tiers (ladder).
+// about one relic in twelve kills between them; and its potions. Bands by the boss's land, in today's tiers (ladder).
 import { REALM_BOSSES } from '../data/enemies.js';
 import { WEAPON_TYPES, ARMOR_TYPES, ABILITY_TYPES } from '../data/items.js';
 import { STATS } from '../data/classes.js';
@@ -15,11 +15,11 @@ const BAND = {
   godfall: [[10, 12], [4, 5], [3, 4]],
 };
 const LAND = { brine_cathedral: 'shore', abyssal_kraken: 'shore', wick_mother: 'fen', thornheart_treant: 'thornwood', orrery_of_winter: 'runeholt', emily_the_yapper: 'runeholt', penitent_colossus: 'godfall', the_fallen_star: 'godfall' };
-const RELICS_PER_KILL = 0.25;                              // (between all of a boss's relics, before its loot luck)
+const RELICS_PER_KILL = 0.08;                              // (between all of a boss's relics, before its loot luck: about one kill in twelve)
 
 export function overworldLoot(old, land, luck = 1) {
   const [wa, ab, rg] = BAND[land], relics = [...new Set(old.filter((l) => l.id && !/^(pot_|stat_)/.test(l.id)).map((l) => l.id))];
-  const each = Math.max(0.004, RELICS_PER_KILL / Math.max(1, relics.length) / luck);
+  const each = Math.max(0.0005, RELICS_PER_KILL / Math.max(1, relics.length) / luck);
   return [
     ...relics.map((id) => ({ id, p: +each.toFixed(4) })),          // (first: a bag holds eight, and a relic is the prize)
     ...WEAPON_TYPES.map((type) => ({ type, slot: 'weapon', tiers: wa, p: 0.12, ladder: true })),
