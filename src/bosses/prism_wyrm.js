@@ -138,7 +138,7 @@ export default {
     lensStep(g, e, dt);
     if (e.pwSunUntil > g.t && e.pwSunTgt) { const q = e.pwSunTgt, k = Math.min(1, dt / 1.4); e.pwSunX += (q.x - e.pwSunX) * k * 2; e.pwSunY += (q.y - e.pwSunY) * k * 2; }   // a step behind you
   },
-  immune(g, e) { return !(e.pwBareUntil > g.t); },
+  immune(g, e) { return pedsOf(g, e).length > 0 && !(e.pwBareUntil > g.t); },   // (with no lens pedestals round her, spawned outside her lighthouse, she has no glass to hide in: 2026-10-24)
   // in your own browser: the sunbeam burns where it lingers on you
   local(g, e, dt) { const p = g.player; if (p.dead || !(e.pwSunUntil > g.t)) return; if (Math.hypot(p.x - e.pwSunX, p.y - e.pwSunY) < 1.3 && (e.pwSunHitT = (e.pwSunHitT || 0) - dt) <= 0) { e.pwSunHitT = 0.35; g.hurtPlayer(g.bxDmg(e, 70), `${e.D.name}'s great lens`); } },
   onDeath(g, e) { for (const im of imagesOf(g)) { im.noLoot = true; im.dead = true; im.deadT = 0; } g.banner('THE LIGHT GOES OUT OF THE GLASS. THE LIGHTHOUSE IS ONLY A LIGHTHOUSE.', 3400); },

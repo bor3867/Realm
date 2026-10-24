@@ -54,18 +54,23 @@ export default {
   },
   specials: { toll, tollRing, claws, clawSnap, bubbles, tidecall, flood, floodRing, riteToll },
   onWake(g) { g.banner('THE BRINE CATHEDRAL · strike its doors, not its shell', 3000); },
-  onPhase(g, e, ph) { if (ph === 2) g.banner('THE DOORS CLOSE · it turns its back on you', 2600); if (ph === 3) g.banner('THE CATHEDRAL FLOODS', 2400); },
-  update(g, e, dt) {                                       // it turns, slowly: toward the nearest of you (I), away from them (II, III)
-    const q = target(g, e), want = angleTo(e.x, e.y, q.x, q.y) + (e.bx.phase >= 2 ? Math.PI : 0), f = e.cbFace ?? want, d = Math.atan2(Math.sin(want - f), Math.cos(want - f));
+  onPhase(g, e, ph) { if (ph === 2) g.banner('THE DOORS CLOSE · it turns its back on you, then turns again', 2600); if (ph === 3) g.banner('THE CATHEDRAL FLOODS', 2400); },
+  // it turns, slowly: toward the nearest of you (I); from II, its back for 3s, then its doors for 4s, over and over
+  // (it used to keep its back to you from II on, so alone you had to outrun its turning for every blow: it seemed
+  // immune for good. 2026-10-24)
+  update(g, e, dt) {
+    e.cbT = ((e.cbT || 0) + dt) % 7;
+    const away = e.bx.phase >= 2 && e.cbT < 3;
+    const q = target(g, e), want = angleTo(e.x, e.y, q.x, q.y) + (away ? Math.PI : 0), f = e.cbFace ?? want, d = Math.atan2(Math.sin(want - f), Math.cos(want - f));
     e.cbFace = f + Math.max(-0.7 * dt, Math.min(0.7 * dt, d));
   },
   // only the doors: a blow lands if whoever struck stands in front of it (on the server, g.player is the striker)
-  immune(g, e) { if (e.cbBuried) return true; const p = g.player, a = angleTo(e.x, e.y, p.x, p.y), d = Math.atan2(Math.sin(a - (e.cbFace || 0)), Math.cos(a - (e.cbFace || 0))); return Math.abs(d) > 1.05; },
+  immune(g, e) { if (e.cbBuried) return true; const p = g.player, a = angleTo(e.x, e.y, p.x, p.y), d = Math.atan2(Math.sin(a - (e.cbFace || 0)), Math.cos(a - (e.cbFace || 0))); return Math.abs(d) > 1.22; },   // (its doors: 70 degrees either side of its face)
   immuneText: 'SHELL',
   lights(g, e) { return [{ x: e.x, y: e.y, h: 1.8, r: 80, col: '#7ad0ff' }]; },
   drawGround(r, g, e) {                                    // where its doors face: a pale wedge on the sand
     if (e.cbFace === undefined || e.bx.state === 'sleep') return;
-    const b = r.b, pts = [r.proj(e.x, e.y)]; for (let k = 0; k <= 8; k++) { const a = e.cbFace - 1.05 + (2.1 * k) / 8; pts.push(r.proj(e.x + Math.cos(a) * 4, e.y + Math.sin(a) * 4)); }
+    const b = r.b, pts = [r.proj(e.x, e.y)]; for (let k = 0; k <= 8; k++) { const a = e.cbFace - 1.22 + (2.44 * k) / 8; pts.push(r.proj(e.x + Math.cos(a) * 4, e.y + Math.sin(a) * 4)); }
     b.globalAlpha = 0.22; b.fillStyle = '#f2d070'; b.beginPath(); pts.forEach(([x, y], i) => (i ? b.lineTo(x, y) : b.moveTo(x, y))); b.closePath(); b.fill(); b.globalAlpha = 1;
   },
   get loot() { return REALM_BOSSES.brine_cathedral.loot; },

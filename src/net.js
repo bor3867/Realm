@@ -307,7 +307,11 @@ const methods = {
   // what the shared monsters did this moment: their shots (dodged and taken here), ground zones, effects, words
   netWorldEvents(ev) {
     if (!this.map.netWorld) return;
+    // while this tab is hidden the game stands still but the server's messages keep coming: its shots and ground
+    // effects would pile up, frozen, and all go off when you came back. They are stale by then: let them go.
+    const away = typeof document !== 'undefined' && document.hidden;
     for (const x of ev) {
+      if (away && (x.k === 'shot' || x.k === 'fx' || x.k === 'vx' || x.k === 'su' || x.k === 'sg')) continue;
       if (x.k === 'shot') {
         const b = x.b; b.hit = b.pierce ? new Set() : null; b.netRemote = true; this.projectiles.push(b);
         { const h = b.h ?? 0.5, a = this.camAngle || 0; if (a) { b.x -= h * Math.sin(a); b.y -= h * (Math.cos(a) - 1); if (b.lob) { b.lob.x0 -= h * Math.sin(a); b.lob.y0 -= h * (Math.cos(a) - 1); } } }   // (the server's camera never turns: see liftShift)
