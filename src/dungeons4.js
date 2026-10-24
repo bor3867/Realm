@@ -150,10 +150,16 @@ export const D4 = {
     this.sfx('boss'); this.vx({ k: 'shake', amt: 5 });
     o.sprite = 'dream_sigil_live';
   },
-  // the bridges near a live trial's room are locked away (from the sigils: the same in every copy of the dungeon)
+  // the bridges near a live trial's room are locked away; near a spent one's they come back for good, and steady (no more
+  // fading there: the nightmare is over). From the sigils: the same in every copy of the dungeon
   trialLock(m) {
-    const pad = 4, live = m.objects.filter((q) => q.interact === 'sigil' && q.trialOn).map((q) => m.rooms[q.room]).filter(Boolean);
-    for (const sp of m.spans) sp.locked = live.some((rm) => sp.tiles.some((i) => { const x = i % m.w, y = Math.floor(i / m.w); return x > rm.x - pad && x < rm.x + rm.w + pad && y > rm.y - pad && y < rm.y + rm.h + pad; }));
+    const pad = 4, rooms = (f) => m.objects.filter((q) => q.interact === 'sigil' && f(q)).map((q) => m.rooms[q.room]).filter(Boolean);
+    const live = rooms((q) => q.trialOn), spent = rooms((q) => q.done);
+    const by = (sp, rm) => sp.tiles.some((i) => { const x = i % m.w, y = Math.floor(i / m.w); return x > rm.x - pad && x < rm.x + rm.w + pad && y > rm.y - pad && y < rm.y + rm.h + pad; });
+    for (const sp of m.spans) {
+      sp.locked = live.some((rm) => by(sp, rm));
+      if (!sp.locked && sp.fade && spent.some((rm) => by(sp, rm))) { sp.fade = false; sp.on = false; sp.warn = false; }   // (sp.on false: laid again, steady, on the next step)
+    }
   },
   updateTrial(dt) {
     const m = this.map, S = m.d4, T = S.trial;

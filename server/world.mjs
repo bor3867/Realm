@@ -208,7 +208,8 @@ export function makeWorld(seed, send, where = 'realm') {
       for (const b of g.bubbles || []) if (!seenBub.has(b) && b.e && b.e.nid) out.push({ k: 'say', id: b.e.nid, text: b.text, col: b.col });
       if (dung && sendNow && Math.floor(g.t * 10) % 3 === 0) {          // a dungeon's changes, about three times a second
         const T = g.map.tiles, nt = [], no = [];
-        for (let i = 0; i < T.length; i++) if (T[i] !== baseT[i] && (!dTiles.has(i) || dTiles.get(i)[1] !== T[i])) { const a = [i, T[i], g.map.solid ? g.map.solid[i] : 0]; dTiles.set(i, a); nt.push(a); }
+        for (let i = 0; i < T.length; i++) if (dTiles.has(i) ? dTiles.get(i)[1] !== T[i] : T[i] !== baseT[i]) {   // (a tile back as it began goes too: a bridge back after a nightmare trial used to stay gone for you. 2026-10-24)
+          const a = [i, T[i], g.map.solid ? g.map.solid[i] : 0]; dTiles.set(i, a); nt.push(a); }
         g.map.objects.forEach((o, i) => { if (i >= sentO.length) return; const j = JSON.stringify(OBJ(o)); if (j !== sentO[i]) { sentO[i] = j; const a = [i, objKey(o), OBJ(o)]; dObjs.set(i, a); no.push(a); } });
         if (nt.length || no.length) for (const q of P.values()) send(q.netId, { t: 'dlog', tiles: nt, objs: no });
       }
