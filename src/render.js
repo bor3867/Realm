@@ -27,6 +27,12 @@ import { SHOT_BOXES } from './data/shot_boxes.js';
 const TS = 16;
 // the fluids that drift (Renderer.drift): the old tiles by name, and the skins
 const FLUID_TILE = new Set(['water', 'deep', 'shallows', 'bog', 'cryptwater', 'lava', 'emberlava', 'honey']);
+// starry backgrounds (still tiles, with smooth stars over them: Renderer.voidStars); what sways tile by tile (grass);
+// everything else that animates goes all together (each tile on its own beat flickered: 2026-10-24)
+const STILL_TILE = new Set(['starvoid']), SWAY_TILE = new Set(['grass', 'hedge', 'steppe', 'fen']);
+const STILL_SKIN = new Set(SKINS.map((s, k) => (s && /nexus_chasm$/.test(s[0]) ? k : -1)).filter((k) => k > 0));
+const SWAY_SKIN = new Set(SKINS.map((s, k) => (s && /tall_grass/.test(s[0]) ? k : -1)).filter((k) => k > 0));
+const STARRY = new Set([TID.asvoid, TID.nxchasm, TID.starvoid]);
 const FLUID_SKIN = new Set(SKINS.map((s, k) => (s && /shore_deep_water|frigid_water|mirerot_bog|blood_pool|nexus_water$/.test(s[0]) ? k : -1)).filter((k) => k > 0));
 const LOOK = 0.15;                                       // how far down the screen look-ahead puts you (about 65% down, as RotMG)
 // the Grand Orrery's pink bolts are drawn as lasers; its yellow shards and rings hold still (their flicker was too much)
@@ -195,7 +201,7 @@ export class Renderer {
     const G = this.ground.width;
     b.drawImage(this.ground, -G / 2 - (this.px * TS - Math.round(this.px * TS)), -G / 2 - (this.py * TS - Math.round(this.py * TS)));
     b.restore();
-    if (g.map.hasVoid) this.voidStars(g, g.map);             // the Observatory's void: stars that twinkle and drift, smoothly
+    if (g.map.hasVoid || g.map.kind === 'nexus' || g.map.kind === 'dungeon') this.voidStars(g, g.map);   // a starry background (the Observatory's void, the Nexus's chasm, a dungeon's starry void): stars that twinkle and drift, smoothly
     this.drawWallTops();                                    // every seen wall's top, one tile up the screen (src/walls.js)
     if (g.map.rfBoss) this.rfBossLayer(g, g.map);             // a Realmforge boss's arena, drawn by its own engine (src/rf/boss.js)
     // sprites, sorted by screen y
@@ -401,8 +407,10 @@ export class Renderer {
       // (a still skin, the Observatory's void: one frame a tile, its twinkle drawn over it smoothly: voidStars)
       // (a fluid, RotMG's way: one frame, the whole sheet of it drifting slowly together: drift)
       const fl = FLUID_SKIN.has(k);
-      const f = A.fr[A.fr.length < 2 || fl ? 0 : O && O.still ? h % A.fr.length : O && O.flow ? (fast >> 1) % A.fr.length : (anim + ((tx * 7 + ty * 3) >> 2)) % A.fr.length];
-      if ((A.fr.length > 1 || fl) && !(O && O.still)) moving = O && O.flow ? 2 : 1;
+      // (a still skin, or a starry one: one frame a tile; grass sways tile by tile; anything else animates all together)
+      const st = (O && O.still) || STILL_SKIN.has(k);
+      const f = A.fr[A.fr.length < 2 || fl ? 0 : st ? h % A.fr.length : O && O.flow ? (fast >> 1) % A.fr.length : (anim + (SWAY_SKIN.has(k) ? (tx * 7 + ty * 3) >> 2 : 0)) % A.fr.length];
+      if ((A.fr.length > 1 || fl) && !st) moving = O && O.flow ? 2 : 1;
       if (A.img && fl) this.drift(gc, A.img, f.x, f.y, f.w, dx, dy, fast >> 3); else if (A.img) gc.drawImage(A.img, f.x, f.y, f.w, f.h, dx, dy, TS, TS);
       if (O && O.foam && A.foam !== null) {                  // foam where the water meets anything that isn't water
         const F = A.foam || (A.foam = this.foamArt(O.foam));
@@ -414,9 +422,10 @@ export class Renderer {
       }
     } else if (T) {
       const v = T.variants > 1 ? ((h >>> 4) ^ (h >>> 13)) % T.variants : 0;            // RotMG-style: variants scattered at random
-      if (T.frames > 1) moving = 1;
-      if (FLUID_TILE.has(nm)) { const i = T.i + v * T.frames; this.drift(gc, tiles, (i % cols) * TS, Math.floor(i / cols) * TS, TS, dx, dy, fast >> 2); }   // a fluid drifts, all of it together
-      else cell(T.i + v * T.frames + (T.frames > 1 ? (anim + ((tx * 7 + ty * 3) >> 2)) % T.frames : 0), dx, dy);
+      if (T.frames > 1 && !STILL_TILE.has(nm)) moving = 1;
+      if (STILL_TILE.has(nm)) cell(T.i + v * T.frames + (h % T.frames), dx, dy);   // (a starry void: still; its stars drawn over it, voidStars)
+      else if (FLUID_TILE.has(nm)) { const i = T.i + v * T.frames; this.drift(gc, tiles, (i % cols) * TS, Math.floor(i / cols) * TS, TS, dx, dy, fast >> 2); }   // a fluid drifts, all of it together
+      else cell(T.i + v * T.frames + (T.frames > 1 ? (anim + (SWAY_TILE.has(nm) ? (tx * 7 + ty * 3) >> 2 : 0)) % T.frames : 0), dx, dy);   // (all together, but grass, which sways tile by tile)
     }
     const pm = prio[nm];
     const water = nm === 'water' || nm === 'deep';
@@ -1688,9 +1697,10 @@ export class Renderer {
   // the void between the platforms: over its still tiles, a few stars each that drift slowly and breathe in and out
   // (the tiles used to flip their frames a few times a second, out of step: clunky). Drawn every frame, so it is smooth
   voidStars(g, m) {
-    const b = this.b, R0 = Math.ceil(Math.hypot(this.buf.width, this.buf.height) / TS / 2) + 1, x0 = Math.floor(this.px), y0 = Math.floor(this.py), t = g.t, V = TID.asvoid;
+    const b = this.b, R0 = Math.ceil(Math.hypot(this.buf.width, this.buf.height) / TS / 2) + 1, x0 = Math.floor(this.px), y0 = Math.floor(this.py), t = g.t, sk = m.skin;
     for (let ty = y0 - R0; ty <= y0 + R0; ty++) for (let tx = x0 - R0; tx <= x0 + R0; tx++) {
-      if (tx < 0 || ty < 0 || tx >= m.w || ty >= m.h || m.tiles[ty * m.w + tx] !== V || (m.seen && !m.seen[ty * m.w + tx])) continue;
+      if (tx < 0 || ty < 0 || tx >= m.w || ty >= m.h || !STARRY.has(m.tiles[ty * m.w + tx]) || (m.seen && !m.seen[ty * m.w + tx])) continue;
+      if (sk && sk[ty * m.w + tx] && SKIN_OPT[sk[ty * m.w + tx]] && SKIN_OPT[sk[ty * m.w + tx]].flow) continue;   // (not over the Nexus's falls)
       for (let k = 0; k < 2; k++) {
         const h = (((tx * 73856093) ^ (ty * 19349663) ^ (k * 83492791)) >>> 0), u = (h % 1000) / 1000, v = ((h >>> 10) % 1000) / 1000, w = ((h >>> 20) % 1000) / 1000;
         const tw = 0.5 + 0.5 * Math.sin(t * (0.8 + w * 1.6) + u * 40);
@@ -2590,14 +2600,23 @@ export class Renderer {
     // tinted by its land, an event boss the UFO; one beyond the view sits on the minimap's edge, pointing the way.
     // Online the server says where the far ones are (src/net.js netBossPins), since it only sends the monsters near you
     const pins = [], seen = new Set();
-    for (const e of g.enemies) if (!e.dead && !e.noLoot && (e.rb || (e.D && e.D.bx) || e.rfBossP)) { pins.push({ x: e.x, y: e.y, id: e.id, biome: e.D && e.D.biome }); if (e.nid !== undefined) seen.add(e.nid); }
-    if (m.netWorld && g.net && g.net.bossPins && g.net.bossPinsMap === m) for (const q of g.net.bossPins) if (!seen.has(q.nid)) pins.push(q);
+    for (const e of g.enemies) if (!e.dead && !e.noLoot && (e.rb || (e.D && e.D.bx) || e.rfBossP)) { pins.push({ x: e.x, y: e.y, id: e.id, biome: e.D && e.D.biome, key: e.nid ?? e }); if (e.nid !== undefined) seen.add(e.nid); }
+    if (m.netWorld && g.net && g.net.bossPins && g.net.bossPinsMap === m) for (const q of g.net.bossPins) if (!seen.has(q.nid)) pins.push({ ...q, key: q.nid });
+    // each boss marked loudly: a ring that pulses round it, and when it first appears, a ping spreading out (3 s)
+    const born = (this.pinBorn = this.pinBorn || new Map()), now2 = performance.now() / 1000;
+    const ring = (x, y, r, col, a) => { const px = Math.round((x - x0) * k), py = Math.round((y - y0) * k); mc.globalAlpha = a; mc.strokeStyle = col; mc.lineWidth = 2; mc.beginPath(); mc.arc(px, py, r, 0, Math.PI * 2); mc.stroke(); mc.globalAlpha = 1; };
     for (const q of pins) {
+      if (!born.has(q.key)) born.set(q.key, now2);
+      const age = now2 - born.get(q.key), inView = q.x >= x0 && q.y >= y0 && q.x <= x0 + V && q.y <= y0 + V;
+      const cx0 = x0 + V / 2, cy0 = y0 + V / 2, s0 = (V / 2 - 4) / Math.max(Math.abs(q.x - cx0), Math.abs(q.y - cy0), 1e-6), at = inView ? [q.x, q.y] : [cx0 + (q.x - cx0) * s0, cy0 + (q.y - cy0) * s0];
+      ring(at[0], at[1], 9 + Math.sin(now2 * 5) * 2, EVENT_BOSS.has(q.id) ? '#3ac8a0' : '#ff4a5a', 0.75);
+      if (age < 3) for (let j = 0; j < 2; j++) { const u = ((age + j * 0.5) % 1); ring(at[0], at[1], 10 + u * 34, '#ffffff', 0.8 * (1 - u)); }
       const ev = EVENT_BOSS.has(q.id), name = ev ? 'ufo' : 'boss', c1 = ev ? (blink ? '#3ac8a0' : '#2a8a70') : blink ? '#ffffff' : (BOSS_TINT[q.biome] || BOSS_TINT.dungeon), c2 = ev ? '#b8ffe8' : '#05040a';
       if (q.x >= x0 && q.y >= y0 && q.x <= x0 + V && q.y <= y0 + V) { mark(q.x, q.y, name, c1, c2, true, 2); continue; }
       const cx = x0 + V / 2, cy = y0 + V / 2, dx = q.x - cx, dy = q.y - cy, s = (V / 2 - 4) / Math.max(Math.abs(dx), Math.abs(dy));
       mark(cx + dx * s, cy + dy * s, name, c1, c2, true, 2);
     }
+    if (born.size > 64) for (const kk of born.keys()) { if (!pins.some((q) => q.key === kk)) born.delete(kk); }
     // the other players here: blue dots (click one to teleport to them: src/main.js)
     for (const o of g.netHere()) {
       if (o.dead) continue;
