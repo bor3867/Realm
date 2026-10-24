@@ -53,6 +53,10 @@ const methods = {
       if (this.map && this.map === this.realmMap && this.map.seed !== m.seed && this.mode === 'play' && !this.player.dead) {   // out in a realm of your own: over to the shared one
         this.realmMap = null; this.enter('realm'); this.banner('You join the shared realm.', 2600);
       } else if (this.map && (this.map === this.realmMap || this.map.kind === 'nexus')) this.netWorldCheck();
+      else if (this.map && this.map.kind === 'dungeon' && this.map.netIid && this.map.netWorld && this.mode === 'play') {   // back after a drop, in a shared dungeon: its monsters come again, fresh
+        const M = this.map; N.byId.clear(); this.enemies = M.enemies = [];
+        N.ws.send(JSON.stringify({ t: 'rejoin', iid: M.netIid, seed: M.netSeed, to: M.netTo }));   // (made again if the server lost it)
+      }
     } else if (m.t === 'online') N.online = m.n;
     else if (m.t === 'gift') {                            // an admin's gift: your own chests and chickens (shared chickens in the realm come as monsters)
       if (m.what === 'chests') this.spawnAdminChests(m.x, m.y, m.n);

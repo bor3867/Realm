@@ -323,7 +323,7 @@ export class Game {
     if (this.map.rfArena) { this.rfArenaPopulate(this.map); if (opt && opt.iid) { this.map.netIid = opt.iid; this.netWorldCheck(); } }   // (shared: the server's boss)
     if (DUNGEONS[where]) {
       this.populateDungeon(DUNGEONS[where]);
-      if (opt && opt.iid) { this.map.netIid = opt.iid; this.netWorldCheck(); }   // a shared dungeon (src/net.js)
+      if (opt && opt.iid) { this.map.netIid = opt.iid; this.map.netTo = where; this.map.netSeed = opt.seed; this.netWorldCheck(); }   // a shared dungeon (src/net.js)
       // a way back out, right where you arrive
       this.map.portals.push({ kind: 'realm', x: this.map.spawn.x, y: this.map.spawn.y - 3, label: this.exitLabel(), to: 'realm' });
     }

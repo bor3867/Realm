@@ -52,7 +52,9 @@ if (nexusWorld) nexusWorld.onBag = (x, y, items) => publicBag('nexus', x, y, ite
 // stood empty for two minutes and its portal is gone)
 const { DUNGEONS } = world ? await import('../src/data/enemies.js') : { DUNGEONS: {} };
 const dungeons = new Map();          // 'dg:N' -> { world, to, until }
-let nextIid = 1;
+// (from the clock, not 1: after a restart (every deploy) a new dungeon took the number of one players were still in,
+// so they were sent another layout's monsters: in walls, the boss nowhere in its room. 2026-10-24)
+let nextIid = Date.now() % 1e9;
 const worldOf = (room) => (room === REALM ? world : room === 'nexus' ? nexusWorld : room && dungeons.has(room) ? dungeons.get(room).world : null);
 const roomOk = (room) => typeof room === 'string' && (ROOM.test(room) || dungeons.has(room));
 let nextId = 1;
@@ -81,6 +83,15 @@ function onMessage(c, text) {
     return;
   }
   if (m.t === 'tk' && Array.isArray(m.parts)) { for (const part of m.parts.slice(0, 6)) if (part && typeof part === 'object' && part.t !== 'tk') onMessage(c, JSON.stringify(part)); return; }   // one bundle a tick
+  // back after a drop, in a shared dungeon the server no longer has (it restarted): made again from its seed, for the
+  // group to come back to (its monsters fresh)
+  if (m.t === 'rejoin' && world && typeof m.to === 'string' && DUNGEONS[m.to]) {
+    const iid = Math.floor(num(m.iid, 1, 1e12)), room = 'dg:' + iid, seed = Math.floor(num(m.seed, 1, 0xffffff));
+    if (!iid || !seed || dungeons.has(room) || dungeons.size >= 12) return;
+    try { const dw = makeWorld(seed, (id, obj) => { const t = clients.get(id); if (t) send(t, obj); }, m.to); dw.onBag = (x, y, items) => publicBag(room, x, y, items); dungeons.set(room, { world: dw, to: m.to, until: Date.now() + 60 * 1000 }); }
+    catch (err) { console.error('rejoin', m.to, err); }
+    return;
+  }
   if (m.t === 'st') {                                    // where I am and what I'm doing
     const room = roomOk(m.room) ? m.room : null;
     if (room !== c.room) {
