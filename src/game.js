@@ -3892,7 +3892,7 @@ export class Game {
       case 'help':
         say('Player: /teleport NAME (to someone here)  /dance  · Enter to chat, Esc for settings and your keys.');
         if (!this.adminOk()) break;
-        say('/admin  /backpack  /maxlevel  /level N  /maxstats  /heal  /god  /give ITEM [N]  /give dungeon ID (its whole loot set)  /items TEXT  /spawn ID [N] (any monster, elite or boss)  /boss ID  ' +
+        say('/admin  /ascend (top level, stats maxed; a priest gets the Hosanna set)  /backpack  /maxlevel  /level N  /maxstats  /heal  /god  /give ITEM [N]  /give dungeon ID (its whole loot set)  /items TEXT  /spawn ID [N] (any monster, elite or boss)  /boss ID  ' +
             '/bx BOSS (a three-phase boss beside you)  /kraken  /treant  /melon  /event BIOME  /adminchest [N] (best loot)  /armory [TIER] (the Mad God Armory)  /keys [dungeon N] (dungeon keys)  /pet [kind rarity max]  /star (a falling star in Godfall)  /seals (open a dungeon boss gate)  /progress BIOME N  /gold N  /essence N  /bosses  /tp LAND|nexus|realm|DUNGEON (lands: shore fen runeholt godfall dunes thornwood steppe lowlands)  /killall  /clearbags  /fame N  /portal DUNGEON  (all ids: ADMIN_REFERENCE.md; final boss: /portal throne)');
         break;
       case 'maxlevel': {
@@ -3904,6 +3904,23 @@ export class Game {
         const C = CLASSES[p.cls], to = Math.min(MAX_LEVEL, n(args[0], p.level + 1));
         while (p.level < to) { p.level++; for (const st of STATS) p.base[st] = Math.min(C.max[st], p.base[st] + R.int(...C.grow[st])); }
         p.hp = this.stat('hp'); p.mp = this.stat('mp'); say(`Level ${p.level}.`); break;
+      }
+      case 'ascend': {                                    // /ascend: top level, every stat maxed, and a priest wears the Hosanna set (what it wore goes to the backpack)
+        const C = CLASSES[p.cls];
+        while (p.level < MAX_LEVEL) p.level++;
+        p.xp = 0; Object.assign(p.base, C.max);
+        let worn = '';
+        if (p.cls === 'priest') {
+          for (const id of ARMORY_IDS.filter((q) => ITEMS[q].armSet === 'Hosanna')) {
+            const k = SLOT_ORDER.indexOf(TYPE_SLOT[ITEMS[id].type]), old = p.equip[k];
+            if (k < 0) continue;
+            if (old && old !== id) { const f = p.inv.indexOf(null); if (f >= 0) p.inv[f] = old; else this.addBag(p.x, p.y + 0.4, [old]); }
+            p.equip[k] = id;
+          }
+          worn = ', the Hosanna set on';
+        }
+        p.hp = this.stat('hp'); p.mp = this.stat('mp'); this.events.push({ type: 'ground' });
+        say(`Level ${p.level}, every stat maxed${worn}${p.cls === 'priest' ? '' : ' (the Hosanna set is for a priest)'}.`); break;
       }
       case 'maxstats': Object.assign(p.base, CLASSES[p.cls].max); p.hp = this.stat('hp'); p.mp = this.stat('mp'); say('All stats maxed.'); break;
       case 'heal': p.hp = this.stat('hp'); p.mp = this.stat('mp'); say('Healed.'); break;

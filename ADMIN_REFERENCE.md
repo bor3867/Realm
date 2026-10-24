@@ -15,6 +15,7 @@ Type commands in chat (`/` or Enter). Ids use underscores. Regenerate with `node
 | `/maxlevel` | Level 20 |
 | `/level N` | Level up to N |
 | `/maxstats` | Every stat to your class maximum |
+| `/ascend` | Top level and every stat maxed; a priest also wears the Hosanna set (what it wore goes to the backpack) |
 | `/backpack` | Add the second backpack |
 | `/give ITEM [N]` | Give N of an item (id or name; enchanted ids work, see below) |
 | `/give dungeon ID` | Give a dungeon boss's whole loot set |
