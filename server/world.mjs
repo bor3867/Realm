@@ -91,7 +91,7 @@ export function makeWorld(seed, send, where = 'realm') {
   // (the Observatory's clockwork arms turn in each browser, on the same rhythm: their tiles are never sent, or the
   // server's turning fought each browser's own)
   const ownT = new Set();
-  for (const C of (dung && M0.asClocks) || []) { for (let k = 0; k < 8; k++) for (const i of clockTiles(C, k)) ownT.add(i); for (let x = C.hx - 1; x <= C.hx + 1; x++) for (let y = C.hy - 1; y <= C.hy + 1; y++) ownT.add(y * M0.w + x); }
+  for (const C of (dung && M0.asClocks) || []) { for (let k = 0; k < 64; k++) for (const i of clockTiles(C, k, 64)) ownT.add(i); for (let x = C.hx - 1; x <= C.hx + 1; x++) for (let y = C.hy - 1; y <= C.hy + 1; y++) ownT.add(y * M0.w + x); }
   let lastEmpty = Date.now();
   const anchor = g.player;             // the server's own stand-in (never hunted, never hurt): the players are proxies
   const P = new Map();                 // client id -> proxy (a player-shaped object over the anchor, so any field reads)

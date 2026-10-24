@@ -1697,14 +1697,6 @@ export class Renderer {
       for (const i of C.tiles) { const [x, y] = this.proj((i % m.w) + 0.5, Math.floor(i / m.w) + 0.5); b.fillRect(Math.round(x) - 6, Math.round(y) - 6, 12, 12); }
       b.globalAlpha = 1;
     }
-    for (const C of m.asClocks || []) {                      // and in its last moment, the arm swings round to where it goes: a brass ghost
-      const s = C.next === undefined ? -1 : 1 - (C.next - C.t) / 0.4;
-      if (s <= 0 || s >= 1) continue;
-      const a = (C.k + C.dir * s) * Math.PI / 4, ca = Math.cos(a), sa = Math.sin(a);
-      b.globalAlpha = 0.55; b.fillStyle = '#ffd690';
-      for (const sd of [1, -1]) for (let d = 2; d <= C.len; d += 0.7) for (const w of [-1, 0, 1]) { const [x, y] = this.proj(C.hx + 0.5 + sd * ca * d - sa * w, C.hy + 0.5 + sd * sa * d + ca * w); b.fillRect(Math.round(x) - 5, Math.round(y) - 5, 10, 10); }
-      b.globalAlpha = 1;
-    }
     for (const o of m.objects) {
       if (o.interact !== 'scope' || Math.hypot(o.x - g.player.x, o.y - g.player.y) > 26) continue;
       const a = o.dir * Math.PI / 4;

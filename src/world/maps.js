@@ -832,8 +832,8 @@ export function shotBlocked(m, x, y) {
   return !(t === TID.water || t === TID.deep);
 }
 // a clockwork bridge's two arms at step k (of eight): three-wide lines of grate out from the hub, opposite each other
-export function clockTiles(C, k) {
-  const out = new Set(), a = (k % 8) * Math.PI / 4, ca = Math.cos(a), sa = Math.sin(a);
+export function clockTiles(C, k, n = 8) {
+  const out = new Set(), a = (((k % n) + n) % n) * (Math.PI * 2) / n, ca = Math.cos(a), sa = Math.sin(a);
   for (const s of [1, -1]) for (let d = 2; d <= C.len; d += 0.5) for (let w = -1; w <= 1; w++) {
     const x = Math.round(C.hx + s * ca * d - sa * w), y = Math.round(C.hy + s * sa * d + ca * w);
     out.add(y * C.S + x);
