@@ -205,7 +205,15 @@ export class Game {
   // world offset of something `d` tiles "up the screen" from a point (chest height of an upright sprite)
   up(x, y, d) { return [x - d * Math.sin(this.camAngle), y - d * Math.cos(this.camAngle)]; }
   get camAngle() { return this._cam || 0; }
-  set camAngle(v) { this._cam = v; CAM.a = v; }   // (shared with lift() in src/util.js)
+  set camAngle(v) { const old = this._cam || 0; this._cam = v; CAM.a = v; if (v !== old) this.liftShift(old, v); }   // (shared with lift() in src/util.js)
+  // Shots fly at a height: each one left its shooter at the middle of its body as drawn, raised "up the screen", and
+  // carries that height (b.h). When the camera turns, "up" turns with it, so every shot moves by the change: a ring stays
+  // centred on the boss that fired it, and your own hitbox (lifted the same way) stays where the shots are. (2026-10-24:
+  // turning the camera slid a boss's rings away from it.)
+  liftShift(a0, a1) {
+    const sx = Math.sin(a1) - Math.sin(a0), cy = Math.cos(a1) - Math.cos(a0);
+    for (const b of this.projectiles || []) { const h = b.h ?? 0.5; b.x -= h * sx; b.y -= h * cy; if (b.lob) { b.lob.x0 -= h * sx; b.lob.y0 -= h * cy; } }
+  }
   rotateCam(dir, dt) { this.camTarget = null; this.camAngle = (this.camAngle + dir * 1.9 * dt) % (Math.PI * 2); }
   resetCam() { this.camTarget = Math.round(this.camAngle / (Math.PI * 2)) * Math.PI * 2; }
   snapCam() {                              // nearest 90° step
@@ -1671,6 +1679,7 @@ export class Game {
     const b = { from, x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, life: range / Math.max(0.01, speed),
       dmg, sprite, r: size, pierce, hit: pierce ? new Set() : null, a, by };
     b.k = shotScale(sprite, size, from);                      // big art is drawn (and hits) at the size its attack meant
+    const S = from === 'e' ? this.curShooter : null; b.h = S ? S.hitUp || (S.rb ? 1.4 : 0.5) : 0.5;   // how high it flies (see liftShift)
     this.projectiles.push(b);
     if (from === 'p' && this.net) this.netShot(b);            // others see your shots (src/net.js)
     if (from === 'p' && this.player && !this.netTargets) this.player.shotsFired = (this.player.shotsFired || 0) + 1;   // (for the death screen)

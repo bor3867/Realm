@@ -310,6 +310,7 @@ const methods = {
     for (const x of ev) {
       if (x.k === 'shot') {
         const b = x.b; b.hit = b.pierce ? new Set() : null; b.netRemote = true; this.projectiles.push(b);
+        { const h = b.h ?? 0.5, a = this.camAngle || 0; if (a) { b.x -= h * Math.sin(a); b.y -= h * (Math.cos(a) - 1); if (b.lob) { b.lob.x0 -= h * Math.sin(a); b.lob.y0 -= h * (Math.cos(a) - 1); } } }   // (the server's camera never turns: see liftShift)
         if (b.netHeld) { (this.net.held = this.net.held || new Map()).set(b.sid, b); b.vx = b.vx || 0; b.vy = b.vy || 0; b.life = Math.max(b.life, 30); }   // held by its boss: the server moves it
       }
       else if (x.k === 'su' || x.k === 'sg') {           // a held shot moved, flew free, or ended
