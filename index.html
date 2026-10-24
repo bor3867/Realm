@@ -63,6 +63,10 @@
 </div>
 <div id="tooltip" class="hidden"></div>
 <div id="overlay" class="hidden"></div>
+<script>
+  // online, every reload runs the latest game (sw.js: it asks the server whether each file changed); not on this computer's dev server
+  if ('serviceWorker' in navigator && !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
 <script type="module" src="src/main.js"></script>
 </body>
 </html>
