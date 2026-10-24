@@ -190,14 +190,14 @@ export function nexus() {
   bridge(22, CY + 9, CX - 14, CY + 10, true);                              // the Gardens to the plaza
   bridge(CX + 14, CY + 9, W - 22, CY + 10, true);                          // the plaza to the Emberworks
   bridge(CX - 13, CY - 1, CX - 12, CY + 1); bridge(CX + 12, CY - 1, CX + 13, CY + 1);   // over the channels
-  // ---- the water's way: welling out round the dais, swirling round the pool, drawn off down the channels
+  // ---- the water's way: out from the crystal, every way, and off down the channels (it swirled round the pool, in
+  // too many directions at once: 2026-10-24)
   for (let y = CY - 8; y <= CY + 8; y++) for (let x = CX - 17; x <= CX + 17; x++) {
     if (at(x, y) !== TID.nxwater || skinOf.has(idx(m, x, y))) continue;
-    const dx = x - CX, dy = y - CY, ch = Math.max(Math.abs(dx), Math.abs(dy));
+    const dx = x - CX, dy = y - CY;
     let a;
-    if (ch === 3) a = Math.atan2(dy, dx);                                  // off the dais
-    else if (Math.abs(dy) <= 1 && Math.abs(dx) >= 6) a = dx < 0 ? Math.PI : 0;   // into a channel
-    else a = Math.atan2(dy, dx) + Math.PI / 2 - 0.4;                       // round the pool, drifting outward
+    if (Math.abs(dy) <= 1 && Math.abs(dx) >= 6) a = dx < 0 ? Math.PI : 0;   // down a channel
+    else a = Math.atan2(dy, dx);                                          // out from the crystal
     const d = ((Math.round(a / (Math.PI / 4)) % 8) + 8) % 8;
     skin(x, y, `nexus_flow_${d}_${r() < 0.5 ? 0 : 1}`);
   }

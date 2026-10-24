@@ -25,6 +25,9 @@ import { keyHint } from './settings.js';
 import { SHOT_BOXES } from './data/shot_boxes.js';
 
 const TS = 16;
+// the fluids that drift (Renderer.drift): the old tiles by name, and the skins
+const FLUID_TILE = new Set(['water', 'deep', 'shallows', 'bog', 'cryptwater', 'lava', 'emberlava', 'honey']);
+const FLUID_SKIN = new Set(SKINS.map((s, k) => (s && /shore_deep_water|frigid_water|mirerot_bog|blood_pool|nexus_water$/.test(s[0]) ? k : -1)).filter((k) => k > 0));
 const LOOK = 0.15;                                       // how far down the screen look-ahead puts you (about 65% down, as RotMG)
 // the Grand Orrery's pink bolts are drawn as lasers; its yellow shards and rings hold still (their flicker was too much)
 const LASER = { 'bx_shots/grand_orrery.star_bolt': ['#d02ab8', '#ff8af0'] };
@@ -371,6 +374,13 @@ export class Renderer {
     K.base = base; K.moving = moving; K.anim = anim;
     return this.keepChunk(this.chunks, key, K);
   }
+  // a fluid's tile, its texture shifted by off pixels (down and to the right, slowly), wrapping round: every tile of it
+  // on the same shift, so the whole sheet drifts together, RotMG's way (it used to flip between frames, each tile at
+  // its own moment: busy. 2026-10-24)
+  drift(gc, img, sx, sy, sw, dx, dy, off) {
+    const k = TS / sw, ox = off % sw, oy = (off >> 1) % sw;
+    for (const [px, pw, qx] of [[ox, sw - ox, 0], [0, ox, sw - ox]]) if (pw > 0) for (const [py, ph, qy] of [[oy, sw - oy, 0], [0, oy, sw - oy]]) if (ph > 0) gc.drawImage(img, sx + px, sy + py, pw, ph, dx + qx * k, dy + qy * k, pw * k, ph * k);
+  }
   // one tile of ground, drawn at (dx, dy) of a chunk; 0 if still, 1 if it animates, 2 if it flows (redrawn every step)
   groundTile(gc, m, tx, ty, dx, dy, fast) {
     const anim = fast >> 2;
@@ -389,21 +399,24 @@ export class Renderer {
       const k = sk[ty * m.w + tx], A = SA[k], O = SKIN_OPT[k];
       // a flowing skin (the Nexus's water): every tile on the same frame, stepping fast, so the current runs on unbroken
       // (a still skin, the Observatory's void: one frame a tile, its twinkle drawn over it smoothly: voidStars)
-      const f = A.fr[A.fr.length < 2 ? 0 : O && O.still ? h % A.fr.length : O && O.flow ? fast % A.fr.length : (anim + ((tx * 7 + ty * 3) >> 2)) % A.fr.length];
-      if (A.fr.length > 1 && !(O && O.still)) moving = O && O.flow ? 2 : 1;
-      if (A.img) gc.drawImage(A.img, f.x, f.y, f.w, f.h, dx, dy, TS, TS);
+      // (a fluid, RotMG's way: one frame, the whole sheet of it drifting slowly together: drift)
+      const fl = FLUID_SKIN.has(k);
+      const f = A.fr[A.fr.length < 2 || fl ? 0 : O && O.still ? h % A.fr.length : O && O.flow ? (fast >> 1) % A.fr.length : (anim + ((tx * 7 + ty * 3) >> 2)) % A.fr.length];
+      if ((A.fr.length > 1 || fl) && !(O && O.still)) moving = O && O.flow ? 2 : 1;
+      if (A.img && fl) this.drift(gc, A.img, f.x, f.y, f.w, dx, dy, fast >> 3); else if (A.img) gc.drawImage(A.img, f.x, f.y, f.w, f.h, dx, dy, TS, TS);
       if (O && O.foam && A.foam !== null) {                  // foam where the water meets anything that isn't water
         const F = A.foam || (A.foam = this.foamArt(O.foam));
         if (F) for (let d = 0; d < 4; d++) {
           const x = tx + DIRS[d][0], y = ty + DIRS[d][1];
           if (x < 0 || y < 0 || x >= m.w || y >= m.h || m.tiles[y * m.w + x] === m.tiles[ty * m.w + tx]) continue;
-          const q = F[d][fast % F[d].length]; gc.drawImage(F.img, q.x, q.y, q.w, q.h, dx, dy, TS, TS); moving = 2;
+          const q = F[d][(fast >> 1) % F[d].length]; gc.drawImage(F.img, q.x, q.y, q.w, q.h, dx, dy, TS, TS); moving = 2;
         }
       }
     } else if (T) {
       const v = T.variants > 1 ? ((h >>> 4) ^ (h >>> 13)) % T.variants : 0;            // RotMG-style: variants scattered at random
       if (T.frames > 1) moving = 1;
-      cell(T.i + v * T.frames + (T.frames > 1 ? (anim + ((tx * 7 + ty * 3) >> 2)) % T.frames : 0), dx, dy);
+      if (FLUID_TILE.has(nm)) { const i = T.i + v * T.frames; this.drift(gc, tiles, (i % cols) * TS, Math.floor(i / cols) * TS, TS, dx, dy, fast >> 2); }   // a fluid drifts, all of it together
+      else cell(T.i + v * T.frames + (T.frames > 1 ? (anim + ((tx * 7 + ty * 3) >> 2)) % T.frames : 0), dx, dy);
     }
     const pm = prio[nm];
     const water = nm === 'water' || nm === 'deep';
