@@ -2282,7 +2282,8 @@ export class Game {
     let d = e.netRawHit ? Math.round(dmg) : mitigate(dmg, e.D ? (this.armAP || e.armBreakT > this.t ? 0 : e.D.def) : 0, false);   // (armour-piercing, or armour broken: the Mad God Armory)   // (a player's blow on the server: Defense already taken off)
     if (this.map.ckCandles || (this.map.def && this.map.def.style === 'keep')) d = this.ckDamage(e, d);   // the Keep: thralls burn in candlelight
     if (e.D && e.D.bx && !e.bxKill && e.bx && e.bx.B.hitScale) d = Math.round(d * e.bx.B.hitScale(this, e));   // (a boss that takes more or less, by its state: Emily mid-sentence, or out of breath)
-    if (e.D && e.D.bx && !e.bxKill) d = this.bxClamp(e, d);
+    if (e.D && e.D.bx && !e.bxKill && !e.net) d = this.bxClamp(e, d);   // (a shared boss's phases, finale and death are the server's: your copy only passes your blow on. It used to start
+    // the finale itself, which only the server runs: your copy stayed in it, immune, so no blow reached the server again)
     e.hp -= d; e.hurtT = 0.12;
     if (e.D && e.D.melon) { e.melonHurt = this.t; this.vx({ k: 'regfx', key: 'mx_effects/melon_hit', x, y: y - 0.2, fps: 14 }); }
     if (e.id === 'coin_imp' && R() < 0.35) { const g0 = 8 + Math.floor(R() * 20); this.save.gold = (this.save.gold || 0) + g0; this.float(e.x, e.y - 1.4, `+${g0}g`, '#ffd650'); this.sfx('coin'); }
