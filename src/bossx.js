@@ -23,6 +23,9 @@ export const BXF = {
       anim: def ? new Anim(def, def.phases['1'].idle) : null, hurtT: 0, flashT: 0, phase0: R() * TAU, arena: e.room || null });
     // where shots hit it and come from: the middle of its drawn body, in tiles above its feet
     e.hitUp = def ? Math.max(0.5, (def.foot[1] - def.size[1] / 2) / 8) : 1.4;
+    // a boss that floats over its floor, seen from above (B.grounded: the Grand Orrery): its body is drawn centred on its
+    // spot, so its middle, its planets and its shots don't swing round when the camera turns (they did: 2026-10-24)
+    if (B.grounded) { e.bxLift = e.hitUp; e.hitUp = 0.01; }
     if (S.anim) S.anim.on('ended', (clip) => this.bxClipEnded(e, clip));
     // spawned already awake (an admin's /bx, /spawn): it never passes through bxWake, so set up what waking sets up
     // (the Grand Orrery's planets: without them its Alignment threw every frame and the game froze)

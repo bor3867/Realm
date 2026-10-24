@@ -1389,10 +1389,10 @@ export class Renderer {
     const hy = this.R ? hoverY(this.R, def, g.t, S.phase0, S.phase) : 0;
     if (e.dead) this.b.globalAlpha = Math.max(0, 1 - e.deadT / 1.4);
     if (S.alt && S.alt.def) {                               // another body for a while (the Orrery reborn as a supernova): centred on its middle
-      const A = S.alt, cy = sy + hy - (def.foot[1] - def.size[1] / 2) * 2 * K;
+      const A = S.alt, cy = sy + hy - (e.bxLift ? 0 : (def.foot[1] - def.size[1] / 2) * 2 * K);
       A.anim.update(Math.max(0, Math.min(0.1, g.t - (A.lastT === undefined ? g.t : A.lastT)))); A.lastT = g.t;   // its clip runs with the game's clock
       this.drawDef(A.def, A.anim.frame, sx, Math.round(cy), { center: true, scale: K * (A.scale || 1) });
-    } else this.drawDef(def, fr, sx, sy + hy - (S.leapZ || 0), { flip: !!e.face, scale: K });   // no hit flash on bosses
+    } else this.drawDef(def, fr, sx, sy + hy - (S.leapZ || 0) + (e.bxLift ? Math.round(e.bxLift * TS * K) : 0), { flip: !!e.face, scale: K });   // no hit flash on bosses (a grounded one: centred on its spot)
     this.b.globalAlpha = 1;
     if (S.B.draw) { try { S.B.draw(this, g, e, sx, sy); } catch (err) { if (!e.net) throw err; } }
   }
@@ -2148,7 +2148,7 @@ export class Renderer {
   headPx(g, e) {
     if (e === g.player) return 24;
     if (e.rfH) return e.rfH + 6;                                 // a Realmforge creature or boss (src/rf/draw.js)
-    if (e.bx && e.bx.def) return e.bx.def.foot[1] * 2 + 6;
+    if (e.bx && e.bx.def) return e.bx.def.foot[1] * 2 + 6 - (e.bxLift ? Math.round(e.bxLift * TS) : 0);
     if (e.rb && rbK(e) > 1) return 88;                           // an overworld boss, twice life-size
     if (e.rb && !e.D.reg) return 44;
     if (e.D && e.D.reg) {

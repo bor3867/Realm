@@ -953,6 +953,7 @@ export default {
     }
     if (S.nova2) supernovaDark(r, g, e);                       // the Supernova's dark, over everything
   },
+  grounded: true,                                              // (it floats over its floor: drawn centred on its spot, src/bossx.js)
   loot: [{ id: 'starforged_katana', p: 0.1 }, { id: 'comet_bow', p: 0.1 }, { id: 'nebula_robe', p: 0.1 }, { id: 'astral_signet', p: 0.1 }, { id: 'orrery_orb', p: 0.1 },
     { id: 'event_horizon', p: 0.02 }, { id: 'key_astral', p: 0.06 },
     { slot: 'weapon', tiers: [9, 10], p: 1 }, { slot: 'armor', tiers: [9, 11], p: 1 }, { slot: 'ability', tiers: [4, 5], p: 0.8 }, { slot: 'ring', tiers: [4, 5], p: 0.8 }, { stat: true, p: 1 }, { stat: true, p: 1 }],
