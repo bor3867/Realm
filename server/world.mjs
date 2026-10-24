@@ -166,6 +166,7 @@ export function makeWorld(seed, send, where = 'realm') {
       if (!q || !e || e.dead || e.state === 'dead' || !(d > 0)) return;
       if (Math.hypot(e.x - q.x, e.y - q.y) > 20) return;             // (out of reach: ignored)
       d = Math.min(d, Math.max(5000, e.maxHp * 0.25));             // (no one blow takes more than a quarter, or 5000)
+      d = Math.min(d, Math.max(1, Math.ceil(e.hp)));                // (overkill counts for nothing, so it doesn't use up the allowance below)
       d = allowHit(q, d);                                           // (nor more than a player can deal: server/guard.mjs)
       if (!(d > 0)) return;
       (e.netHitBy || (e.netHitBy = new Set())).add(id);
@@ -210,6 +211,10 @@ export function makeWorld(seed, send, where = 'realm') {
         for (let i = 0; i < T.length; i++) if (T[i] !== baseT[i] && (!dTiles.has(i) || dTiles.get(i)[1] !== T[i])) { const a = [i, T[i], g.map.solid ? g.map.solid[i] : 0]; dTiles.set(i, a); nt.push(a); }
         g.map.objects.forEach((o, i) => { if (i >= sentO.length) return; const j = JSON.stringify(OBJ(o)); if (j !== sentO[i]) { sentO[i] = j; const a = [i, objKey(o), OBJ(o)]; dObjs.set(i, a); no.push(a); } });
         if (nt.length || no.length) for (const q of P.values()) send(q.netId, { t: 'dlog', tiles: nt, objs: no });
+      }
+      if (sendNow && Math.floor(g.t * 10) % 10 === 0) {            // the bosses here, wherever they are, once a second: for everyone's minimap
+        const list = g.enemies.filter((e) => !e.dead && !e.noLoot && e.nid && (e.rb || (e.D && e.D.bx))).slice(0, 24).map((e) => [e.nid, e.id, Math.round(e.x), Math.round(e.y), (e.D && e.D.biome) || '']);
+        for (const q of P.values()) send(q.netId, { t: 'bosses', list });
       }
       const ev = out; out = [];
       // to each player: the events near them, and (10 a second) the monsters near them

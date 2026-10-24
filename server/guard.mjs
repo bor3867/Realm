@@ -12,7 +12,7 @@ const ROOT = new URL('../', import.meta.url);
 const { ITEMS } = await import(new URL('src/data/items.js', ROOT));
 const { CLASSES, MAX_LEVEL } = await import(new URL('src/data/classes.js', ROOT));
 
-export const LIMIT = { HIT_MAX: 12000, DPS_1S: 25000, DPS_10S: 150000, SPEED: 22, JUMPS_10S: 8, STRIKES: 25, CHAT_GAP: 700 };
+export const LIMIT = { HIT_MAX: 12000, DPS_1S: 60000, DPS_10S: 400000, SPEED: 22, JUMPS_10S: 8, STRIKES: 25, CHAT_GAP: 700 };
 // how fast each purse may grow: per minute since the last save kept, plus a burst (a boss's hoard, a big death's fame)
 const PURSE = { gold: [15000, 60000], fame: [3000, 25000], essence: [2500, 15000] };
 const PURSE_NEW = { gold: 2e6, fame: 2e6, essence: 5e5 };       // a new account's uploaded progress, at most

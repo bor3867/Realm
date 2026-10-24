@@ -2519,7 +2519,18 @@ export class Renderer {
       mark(q.x, q.y, 'quest', blink ? '#7aff9a' : '#c8ffd6', '#ffffff', true);
     }
     for (const bag of g.bags) if (bag.rare || !calm) { if (bag.rare) mark(bag.x, bag.y, 'rarebag', '#ffffff', '#ffffff', false, 2); else mark(bag.x, bag.y, 'bag', '#c98a22', '#f2c14e', false, 1); }
-    for (const e of g.activeMap === m ? g.notable : g.enemies) if (e.rb && !e.dead) { if (EVENT_BOSS.has(e.id)) mark(e.x, e.y, 'ufo', blink ? '#3ac8a0' : '#2a8a70', '#b8ffe8', true, 2); else mark(e.x, e.y, 'boss', blink ? '#ffffff' : (BOSS_TINT[e.D.biome] || BOSS_TINT.dungeon), '#05040a', true, 2); }   // (the boss crest, tinted by its land; an event boss, the UFO)
+    // every boss here, from the moment it is (an overworld boss's spawn; a dungeon's boss as you come in): the boss crest,
+    // tinted by its land, an event boss the UFO; one beyond the view sits on the minimap's edge, pointing the way.
+    // Online the server says where the far ones are (src/net.js netBossPins), since it only sends the monsters near you
+    const pins = [], seen = new Set();
+    for (const e of g.enemies) if (!e.dead && !e.noLoot && (e.rb || (e.D && e.D.bx) || e.rfBossP)) { pins.push({ x: e.x, y: e.y, id: e.id, biome: e.D && e.D.biome }); if (e.nid !== undefined) seen.add(e.nid); }
+    if (m.netWorld && g.net && g.net.bossPins && g.net.bossPinsMap === m) for (const q of g.net.bossPins) if (!seen.has(q.nid)) pins.push(q);
+    for (const q of pins) {
+      const ev = EVENT_BOSS.has(q.id), name = ev ? 'ufo' : 'boss', c1 = ev ? (blink ? '#3ac8a0' : '#2a8a70') : blink ? '#ffffff' : (BOSS_TINT[q.biome] || BOSS_TINT.dungeon), c2 = ev ? '#b8ffe8' : '#05040a';
+      if (q.x >= x0 && q.y >= y0 && q.x <= x0 + V && q.y <= y0 + V) { mark(q.x, q.y, name, c1, c2, true, 2); continue; }
+      const cx = x0 + V / 2, cy = y0 + V / 2, dx = q.x - cx, dy = q.y - cy, s = (V / 2 - 4) / Math.max(Math.abs(dx), Math.abs(dy));
+      mark(cx + dx * s, cy + dy * s, name, c1, c2, true, 2);
+    }
     // the other players here: blue dots (click one to teleport to them: src/main.js)
     for (const o of g.netHere()) {
       if (o.dead) continue;

@@ -90,6 +90,7 @@ const methods = {
         if (Array.isArray(s.d)) b.dust = s.d;                 // (its trail, as its owner sees it)
       }
     } else if (m.t === 'ws') this.netWorldState(m);
+    else if (m.t === 'bosses') { N.bossPins = (m.list || []).map(([nid, id, x, y, biome]) => ({ nid, id, x, y, biome })); N.bossPinsMap = this.map; }   // where the bosses here are, near or far (for the minimap)
     else if (m.t === 'wev') this.netWorldEvents(m.ev);
     else if (m.t === 'wlog') { if (this.map.netWorld) { for (const a of m.tiles) this.netTile(a); for (const o of m.objs) this.netObj(o); } }
     else if (m.t === 'portal') {                          // a dungeon opened in the shared realm: everyone's way in
@@ -245,7 +246,9 @@ const methods = {
     if ((N.statT = (N.statT || 0) - SEND) <= 0) { N.statT = 1; parts[0].stats = Object.fromEntries(['hp', 'mp', 'att', 'def', 'spd', 'dex', 'vit', 'wis'].map((k) => [k, Math.round(this.stat(k))])); parts[0].fame = Math.round(p.fame || 0); }
     if (N.shots.length && room) parts.push({ t: 'shot', room, list: N.shots });
     N.shots = [];
-    if (N.hits.length && this.map.netWorld) parts.push({ t: 'hits', list: N.hits.slice(0, 60) });
+    // (one entry a monster: a spray of shots on a crowd made more than the 60 that used to go, and the rest were lost,
+    // so the server's monster outlived yours and stood at 1 Life for good. 2026-10-24)
+    if (N.hits.length && this.map.netWorld) { const sum = new Map(); for (const [nid, d] of N.hits) sum.set(nid, (sum.get(nid) || 0) + d); parts.push({ t: 'hits', list: [...sum].slice(0, 200) }); }
     N.hits = [];
     if (this.map.netWorld) for (const e of N.byId.values()) if (e.netPx || e.netPy) { N.efx.push([e.nid, 'push', +e.netPx.toFixed(2), +(e.netPy || 0).toFixed(2)]); e.netPx = e.netPy = 0; }
     if (N.efx.length && this.map.netWorld) parts.push({ t: 'efx', list: N.efx.slice(0, 40) });
@@ -279,7 +282,7 @@ const methods = {
       let e = N.byId.get(s.nid);
       if (!e) {
         if (!s.D) continue;
-        e = { cds: [], queue: [], hurtT: 0, deadT: 0, phase: 0, state: 'move', st: 0, ...s, net: true, tx: s.x, ty: s.y };
+        e = { cds: [], queue: [], hurtT: 0, deadT: 0, phase: 0, state: 'move', st: 0, ...s, net: true, tx: s.x, ty: s.y, netHp: s.hp };
         if (!e.id) e.id = s.D.id || '';
         if (e.D.bx) { this.bxSetup(e); if (e.bx.anim) e.bx.anim.handlers = { ended: [] }; }   // a three-phase boss: its art here, its mind on the server
         this.netBx(e, s);
@@ -288,6 +291,7 @@ const methods = {
       }
       const { x, y, D, ...rest } = s;
       Object.assign(e, rest);
+      if (rest.hp !== undefined) e.netHp = rest.hp;
       this.netBx(e, s);
       if (x !== undefined) e.tx = x;
       if (y !== undefined) e.ty = y;
@@ -345,6 +349,8 @@ const methods = {
     const d = Math.hypot(e.tx - e.x, e.ty - e.y);
     if (d > 5) { e.x = e.tx; e.y = e.ty; } else { const k = Math.min(1, dt * 10); e.x += (e.tx - e.x) * k; e.y += (e.ty - e.y) * k; }
     if (e.hurtT > 0) e.hurtT = Math.max(0, e.hurtT - dt);
+    // its Life is the server's: a guess of yours the server hasn't borne out in 2s (your blows lost, or not taken) gives way to it
+    if (e.netHp > e.hp && this.t - (e.netHitT || 0) > 2) e.hp = e.netHp;
     this.tickStatus(e, dt);                              // its burn ticks here (the damage is reported); a slow or curse you put on it wears off here too
     if (e.stunT > 0) e.stunT -= dt;                       // (and a stun, between the server's word on it)
     if (e.slowT > 0 && e.slowF > 0 && (e.slowF !== e.netSF || e.slowT > (e.netST || 0) + 0.3)) { e.netSF = e.slowF; e.netST = e.slowT; this.netEfx(e, 'slow', e.slowT, e.slowF); }
@@ -394,7 +400,7 @@ export function installNet(Game) {
   const dmg0 = Game.prototype.damageEnemy;
   Game.prototype.damageEnemy = function (e, ...a) {
     const d = dmg0.call(this, e, ...a);
-    if (e && e.net && !e.netKill && d > 0 && this.net && this.net.open) this.net.hits.push([e.nid, Math.round(d)]);
+    if (e && e.net && !e.netKill && d > 0 && this.net && this.net.open) { this.net.hits.push([e.nid, Math.round(d)]); e.netHitT = this.t; }
     return d;
   };
 }
