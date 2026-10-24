@@ -1,5 +1,6 @@
 # The Nexus, built in true 8x8 tiles (2026-10-22): the user found the painted Nexus "a pasted blurry screenshot" that
 # you walked over like a carpet. Its tiles and objects, native 8x8 pixel art drawn at 2x like the realm's ground.
+# Objects carry no outline of their own: the renderer outlines every sprite (2026-10-24: baked in, it was doubled).
 # Second pass (same day): more detail, and water that flows and comes from somewhere. The great crystal weeps it: a
 # stream falls from its tip onto the dais, wells out over the dais, swirls round the pool, runs off down two channels
 # and spills over the plaza's edge into the starry chasm.
@@ -271,7 +272,7 @@ def crystal(k):                                   # the great crystal: 32x64, fl
     sp = k % 4                                                        # and splashing on the dais
     c.rect(12 - sp, 60, 19 + sp, 60, 'L'); c.rect(14, 59, 17, 59, 'f')
     c.p(11 - sp, 58 - sp % 2, 'L'); c.p(20 + sp, 58 - sp % 2, 'L'); c.p(13 - sp, 61, 'l'); c.p(18 + sp, 61, 'l')
-    return [r[:32] for r in c.outline().rows()]
+    return [r[:32] for r in c.rows()]
 
 
 def shard(k):
@@ -279,16 +280,14 @@ def shard(k):
     c.trap(4, 1, 10, 1, 5, 'c'); c.line(4, 1, 4, 10, 'C'); c.line(5, 3, 5, 10, 'b')
     c.p(4, 2 + k * 3, 'E'); c.p(3, 3 + k * 3, 'e')
     c.rect(1, 11, 7, 11, 'L' if k % 2 else 'l')                       # where it stands in the water
-    return [r[:8] for r in c.outline().rows()]
+    return [r[:8] for r in c.rows()]
 
 
 def fountain(k):                                  # 16x24: a crystal shard in a basin, throwing the crystal's water up
     c = Cv(24)
     c.trap(8, 6, 20, 1, 5, 'c'); c.line(8, 6, 8, 20, 'C'); c.line(9, 9, 9, 20, 'b'); c.p(8, 7 + (k * 3) % 12, 'E')
     c.rect(1, 21, 14, 21, 'f' if k % 2 else 'L')
-    c.outline()
-    # the water, drawn after the outline: thin arcs of spray, unoutlined (outlined, each one-pixel arc became a thick black
-    # squiggle, and the fountain read as heavy black borders. 2026-10-24)
+    # the water: thin arcs of spray, drawn last
     for side in (-1, 1):                                              # two arcs of water
         for i in range(12):
             t = i / 11; x = 8 + side * t * 7; y = 9 - math.sin(t * math.pi) * 6 + t * 12
@@ -300,11 +299,11 @@ def fountain(k):                                  # 16x24: a crystal shard in a 
 
 def brazier(k):                                   # 8x12: a bowl on a stand, the flame flickering
     c = Cv(12)
-    c.rect(3, 9, 4, 11, 'm'); c.rect(2, 11, 5, 11, 'M'); c.rect(1, 6, 6, 8, 'A');   # (its stand in mid stone, not near-black beside the outline) c.rect(1, 6, 6, 6, 'a'); c.p(2, 7, 'a')
+    c.rect(3, 9, 4, 11, 'm'); c.rect(2, 11, 5, 11, 'M'); c.rect(1, 6, 6, 8, 'A'); c.rect(1, 6, 6, 6, 'a'); c.p(2, 7, 'a')   # (its stand in mid stone)
     fl = [(3, 1), (2, 2), (4, 0)][k]
     c.ell(3.5, 4, 2.2, 2, 'x'); c.ell(fl[0] + 0.5, fl[1] + 2, 1.2, 1.6, 'X'); c.p(fl[0], fl[1] + 1, 'z')
     c.p((5, 1, 6)[k], (0, 1, 2)[k], 'X')                             # a spark going up
-    return [r[:8] for r in c.outline().rows()]
+    return [r[:8] for r in c.rows()]
 
 
 def blossom(k):                                   # 16x24: a pink blossom tree
@@ -315,13 +314,13 @@ def blossom(k):                                   # 16x24: a pink blossom tree
     rnd = random.Random(7)
     for _ in range(10): c.p(rnd.randrange(2, 15), rnd.randrange(1, 14), 'P')
     fx, fy = [(13, 15), (12, 18), (13, 21)][k]; c.p(fx, fy, 'P')     # a petal falling
-    return [r[:16] for r in c.outline().rows()]
+    return [r[:16] for r in c.rows()]
 
 
 def bush(k):
     c = Cv(8); c.ell(3.5, 4.5, 3.5, 3, 'g'); c.ell(3, 4, 2.2, 1.8, 'G'); c.p(2, 2, 'G')
     for (x, y) in ((2, 3), (5, 4), (3, 6)): c.p(x, y, 'p' if k == 0 else 'X')
-    return c.outline().rows()
+    return c.rows()
 
 
 def stall(k):                                     # 16x16: a market stall, striped awning
@@ -332,7 +331,7 @@ def stall(k):                                     # 16x16: a market stall, strip
     for x in range(0, 16, 2): c.p(x, 7, 't' if (x // 2) % 2 else 'E')                # the awning's scalloped hem
     for (x, col) in ((4, 'X'), (7, 'p'), (10, 'G')): c.ell(x, 8, 1.2, 1, col)
     c.rect(3, 12, 5, 13, 'A'); c.rect(9, 12, 12, 13, 'u')
-    return c.outline().rows()
+    return c.rows()
 
 
 def banner(k):                                    # 8x16: a hanging banner, stirring
@@ -342,14 +341,14 @@ def banner(k):                                    # 8x16: a hanging banner, stir
     c.rect(1 + sway, 2, 6 + sway, 10, 't'); c.rect(1 + sway, 2, 1 + sway, 10, 'T'); c.rect(2 + sway, 3, 5 + sway, 3, 'a')
     c.p(3 + sway, 6, 'a'); c.p(4 + sway, 6, 'a'); c.p(3 + sway, 5, 'C'); c.p(4 + sway, 7, 'C')
     c.p(1 + sway, 11, 't'); c.p(3 + sway, 11, 't'); c.p(5 + sway, 11, 't')
-    return [r[:8] for r in c.outline().rows()]
+    return [r[:8] for r in c.rows()]
 
 
 def lamp(k):
     c = Cv(16)
     c.rect(3, 6, 4, 15, 'm'); c.rect(3, 6, 3, 15, 's'); c.rect(2, 14, 5, 15, 'M')   # (a lighter post: it read as a thick black line)
     c.rect(2, 1, 5, 5, 'A'); c.rect(3, 2, 4, 4, ('X', 'z', 'X', 'x')[k]); c.rect(1, 0, 6, 0, 'A')
-    return [r[:8] for r in c.outline().rows()]
+    return [r[:8] for r in c.rows()]
 
 
 OBJECTS = {
