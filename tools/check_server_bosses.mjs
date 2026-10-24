@@ -3,7 +3,7 @@
 // overworld one) by one joined player, sent its place and its blows the way a browser does: it stands 4 tiles from
 // the boss and hits it for 600 every tenth of a second (W.hit, which goes through the game's own damage step on the
 // server, immunity and all). Reports how far each boss got, how long it was immune, and whether it died.
-//   node tools/check_server_bosses.mjs [boss ...]
+//   node tools/check_server_bosses.mjs [boss ...]      (RFX=1 to include the Realmforge bosses)
 import { fileURLToPath } from 'node:url';
 process.chdir(fileURLToPath(new URL('../server/', import.meta.url)));
 const { makeWorld } = await import('../server/world.mjs');
@@ -12,7 +12,7 @@ const { BX, bxEnemyDef } = await import('../src/bosses/index.js');
 const only = process.argv.slice(2);
 const rows = [];
 for (const id of Object.keys(BX)) {
-  if (id === 'framework_test' || id.startsWith('rfx_') || (only.length && !only.includes(id))) continue;
+  if (id === 'framework_test' || (id.startsWith('rfx_') && !process.env.RFX) || (only.length && !only.includes(id))) continue;
   const dg = Object.keys(DUNGEONS).find((k) => DUNGEONS[k].boss === id);
   let W, g, e;
   try {
@@ -23,13 +23,17 @@ for (const id of Object.keys(BX)) {
   } catch (err) { rows.push(`${id.padEnd(22)} could not be set up: ${err.message}`); continue; }
   if (!e) { rows.push(`${id.padEnd(22)} not found`); continue; }
   g.maintainRealm = () => {}; g.eventClock = () => {};
-  const at = () => ({ x: e.x, y: e.y + 4 });
+  // its mechanic, played the simple way (as tools/bench_rebuilt_bosses.mjs does): a lens for Aurelia, a few seconds each;
+  // the nightmare-self while the Sleeper dreams
+  const at = () => { if (id === 'prism_wyrm') { const o = g.map.objects.find((q) => q.pedestal === Math.floor(g.t / 4) % 3); if (o) return { x: o.x, y: o.y }; } const T = tgt(); return { x: T.x, y: T.y + 4 }; };
+  const tgt = () => (e.slNight && !e.slNight.dead && e.slShiftUntil > g.t ? e.slNight : e);
   let t = 0, imm = 0, states = [], last = '', clock = Date.now();
   const hp0 = e.maxHp || e.hp;
   for (; t < 240 && !e.dead; t += 0.1) {
     const q = at(); W.player('p1', { x: q.x, y: q.y, dead: false, hp: 700 });
     if (e.nid === undefined) W.tick(0.1, (clock += 100));
-    const hp = e.hp; W.hit('p1', e.nid, 600);
+    const T = tgt(); if (T.nid === undefined) W.tick(0.1, (clock += 100));
+    const hp = e.hp; W.hit('p1', T.nid, 600);
     if (!(e.hp < hp)) imm += 0.1;
     W.tick(0.1, (clock += 100));
     const S = e.bx || {}, s = `${S.state || '-'}${S.state === 'finale' ? ':' + ((S.fin && S.fin.name) || '') : ''} p${S.phase}`;
