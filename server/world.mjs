@@ -29,8 +29,38 @@ function plain(o) {
   const out = {};
   for (const k in o) { if (SKIP.has(k)) continue; const v = o[k]; const t = typeof v; if (t === 'number') out[k] = Math.round(v * 100) / 100; else if (t === 'string' || t === 'boolean') out[k] = v; }
   const B = o.bx;                    // a three-phase boss: its phase, its state and the clip it is playing
-  if (B) { out.bx_phase = B.phase; out.bx_state = B.state; if (B.anim) { out.bx_clip = B.anim.clip; out.bx_spd = B.anim.speed; } if (B.leapZ) out.bx_leapZ = Math.round(B.leapZ); if (B.drawK) out.bx_drawK = Math.round(B.drawK * 100) / 100; }
+  if (B) { out.bx_phase = B.phase; out.bx_state = B.state; if (B.anim) { out.bx_clip = B.anim.clip; out.bx_spd = B.anim.speed; } if (B.leapZ) out.bx_leapZ = Math.round(B.leapZ); if (B.drawK) out.bx_drawK = Math.round(B.drawK * 100) / 100;
+    // and the rest of its fight that it draws from: its planets, black holes, eclipse, marked tiles... (each browser draws
+    // the boss from these; without them a shared boss's floor effects were missing: the Orrery's, 2026-10-24).
+    // Plain data only, as 'J'+JSON, 'S'+text or 'N' (gone); sent when it changes
+    for (const k in B) {
+      if (BX_SKIP.has(k)) continue;
+      const v = B[k], t = typeof v;
+      if (v === null || v === undefined) out['bxv_' + k] = 'N';
+      else if (t === 'number') out['bxv_' + k] = Math.round(v * 100) / 100;
+      else if (t === 'boolean') out['bxv_' + k] = v;
+      else if (t === 'string') out['bxv_' + k] = 'S' + v;
+      else if (t === 'object') { const j = wireJSON(v); if (j && j.length < 9000) out['bxv_' + k] = 'J' + j; }
+    }
+  }
   return out;
+}
+const BX_SKIP = new Set(['B', 'def', 'anim', 'vol', 'arena', 'alt', 'fin', 'pat', 't', 'wait', 'phase', 'state', 'leapZ', 'drawK', 'hurtT', 'flashT']);
+// plain data for the wire: numbers rounded; a monster as its number; no functions, no class instances, no loops
+function wireJSON(v) {
+  const seen = new WeakSet();
+  try {
+    return JSON.stringify(v, (k, x) => {
+      if (typeof x === 'number') return Math.round(x * 100) / 100;
+      if (typeof x === 'function') return undefined;
+      if (x && typeof x === 'object') {
+        if (k && x.D && x.hp !== undefined) return x.nid ?? undefined;
+        const pr = Object.getPrototypeOf(x); if (pr !== Object.prototype && pr !== Array.prototype) return undefined;
+        if (seen.has(x)) return undefined; seen.add(x);
+      }
+      return x;
+    });
+  } catch { return null; }
 }
 // a monster's kind, once, for the wire (data only: no functions, no loops)
 function safe(o) { const seen = new WeakSet(); return JSON.parse(JSON.stringify(o, (k, v) => { if (typeof v === 'object' && v) { if (seen.has(v)) return undefined; seen.add(v); } return typeof v === 'function' ? undefined : v; })); }

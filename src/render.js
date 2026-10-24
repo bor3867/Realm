@@ -237,7 +237,7 @@ export class Renderer {
     if (g.arena) this.arenaFx(g, g.arena);
     if (g.timeStop) this.timeDial(g, g.timeStop);
     for (const f of g.fx) if (f.kind === 'cloud' || f.kind === 'zone') this.groundFx(f, g);
-    if (g.activeMap === m) for (const e of g.notable) if (e.bx && e.bx.B.drawGround && !e.dead) e.bx.B.drawGround(this, g, e);   // a boss's hazards on the ground
+    if (g.activeMap === m) for (const e of g.notable) if (e.bx && e.bx.B.drawGround && !e.dead) { try { e.bx.B.drawGround(this, g, e); } catch (err) { if (!e.net) throw err; } }   // (a shared boss draws from the server's word: a gap there must not stop the game)   // a boss's hazards on the ground
     if (m.graves) this.drawGraves(g, m);                        // the fallen: a gravestone each, where they fell
     this.spGround(g);                                       // set-piece telegraphs (src/setpieces.js)
     if (m.mrClouds || m.mrPuddles) this.mireFx(g, m);
@@ -290,7 +290,7 @@ export class Renderer {
     this.armGround(g);                                          // the Mad God Armory's marks and zones (src/armory_draw.js)
     this.drawProjectiles(g, dt);
     this.armTop(g);
-    if (g.activeMap === m) for (const e of g.notable) if (e.bx && e.bx.B.drawTop && !e.dead) e.bx.B.drawTop(this, g, e);   // a boss's layer over the bullets (the Orrery's umbra)
+    if (g.activeMap === m) for (const e of g.notable) if (e.bx && e.bx.B.drawTop && !e.dead) { try { e.bx.B.drawTop(this, g, e); } catch (err) { if (!e.net) throw err; } }   // a boss's layer over the bullets (the Orrery's umbra)
     this.drawZaps(dt);
     this.drawParticles(dt);
     this.drawSprFx(dt);
@@ -1372,7 +1372,7 @@ export class Renderer {
       this.drawDef(A.def, A.anim.frame, sx, Math.round(cy), { center: true, scale: K * (A.scale || 1) });
     } else this.drawDef(def, fr, sx, sy + hy - (S.leapZ || 0), { flip: !!e.face, scale: K });   // no hit flash on bosses
     this.b.globalAlpha = 1;
-    if (S.B.draw) S.B.draw(this, g, e, sx, sy);
+    if (S.B.draw) { try { S.B.draw(this, g, e, sx, sy); } catch (err) { if (!e.net) throw err; } }
   }
   // the overworld bosses keep the sprites they always had, though they fight on the three-phase engine now: their sheet
   // in realm_bosses, and the remaster's later phases, morphs and death (src/remaster.js), read from the engine's state

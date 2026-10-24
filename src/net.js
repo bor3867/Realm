@@ -289,14 +289,14 @@ const methods = {
         e = { cds: [], queue: [], hurtT: 0, deadT: 0, phase: 0, state: 'move', st: 0, ...s, net: true, tx: s.x, ty: s.y, netHp: s.hp };
         if (!e.id) e.id = s.D.id || '';
         if (e.D.bx) { this.bxSetup(e); if (e.bx.anim) e.bx.anim.handlers = { ended: [] }; }   // a three-phase boss: its art here, its mind on the server
-        this.netBx(e, s);
+        this.netBx(e, s, off);
         N.byId.set(s.nid, e); this.enemies.push(e);
         continue;
       }
       const { x, y, D, ...rest } = s;
       Object.assign(e, rest);
       if (rest.hp !== undefined) e.netHp = rest.hp;
-      this.netBx(e, s);
+      this.netBx(e, s, off);
       if (x !== undefined) e.tx = x;
       if (y !== undefined) e.ty = y;
     }
@@ -329,6 +329,10 @@ const methods = {
         const H = this.net.held, b = H && H.get(x.sid);
         if (!b) continue;
         if (x.k === 'sg') { b.life = 0; H.delete(x.sid); continue; }
+        { const h = b.h ?? 0.5, a = this.camAngle || 0; if (a) { x.x -= h * Math.sin(a); x.y -= h * (Math.cos(a) - 1); } }   // (the server's camera never turns, as for a new shot)
+        // between the server's word on it (10 a second) it carries on the way it was going: smooth, not hopping
+        if (b.netAt !== undefined && x.vx === undefined) { const t = Math.max(0.05, this.t - b.netAt); b.vx = (x.x - b.netX) / t; b.vy = (x.y - b.netY) / t; }
+        b.netX = x.x; b.netY = x.y; b.netAt = this.t;
         b.x = x.x; b.y = x.y;
         if (x.vx !== undefined) { b.vx = x.vx; b.vy = x.vy; b.a = x.a; b.life = x.life; b.netHeld = false; H.delete(x.sid); }
       }
@@ -359,12 +363,31 @@ const methods = {
     if (e.stunT > 0) e.stunT -= dt;                       // (and a stun, between the server's word on it)
     if (e.slowT > 0 && e.slowF > 0 && (e.slowF !== e.netSF || e.slowT > (e.netST || 0) + 0.3)) { e.netSF = e.slowF; e.netST = e.slowT; this.netEfx(e, 'slow', e.slowT, e.slowF); }
     if (e.bx && e.bx.anim) e.bx.anim.update(dt);
+    if (e.bx) {                                          // its planets, black holes...: gliding to where the server has them
+      const k = Math.min(1, dt * 12), go = (o) => { if (o && o.netTx !== undefined) { o.x += (o.netTx - o.x) * k; o.y += (o.netTy - o.y) * k; } };
+      for (const n in e.bx) { const v = e.bx[n]; if (Array.isArray(v)) { for (const o of v) go(o); } else if (v && typeof v === 'object') go(v); }
+    }
   },
   netEfx(e, k, a, b = 0) { const N = this.net; if (N && N.open && e.net) N.efx.push([e.nid, k, +(+a).toFixed(2), +(+b).toFixed(2)]); },
   // a three-phase boss's phase and clip, as the server has them
-  netBx(e, s) {
+  netBx(e, s, off = 0) {
     const S = e.bx;
     if (!S) return;
+    // the rest of its fight, as the server has it (server/world.mjs plain): its clocks to ours; what moves glides there
+    const TIMED = /^(until|born|at|end)$|Until$|At$/;
+    const shift = (v) => { if (v && typeof v === 'object') for (const k in v) { if (typeof v[k] === 'number' && TIMED.test(k)) v[k] += off; else if (v[k] && typeof v[k] === 'object') shift(v[k]); } return v; };
+    const glide = (o, n) => { if (o && n && typeof o === 'object' && typeof n === 'object' && typeof o.x === 'number' && typeof n.x === 'number' && Math.hypot(n.x - o.x, n.y - o.y) < 4) { n.netTx = n.x; n.netTy = n.y; n.x = o.x; n.y = o.y; } };
+    for (const k in s) {
+      if (!k.startsWith('bxv_')) continue;
+      const name = k.slice(4), w = s[k];
+      if (typeof w !== 'string') { S[name] = w; continue; }
+      if (w === 'N') { S[name] = null; continue; }
+      if (w[0] === 'S') { S[name] = w.slice(1); continue; }
+      let v; try { v = shift(JSON.parse(w.slice(1))); } catch { continue; }
+      const old = S[name];
+      if (Array.isArray(v) && Array.isArray(old) && old.length === v.length) v.forEach((n, i) => glide(old[i], n)); else if (v && !Array.isArray(v)) glide(old, v);
+      S[name] = v;
+    }
     if (s.bx_phase !== undefined) S.phase = s.bx_phase;
     if (s.bx_state !== undefined) S.state = s.bx_state;
     if (s.bx_leapZ !== undefined) S.leapZ = s.bx_leapZ;
