@@ -37,7 +37,7 @@ export const SKINS = [null,
   ['ex_tiles/mirerot_mud_a', 'mrmud'], ['ex_tiles/mirerot_mud_b', 'mrmud'], ['ex_tiles/mirerot_moss', 'mrmoss'],
   ['ex_tiles/mirerot_bog', 'bog'], ['ex_tiles/mirerot_wall_top', 'mrwall'],
   // the Astral Observatory: marble, brass grate, the void (walkable: you fall), the wall's top
-  ['ex_tiles/astral_marble', 'asmarble'], ['ex_tiles/astral_brass_grate', 'asgrate'], ['ex_tiles/astral_void', 'asvoid'], ['ex_tiles/astral_wall_top', 'aswall'],
+  ['ex_tiles/astral_marble', 'asmarble'], ['ex_tiles/astral_brass_grate', 'asgrate'], ['ex_tiles/astral_void', 'asvoid', { still: true }], ['ex_tiles/astral_wall_top', 'aswall'],
   // Sandscour Tomb: sand outside, the tomb floor inside, quicksand, the wall's top
   ['ex_tiles/sandscour_sand_a', 'sdsand'], ['ex_tiles/sandscour_sand_b', 'sdsand'], ['ex_tiles/sandscour_tomb_floor', 'sdtomb'],
   ['ex_tiles/sandscour_quicksand', 'quicksand'], ['ex_tiles/sandscour_wall_top', 'sdwall'],

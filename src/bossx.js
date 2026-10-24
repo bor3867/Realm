@@ -169,6 +169,10 @@ export const BXF = {
     if (V.chill) b.chill = V.chill;
     if (V.poison) b.poison = V.poison;
     b.bxOf = e;
+    // how high it flies (src/game.js liftShift): from its body, the body's height; from anywhere else (its planets, a black
+    // hole, the floor's rim, a marked tile) the ground's. Every shot used to fly at the body's, so turning the camera threw
+    // the others off their sources (and the boss put them back each step: they flickered, high above it). 2026-10-24
+    { const [ox, oy] = this.bxOrigin(e); b.h = Math.hypot(x - ox, y - oy) < 2 ? e.hitUp || 1.4 : 0; }
     if (extra) Object.assign(b, extra);
     return b;
   },

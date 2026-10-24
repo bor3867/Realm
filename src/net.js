@@ -288,7 +288,7 @@ const methods = {
         if (!s.D) continue;
         e = { cds: [], queue: [], hurtT: 0, deadT: 0, phase: 0, state: 'move', st: 0, ...s, net: true, tx: s.x, ty: s.y, netHp: s.hp };
         if (!e.id) e.id = s.D.id || '';
-        if (e.D.bx) { this.bxSetup(e); if (e.bx.anim) e.bx.anim.handlers = { ended: [] }; }   // a three-phase boss: its art here, its mind on the server
+        if (e.D.bx) { this.bxSetup(e); if (e.bx.anim) e.bx.anim.handlers = { ended: [] }; if (!e.bx.arena && M.rooms) e.bx.arena = M.rooms.find((r) => e.x >= r.x && e.x < r.x + r.w && e.y >= r.y && e.y < r.y + r.h) || null; }   // (its room, which it draws in: the Orrery's starfield)   // a three-phase boss: its art here, its mind on the server
         this.netBx(e, s, off);
         N.byId.set(s.nid, e); this.enemies.push(e);
         continue;

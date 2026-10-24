@@ -583,11 +583,11 @@ function novaSequence(g, e, dt, tt, ox, oy) {
     for (const b of L.rays) { const r = 1.2 + b.gamma.k * 0.95, aa = a + b.gamma.s; b.x = ox + Math.cos(aa) * r; b.y = oy + Math.sin(aa) * r; b.a = aa; b.vx = 0; b.vy = 0; b.life = lt2 < 7.6 ? 99 : 0; }
     if (lt2 >= 7.6) L.rays = [];
     if (lt2 > 1.5 && (L.cm = (L.cm || 0) - dt) <= 0) {
-      L.cm = 1.3; const pa = angleTo(cx, cy, p.x, p.y), tx = p.x, ty = p.y - 0.4;
+      L.cm = 1.7; const pa = angleTo(cx, cy, p.x, p.y), tx = p.x, ty = p.y - 0.4;
       for (const s of [1, -1]) {
         const ra = pa + s * (1.1 + R() * 0.4), x = cx + Math.cos(ra) * ARENA_R, y = cy + Math.sin(ra) * ARENA_R, d = angleTo(x, y, tx, ty);
-        g.spMark({ kind: 'line', x, y, a: d, len: 30, life: 0.8, color: '#ff8a1f' });
-        for (let j = 0; j < 3; j++) later(e, 0.8 + j * 0.12, () => fire(x, y, d, 'plasma_comet', 9, 155, { size: 0.55, range: 34 }));
+        g.spMark({ kind: 'line', x, y, a: d, len: 30, life: 1.5, color: '#ff8a1f' });   // (warned longer: 0.8s was too little)
+        for (let j = 0; j < 3; j++) later(e, 1.5 + j * 0.12, () => fire(x, y, d, 'plasma_comet', 9, 155, { size: 0.55, range: 34 }));
       }
     }
   };
@@ -702,7 +702,7 @@ function supernovaDark(r, g, e) {
   if (c.width !== W || c.height !== H) { c.width = W; c.height = H; }
   const x = c.getContext('2d'), [px, py] = r.proj(g.player.x, g.player.y - 0.4), [bx, by] = r.proj(e.x, e.y - e.hitUp);
   x.globalCompositeOperation = 'source-over'; x.clearRect(0, 0, W, H);
-  x.fillStyle = `rgba(2,1,6,${0.7 * N.dark})`; x.fillRect(0, 0, W, H);   // (dark, but what comes from the rim must still read)
+  x.fillStyle = `rgba(2,1,6,${0.42 * N.dark})`; x.fillRect(0, 0, W, H);   // (dark, but what comes from the rim must still read)
   x.globalCompositeOperation = 'destination-out';
   const hole = (cx, cy, R0) => { const gr = x.createRadialGradient(cx, cy, R0 * 0.35, cx, cy, R0); gr.addColorStop(0, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); x.fillStyle = gr; x.beginPath(); x.arc(cx, cy, R0, 0, TAU); x.fill(); };
   hole(px, py, 3.6 * 16);                                           // your light, fading at its edge

@@ -10,7 +10,7 @@ globalThis.localStorage ??= { getItem: () => null, setItem() {} };
 const ROOT = new URL('../', import.meta.url);
 const { buildRegistry } = await import(new URL('src/registry.js', ROOT));
 const { Game } = await import(new URL('src/game.js', ROOT));
-const { realm } = await import(new URL('src/world/maps.js', ROOT));
+const { realm, clockTiles } = await import(new URL('src/world/maps.js', ROOT));
 const { REALM_BOSSES } = await import(new URL('src/data/enemies.js', ROOT));
 // the Realmforge bosses on the three-phase engine (src/bosses/rf_translate.js): the server knows them too
 { const { addRfBosses } = await import(new URL('src/bosses/rf_translate.js', ROOT)), { arenaData } = await import(new URL('src/rf/boss.js', ROOT)), RFD = JSON.parse(readFileSync(new URL('art/rf/data.json', ROOT), 'utf8')); addRfBosses(RFD); arenaData(RFD); }   // (their bosses, and their rooms for the arenas)
@@ -88,6 +88,10 @@ export function makeWorld(seed, send, where = 'realm') {
   const OBJ = (o) => { const f = {}; for (const k in o) { const v = o[k]; if (typeof v === 'number' || typeof v === 'boolean' || typeof v === 'string') f[k] = v; } return f; };
   const baseO = dung ? M0.objects.map((o) => JSON.stringify(OBJ(o))) : null, sentO = dung ? baseO.slice() : null;
   const dTiles = new Map(), dObjs = new Map();
+  // (the Observatory's clockwork arms turn in each browser, on the same rhythm: their tiles are never sent, or the
+  // server's turning fought each browser's own)
+  const ownT = new Set();
+  for (const C of (dung && M0.asClocks) || []) { for (let k = 0; k < 8; k++) for (const i of clockTiles(C, k)) ownT.add(i); for (let x = C.hx - 1; x <= C.hx + 1; x++) for (let y = C.hy - 1; y <= C.hy + 1; y++) ownT.add(y * M0.w + x); }
   let lastEmpty = Date.now();
   const anchor = g.player;             // the server's own stand-in (never hunted, never hurt): the players are proxies
   const P = new Map();                 // client id -> proxy (a player-shaped object over the anchor, so any field reads)
@@ -238,7 +242,7 @@ export function makeWorld(seed, send, where = 'realm') {
       for (const b of g.bubbles || []) if (!seenBub.has(b) && b.e && b.e.nid) out.push({ k: 'say', id: b.e.nid, text: b.text, col: b.col });
       if (dung && sendNow && Math.floor(g.t * 10) % 3 === 0) {          // a dungeon's changes, about three times a second
         const T = g.map.tiles, nt = [], no = [];
-        for (let i = 0; i < T.length; i++) if (dTiles.has(i) ? dTiles.get(i)[1] !== T[i] : T[i] !== baseT[i]) {   // (a tile back as it began goes too: a bridge back after a nightmare trial used to stay gone for you. 2026-10-24)
+        for (let i = 0; i < T.length; i++) if (!ownT.has(i) && (dTiles.has(i) ? dTiles.get(i)[1] !== T[i] : T[i] !== baseT[i])) {   // (a tile back as it began goes too: a bridge back after a nightmare trial used to stay gone for you. 2026-10-24)
           const a = [i, T[i], g.map.solid ? g.map.solid[i] : 0]; dTiles.set(i, a); nt.push(a); }
         g.map.objects.forEach((o, i) => { if (i >= sentO.length) return; const j = JSON.stringify(OBJ(o)); if (j !== sentO[i]) { sentO[i] = j; const a = [i, objKey(o), OBJ(o)]; dObjs.set(i, a); no.push(a); } });
         if (nt.length || no.length) for (const q of P.values()) send(q.netId, { t: 'dlog', tiles: nt, objs: no });

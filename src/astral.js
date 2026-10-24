@@ -11,8 +11,11 @@
 import { lift, liftO } from './util.js';
 import { TID, SK, clockTiles } from './world/maps.js';
 
-export const ASTRAL = { fall: 0.12, grace: 1, click: 4, warn: 1, swirl: 0.6 };
+export const ASTRAL = { fall: 0, grace: 1, click: 4, warn: 1, swirl: 0.6 };
 const TAU = Math.PI * 2;
+// a clockwork arm's rhythm: the same in every copy of the dungeon (from where its hub is, and how many clicks it has made)
+const clockHash = (C, n) => { let h = Math.imul(C.hx * 73856093 ^ C.hy * 19349663, 2654435761) ^ Math.imul(n + 1, 83492791); h = Math.imul(h ^ (h >>> 15), 2246822519); return ((h ^ (h >>> 13)) >>> 0) / 4294967296; };
+const clockNext = (C) => 1.6 + clockHash(C, C.n * 3) * 1.8;
 const AP = (k) => 'ap_shots/' + k;
 
 const methods = {
@@ -28,7 +31,7 @@ const methods = {
       else if (p.asSafe && !(p.asRune > 0)) {
         this.vx({ k: 'regfx', key: 'ex_effects/star_burst', ...liftO(p.x, p.y, 0.4), fps: 12 });
         p.x = p.asSafe.x; p.y = p.asSafe.y; p.vel = { x: 0, y: 0 }; p.gust = null;
-        this.hurtPlayer(Math.round(this.stat('hp') * ASTRAL.fall), 'the void', true);
+        if (ASTRAL.fall) this.hurtPlayer(Math.round(this.stat('hp') * ASTRAL.fall), 'the void', true);   // (no harm now: only put back. 2026-10-24)
         p.status.invuln = Math.max(p.status.invuln || 0, ASTRAL.grace);
         this.vx({ k: 'regfx', key: 'ex_effects/star_burst', ...liftO(p.x, p.y, 0.4), fps: 12 });
         this.toast('You fell into the void.');
@@ -46,19 +49,22 @@ const methods = {
       }
     } else if (on && !p.asRuneCd && !p.dead) { p.asRune = ASTRAL.swirl; p.asRuneTo = on.to; p.asRuneAt = on; }
     if (!on) p.asRuneCd = false;
-    // the clockwork: every 4 s the arms click 45 degrees round, carrying their riders
+    // the clockwork: each arm clicks 45 degrees round, carrying its riders: every 1.6 to 3.4 s, either way, each on its own
+    // rhythm (it was every 4 s, all together and always the same way: a long wait at every one. 2026-10-24)
     for (const C of m.asClocks || []) {
+      if (C.next === undefined) { C.n = 0; C.next = clockNext(C); C.dir = clockHash(C, 1) < 0.5 ? 1 : -1; }
       C.t += dt;
-      C.warn = C.t > ASTRAL.click - ASTRAL.warn;
-      if (C.t < ASTRAL.click) continue;
-      C.t = 0;
-      const old = new Set(C.tiles), nk = (C.k + 1) % 8, nt = clockTiles(C, nk);
+      C.warn = C.t > C.next - ASTRAL.warn;
+      if (C.t < C.next) continue;
+      const dir = C.dir;
+      C.t = 0; C.n++; C.next = clockNext(C); C.dir = clockHash(C, C.n * 3 + 1) < 0.5 ? 1 : -1;
+      const old = new Set(C.tiles), nk = (C.k + dir + 8) % 8, nt = clockTiles(C, nk);
       const riders = [p, ...this.enemies.filter((e) => !e.dead && !e.rb)].filter((o) => old.has(Math.floor(o.y) * m.w + Math.floor(o.x)));
       for (const i of C.tiles) this.asSet(i, TID.asvoid);
       for (const i of nt) this.asSet(i, TID.asgrate);
       for (let x = C.hx - 1; x <= C.hx + 1; x++) for (let y = C.hy - 1; y <= C.hy + 1; y++) this.asSet(y * m.w + x, TID.asgrate);
       for (const o of riders) {                                // turned with the arm, 45 degrees about the hub
-        const dx = o.x - C.hx - 0.5, dy = o.y - C.hy - 0.5, c = Math.cos(Math.PI / 4), s = Math.sin(Math.PI / 4);
+        const dx = o.x - C.hx - 0.5, dy = o.y - C.hy - 0.5, c = Math.cos(Math.PI / 4), s = dir * Math.sin(Math.PI / 4);
         o.x = C.hx + 0.5 + dx * c - dy * s; o.y = C.hy + 0.5 + dx * s + dy * c;
         if (o === p) p.asSafe = { x: p.x, y: p.y };
       }

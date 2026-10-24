@@ -191,6 +191,7 @@ export class Renderer {
     const G = this.ground.width;
     b.drawImage(this.ground, -G / 2 - (this.px * TS - Math.round(this.px * TS)), -G / 2 - (this.py * TS - Math.round(this.py * TS)));
     b.restore();
+    if (g.map.hasVoid) this.voidStars(g, g.map);             // the Observatory's void: stars that twinkle and drift, smoothly
     this.drawWallTops();                                    // every seen wall's top, one tile up the screen (src/walls.js)
     if (g.map.rfBoss) this.rfBossLayer(g, g.map);             // a Realmforge boss's arena, drawn by its own engine (src/rf/boss.js)
     // sprites, sorted by screen y
@@ -386,8 +387,9 @@ export class Renderer {
     if (SA && skinned(tx, ty)) {
       const k = sk[ty * m.w + tx], A = SA[k], O = SKIN_OPT[k];
       // a flowing skin (the Nexus's water): every tile on the same frame, stepping fast, so the current runs on unbroken
-      const f = A.fr[A.fr.length < 2 ? 0 : O && O.flow ? fast % A.fr.length : (anim + ((tx * 7 + ty * 3) >> 2)) % A.fr.length];
-      if (A.fr.length > 1) moving = O && O.flow ? 2 : 1;
+      // (a still skin, the Observatory's void: one frame a tile, its twinkle drawn over it smoothly: voidStars)
+      const f = A.fr[A.fr.length < 2 ? 0 : O && O.still ? h % A.fr.length : O && O.flow ? fast % A.fr.length : (anim + ((tx * 7 + ty * 3) >> 2)) % A.fr.length];
+      if (A.fr.length > 1 && !(O && O.still)) moving = O && O.flow ? 2 : 1;
       if (A.img) gc.drawImage(A.img, f.x, f.y, f.w, f.h, dx, dy, TS, TS);
       if (O && O.foam && A.foam !== null) {                  // foam where the water meets anything that isn't water
         const F = A.foam || (A.foam = this.foamArt(O.foam));
@@ -1649,6 +1651,23 @@ export class Renderer {
     const box = SHOT_BOXES[O.sprite], big = box ? Math.max(box[0], box[1]) : 16;   // a companion's size: about two-thirds of a tile, whatever its art
     this.drawDef(d, F[Math.floor(g.t * 8 + B.k) % F.length], Math.round(x), Math.round(y), { center: true, scale: Math.min(1, 11 / big), alpha: fade, rot: B.a });
   }
+  // the void between the platforms: over its still tiles, a few stars each that drift slowly and breathe in and out
+  // (the tiles used to flip their frames a few times a second, out of step: clunky). Drawn every frame, so it is smooth
+  voidStars(g, m) {
+    const b = this.b, R0 = Math.ceil(Math.hypot(this.buf.width, this.buf.height) / TS / 2) + 1, x0 = Math.floor(this.px), y0 = Math.floor(this.py), t = g.t, V = TID.asvoid;
+    for (let ty = y0 - R0; ty <= y0 + R0; ty++) for (let tx = x0 - R0; tx <= x0 + R0; tx++) {
+      if (tx < 0 || ty < 0 || tx >= m.w || ty >= m.h || m.tiles[ty * m.w + tx] !== V || (m.seen && !m.seen[ty * m.w + tx])) continue;
+      for (let k = 0; k < 2; k++) {
+        const h = (((tx * 73856093) ^ (ty * 19349663) ^ (k * 83492791)) >>> 0), u = (h % 1000) / 1000, v = ((h >>> 10) % 1000) / 1000, w = ((h >>> 20) % 1000) / 1000;
+        const tw = 0.5 + 0.5 * Math.sin(t * (0.8 + w * 1.6) + u * 40);
+        if (tw < 0.15) continue;
+        const [x, y] = this.proj(tx + ((u + t * 0.02) % 1), ty + ((v + t * 0.012) % 1));
+        b.globalAlpha = 0.25 + 0.75 * tw; b.fillStyle = w < 0.2 ? '#fff6c8' : w < 0.5 ? '#ffffff' : '#c8c0ff';
+        b.fillRect(Math.round(x), Math.round(y), w > 0.85 && tw > 0.7 ? 2 : 1, w > 0.85 && tw > 0.7 ? 2 : 1);
+      }
+    }
+    b.globalAlpha = 1;
+  }
   // the Astral Observatory: clockwork arms flash before they turn; each telescope's dotted line of sight; a rune
   // circle swirls under you as it folds you away
   astralFx(g, m) {
@@ -1656,6 +1675,14 @@ export class Renderer {
     for (const C of m.asClocks || []) if (C.warn && Math.floor(g.t * 10) % 2) {
       b.globalAlpha = 0.45; b.fillStyle = '#ffd690';
       for (const i of C.tiles) { const [x, y] = this.proj((i % m.w) + 0.5, Math.floor(i / m.w) + 0.5); b.fillRect(Math.round(x) - 6, Math.round(y) - 6, 12, 12); }
+      b.globalAlpha = 1;
+    }
+    for (const C of m.asClocks || []) {                      // and in its last moment, the arm swings round to where it goes: a brass ghost
+      const s = C.next === undefined ? -1 : 1 - (C.next - C.t) / 0.4;
+      if (s <= 0 || s >= 1) continue;
+      const a = (C.k + C.dir * s) * Math.PI / 4, ca = Math.cos(a), sa = Math.sin(a);
+      b.globalAlpha = 0.55; b.fillStyle = '#ffd690';
+      for (const sd of [1, -1]) for (let d = 2; d <= C.len; d += 0.7) for (const w of [-1, 0, 1]) { const [x, y] = this.proj(C.hx + 0.5 + sd * ca * d - sa * w, C.hy + 0.5 + sd * sa * d + ca * w); b.fillRect(Math.round(x) - 5, Math.round(y) - 5, 10, 10); }
       b.globalAlpha = 1;
     }
     for (const o of m.objects) {
