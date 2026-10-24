@@ -284,19 +284,23 @@ def shard(k):
 
 def fountain(k):                                  # 16x24: a crystal shard in a basin, throwing the crystal's water up
     c = Cv(24)
+    c.trap(8, 6, 20, 1, 5, 'c'); c.line(8, 6, 8, 20, 'C'); c.line(9, 9, 9, 20, 'b'); c.p(8, 7 + (k * 3) % 12, 'E')
+    c.rect(1, 21, 14, 21, 'f' if k % 2 else 'L')
+    c.outline()
+    # the water, drawn after the outline: thin arcs of spray, unoutlined (outlined, each one-pixel arc became a thick black
+    # squiggle, and the fountain read as heavy black borders. 2026-10-24)
     for side in (-1, 1):                                              # two arcs of water
         for i in range(12):
             t = i / 11; x = 8 + side * t * 7; y = 9 - math.sin(t * math.pi) * 6 + t * 12
             c.p(x, y, 'L' if (i + k) % 3 == 0 else 'l')
-    c.trap(8, 6, 20, 1, 5, 'c'); c.line(8, 6, 8, 20, 'C'); c.line(9, 9, 9, 20, 'b'); c.p(8, 7 + (k * 3) % 12, 'E')
     for i in range(4): c.p(8 + (i - 1.5) * 1.5, 4 - (i + k) % 3, 'L' if i % 2 else 'f')   # the jet's crown
-    c.rect(1, 21, 14, 21, 'f' if k % 2 else 'L'); c.p(0, 20, 'l'); c.p(15, 20, 'l')
-    return [r[:16] for r in c.outline().rows()]
+    c.p(0, 20, 'l'); c.p(15, 20, 'l')
+    return [r[:16] for r in c.rows()]
 
 
 def brazier(k):                                   # 8x12: a bowl on a stand, the flame flickering
     c = Cv(12)
-    c.rect(3, 9, 4, 11, 'M'); c.rect(2, 11, 5, 11, 'd'); c.rect(1, 6, 6, 8, 'A'); c.rect(1, 6, 6, 6, 'a'); c.p(2, 7, 'a')
+    c.rect(3, 9, 4, 11, 'm'); c.rect(2, 11, 5, 11, 'M'); c.rect(1, 6, 6, 8, 'A');   # (its stand in mid stone, not near-black beside the outline) c.rect(1, 6, 6, 6, 'a'); c.p(2, 7, 'a')
     fl = [(3, 1), (2, 2), (4, 0)][k]
     c.ell(3.5, 4, 2.2, 2, 'x'); c.ell(fl[0] + 0.5, fl[1] + 2, 1.2, 1.6, 'X'); c.p(fl[0], fl[1] + 1, 'z')
     c.p((5, 1, 6)[k], (0, 1, 2)[k], 'X')                             # a spark going up
@@ -343,7 +347,7 @@ def banner(k):                                    # 8x16: a hanging banner, stir
 
 def lamp(k):
     c = Cv(16)
-    c.rect(3, 6, 4, 15, 'd'); c.rect(3, 6, 3, 15, 'm'); c.rect(2, 14, 5, 15, 'D')
+    c.rect(3, 6, 4, 15, 'm'); c.rect(3, 6, 3, 15, 's'); c.rect(2, 14, 5, 15, 'M')   # (a lighter post: it read as a thick black line)
     c.rect(2, 1, 5, 5, 'A'); c.rect(3, 2, 4, 4, ('X', 'z', 'X', 'x')[k]); c.rect(1, 0, 6, 0, 'A')
     return [r[:8] for r in c.outline().rows()]
 

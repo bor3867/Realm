@@ -9,17 +9,26 @@
 //   star vault the Vault Keeper sleeps by the chest; strike either and it wakes, seals the vault (Lockdown) and the
 //              trap plates fire in turn until it falls; then the vault opens and the chest gives up its loot
 import { lift, liftO } from './util.js';
-import { TID, SK, clockTiles } from './world/maps.js';
+import { TID, SK } from './world/maps.js';
 
 export const ASTRAL = { fall: 0, grace: 1, click: 4, warn: 1, swirl: 0.6 };
 const TAU = Math.PI * 2;
 // a clockwork arm's way round: the same in every copy of the dungeon (from where its hub is)
 const clockHash = (C, n) => { let h = Math.imul(C.hx * 73856093 ^ C.hy * 19349663, 2654435761) ^ Math.imul(n + 1, 83492791); h = Math.imul(h ^ (h >>> 15), 2246822519); return ((h ^ (h >>> 13)) >>> 0) / 4294967296; };
+export const ARM = { half: 1.5, reach: 0.9 };                // a plank: half its width, and how far past its last tile it reaches
 const CLOCK_W = (Math.PI * 2) / 22;                          // (radians a second: once round in 22 s)
 const AP = (k) => 'ap_shots/' + k;
 
 const methods = {
-  asVoidAt(x, y) { const m = this.map; return m.tiles[Math.floor(y) * m.w + Math.floor(x)] === TID.asvoid; },
+  asVoidAt(x, y) { const m = this.map; return m.tiles[Math.floor(y) * m.w + Math.floor(x)] === TID.asvoid && !this.asArmAt(x, y); },
+  // on a clockwork's plank? (a rectangle through its hub, both ways out to its reach, three tiles wide)
+  asArmAt(x, y) {
+    for (const C of this.map.asClocks || []) {
+      const dx = x - C.hx - 0.5, dy = y - C.hy - 0.5, a = C.ang ?? (C.k * TAU) / 8, ux = Math.cos(a), uy = Math.sin(a);
+      if (Math.abs(dx * ux + dy * uy) <= C.len + ARM.reach && Math.abs(dy * ux - dx * uy) <= ARM.half) return true;
+    }
+    return false;
+  },
   asFooting(x0, y0) { const m = this.map; for (let r = 1; r <= 6; r++) for (let a = 0; a < 16; a++) { const x = x0 + Math.cos((a / 16) * TAU) * r, y = y0 + Math.sin((a / 16) * TAU) * r, i = Math.floor(y) * m.w + Math.floor(x); if (x > 0 && y > 0 && x < m.w && y < m.h && m.tiles[i] !== TID.asvoid && !m.solid[i]) return { x, y }; } return null; },
   asSet(i, t) { const m = this.map; m.tiles[i] = t; m.skin[i] = t === TID.asgrate ? SK.astral_brass_grate : t === TID.asvoid ? SK.astral_void : m.skin[i]; },
   // ---------------------------------------------------------------- every frame in the observatory
@@ -51,31 +60,19 @@ const methods = {
       }
     } else if (on && !p.asRuneCd && !p.dead) { p.asRune = ASTRAL.swirl; p.asRuneTo = on.to; p.asRuneAt = on; }
     if (!on) p.asRuneCd = false;
-    // the clockwork: each arm turns slowly and steadily, always the same way (each its own way), carrying whoever rides it.
-    // Its tiles follow it in steps of a 64th of a turn; riders turn with it smoothly. (It clicked 45 degrees at a time, every
-    // 4 s: a long wait, and a jolt. 2026-10-24)
+    // the clockwork: each arm is a brass plank turning slowly and steadily on its hub, always the same way (each its own
+    // way), carrying whoever rides it. It is a true rectangle at every angle (asArmAt; drawn in src/render.js astralFx):
+    // the void stays void beneath it. (It was laid in floor tiles, a staircase at most angles that changed shape as it
+    // turned; before that it clicked 45 degrees every 4 s. 2026-10-24)
     for (const C of m.asClocks || []) {
-      if (C.ang === undefined) {
-        C.ang = (C.k * TAU) / 8; C.s = C.k * 8; C.dir = clockHash(C, 1) < 0.5 ? 1 : -1;
-        // where it may lay its bridge: the void it sweeps over (and where it began), never a platform or a wall
-        const start = new Set(C.tiles); C.over = new Set();
-        for (let k = 0; k < 64; k++) for (const i of clockTiles(C, k, 64)) if (start.has(i) || m.tiles[i] === TID.asvoid) C.over.add(i);
-      }
+      if (C.ang === undefined) { C.ang = (C.k * TAU) / 8; C.dir = clockHash(C, 1) < 0.5 ? 1 : -1; }
       const da = C.dir * CLOCK_W * dt, c = Math.cos(da), sn = Math.sin(da), ux = Math.cos(C.ang), uy = Math.sin(C.ang);
       for (const o of [p, ...this.enemies.filter((e) => !e.dead && !e.rb)]) {
         const dx = o.x - C.hx - 0.5, dy = o.y - C.hy - 0.5, along = Math.abs(dx * ux + dy * uy), across = Math.abs(dy * ux - dx * uy);
-        if (o.dead || along < 1.6 || along > C.len + 0.6 || across > 1.7) continue;   // (on the arm, by its line: not the hub, which stands still)
+        if (o.dead || along < 1.6 || along > C.len + ARM.reach || across > ARM.half + 0.1) continue;   // (on the plank: not the hub, which stands still)
         o.x = C.hx + 0.5 + dx * c - dy * sn; o.y = C.hy + 0.5 + dx * sn + dy * c;
       }
       C.ang += da;
-      const ns = Math.round((C.ang / TAU) * 64);
-      if (ns === C.s) continue;
-      C.s = ns;
-      const nt = clockTiles(C, ns, 64).filter((i) => C.over.has(i)), keep = new Set(nt);
-      for (const i of C.tiles) if (!keep.has(i)) this.asSet(i, TID.asvoid);
-      for (const i of nt) this.asSet(i, TID.asgrate);
-      for (let x = C.hx - 1; x <= C.hx + 1; x++) for (let y = C.hy - 1; y <= C.hy + 1; y++) this.asSet(y * m.w + x, TID.asgrate);
-      C.tiles = nt;
     }
   },
   // the telescopes: one step round each use; facing the vault's globe, it reveals its third of the star bridge

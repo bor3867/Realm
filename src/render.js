@@ -14,6 +14,7 @@ import { drawIcon as armIcon, glowDraw as armGlow } from './armory_art.js';
 // Treant, not as champions (2026-10-19; whole sizes only)
 const RB_BIG = new Set(['brine_cathedral', 'wick_mother', 'orrery_of_winter', 'penitent_colossus', 'emily_the_yapper', 'the_fallen_star']);
 const rbK = (e) => (RB_BIG.has(e.id) ? 2 : 1);
+import { ARM } from './astral.js';
 import { TILE_NAMES, BIOMES, biomeAt, objectsIn, SKINS, SKIN_TID, SKIN_OPT, TID, FLAT, WALL_FACE } from './world/maps.js';
 import { hoverY } from './registry.js';
 import { CLASSES } from './data/classes.js';
@@ -1692,6 +1693,20 @@ export class Renderer {
   // circle swirls under you as it folds you away
   astralFx(g, m) {
     const b = this.b;
+    // each clockwork's plank: a brass rectangle through its hub, turning smoothly (src/astral.js asArmAt)
+    for (const C of m.asClocks || []) {
+      const a = C.ang ?? (C.k * Math.PI) / 4, ux = Math.cos(a), uy = Math.sin(a), L = C.len + ARM.reach, Hw = ARM.half, cx = C.hx + 0.5, cy = C.hy + 0.5;
+      const P = (s, t) => this.proj(cx + ux * s - uy * t, cy + uy * s + ux * t);
+      const quad = (s0, s1, t0, t1) => { const q = [P(s0, t0), P(s1, t0), P(s1, t1), P(s0, t1)]; b.beginPath(); b.moveTo(q[0][0], q[0][1]); for (const [x, y] of q.slice(1)) b.lineTo(x, y); b.closePath(); };
+      b.globalAlpha = 0.35; b.fillStyle = '#000000'; quad(-L, L, -Hw + 0.25, Hw + 0.25); b.fill();          // its shadow on the void
+      b.globalAlpha = 1; b.fillStyle = '#8a6434'; quad(-L, L, -Hw, Hw); b.fill();
+      b.fillStyle = '#a87a3a'; quad(-L, L, -Hw + 0.35, Hw - 0.35); b.fill();
+      b.strokeStyle = '#5a3e1e'; b.lineWidth = 1;
+      for (let s = -L + 1; s < L; s += 1) { const [x0, y0] = P(s, -Hw), [x1, y1] = P(s, Hw); b.beginPath(); b.moveTo(x0, y0); b.lineTo(x1, y1); b.stroke(); }   // its boards
+      b.strokeStyle = '#ffd690'; quad(-L, L, -Hw, Hw); b.stroke();                                    // its brass rim
+      const [hx, hy] = P(0, 0); b.fillStyle = '#c8a050'; b.beginPath(); b.arc(Math.round(hx), Math.round(hy), 9, 0, Math.PI * 2); b.fill();
+      b.fillStyle = '#5a3e1e'; b.beginPath(); b.arc(Math.round(hx), Math.round(hy), 3, 0, Math.PI * 2); b.fill();   // the hub's pin
+    }
     for (const C of m.asClocks || []) if (C.warn && Math.floor(g.t * 10) % 2) {
       b.globalAlpha = 0.45; b.fillStyle = '#ffd690';
       for (const i of C.tiles) { const [x, y] = this.proj((i % m.w) + 0.5, Math.floor(i / m.w) + 0.5); b.fillRect(Math.round(x) - 6, Math.round(y) - 6, 12, 12); }

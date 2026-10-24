@@ -2066,7 +2066,7 @@ export function dungeon(seed, def) {
   for (const n of rooms) (DRESS[def.style] || (() => {}))(n);
   if (m.asClocks) for (const C of m.asClocks) {                     // Astral: each clockwork's hub, and its arms where they start
     carve(C.hx - 1, C.hy - 1, C.hx + 1, C.hy + 1, TID.asgrate);
-    C.tiles = clockTiles(C, C.k); for (const i of C.tiles) m.tiles[i] = TID.asgrate;
+    C.tiles = clockTiles(C, C.k);                                   // (its plank is no floor: src/astral.js asArmAt; the void stays beneath it)
   }
   if (m.asRunePairs) m.asRunePairs.forEach(([a, b], k) => {         // rune circles: each pair folds space between two rooms
     for (const [n, other] of [[a, b], [b, a]]) { const x = n.cx + 2, y = n.cy + 2; if (isF(x, y) || tile(x, y) === TID.asgrate) put(m, AS('rune_circle'), x, y, false, { asRune: k, to: { x: other.cx + 2.5, y: other.cy + 3.7 } }); }

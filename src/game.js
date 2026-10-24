@@ -1655,7 +1655,7 @@ export class Game {
       const m = this.map; o.x = Math.max(2, Math.min(m.w - 2, o.x + dx)); o.y = Math.max(2, Math.min(m.h - 2, o.y + dy)); return;
     }
     const m = this.map, nv = m.hasVoid && o !== this.player && !(o.D && o.D.fly) && !o.rb;      // walking monsters won't step into the void
-    const vd = (x, y) => nv && m.tiles[Math.floor(y) * m.w + Math.floor(x)] === TID.asvoid;
+    const vd = (x, y) => nv && m.tiles[Math.floor(y) * m.w + Math.floor(x)] === TID.asvoid && !(m.asClocks && this.asArmAt(x, y));   // (a clockwork's plank is footing)
     const free = (x, y) => !isSolid(m, x - r, y - r) && !isSolid(m, x + r, y - r) && !isSolid(m, x - r, y + r) && !isSolid(m, x + r, y + r) && !(nv && (vd(x - r, y - r) || vd(x + r, y - r) || vd(x - r, y + r) || vd(x + r, y + r)));
     if (free(o.x + dx, o.y)) o.x += dx;
     else if (o !== this.player && Math.abs(dx) > Math.abs(dy) * 0.5) {   // a monster caught on a corner slides toward the gap: centre it on its row
