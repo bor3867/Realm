@@ -1073,8 +1073,28 @@ export class Renderer {
     this.spr(this.A.img.objects, (k % c) * TS, Math.floor(k / c) * TS, TS, TS, sx, sy, 8, 8);
     if (Math.random() < 0.3) this.parts.push({ x: pt.x + (Math.random() - 0.5) * 0.6, y: pt.y, z: 4 + Math.random() * 6, vx: 0, vy: 0, vz: 14, g: 0, life: 0.6, max: 0.6, color: { realm: '#3befff', dungeon: '#ffc94a', nexus: '#fffdf0' }[pt.kind] || '#fff' });
   }
+  // a bag colour the art doesn't have (cyan, blue, red): the purple bag, its hues turned, kept for next time
+  bagArt(kind) {
+    const C = (this.bagArts = this.bagArts || {});
+    if (C[kind] !== undefined) return C[kind];
+    const H = { cyan: [188, 1.15], blue: [222, 0.95], red: [358, 1] }[kind], k = this.W.bags.purple, c = this.W.objectsCols;
+    if (!H || k === undefined || typeof document === 'undefined') return (C[kind] = null);
+    const cv = document.createElement('canvas'); cv.width = TS; cv.height = TS;
+    const x = cv.getContext('2d'); x.drawImage(this.A.img.objects, (k % c) * TS, Math.floor(k / c) * TS, TS, TS, 0, 0, TS, TS);
+    const D = x.getImageData(0, 0, TS, TS), d = D.data;
+    for (let i = 0; i < d.length; i += 4) {
+      if (!d[i + 3]) continue;
+      const r = d[i] / 255, gg = d[i + 1] / 255, bb = d[i + 2] / 255, mx = Math.max(r, gg, bb), mn = Math.min(r, gg, bb), L = (mx + mn) / 2, dl = mx - mn;
+      if (dl < 0.08) continue;                                // (its outline and highlights stay as they are)
+      const S = dl / (1 - Math.abs(2 * L - 1)), L2 = Math.min(0.92, L * H[1]), q = (1 - Math.abs(2 * L2 - 1)) * S, hp = H[0] / 60, X = q * (1 - Math.abs((hp % 2) - 1)), m0 = L2 - q / 2;
+      const [r1, g1, b1] = hp < 1 ? [q, X, 0] : hp < 2 ? [X, q, 0] : hp < 3 ? [0, q, X] : hp < 4 ? [0, X, q] : hp < 5 ? [X, 0, q] : [q, 0, X];
+      d[i] = (r1 + m0) * 255; d[i + 1] = (g1 + m0) * 255; d[i + 2] = (b1 + m0) * 255;
+    }
+    x.putImageData(D, 0, 0);
+    return (C[kind] = cv);
+  }
   bag(g, bag, sx, sy) {
-    const k = this.W.bags[bag.kind] ?? this.W.bags.brown, c = this.W.objectsCols;
+    const k = this.W.bags[bag.kind] ?? this.W.bags.brown, c = this.W.objectsCols, tinted = this.W.bags[bag.kind] === undefined && this.bagArt(bag.kind);
     if (bag.legend) {                                      // a legendary inside: a broad beam, sparkles climbing it
       const b = this.b, x = Math.round(sx), y = Math.round(sy);
       b.globalAlpha = 0.35; b.fillStyle = '#ffc93a'; b.fillRect(x - 3, y - 96, 7, 92);
@@ -1097,7 +1117,7 @@ export class Renderer {
     if (bag.t0 === undefined) bag.t0 = g.t;
     const age = g.t - bag.t0, hop = age < 0.5 ? Math.round(Math.abs(Math.sin(age * Math.PI * 4)) * 8 * (1 - age / 0.5)) : 0;
     this.shadow(sx, sy, 8);
-    this.spr(this.A.img.objects, (k % c) * TS, Math.floor(k / c) * TS, TS, TS, sx, sy - hop, 8, 13);
+    if (tinted) this.spr(tinted, 0, 0, TS, TS, sx, sy - hop, 8, 13); else this.spr(this.A.img.objects, (k % c) * TS, Math.floor(k / c) * TS, TS, TS, sx, sy - hop, 8, 13);
     if (g.hoverBag === bag) this.bagPeek(bag, sx, sy - hop);
     if (Math.floor(g.t * 0.7 + bag.x) % 3 === 0 && Math.floor(g.t * 14) % 7 === 0) {        // an occasional glint
       this.b.fillStyle = '#ffffff'; this.b.fillRect(Math.round(sx) + 2, Math.round(sy) - 10 - hop, 1, 1);

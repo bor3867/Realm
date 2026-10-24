@@ -323,6 +323,9 @@ const methods = {
       if (x.k === 'shot') {
         const b = x.b; b.hit = b.pierce ? new Set() : null; b.netRemote = true; this.projectiles.push(b);
         { const h = b.h ?? 0.5, a = this.camAngle || 0; if (a) { b.x -= h * Math.sin(a); b.y -= h * (Math.cos(a) - 1); if (b.lob) { b.lob.x0 -= h * Math.sin(a); b.lob.y0 -= h * (Math.cos(a) - 1); } } }   // (the server's camera never turns: see liftShift)
+        // (born on top of you, a boss shot is harmless until it leaves you: judged here, by where you are, not where the
+        // server last had you; it used to stay faint and harmless for good. 2026-10-24)
+        if (b.fair) { const p = this.player; b.fair = !!p && Math.hypot(b.x - p.x, b.y - (p.y - 0.45)) < 1.3; b.ghost = b.fair; }
         if (b.netHeld) { (this.net.held = this.net.held || new Map()).set(b.sid, b); b.vx = b.vx || 0; b.vy = b.vy || 0; b.life = Math.max(b.life, 30); }   // held by its boss: the server moves it
       }
       else if (x.k === 'su' || x.k === 'sg') {           // a held shot moved, flew free, or ended
@@ -334,6 +337,7 @@ const methods = {
         if (b.netAt !== undefined && x.vx === undefined) { const t = Math.max(0.05, this.t - b.netAt); b.vx = (x.x - b.netX) / t; b.vy = (x.y - b.netY) / t; }
         b.netX = x.x; b.netY = x.y; b.netAt = this.t;
         b.x = x.x; b.y = x.y;
+        if (x.g !== undefined) { b.ghost = !!x.g || !!b.fair; b.hidden = !!x.hd; }   // (its boss lights it or hides it as it goes)
         if (x.vx !== undefined) { b.vx = x.vx; b.vy = x.vy; b.a = x.a; b.life = x.life; b.netHeld = false; H.delete(x.sid); }
       }
       else if (x.k === 'fx') this.fx.push(x.f);
@@ -364,7 +368,9 @@ const methods = {
     if (e.slowT > 0 && e.slowF > 0 && (e.slowF !== e.netSF || e.slowT > (e.netST || 0) + 0.3)) { e.netSF = e.slowF; e.netST = e.slowT; this.netEfx(e, 'slow', e.slowT, e.slowF); }
     if (e.bx && e.bx.anim) e.bx.anim.update(dt);
     if (e.bx) {                                          // its planets, black holes...: gliding to where the server has them
-      const k = Math.min(1, dt * 12), go = (o) => { if (o && o.netTx !== undefined) { o.x += (o.netTx - o.x) * k; o.y += (o.netTy - o.y) * k; } };
+      // (each goes evenly from where it is drawn to where the server last had it, over the time between its words: it
+      // used to catch up and stop, ten times a second, and shook)
+      const go = (o) => { if (o && o.netTx !== undefined) { const f = Math.min(1, (this.t - o.netAt) / o.netDur); o.x = o.netPx + (o.netTx - o.netPx) * f; o.y = o.netPy + (o.netTy - o.netPy) * f; } };
       for (const n in e.bx) { const v = e.bx[n]; if (Array.isArray(v)) { for (const o of v) go(o); } else if (v && typeof v === 'object') go(v); }
     }
   },
@@ -376,7 +382,10 @@ const methods = {
     // the rest of its fight, as the server has it (server/world.mjs plain): its clocks to ours; what moves glides there
     const TIMED = /^(until|born|at|end)$|Until$|At$/;
     const shift = (v) => { if (v && typeof v === 'object') for (const k in v) { if (typeof v[k] === 'number' && TIMED.test(k)) v[k] += off; else if (v[k] && typeof v[k] === 'object') shift(v[k]); } return v; };
-    const glide = (o, n) => { if (o && n && typeof o === 'object' && typeof n === 'object' && typeof o.x === 'number' && typeof n.x === 'number' && Math.hypot(n.x - o.x, n.y - o.y) < 4) { n.netTx = n.x; n.netTy = n.y; n.x = o.x; n.y = o.y; } };
+    const now = this.t, glide = (o, n) => {
+      if (!(o && n && typeof o === 'object' && typeof n === 'object' && typeof o.x === 'number' && typeof n.x === 'number' && Math.hypot(n.x - o.x, n.y - o.y) < 4)) return;
+      n.netPx = o.x; n.netPy = o.y; n.netTx = n.x; n.netTy = n.y; n.netDur = Math.max(0.06, Math.min(0.25, o.netAt === undefined ? 0.1 : now - o.netAt)); n.netAt = now; n.x = o.x; n.y = o.y;
+    };
     for (const k in s) {
       if (!k.startsWith('bxv_')) continue;
       const name = k.slice(4), w = s[k];

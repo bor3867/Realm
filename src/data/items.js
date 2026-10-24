@@ -1003,18 +1003,21 @@ export const canEquip = (cls, it) => !['weapon', 'ability', 'armor'].includes(it
 // ---- bags: colour tells you what's inside before you walk over
 // RotMG-style: brown for the everyday, purple for the good stuff, white for relics; mythics come in a white bag
 // with a gold beam. A bag keeps its colour for its whole life (taking the prize out doesn't change it).
-export const BAG_ORDER = ['brown', 'purple', 'white', 'starfall', 'divine'];
+// brown: the everyday; cyan: real gear; blue: a stat potion; red: the top tiers; white: an Untiered; then starfall, divine
+// (2026-10-24: a boss's tiered gear came in a brown bag, and stat potions in purple: weak. Cyan, blue and red are the
+// purple bag's art recoloured: src/render.js bagArt)
+export const BAG_ORDER = ['brown', 'cyan', 'blue', 'red', 'white', 'starfall', 'divine'];
 export const BAG_NAMES = { white: 'A white bag', starfall: 'A STARFALL bag', divine: 'A DIVINE bag' };
 const DIVINE = new Set(['crown_of_the_unstruck']);
 export function bagRank(it) {
-  if (it.admin || DIVINE.has(it.base || it.id)) return 4;          // beyond mythic: the final boss's prize, the admin kit
-  if (it.mythic || it.legendary) return 3;
-  if (it.ut || it.bag === 'urn' || it.bag === 'reliquary' || it.bag === 'starfall') return 2;
-  if (it.slot === 'consumable') return it.use && it.use.stat ? 1 : 0;
-  if (it.enchants) return 1;
+  if (it.admin || DIVINE.has(it.base || it.id)) return 6;          // beyond mythic: the final boss's prize, the admin kit
+  if (it.mythic || it.legendary) return 5;
+  if (it.ut || it.bag === 'urn' || it.bag === 'reliquary' || it.bag === 'starfall') return 4;
+  if (it.slot === 'consumable') return it.use && it.use.stat ? 2 : 0;   // a stat potion: blue
   const t = it.tier, small = it.slot === 'ability' || it.slot === 'ring';
-  if (small ? t >= 6 : t >= 14) return 2;                        // the new tops: a white bag
-  return (small ? t >= 4 : t >= 8) ? 1 : 0;
+  if (typeof t !== 'number') return it.enchants ? 1 : 0;
+  if (small ? t >= 5 : t >= 12) return 3;                        // the top tiers: red
+  return it.enchants || (small ? t >= 2 : t >= 5) ? 1 : 0;       // real gear: cyan
 }
 export const bagFor = (items) => BAG_ORDER[Math.max(0, ...items.map(bagRank))];
 

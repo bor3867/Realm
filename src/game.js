@@ -3353,7 +3353,8 @@ export class Game {
             if (!b.pierce) { alive = false; break; }
           }
         }
-      } else if (!p.dead && !b.ghost && !b.harmless) {
+      } else if (b.fair && b.netRemote && !p.dead && Math.hypot(b.x - p.x, b.y - (p.y - 0.45)) > 1.9) { b.fair = false; b.ghost = false; }   // (a shared boss's shot, born on you, has left you: it can hurt now; src/net.js)
+      else if (!p.dead && !b.ghost && !b.harmless) {
         if (Math.abs(b.x - p.x) < 2.5 && Math.abs(b.y - p.y) < 3 && this.shotHitsPlayer(b, p)) {
           alive = false;
           // every shot that reaches you hurts, RotMG's way (2026-10-22: a "one volley, one hit" rule used to swallow the
