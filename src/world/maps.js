@@ -1042,49 +1042,103 @@ export function dungeon(seed, def) {
       tube(ante.cx, ante.cy, sanctum.cx, sanctum.cy, 1, TID.sdtomb); link(ante, sanctum);
       return { start: oasis, boss: sanctum };
     },
-    // ---- THE ASTRAL OBSERVATORY: platforms on a grid over the void, joined by straight grate bridges. Gallery,
-    // platforms, the Clockwork (two turning bridges), the Telescope Dais (its vault across a star bridge), the
-    // Antechamber, the Orrery Floor. Nothing is walled: the void is everywhere.
+    // ---- THE ASTRAL OBSERVATORY: a constellation over the void. Its platforms are its stars, strewn along a wandering line
+    // and joined by straight bridges at any angle (its lines); side stars branch off it, and now and then a line closes a
+    // loop. Gallery, platforms, the Clockwork (two turning bridges, in a row), the Telescope Dais (its vault across a star
+    // bridge), the Antechamber, the Orrery Floor. Nothing is walled: the void is everywhere, with little stars of its own.
+    // (It was a grid: one long road east, turning now and then at right angles. 2026-10-24)
     astral() {
       const order = ['gallery', 'platform', 'starhall', 'platform', 'clockwork', 'skylight', 'platform', 'dais', 'starhall', 'platform', 'skylight', 'antechamber', 'orrery'];
       const shape = { gallery: ['octa', 15, 15], platform: null, starhall: ['rect', 23, 15], skylight: ['octa', 19, 19], dais: ['round', 15, 15], antechamber: ['round', 15, 15], orrery: ['round', 36, 36] };
       const grate = (x0, y0, x1, y1) => carve(x0, y0, x1, y1, TID.asgrate);
-      // a straight bridge (or an L of two) two wide, from one room's centre to the next
-      const bridge = (a, b) => {
-        if (Math.abs(a.cy - b.cy) <= 1) { grate(a.cx, a.cy, b.cx, a.cy + 1); return; }
-        if (Math.abs(a.cx - b.cx) <= 1) { grate(a.cx, a.cy, a.cx + 1, b.cy); return; }
-        grate(a.cx, a.cy, b.cx, a.cy + 1); grate(b.cx, a.cy, b.cx + 1, b.cy);
+      // a constellation's line: a bridge two wide along the straight line between two stars' centres
+      const line = (a, b) => {
+        const L = Math.hypot(b.cx - a.cx, b.cy - a.cy);
+        for (let s = 0; s <= L; s += 0.4) { const x = a.cx + ((b.cx - a.cx) * s) / L, y = a.cy + ((b.cy - a.cy) * s) / L, fx = Math.floor(x), fy = Math.floor(y); grate(fx, fy, fx + 1, fy + 1); }
       };
-      let gx = 16, gy = S >> 1, prev = null, start = null, floorRoom = null, heading = 0;
+      const keep = [];                                                // (room for what isn't a room: the clockwork's hubs and arms, the vault)
+      const clear = (x, y, w, h, M = 7) => x > 8 && y > 8 && x + w < S - 8 && y + h < S - 8 &&
+        ![...rooms, ...keep].some((o) => x < o.x + o.w + M && o.x < x + w + M && y < o.y + o.h + M && o.y < y + h + M);
+      // a line must cross only the void: never through another star
+      const open = (a, cx, cy, skip = []) => [...rooms, ...keep].every((o) => {
+        if (o === a || skip.includes(o)) return true;
+        const L = Math.hypot(cx - a.cx, cy - a.cy);
+        for (let s = 0; s <= L; s += 1) { const x = a.cx + ((cx - a.cx) * s) / L, y = a.cy + ((cy - a.cy) * s) / L; if (x > o.x - 2 && x < o.x + o.w + 2 && y > o.y - 2 && y < o.y + o.h + 2) return false; }
+        return true;
+      });
+      // the next star from one: somewhere ahead (mostly east, wandering), clear of the rest, its line open
+      const place = (from, w, h, spread, ok = () => true, skip = []) => {
+        for (let t = 0; t < 80; t++) {
+          const wide = spread + (t / 80) * 1.4, a = (from.ang || 0) * 0.5 + (r() * 2 - 1) * wide, d = (Math.max(from.w, from.h) + Math.max(w, h)) / 2 + r.int(8, 14);
+          const cx = from.cx + Math.cos(a) * d, cy = from.cy + Math.sin(a) * d, x = Math.round(cx - w / 2), y = Math.round(cy - h / 2);
+          if (clear(x, y, w, h) && open(from, cx, cy, skip) && ok(x, y, w, h)) return { x, y, a };
+        }
+        return null;
+      };
+      let prev = null, start = null, floorRoom = null;
       const nodes = [], clocks = [];
-      order.forEach((kind, k) => {
-        let sh = shape[kind] || [r.chance(0.5) ? 'octa' : 'rect', 17, 17];
-        if (kind === 'clockwork') {                                   // platform, hub, platform, hub (the next room is the far bank)
-          const w = 13;
-          const A = room(gx, gy - (w >> 1), w, w, { kind: 'cogplatform', dep: k, shape: 'rect' });
-          bridge(prev, A); link(prev, A);
+      for (let k = 0; k < order.length; k++) {
+        const kind = order[k];
+        if (kind === 'clockwork') {                                   // platform, hub, platform, hub, in a row (the next star is the far bank)
+          const w = 13, row = 13 + 8 + 9 + 13 + 8 + 9;               // (A, the first arm's reach, B, the second's, to the far bank)
+          const at = place(prev, w, w, 0.5, (x, y) => clear(x, y - 3, row + 25, w + 6, 4));
+          if (!at) throw new Error('the constellation would not fit');
+          const A = room(at.x, at.y, w, w, { kind: 'cogplatform', dep: k, shape: 'rect', ang: 0 });
+          line(prev, A); link(prev, A);
           const h1 = { hx: A.x + A.w + 8, hy: A.cy, k: 1, t: 0, len: 8, S };
-          const B = room(h1.hx + 9, gy - (w >> 1), w, w, { kind: 'cogplatform', dep: k, shape: 'rect' });
+          const B = room(h1.hx + 9, A.y, w, w, { kind: 'cogplatform', dep: k, shape: 'rect', ang: 0 });
           const h2 = { hx: B.x + B.w + 8, hy: B.cy, k: 3, t: 2, len: 8, S };
           clocks.push(h1, h2); link(A, B);
+          for (const h of [h1, h2]) keep.push({ x: h.hx - 9, y: h.hy - 9, w: 19, h: 19 });
           A.clock = h1; B.clock = h2; A.role = 'fight'; B.role = 'fight'; A.few = true;
           prev = B; nodes.push(A, B);
-          gx = h2.hx + 9; return;
+          // the far bank: where the second arm reaches, straight on
+          const [, fw, fh] = shape[order[k + 1]] || ['octa', 17, 17];
+          const F = room(h2.hx + 9, B.cy - (fh >> 1), fw, fh, { kind: order[k + 1], dep: k + 1, shape: (shape[order[k + 1]] || ['octa'])[0], ang: 0 });
+          link(B, F); nodes.push(F); prev = F; floorRoom = F; k++;
+          continue;
         }
-        const [shp, w, h] = sh;
-        const n = room(gx, gy - (h >> 1), w, h, { kind, dep: k, shape: shp });
+        const [shp, w, h] = shape[kind] || [r.chance(0.5) ? 'octa' : 'rect', 17, 17];
+        let n;
+        if (!prev) n = start = room(16, (S >> 1) - (h >> 1), w, h, { kind, dep: k, shape: shp, ang: 0 });
+        else {
+          // the dais needs the void clear above or below it, for its vault across the star bridge
+          const vaultOk = (x, y, ww, hh) => kind !== 'dais' || clear(x + (ww >> 1) - 5, y - 8 - 11, 11, 11, 3) || clear(x + (ww >> 1) - 5, y + hh + 8, 11, 11, 3);
+          const at = place(prev, w, h, kind === 'orrery' || kind === 'antechamber' ? 0.5 : 1.0, vaultOk);
+          if (!at) throw new Error('the constellation would not fit');
+          n = room(at.x, at.y, w, h, { kind, dep: k, shape: shp, ang: at.a });
+          line(prev, n); link(prev, n);
+        }
         if (kind === 'antechamber') n.role = 'fight';                // the last guard before the machine: no rest, no way round
-        if (prev) {
-          if (prev.clock && prev.clock !== clocks[0]) link(prev, n);   // across the second clockwork: joined by its arms
-          else { bridge(prev, n); link(prev, n); }
-        } else start = n;
+        if (kind === 'dais') {                                        // its vault's place (and its star bridge's), kept clear of the stars to come
+          const vx = n.cx - 5, top = clear(vx, n.y - 8 - 11, 11, 11, 3);
+          keep.push(top ? { x: vx - 1, y: n.y - 8 - 11 - 1, w: 13, h: 11 + 8 + 2 } : { x: vx - 1, y: n.y + n.h - 1, w: 13, h: 11 + 8 + 2 });
+        }
         nodes.push(n); prev = n; floorRoom = n;
-        // a precise grid: mostly east, now and then a right-angle turn north or south
-        const turn = kind !== 'dais' && kind !== 'orrery' && r.chance(0.35) && heading === 0;
-        heading = turn ? (gy < S / 2 ? 1 : -1) : 0;
-        if (heading) { gy += heading * (h / 2 + 22); } else gx = n.x + n.w + r.int(10, 13);
-        if (heading && kind !== 'antechamber') { gx = n.cx - 7; }
-      });
+      }
+      // side stars: a few small platforms off the line, each on its own short line (the constellation's branches)
+      const main = nodes.filter((n) => !n.clock && !['gallery', 'dais', 'antechamber', 'orrery'].includes(n.kind) && !nodes.some((q) => q.clock && q.links.includes(n)));
+      for (let b = 0, want = r.int(3, 4); b < 40 && want > 0; b++) {
+        const from = main[r.int(0, main.length - 1)], sz = r.int(11, 13);
+        if (!from || from.links.length > 3) continue;
+        const at = place({ ...from, ang: (from.ang || 0) + (r.chance(0.5) ? 1.6 : -1.6) }, sz, sz, 0.6, () => true, [from]);
+        if (!at) continue;
+        const n = room(at.x, at.y, sz, sz, { kind: 'platform', dep: from.dep, shape: r.chance(0.5) ? 'round' : 'octa', leaf: true, few: true });
+        line(from, n); link(from, n); want--;
+      }
+      // a closing line, now and then: two stars two apart on the line, near enough, joined (a loop to run)
+      for (let i = 0; i + 2 < main.length; i++) {
+        const a = main[i], c = main[i + 2];
+        if (c.dep - a.dep !== 2 || a.links.includes(c) || Math.hypot(a.cx - c.cx, a.cy - c.cy) > 40 || !open(a, c.cx, c.cy, [c]) || !r.chance(0.6)) continue;
+        line(a, c); link(a, c);
+      }
+      // the void's own little stars: tiny islands of marble, out of reach, glinting
+      for (let t = 0, n = 0; t < 400 && n < 46; t++) {
+        const n0 = nodes[r.int(0, nodes.length - 1)], a = r() * Math.PI * 2, d = Math.max(n0.w, n0.h) / 2 + r.int(6, 20), x = Math.round(n0.cx + Math.cos(a) * d), y = Math.round(n0.cy + Math.sin(a) * d);
+        if (x < 10 || y < 10 || x > S - 10 || y > S - 10 || !voidAt(x - 2, y - 2, x + 2, y + 2) || !clear(x - 1, y - 1, 3, 3, 3)) continue;
+        if (r.chance(0.5)) set(x, y, FLOOR); else { carve(x, y, x + 1, y, FLOOR); if (r.chance(0.5)) set(x, y + 1, FLOOR); }
+        n++;
+      }
       // the vault: across the void from the dais, reached only by the star bridge the telescopes reveal
       const dais = nodes.find((n) => n.kind === 'dais'), vw = 11, vx = dais.cx - (vw >> 1);
       const clash = (y) => rooms.some((o) => vx < o.x + o.w + 3 && o.x < vx + vw + 3 && y < o.y + o.h + 3 && o.y < y + vw + 3);

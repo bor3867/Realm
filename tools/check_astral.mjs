@@ -66,7 +66,7 @@ for (let s = 1; s <= seeds; s++) {
   p.x = G0.cx + 0.5; p.y = G0.cy + 0.5; step(0.3);
   const hp0 = p.hp;
   p.x = G0.x - 3; p.y = G0.cy + 0.5; step(0.2);
-  if (Math.hypot(p.x - G0.cx - 0.5, p.y - G0.cy - 0.5) > 1.5 || !(p.hp < hp0)) problems.push(`fall: at ${p.x.toFixed(1)},${p.y.toFixed(1)} hp ${hp0}->${p.hp}`);
+  if (Math.hypot(p.x - G0.cx - 0.5, p.y - G0.cy - 0.5) > 1.5 || p.hp < hp0) problems.push(`fall: at ${p.x.toFixed(1)},${p.y.toFixed(1)} hp ${hp0}->${p.hp}`);   // (put back, unharmed: 2026-10-24)
   p.hp = g.stat('hp'); p.status.invuln = 0;
   // the guardians: every new monster is on the map; each ability lands
   g.enemies = g.map.enemies = allMobs; g.god = true;
@@ -106,17 +106,17 @@ for (let s = 1; s <= seeds; s++) {
     }
   }
   g.enemies = g.map.enemies = g.enemies.filter((e) => e.rb); g.god = false; p.dead = false; p.hp = g.stat("hp");
-  // a clockwork: it turns on time and carries its rider
-  const C = m.asClocks[0], k0 = C.k;
-  C.t = 0;
-  const rideI = C.tiles[Math.floor(C.tiles.length / 2)];
-  p.x = (rideI % m.w) + 0.5; p.y = Math.floor(rideI / m.w) + 0.5;
+  // a clockwork: it turns slowly and steadily, always its own way, and carries its rider (src/astral.js: once round in 22 s)
+  const C = m.asClocks[0];
+  g.update(1 / 60);
+  const a0 = C.ang;
+  p.x = C.hx + 0.5 + Math.cos(C.ang) * C.len * 0.6; p.y = C.hy + 0.5 + Math.sin(C.ang) * C.len * 0.6;   // (on the arm, partway out)
   const before = Math.atan2(p.y - C.hy - 0.5, p.x - C.hx - 0.5);
-  for (let k = 0; k < 60 * 4.1; k++) { p.hp = 1e6; p.asSafe = { x: p.x, y: p.y }; g.update(1 / 60); }
-  const after = Math.atan2(p.y - C.hy - 0.5, p.x - C.hx - 0.5);
-  if (C.k === k0) problems.push('the clockwork did not turn');
-  const turned = ((after - before) + Math.PI * 4) % (Math.PI * 2);
-  if (Math.abs(turned - Math.PI / 4) > 0.35) problems.push('the rider was not carried round: ' + turned.toFixed(2));
+  for (let k = 0; k < 60 * 4.1; k++) { p.hp = 1e6; g.update(1 / 60); }
+  const after = Math.atan2(p.y - C.hy - 0.5, p.x - C.hx - 0.5), want = (C.dir * 2 * Math.PI * 4.1) / 22;
+  if (Math.abs(C.ang - a0 - want) > 0.05) problems.push('the clockwork did not turn: ' + (C.ang - a0).toFixed(2));
+  const turned = Math.atan2(Math.sin(after - before), Math.cos(after - before));
+  if (Math.abs(turned - want) > 0.2) problems.push('the rider was not carried round: ' + turned.toFixed(2) + ' (want ' + want.toFixed(2) + ')');
   // the telescopes: wrong ways reveal nothing; the right way reveals its segment
   const scopes = m.objects.filter((o) => o.interact === 'scope');
   for (const o of scopes) for (let k = 0; k < 8 && !o.found; k++) g.interact(o);
