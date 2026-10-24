@@ -27,6 +27,7 @@
 // band (src/rf/balance.js), as their own engine had them. Each becomes BX['rfx_<id>'].
 import { BX } from './index.js';
 import { bandOfBoss } from '../rf/balance.js';
+import { bossLoot } from './boss_loot.js';
 import { ENEMIES } from '../data/enemies.js';
 
 const D2R = Math.PI / 180, TAU = Math.PI * 2;
@@ -999,7 +1000,6 @@ export function rfBossToBX(DATA, B) {
       rfP: ph, rage: !!ph.rage, len: ph.len || 60, invuln: !!ph.invuln, shield: !!ph.shield, heat: ph.heat || null, leash: ph.leash || null,
       patterns: [{ name: ph.name, windup: 0.4, recover: 5.5, volleys: [{ form: 'special', name: 'rfEmit' }] }] };
   });
-  const T2 = [bal.tiers[0] + 1, bal.tiers[1] + 1];
   return {
     id: `rfx_${B.id}`, art: `rf_${B.id}`, name: B.name, hp: Math.round(B.hp * bal.bossHp), def: bal.bossDef ?? Math.min(B.def || 0, 30), xp: Math.round(B.hp / 40),
     r: 1.6, speed: 1.2, keep: 6, faces: false, thresholds, phases, rfData: B, rfBal: bal,
@@ -1050,8 +1050,9 @@ export function rfBossToBX(DATA, B) {
       if ((ph.rfP.egg || ph.rfP.cocoon) && e.rfImm) ring(32 + Math.sin(g.t * 6) * 2, ph.rfP.egg ? '#ffcc33' : '#f4ecd8', 0.7);
       if (ph.leash) { b.globalAlpha = 0.18; b.strokeStyle = '#7ac85a'; b.lineWidth = 1; b.beginPath(); b.arc(sx, sy, ph.leash.len * 16, 0, TAU); b.stroke(); b.globalAlpha = 1; }
     },
-    loot: [...(B.drops || []).map((d) => ({ id: `rf_${d.id}`, p: d.rarity === 'mythic' ? 0.02 : d.rarity === 'legendary' ? 0.08 : 0.2 })),
-      { slot: 'weapon', tiers: T2, p: 0.8 }, { slot: 'armor', tiers: T2, p: 0.8 }, { slot: 'ring', tiers: [1, 3], p: 0.5 }, { slot: 'ability', tiers: [3, 5], p: 0.5 }, { stat: true, p: 0.6 }, { id: 'pot_hp', p: 1 }],
+    // the same rule as every boss (src/bosses/boss_loot.js): a bag every kill, every class's gear in the band of its
+    // stars, its own uniques rare by rarity
+    loot: bossLoot((B.drops || []).map((d) => ({ id: `rf_${d.id}` })), Math.max(1, Math.min(5, (bal.band && bal.band.stars) || 3))),
   };
 }
 // every Realmforge boss, added to the engine's list (the browser after its data loads; the server at start)
