@@ -43,6 +43,26 @@ const PLAYER_R = 0.32;
 // hits follow the art. You are an upright capsule a little inside your sprite (feet to the top of your head); a shot is a
 // capsule along its flight the size of its visible pixels (src/data/shot_boxes.js, made by tools/shot_boxes.mjs),
 // trimmed by HIT_K so that a graze of a pixel or two does not count. tools/check_hitboxes.mjs holds them to the art.
+// the opaque part of a sprite's standing frames (its idle, or its walk), in art pixels: undefined until its image has
+// loaded, null where it can't be read (no canvas: the server)
+const OPAQUE = new WeakMap();
+function opaqueBox(def) {
+  if (OPAQUE.has(def)) return OPAQUE.get(def);
+  if (typeof document === 'undefined' || !def.img || !def.img.complete || !def.img.naturalWidth) return typeof document === 'undefined' ? null : undefined;
+  const A = def.anims || {}, idle = def.phases && def.phases['1'] && A[def.phases['1'].idle];
+  const names = (idle || A.idle || A.move || A.walk || { frames: [Object.keys(def.frames)[0]] }).frames;
+  const c = document.createElement('canvas'), x = c.getContext('2d', { willReadFrequently: true });
+  let x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1;
+  for (const n of names) {
+    const f = def.frames[n]; if (!f) continue;
+    c.width = f.w; c.height = f.h; x.clearRect(0, 0, f.w, f.h); x.drawImage(def.img, f.x, f.y, f.w, f.h, 0, 0, f.w, f.h);
+    const d = x.getImageData(0, 0, f.w, f.h).data;
+    for (let j = 0; j < f.h; j++) for (let i = 0; i < f.w; i++) if (d[(j * f.w + i) * 4 + 3] > 40) { if (i < x0) x0 = i; if (i > x1) x1 = i; if (j < y0) y0 = j; if (j > y1) y1 = j; }
+  }
+  const out = x1 < 0 ? null : { x0, y0, x1: x1 + 1, y1: y1 + 1 };
+  OPAQUE.set(def, out);
+  return out;
+}
 export const HITBOX = { foot: 0.26, head: 0.66, r: 0.29, k: 0.86, kRound: 0.95 };
 const SHOT_OVERRIDE = { 'bx_shots/grand_orrery.star_bolt': [20, 4, 0, 0, 'h'] };   // drawn as a laser (render.js laserShot)
 const shapeCache = new Map();
@@ -1686,6 +1706,29 @@ export class Game {
     return b;
   }
 
+  // does your shot touch this monster? Its body as drawn (enemyBox: the opaque part of its sprite, upright on the screen
+  // whatever the camera's turn), or the old circle at its middle. (2026-10-24: the circle alone was a fraction of a big
+  // boss's body: shots through the Honey Queen's wings passed clean through.)
+  shotOnEnemy(b, e) {
+    const rr = e.D.r + b.r, [hx, hy] = this.up(e.x, e.y, e.hitUp || (e.rb ? 1.4 : 0.5));
+    if (dist2(b.x, b.y, hx, hy) < rr * rr) return true;
+    const B = this.enemyBox(e);
+    if (!B) return false;
+    const a = this.camAngle || 0, dx = b.x - e.x, dy = b.y - e.y, up = -dx * Math.sin(a) - dy * Math.cos(a), right = dx * Math.cos(a) - dy * Math.sin(a), m = b.r * 0.5;
+    return Math.abs(right) <= B.rx + m && Math.abs(up - B.up) <= B.ry + m;
+  }
+  // a monster's body as drawn, in tiles: how far up its middle is, and half its width and height (0.85 of its opaque
+  // pixels: RotMG's hitboxes sit a little inside the art). From its sprite, once; null where there is none to read (the
+  // server, the old sheets)
+  enemyBox(e) {
+    const S = e.bx, K = S ? S.drawK || 1 : e.D.scale || 1;
+    if (e.hb !== undefined && (!e.hb || e.hbK === K)) return e.hb;
+    const R = this.A && this.A.reg, def = S ? S.def : e.D.reg && R ? R.resolve(e.D.reg) : null, O = def && opaqueBox(def);
+    e.hbK = K;
+    if (!O) return (e.hb = O === undefined ? undefined : null);
+    const k = K / 8;                                       // (art pixels to tiles: drawn at 2 buffer pixels each, 16 a tile)
+    return (e.hb = { up: (def.foot[1] - (O.y0 + O.y1) / 2) * k - (e.bxLift || 0) * K, rx: ((O.x1 - O.x0) / 2) * k * 0.85 + Math.abs((O.x0 + O.x1) / 2 - def.foot[0]) * k, ry: ((O.y1 - O.y0) / 2) * k * 0.85 });
+  }
   // does this enemy shot touch you? (its art against yours; see HITBOX)
   shotHitsPlayer(b, p) {
     const S = shotShape(b.sprite, b.r), a = S.upright ? -this.camAngle : b.a || 0, ca = Math.cos(a), sa = Math.sin(a);
@@ -3345,9 +3388,7 @@ export class Game {
         if (alive && !b.armNoHit) for (const e of targets) {
           if (e.dead || e.state === 'dead' || e.under) continue;
           if (e.friendly && !(e.rfSnareHp > 0)) continue;           // (your shots pass through a boss's friends)
-          const rr = e.D.r + b.r;
-          const [hx, hy] = this.up(e.x, e.y, e.hitUp || (e.rb ? 1.4 : 0.5));
-          if (dist2(b.x, b.y, hx, hy) < rr * rr) {
+          if (this.shotOnEnemy(b, e)) {
             if (b.hit) { if (b.hit.has(e)) continue; b.hit.add(e); }
             this.playerHit(e, b);
             if (!b.pierce) { alive = false; break; }
