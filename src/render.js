@@ -26,6 +26,8 @@ import { SHOT_BOXES } from './data/shot_boxes.js';
 
 const TS = 16;
 // the fluids that drift (Renderer.drift): the old tiles by name, and the skins
+// how far a body sinks in each liquid you can walk in (buffer pixels; a body is about 16 tall)
+const WADE = { [TID.shallows]: 4, [TID.nxwater]: 4, [TID.fvwater]: 5, [TID.bog]: 5, [TID.honey]: 4, [TID.ckblood]: 4, [TID.quicksand]: 6, [TID.lava]: 4, [TID.emberlava]: 4 };
 const FLUID_TILE = new Set(['water', 'deep', 'shallows', 'bog', 'cryptwater', 'lava', 'emberlava', 'honey']);
 // starry backgrounds (still tiles, with smooth stars over them: Renderer.voidStars); what sways tile by tile (grass);
 // everything else that animates goes all together (each tile on its own beat flickered: 2026-10-24)
@@ -551,13 +553,28 @@ export class Renderer {
   }
 
   // ------------------------------------------------------------ sprites
+  // wading (RotMG's way): in shallow water or any liquid you can walk in, a body sinks a few pixels and the water hides
+  // its feet. While this.wade is set, spr and drawDef draw lower, cut off at the waterline; its shadow is a ripple instead
+  wadeIn(m, x, y) { if (!m || !m.tiles) return 0; const t = m.tiles[Math.floor(y) * m.w + Math.floor(x)]; return WADE[t] || 0; }
+  sprW(f, y) {
+    const W = this.wade; if (!W) return f(y);
+    const b = this.b; b.save(); b.beginPath(); b.rect(-1e4, -1e4, 2e4, Math.round(W.y) + 1e4); b.clip();
+    try { return f(y + W.d); } finally { b.restore(); }
+  }
+  ripple(sx, sy, w, t) {
+    const b = this.b, x = Math.round(sx), y = Math.round(sy), r = Math.max(5, w * 0.55) + Math.sin(t * 4) * 0.8;
+    b.globalAlpha = 0.55; b.strokeStyle = '#dff4ff'; b.lineWidth = 1; b.beginPath(); b.ellipse(x, y, r, r * 0.32, 0, 0, Math.PI * 2); b.stroke();
+    b.globalAlpha = 0.25; b.beginPath(); b.ellipse(x, y, r + 3 + ((t * 6) % 3), (r + 3) * 0.32, 0, 0, Math.PI * 2); b.stroke(); b.globalAlpha = 1;
+  }
   shadow(sx, sy, w = 10) {
+    if (this.wade) return this.ripple(sx, sy, w, this.wadeT || 0);
     const b = this.b, x = Math.round(sx), y = Math.round(sy);
     b.fillStyle = 'rgba(0,0,0,0.38)';
     b.fillRect(x - w / 2 + 1, y - 1, w - 2, 1); b.fillRect(x - w / 2, y, w, 1); b.fillRect(x - w / 2 + 1, y + 1, w - 2, 1);
   }
   // every sprite goes through here: drawn RotMG-style, with a thin black outline added at draw time (src/outline.js)
-  spr(img, sx, sy, w, h, x, y, px, py, flip = false, flash = false) {
+  spr(img, sx, sy, w, h, x, y, px, py, flip = false, flash = false) { return this.sprW((yy) => this.spr0(img, sx, sy, w, h, x, yy, px, py, flip, flash), y); }
+  spr0(img, sx, sy, w, h, x, y, px, py, flip = false, flash = false) {
     const k = this.sprK || 1;                                // a sprite drawn bigger than life (a dungeon's warden)
     const b = this.b, dx = Math.round(x - px * k), dy = Math.round(y - py * k);
     if (flash) {
@@ -572,7 +589,8 @@ export class Renderer {
   }
   // ---- a registry sprite (the Realm Update bundle, src/registry.js): native art at 2 buffer px per art px,
   // anchored at its foot (or centred), outlined like every other sprite. o: { flip, flash, alpha, rot, scale, center }
-  drawDef(def, frame, x, y, o = {}) {
+  drawDef(def, frame, x, y, o = {}) { return this.wade && !o.center ? this.sprW((yy) => this.drawDef0(def, frame, x, yy, o), y) : this.drawDef0(def, frame, x, y, o); }
+  drawDef0(def, frame, x, y, o = {}) {
     const f = def.frames[frame] || def.frames[Object.keys(def.frames)[0]];
     if (!f) return;
     const b = this.b, K = 2 * (o.scale || 1), U = this.U || 1;
@@ -1174,6 +1192,11 @@ export class Renderer {
     } else if (e.hp < e.maxHp) this.hpBar(sx, sy + 3, e.hp / e.maxHp, 16);
   }
   enemy(g, e, sx, sy) {
+    const d = !e.dead && !e.rb && !(e.D && (e.D.fly || e.D.bx)) ? this.wadeIn(g.map, e.x, e.y) : 0;   // (wading: see wadeIn)
+    this.wade = d ? { y: sy, d } : null; this.wadeT = g.t;
+    try { return this.enemy0(g, e, sx, sy); } finally { this.wade = null; }
+  }
+  enemy0(g, e, sx, sy) {
     if (e.hidden) return;                                   // the Puppeteer, offstage during his intermission
     if (e.rb) return this.realmBoss(g, e, sx, sy);
     if (e.spawnT > 0) return this.eliteArrival(g, e, sx, sy);
@@ -1486,6 +1509,11 @@ export class Renderer {
     }
   }
   player(g, p, sx, sy) {
+    const d = !p.dead ? this.wadeIn(g.map, p.x, p.y) : 0;   // (wading: see wadeIn)
+    this.wade = d ? { y: sy, d } : null; this.wadeT = g.t;
+    try { return this.player0(g, p, sx, sy); } finally { this.wade = null; }
+  }
+  player0(g, p, sx, sy) {
     const C = CLASSES[p.cls], S = this.A.sheets[C.sheet], A = S.guide.animations;
     let name, flip = false, frame = 0;
     const lr = p.dir === 'left' || p.dir === 'right';

@@ -12,7 +12,7 @@ export const TILE_NAMES = ['water', 'deep', 'sand', 'fen', 'mud', 'snow', 'runef
   // the Nexus, built in true 8x8 tiles (tools/build_nexus_tiles.py)
   'nxstone', 'nxtrim', 'nxinlay', 'nxwall', 'nxwater', 'nxchasm', 'nxbridge', 'nxsand', 'nxgrass', 'nxbrick'];
 export const TID = Object.fromEntries(TILE_NAMES.map((n, i) => [n, i]));
-const SOLID_TILES = new Set([TID.nxwall, TID.nxwater, TID.nxchasm, TID.water, TID.deep, TID.forgewall, TID.void, TID.chapelwall, TID.ribwall, TID.hedge, TID.bramble, TID.cryptwall, TID.emberwall, TID.cryptwater,
+const SOLID_TILES = new Set([TID.nxwall, TID.nxchasm, TID.water, TID.deep, TID.forgewall, TID.void, TID.chapelwall, TID.ribwall, TID.hedge, TID.bramble, TID.cryptwall, TID.emberwall, TID.cryptwater,
   TID.waxwall, TID.velvetwall, TID.crystalwall, TID.dreamwall, TID.starvoid, TID.fadegone, TID.cliff, TID.fvwall, TID.mrwall, TID.aswall, TID.sdwall, TID.ckwall, TID.ckwin, TID.hmwall]);
 export const BIOMES = ['shore', 'fen', 'runeholt', 'godfall', 'dunes', 'thornwood', 'steppe', 'lowlands'];
 // how deep in each land lies: 0 the coast ... 3 the god's fall. The three newer lands share a ring with an older one.

@@ -88,7 +88,12 @@ function onMessage(c, text) {
   if (m.t === 'rejoin' && world && typeof m.to === 'string' && DUNGEONS[m.to]) {
     const iid = Math.floor(num(m.iid, 1, 1e12)), room = 'dg:' + iid, seed = Math.floor(num(m.seed, 1, 0xffffff));
     if (!iid || !seed || dungeons.has(room) || dungeons.size >= 12) return;
-    try { const dw = makeWorld(seed, (id, obj) => { const t = clients.get(id); if (t) send(t, obj); }, m.to); dw.onBag = (x, y, items) => publicBag(room, x, y, items); dungeons.set(room, { world: dw, to: m.to, until: Date.now() + 60 * 1000 }); }
+    try {
+      const dw = makeWorld(seed, (id, obj) => { const t = clients.get(id); if (t) send(t, obj); }, m.to); dw.onBag = (x, y, items) => publicBag(room, x, y, items); dungeons.set(room, { world: dw, to: m.to, until: Date.now() + 60 * 1000 });
+      // the rooms its players had cleared stay clear (it used to come back whole: every monster again, 2026-10-24)
+      const g = dw._g, R = g.map.rooms || [], gone = new Set((Array.isArray(m.cleared) ? m.cleared : []).slice(0, 200).map((v) => R[Math.floor(num(v, 0, 1e4))]).filter(Boolean));
+      if (gone.size) g.enemies = g.map.enemies = g.enemies.filter((e) => ![...gone].some((r) => e.x >= r.x && e.x < r.x + r.w && e.y >= r.y && e.y < r.y + r.h));
+    }
     catch (err) { console.error('rejoin', m.to, err); }
     return;
   }
