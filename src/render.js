@@ -1221,12 +1221,21 @@ export class Renderer {
     if (!e.dead && e.hp < e.maxHp && !e.D.noBar) this.hpBar(sx, sy + 3, e.hp / e.maxHp, 12);
     if (!e.dead && e.stunT > 0) this.stunStars(g, sx, sy, 18);
   }
+  // a monster whose art isn't here (the server knows a newer one than this page has loaded): a plain grey body with an
+  // outline, so it is never invisible. (2026-10-24: new XP pigeons came from the server before the page had their art)
+  noArt(g, e, sx, sy) {
+    const b = this.b, x = Math.round(sx), y = Math.round(sy - 7 - (e.D.fly ? 3 + Math.sin(g.t * 6 + (e.phase || 0)) * 1.5 : 0)), r = Math.max(4, Math.round((e.D.r || 0.4) * 14));
+    this.shadow(sx, sy, r * 2);
+    b.fillStyle = '#05040a'; b.beginPath(); b.ellipse(x, y, r + 1, r * 0.8 + 1, 0, 0, Math.PI * 2); b.fill();
+    b.fillStyle = e.hurtT > 0 ? '#ffffff' : '#9aa0b0'; b.beginPath(); b.ellipse(x, y, r, r * 0.8, 0, 0, Math.PI * 2); b.fill();
+    b.fillStyle = '#05040a'; b.fillRect(x + Math.round(r * 0.35), y - 2, 2, 2);
+  }
   // a Realm Update monster (registry art, 4 frames: two to move, attack, hurt), with the same body language as the rest
   regEnemy(g, e, sx, sy) {
     const C = this.objDefs || (this.objDefs = new Map());
     let def = C.get(e.D.reg);
     if (def === undefined) C.set(e.D.reg, (def = (this.R && this.R.resolve(e.D.reg)) || null));
-    if (!def) return;
+    if (!def) return this.noArt(g, e, sx, sy);
     if (e.under) return this.mound(g, e, sx, sy, e.D.ability ? 22 : 10);
     const F = Object.keys(def.frames), mv = (def.anims.move || def.anims.walk) ? (def.anims.move || def.anims.walk).frames : F.slice(0, 2);
     const fAtk = def.anims.attack ? def.anims.attack.frames[def.anims.attack.frames.length - 1] : F[2], fHurt = def.anims.hurt ? def.anims.hurt.frames[0] : F[3];   // by clip: some have three gallop frames
