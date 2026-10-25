@@ -93,6 +93,16 @@ function onMessage(c, text) {
       // the rooms its players had cleared stay clear (it used to come back whole: every monster again, 2026-10-24)
       const g = dw._g, R = g.map.rooms || [], gone = new Set((Array.isArray(m.cleared) ? m.cleared : []).slice(0, 200).map((v) => R[Math.floor(num(v, 0, 1e4))]).filter(Boolean));
       if (gone.size) g.enemies = g.map.enemies = g.enemies.filter((e) => ![...gone].some((r) => e.x >= r.x && e.x < r.x + r.w && e.y >= r.y && e.y < r.y + r.h));
+      // and in the rest, the monsters they killed (so many of each kind, room by room): a warden or a boss stays dead
+      const K = m.kills && typeof m.kills === 'object' ? m.kills : {}, out = new Set();
+      for (const [ri, ids] of Object.entries(K).slice(0, 200)) { const r = R[Math.floor(num(+ri, 0, 1e4))]; if (!r || !ids || typeof ids !== 'object') continue;
+        for (const [id, n] of Object.entries(ids).slice(0, 40)) { let left = Math.floor(num(n, 0, 200)); for (const e of g.enemies) { if (left <= 0) break; if (!out.has(e) && e.id === id && e.x >= r.x && e.x < r.x + r.w && e.y >= r.y && e.y < r.y + r.h) { out.add(e); left--; } } } }
+      if (out.size) {
+        g.enemies = g.map.enemies = g.enemies.filter((e) => !out.has(e));
+        // a warden that stays dead has broken its seal again (quietly: no banners for a seal long broken), or the gate stays shut
+        const b0 = g.banner, n0 = g.narrate, sx = g.sfx; g.banner = g.narrate = g.sfx = () => {};
+        try { for (const e of out) if (e.warden) { e.dead = true; e.noLoot = true; g.breakSeal(''); } } finally { g.banner = b0; g.narrate = n0; g.sfx = sx; }
+      }
     }
     catch (err) { console.error('rejoin', m.to, err); }
     return;

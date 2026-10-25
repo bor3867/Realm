@@ -61,7 +61,7 @@ const methods = {
         const M = this.map, inR = (r, e) => e.x >= r.x && e.x < r.x + r.w && e.y >= r.y && e.y < r.y + r.h;
         const cleared = [...(M.netDeadRooms || [])].filter((ri) => M.rooms[ri] && !this.enemies.some((e) => e.net && !e.dead && inR(M.rooms[ri], e))).slice(0, 200);
         N.byId.clear(); this.enemies = M.enemies = [];
-        N.ws.send(JSON.stringify({ t: 'rejoin', iid: M.netIid, seed: M.netSeed, to: M.netTo, cleared }));   // (made again if the server lost it)
+        N.ws.send(JSON.stringify({ t: 'rejoin', iid: M.netIid, seed: M.netSeed, to: M.netTo, cleared, kills: M.netKills || {} }));   // (and every monster you saw fall, by kind and room: a warden stays dead)   // (made again if the server lost it)
       }
     } else if (m.t === 'online') N.online = m.n;
     else if (m.t === 'gift') {                            // an admin's gift: your own chests and chickens (shared chickens in the realm come as monsters)
@@ -318,7 +318,7 @@ const methods = {
       if (!e) continue;
       N.byId.delete(nid);
       if (how === -1) { this.enemies = M.enemies = this.enemies.filter((o) => o !== e); continue; }   // out of sight
-      if (M.kind === 'dungeon' && M.rooms) { const ri = M.rooms.findIndex((r) => e.x >= r.x && e.x < r.x + r.w && e.y >= r.y && e.y < r.y + r.h); if (ri >= 0) (M.netDeadRooms = M.netDeadRooms || new Set()).add(ri); }   // (where its monsters fell: rooms you cleared, if the server has to make the dungeon again)
+      if (M.kind === 'dungeon' && M.rooms) { const ri = M.rooms.findIndex((r) => e.x >= r.x && e.x < r.x + r.w && e.y >= r.y && e.y < r.y + r.h); if (ri >= 0) { (M.netDeadRooms = M.netDeadRooms || new Set()).add(ri); const K = (M.netKills = M.netKills || {}), r0 = (K[ri] = K[ri] || {}); r0[e.id] = (r0[e.id] || 0) + 1; } }   // (where its monsters fell: rooms you cleared, if the server has to make the dungeon again)
       e.x = e.tx; e.y = e.ty;
       // (bxKill: a three-phase boss is in its death clip by now, immune; this blow is only the kill, so it must land:
       // without it a shared boss never died for you, and dropped nothing. 2026-10-22)
