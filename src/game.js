@@ -557,7 +557,7 @@ export class Game {
   fitsEquip(idx, id) { const it = ITEMS[id]; return !!it && TYPE_SLOT[it.type] === SLOT_ORDER[idx] && canEquip(this.player.cls, it); }
   bagKind(items) { return bagFor(items.filter(Boolean).map((id) => ITEMS[id])); }
   cleanBags() {
-    this.bags = this.map.bags = this.bags.filter((b) => b.shared || b.items.some(Boolean));   // (a shared bag goes when the server says)
+    this.bags = this.map.bags = this.bags.filter((b) => b.items.some(Boolean));   // (an empty bag goes, a shared one too: if the server still has something in it, its next word brings it back)
     if (this.nearBag && !this.bags.includes(this.nearBag)) this.nearBag = null;
   }
   // double-click / number key behaviour
@@ -576,6 +576,8 @@ export class Game {
   }
   // use an item where it sits: drink a potion, or equip/unequip gear (right-click does this directly)
   useNow(cont, i) {
+    // a shared bag's item is the server's until it says you have it: taken (a potion to its slot first), never used where it lies
+    if (cont === 'ground' && !this.nearVault && this.nearBag && this.nearBag.shared) { const id = this.nearBag.items[i], k = id && this.isPotion(id) ? this.potSlotFor(id) : -1; if (id) this.netTake(this.nearBag, i, k >= 0 ? 'pots' : 'inv', k >= 0 ? k : -1); return; }
     if (cont === 'pots') {
       const S = this.pots()[i];
       if (!S) return;
@@ -673,7 +675,9 @@ export class Game {
   // floating text: numbers and words that belong to someone ride above their head, not over their body
   float(x, y, text, color, own) {
     if (typeof text === 'number' || /^[-+]?\d*\.\d+$/.test(text) || /^[-+]?\d+\.\d+$/.test(text)) text = (/^[-+]/.test(String(text)) ? String(text)[0] : '') + Math.round(Math.abs(parseFloat(text)));   // whole numbers only
-    const who = own || this.floatOwner(x, y);
+    // (while a monster is being struck, a number raised at it is its own: by nearness alone, a monster close to you lost
+    // its damage numbers to you, and yours are hidden. 2026-10-24)
+    const F = this.floatFor, who = own || (F && Math.hypot(F.x - x, F.y - (F.hitUp || 0.6) - y) < (F.rb ? 4 : 2.2) ? F : this.floatOwner(x, y));
     // over you: only red (a hit taken), green (a health potion) and blue (a mana potion) (the user's call, 2026-10-19)
     if (who && who === this.player && !this.pFloatOk) return;
     // every hit shows its own number (2026-10-19): numbers that land together each take a different spot above the
@@ -2300,7 +2304,8 @@ export class Game {
       }
     }
   }
-  damageEnemy(e, dmg, x, y, quiet = false, crit = false) {
+  damageEnemy(e, ...a) { const f0 = this.floatFor; this.floatFor = e; try { return this.damageEnemy0(e, ...a); } finally { this.floatFor = f0; } }   // (its numbers are its own: float)
+  damageEnemy0(e, dmg, x, y, quiet = false, crit = false) {
     if (e.linkTo && !e.linkTo.dead && e.linkTo !== e) { const L = e.linkTo; L.linkHit = true; try { return this.damageEnemy(L, dmg, x, y, quiet, crit); } finally { L.linkHit = false; } }   // a body that is part of another (the Eclipse Twins' Noct; the Sleeper's nightmare-self, whose wounds reach it while it dreams)
     if (e.friendly) {                                            // a boss's friend (Gourdrick's knight and priest): your blows pass, but for a snared knight's vines
       if (!(e.rfSnareHp > 0)) return 0;
