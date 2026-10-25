@@ -68,6 +68,7 @@ const methods = {
       if (m.what === 'chests') this.spawnAdminChests(m.x, m.y, m.n);
       if (m.what === 'note') { if (m.by) this.banner(`${m.by} brings gifts!`, 2200); return; }
       else if (m.what === 'chickens' && !this.map.netWorld) this.spawnChickens(m.x, m.y, m.n);
+      else if (m.what === 'pigeons' && !this.map.netWorld) this.spawnChickens(m.x, m.y, m.n, 'xp_pigeon');
       if (m.by) this.banner(`${m.by} brings gifts!`, 2200);
     }
     else if (m.t === 'bags') { if (this.map) { this.bags = this.map.bags = this.bags.filter((b) => !b.shared); for (const b of m.list) this.netBag(b); } }

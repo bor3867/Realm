@@ -4001,7 +4001,7 @@ export class Game {
       case 'help':
         say('Player: /teleport NAME (to someone here)  /dance  · Enter to chat, Esc for settings and your keys.');
         if (!this.adminOk()) break;
-        say('/admin  /ascend (top level, stats maxed; a priest gets the Hosanna set)  /backpack  /maxlevel  /level N  /maxstats  /heal  /god  /give ITEM [N]  /give dungeon ID (its whole loot set)  /items TEXT  /spawn ID [N] (any monster, elite or boss)  /boss ID  ' +
+        say('/admin  /ascend (top level, stats maxed; a priest gets the Hosanna set)  /backpack  /maxlevel  /level N  /maxstats  /heal  /god  /give ITEM [N]  /give dungeon ID (its whole loot set)  /items TEXT  /spawn ID [N] (any monster, elite or boss; /spawn chicken N, /spawn pigeon N: up to 100 XP birds)  /boss ID  ' +
             '/bx BOSS (a three-phase boss beside you)  /kraken  /treant  /melon  /event BIOME  /adminchest [N] (best loot)  /armory [TIER] (the Mad God Armory)  /keys [dungeon N] (dungeon keys)  /pet [kind rarity max]  /star (a falling star in Godfall)  /seals (open a dungeon boss gate)  /progress BIOME N  /gold N  /essence N  /bosses  /tp LAND|nexus|realm|DUNGEON (lands: shore fen runeholt godfall dunes thornwood steppe lowlands)  /killall  /clearbags  /fame N  /portal DUNGEON  (all ids: ADMIN_REFERENCE.md; final boss: /portal throne)');
         break;
       case 'maxlevel': {
@@ -4092,6 +4092,7 @@ export class Game {
       }
       case 'spawn': {                                     // any monster, elite or boss by id
         if (/^(chickens?|xp_chicken)$/.test(args[0] || '')) return this.command('/chickens ' + (args[1] || ''));   // /spawn chicken N: XP chickens
+        if (/^(pigeons?|xp_pigeon)$/.test(args[0] || '')) return this.command('/pigeons ' + (args[1] || ''));     // /spawn pigeon N: XP pigeons
         const id = ({ the_unstruck_god: 'unstruck_god', unstruck: 'unstruck_smith', the_unstruck: 'unstruck_smith' })[args[0]] || args[0];
         if (BX[id]) { const e = this.spawnRealmBoss(id, near(7), bxEnemyDef(id)); if (e) say(`${e.D.name} (${e.D.hp} life).`); break; }
         if (!ENEMIES[id]) { say(`Unknown id. Monsters, elites and bosses: see ADMIN_REFERENCE.md (or /bosses).`); break; }
@@ -4114,6 +4115,12 @@ export class Game {
         if (this.map.kind !== 'dungeon' || !this.map.sealsLeft) { say('No seals here.'); break; }
         while (this.map.sealsLeft) this.breakSeal('By admin decree.');
         break;
+      }
+      case 'pigeons': {                                    // /spawn pigeon N (or /pigeons N): up to 100 XP pigeons, as the chickens
+        const N = Math.min(100, Math.max(1, n(args[0], 6)));
+        if (this.map.kind === 'vault') { say('Not in your vault.'); break; }
+        if (this.netGift && this.netGift('pigeons', N)) { say(`${N} XP pigeons for everyone here.`); break; }
+        say(`${this.spawnChickens(p.x, p.y, N, 'xp_pigeon')} XP pigeons take wing.`); break;
       }
       case 'chickens': {                                   // /spawn chicken N (or /chickens N): up to 100 XP chickens for everyone here (online: every player in the room gets them)
         const N = Math.min(100, Math.max(1, n(args[0], 6)));
@@ -4290,14 +4297,14 @@ export class Game {
     }
     return made;
   }
-  spawnChickens(cx, cy, N) {
+  spawnChickens(cx, cy, N, id = 'xp_chicken') {
     let made = 0;
     for (let k = 0; k < N; k++) {
       const a = R() * TAU, d = 2 + R() * (3 + N / 12), x = cx + Math.cos(a) * d, y = cy + Math.sin(a) * d;   // (a big flock spreads wider)
       if (isSolid(this.map, x, y)) continue;
-      const e = this.addEnemy('xp_chicken', x, y);
+      const e = this.addEnemy(id, x, y);
       e.seen = true; e.spawnT = 0.4; made++;
-      this.vx({ k: 'burst', x, y: y - 0.4, n: 10, colors: ['#ffffff', '#ffe066', '#f8c030'] });
+      this.vx({ k: 'burst', x, y: y - 0.4, n: 10, colors: id === 'xp_pigeon' ? ['#ffffff', '#c8ccd8', '#3ab08a'] : ['#ffffff', '#ffe066', '#f8c030'] });
     }
     return made;
   }

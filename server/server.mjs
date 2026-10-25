@@ -214,10 +214,10 @@ function onMessage(c, text) {
     C.delete(o.cid); toRoom(c.room, { t: 'chest', cid: o.cid, open: true, to: [...o.hit] });   // broken: loot for each who hit it
     return;
   }
-  if (m.t === 'gift' && c.account && c.account.admin && c.room && ['chickens', 'chests'].includes(m.what)) {   // an admin's gift for the room
+  if (m.t === 'gift' && c.account && c.account.admin && c.room && ['chickens', 'pigeons', 'chests'].includes(m.what)) {   // an admin's gift for the room
     const n = Math.max(1, Math.min(m.what === 'chests' ? 5 : 100, Math.round(num(m.n, 1, 100)))), x = num(m.x, 0, 4096), y = num(m.y, 0, 4096);
     const W = worldOf(c.room);
-    if (W && m.what === 'chickens') W.spawn('xp_chicken', x, y, n);             // where the server runs the monsters: shared ones
+    if (W && (m.what === 'chickens' || m.what === 'pigeons')) W.spawn(m.what === 'pigeons' ? 'xp_pigeon' : 'xp_chicken', x, y, n);             // where the server runs the monsters: shared ones
     else if (W && m.what === 'chests') {                                       // a shared place: chests for all to break together
       const C = chestsIn(c.room);
       for (let k = 0; k < n && C.size < 20; k++) {

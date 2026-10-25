@@ -24,6 +24,7 @@ Type commands in chat (`/` or Enter). Ids use underscores. Regenerate with `node
 | `/armory [TIER]` | The Mad God Armory: all 28 items, or one tier (`ut`, `mythic`, `legendary`, `celestial`, `divine`; divine is the admin-only Hosanna set, also `/armory hosanna`) |
 | `/adminchest [N]` | Up to 5 admin chests (top-tier loot); online, every player here gets their own |
 | `/spawn chicken N` | Up to 100 XP chickens (10,000 XP each); online, for every player here (shared ones in the realm). /chickens N does the same |
+| `/spawn pigeon N` | Up to 100 XP pigeons (5,000 XP each): they fly, and are quicker; /pigeons N does the same |
 | `/gold N` | Add gold (default 1000) |
 | `/essence N` | Add essence |
 | `/fame N` | Add account fame (default 100) |

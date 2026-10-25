@@ -1595,6 +1595,9 @@ import { RF_FOES } from './rf_foes.js';
 // the admin's gift (/chickens): a harmless hen that wanders, takes a few shots and is worth a lot of XP
 ENEMIES.xp_chicken = { name: 'XP Chicken', biome: 'nexus', hp: 600, def: 0, speed: 2.6, xp: 10000, r: 0.4, ai: 'skitter', aggro: 0,
   reg: 'rs_enemies/xp_chicken', scale: 1, attacks: [], loot: [] };
+// and its flighty cousin (/spawn pigeon): on the wing, quicker and harder to pin down, worth half as much
+ENEMIES.xp_pigeon = { name: 'XP Pigeon', biome: 'nexus', hp: 450, def: 0, speed: 3.8, xp: 5000, r: 0.4, ai: 'skitter', aggro: 0, fly: true,
+  reg: 'rs_enemies/xp_pigeon', scale: 1, attacks: [], loot: [] };
 ENEMIES.kraken_tentacle = { name: 'Kraken Tentacle', biome: 'shore', hp: 1400, def: 6, speed: 0, xp: 30, r: 0.5, ai: 'rooted', aggro: 12, contact: 60,
   reg: 'rs_enemies/kraken_tentacle', scale: 1,
   attacks: [{ pattern: 'aimed', proj: 'bx_shots/abyssal_kraken.barbed_hook', count: 3, arc: 0.35, dmg: 55, speed: 7, range: 8, cd: 1.5, tell: 400 }], loot: [] };

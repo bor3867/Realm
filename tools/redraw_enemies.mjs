@@ -61,6 +61,11 @@ const ART = {
     base: ['....tT......', '...tTTt.....', '...TTSt.....', '....tTTt....', '.....TSTt...', '.....tTTt...', '....tTSTt...', '....tTTTt...', '...tTSTTTt..', '.wWtTTTTtWw.', 'wWWWWWWWWWWw', '.wwwwwwwwww.'],
     move2: { 0: '.....tT.....', 1: '....tTTt....', 2: '....tTST....' },
     attack: { 0: '..TTTTt.....', 1: '.tS..tTt....', 2: '.....tTS....' } },
+  xp_pigeon: {                                     // the admin's other gift: a grey pigeon on the wing, its neck green and violet, worth XP
+    pal: { G: '#9aa0b0', g: '#6a7080', L: '#d0d4e0', N: '#3ab08a', P: '#a060d0', E: '#ff8a1f', B: '#e8c8a0', W: '#3a3e4a', k: '#1a1018' },
+    base: ['.W......W...', '.WG....GW...', '..GL..LG....', '...GLLG..NN.', '....GGGGNPEB', '..gGGGGGGN..', '.ggGLLLGG...', 'gg.GGGGGg...', '....gggg....', '.....kk.....', '............', '............'],
+    move2: { 0: '............', 1: '............', 2: '............', 3: '.........NN.', 7: 'ggWGGGGGg...', 8: '.WWgggg.....', 9: 'WW...kk.....' },
+    attack: { 0: '............', 1: '............', 2: '.W.L..LG.W..', 3: '.WGLLLG..NN.' } },
 };
 const parse = (rows, pal) => rows.map((r) => [...r].map((ch) => (ch === '.' ? null : pal[ch])));
 const pale = (hex) => { const n = parseInt(hex.slice(1), 16), m = (v) => Math.round(v + (255 - v) * 0.6); return `#${[(n >> 16) & 255, (n >> 8) & 255, n & 255].map(m).map((v) => v.toString(16).padStart(2, '0')).join('')}`; };
