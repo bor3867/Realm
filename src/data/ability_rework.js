@@ -69,7 +69,7 @@ export const SIGIL_REWORK = {
   hexcircle_grimoire: { theme: 'root', root: 1.4, n: 6, f: 1.5, r: 2.8 },
   grimoire_of_ash: { theme: 'forge', delay: 0.6, r: 2.4, f: 2.4 },
   trick_deck: { theme: 'rune', t: 6, n: 4, r: 3, f: 1.4 },
-  melon_orb: { theme: 'align', f: 1.5, r: 2.2 },
+  melon_orb: { theme: 'align', f: 2, r: 2.8 },
 };
 // the Mythics: a mechanic of their own each (src/mythics.js); it replaces their old twist (ability.mod) too
 export const MYTHIC_REWORK = {

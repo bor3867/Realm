@@ -55,7 +55,7 @@ export const SKINS = [null,
   // the Nexus: flagstones a/b, trim, the rune inlay, the wall's top, pool water, the chasm, bridges, the bazaar's sand a/b, the gardens' grass a/b and flowers, the forge's brick
   ['nx_tiles/nexus_stone_a', 'nxstone'], ['nx_tiles/nexus_stone_b', 'nxstone'], ['nx_tiles/nexus_trim', 'nxtrim'], ['nx_tiles/nexus_inlay', 'nxinlay'],
   ['nx_tiles/nexus_wall_top', 'nxwall'], ['nx_tiles/nexus_water', 'nxwater', { foam: 'nx_tiles/nexus_foam' }], ['nx_tiles/nexus_chasm', 'nxchasm'], ['nx_tiles/nexus_bridge', 'nxbridge'],
-  ['nx_tiles/nexus_sand_a', 'nxsand'], ['nx_tiles/nexus_sand_b', 'nxsand'], ['nx_tiles/nexus_grass_a', 'nxgrass'], ['nx_tiles/nexus_grass_b', 'nxgrass'],
+  ['nx_tiles/nexus_sand_a', 'nxsand'], ['nx_tiles/nexus_sand_b', 'nxsand'], ['nx_tiles/nexus_grass_a', 'nxgrass'], ['nx_tiles/nexus_grass_b', 'nxgrass'], ['nx_tiles/nexus_soil_a', 'nxgrass'], ['nx_tiles/nexus_soil_b', 'nxgrass'],
   ['nx_tiles/nexus_flowers', 'nxgrass'], ['nx_tiles/nexus_brick', 'nxbrick'],
   // the Nexus, second pass: more flagstones, the crystal's dais, the other bridge, ember brick, and the water that flows
   // ({ flow }: every tile on one frame, stepping fast, so the current runs on unbroken; { foam }: foam where it meets anything else)
@@ -205,6 +205,9 @@ export function nexus() {
   skin(9, H - 12, 'nexus_spring');
   for (let y = CY - 1; y <= CY + 1; y++) for (let x = CX - 1; x <= CX + 1; x++) skin(x, y, 'nexus_dais');
   // ---- the skins: flagstones, grass and brick vary, tile by tile
+  // ---- the melon patch, in the Gardens east of the pond: tilled earth (its skin; still grass underfoot)
+  const MP = { x0: 15, y0: 59, x1: 21, y1: 62 };
+  for (let y = MP.y0; y <= MP.y1; y++) for (let x = MP.x0; x <= MP.x1; x++) skin(x, y, (x + y) % 3 ? 'nexus_soil_a' : 'nexus_soil_b');
   m.skin = new Uint8Array(W * H);
   const ONE = { [TID.nxtrim]: 'nexus_trim', [TID.nxinlay]: 'nexus_inlay', [TID.nxwall]: 'nexus_wall_top', [TID.nxwater]: 'nexus_water', [TID.nxchasm]: 'nexus_chasm', [TID.nxbridge]: 'nexus_bridge' };
   const pick = (t) => { const h = r();
@@ -247,6 +250,9 @@ export function nexus() {
   put(m, 'fishspot', 13, H - 12, true, { interact: 'fish', label: 'Fish in the pond', tag: 'FISHING', hint: 'Cast a line: now and then something good bites' });
   for (const [x, y] of [[4, CY + 18], [19, CY + 15], [5, H - 6], [16, H - 5], [20, CY + 20]]) put(m, 'nx_objects/nexus_blossom_tree', x, y, true);
   for (const [x, y, gold] of [[13, CY + 13, 0], [8, CY + 20, 1], [18, CY + 19, 0], [11, H - 7, 1]]) put(m, gold ? 'nx_objects/nexus_flower_bush_gold' : 'nx_objects/nexus_flower_bush', x, y, false);
+  // the melon patch's vines: a ripe melon to pick on each (a Watermelon Slice; it grows back), and its sign
+  for (const y of [MP.y0, MP.y0 + 2]) for (let x = MP.x0; x <= MP.x1; x += 2) { const s = (x + y) % 4 ? 'nx_objects/nexus_melon_ripe' : 'nx_objects/nexus_melon_cut'; put(m, s, x, y + 0.5, false, { interact: 'melon', label: 'Pick a melon', ripe: s }); }
+  put(m, 'signpost', MP.x1 + 1, MP.y0 + 1, true, { label: 'The melon patch: pick a ripe one', tag: 'MELON PATCH', hint: 'Pick a ripe melon for a Watermelon Slice; they grow back' });
   // ---- the Emberworks: the Forge, braziers
   put(m, 'smith', W - 12, CY + 11, true, { interact: 'forge', label: 'Use the Forge', tag: 'FORGE', hint: 'Pay gold to raise your gear a tier (up to T11)' });
   for (const [x, y] of [[W - 17, CY + 8], [W - 7, CY + 8], [W - 17, H - 12], [W - 7, H - 12]]) put(m, 'nx_objects/nexus_brazier', x, y, false);

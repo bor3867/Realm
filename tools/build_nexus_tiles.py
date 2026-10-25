@@ -32,6 +32,7 @@ PAL = {
     'r': '#8a3a2a', 'R': '#b0503a', 'n': '#5a2a1a',                                                                   # brick
     'x': '#ff8a1f', 'X': '#ffd650', 'z': '#fff6c8', 'j': '#6a4a24', 'J': '#9a7040',                                   # fire, wood
     't': '#c8203a', 'T': '#ff4a5a', 'a': '#f2d070', 'A': '#a8822e',                                                   # cloth, gold
+    'F': '#5a3a22', 'H': '#7a5232', 'I': '#2a6a2a', 'N': '#7ad05a', 'O': '#3a9a3a', 'Q': '#e84a4a',                   # the melon patch
 }
 DIRS8 = [(1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1)]   # E SE S SW W NW N NE (y down)
 SIDES = [(0, -1), (1, 0), (0, 1), (-1, 0)]                                       # N E S W (the renderer's DIRS)
@@ -199,6 +200,29 @@ def grass(v):
     return f
 
 
+def soil(v):                                      # the melon patch: tilled earth in furrows, a sprout or two
+    def f(c, k):
+        c.rect(0, 0, 7, 7, 'F'); c.rect(0, 1, 7, 1, 'H'); c.rect(0, 5, 7, 5, 'H')
+        rnd = random.Random(80 + v)
+        for _ in range(3): c.p(rnd.randrange(8), rnd.randrange(8), 'H')
+        if v: c.p(2, 3, 'G'); c.p(5, 7, 'G')
+    return f
+
+
+def melon(ripe, cut=False):                        # 12x12: a melon vine; ripe, a striped watermelon among its leaves (cut: one
+    c = Cv(12)                                                         # cracked open, red inside); picked, its leaves alone
+    for (x, y, r) in ((2, 9, 2), (9.5, 9.5, 1.8), (6, 10.5, 1.6)): c.ell(x, y, r, r * 0.7, 'g')
+    c.p(1, 8, 'G'); c.p(10, 8, 'G'); c.p(5, 9, 'G'); c.line(0, 11, 11, 11, 'h')
+    if ripe:
+        c.ell(6, 7, 4.6, 3.3, 'O')
+        for x in (3, 5, 7, 9): c.line(x, 4, x, 10, 'h')                # its dark stripes
+        c.ell(4.5, 5.5, 1.4, 0.8, 'N')                                 # a shine
+        c.p(6, 3, 'j'); c.p(7, 2, 'G')                                 # its stem, a curl of vine
+        if cut: c.ell(8.5, 7.5, 1.6, 1.2, 'Q'); c.p(8, 7, 'o'); c.p(9, 8, 'o')   # cracked open: the red, two seeds
+    else: c.ell(6, 9, 1.8, 1.0, 'h'); c.p(6, 8, 'G')
+    return c.rows()
+
+
 def brick(v):
     def f(c, k):
         c.rect(0, 0, 7, 7, 'R'); c.rect(0, 3, 7, 3, 'n'); c.rect(0, 7, 7, 7, 'n'); c.rect(3, 0, 3, 2, 'n'); c.rect(6, 4, 6, 6, 'n')
@@ -218,6 +242,7 @@ TILES = {
     'chasm': tile(chasm, 3), 'bridge': tile(bridge(False)), 'bridge_h': tile(bridge(True)),
     'sand_a': tile(sand(0)), 'sand_b': tile(sand(1)), 'grass_a': tile(grass(0)), 'grass_b': tile(grass(1)),
     'flowers': tile(grass(2)), 'brick': tile(brick(0)), 'brick_ember': tile(brick(1), 2),
+    'soil_a': tile(soil(0)), 'soil_b': tile(soil(1)),
 }
 for d in range(8):
     for s in range(2): TILES[f'flow_{d}_{s}'] = tile(current(d, s), 8)
@@ -361,6 +386,7 @@ OBJECTS = {
     'stall': ([stall(0)], 1),
     'banner_red': ([banner(k) for k in range(2)], 2),
     'lamp': ([lamp(k) for k in range(4)], 4),
+    'melon_ripe': ([melon(True)], 1), 'melon_cut': ([melon(True, True)], 1), 'melon_vine': ([melon(False)], 1),
 }
 
 

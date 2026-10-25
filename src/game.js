@@ -3686,6 +3686,15 @@ export class Game {
         else { say('A suspicious box!'); this.addBag(o.x, o.y + 0.6, ['mystery_box']); }
         break;
       }
+      case 'melon': {                                     // the Nexus's melon patch: a ripe one gives a slice, and grows back in two minutes
+        if (o.ripeAt > this.t) { this.toast(`Still growing (${Math.ceil(o.ripeAt - this.t)}s).`); break; }
+        o.ripeAt = this.t + 120; o.sprite = 'nx_objects/nexus_melon_vine'; this.map.ogridDirty = true;
+        const k = this.potSlotFor('watermelon_slice'), f = p.inv.indexOf(null);
+        if (k >= 0) { const P = this.pots(); if (P[k]) P[k].n++; else P[k] = { id: 'watermelon_slice', n: 1 }; }
+        else if (f >= 0) p.inv[f] = 'watermelon_slice'; else this.addBag(o.x, o.y + 0.6, ['watermelon_slice']);
+        this.vx({ k: 'regfx', key: 'mx_effects/juice_splash', x: o.x, y: o.y - 0.3, fps: 14 }); this.sfx('loot'); say('A ripe one. It smells like summer.', '#ff8a8a');
+        this.events.push({ type: 'ground' }); break;
+      }
       case 'fish': {                                      // the nexus pond
         if (p.fishT > this.t) break;
         p.fishT = this.t + 2.2; say('You cast a line...');
@@ -3741,6 +3750,11 @@ export class Game {
         if (v.moving) { const st = Math.min(d, 1.6 * dt), ox = v.x; v.x += ((v.tx - v.x) / d) * st; v.y += ((v.ty - v.y) / d) * st; v.face = v.x < ox; }
         else { v.tx = 0; v.wait = 1 + R() * 4; }
       }
+    }
+    // the melon patch: a picked vine ripens again
+    if (m.kind === 'nexus' && (this.melonT = (this.melonT || 0) - dt) <= 0) {
+      this.melonT = 1;
+      for (const o of m.objects) if (o.interact === 'melon' && o.ripeAt && o.ripeAt <= this.t) { o.ripeAt = 0; o.sprite = o.ripe || 'nx_objects/nexus_melon_ripe'; m.ogridDirty = true; }
     }
     // nexus villagers walk their rounds, stop to stop (each stop sees the next: they go round the water, never across it)
     for (const v of m.villagers || []) {
