@@ -79,6 +79,10 @@ function shotJSON(b) {
 export function makeWorld(seed, send, where = 'realm') {
   const g = new Game({ reg }, { fame: 0, gold: 0, essence: 0, vaults: [[]], graveyard: [], chars: [], slots: 8, bestLevel: 0 });
   g.newCharacter('priest'); g.persist = () => {}; g.save = { ...g.save };
+  // (the world's own stand-in gains nothing: each player's browser grants its own XP. It used to: a kill the world made
+  // itself (a burn, a trap, a boss's creatures going with it) levelled it up, and its 'Level 2', 'Level 3' banners went
+  // to everyone there. 2026-10-24)
+  g.gainXp = () => {};
   if (where === 'realm') { g.realmMap = realm(seed); g.enter('realm'); }
   else g.enter(where, { seed });                // a shared dungeon: the same seed as every player's copy
   g.god = true;
