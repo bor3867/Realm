@@ -861,8 +861,17 @@ export class UI {
     }
   }
   // per-frame cheap updates
+  // what's boosting you, with its time left (Game.activeBoosts); rebuilt only when it changes
+  drawBoosts() {
+    const el = document.getElementById('boosts');
+    if (!el) return;
+    const L = this.g.mode === 'play' ? this.g.activeBoosts() : [], fmt = (t) => (t >= 60 ? `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, '0')}` : `${Math.ceil(t)}s`);
+    const html = L.map((B) => `<div class="bst${B.bad ? ' bad' : ''}"><b>${B.name}</b><i>${B.what}</i><em>${fmt(B.t)}</em></div>`).join('');
+    if (html !== this.boostHtml) { this.boostHtml = html; el.innerHTML = html; }
+  }
   tick(dt) {
     const g = this.g;
+    if ((this.boostT = (this.boostT || 0) - dt) <= 0) { this.boostT = 0.25; this.drawBoosts(); }   // the boost list (4 a second)
     if (g.nearBag && g.nearBag.until - g.t < 31 && (this.bagTickT = (this.bagTickT || 0) - dt) <= 0) { this.bagTickT = 0.5; this.refreshSlots(); }   // (a vanishing bag's countdown)
     for (const ev of g.events.splice(0)) {
       if (ev.type === 'banner' || ev.type === 'toast') this.banner(ev.text, ev.ms || 1800);

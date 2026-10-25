@@ -179,6 +179,13 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #hud { position: absolute; left: 10px; top: 10px; display: flex; gap: 6px; pointer-events: none; font-size: 14px; }
 #hud span { background: #120f18e8; border: 2px solid #0c0a10; box-shadow: inset 0 0 0 1px var(--edge-hi), 0 3px 0 #0c0a10; padding: 3px 8px; text-shadow: 1px 1px 0 #000; }
 #hud b { font-weight: 700; color: #fff; }
+/* what's boosting you, with its time left: top right under the boss bar (the seals sit top left), over the game: the panel's layout never moves */
+#boosts { position: absolute; right: 10px; top: 96px; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; pointer-events: none; font-size: 14px; z-index: 6; }
+#boosts .bst { background: #120f18e8; border: 2px solid #0c0a10; box-shadow: inset 0 0 0 1px var(--edge-hi); padding: 2px 7px; text-shadow: 1px 1px 0 #000; display: flex; gap: 8px; align-items: baseline; }
+#boosts .bst b { color: #7aff9a; font-weight: 700; }
+#boosts .bst.bad b { color: #ff6a7a; }
+#boosts .bst i { font-style: normal; color: #c8c0d8; }
+#boosts .bst em { font-style: normal; color: #fff; margin-left: auto; min-width: 34px; text-align: right; }
 #hud .h-fame { color: #f2c14e; } #hud .h-gold { color: #ffd650; } #hud .h-ess { color: #b98cff; }
 
 /* home + character select */

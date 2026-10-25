@@ -148,6 +148,7 @@ export const STAT_DROP_REALM = 0.4;
 const FLOAT_SLOTS = [[0, 0], [-0.3, 0.16], [0.3, 0.32], [0, 0.48], [-0.3, 0.64], [0.3, 0.8], [0, 0.96], [-0.22, 1.12], [0.22, 1.28]];   // (each at its own height)
 const ACTIVE_R = 24;            // enemies farther than this sleep
 const SLOT_ORDER = ['weapon', 'ability', 'armor', 'ring'];
+const PET_BEHIND = 1.2;                                   // how far behind you, along your path, a pet walks
 const BIOME_TARGET = { shore: 210, fen: 170, runeholt: 125, godfall: 85 };
 // groups per biome: the realm is 2.25x bigger than it was but only gets 1.5x the groups, so it breathes
 // how many monster groups each land holds: one per so many tiles of it, denser toward the middle
@@ -3046,11 +3047,22 @@ export class Game {
     if (!P || p.dead || this.map.kind === 'vault') { this.pet = null; return; }
     if (!this.pet || this.pet.ref !== P) this.pet = { ref: P, kind: P.kind, rarity: P.rarity, sprite: petSprite(P), x: p.x - 1, y: p.y + 0.6, tick: PET_TICK, face: false, moving: false };
     if (this.petAt) { this.pet.x = this.petAt.x; this.pet.y = this.petAt.y; this.petAt = null; }   // a fresh hatchling starts where its egg was
-    const q = this.pet, tx = p.x - (p.dir === 'left' ? -1.1 : 1.1), ty = p.y + 0.5, d = dist(q.x, q.y, tx, ty);
+    // it follows in your footsteps, RotMG's way: along the path you walked, a little over a tile behind you, and when you
+    // stop it stops there (it used to make for a spot at your side)
+    const q = this.pet, T = q.trail || (q.trail = [{ x: p.x, y: p.y }]), last = T[T.length - 1];
+    if (dist(last.x, last.y, p.x, p.y) > 0.12) { T.push({ x: p.x, y: p.y }); if (T.length > 80) T.shift(); }
+    let tx = T[0].x, ty = T[0].y;
+    for (let k = T.length - 1, back = dist(p.x, p.y, T[k].x, T[k].y); k > 0; k--) {
+      const seg = dist(T[k].x, T[k].y, T[k - 1].x, T[k - 1].y);
+      if (back + seg >= PET_BEHIND) { const u = (PET_BEHIND - back) / Math.max(1e-6, seg); tx = T[k].x + (T[k - 1].x - T[k].x) * u; ty = T[k].y + (T[k - 1].y - T[k].y) * u; break; }
+      back += seg;
+    }
+    if (dist(p.x, p.y, tx, ty) < PET_BEHIND * 0.5) { tx = q.x; ty = q.y; }   // (just arrived: no path behind you yet, so it stays put)
+    const d = dist(q.x, q.y, tx, ty);
     q.sprite = petSprite(P); const J = this.joy && this.joy[P.id]; q.joy = J && J.until > this.t ? J.until : 0; q.joy0 = J ? J.from : 0;
-    if (d > 9) { q.x = tx; q.y = ty; }                     // left behind: it catches up in a hop
-    q.moving = d > 0.35;
-    if (q.moving) { const sp = Math.min(d, Math.max(3, d * 4) * dt); const ox = q.x; q.x += ((tx - q.x) / d) * sp; q.y += ((ty - q.y) / d) * sp; q.face = q.x < ox; }
+    if (dist(q.x, q.y, p.x, p.y) > 9) { q.x = tx; q.y = ty; q.trail = [{ x: p.x, y: p.y }]; }   // left behind (a portal, a blink): it catches up in a hop
+    q.moving = d > 0.05;
+    if (q.moving) { const sp = Math.min(d, Math.max(2, d * 8) * dt); const ox = q.x; q.x += ((tx - q.x) / d) * sp; q.y += ((ty - q.y) / d) * sp; if (Math.abs(q.x - ox) > 0.002) q.face = q.x < ox; }
     if ((q.tick -= dt) > 0) return;
     q.tick = PET_TICK;
     if (this.map.kind === 'nexus') return;
@@ -3195,6 +3207,26 @@ export class Game {
       this.save.gold = (this.save.gold || 0) + gold;
       this.banner(`The altar drinks your blood... and pays you ${gold} gold for it.`, 3200); this.sfx('coin');
     }
+  }
+  // what's boosting you (or holding you back) right now, with how long it has left: for the HUD's list (src/ui.js)
+  // (written without %: the pixel font draws it all but unreadably small)
+  activeBoosts() {
+    const p = this.player; if (!p || p.dead) return [];
+    const S = p.status || {}, out = [], add = (name, what, t, bad = false) => { if (t > 0.05) out.push({ name, what, t, bad }); };
+    const BL = { shore: ['Blessing of the Tide', 'speed ×1.25'], fen: ['Blessing of the Mire', '+25 Life/s'], runeholt: ['Blessing of the Runes', 'damage ×1.25'], godfall: ['Blessing of Gold', '+15 Defense'] };
+    if (S.bless > 0 && BL[p.blessKind]) add(...BL[p.blessKind], S.bless);
+    add('Berserk', 'damage ×1.25, fire rate ×1.5', S.berserk);
+    add('Armored', 'half damage taken', S.armored);
+    if (S.invuln > 0.4) add('Invulnerable', 'nothing can hurt you', S.invuln);
+    add('Inspired', 'damage ×1.1', S.inspired);
+    add('Rested', 'experience ×1.25', S.rested);
+    add('Kintsugi', 'more damage after a hit', S.kintsugi);
+    const R = p.rfs || {};
+    add('Haste', '+10 Speed', (R.haste || 0) - this.t); add('Starflight', '+2 Speed', (R.starflight || 0) - this.t);
+    add('Asleep', "you can't act", S.asleep, true);
+    add('Dazed', 'fire rate ×0.5', (p.owDazed || 0) - this.t, true);
+    add('Slowed', 'slower movement', (p.dragUntil || 0) - this.t, true);
+    return out;
   }
   // wayside shrines: each biome blesses you differently for 30 seconds, then rests for 90
   bless(o) {
