@@ -313,6 +313,10 @@ server.on('upgrade', (req, sock) => {
   toAll({ t: 'online', n: clients.size });
 });
 // keep connections alive through hosts' idle timeouts
+// awake while anyone plays: Render's free plan sleeps a server after 15 minutes with no web request coming in (the
+// game's own connection may not count), and a sleeping server wakes with the realm and every dungeon made fresh:
+// bosses gone, cleared rooms full again (2026-10-24). So, every 5 minutes someone is on, it calls itself from outside
+if (process.env.RENDER_EXTERNAL_URL) setInterval(() => { if (clients.size) fetch(process.env.RENDER_EXTERNAL_URL).catch(() => {}); }, 5 * 60 * 1000);
 setInterval(() => { const ping = Buffer.from([0x89, 0]); for (const c of clients.values()) if (!c.sock.destroyed) c.sock.write(ping); }, 25000);
 // the world's clock: 20 steps a second, the monsters' news 10 times a second
 if (world) { let n = 0, slow = 0; setInterval(() => { const t0 = performance.now(); const now = true; ++n;

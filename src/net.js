@@ -33,11 +33,14 @@ const methods = {
     try { ws = new WebSocket(N.url); } catch { return; }
     N.ws = ws;
     ws.onopen = () => {
+      // (and each browser knocks on its door every 4 minutes it's connected: see server/server.mjs, awake while anyone plays)
+      clearInterval(N.keepT); if (/^wss:/.test(N.url)) N.keepT = setInterval(() => { fetch(N.url.replace(/^wss:/, 'https:'), { mode: 'no-cors', cache: 'no-store' }).catch(() => {}); }, 4 * 60 * 1000);
       N.open = true; N.wait = 2; ws.send(JSON.stringify({ t: 'hi', name: (this.account && this.account.name) || '', cls: this.player ? this.player.cls : '' }));
       if (this.account && this.account.online && this.account.token) this.netAuth('resume', { token: this.account.token }).then((r) => { if (r && !r.error && this.player && !this.player.dead && this.mode === 'play') this.persist(); });   // back after a drop: still you (and your latest save goes up again: the server may have restarted)
     };
     ws.onmessage = (ev) => { let m; try { m = JSON.parse(ev.data); } catch { return; } this.netOn(m); };
     ws.onclose = () => {                                  // gone: everyone vanishes; try again, waiting longer each time
+      clearInterval(N.keepT);
       N.open = false; N.ws = null; N.others.clear(); this.netWorldOff();
       if (N.kicked) return;                                 // (dropped by the server: not again until you reload)
       setTimeout(() => this.netConnect(), N.wait * 1000); N.wait = Math.min(30, N.wait * 2);

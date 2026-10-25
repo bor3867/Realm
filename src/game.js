@@ -148,7 +148,8 @@ export const STAT_DROP_REALM = 0.4;
 const FLOAT_SLOTS = [[0, 0], [-0.3, 0.16], [0.3, 0.32], [0, 0.48], [-0.3, 0.64], [0.3, 0.8], [0, 0.96], [-0.22, 1.12], [0.22, 1.28]];   // (each at its own height)
 const ACTIVE_R = 24;            // enemies farther than this sleep
 const SLOT_ORDER = ['weapon', 'ability', 'armor', 'ring'];
-const PET_BEHIND = 1.2;                                   // how far behind you, along your path, a pet walks
+const PET_BEHIND = 1.2;
+const REALM_CAP = 6000;                                    // the most monsters the realm holds at once (a fresh one has about 5,800)                                   // how far behind you, along your path, a pet walks
 const BIOME_TARGET = { shore: 210, fen: 170, runeholt: 125, godfall: 85 };
 // groups per biome: the realm is 2.25x bigger than it was but only gets 1.5x the groups, so it breathes
 // how many monster groups each land holds: one per so many tiles of it, denser toward the middle
@@ -741,7 +742,7 @@ export class Game {
       if (near > bd) { bd = near; best = at; }
       if (near > 400) break;                              // already 20+ tiles from anyone: good enough
     }
-    return best;
+    return bd >= 64 ? best : null;                        // (never within 8 tiles of another group: no piling up where you fight. 2026-10-24)
   }
   spawnParentGroup(biome, r, avoid, minD) {
     const at = this.spreadSpot(biome, r, avoid, minD);
@@ -854,8 +855,10 @@ export class Game {
     this.respawnT = (this.respawnT || 0) - dt;
     if (this.respawnT > 0) return;
     this.respawnT = 4;
-    // realm repopulation, roughly the old-school MMO cadence: a new group every few seconds per thin biome
+    // realm repopulation, roughly the old-school MMO cadence: a new group every few seconds per thin biome; never past
+    // REALM_CAP living monsters in all (a crowded realm, and a busy server)
     this.respawnT = 3;
+    if (this.enemies.reduce((n, e) => n + (e.dead ? 0 : 1), 0) >= REALM_CAP) return;
     const parents = Object.fromEntries(BIOMES.map((b) => [b, 0]));
     for (const e of this.enemies) if (!e.dead && e.kids && parents[e.D.biome] !== undefined) parents[e.D.biome]++;
     for (const b of BIOMES) if (parents[b] < parentTarget(this.map, b)) this.spawnParentGroup(b, R, this.player, 18);
