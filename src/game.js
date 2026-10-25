@@ -3321,8 +3321,11 @@ export class Game {
     if (R() < 0.35) out.push(`key_${pick(Object.keys(DUNGEONS))}`);
     return out;
   }
+  // a broken chest is gone (hidden, its tile walkable again), so it never stands between you and its bag. (Hidden, not
+  // taken out: a shared dungeon knows its things by their place in the list.) 2026-10-24
+  eraseChest(o) { const m = this.map; if (o.solid && m && m.solid) m.solid[Math.floor(o.y) * m.w + Math.floor(o.x)] = 0; o.hidden = true; o.solid = false; if (m) m.ogridDirty = true; }
   breakChest(o) {
-    o.opened = true; o.sprite = 'chest_open'; o.hp = 0;
+    o.opened = true; o.sprite = 'chest_open'; o.hp = 0; this.eraseChest(o);
     if (o.loot) this.questEvent('camp', o);
     const bag = this.addBag(o.x, o.y + 0.8, o.admin ? this.adminLoot() : rollLoot(o.starLoot || (o.loot ? CAMP_LOOT[o.loot] : (this.map.def.chestLoot || [])), o.secret ? 2.5 : 1), !o.admin);   // (one bag, coloured by its best: it used to drop two, one hiding the other)
     if (bag) bag.soulbound = true;
