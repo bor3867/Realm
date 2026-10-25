@@ -4074,6 +4074,7 @@ export class Game {
         this.events.push({ type: 'ground' }); say(`Gave ${ids.length} × ${it.name}.`); break;
       }
       case 'spawn': {                                     // any monster, elite or boss by id
+        if (/^(chickens?|xp_chicken)$/.test(args[0] || '')) return this.command('/chickens ' + (args[1] || ''));   // /spawn chicken N: XP chickens
         const id = ({ the_unstruck_god: 'unstruck_god', unstruck: 'unstruck_smith', the_unstruck: 'unstruck_smith' })[args[0]] || args[0];
         if (BX[id]) { const e = this.spawnRealmBoss(id, near(7), bxEnemyDef(id)); if (e) say(`${e.D.name} (${e.D.hp} life).`); break; }
         if (!ENEMIES[id]) { say(`Unknown id. Monsters, elites and bosses: see ADMIN_REFERENCE.md (or /bosses).`); break; }
@@ -4097,8 +4098,8 @@ export class Game {
         while (this.map.sealsLeft) this.breakSeal('By admin decree.');
         break;
       }
-      case 'chickens': {                                   // /chickens [N]: XP chickens for everyone here (online: every player in the room gets them)
-        const N = Math.min(20, Math.max(1, n(args[0], 6)));
+      case 'chickens': {                                   // /spawn chicken N (or /chickens N): up to 100 XP chickens for everyone here (online: every player in the room gets them)
+        const N = Math.min(100, Math.max(1, n(args[0], 6)));
         if (this.map.kind === 'vault') { say('Not in your vault.'); break; }
         if (this.netGift && this.netGift('chickens', N)) { say(`${N} XP chickens for everyone here.`); break; }
         say(`${this.spawnChickens(p.x, p.y, N)} XP chickens hatched.`); break;
@@ -4275,7 +4276,7 @@ export class Game {
   spawnChickens(cx, cy, N) {
     let made = 0;
     for (let k = 0; k < N; k++) {
-      const a = R() * TAU, d = 2 + R() * 3, x = cx + Math.cos(a) * d, y = cy + Math.sin(a) * d;
+      const a = R() * TAU, d = 2 + R() * (3 + N / 12), x = cx + Math.cos(a) * d, y = cy + Math.sin(a) * d;   // (a big flock spreads wider)
       if (isSolid(this.map, x, y)) continue;
       const e = this.addEnemy('xp_chicken', x, y);
       e.seen = true; e.spawnT = 0.4; made++;

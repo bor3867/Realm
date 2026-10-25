@@ -181,7 +181,7 @@ export function makeWorld(seed, send, where = 'realm') {
     },
     // monsters an admin brings (/chickens): shared, round a spot
     spawn(id, x, y, n) {
-      for (let k = 0; k < n; k++) { const a = Math.random() * Math.PI * 2, d = 2 + Math.random() * 3; const e = g.addEnemy(id, x + Math.cos(a) * d, y + Math.sin(a) * d); e.seen = true; }
+      for (let k = 0; k < n; k++) { const a = Math.random() * Math.PI * 2, d = 2 + Math.random() * (3 + n / 12); const e = g.addEnemy(id, x + Math.cos(a) * d, y + Math.sin(a) * d); e.seen = true; }
     },
     // a player's effect on a monster: held still, slowed, knocked about (each within reason)
     efx(id, list) {

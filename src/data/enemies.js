@@ -1593,7 +1593,7 @@ import { RF_FOES } from './rf_foes.js';
 // the Abyssal Kraken's tentacles: they burst out of the water around you while it fights, lash with barbed hooks, and
 // sink again after a while (src/owbosses.js); art: tools/redraw_enemies.mjs
 // the admin's gift (/chickens): a harmless hen that wanders, takes a few shots and is worth a lot of XP
-ENEMIES.xp_chicken = { name: 'XP Chicken', biome: 'nexus', hp: 600, def: 0, speed: 2.6, xp: 2000, r: 0.4, ai: 'skitter', aggro: 0,
+ENEMIES.xp_chicken = { name: 'XP Chicken', biome: 'nexus', hp: 600, def: 0, speed: 2.6, xp: 10000, r: 0.4, ai: 'skitter', aggro: 0,
   reg: 'rs_enemies/xp_chicken', scale: 1, attacks: [], loot: [] };
 ENEMIES.kraken_tentacle = { name: 'Kraken Tentacle', biome: 'shore', hp: 1400, def: 6, speed: 0, xp: 30, r: 0.5, ai: 'rooted', aggro: 12, contact: 60,
   reg: 'rs_enemies/kraken_tentacle', scale: 1,
