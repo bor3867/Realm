@@ -2,7 +2,7 @@
 // Pure state + update(); rendering and DOM live elsewhere.
 import { R, rng, clamp, dist, dist2, angleTo, TAU, CAM, lift, liftO, liftA, liftB, angleUp } from './util.js';
 import { CLASSES, START_KIT, STATS, MAX_LEVEL, FAME_XP, FAME_GOALS, xpToNext, moveSpeed, fireRate, dmgMult, hpRegen, mpRegen, mitigate } from './data/classes.js';
-import { ITEMS, SETS, rollLoot, bagFor, canEquip, TYPE_SLOT, BAG_ORDER, BAG_NAMES, WEAPON_TYPES, ARMOR_TYPES, ABILITY_TYPES, ADMIN_SET, TIER_CAP, ladderTier, LOOT_GATE, ARMORY_IDS } from './data/items.js';
+import { ITEMS, SETS, rollLoot, bagFor, canEquip, TYPE_SLOT, BAG_ORDER, BAG_NAMES, WEAPON_TYPES, ARMOR_TYPES, ABILITY_TYPES, ADMIN_SET, TIER_CAP, ladderTier, LOOT_GATE, ARMORY_IDS, bagRank } from './data/items.js';
 import { ENEMIES, PACKS, CAMP_LOOT, BIOME_SPAWNS, REALM_BOSSES, PARENTS, HERALDS, BIOME_BOSS, EVENTS_TO_BOSS, GROUPS, DUNGEONS, DUNGEON_BOSSES, FIRECAMP_BANDS, DUNGEON_RATING, portalDrop2 as portalDrop } from './data/enemies.js';
 import { nexus, vaultRoom, realm, dungeon, isSolid, shotBlocked, biomeAt, randomTileInBiome, BIOMES, BIOME_RING, BIOME_LABEL, TID } from './world/maps.js';
 import { writeSave } from './save.js';
@@ -2541,15 +2541,19 @@ export class Game {
       if (e.burn.acc >= 0.5) { e.burn.acc -= 0.5; this.damageEnemy(e, Math.round(e.burn.dps * 0.5), ...lift(e.x, e.y, 0.8), true); }
     }
   }
-  addBag(x, y, items) {
+  addBag(x, y, items, one = false) {
     let made = null;
+    // the best first (by bag rank, then tier), so the first bag holds them; one: a single bag of the best 8 (a chest's)
+    const rank = (id) => { const it = ITEMS[id]; return it ? bagRank(it) * 100 + (it.tier || 0) : -1; };
+    items = items.filter(Boolean).sort((a, b) => rank(b) - rank(a));
+    if (one) items = items.slice(0, 8);
     for (let k = 0; k < items.length; k += 8) {
       const chunk = items.slice(k, k + 8);
       const it = [...chunk, ...Array(8 - chunk.length).fill(null)];
       const kind = bagFor(chunk.map((id) => ITEMS[id]));
       const rare = BAG_ORDER.indexOf(kind) >= BAG_ORDER.indexOf('white');
       const legend = chunk.some((id) => ITEMS[id] && ITEMS[id].legendary);
-      made = { x: x + (k ? 0.6 : 0), y, items: it, kind, rare, legend, life: rare ? 180 : 90, until: this.t + (rare ? 180 : 90) };
+      made = { x: x + (k / 8) * 1.1, y, items: it, kind, rare, legend, life: rare ? 180 : 90, until: this.t + (rare ? 180 : 90) };
       this.bags.push(made);
       if (legend) this.banner('A LEGENDARY drops!', 3600);
       else if (rare) this.banner(`${BAG_NAMES[kind] || "A rare bag"} drops!`, 2800);
@@ -3320,7 +3324,7 @@ export class Game {
   breakChest(o) {
     o.opened = true; o.sprite = 'chest_open'; o.hp = 0;
     if (o.loot) this.questEvent('camp', o);
-    const bag = this.addBag(o.x, o.y + 0.8, o.admin ? this.adminLoot() : rollLoot(o.starLoot || (o.loot ? CAMP_LOOT[o.loot] : (this.map.def.chestLoot || [])), o.secret ? 2.5 : 1));
+    const bag = this.addBag(o.x, o.y + 0.8, o.admin ? this.adminLoot() : rollLoot(o.starLoot || (o.loot ? CAMP_LOOT[o.loot] : (this.map.def.chestLoot || [])), o.secret ? 2.5 : 1), !o.admin);   // (one bag, coloured by its best: it used to drop two, one hiding the other)
     if (bag) bag.soulbound = true;
     this.banner('The chest breaks open! Soulbound loot.', 1800);
     this.vx({ k: 'burst', ...liftO(o.x, o.y, 0.4), n: 36, colors: ['#ffd650', '#fff6c8', '#8a5a30'] });

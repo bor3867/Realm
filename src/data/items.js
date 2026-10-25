@@ -1011,6 +1011,7 @@ export const BAG_NAMES = { white: 'A white bag', starfall: 'A STARFALL bag', div
 const DIVINE = new Set(['crown_of_the_unstruck']);
 export function bagRank(it) {
   if (it.admin || DIVINE.has(it.base || it.id)) return 6;          // beyond mythic: the final boss's prize, the admin kit
+  if (it.arm) return ({ divine: 6, celestial: 5, legendary: 5, mythic: 5 })[String(it.armTier).toLowerCase()] ?? 4;   // a Mad God Armory piece, by its tier
   if (it.mythic || it.legendary) return 5;
   if (it.ut || it.bag === 'urn' || it.bag === 'reliquary' || it.bag === 'starfall') return 4;
   if (it.slot === 'consumable') return it.use && it.use.stat ? 2 : 0;   // a stat potion: blue
