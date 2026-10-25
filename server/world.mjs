@@ -122,6 +122,9 @@ export function makeWorld(seed, send, where = 'realm') {
   // everything finer, each player who fought it rolls for themselves (their own bag)
   let onBag = null;
   g.addBag = function (x, y, items) { const brown = (items || []).filter(isBrown); if (brown.length && onBag) onBag(x, y, brown); return { x, y, items: Array(8).fill(null), kind: 'brown' }; };
+  // (a chest's loot is the one who broke it's, in their own bag: none of it lies in a public bag as well. It did, so a
+  // chest left a second bag of potions over the first. 2026-10-24)
+  { const bc = g.breakChest.bind(g); g.breakChest = function (o) { const f = onBag; onBag = null; try { return bc(o); } finally { onBag = f; } }; }
   const add0 = g.addEnemy.bind(g);                                 // a new monster joins the server's short list at once
   g.addEnemy = function (...a) { const e = add0(...a); (this.netNew = this.netNew || []).push(e); return e; };
   g.updateWorld = ((f) => function (dt) { const o = this.map.objects; this.map.objects = []; try { return f.call(this, dt); } finally { this.map.objects = o; } })(g.updateWorld);   // (no town objects to walk up to)

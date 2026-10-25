@@ -968,6 +968,8 @@ body #app .slot.up::before { content: ''; position: absolute; right: 3px; top: 3
 
 /* the Mad God Armory's items (src/armory_tip.js, src/armory_art.js): drawn live in their slots; their tooltip as the armory lays it out */
 .slot .ico { position: relative; }
+/* (its canvas is half again the slot for its glow; clipped at the slot so it never widens the backpack or the vault and brings up a scroll bar: 2026-10-24) */
+.slot:has(canvas.arm) { overflow: clip; }
 .slot .ico canvas.arm { position: absolute; inset: -25%; width: 150%; height: 150%; image-rendering: pixelated; pointer-events: none; }
 #tooltip .arm-tip { border-top: 2px solid var(--tc); }
 #tooltip .arm-role { display: inline-block; margin-top: 5px; font-size: 10px; letter-spacing: .06em; color: #17181d; background: var(--tc); padding: 2px 6px; font-weight: 700; }
