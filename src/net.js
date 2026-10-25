@@ -147,12 +147,19 @@ const methods = {
   async netTake(bag, i, toC, toI) {
     const p = this.player, id = bag.items[i];
     if (!id) return;
-    const C = this.container(toC), slot = C && toI >= 0 && !C[toI] && (toC !== 'equip' || this.fitsEquip(toI, id)) ? toI : -1;
+    // where it goes: a potion slot it stacks in; an empty slot; an equipment slot it fits, swapping out what was there
+    const P = toC === 'pots' ? this.pots() : null, potOk = (k) => !!P && this.isPotion(id) && this.potFits(k, id);
+    const C = toC === 'pots' ? null : this.container(toC), slot = toC === 'pots' ? (potOk(toI) ? toI : -1) : C && toI >= 0 && (toC === 'equip' ? this.fitsEquip(toI, id) : !C[toI]) ? toI : -1;
     if (slot < 0 && p.inv.indexOf(null) < 0) { this.toast('Your backpack is full.'); return; }
     const r = await this.netAsk({ t: 'take', bid: bag.bid, i, id });
     if (!r.ok) { this.toast('Someone took it first.'); return; }
-    const C2 = this.container(toC);
-    if (slot >= 0 && C2 && !C2[slot]) C2[slot] = id;
+    const C2 = toC === 'pots' ? null : this.container(toC);
+    if (toC === 'pots' && slot >= 0 && potOk(slot)) { if (P[slot]) P[slot].n++; else P[slot] = { id, n: 1 }; }
+    else if (toC === 'equip' && slot >= 0 && C2) {           // swapped in: what you wore goes to your backpack, or back to the ground
+      const old = C2[slot]; C2[slot] = id;
+      if (old) { const f = p.inv.indexOf(null); if (f >= 0) p.inv[f] = old; else { this.netPreDrop(); this.netDrop(old); } }
+    }
+    else if (slot >= 0 && C2 && !C2[slot]) C2[slot] = id;
     else { const f = p.inv.indexOf(null); if (f >= 0) p.inv[f] = id; else this.addBag(p.x, p.y + 0.3, [id]); }
     this.clampVitals(); this.sfx('loot'); this.persist(); this.events.push({ type: 'ground' });
   },

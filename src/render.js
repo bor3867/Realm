@@ -18,7 +18,7 @@ import { ARM } from './astral.js';
 import { TILE_NAMES, BIOMES, biomeAt, objectsIn, SKINS, SKIN_TID, SKIN_OPT, TID, FLAT, WALL_FACE } from './world/maps.js';
 import { hoverY } from './registry.js';
 import { CLASSES } from './data/classes.js';
-import { ITEMS, iconIndex } from './data/items.js';
+import { ITEMS, iconIndex, BAG_ORDER } from './data/items.js';
 import { outlinedFrame } from './outline.js';
 import { pixelText, pixelable } from './pixelfont.js';
 import { keyHint } from './settings.js';
@@ -1117,6 +1117,9 @@ export class Renderer {
     return (C[kind] = cv);
   }
   bag(g, bag, sx, sy) {
+    // its colour by what's in it now: take the gear out of a cyan bag and leave a potion, and it's brown (it kept the
+    // colour it dropped with. 2026-10-24)
+    const sig = bag.items.join(','); if (bag.kindSig !== sig) { bag.kindSig = sig; bag.kind = g.bagKind(bag.items) || 'brown'; bag.rare = BAG_ORDER.indexOf(bag.kind) >= BAG_ORDER.indexOf('white'); bag.legend = bag.items.some((id) => id && ITEMS[id] && ITEMS[id].legendary); }
     const k = this.W.bags[bag.kind] ?? this.W.bags.brown, c = this.W.objectsCols, tinted = this.W.bags[bag.kind] === undefined && this.bagArt(bag.kind);
     if (bag.legend) {                                      // a legendary inside: a broad beam, sparkles climbing it
       const b = this.b, x = Math.round(sx), y = Math.round(sy);

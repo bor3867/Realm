@@ -251,7 +251,7 @@ export class Game {
     S.chars.push({
       id: Date.now().toString(36), created: new Date().toISOString().slice(0, 10),
       cls: clsId, level: 1, xp: 0, totalXp: 0, base: { ...C.base },
-      equip: [...start, null], inv: ['pot_hp', 'pot_hp', 'pot_mp', null, null, null, null, null], kills: 0, fame: 0, fameXp: 0, bossKills: 0, dungeons: 0,
+      equip: [...start, null], inv: Array(8).fill(null), pots: [{ id: 'pot_hp', n: 2 }, { id: 'pot_mp', n: 1 }], kills: 0, fame: 0, fameXp: 0, bossKills: 0, dungeons: 0,
     });
     this.persist();
     this.startPlaying(S.chars.length - 1);
@@ -452,6 +452,9 @@ export class Game {
   }
 
   // the potion side slots: two stacks of up to POT_STACK of one kind of potion each
+  potFits(k, id) { const S = this.pots()[k]; return !S || (S.id === id && S.n < POT_STACK); }
+  // where a potion would stack: a side slot of its kind with room, else an empty one (-1: neither)
+  potSlotFor(id) { const P = this.pots(); const k = P.findIndex((S) => S && S.id === id && S.n < POT_STACK); return k >= 0 ? k : this.isPotion(id) ? P.indexOf(null) : -1; }
   pots() { const p = this.player; if (!p.pots || p.pots.length !== 2) p.pots = [null, null]; return p.pots; }
   isPotion(id) { const it = id && ITEMS[id]; return !!(it && it.slot === 'consumable' && it.use && (it.use.heal || it.use.mana || it.use.stat)); }
   abilityMod() { const id = this.player && this.player.equip[1], it = id && ITEMS[id]; return it && it.ability ? it.ability.mod : null; }
@@ -492,6 +495,7 @@ export class Game {
     if (toC === 'pots') {                                  // stack a potion into a side slot
       const A = this.container(fromC), id = A && A[fromI];
       if (!id) return false;
+      if (fromC === 'ground' && this.nearBag && this.nearBag.shared && !this.nearVault) { if (!this.isPotion(id)) { this.toast('Only potions go in the potion slots.'); return false; } this.netTake(this.nearBag, fromI, 'pots', toI); return true; }   // (a shared bag: the server's first)
       if (!this.isPotion(id)) { this.toast('Only potions go in the potion slots.'); return false; }
       const S = P[toI];
       if (S && S.id !== id) { this.toast(`That slot holds ${ITEMS[S.id].name}.`); return false; }
@@ -522,6 +526,7 @@ export class Game {
     let n = 0;
     for (let i = 0; i < 8; i++) {
       if (!b.items[i]) continue;
+      if (this.isPotion(b.items[i])) { const k = this.potSlotFor(b.items[i]); if (k >= 0) { this.movePot('ground', i, 'pots', k); n++; continue; } }   // potions to their side slots first
       const f = p.inv.indexOf(null);
       if (f < 0) { this.toast('Your backpack is full.'); break; }
       p.inv[f] = b.items[i]; b.items[i] = null; n++;
@@ -561,6 +566,7 @@ export class Game {
     if (!id) return;
     const it = ITEMS[id], p = this.player;
     if (cont === 'ground') {
+      if (!this.nearVault && this.isPotion(id)) { const k = this.potSlotFor(id); if (k >= 0) { this.moveItem('ground', i, 'pots', k); return; } }   // a potion: into its side slot first, if there's room
       const free = p.inv.indexOf(null);
       if (free >= 0) { this.moveItem('ground', i, 'inv', free); return; }
       if (it.slot !== 'consumable') { this.toast('Your backpack is full.'); return; }
