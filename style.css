@@ -768,7 +768,7 @@ body #app #panel .bar b { position: absolute !important; inset: 0; display: flex
   color: #fff; text-shadow: var(--r-ol) !important; letter-spacing: 0; white-space: nowrap; }
 body #app #panel .bar .bl { width: 42px; flex: none; }
 body #app #panel .bar .bv { flex: 1; text-align: center; margin-right: 42px; overflow: hidden; }
-body #app #panel .bar.hp .bv { color: #ffd84a; } body #app #panel .bar.mp .bv { color: #6af06a; }
+body #app #panel .bar .bv { color: #ffffff; } body #app #panel .bar.maxed .bv { color: #ffd84a; }   /* gold only once the stat is at its class maximum (RotMG) */
 body #app #panel .bar .bv em { font-style: normal; color: #7ab8ff; }
 
 /* equipment */

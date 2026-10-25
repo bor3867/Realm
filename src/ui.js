@@ -912,6 +912,7 @@ export class UI {
     $('hptext').innerHTML = `${Math.ceil(Math.max(0, p.hp))}/${hpM}${plus('hp', hpM)}`;
     $('mpfill').style.width = (100 * p.mp / mpM) + '%';
     $('mptext').innerHTML = `${Math.floor(p.mp)}/${mpM}${plus('mp', mpM)}`;
+    { const X = (CLASSES[p.cls] || {}).max || {}; $('hpfill').parentElement.classList.toggle('maxed', p.base.hp >= X.hp); $('mpfill').parentElement.classList.toggle('maxed', p.base.mp >= X.mp); }   // (gold when maxed)
     if (p.level >= MAX_LEVEL) {                           // at 20 the bar tracks fame toward the next fame goal
       const f = p.fame || 0, goal = FAME_GOALS.find((x) => x > f), prev = [...FAME_GOALS].reverse().find((x) => x <= f) || 0;
       $('xpfill').style.width = (goal ? 100 * (f - prev) / (goal - prev) : 100) + '%';
