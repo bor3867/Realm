@@ -180,7 +180,7 @@ export function weightOf(D) {
   return (D.wk = WEIGHT[w || 'normal'] || WEIGHT.normal);
 }
 const AIMED = new Set(['aimed', 'shotgun', 'wall', 'beam', 'burst', 'cage']);   // attacks aimed at you, which want a clear line
-const TALKY = new Set(['scope', 'mask', 'maskstand', 'mirror', 'sigil', 'alarm', 'journal', 'petyard', 'shop', 'forge', 'board', 'talk', 'lore', 'wish', 'altar', 'dig', 'fish', 'cat', 'bard', 'fortune', 'waypoint', 'riddle', 'mystery', 'guide', 'atlas', 'legends']);
+const TALKY = new Set(['scope', 'mask', 'maskstand', 'mirror', 'sigil', 'alarm', 'journal', 'petyard', 'shop', 'forge', 'board', 'talk', 'lore', 'wish', 'altar', 'dig', 'fish', 'cat', 'bard', 'fortune', 'waypoint', 'riddle', 'mystery', 'guide', 'atlas', 'legends', 'melon']);
 const VILLAGER_LINES = ['Lovely evening.', 'Did you hear the bells last night?', 'Mind the cat. She bites.', 'The Peddler overcharged me again.',
   'My cousin went into the realm. He came back a toad.', 'Is it always dusk here? Huh.', 'Watch out for the Golden Duck. It\'s a scam.',
   'Nice weather for adventuring!', 'I\'ve never seen the sun. Have you?', 'Hey, you\'re the one who pets the cat!'];

@@ -18,6 +18,8 @@ const mk = () => { const g = new Game({ reg, sheets }, { fame: 0, gold: 0, essen
   const g = mk(); g.enter('realm'); g.enemies = g.map.enemies = []; const p = g.player;
   for (const [id, dx, dy] of [['brine_pilgrim', 4, -2], ['pilgrim_elder', -4, 2]]) if (ENEMIES[id]) { const q = g.addEnemy(id, p.x + dx, p.y + dy); q.seen = true; }
   const seen = new Set();
+  // (what each fires, as it fires: a champion beside you lands its fan in the frame it is fired, before a look at the shots in flight)
+  const f0 = g.firePattern.bind(g); g.firePattern = (e, A, w) => { if (A && (A.proj || '').startsWith('rx_shots/')) seen.add(A.proj); return f0(e, A, w); };
   for (let f = 0; f < 60 * 25; f++) { p.hp = 1e7; p.dead = false; g.update(1 / 60); for (const b of g.projectiles) if (b.from === 'e' && /^rx_shots\//.test(b.sprite)) seen.add(b.sprite); }
   const m = [...seen].filter((s) => s.includes('brine_pilgrim')).length, c = [...seen].filter((s) => s.includes('pilgrim_elder')).length;
   console.log(`monster new shot: ${m} | champion signature shots: ${c}`);

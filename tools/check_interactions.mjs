@@ -12,8 +12,9 @@ g.newCharacter('priest'); g.persist = () => {}; g.god = true;
 const MENUS = new Set(['shop', 'forge', 'board', 'petyard']);
 const problems = []; let n = 0;
 for (const o of g.map.objects.filter((q) => q.interact && !q.hidden)) {
-  const p = g.player; p.x = o.x + 1.1; p.y = o.y + 0.3; g.unstick(p);
-  for (let k = 0; k < 3; k++) g.update(1 / 60);
+  // stand beside it, on whichever side it is the nearest thing to talk to (the melon patch's vines stand 2 tiles apart)
+  const p = g.player;
+  for (const [dx, dy] of [[1.1, 0.3], [0, 0.8], [-1.1, 0.3], [0, -0.8]]) { p.x = o.x + dx; p.y = o.y + dy; g.unstick(p); for (let k = 0; k < 3; k++) g.update(1 / 60); if (g.nearNPC === o) break; }
   if (['vault', 'fountain', 'shrine'].includes(o.interact)) continue;      // (these act as you walk up, no key)
   n++;
   if (g.nearNPC !== o) { problems.push(`${o.interact} (${o.label || o.sprite}): not picked up as the nearest NPC`); continue; }
