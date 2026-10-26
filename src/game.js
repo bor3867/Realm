@@ -149,6 +149,7 @@ const FLOAT_SLOTS = [[0, 0], [-0.3, 0.16], [0.3, 0.32], [0, 0.48], [-0.3, 0.64],
 const ACTIVE_R = 24;            // enemies farther than this sleep
 const SLOT_ORDER = ['weapon', 'ability', 'armor', 'ring'];
 const PET_BEHIND = 1.2;
+const TRAIL_COL = { poison: '#8de04a', fire: '#ff8a1f', ice: '#9ae0ff', acid: '#c8ff4a', shadow: '#a060d0', blood: '#e83a4a' };   // a trail's colour, by its kind
 const REALM_CAP = 6000;                                    // the most monsters the realm holds at once (a fresh one has about 5,800)                                   // how far behind you, along your path, a pet walks
 const BIOME_TARGET = { shore: 210, fen: 170, runeholt: 125, godfall: 85 };
 // groups per biome: the realm is 2.25x bigger than it was but only gets 1.5x the groups, so it breathes
@@ -1408,6 +1409,7 @@ export class Game {
           for (const e of this.enemiesIn(f.x, f.y, f.r)) this.damageEnemy(e, f.dmg, ...lift(e.x, e.y, 0.5), true);
         }
       }
+      if (f.kind === 'pool' && !p.dead && (f.tick = (f.tick || 0) - dt) <= 0 && dist2(p.x, p.y, f.x, f.y) < f.r * f.r) { f.tick = 0.5; this.hurtPlayer(f.dmg, f.by); }   // a hazard a monster leaves behind it: it hurts while you stand in it
       if (f.kind === 'zone' && !f.done && f.t >= f.delay) {   // boss ground slams: telegraphed, then they hurt
         f.done = true;
         const [hx, hy] = [p.x, p.y];
@@ -1985,12 +1987,16 @@ export class Game {
         this.fx.push({ kind: 'zone', x: e.x, y: e.y, r: D.bomb.r, t: 0, delay: D.bomb.fuse, life: D.bomb.fuse + 0.1, dmg: 0, by: D.name, done: false, colors: ['#8db03a', '#d4ff5a'] });
         continue;
       }
-      if (D.contact && !p.dead && !e.under && (e.contactT = (e.contactT || 0) - dt) <= 0 && d2 < 0.7) { e.contactT = 0.6; this.hurtPlayer(D.contact, D.name); }
+      if (D.contact && !p.dead && !e.under && (e.contactT = (e.contactT || 0) - dt) <= 0 && d2 < 0.7) { e.contactT = 0.6; this.hurtPlayer(D.contact, D.name); this.touchFx(D); }
       // engaged: within its aggro range, or chasing you still (4 s of memory, out to 1.6x the range: a detour round a
       // wall can take it further from you than where it started, and it must not lose interest halfway round)
       if (d < D.aggro) e.engagedUntil = this.t + 4;
       const aggro = (d < D.aggro || (e.engagedUntil > this.t && d < D.aggro * 1.6)) && !p.dead && this.map.kind !== 'nexus';
       e.st -= dt;
+      if (aggro && D.trail && (e.trailT = (e.trailT === undefined ? D.trail.every : e.trailT) - dt) <= 0) {   // a trail: what it leaves on the ground as it goes
+        e.trailT = D.trail.every;
+        this.fx.push({ kind: 'pool', x: e.x, y: e.y, r: D.trail.r || 0.6, t: 0, life: D.trail.life || 3, dmg: D.trail.dmg, by: D.name, col: D.trail.col || TRAIL_COL[D.trail.kind] || '#8de04a' });
+      }
       if (aggro && D.heal && (e.healT = (e.healT === undefined ? D.heal.every : e.healT) - dt) <= 0) {   // menders mend
         e.healT = D.heal.every;
         for (const o of this.enemiesIn(e.x, e.y, D.heal.r)) {
@@ -2015,7 +2021,7 @@ export class Game {
       }
       if (e.state === 'charge') {
         this.moveCircle(e, e.cvx * dt, e.cvy * dt, 0.4);
-        if (D.contact && dist2(e.x, e.y, p.x, p.y) < 0.8) { this.hurtPlayer(D.contact, D.name); e.st = 0; }
+        if (D.contact && dist2(e.x, e.y, p.x, p.y) < 0.8) { this.hurtPlayer(D.contact, D.name); this.touchFx(D); e.st = 0; }
         if (e.st <= 0) { e.state = 'attack'; e.st = 0.2; this.firePattern(e, D.attacks[e.atk]); }
         continue;
       }
@@ -2087,7 +2093,7 @@ export class Game {
       const a = angleTo(p.x, p.y, e.x, e.y);
       if (ai === 'orbit') { const b = a + 0.9; tx = p.x + Math.cos(b) * keep; ty = p.y + Math.sin(b) * keep; }
       else if (ai === 'drift' || ai === 'float') { e.phase += dt * 2; tx = p.x + Math.cos(a + Math.sin(e.phase)) * keep; ty = p.y + Math.sin(a + Math.sin(e.phase)) * keep; }
-      else if (ai === 'kite' || ai === 'charge' || ai === 'blink' || ai === 'hop' || ai === 'skitter') { const k2 = Math.max(keep, ai === 'hop' || ai === 'skitter' ? 1.6 : keep); tx = p.x + Math.cos(a) * k2; ty = p.y + Math.sin(a) * k2; }
+      else if (ai === 'kite' || ai === 'charge' || ai === 'blink' || ai === 'hop' || ai === 'skitter') { const k2 = Math.max(keep, (ai === 'hop' || ai === 'skitter') && D.attacks.length ? 1.6 : keep); tx = p.x + Math.cos(a) * k2; ty = p.y + Math.sin(a) * k2; }   // (one that only bites hops right in)
       else if (ai === 'flank') {
         // its side: away from where its allies near you already are (a pack takes both sides); left alone, it switches now and then
         const crowd = () => { let push = 0; for (const o of this.active) { if (o === e || o.dead || o.rb || !o.D.speed || dist2(o.x, o.y, p.x, p.y) > 36) continue; const da = Math.atan2(Math.sin(a - angleTo(p.x, p.y, o.x, o.y)), Math.cos(a - angleTo(p.x, p.y, o.x, o.y))); if (Math.abs(da) < 1.6) push += Math.sign(da || 1) * (1.6 - Math.abs(da)); } return push; };
@@ -2143,9 +2149,10 @@ export class Game {
       else {                                              // a plain chaser: it comes at you from its own side of the pack
         // (a local rule: the bearings of its allies already near you push its own bearing away from theirs, so a pack
         // closes in from several sides instead of one; far off it arcs toward its side, close in it takes its place)
-        const a0 = angleTo(p.x, p.y, e.x, e.y), so = this.packSpread(e, p, a0, dt), r = d < 2.5 ? 1.0 : Math.min(d - 0.5, 3);
+        // (it takes its place a tile from you; one that only hurts by touch, D.closeIn, right up against you)
+        const near = D.closeIn ?? 1.0, a0 = angleTo(p.x, p.y, e.x, e.y), so = this.packSpread(e, p, a0, dt), r = d < 2.5 ? near : Math.min(d - 0.5, 3);
         tx = p.x + Math.cos(a0 + so) * r; ty = p.y + Math.sin(a0 + so) * r;
-        if (d < 1.2 && Math.abs(so) < 0.25) sp = 0;
+        if (d < near + 0.2 && Math.abs(so) < 0.25) sp = 0;
       }
       if (ai === 'blink') {
         if (e.blinkTo) {                                  // the warning: it shimmers here while a mark glows there
@@ -2245,6 +2252,8 @@ export class Game {
     const a = near ? angleTo(e.x, e.y, tx, ty) + (R() < 0.5 ? 1 : -1) * (Math.PI / 2 + (R() - 0.5) * 0.6) : angleTo(e.x, e.y, tx, ty) + (R() - 0.5) * 1.4;
     e.sk = { vx: Math.cos(a) * s2, vy: Math.sin(a) * s2, t: near ? 0.12 + R() * 0.06 : Math.min(0.16 + R() * 0.1, dd / s2) };
   }
+  // what a monster's touch leaves you with (D.touch: poison seconds, or a slow), as a shot's would
+  touchFx(D) { const T = D.touch, p = this.player; if (!T || p.dead) return; if (T.poison) this.poison(T.poison); if (T.slowHit) { p.dragUntil = Math.max(p.dragUntil || 0, this.t + T.slowHit.t); p.dragF = T.slowHit.f; } }
   firePattern(e, A, isWave = false) {
     A = this.rxAlt(e, A);                                // now and then a monster's new shot (src/remaster.js)
     const p = this.foe(e);
@@ -2291,12 +2300,17 @@ export class Game {
       for (let k = 0; k < n; k++) this.shoot('e', ox, oy, base + (k / n) * TAU, A.speed, A.range, A.dmg, A.proj, size, false, nm);
       return;
     }
+    if (A.pattern === 'slam') {                        // a slam: its ground marked round it, then struck, a ring of shots thrown from it
+      const delay = A.wind ?? 0.5;
+      this.fx.push({ kind: 'zone', x: e.x, y: e.y, r: A.r || 1.8, t: 0, delay, life: delay + 0.3, dmg: A.dmg, by: nm, done: false, shards: A.count || 0, proj: A.proj, colors: A.colors });
+      return;
+    }
     if (A.pattern === 'beam') {                        // a laser: a thin red warning line, then a searing beam
       this.fx.push({ kind: 'laser', x0: ox, y0: oy, a: aim, len: A.range, t: 0, tele: (A.tele || 0.55), act: 0.35, life: (A.tele || 0.55) + 0.45,
         dmg: A.dmg, by: nm, hit: false, col: A.col || '#ffd650' });
       return;
     }
-    const tag = (b, k) => { if (A.mv) { b.mv = A.mv; b.cs = A.mv.alt && k % 2 ? -1 : 1; } if (A.chill) b.chill = A.chill; if (A.bounce) { b.bounce = A.bounce; b.life *= 1.6; } if (A.pull) b.pull = A.pull; if (A.ap) b.ap = true; };
+    const tag = (b, k) => { if (A.mv) { b.mv = A.mv; b.cs = A.mv.alt && k % 2 ? -1 : 1; } if (A.chill) b.chill = A.chill; if (A.bounce) { b.bounce = A.bounce; b.life *= 1.6; } if (A.pull) b.pull = A.pull; if (A.ap) b.ap = true; if (A.poison) b.poison = A.poison; if (A.slowHit) b.slowHit = A.slowHit; };   // (poison, a slow: what the shot leaves you with)
     if (A.pattern === 'radial') {
       e.spin = (e.spin || 0) + (A.turn || 0);
       for (let k = 0; k < A.count; k++) tag(this.shoot('e', ox, oy, e.spin + (k / A.count) * TAU, A.speed, A.range, A.dmg, A.proj, size, false, e.D.name), k);
@@ -2530,6 +2544,7 @@ export class Game {
       const T = Math.max(0.55, Math.min(1.4, dist(ox, oy, x1, y1) / A.speed));
       const b = this.shoot('e', ox, oy, angleTo(ox, oy, x1, y1), A.speed, 99, A.dmg, A.proj, 0.4, false, e.D.name);
       b.lob = { x0: ox, y0: oy, x1, y1, t: 0, T, h: lob.h || 28, n: lob.n || 6, r: 0.95, ss: lob.ss || 3.5 };
+      if (A.poison) b.poison = A.poison; if (A.slowHit) b.slowHit = A.slowHit;   // (what it leaves you with, if it lands on you)
     }
   }
   // burning + slowed enemies (and the dungeon boss) tick here
@@ -3460,6 +3475,7 @@ export class Game {
           if (b.chill) this.addChill(b.chill);
           if (b.sig) this.owSig(b);
           if (b.poison) this.poison(b.poison);
+          if (b.slowHit) { p.dragUntil = Math.max(p.dragUntil || 0, this.t + b.slowHit.t); p.dragF = b.slowHit.f; }   // slowed (rooted: nearly still) for a moment
         }
       }
       if (alive) keep.push(b);

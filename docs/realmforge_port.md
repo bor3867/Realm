@@ -115,7 +115,12 @@ their creatures follow their rules, not ours. The plan, a step a turn:
    `node tools/rf_creatures_report.mjs [--all]`: 163 come over whole, 32 with notes (approximated movement; four
    shield/guard traits left out by the no-guarded-monsters rule; traits our engine lacks: reflect, rebirth, gaze,
    afterimage, echo, encase, chain, ghostfire, lava, cuckoo, solar, the moon/mirage/shade weaknesses).
-2. **Engine**: the new attack kinds the translation uses, for every monster (not Realmforge's alone): `lob` (a lobbed
+2. **Engine** (done 2026-10-26, for every monster): `slam` (a marked slam, a ring from it), the lobbed volley (`mv.lob`,
+   which we had), repeated waves (`waves`/`gap`, which we had) for their line, ground `pool`s a monster's `trail`
+   leaves, `poison` and `slowHit` on a shot or a touch (`D.touch`), a charge for their dash, and `D.closeIn` (a
+   touch-only chaser comes right in; ours held a tile off). `node tools/check_rf_creatures.mjs`: all 195 live, move and
+   attack on our engine with no errors; 170 hurt a player near them; the rest are 2 rooted traps, 15 golden runners
+   (they flee with their treasure) and 8 waiting on their missing traits. Was the plan: the new attack kinds the translation uses, for every monster (not Realmforge's alone): `lob` (a lobbed
    shot that bursts where it lands; bosses already lob), `slam` (a telegraphed slam, a ring from it), a `volley` (the
    same shot again, quickly), `trail` (a hazard left behind), `inflict` (a status on hit), a charger's own dash
    cooldown. Then the missing traits worth having, one by one.

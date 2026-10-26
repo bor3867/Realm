@@ -16,6 +16,8 @@ const REFUSED = new Set(['shield', 'eclipseShield']);
 // theirs we have nothing like yet (left out, listed)
 const MISSING = new Set(['encase', 'chain', 'ghostfire']);
 
+// what a shot leaves you with: their sickness is our poison; their slow and root, a drag on your step
+const inflict = (I) => (!I ? {} : I.k === 'sick' ? { poison: I.t || 3 } : I.k === 'slow' ? { slowHit: { f: 0.6, t: I.t || 1.2 } } : I.k === 'root' ? { slowHit: { f: 0.15, t: I.t || 0.8 } } : {});
 // their sizes are in their pixels (16 a tile); their speeds already in tiles a second
 const tiles = (px) => Math.max(0.3, Math.min(1.6, (px || 16) / 32));
 
@@ -32,20 +34,20 @@ export function translateCreature(DATA, dg, id, e) {
   for (const a of [...(e.atk || []), ...(e.atk2 || [])]) {
     const cd = a.cd || 2.4, range = a.range || 7, tell = Math.round((a.wind || a.aim || 0.35) * 1000);
     switch (a.k) {
-      case 'contact': D.contact = dmg(); break;
-      case 'aim': attacks.push({ pattern: 'aimed', count: a.n || 1, arc: (a.sp || 0) * Math.max(0, (a.n || 1) - 1), speed: a.v || 6, range, cd, dmg: dmg(), proj: shot(a.shot), tell: 300 }); break;
+      case 'contact': D.contact = dmg(); if (a.inflict) D.touch = inflict(a.inflict); break;
+      case 'aim': attacks.push({ pattern: 'aimed', count: a.n || 1, arc: (a.sp || 0) * Math.max(0, (a.n || 1) - 1), speed: a.v || 6, range, cd, dmg: dmg(), proj: shot(a.shot), tell: 300, ...inflict(a.inflict) }); break;
       case 'fan': attacks.push({ pattern: 'aimed', count: a.n || 5, arc: (a.sp || 0.2) * Math.max(0, (a.n || 5) - 1), speed: a.v || 6, range, cd, dmg: dmg(0.8), proj: shot(a.shot), tell: 350 }); break;
       case 'snipe': attacks.push({ pattern: 'aimed', count: 1, speed: a.v || 14, range: 13, cd, dmg: dmg(1.6), proj: shot(a.shot), tell }); break;
-      case 'ring': attacks.push({ pattern: 'radial', count: a.n || 8, speed: a.v || 3.4, range: 8, cd, dmg: dmg(0.8), proj: shot(a.shot), tell: 400, ...(a.inflict ? { inflict: a.inflict } : {}) }); break;
+      case 'ring': attacks.push({ pattern: 'radial', count: a.n || 8, speed: a.v || 3.4, range: 8, cd, dmg: dmg(0.8), proj: shot(a.shot), tell: 400, ...inflict(a.inflict) }); break;
       case 'pulse': attacks.push({ pattern: 'radial', count: 16, speed: 4, range: a.range || 6, cd, dmg: dmg(0.7), proj: shot(a.shot), tell: Math.round((a.dur || 0.6) * 1000) }); notes.push('pulse: as a ring'); break;
       case 'overheat': attacks.push({ pattern: 'radial', count: a.n || 14, speed: 4.5, range: 8, cd, dmg: dmg(0.9), proj: shot(a.shot), tell }); break;
       case 'spiral': attacks.push({ pattern: 'radial', count: a.arms || 3, turn: a.step || 0.3, speed: a.v || 4.6, range: 8, cd: Math.max(0.15, cd), dmg: dmg(0.5), proj: shot(a.shot), tell: 0 }); break;
       case 'wave': attacks.push({ pattern: 'wall', count: a.n || 16, speed: a.v || 3.4, range: 10, cd, dmg: dmg(0.8), proj: shot(a.shot), tell: 450 }); break;
       case 'diag': attacks.push({ pattern: 'cross', count: 4, speed: a.v || 7, range: 8, cd, dmg: dmg(), proj: shot(a.shot), tell: 300 }); break;
-      case 'line': attacks.push({ pattern: 'aimed', count: 1, speed: a.v || 8, range: a.range || 9, cd, dmg: dmg(), proj: shot(a.shot), tell: 300, volley: { n: a.n || 3, every: 0.12 } }); break;
-      case 'lob': attacks.push({ pattern: 'lob', count: a.n || 1, splash: a.r || 1.2, range: 8, cd, dmg: dmg(), proj: shot(a.shot), tell: 400 }); break;
-      case 'slam': attacks.push({ pattern: 'slam', r: a.r || 1.8, count: a.ring || 10, speed: 4, range: a.range || 3, cd, dmg: dmg(1.2), proj: shot(a.shot), tell }); break;
-      case 'dash': D.ai = 'charge'; D.dashCd = cd; break;
+      case 'line': attacks.push({ pattern: 'aimed', count: 1, speed: a.v || 8, range: a.range || 9, cd, dmg: dmg(), proj: shot(a.shot), tell: 300, waves: a.n || 3, gap: 0.12 }); break;   // (the same shot again, quickly)
+      case 'lob': attacks.push({ pattern: 'aimed', count: a.n || 1, speed: 5, range: 8, cd, dmg: dmg(), proj: shot(a.shot), tell: 400, mv: { lob: { n: Math.round(4 + (a.r || 1.2) * 2), h: 30, spread: a.r || 1.2 } }, ...inflict(a.inflict) }); break;   // (lobbed: it bursts where it lands)
+      case 'slam': attacks.push({ pattern: 'slam', r: a.r || 1.8, count: a.ring || 10, range: a.range || 3, cd, dmg: dmg(1.2), proj: shot(a.shot), tell, wind: 0.45 }); break;
+      case 'dash': attacks.push({ pattern: 'aimed', count: 0, charge: 9, range: 6, cd, dmg: 0, tell: Math.round((a.wind || 0.6) * 1000) }); if (!D.contact) D.contact = dmg(); break;   // (a charge: wind up, rush, its body the blow)
       case 'summon': case 'raise': D.children = [`rf_${dg}_${a.what || id}`]; D.every = cd; D.cap = a.max || a.n || 4; if (a.k === 'raise') notes.push('raise: summons fresh ones (no corpses)'); break;
       case 'heal': D.heal = { every: cd, r: 5, pct: Math.min(0.3, a.amt || 0.2) }; break;
       case 'trail': D.trail = { every: Math.max(0.25, cd), life: a.life || 3, dmg: dmg(a.dmg || 0.4), kind: a.kind || 'poison' }; break;
@@ -55,6 +57,8 @@ export function translateCreature(DATA, dg, id, e) {
         else notes.push(`${a.k}: unknown`);
     }
   }
+  if (D.contact && !attacks.length && D.ai !== 'rooted') { D.keep = 0.3; D.closeIn = 0.3; }   // (it hurts by touch alone: it comes right up to you)
+  if (e.rare && !attacks.length && !D.contact && D.ai !== 'rooted') D.ai = 'flee';   // (a golden one, carrying its treasure: it runs, RotMG's way)
   // their one-off traits we have yet to build (the ones that matter to a fight)
   for (const k of ['reflect', 'rebirth', 'guard', 'shieldsOthers', 'copyShots', 'gaze', 'echo', 'afterimage', 'moonVuln', 'mirageVuln', 'shadeVuln', 'solar', 'lava', 'cuckoo'])
     if (e[k]) notes.push(`${k}: ${k === 'guard' || k === 'shieldsOthers' ? 'left out (monsters never guard each other)' : 'not in our engine yet'}`);

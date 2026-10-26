@@ -249,7 +249,7 @@ export class Renderer {
     if (m.belts) this.beltFx(g, m.belts);
     if (g.arena) this.arenaFx(g, g.arena);
     if (g.timeStop) this.timeDial(g, g.timeStop);
-    for (const f of g.fx) if (f.kind === 'cloud' || f.kind === 'zone') this.groundFx(f, g);
+    for (const f of g.fx) if (f.kind === 'cloud' || f.kind === 'zone' || f.kind === 'pool') this.groundFx(f, g);
     if (g.activeMap === m) for (const e of g.notable) if (e.bx && e.bx.B.drawGround && !e.dead) { try { e.bx.B.drawGround(this, g, e); } catch (err) { if (!e.net) throw err; } }   // (a shared boss draws from the server's word: a gap there must not stop the game)   // a boss's hazards on the ground
     if (m.graves) this.drawGraves(g, m);                        // the fallen: a gravestone each, where they fell
     this.spGround(g);                                       // set-piece telegraphs (src/setpieces.js)
@@ -939,6 +939,13 @@ export class Renderer {
   // lingering ground effects: incense / bile clouds, boss slam telegraphs
   groundFx(f, g) {
     const b = this.b, [sx0, sy0] = this.proj(f.x, f.y), sx = Math.round(sx0), sy = Math.round(sy0), R = f.r * TS;
+    if (f.kind === 'pool') {                             // a hazard left on the ground: a pool in its colour, bubbling, fading as it goes
+      const fade = Math.min(1, f.t / 0.2, (f.life - f.t) / 0.6);
+      b.globalAlpha = 0.45 * fade; b.fillStyle = f.col; b.beginPath(); b.ellipse(sx, sy, R, R * 0.6, 0, 0, Math.PI * 2); b.fill();
+      b.globalAlpha = 0.8 * fade; b.fillStyle = '#ffffff';
+      for (let k = 0; k < 3; k++) { const u = (g.t * 1.4 + k / 3 + (f.x * 7) % 1) % 1, a = k * 2.1 + f.y; b.fillRect(Math.round(sx + Math.cos(a) * R * 0.5), Math.round(sy + Math.sin(a) * R * 0.3 - u * 3), 1, 1); }
+      b.globalAlpha = 1; return;
+    }
     if (f.kind === 'cloud') {
       const cols = f.color === 'bile' ? ['#8db03a', '#d4ff5a', '#4a5a2a'] : ['#8a6aa8', '#c8b8e8', '#5a4a68'];
       const fade = Math.min(1, (f.life - f.t) / 0.6);
