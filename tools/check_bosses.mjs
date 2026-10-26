@@ -36,7 +36,7 @@ for (const id of Object.keys(BX)) {
       if (g.projectiles.some((b) => b.bxOf === e && b.born === undefined && b.life > 0 && S.morphCheck)) morphCleared = false;
       const before = e.hp; g.damageEnemy(e, 5000, e.x, e.y, true); if (e.hp < before) morphHits++;
       S.morphCheck = true;
-    } else if (f % 10 === 0 && S.state !== 'death') g.damageEnemy(e, Math.round(e.maxHp / 90), e.x, e.y, true);
+    } else if (f % 10 === 0 && S.state !== 'death') { const T = e.slNight && !e.slNight.dead && e.slShiftUntil > g.t ? e.slNight : e; g.damageEnemy(T, Math.round(e.maxHp / 90), T.x, T.y, true); }   // (the Sleeper, dreaming, is hurt through its nightmare-self)
     if (S.state === 'death' && diedAt === null) diedAt = t;
     if (e.dead && g.bags.length) bagAt = t;
   }
