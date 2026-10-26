@@ -97,7 +97,9 @@ const methods = {
     for (const e of this.enemies) {
       if (!e.ow) continue;
       const W = e.ow, A = W.T.adds;
-      if (W.S && !e.dead && e.hp > 0) {                                           // the signature volley
+      const dying = e.bx && (e.bx.state === 'death' || e.bx.state === 'deathhold' || e.bx.state === 'gone');   // (its death clip: it fires no more)
+      if (dying) W.q = [];
+      if (W.S && !e.dead && e.hp > 0 && !dying) {                                 // the signature volley
         for (const q of W.q) if ((q.t -= dt) <= 0) this.owVolley(e, q.V, q.w);
         W.q = W.q.filter((q) => q.t > 0);
         const f = e.hp / e.maxHp;

@@ -54,11 +54,12 @@ export const BXF = {
       S.wait -= dt;
       if (Math.random() < 0.5) this.vx({ k: 'burst', x: e.x + (Math.random() - 0.5) * 3, y: e.y - e.hitUp + (Math.random() - 0.5) * 3, n: 3, colors: ['#ffffff', '#ffd690', '#c8a0ff'] });
       if (Math.random() < 0.08) this.vx({ k: 'shake', amt: 2 + (1 - S.wait / S.B.death.hold) * 4 });
-      if (S.wait <= 0) { if (S.B.death.burst) S.B.death.burst(this, e); this.bxFinish(e); }
+      if (S.wait <= 0) { if (S.B.death.burst) { S.burstUntil = this.t + 1.5; S.B.death.burst(this, e); } this.bxFinish(e); }   // (its burst, rings over a second or so, is the one volley a dead boss throws)
       return;
     }
     if (S.state === 'finale') { this.bxFinale(e, dt); return; }
     if (B.update) B.update(this, e, dt);                         // the boss's own continuous mechanics
+    if (S.state === 'death') S.vol = [];                          // (dying: nothing it queued goes off)
     for (const v of S.vol) if ((v.t -= dt) <= 0 && !v.done) { v.done = true; this.bxVolley(e, v.V); }
     S.vol = S.vol.filter((v) => !v.done);
     if (S.state === 'intro') { if ((S.wait -= dt) <= 0) { S.state = 'fight'; S.wait = 0.6; } return; }
@@ -166,6 +167,9 @@ export const BXF = {
   bxOrigin(e) { return this.up(e.x, e.y, e.hitUp); },      // the middle of its body as drawn (up the screen, whatever the camera's turn)
   bxDmg(e, d) { return Math.round((d || 60) * ((e.bx && e.bx.B.dmgScale) || 1)); },   // the boss's damage scale, for shots made outside bxShot (lobs)
   bxShot(e, x, y, a, V, extra) {
+    // a dying boss throws nothing more: what its own mechanics still call for comes to nothing (a shot not in play, so the
+    // caller can still dress it). Three bosses kept firing through their death clip (tools/check_shot_lifecycle.mjs)
+    if ((e.dead || (e.bx && (e.bx.state === 'death' || e.bx.state === 'deathhold' || e.bx.state === 'gone'))) && !(e.bx && e.bx.burstUntil > this.t)) return { x, y, vx: 0, vy: 0, a, life: 0, dmg: 0, dead: true };
     const b = this.shoot('e', x, y, a, V.speed || 5, V.range || 14, this.bxDmg(e, V.dmg || 60), V.sprite || `${e.bx.B.shotSheet || 'bx_shots'}/${e.bx.B.art || e.D.bx}.${V.shot}`, V.size || 0.45, false, e.D.name);
     if (V.mv) b.mv = { ...V.mv };
     if (V.life) b.life = V.life;
