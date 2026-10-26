@@ -124,7 +124,8 @@ their creatures follow their rules, not ours. The plan, a step a turn:
    shot that bursts where it lands; bosses already lob), `slam` (a telegraphed slam, a ring from it), a `volley` (the
    same shot again, quickly), `trail` (a hazard left behind), `inflict` (a status on hit), a charger's own dash
    cooldown. Then the missing traits worth having, one by one.
-3. **Art**: `tools/rf_build_creatures.py` draws their creatures' and shots' pixel grids into our registry
+3. **Art** (done 2026-10-26): `node tools/rf_build_creatures.mjs` -> `art/bundle/realmforge_crea/` (195 creatures, their
+   85 shots from the boss shot sheets, none missing). Was the plan: `tools/rf_build_creatures.py` draws their creatures' and shots' pixel grids into our registry
    (`rf_crea/<dungeon>_<id>`, `rf_shot/<dungeon>_<shot>`), our outline and sizes.
 4. **Switch**: an rf_ dungeon spawns our translated monsters where their engine would have placed its creatures, and
    stops running theirs; their layout, props, traps and puzzles stay hosted until their own step.

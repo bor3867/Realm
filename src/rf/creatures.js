@@ -21,14 +21,22 @@ const inflict = (I) => (!I ? {} : I.k === 'sick' ? { poison: I.t || 3 } : I.k ==
 // their sizes are in their pixels (16 a tile); their speeds already in tiles a second
 const tiles = (px) => Math.max(0.3, Math.min(1.6, (px || 16) / 32));
 
+// a dungeon's commonest creature shot
+const DG_SHOT = new Map();
+function dgShot(DATA, dg) {
+  if (DG_SHOT.has(dg)) return DG_SHOT.get(dg);
+  const n = {}; for (const e of Object.values(DATA.explore.dungeons[dg].enemies)) for (const a of [...(e.atk || []), ...(e.atk2 || [])]) if (a.shot) n[a.shot] = (n[a.shot] || 0) + 1;
+  const best = Object.entries(n).sort((a, b) => b[1] - a[1])[0];
+  DG_SHOT.set(dg, best ? best[0] : 'orb'); return DG_SHOT.get(dg);
+}
 // one creature: our definition, and what of it didn't come over (notes)
 export function translateCreature(DATA, dg, id, e) {
   const bal = rfBalance(DATA, dg) || { hp: 1, dmg: 1 }, dmg = (k = 1) => Math.max(1, Math.round((e.dmg || 40) * bal.dmg * k)), notes = [];
-  const shot = (s) => `rf_shot/${dg}_${s || 'orb'}`;
+  const shot = (s) => `rf_shot/${dg}_${s || dgShot(DATA, dg)}`;   // (an attack without a shot of its own: its dungeon's commonest)
   const attacks = [], D = {
     name: e.name, biome: `rf_${dg}`, hp: Math.max(1, Math.round((e.hp || 300) * bal.hp)), def: Math.round((e.armor || 0) * 10), speed: e.spd || 2.4,
     xp: Math.max(4, Math.round(((e.hp || 300) * bal.hp) / 30)), r: tiles(e.size) * 0.8, ai: MOVE[e.move] || 'shamble', aggro: e.sight || 9, fly: !!e.fly,
-    reg: `rf_crea/${dg}_${id}`, scale: 1, contact: 0, attacks, loot: [], rfCrea: { dg, id }, desc: e.how,
+    reg: `rf_crea/${dg}_${id}`, scale: e.art && e.art.frames[0].length > 10 ? 0.5 : 1, contact: 0, attacks, loot: [], rfCrea: { dg, id }, desc: e.how,   // (scale: their 8px art at the player's pixel size, bigger art at the fine size)
   };
   if (!MOVE[e.move]) notes.push(`move "${e.move}": walks`); else if (NEAR_MOVE.has(e.move)) notes.push(`move "${e.move}": as ${D.ai}`);
   for (const a of [...(e.atk || []), ...(e.atk2 || [])]) {
