@@ -105,6 +105,27 @@ trail 13, line 12, spiral 7, summon 7, pulse 5, snipe 4, heal 3, and 9 rarer). 2
   the keeper, portals and keys. Their maps no longer get our dungeon danger multiplier (their band sets the numbers);
   the HUD's stars are the band's.
 
+## Phase 5: one engine (user, 2026-10-26: "everything in the game should be running on the same engine")
+Everything else already is: every boss on BX (Realmforge's too, as `rfx_` in `rfa_` rooms), every realm and dungeon
+monster on our monster engine, shared online by the server. What isn't: **the 24 Realmforge dungeons' creatures**, still
+run by their hosted engine (`src/rf/explore_gen.js`, `src/rf/host.js`), so those dungeons can't be shared online and
+their creatures follow their rules, not ours. The plan, a step a turn:
+1. **Translate** (done 2026-10-26): `src/rf/creatures.js` makes each of their 195 creature kinds one of our monster
+   definitions (`rf_<dungeon>_<id>`): movement to our ai, attacks to our patterns, numbers to their band.
+   `node tools/rf_creatures_report.mjs [--all]`: 163 come over whole, 32 with notes (approximated movement; four
+   shield/guard traits left out by the no-guarded-monsters rule; traits our engine lacks: reflect, rebirth, gaze,
+   afterimage, echo, encase, chain, ghostfire, lava, cuckoo, solar, the moon/mirage/shade weaknesses).
+2. **Engine**: the new attack kinds the translation uses, for every monster (not Realmforge's alone): `lob` (a lobbed
+   shot that bursts where it lands; bosses already lob), `slam` (a telegraphed slam, a ring from it), a `volley` (the
+   same shot again, quickly), `trail` (a hazard left behind), `inflict` (a status on hit), a charger's own dash
+   cooldown. Then the missing traits worth having, one by one.
+3. **Art**: `tools/rf_build_creatures.py` draws their creatures' and shots' pixel grids into our registry
+   (`rf_crea/<dungeon>_<id>`, `rf_shot/<dungeon>_<shot>`), our outline and sizes.
+4. **Switch**: an rf_ dungeon spawns our translated monsters where their engine would have placed its creatures, and
+   stops running theirs; their layout, props, traps and puzzles stay hosted until their own step.
+5. **Online**: the server hosts rf_ dungeons like ours (their layout from its seed), so a group shares one.
+Check each step with the dungeon checks and `tools/check_enemy_hits.mjs` on the new monsters.
+
 ## Status
 | Dungeon | Boss | Layout | Creatures | Boss | Uniques | Overworld droppers | Done |
 |---|---|---|---|---|---|---|---|
