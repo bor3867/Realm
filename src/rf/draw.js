@@ -92,7 +92,7 @@ const methods = {
       add(pr.x + 0.5, pr.y + 0.98, (rx, ry) => this.rfDraw(fr(A.cvs, t * (pr.k === 'portal' ? 8 : 4)), rx, ry, K, { flat: A.flat, down: hh > 8 ? Math.min(8, hh - 8) : 0 }));
     }
     for (const e of E.en_) {
-      if (e.st === 'gone') continue;
+      if (e.st === 'gone' || e.ours) continue;                  // (one of ours: drawn as ours)
       add(e.x, e.y, (rx, ry) => this.rfEnemy(g, E, e, rx, ry));
     }
     for (const d of E.drops) add(d.x, d.y, (rx, ry) => this.rfDropSpr(E, d, rx, ry));
@@ -207,7 +207,7 @@ const methods = {
       return;
     }
     const E = m.rf.E;
-    for (const e of E.en_) if (e.hp > 0 && !e.dormant && !e.hidden) mark(e.x, e.y, e.boss ? 'skull' : 'enemy', e.boss ? '#ffa030' : '#ff3c50', '#ffd0d8', false, e.boss ? 3 : 2);
+    for (const e of E.en_) if (e.hp > 0 && !e.ours && !e.dormant && !e.hidden) mark(e.x, e.y, e.boss ? 'skull' : 'enemy', e.boss ? '#ffa030' : '#ff3c50', '#ffd0d8', false, e.boss ? 3 : 2);
     for (const pr of E.M.props) {
       if (pr.hidden || pr.k[0] === '_') continue;
       const x = pr.x + 0.5, y = pr.y + 0.5;

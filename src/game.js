@@ -704,7 +704,7 @@ export class Game {
     const p = this.player;
     if (p && !p.dead) test(p, 0.7, 1.6);
     for (const e of this.active || []) if (!e.dead) test(e, e.hitUp || 0.6, e.rb ? 3.2 : 1.6);
-    if (this.map && this.map.rf && this.map.rf.E) for (const e of this.map.rf.E.en_ || []) if (e.hp > 0 && !e.hidden) test(e, 0.6, 1.6);   // a Realmforge creature
+    if (this.map && this.map.rf && this.map.rf.E) for (const e of this.map.rf.E.en_ || []) if (e.hp > 0 && !e.ours && !e.hidden) test(e, 0.6, 1.6);   // a Realmforge creature
     return best;
   }
 
@@ -2382,7 +2382,7 @@ export class Game {
       if (e.D.confetti) { this.vx({ k: 'regfx', key: 'd2_effects/hollowmoon.confetti_pop', x: e.x, y: e.y - 0.6, fps: 10 }); const g0 = 3 + Math.floor(R() * 4); this.save.gold = (this.save.gold || 0) + g0; this.float(e.x, e.y - 1.4, `+${g0}g`, '#f2c14e'); }
       if (e.D.deathBurst && !e.net) { const B = e.D.deathBurst, a0 = R() * TAU; for (let k = 0; k < B.n; k++) this.shoot('e', ...lift(e.x, e.y, 0.4), a0 + (k / B.n) * TAU, B.speed, B.range, B.dmg, B.proj, 0.35, false, e.D.name); }
       if (e.D.asDeath && !e.net) this.asDeath(e);                       // a meteor mite's ring of embers; the Vault Keeper's fall (src/astral.js)
-      if (e.D.split && !e.net) for (let k = 0; k < e.D.split.n; k++) {   // (the server splits a shared one)   // splitters burst into smaller copies
+      if (e.D.split && !e.net && !e.rfE) for (let k = 0; k < e.D.split.n; k++) {   // (the server splits a shared one; a Realmforge dungeon splits its own, src/rf/host.js)   // splitters burst into smaller copies
         const a = (k / e.D.split.n) * TAU, x = e.x + Math.cos(a) * 0.7, y = e.y + Math.sin(a) * 0.7;
         if (!isSolid(this.map, x, y)) this.addEnemy(e.D.split.id, x, y);
       }

@@ -51,6 +51,9 @@ patch("if(Math.random()<0.05)E.drops.push({k:'potion',x:e.x+0.3,y:e.y});", "")  
 patch("if(o.core&&Math.random()<0.3)E.drops.push({k:'potion',x:o.x+1.3,y:o.y+1});", "")
 # a shrine's blessing is a buff on our player too
 patch("if(pr.k==='shrine'&&d<1.1){pr.used=1;p.buff=60;", "if(pr.k==='shrine'&&d<1.1){pr.used=1;p.buff=60;HOST.shrine();")
+# one engine (docs/realmforge_port.md, Phase 5): a creature our engine has taken over moves and fights as ours; theirs
+# only keeps its place in their rooms (src/rf/host.js rfLink moves it with ours)
+patch("for(const e of E.en_){if(e.hp<=0)continue;stepEnemy(e,dt);}", "for(const e of E.en_){if(e.hp<=0||e.ours)continue;stepEnemy(e,dt);}")
 
 # the Hall of Mirrors draws your reflection with the test player sprite, which stays out: no sprite, no reflection
 patch("const im=E.player[Math.floor(p.f)%E.player.length];", "if(!E.player||!E.player.length)return;const im=E.player[Math.floor(p.f)%E.player.length];")

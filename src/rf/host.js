@@ -11,17 +11,33 @@ import { bossData } from './boss.js';
 import { RF_FOE_LANDS } from '../data/rf_foes.js';
 import { rfBalance } from './balance.js';
 import { addRfBosses } from '../bosses/rf_translate.js';
+import { translateAll } from './creatures.js';
+import { ENEMIES } from '../data/enemies.js';
 
 const TS = 16, K = 2;                                             // our tile is 16 buffer pixels; their art is 8 to a tile
 // their tile codes (C in explore.js) -> our tile names: a code change is a tile change, so our chunk caches follow
 export const RF_CODE_TILE = ['rf_wall', 'rf_floor', 'rf_path', 'rf_pit', 'rf_secret', 'rf_gate', 'rf_haz', 'rf_liq', 'rf_ice', 'rf_bridge', 'rf_tog', 'rf_break', 'rf_conv', 'rf_deep'];
 let DATA = null, X = null;
+// one engine (docs/realmforge_port.md, Phase 5): which of their creatures our monster engine runs. A kind goes over when it
+// came over whole (src/rf/creatures.js: no approximation, nothing left out) and its dungeon has no rule of its own about
+// how its creatures move, fight, take hits or die (their module hooks below); the rest stay on their engine until theirs
+// is built in ours
+let OURS = new Set(), LINK_DG = new Set();
+const CREATURE_HOOKS = ['enemy', 'vuln', 'hitEnemy', 'alpha', 'atk', 'bullet', 'kill', 'drawEnemy', 'spawn', 'woke'];
 const HOST = {};                                                  // filled in by rfMap: the calls their engine makes to us
 
 // boot: the Realmforge data (dungeons, creatures, art) is loaded once, in the background
 export async function loadRF() {
-  try { DATA = await (await fetch('art/rf/data.json')).json(); X = makeExplore(DATA, HOST); bossData(DATA); addRfBosses(DATA); } catch (err) { console.warn('Realmforge data not loaded', err); }
+  try { DATA = await (await fetch('art/rf/data.json')).json(); X = makeExplore(DATA, HOST); bossData(DATA); addRfBosses(DATA); rfCreatures(); } catch (err) { console.warn('Realmforge data not loaded', err); }
 }
+// their creatures as our monster definitions (rf_<dungeon>_<id>), and which of them our engine runs
+function rfCreatures() {
+  const T = translateAll(DATA);
+  for (const [id, D] of Object.entries(T.defs)) ENEMIES[id] = { ...D, id };
+  OURS = new Set(T.report.filter((r) => !r.notes.length).map((r) => r.id));
+  LINK_DG = new Set(DATA.dungeons.map((d) => d.id).filter((id) => !CREATURE_HOOKS.some((k) => X.MODS[id] && X.MODS[id][k])));
+}
+export const rfLinkedDungeons = () => [...LINK_DG];
 export const rfReady = () => !!X;
 export const rfDungeons = () => (DATA ? DATA.dungeons.map((d) => d.id) : []);
 const dgOf = (id) => DATA && DATA.dungeons.find((d) => d.id === id);
@@ -109,7 +125,9 @@ const methods = {
     if (!ep) return;
     ep.x = p.x; ep.y = p.y; ep.hp = p.hp;
     const bx = ep.x, by = ep.y;
+    this.rfLinkIn();
     X.tick(dt);
+    this.rfLinkOut();
     if (ep.x !== bx || ep.y !== by) { p.x = ep.x; p.y = ep.y; this.unstick(p); }   // their portals, a collapsing floor, a push
     for (const e of E.en_) this.rfScale(e);
     this.rfTheirsTick(dt);
@@ -121,6 +139,37 @@ const methods = {
       R.door = { kind: 'dungeon', hidden: true, x: E.M.bossDoor.x + 0.5, y: E.M.bossDoor.y + 1, label: E.B.name, to: `rfa_${E.B.id}` };
       m.portals.push(R.door);
       this.banner(`${E.B.name} waits beyond this door.`, 2500);
+    }
+  },
+  // one engine: our monster stands in for their creature from the moment it wakes to fight; theirs stays in their rooms
+  // (their locks, guards, room-clears and keys count it) and goes where ours goes. Before their frame: ours -> theirs
+  rfLinkIn() {
+    const E = this.map.rf.E;
+    for (const e of E.en_) {
+      const o = e.ours;
+      if (!o || e.hp <= 0) continue;
+      if (o.dead) { e.rfByOurs = 1; X.kill(e); continue; }       // our blow: their kill (its key, its corpse, its room)
+      e.x = o.x; e.y = o.y; e.hp = o.hp; e.aggro = true; e.rfAt = [e.x, e.y]; e.rfHp = e.hp;
+    }
+  },
+  // after their frame: what their world did to it (a push, a trap, a portal) reaches ours; and the newly woken go over
+  rfLinkOut() {
+    const m = this.map, E = m.rf.E, dg = m.rf.id;
+    for (const e of E.en_) {
+      const o = e.ours;
+      if (!o) {
+        if (e.hp > 0 && e.aggro && !e.dormant && !e.hidden && e.st !== 'gone' && LINK_DG.has(dg) && OURS.has(`rf_${dg}_${e.k}`)) {
+          const n = this.addEnemy(`rf_${dg}_${e.k}`, e.x, e.y);
+          n.hp = e.hp; n.maxHp = e.max; n.seen = true; n.aggro = true; n.rfE = e; e.ours = n;
+        }
+        continue;
+      }
+      if (o.dead || !e.rfAt) continue;
+      if (e.x !== e.rfAt[0] || e.y !== e.rfAt[1]) { o.x = e.x; o.y = e.y; }
+      if (e.hp < e.rfHp) {                                       // their world hurt it
+        o.hp = Math.max(0, o.hp - (e.rfHp - e.hp));
+        if (e.hp <= 0) { o.dead = true; o.deadT = 0; o.hp = 0; o.noLoot = true; this.vx({ k: 'death', e: o, big: false }); }   // (their kill paid for it)
+      }
     }
   },
   // what the ground does to you: ice slides you, liquid slows and may hurt, conveyors, winds and currents push
@@ -140,8 +189,10 @@ const methods = {
   // a creature dies: experience, and now and then a bag (their keys stay theirs: the locks count them)
   rfKill(e) {
     const d = e.d, big = e.boss || d.size > 16, T = this.map.rf.E.t;
-    this.rfOnKill({ x: e.x, y: e.y, rb: !!e.boss, curseT: e.rfCurseT > T ? 1 : 0, burn: e.rfDot && e.rfDot.t > T ? { t: 1 } : null, D: { r: 0.5 } });   // the uniques that answer a kill
-    this.gainXp(Math.round((d.hp || 300) / (big ? 12 : 25)));
+    if (!e.rfByOurs) {                                           // (one of ours: our death already paid its experience and kill effects)
+      this.rfOnKill({ x: e.x, y: e.y, rb: !!e.boss, curseT: e.rfCurseT > T ? 1 : 0, burn: e.rfDot && e.rfDot.t > T ? { t: 1 } : null, D: { r: 0.5 } });   // the uniques that answer a kill
+      this.gainXp(Math.round((d.hp || 300) / (big ? 12 : 25)));
+    }
     const R = Math.random();
     if (big) this.addBag(e.x, e.y + 0.6, rollLoot(this.rfLoot(2), 1.5));
     else if (R < 0.06) this.addBag(e.x, e.y + 0.4, rollLoot(this.rfLoot(1), 1));
@@ -180,7 +231,7 @@ const methods = {
     if (sp.chain) {
       let from = e; const seen = new Set([e]);
       for (let k = 0; k < sp.chain.n; k++) {
-        const nx = E.en_.filter((o) => o.hp > 0 && !seen.has(o) && !o.hidden && !o.dormant && Math.hypot(o.x - from.x, o.y - from.y) < 4.5).sort((a, c) => Math.hypot(a.x - from.x, a.y - from.y) - Math.hypot(c.x - from.x, c.y - from.y))[0];
+        const nx = E.en_.filter((o) => o.hp > 0 && !o.ours && !seen.has(o) && !o.hidden && !o.dormant && Math.hypot(o.x - from.x, o.y - from.y) < 4.5).sort((a, c) => Math.hypot(a.x - from.x, a.y - from.y) - Math.hypot(c.x - from.x, c.y - from.y))[0];
         if (!nx) break;
         seen.add(nx); this.vx({ k: 'zap', ...liftA(from.x, from.y, 0.5), ...liftB(nx.x, nx.y, 0.5) });
         X.damageEnemy(nx, Math.round(b.dmg * sp.chain.f), { x: nx.x, y: nx.y }); from = nx;
@@ -193,7 +244,7 @@ const methods = {
   rfTheirsTick(dt) {
     const E = this.map.rf.E, t = E.t;
     for (const e of E.en_) {
-      if (e.hp <= 0) continue;
+      if (e.hp <= 0 || e.ours) continue;
       if (e.rfDot && e.rfDot.t > t) { e.rfDot.acc += dt; if (e.rfDot.acc >= 0.5) { e.rfDot.acc -= 0.5; X.damageEnemy(e, Math.round(e.rfDot.dps * 0.5), { x: e.x, y: e.y }); this.float(...lift(e.x, e.y, 1.2), `${Math.round(e.rfDot.dps * 0.5)}`, '#ff9a5a'); } }
       if (e.rfSpd0 === undefined) e.rfSpd0 = e.spd;
       e.spd = e.rfSlowT > t ? e.rfSpd0 * e.rfSlowF : e.rfSpd0;
@@ -203,7 +254,7 @@ const methods = {
   rfIn(x, y, r) {
     const out = [], m = this.map;
     if (m.rf) for (const e of m.rf.E.en_) {
-      if (e.hp <= 0 || e.dormant || e.hidden || e.st === 'gone') continue;
+      if (e.hp <= 0 || e.ours || e.dormant || e.hidden || e.st === 'gone') continue;
       const er = e.r || 0.5;
       if ((e.x - x) ** 2 + (e.y - y) ** 2 < (r + er) ** 2) { e.rfC = true; e.D = e.D || { name: (e.d && e.d.name) || 'creature', r: er }; out.push(e); }
     }
@@ -224,7 +275,7 @@ const methods = {
   rfShotHits(b) {
     const E = this.map.rf.E;
     for (const e of E.en_) {
-      if (e.hp <= 0 || e.dormant || e.hidden || e.st === 'gone') continue;
+      if (e.hp <= 0 || e.ours || e.dormant || e.hidden || e.st === 'gone') continue;
       const [hx, hy] = lift(e.x, e.y + (e.z || 0), 0.45), rr = (e.r || 0.5) + b.r * 0.6;
       if ((b.x - hx) ** 2 + (b.y - hy) ** 2 < rr * rr) {
         if (b.hit) { if (b.hit.has(e)) continue; b.hit.add(e); }

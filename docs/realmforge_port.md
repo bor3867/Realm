@@ -127,8 +127,17 @@ their creatures follow their rules, not ours. The plan, a step a turn:
 3. **Art** (done 2026-10-26): `node tools/rf_build_creatures.mjs` -> `art/bundle/realmforge_crea/` (195 creatures, their
    85 shots from the boss shot sheets, none missing). Was the plan: `tools/rf_build_creatures.py` draws their creatures' and shots' pixel grids into our registry
    (`rf_crea/<dungeon>_<id>`, `rf_shot/<dungeon>_<shot>`), our outline and sizes.
-4. **Switch**: an rf_ dungeon spawns our translated monsters where their engine would have placed its creatures, and
-   stops running theirs; their layout, props, traps and puzzles stay hosted until their own step.
+4. **Switch** (begun 2026-10-26: 11 dungeons, 78 kinds): a creature of theirs goes over to our engine the moment it wakes
+   to fight (`src/rf/host.js` rfLinkIn/rfLinkOut). Ours moves, fights, is hit and dies; theirs stays in their list,
+   unstepped (the one seam: `e.ours`, tools/rf_build_explore.py), so their room-clears, locks, guards, keys, corpses and
+   splits still count it. Ours -> theirs before their frame (place, health; our kill is their kill, its experience
+   paid once, by ours); theirs -> ours after it (a push, a trap's hurt, a portal). Dormant and buried ones wake on their
+   engine as before. Which go over: a kind that came over whole (no notes), in a dungeon with no module rule of its own
+   about creatures (`CREATURE_HOOKS`): crypt, mire, crater, chapel, peaks, cathedral, oasis, monastery, atlas, patch,
+   paper. `node tools/check_rf_link.mjs [dungeon ...]`: a bot clears each; every creature of ours dies in their dungeon
+   too, none is left half-dead. Next: the missing traits (so the 10 noted kinds there go over), then the 13 dungeons
+   with creature rules, each rule rebuilt in our engine.
+   Their layout, props, traps and puzzles stay hosted until step 5.
 5. **Online**: the server hosts rf_ dungeons like ours (their layout from its seed), so a group shares one.
 Check each step with the dungeon checks and `tools/check_enemy_hits.mjs` on the new monsters.
 
