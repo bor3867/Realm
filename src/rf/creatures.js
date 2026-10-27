@@ -51,7 +51,7 @@ export function translateCreature(DATA, dg, id, e) {
       case 'overheat': attacks.push({ pattern: 'radial', count: a.n || 14, speed: 4.5, range: 8, cd, dmg: dmg(0.9), proj: shot(a.shot), tell }); break;
       case 'spiral': attacks.push({ pattern: 'radial', count: a.arms || 3, turn: a.step || 0.3, speed: a.v || 4.6, range: 8, cd: Math.max(0.15, cd), dmg: dmg(0.5), proj: shot(a.shot), tell: 0 }); break;
       case 'wave': attacks.push({ pattern: 'wall', count: a.n || 16, speed: a.v || 3.4, range: 10, cd, dmg: dmg(0.8), proj: shot(a.shot), tell: 450 }); break;
-      case 'diag': attacks.push({ pattern: 'cross', count: 4, speed: a.v || 7, range: 8, cd, dmg: dmg(), proj: shot(a.shot), tell: 300 }); break;
+      case 'diag': attacks.push({ pattern: 'cross', x: true, count: 4, speed: a.v || 7, range: 8, cd, dmg: dmg(), proj: shot(a.shot), tell: 300 }); break;   // (their Keep's bishop: always the four diagonals)
       case 'line': attacks.push({ pattern: 'aimed', count: 1, speed: a.v || 8, range: a.range || 9, cd, dmg: dmg(), proj: shot(a.shot), tell: 300, waves: a.n || 3, gap: 0.12 }); break;   // (the same shot again, quickly)
       case 'lob': attacks.push({ pattern: 'aimed', count: a.n || 1, speed: 5, range: 8, cd, dmg: dmg(), proj: shot(a.shot), tell: 400, mv: { lob: { n: Math.round(4 + (a.r || 1.2) * 2), h: 30, spread: a.r || 1.2 } }, ...inflict(a.inflict) }); break;   // (lobbed: it bursts where it lands)
       case 'slam': attacks.push({ pattern: 'slam', r: a.r || 1.8, count: a.ring || 10, range: a.range || 3, cd, dmg: dmg(1.2), proj: shot(a.shot), tell, wind: 0.45 }); break;

@@ -139,7 +139,11 @@ their creatures follow their rules, not ours. The plan, a step a turn:
    (pushes you away; it had come over as a ring of shots), raise (their fallen, in the raiser's room), the lightning
    chain between kin, leader and formation; gaze stays their Cathedral's own rule (it runs for ours too, and its
    brand now counts our blows: rfHurtK). All 88 kinds of the 11 dungeons are ours; 172 of 195 come over whole.
-   Next: the 13 dungeons with creature rules, each rule rebuilt in our engine, and the last traits (reflect, rebirth,
+   Then 4 more whose rules were rebuilt (`HOOKS_OURS`): the Forge's smith works faster at its anvil, the Keep's bishop
+   shoots only the diagonals, the Rift's rules touch only its echoes (still theirs), the Hall of Mirrors turns a
+   monster's shot back once off a mirror. 15 dungeons now.
+   Next: the 9 dungeons with creature rules left (glade, unmelting, temple, grove, pyre, clocktower, sanctum, sewers,
+   stage), each rule rebuilt in our engine, and the last traits (reflect, rebirth,
    afterimage, echo, encase, ghostfire, the moon/shade weaknesses, chess, mirror).
    Their layout, props, traps and puzzles stay hosted until step 5.
 5. **Online**: the server hosts rf_ dungeons like ours (their layout from its seed), so a group shares one.

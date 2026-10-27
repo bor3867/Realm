@@ -2034,7 +2034,7 @@ export class Game {
           this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.8), n: 16, colors: ['#ff2a3a', '#ff7a1a'] });
         }
         for (let k = 0; k < D.attacks.length; k++) {
-          e.cds[k] -= dt * (1 - (e.slowF || 0) * 0.6) * (e.enraged ? 1.6 : 1) * (e.cuedUntil > this.t ? 1.6 : 1);
+          e.cds[k] -= dt * (1 - (e.slowF || 0) * 0.6) * (e.enraged ? 1.6 : 1) * (e.cuedUntil > this.t ? 1.6 : 1) * (e.rfE && e.rfE.forged ? 1.8 : 1);   // (a Realmforge smith at its anvil works faster)
           const A = D.attacks[k];
           if (A.when && (A.when === 'hot') !== (e.hp < e.maxHp * 0.35)) continue;    // the scorpion's split stinger waits for it to run hot
           if (e.cds[k] <= 0 && d < A.range + 1 && (!AIMED.has(A.pattern) || (A.mv && A.mv.lob) || this.foe(e) !== p || D.noclip || this.seesFoe(e, p))) {   // (no shot aimed at you through a wall: it comes round first; mortars lob over)
@@ -2315,7 +2315,7 @@ export class Game {
     }
     if (A.pattern === 'cross') {                       // + then x, alternating
       e.crossT = (e.crossT || 0) + 1;
-      const base = e.crossT % 2 ? Math.PI / 4 : 0, n = A.count;
+      const base = A.x || e.crossT % 2 ? Math.PI / 4 : 0, n = A.count;   // (A.x: the diagonals only)
       for (let k = 0; k < n; k++) this.shoot('e', ox, oy, base + (k / n) * TAU, A.speed, A.range, A.dmg, A.proj, size, false, nm);
       return;
     }
@@ -3456,6 +3456,7 @@ export class Game {
         }
       }
       if (b.arm && b.from === 'p') this.armShotTick(b, dt);   // a Mad God Armory shot: its own path, homing, eating shots (src/armory.js)
+      if (b.from === 'e' && m.rf && !b.refl) this.rfMirror(b, dt);   // their Hall of Mirrors turns a monster's shot back once (src/rf/host.js)
       if (!b.orb) { b.x += b.vx * dt; b.y += b.vy * dt; }
       if (b.dust && (b.dustT = (b.dustT || 0) - dt) <= 0) { b.dustT = 0.025; this.vx({ k: 'trail', x: b.x, y: b.y, colors: b.dust }); }   // its trail: glowing dust that hangs where it passed, and fades
       b.life -= dt;

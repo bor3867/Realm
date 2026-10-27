@@ -24,6 +24,10 @@ let DATA = null, X = null;
 // is built in ours
 let OURS = new Set(), LINK_DG = new Set();
 const CREATURE_HOOKS = ['enemy', 'vuln', 'hitEnemy', 'alpha', 'atk', 'bullet', 'kill', 'drawEnemy', 'spawn', 'woke'];
+// the rules of theirs our engine keeps now, dungeon by dungeon: the Forge's smith works faster at its anvil (and sparks);
+// the Keep's bishop shoots the diagonals; the Rift's rules touch only its echoes (still theirs); the Hall of Mirrors
+// turns a monster's shot back once off a mirror
+const HOOKS_OURS = { forge: ['drawEnemy'], keep: ['atk'], rift: ['atk', 'drawEnemy'], mirrors: ['bullet'] };
 const HOST = {};                                                  // filled in by rfMap: the calls their engine makes to us
 
 // boot: the Realmforge data (dungeons, creatures, art) is loaded once, in the background
@@ -35,7 +39,7 @@ function rfCreatures() {
   const T = translateAll(DATA);
   for (const [id, D] of Object.entries(T.defs)) ENEMIES[id] = { ...D, id };
   OURS = new Set(T.report.filter((r) => r.notes.every((n) => n.includes('left out (monsters never'))).map((r) => r.id));   // (a protection left out by our rule is ours as it should be)
-  LINK_DG = new Set(DATA.dungeons.map((d) => d.id).filter((id) => !CREATURE_HOOKS.some((k) => X.MODS[id] && X.MODS[id][k])));
+  LINK_DG = new Set(DATA.dungeons.map((d) => d.id).filter((id) => !CREATURE_HOOKS.some((k) => X.MODS[id] && X.MODS[id][k] && !(HOOKS_OURS[id] || []).includes(k))));
 }
 export const rfLinkedDungeons = () => [...LINK_DG];
 export const rfReady = () => !!X;
@@ -122,6 +126,12 @@ const methods = {
     if (!E.mod || !E.mod.hurt || !LINK_DG.has(this.map.rf.id)) return 1;
     const k = E.mod.hurt(1, null);
     return k === 0 ? 0 : k || 1;
+  },
+  // their Hall of Mirrors: a monster's shot about to meet a mirror turns back once (as their bullet rule does)
+  rfMirror(b, dt) {
+    const M = this.map.rf.E.M;
+    if (!M.mirror) return;
+    if (M.mirror.has(M.I(Math.floor(b.x + b.vx * dt * 1.6), Math.floor(b.y + 0.3 + b.vy * dt * 1.6)))) { b.vy = -b.vy; b.a = Math.atan2(b.vy, b.vx); b.refl = 1; b.life = Math.max(b.life, 1.4); }
   },
   // a raiser of ours raises one of their fallen, as theirs did: in its own room, dead a moment, a kind that may rise
   rfRaise(e, A) {
