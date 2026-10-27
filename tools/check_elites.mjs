@@ -36,7 +36,7 @@ for (const id of ids) {
     if (e.abil && e.abil.done && !wasDone) clipAtEffect = e.abil.t;
     for (const b of g.projectiles) if (b.by === D.name) shots.add(b.sprite);
     const k = D.ability.kind;
-    if (k === 'bulwark' && e.bulwarkT > g.t) { const h = e.hp; g.damageEnemy(e, 500, e.x, e.y, true); if (e.hp === h) effect = true; }
+    if (k === 'reef' && g.fx.filter((q) => q.kind === 'zone').length >= 3) effect = true;   // its coral line
     if (k === 'song' && p.dragUntil > g.t) effect = true;
     if (k === 'totem' && g.enemies.some((q) => q.id === 'spirit_totem' && !q.dead)) effect = true;
     if (k === 'roar' && g.projectiles.filter((b) => b.sprite.endsWith('thorn_burst')).length >= 20) effect = true;
