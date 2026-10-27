@@ -135,8 +135,12 @@ their creatures follow their rules, not ours. The plan, a step a turn:
    engine as before. Which go over: a kind that came over whole (no notes), in a dungeon with no module rule of its own
    about creatures (`CREATURE_HOOKS`): crypt, mire, crater, chapel, peaks, cathedral, oasis, monastery, atlas, patch,
    paper. `node tools/check_rf_link.mjs [dungeon ...]`: a bot clears each; every creature of ours dies in their dungeon
-   too, none is left half-dead. Next: the missing traits (so the 10 noted kinds there go over), then the 13 dungeons
-   with creature rules, each rule rebuilt in our engine.
+   too, none is left half-dead (it also counts raises, chain hits and pulses). Traits built in ours since: their pulse
+   (pushes you away; it had come over as a ring of shots), raise (their fallen, in the raiser's room), the lightning
+   chain between kin, leader and formation; gaze stays their Cathedral's own rule (it runs for ours too, and its
+   brand now counts our blows: rfHurtK). All 88 kinds of the 11 dungeons are ours; 172 of 195 come over whole.
+   Next: the 13 dungeons with creature rules, each rule rebuilt in our engine, and the last traits (reflect, rebirth,
+   afterimage, echo, encase, ghostfire, the moon/shade weaknesses, chess, mirror).
    Their layout, props, traps and puzzles stay hosted until step 5.
 5. **Online**: the server hosts rf_ dungeons like ours (their layout from its seed), so a group shares one.
 Check each step with the dungeon checks and `tools/check_enemy_hits.mjs` on the new monsters.
