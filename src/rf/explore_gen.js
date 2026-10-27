@@ -2771,5 +2771,5 @@ export function makeExplore(DATA,HOST){
 
   // test hooks
   function headless(id,seed){const dg=DATA.dungeons.find(d=>d.id===id);timers.length=0;E.kb={};E.touch=null;if(!setup(dg,seed))return null;E.open=false;return E;}
-  return {setup,tick,generate,damageEnemy,kill,openGate,setTile,tileAt,roomOf,solidMove,solidShot,C,BM,WALLISH,BS,TS,MODS,BOSSES,toBoss:()=>HOST.bossDoor(),_newG:newG,_validate:validate,_flood:flood,why:()=>{const c={};for(const w of WHY)c[w]=(c[w]||0)+1;WHY.length=0;return c;},open,close,panel:typeof panel==='function'?panel:null,generate:(id,seed)=>{const dg=DATA.dungeons.find(d=>d.id===id);return generate(dg,seed);},has:id=>!!X.dungeons[id],state:()=>E,step:tick,headless,mods:MODS,draw:()=>draw()};
+  return {setup,tick,generate,damageEnemy,kill,mkEnemy,openGate,setTile,tileAt,roomOf,solidMove,solidShot,C,BM,WALLISH,BS,TS,MODS,BOSSES,toBoss:()=>HOST.bossDoor(),_newG:newG,_validate:validate,_flood:flood,why:()=>{const c={};for(const w of WHY)c[w]=(c[w]||0)+1;WHY.length=0;return c;},open,close,panel:typeof panel==='function'?panel:null,generate:(id,seed)=>{const dg=DATA.dungeons.find(d=>d.id===id);return generate(dg,seed);},has:id=>!!X.dungeons[id],state:()=>E,step:tick,headless,mods:MODS,draw:()=>draw()};
 }

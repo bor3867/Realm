@@ -22,7 +22,7 @@ def patch(a, b, count=1):
 patch("(function(){\n  if(!DATA.explore||!DATA.dungeons)return;", "export function makeExplore(DATA,HOST){\n  if(!DATA.explore||!DATA.dungeons)return null;")
 patch('/*MODS*/', mods_src)
 patch('/*PANEL*/', '')
-patch("  window.RFExplore={", "  return {setup,tick,generate,damageEnemy,kill,openGate,setTile,tileAt,roomOf,solidMove,solidShot,C,BM,WALLISH,BS,TS,MODS,BOSSES,toBoss:()=>HOST.bossDoor(),")
+patch("  window.RFExplore={", "  return {setup,tick,generate,damageEnemy,kill,mkEnemy,openGate,setTile,tileAt,roomOf,solidMove,solidShot,C,BM,WALLISH,BS,TS,MODS,BOSSES,toBoss:()=>HOST.bossDoor(),")
 patch("draw:()=>draw()};\n})();", "draw:()=>draw()};\n}")
 # no temporary player sprite (the test piece is not in the data)
 patch("E.player=arts(X.player,true);", "E.player=null;")

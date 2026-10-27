@@ -1754,6 +1754,7 @@ export class Game {
   }
   hurtPlayer(dmg, by, ignoreDef = false) {
     dmg = this.owDmg(dmg, by);                             // an overworld boss hits harder (src/owbosses.js)
+    if (this.map.rf && !this.rfHurting) { const k = this.rfHurtK(); if (k === 0) return; dmg *= k; }   // a Realmforge dungeon's own rule on what hurts you (the Cathedral's brand), for our monsters' blows too
     const p = this.player;
     if (p.dead || p.status.invuln > 0 || this.map.kind === 'nexus' || this.god) return;
     if (p.armS && this.armPreHurt()) return;                // Empyrean's wings, Null Walker's phase (src/armory.js)
@@ -1997,6 +1998,8 @@ export class Game {
         e.trailT = D.trail.every;
         this.fx.push({ kind: 'pool', x: e.x, y: e.y, r: D.trail.r || 0.6, t: 0, life: D.trail.life || 3, dmg: D.trail.dmg, by: D.name, col: D.trail.col || TRAIL_COL[D.trail.kind] || '#8de04a' });
       }
+      if (e.pulseUntil > this.t && !p.dead && d < 8 && d > 0.4) { const k = (3.5 * dt) / d; this.moveCircle(p, (p.x - e.x) * k, (p.y - e.y) * k, 0.3); }   // its pulse pushes you away
+      if (aggro && D.chain) this.chainBeam(e, p);
       if (aggro && D.heal && (e.healT = (e.healT === undefined ? D.heal.every : e.healT) - dt) <= 0) {   // menders mend
         e.healT = D.heal.every;
         for (const o of this.enemiesIn(e.x, e.y, D.heal.r)) {
@@ -2145,6 +2148,8 @@ export class Game {
         }
         return;
       } else if (ai === 'rooted') { sp = 0; }
+      else if (ai === 'leader') { sp *= 0.6; const b = angleTo(e.x, e.y, p.x, p.y) + Math.sin((this.t - e.born) * 0.8) * 0.5; tx = e.x + Math.cos(b) * 2; ty = e.y + Math.sin(b) * 2; }   // a leader comes on slowly, swaying
+      else if (ai === 'formation' && this.formation(e, dt)) return;    // (no leader left: it simply comes at you, below)
       else if (ai === 'flee') { sp *= 1.1; tx = e.x + Math.cos(angleTo(p.x, p.y, e.x, e.y) + Math.sin(this.t * 2 + e.phase) * 0.6) * 4; ty = e.y + Math.sin(angleTo(p.x, p.y, e.x, e.y) + Math.sin(this.t * 2 + e.phase) * 0.6) * 4; }
       else {                                              // a plain chaser: it comes at you from its own side of the pack
         // (a local rule: the bearings of its allies already near you push its own bearing away from theirs, so a pack
@@ -2254,6 +2259,23 @@ export class Game {
   }
   // what a monster's touch leaves you with (D.touch: poison seconds, or a slow), as a shot's would
   touchFx(D) { const T = D.touch, p = this.player; if (!T || p.dead) return; if (T.poison) this.poison(T.poison); if (T.slowHit) { p.dragUntil = Math.max(p.dragUntil || 0, this.t + T.slowHit.t); p.dragF = T.slowHit.f; } }
+  // a formation: its squad wheels round their leader (D.rad tiles out, D.spin turns a second), spaced evenly
+  formation(e, dt) {
+    const L = this.active.find((o) => !o.dead && o.D.ai === 'leader' && o.squad === e.squad);
+    if (!L) return false;
+    const ring = this.active.filter((o) => !o.dead && o.D.ai === 'formation' && o.squad === e.squad), n = Math.max(1, ring.length);
+    const ang = this.t * (e.D.spin || 0.8) + (ring.indexOf(e) * TAU) / n, r = e.D.rad || 2.2, tx = L.x + Math.cos(ang) * r, ty = L.y + Math.sin(ang) * r, dd = dist(e.x, e.y, tx, ty);
+    if (dd > 0.2) { const s = Math.min(dd * 4, e.D.speed * 1.6) * dt; this.moveCircle(e, ((tx - e.x) / dd) * s, ((ty - e.y) / dd) * s, 0.38); }
+    return true;
+  }
+  // lightning between a monster and the nearest of its kin (D.chain): crossing it hurts
+  chainBeam(e, p) {
+    const C = e.D.chain, room = e.rfE && e.rfE.room;
+    const o = e.chainTo = this.active.find((q) => q !== e && !q.dead && q.id === C.with && dist2(q.x, q.y, e.x, e.y) < C.r * C.r && (!q.rfE || q.rfE.room === room)) || null;
+    if (!o) return;
+    const vx = o.x - e.x, vy = o.y - e.y, t = clamp(((p.x - e.x) * vx + (p.y - e.y) * vy) / (vx * vx + vy * vy || 1), 0, 1);
+    if (dist(e.x + vx * t, e.y + vy * t, p.x, p.y) < 0.4 && !(p.chainT > this.t)) { p.chainT = this.t + 0.5; this.hurtPlayer(C.dmg, e.D.name); }
+  }
   firePattern(e, A, isWave = false) {
     A = this.rxAlt(e, A);                                // now and then a monster's new shot (src/remaster.js)
     const p = this.foe(e);
@@ -2262,6 +2284,8 @@ export class Game {
     const aim = angleTo(ox, oy, px, py);
     if (e.rb && A.pattern === 'radial') this.vx({ k: 'shake', amt: 2 });
     const size = A.size || 0.35;
+    if (A.pattern === 'pulse') { e.pulseUntil = this.t + (A.dur || 0.8); e.pulseC = A.color; return; }   // a pulse: for a moment it pushes you away
+    if (A.pattern === 'raise') { if (this.map.rf) this.rfRaise(e, A); return; }   // a raiser: one of the fallen near it stands again (src/rf/host.js keeps the dead)
     if (A.waves && !isWave) for (let w = 1; w < A.waves; w++) e.queue.push({ t: w * A.gap, atk: A });
     if (A.mv && A.mv.lob) return this.lobVolley(e, A, ox, oy, p);
     const nm = e.D ? e.D.name : 'The Unstruck';

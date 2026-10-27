@@ -34,7 +34,7 @@ export async function loadRF() {
 function rfCreatures() {
   const T = translateAll(DATA);
   for (const [id, D] of Object.entries(T.defs)) ENEMIES[id] = { ...D, id };
-  OURS = new Set(T.report.filter((r) => !r.notes.length).map((r) => r.id));
+  OURS = new Set(T.report.filter((r) => r.notes.every((n) => n.includes('left out (monsters never'))).map((r) => r.id));   // (a protection left out by our rule is ours as it should be)
   LINK_DG = new Set(DATA.dungeons.map((d) => d.id).filter((id) => !CREATURE_HOOKS.some((k) => X.MODS[id] && X.MODS[id][k])));
 }
 export const rfLinkedDungeons = () => [...LINK_DG];
@@ -50,7 +50,7 @@ const methods = {
     const g = this;
     Object.assign(HOST, {
       msg: (t, dur) => g.banner(t, Math.max(1800, dur * 1000), true),
-      hurt: (d, o) => { const p = g.player, hp = p.hp; g.hurtPlayer(Math.round(d * rfBalance(DATA, id).dmg), (o && o.d && o.d.name) || dg.name); return Math.max(0, Math.round(hp - p.hp)); },
+      hurt: (d, o) => { const p = g.player, hp = p.hp; g.rfHurting = true; g.hurtPlayer(Math.round(d * rfBalance(DATA, id).dmg), (o && o.d && o.d.name) || dg.name); g.rfHurting = false; return Math.max(0, Math.round(hp - p.hp)); },   // (their own rule on your hurt already ran: rfHurtK)
       ground: (p, ground, dt, mod) => g.rfGround(p, ground, dt, mod),
       pickup: (d) => { if (d.k === 'potion') g.rfPotion(); },
       drop: (e) => g.rfDrop(e),
@@ -109,7 +109,32 @@ const methods = {
   // a Realmforge map's stars (its band: src/rf/balance.js)
   rfStars() { const m = this.map, id = m.rf ? m.rf.id : (DATA.dungeons.find((d) => d.boss === m.rfBoss.id) || {}).id; const b = id && rfBalance(DATA, id); return b ? b.stars : 3; },
   rfE() { return X.state ? X.state() : null; },
-  rfScale(e, id = this.map.rf.id) { if (!e.rfScaled) { e.rfScaled = 1; e.hp = e.max = Math.round(e.max * rfBalance(DATA, id).hp); } },   // (src/rf/balance.js)
+  rfScale(e, id = this.map.rf.id) {                                // (src/rf/balance.js)
+    if (e.rfScaled) return;
+    e.rfScaled = 1;
+    if (e.half) return;                                            // (a splitter's half: made from its scaled parent)
+    const k = rfBalance(DATA, id).hp, f = e.hp / e.max;          // (one raised or reborn keeps its share of its health)
+    e.max = Math.round(e.max * k); e.hp = Math.round(e.max * f);
+  },
+  // their dungeon's rule on what hurts you, for our monsters' blows in the dungeons whose creatures are ours
+  rfHurtK() {
+    const E = this.map.rf.E;
+    if (!E.mod || !E.mod.hurt || !LINK_DG.has(this.map.rf.id)) return 1;
+    const k = E.mod.hurt(1, null);
+    return k === 0 ? 0 : k || 1;
+  },
+  // a raiser of ours raises one of their fallen, as theirs did: in its own room, dead a moment, a kind that may rise
+  rfRaise(e, A) {
+    const E = this.map.rf.E, w = e.rfE;
+    if (!w) return;
+    const c = E.corpses.find((q) => q.room === w.room && E.t - q.t > 1.5 && Math.hypot(q.x - e.x, q.y - e.y) < (A.r || 8) && E.cfg.enemies[q.k] && !E.cfg.enemies[q.k].noRaise);
+    if (!c || (E.mod.canRaise && !E.mod.canRaise(w))) return;
+    E.corpses.splice(E.corpses.indexOf(c), 1);
+    const o = X.mkEnemy({ k: c.k, x: c.x, y: c.y, room: c.room, aggro: true });
+    o.hp = o.max * 0.6; this.rfScale(o); E.en_.push(o);
+    this.vx({ k: 'zap', ...liftA(e.x, e.y, 0.5), ...liftB(c.x, c.y, 0.3) });
+    this.vx({ k: 'burst', ...this.rfLift(c.x, c.y), n: 12, colors: [A.color || '#7affc8', '#ffffff'] });
+  },
   // our map follows theirs: tile codes, and what blocks you (their walls and solid things)
   rfSync(m) {
     const M = m.rf.E.M, t = M.t, og = m.rf.E.og;
@@ -160,7 +185,7 @@ const methods = {
       if (!o) {
         if (e.hp > 0 && e.aggro && !e.dormant && !e.hidden && e.st !== 'gone' && LINK_DG.has(dg) && OURS.has(`rf_${dg}_${e.k}`)) {
           const n = this.addEnemy(`rf_${dg}_${e.k}`, e.x, e.y);
-          n.hp = e.hp; n.maxHp = e.max; n.seen = true; n.aggro = true; n.rfE = e; e.ours = n;
+          n.hp = e.hp; n.maxHp = e.max; n.seen = true; n.aggro = true; n.rfE = e; n.squad = e.squad; e.ours = n;
         }
         continue;
       }

@@ -250,6 +250,7 @@ export class Renderer {
     if (g.arena) this.arenaFx(g, g.arena);
     if (g.timeStop) this.timeDial(g, g.timeStop);
     for (const f of g.fx) if (f.kind === 'cloud' || f.kind === 'zone' || f.kind === 'pool') this.groundFx(f, g);
+    for (const e of g.active || []) if (!e.dead && (e.pulseUntil > g.t || e.chainTo)) this.pulseChain(g, e);
     if (g.activeMap === m) for (const e of g.notable) if (e.bx && e.bx.B.drawGround && !e.dead) { try { e.bx.B.drawGround(this, g, e); } catch (err) { if (!e.net) throw err; } }   // (a shared boss draws from the server's word: a gap there must not stop the game)   // a boss's hazards on the ground
     if (m.graves) this.drawGraves(g, m);                        // the fallen: a gravestone each, where they fell
     this.spGround(g);                                       // set-piece telegraphs (src/setpieces.js)
@@ -935,6 +936,21 @@ export class Renderer {
     const k = this.W.projectiles.grapple, pc = this.W.projCols, PS = this.W.proj;
     b.save(); b.translate(Math.round(x1), Math.round(y1)); b.rotate(H.a + this.th + Math.PI / 4);
     b.drawImage(this.A.img.projectiles, (k % pc) * PS, Math.floor(k / pc) * PS, PS, PS, -PS / 2, -PS / 2, PS, PS); b.restore();
+  }
+  // a monster's pulse (a ring closing in on it while it pushes you away) and its lightning chain to its kin
+  pulseChain(g, e) {
+    const b = this.b, [sx, sy] = this.proj(e.x, e.y);
+    if (e.pulseUntil > g.t) {
+      const R = Math.max(1, 8 * TS * (1 - ((g.t * 3) % 1)));
+      b.strokeStyle = e.pulseC || '#e0a0ff'; b.globalAlpha = 0.5; b.beginPath(); b.ellipse(Math.round(sx), Math.round(sy), R, R * 0.6, 0, 0, Math.PI * 2); b.stroke(); b.globalAlpha = 1;
+    }
+    const o = e.chainTo;
+    if (o && !o.dead) {
+      const [ox, oy] = this.proj(o.x, o.y), n = 6;
+      b.strokeStyle = (e.D.chain && e.D.chain.color) || '#ffe870'; b.globalAlpha = 0.6 + 0.4 * Math.sin(g.t * 40); b.beginPath(); b.moveTo(Math.round(sx), Math.round(sy) - 6);
+      for (let i = 1; i <= n; i++) { const q = i / n, j = i < n ? 1 : 0; b.lineTo(Math.round(sx + (ox - sx) * q + j * (Math.random() - 0.5) * 4), Math.round(sy + (oy - sy) * q) - 6 + j * Math.round((Math.random() - 0.5) * 4)); }
+      b.stroke(); b.globalAlpha = 1;
+    }
   }
   // lingering ground effects: incense / bile clouds, boss slam telegraphs
   groundFx(f, g) {

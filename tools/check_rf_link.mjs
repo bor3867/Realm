@@ -26,6 +26,11 @@ for (const dg of list) {
   const res = { linked: 0, ours: 0, theirKills: 0, hurt: 0, xp: 0, errors: [] };
   try {
     g.enter(`rf_${dg}`);
+    const T = (res.traits = { raised: 0, chainHits: 0, pulses: 0, formation: 0 });   // their traits, in our engine
+    const r0 = g.rfRaise.bind(g); g.rfRaise = (e, A) => { const n = g.map.rf.E.en_.length; r0(e, A); if (g.map.rf.E.en_.length > n) T.raised++; };
+    const c0 = g.chainBeam.bind(g); g.chainBeam = (e, q) => { const t0 = q.chainT; c0(e, q); if (q.chainT !== t0) T.chainHits++; };
+    const f0 = g.formation.bind(g); g.formation = (e, dt) => { const r = f0(e, dt); if (r) T.formation++; return r; };
+    const fp = g.firePattern.bind(g); g.firePattern = (e, A, w) => { if (A.pattern === 'pulse') T.pulses++; return fp(e, A, w); };
     const E = g.map.rf.E, k0 = E.kills;
     let hurt = 0; const h0 = g.hurtPlayer.bind(g); g.hurtPlayer = (d, by, ig) => { const b = p.hp; h0(d, by, ig); hurt += Math.max(0, b - p.hp); p.hp = g.stat('hp'); p.dead = false; };
     let next = 0, at = null; const tried = new Map(), live = (q) => q.hp > 0 && q.st !== 'gone' && !q.hidden;
@@ -54,6 +59,6 @@ for (const dg of list) {
   } catch (err) { res.errors.push(err.stack.split('\n').slice(0, 3).join(' | ')); }
   const bad = res.errors.length || !res.ours;
   if (bad) fail++;
-  console.log(`${bad ? 'PROBLEM' : 'ok     '} ${dg.padEnd(11)} ours killed ${String(res.ours).padStart(3)}, their kill count +${String(res.theirKills).padStart(3)}, hurt the bot ${res.hurt}, left on theirs ${res.left}${res.errors.length ? '  ' + res.errors.join(' ; ') : ''}`);
+  console.log(`${bad ? 'PROBLEM' : 'ok     '} ${dg.padEnd(11)} ours killed ${String(res.ours).padStart(3)}, their kill count +${String(res.theirKills).padStart(3)}, hurt the bot ${res.hurt}, left on theirs ${res.left}${Object.entries(res.traits || {}).filter(([, v]) => v).map(([k, v]) => `, ${k} ${k === 'formation' ? 'yes' : v}`).join('')}${res.errors.length ? '  ' + res.errors.join(' ; ') : ''}`);
 }
 process.exit(fail ? 1 : 0);

@@ -8,13 +8,13 @@ import { rfBalance } from './balance.js';
 
 // their movement -> ours (a dash attack makes a charger, below)
 const MOVE = { chase: 'shamble', kite: 'kite', drift: 'drift', hop: 'hop', burrow: 'burrow', still: 'rooted', swoop: 'swoop', orbit: 'orbit',
-  blink: 'blink', patrol: 'shamble', leader: 'shamble', formation: 'shamble', mirror: 'flank', chess: 'shamble' };
+  blink: 'blink', patrol: 'shamble', leader: 'leader', formation: 'formation', mirror: 'flank', chess: 'shamble' };
 // approximations: their kind came over, but as the nearest thing we have (said so in the report)
-const NEAR_MOVE = new Set(['leader', 'formation', 'mirror', 'chess', 'patrol']);
+const NEAR_MOVE = new Set(['mirror', 'chess']);   // (patrol: once it has seen you, theirs simply chases)
 // their attacks that bring others' protection: our rule is that monsters never shield or guard each other
 const REFUSED = new Set(['shield', 'eclipseShield']);
 // theirs we have nothing like yet (left out, listed)
-const MISSING = new Set(['encase', 'chain', 'ghostfire']);
+const MISSING = new Set(['encase', 'ghostfire']);
 
 // what a shot leaves you with: their sickness is our poison; their slow and root, a drag on your step
 const inflict = (I) => (!I ? {} : I.k === 'sick' ? { poison: I.t || 3 } : I.k === 'slow' ? { slowHit: { f: 0.6, t: I.t || 1.2 } } : I.k === 'root' ? { slowHit: { f: 0.15, t: I.t || 0.8 } } : {});
@@ -36,7 +36,7 @@ export function translateCreature(DATA, dg, id, e) {
   const attacks = [], D = {
     name: e.name, biome: `rf_${dg}`, hp: Math.max(1, Math.round((e.hp || 300) * bal.hp)), def: Math.round((e.armor || 0) * 10), speed: e.spd || 2.4,
     xp: Math.max(4, Math.round(((e.hp || 300) * bal.hp) / 30)), r: tiles(e.size) * 0.8, ai: MOVE[e.move] || 'shamble', aggro: e.sight || 9, fly: !!e.fly,
-    reg: `rf_crea/${dg}_${id}`, scale: e.art && e.art.frames[0].length > 10 ? 0.5 : 1, contact: 0, attacks, loot: [], rfCrea: { dg, id }, desc: e.how,   // (scale: their 8px art at the player's pixel size, bigger art at the fine size)
+    rad: e.rad, spin: e.spin, reg: `rf_crea/${dg}_${id}`, scale: e.art && e.art.frames[0].length > 10 ? 0.5 : 1, contact: 0, attacks, loot: [], rfCrea: { dg, id }, desc: e.how,   // (scale: their 8px art at the player's pixel size, bigger art at the fine size)
   };
   if (!MOVE[e.move]) notes.push(`move "${e.move}": walks`); else if (NEAR_MOVE.has(e.move)) notes.push(`move "${e.move}": as ${D.ai}`);
   for (const a of [...(e.atk || []), ...(e.atk2 || [])]) {
@@ -47,7 +47,7 @@ export function translateCreature(DATA, dg, id, e) {
       case 'fan': attacks.push({ pattern: 'aimed', count: a.n || 5, arc: (a.sp || 0.2) * Math.max(0, (a.n || 5) - 1), speed: a.v || 6, range, cd, dmg: dmg(0.8), proj: shot(a.shot), tell: 350 }); break;
       case 'snipe': attacks.push({ pattern: 'aimed', count: 1, speed: a.v || 14, range: 13, cd, dmg: dmg(1.6), proj: shot(a.shot), tell }); break;
       case 'ring': attacks.push({ pattern: 'radial', count: a.n || 8, speed: a.v || 3.4, range: 8, cd, dmg: dmg(0.8), proj: shot(a.shot), tell: 400, ...inflict(a.inflict) }); break;
-      case 'pulse': attacks.push({ pattern: 'radial', count: 16, speed: 4, range: a.range || 6, cd, dmg: dmg(0.7), proj: shot(a.shot), tell: Math.round((a.dur || 0.6) * 1000) }); notes.push('pulse: as a ring'); break;
+      case 'pulse': attacks.push({ pattern: 'pulse', count: 0, dur: a.dur || 0.8, range: a.range || 10, cd, dmg: 0, tell: 0, color: e.pulseC }); break;   // (for a moment it pushes you away)
       case 'overheat': attacks.push({ pattern: 'radial', count: a.n || 14, speed: 4.5, range: 8, cd, dmg: dmg(0.9), proj: shot(a.shot), tell }); break;
       case 'spiral': attacks.push({ pattern: 'radial', count: a.arms || 3, turn: a.step || 0.3, speed: a.v || 4.6, range: 8, cd: Math.max(0.15, cd), dmg: dmg(0.5), proj: shot(a.shot), tell: 0 }); break;
       case 'wave': attacks.push({ pattern: 'wall', count: a.n || 16, speed: a.v || 3.4, range: 10, cd, dmg: dmg(0.8), proj: shot(a.shot), tell: 450 }); break;
@@ -56,7 +56,9 @@ export function translateCreature(DATA, dg, id, e) {
       case 'lob': attacks.push({ pattern: 'aimed', count: a.n || 1, speed: 5, range: 8, cd, dmg: dmg(), proj: shot(a.shot), tell: 400, mv: { lob: { n: Math.round(4 + (a.r || 1.2) * 2), h: 30, spread: a.r || 1.2 } }, ...inflict(a.inflict) }); break;   // (lobbed: it bursts where it lands)
       case 'slam': attacks.push({ pattern: 'slam', r: a.r || 1.8, count: a.ring || 10, range: a.range || 3, cd, dmg: dmg(1.2), proj: shot(a.shot), tell, wind: 0.45 }); break;
       case 'dash': attacks.push({ pattern: 'aimed', count: 0, charge: 9, range: 6, cd, dmg: 0, tell: Math.round((a.wind || 0.6) * 1000) }); if (!D.contact) D.contact = dmg(); break;   // (a charge: wind up, rush, its body the blow)
-      case 'summon': case 'raise': D.children = [`rf_${dg}_${a.what || id}`]; D.every = cd; D.cap = a.max || a.n || 4; if (a.k === 'raise') notes.push('raise: summons fresh ones (no corpses)'); break;
+      case 'summon': D.children = [`rf_${dg}_${a.what || id}`]; D.every = cd; D.cap = a.max || a.n || 4; break;
+      case 'raise': attacks.push({ pattern: 'raise', count: 0, r: a.r || 8, range: 99, cd, dmg: 0, tell: 0, color: a.c }); break;   // (one of the fallen near it stands again)
+      case 'chain': D.chain = { with: `rf_${dg}_${a.with || id}`, r: a.r || 7, dmg: dmg(a.dmg || 1), color: e.chainC }; break;   // (lightning between it and its kin: don't cross it)
       case 'heal': D.heal = { every: cd, r: 5, pct: Math.min(0.3, a.amt || 0.2) }; break;
       case 'trail': D.trail = { every: Math.max(0.25, cd), life: a.life || 3, dmg: dmg(a.dmg || 0.4), kind: a.kind || 'poison' }; break;
       default:
@@ -68,7 +70,8 @@ export function translateCreature(DATA, dg, id, e) {
   if (D.contact && !attacks.length && D.ai !== 'rooted') { D.keep = 0.3; D.closeIn = 0.3; }   // (it hurts by touch alone: it comes right up to you)
   if (e.rare && !attacks.length && !D.contact && D.ai !== 'rooted') D.ai = 'flee';   // (a golden one, carrying its treasure: it runs, RotMG's way)
   // their one-off traits we have yet to build (the ones that matter to a fight)
-  for (const k of ['reflect', 'rebirth', 'guard', 'shieldsOthers', 'copyShots', 'gaze', 'echo', 'afterimage', 'moonVuln', 'mirageVuln', 'shadeVuln', 'solar', 'lava', 'cuckoo'])
+  // (gaze: their dungeon's own rule runs it, for ours too; mirageVuln: their engine never reads it)
+  for (const k of ['reflect', 'rebirth', 'guard', 'shieldsOthers', 'copyShots', 'echo', 'afterimage', 'moonVuln', 'shadeVuln', 'solar', 'lava', 'cuckoo'])
     if (e[k]) notes.push(`${k}: ${k === 'guard' || k === 'shieldsOthers' ? 'left out (monsters never guard each other)' : 'not in our engine yet'}`);
   if (e.split) D.split = { id: `rf_${dg}_${typeof e.split === 'string' ? e.split : id}`, n: e.split.n || 2 };
   return { id: `rf_${dg}_${id}`, D, notes };
