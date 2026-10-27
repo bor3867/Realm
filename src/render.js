@@ -1267,7 +1267,7 @@ export class Renderer {
     else if (e.asWakeT > 0 && def.anims.wake) { const A = def.anims.wake; fr = A.frames[Math.min(A.frames.length - 1, Math.floor((0.8 - e.asWakeT) * A.fps))]; }
     else if (e.abil && def.anims.ability) { const A = def.anims.ability; fr = A.frames[Math.min(A.frames.length - 1, Math.floor(e.abil.t * A.fps))]; }   // an elite's ability: the clip is the telegraph
     else if (e.dead && def.anims.death) { const A = def.anims.death; fr = A.frames[Math.min(A.frames.length - 1, Math.floor(e.deadT * A.fps))]; }
-    else if (e.dead || e.shellT > 0) fr = fHurt;
+    else if (e.dead) fr = fHurt;
     else if (e.state === 'tell' || e.state === 'charge' || e.state === 'attack') fr = fAtk;
     else fr = mv[Math.floor(g.t * (e.hop || e.sk || e.dive ? 9 : 5) + e.phase) % mv.length];
     const L = this.alive(g, e, sx, sy, 16), K = e.D.scale || 1;
@@ -1289,11 +1289,6 @@ export class Renderer {
     }
     if (!e.dead && e.hp < e.maxHp && !e.D.noBar) this.hpBar(sx, sy + 3, e.hp / e.maxHp, e.D.ability ? 20 : 12);
     if (!e.dead && e.stunT > 0) this.stunStars(g, sx, sy, 18);
-    if (e.bulwarkT > g.t && !e.dead) {                       // the reef golem's coral shell
-      const b = this.b, pulse = 0.6 + 0.4 * Math.sin(g.t * 8);
-      b.globalAlpha = 0.35 * pulse; b.fillStyle = '#ff8fbf'; b.beginPath(); b.ellipse(Math.round(sx), Math.round(sy - 16), 17, 21, 0, 0, Math.PI * 2); b.fill();
-      b.globalAlpha = 0.9; b.strokeStyle = '#ffd0e0'; b.lineWidth = 1; b.beginPath(); b.ellipse(Math.round(sx), Math.round(sy - 16), 17, 21, 0, 0, Math.PI * 2); b.stroke(); b.globalAlpha = 1;
-    }
   }
   // what an elite's ability shows: the siren's charm ring, the gryphon's line, the after-images of a dive or a dash
   eliteFx(g, e, def, fr, x, y, L) {
@@ -1305,7 +1300,7 @@ export class Renderer {
     }
     // a dive's or a dash's line, flashing, wherever its direction is already chosen: through the clip when it is picked
     // as the telegraph starts, and through the last crouch for every dash (a dash at 17 tiles a second must show its path)
-    const lineDir = e.abil && !e.abil.done && !S && (e.D.ability.kind === 'dive' || e.D.ability.kind === 'dash') && e.abil.dir !== undefined ? e.abil.dir
+    const lineDir = e.abil && !e.abil.done && !S && (e.D.ability.kind === 'dive' || e.D.ability.kind === 'dash' || e.D.ability.kind === 'reef') && e.abil.dir !== undefined ? e.abil.dir
       : S && S.kind === 'dash' && S.t < 0.25 && S.a !== undefined ? S.a : null;
     if (lineDir !== null) {
       b.fillStyle = Math.floor(g.t * 14) % 2 ? '#ffffff' : '#8af6ff'; b.globalAlpha = 0.7;

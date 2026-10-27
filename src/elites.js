@@ -53,7 +53,7 @@ const methods = {
     if (e.abilCd > 0 || e.state === 'tell' || e.state === 'attack') return false;
     e.abilCd = A.cd * (0.85 + R() * 0.3);
     e.abil = { t: 0 };
-    if (A.kind === 'dive' || A.kind === 'dash') e.abil.dir = angleTo(e.x, e.y, p.x, p.y);   // the line is chosen as the telegraph starts
+    if (A.kind === 'dive' || A.kind === 'dash' || A.kind === 'reef') e.abil.dir = angleTo(e.x, e.y, p.x, p.y);   // the line is chosen as the telegraph starts
     return true;
   },
   eliteEffect(e) {
@@ -61,7 +61,16 @@ const methods = {
     const ring = (n, proj, sp, dmg, a0 = R() * TAU, range = 7) => { for (let k = 0; k < n; k++) this.shoot('e', e.x, e.y - e.hitUp, a0 + (k / n) * TAU, sp, range, dmg, proj, 0.4, false, by); };
     const dmg = A.dmg || 30;
     switch (A.kind) {
-      case 'bulwark': e.bulwarkT = this.t + 4; this.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 16, colors: ['#ff8fbf', '#ffd0e0', '#5ac8c8'] }); break;
+      case 'reef': {                                     // Reef Breach: coral erupts in the line it showed, spot after spot, each marked before it bursts
+        const a = e.abil && e.abil.dir !== undefined ? e.abil.dir : angleTo(e.x, e.y, p.x, p.y);
+        for (let k = 1; k <= 7; k++) {
+          const x = e.x + Math.cos(a) * k * 1.1, y = e.y + Math.sin(a) * k * 1.1, delay = 0.45 + k * 0.09;
+          if (isSolid(this.map, x, y)) break;
+          this.fx.push({ kind: 'zone', x, y, r: 0.85, t: 0, delay, life: delay + 0.3, dmg, by, done: false, shards: k % 2 ? 0 : 3, proj: S('coral_spike'), colors: ['#ff8fbf', '#ffd0e0', '#5ac8c8'] });
+        }
+        this.vx({ k: 'shake', amt: 2 });
+        break;
+      }
       case 'song': e.songT = this.t + 4; for (let k = 0; k < 10; k++) this.shoot('e', e.x, e.y - 1, (k / 10) * TAU, 2.6, 4, Math.round(dmg * 0.6), S('song_note'), 0.35, false, by); break;
       case 'totem': { const t = this.addEnemy('spirit_totem', e.x + 1.6, e.y + 0.4); t.seen = true; t.born = this.t; t.healT = 1.5; this.unstick(t, 0.5); break; }
       case 'roar': ring(24, S('thorn_burst'), 5.5, dmg); this.fvLater(0.25, () => !e.dead && ring(24, S('thorn_burst'), 5, dmg, R() * TAU + Math.PI / 24)); this.vx({ k: 'shake', amt: 3 }); break;

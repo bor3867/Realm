@@ -853,8 +853,9 @@ Object.assign(ENEMIES, {
     attacks: [{ pattern: 'radial', proj: 'slimeglob', count: 6, dmg: 12, speed: 4, range: 5, cd: 2.4, tell: 450 }], loot: LD },
   gull: { name: 'Gull', biome: 'shore', reg: OWE('gull'), hp: 70, def: 0, speed: 4.0, xp: 8, r: 0.4, ai: 'swoop', aggro: 10, fly: true, contact: 12,
     attacks: [{ pattern: 'aimed', proj: 'brine', count: 1, dmg: 12, speed: 7, range: 6, cd: 1.5, tell: 200 }], loot: LD },
-  conch_hermit: { name: 'Conch Hermit', biome: 'shore', reg: OW2('conch_hermit'), hp: 160, def: 4, speed: 1.2, xp: 13, r: 0.45, ai: 'shamble', aggro: 8, shell: true,
-    attacks: [{ pattern: 'aimed', proj: OS2('conch_hermit.water_squirt'), count: 1, waves: 3, gap: 0.12, dmg: 14, speed: 7, range: 6, cd: 2.2, tell: 300 }], loot: LD },
+  conch_hermit: { name: 'Conch Hermit', biome: 'shore', reg: OW2('conch_hermit'), hp: 160, def: 4, speed: 1.2, xp: 13, r: 0.45, ai: 'shamble', aggro: 8,
+    attacks: [{ pattern: 'aimed', proj: OS2('conch_hermit.water_squirt'), count: 1, waves: 3, gap: 0.12, dmg: 14, speed: 7, range: 6, cd: 2.2, tell: 300 },
+      { pattern: 'radial', proj: OS2('conch_hermit.water_squirt'), count: 10, speed: 3, range: 5, dmg: 10, cd: 4.6, tell: 700, slowHit: { f: 0.6, t: 1.2 } }], loot: LD },   // its Conch Call: a slow ring of water that slows you
   // ---- the Greenmarch
   field_rat: { name: 'Field Rat', biome: 'lowlands', reg: OWE('field_rat'), hp: 130, def: 0, speed: 3.8, xp: 14, r: 0.4, ai: 'skitter', aggro: 9, contact: 16,
     attacks: [{ pattern: 'aimed', proj: 'snapjaw', count: 1, dmg: 16, speed: 7, range: 4, cd: 1.4, tell: 200 }], loot: LL },
@@ -1189,7 +1190,7 @@ ENEMIES.giant_watermelon = { name: 'Giant Watermelon', biome: 'event', melon: tr
   };
   Object.assign(ENEMIES, {
     reef_golem: mk('reef_golem', 'Reef Golem', 'shore', 'shamble', { speed: 1.3 }, [{ pattern: 'aimed', proj: 'coral_spike', count: 3, arc: 0.4, speed: 7, range: 7, cd: 1.8, tell: 350 },
-      { pattern: 'radial', proj: 'brine_bubble', count: 10, speed: 3.6, range: 6, cd: 3, tell: 600, k: 0.9 }], { kind: 'bulwark', cd: 12, tell: 0.67 }),
+      { pattern: 'radial', proj: 'brine_bubble', count: 10, speed: 3.6, range: 6, cd: 3, tell: 600, k: 0.9 }], { kind: 'reef', cd: 9, tell: 0.67, k: 1.3 }),   // Reef Breach (src/elites.js)
     siren: mk('siren', 'Siren', 'shore', 'kite', { keep: 5.5, fly: true }, [{ pattern: 'aimed', proj: 'song_note', count: 3, arc: 0.5, speed: 6, range: 8, cd: 1.8, tell: 300, mv: { wave: { amp: 1, freq: 5 } } },
       { pattern: 'radial', proj: 'tide_orb', count: 8, speed: 3.4, range: 6, cd: 3, tell: 550 }], { kind: 'song', cd: 11, tell: 0.67 }),
     goblin_shaman: mk('goblin_shaman', 'Goblin Shaman', 'lowlands', 'kite', { keep: 6 }, [{ pattern: 'aimed', proj: 'spirit_flame', count: 3, arc: 0.45, speed: 6.5, range: 8, cd: 1.9, tell: 350 },

@@ -1967,11 +1967,6 @@ export class Game {
         }
       }
       const D = e.D, d = Math.sqrt(d2);
-      if (e.shellT > 0) {                                // the conch hermit, shut in its shell: then it pops out squirting
-        e.shellT -= dt;
-        if (e.shellT <= 0) { e.cds[0] = 0; this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.4), n: 8, colors: ['#c8e8ff', '#ffffff', '#f2b8c8'] }); }
-        continue;
-      }
       if (e.fuseT !== undefined) {                       // a bomber, swelling: then BOOM
         e.fuseT -= dt;
         if (e.fuseT <= 0) {
@@ -2355,7 +2350,7 @@ export class Game {
     if (e.rfC || e.rfBossP) return this.rfAbilityHit(e, dmg);   // an rf_ dungeon's creature or boss
     if (e.dead || e.state === 'dead') return 0;
     if (e.spawnT > 0) return 0;                                  // an elite still arriving
-    // (no monster blocks or is guarded any more: the reef golem's bulwark, the sentinel's ward, the conch's shell, a
+    // (no monster blocks or is guarded any more: the sentinel's ward, a
     // shield-bearer's front, a boss's guard all let blows through; a camp's chest is still guarded)
     if (e.asDormant) this.asWake(e);                              // the Vault Keeper wakes when struck
     if (e.rallyUntil > this.t) dmg = Math.round(dmg * 0.7);       // an orc under the war banner
