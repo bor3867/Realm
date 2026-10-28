@@ -15,7 +15,7 @@ export function ring(g, e, x, y, n, V, off = 0, ga = null, gap = 0) {
 export function fan(g, e, x, y, aim, n, spread, V) { for (let k = 0; k < n; k++) g.bxShot(e, x, y, aim + (n > 1 ? (k / (n - 1) - 0.5) * spread : 0), V); }
 // a marked circle on the floor that bursts
 export function mark(g, e, x, y, r, delay, dmg, colors, shards = 0, proj) {
-  g.fx.push({ kind: 'zone', x, y, r, t: 0, delay, life: delay + 0.15, dmg: g.bxDmg(e, dmg), by: e.D.name, done: false, colors, shards, proj });
+  g.fx.push({ kind: 'zone', src: e, x, y, r, t: 0, delay, life: delay + 0.15, dmg: g.bxDmg(e, dmg), by: e.D.name, done: false, colors, shards, proj });
 }
 // a helper creature: no loot, no Life bar unless asked
 export const kill = (m) => { if (m && !m.dead) { m.noLoot = true; m.dead = true; m.deadT = 0; } };

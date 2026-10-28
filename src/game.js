@@ -1414,6 +1414,8 @@ export class Game {
         if (f.slow) { p.dragUntil = Math.max(p.dragUntil || 0, this.t + 0.3); p.dragF = 0.55; }
         if (f.root && !(p.rootT > this.t)) { p.rootT = this.t + 2; p.dragUntil = Math.max(p.dragUntil || 0, this.t + f.root); p.dragF = 0.12; }
       }   // a hazard a monster leaves behind it: it hurts while you stand in it
+      if (f.kind === 'zone' && f.src && f.bornT === undefined) f.bornT = this.t;
+      if (f.kind === 'zone' && !f.done && f.src && this.zoneOrphan(f)) { f.done = true; f.t = f.life; }   // its maker fell before it landed: it fades unstruck
       if (f.kind === 'zone' && !f.done && f.t >= f.delay) {   // boss ground slams: telegraphed, then they hurt
         f.done = true;
         const [hx, hy] = [p.x, p.y];
@@ -2268,6 +2270,13 @@ export class Game {
   }
   // what a monster's touch leaves you with (D.touch: poison seconds, or a slow), as a shot's would
   touchFx(D) { const T = D.touch, p = this.player; if (!T || p.dead) return; if (T.poison) this.poison(T.poison); if (T.sick) p.noRegenUntil = Math.max(p.noRegenUntil || 0, this.t + T.sick); if (T.slowHit) { p.dragUntil = Math.max(p.dragUntil || 0, this.t + T.slowHit.t); p.dragF = T.slowHit.f; } }
+  // a marked strike whose maker has fallen (a boss in its death, a monster dead) does not land: only what its death
+  // burst marks does (bossx.js: burstUntil)
+  zoneOrphan(f) {
+    const s = f.src, B = s.bx;
+    const gone = s.dead || (B && (B.state === 'death' || B.state === 'deathhold' || B.state === 'gone'));
+    return gone && !(B && B.burstUntil > this.t && f.bornT >= B.burstUntil - 1.6);
+  }
   // a formation: its squad wheels round their leader (D.rad tiles out, D.spin turns a second), spaced evenly
   formation(e, dt) {
     const L = this.active.find((o) => !o.dead && o.D.ai === 'leader' && o.squad === e.squad);
@@ -2299,7 +2308,7 @@ export class Game {
     if (A.pattern === 'mark') {                        // circles marked where you stand (and round you), then it lands; a ring from each
       for (let q = 0; q < A.count; q++) {
         const x = p.x + (q ? (R() - 0.5) * 3 : 0), y = p.y + (q ? (R() - 0.5) * 3 : 0);
-        this.fx.push({ kind: 'zone', x, y, r: A.r, t: 0, delay: A.at, life: A.at + 0.3, dmg: A.dmg, by: nm, done: false, shards: A.ring, proj: A.proj, shardF: 0.45, shardV: 5, colors: A.color ? [A.color, '#ffffff'] : undefined, sick: A.sick, slowHit: A.slowHit, poison: A.poison });
+        this.fx.push({ kind: 'zone', src: e, x, y, r: A.r, t: 0, delay: A.at, life: A.at + 0.3, dmg: A.dmg, by: nm, done: false, shards: A.ring, proj: A.proj, shardF: 0.45, shardV: 5, colors: A.color ? [A.color, '#ffffff'] : undefined, sick: A.sick, slowHit: A.slowHit, poison: A.poison });
       }
       return;
     }
@@ -2359,7 +2368,7 @@ export class Game {
     }
     if (A.pattern === 'slam') {                        // a slam: its ground marked round it, then struck, a ring of shots thrown from it
       const delay = A.wind ?? 0.5;
-      this.fx.push({ kind: 'zone', x: e.x, y: e.y, r: A.r || 1.8, t: 0, delay, life: delay + 0.3, dmg: A.dmg, by: nm, done: false, shards: A.count || 0, proj: A.proj, colors: A.colors, shardV: A.shardV, shardF: A.shardF, pool: A.pool });
+      this.fx.push({ kind: 'zone', src: e, x: e.x, y: e.y, r: A.r || 1.8, t: 0, delay, life: delay + 0.3, dmg: A.dmg, by: nm, done: false, shards: A.count || 0, proj: A.proj, colors: A.colors, shardV: A.shardV, shardF: A.shardF, pool: A.pool });
       if (A.freeze) e.st = Math.max(e.st, delay);              // (it holds still while it winds up)
       return;
     }
@@ -2811,7 +2820,7 @@ export class Game {
       else if (k === 0) { x = p.x; y = p.y; }
       else { const a = R() * TAU, d = R() * Z.spread; x = p.x + Math.cos(a) * d; y = p.y + Math.sin(a) * d; }
       const delay = Z.delay + k * (Z.stagger || 0);
-      this.fx.push({ kind: 'zone', x, y, r: Z.r, t: 0, delay, life: delay + 0.3, dmg: Z.dmg, by: e.D ? e.D.name : 'The Unstruck',
+      this.fx.push({ kind: 'zone', src: e, x, y, r: Z.r, t: 0, delay, life: delay + 0.3, dmg: Z.dmg, by: e.D ? e.D.name : 'The Unstruck',
         shards: Z.shards || 0, proj: Z.proj, colors: Z.colors, done: false });
     }
   }

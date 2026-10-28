@@ -102,7 +102,7 @@ function dropCopy(e) { const m = e.arCopy; if (m && !m.dead) { m.noLoot = true; 
 
 // ---- III: footnotes pinned where you stand; they burst into needles
 function footnotes(g, e, V) {
-  for (const q of players(g)) g.fx.push({ kind: 'zone', x: q.x, y: q.y, r: 1.2, t: 0, delay: V.delay || 1.3, life: (V.delay || 1.3) + 0.15, dmg: g.bxDmg(e, V.dmg || 60), by: e.D.name, done: false, colors: ICE, shards: 6, proj: 'archivist_shots/the_archivist.needle' });
+  for (const q of players(g)) g.fx.push({ kind: 'zone', src: e, x: q.x, y: q.y, r: 1.2, t: 0, delay: V.delay || 1.3, life: (V.delay || 1.3) + 0.15, dmg: g.bxDmg(e, V.dmg || 60), by: e.D.name, done: false, colors: ICE, shards: 6, proj: 'archivist_shots/the_archivist.needle' });
 }
 
 // ---- last: THE LAST CHAPTER. Quills in the margins: reach each one and sign. Miss them, and it shelves you
@@ -126,7 +126,7 @@ const finale = {
     if (e.arQuills >= 3 && !e.arQOn && !e.arDone) {
       e.arDone = true;
       if (e.arSigned >= 3) { g.banner('Your name is in the margin. It can never shelve you.', 2400); e.bx.finT = Math.max(e.bx.finT, (e.bx.fin || e.bx.B.finale).dur - 0.1); }
-      else { g.banner('SHELVED. The ice closes over the page.', 2200); for (const q of players(g)) g.fx.push({ kind: 'zone', x: q.x, y: q.y, r: 2.2, t: 0, delay: 0.9, life: 1.05, dmg: g.bxDmg(e, 160), by: e.D.name, done: false, colors: ICE, shards: 10, proj: 'archivist_shots/the_archivist.needle' }); }
+      else { g.banner('SHELVED. The ice closes over the page.', 2200); for (const q of players(g)) g.fx.push({ kind: 'zone', src: e, x: q.x, y: q.y, r: 2.2, t: 0, delay: 0.9, life: 1.05, dmg: g.bxDmg(e, 160), by: e.D.name, done: false, colors: ICE, shards: 10, proj: 'archivist_shots/the_archivist.needle' }); }
     }
   },
   end(g, e) { e.arQOn = false; e.arDone = false; },

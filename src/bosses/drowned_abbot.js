@@ -19,7 +19,7 @@ const players = (g) => (g.netTargets && g.netTargets.length ? g.netTargets : [g.
 const target = (g, e) => { const L = players(g); return L.length ? L.reduce((a, b) => (Math.hypot(b.x - e.x, b.y - e.y) < Math.hypot(a.x - e.x, a.y - e.y) ? b : a)) : g.player; };
 const BRINE = ['#2a7ac8', '#7ad0ff'], GLASS = [['#ff6a8a', '#ffd0e0'], ['#7ad0ff', '#e0f6ff'], ['#ffd650', '#fff6c8'], ['#7aff9a', '#e0ffe8']];
 function mark(g, e, x, y, r, delay, dmg, colors, shards, shot) {
-  g.fx.push({ kind: 'zone', x, y, r, t: 0, delay, life: delay + 0.15, dmg: g.bxDmg(e, dmg), by: e.D.name, done: false, colors, shards: shards || 0, proj: shot ? `abbot_shots/drowned_abbot.${shot}` : undefined });
+  g.fx.push({ kind: 'zone', src: e, x, y, r, t: 0, delay, life: delay + 0.15, dmg: g.bxDmg(e, dmg), by: e.D.name, done: false, colors, shards: shards || 0, proj: shot ? `abbot_shots/drowned_abbot.${shot}` : undefined });
 }
 
 // ---- the bells: four, hung in the corners of the nave. Rooted, harmless, never broken: a blow on one rings it

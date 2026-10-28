@@ -13,7 +13,7 @@ const players = (g) => (g.netTargets && g.netTargets.length ? g.netTargets : [g.
 const target = (g, e) => { const L = players(g); return L.length ? L.reduce((a, b) => (Math.hypot(b.x - e.x, b.y - e.y) < Math.hypot(a.x - e.x, a.y - e.y) ? b : a)) : g.player; };
 const STEAM = ['#cfe8f0', '#ffffff'], BRINE = ['#2a7ac8', '#7ad0ff'], HOT = ['#ff8a1f', '#ffd650'];
 function mark(g, e, x, y, r, delay, dmg, colors, shards, shot) {
-  g.fx.push({ kind: 'zone', x, y, r, t: 0, delay, life: delay + 0.15, dmg: g.bxDmg(e, dmg), by: e.D.name, done: false, colors, shards: shards || 0, proj: shot ? `us_shots/unstruck_smith.${shot}` : undefined });
+  g.fx.push({ kind: 'zone', src: e, x, y, r, t: 0, delay, life: delay + 0.15, dmg: g.bxDmg(e, dmg), by: e.D.name, done: false, colors, shards: shards || 0, proj: shot ? `us_shots/unstruck_smith.${shot}` : undefined });
 }
 
 // ---- the hammer: thrown, it flies out and comes back to its hand (catch it on the way back too)

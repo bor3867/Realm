@@ -63,7 +63,7 @@ function honeyrain(g, e, V) {
   const L = players(g);
   for (let k = 0; k < (V.n || 7); k++) {
     const q = L[k % L.length] || g.player, x = k < L.length ? q.x : q.x + (R() - 0.5) * 9, y = k < L.length ? q.y : q.y + (R() - 0.5) * 9, d = (V.delay || 1) + k * 0.08;
-    g.fx.push({ kind: 'zone', x, y, r: 1.4, t: 0, delay: d, life: d + 0.15, dmg: g.bxDmg(e, V.dmg || 52), by: e.D.name, done: false, colors: HONEY, shards: 0 });
+    g.fx.push({ kind: 'zone', src: e, x, y, r: 1.4, t: 0, delay: d, life: d + 0.15, dmg: g.bxDmg(e, V.dmg || 52), by: e.D.name, done: false, colors: HONEY, shards: 0 });
     g.fx.push({ kind: 'scorch', x, y, r: 1.5, t: -d, life: V.pool || 8, dps: 0, tick: 0, by: e.D.name, ink: 0.5, col: '#c8901a' });   // the pool it leaves: it holds your boots
   }
 }

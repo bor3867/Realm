@@ -49,7 +49,7 @@ function lensStep(g, e, dt) {
     else if ((tgt.pwBurn = (tgt.pwBurn || 0) + dt) > 0.9) { tgt.noLoot = true; tgt.dead = true; tgt.deadT = 0; g.vx({ k: 'burst', x: tgt.x, y: tgt.y - 1, n: 30, colors: ['#ffffff', '#c8a0ff', '#8af6ff'] }); g.float(tgt.x, tgt.y - 2, 'BURNED AWAY', '#ffffff'); }
     if (e[K + 'heat'] >= 1) {                                // overheated: a white flash where it stands, and it goes dark a while
       e[K + 'heat'] = 0; e[K + 'cool'] = 6; e[K + 'linger'] = 0;
-      g.fx.push({ kind: 'zone', x: o.x, y: o.y, r: 2.2, t: 0, delay: 0.35, life: 0.5, dmg: g.bxDmg(e, 140), by: `${e.D.name}'s white light`, done: false, colors: ['#ffffff', '#fff6c8'], shards: 8, proj: 'hollow_shots/prism_wyrm.shard' });
+      g.fx.push({ kind: 'zone', src: e, x: o.x, y: o.y, r: 2.2, t: 0, delay: 0.35, life: 0.5, dmg: g.bxDmg(e, 140), by: `${e.D.name}'s white light`, done: false, colors: ['#ffffff', '#fff6c8'], shards: 8, proj: 'hollow_shots/prism_wyrm.shard' });
       g.banner('The lens overheats! Find another.', 1400);
     }
   });
@@ -101,7 +101,7 @@ const finale = {
     }
     if (T > 11.4 && !e.pwShattered && !e.pwWhite) {          // too slow: the lighthouse turns white
       e.pwWhite = true; g.banner('THE LIGHTHOUSE TURNS WHITE.', 2200);
-      for (const q of players(g)) g.fx.push({ kind: 'zone', x: q.x, y: q.y, r: 2.4, t: 0, delay: 0.6, life: 0.75, dmg: g.bxDmg(e, 220), by: `${e.D.name}'s white light`, done: false, colors: ['#ffffff', '#fff6c8'], shards: 10, proj: 'hollow_shots/prism_wyrm.shard' });
+      for (const q of players(g)) g.fx.push({ kind: 'zone', src: e, x: q.x, y: q.y, r: 2.4, t: 0, delay: 0.6, life: 0.75, dmg: g.bxDmg(e, 220), by: `${e.D.name}'s white light`, done: false, colors: ['#ffffff', '#fff6c8'], shards: 10, proj: 'hollow_shots/prism_wyrm.shard' });
     }
   },
   end(g, e) { e.pwWhite = false; },

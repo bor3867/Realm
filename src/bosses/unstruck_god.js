@@ -18,7 +18,7 @@ const players = (g) => (g.netTargets && g.netTargets.length ? g.netTargets : [g.
 const GOLD = ['#f2c14e', '#fff0a0'], RED = ['#ff3a4a', '#ffd650'], SUN = ['#ff8a1f', '#fff6c8'];
 // a marked bomb on the ground: a ring that fills as it arms, then it bursts (into shards, if it says)
 function mark(g, e, x, y, r, delay, dmg, colors, shards, shot) {
-  g.fx.push({ kind: 'zone', x, y, r, t: 0, delay, life: delay + 0.15, dmg: g.bxDmg(e, dmg), by: e.D.name, done: false, colors, shards: shards || 0, proj: shot ? `ug_shots/unstruck_god.${shot}` : undefined });
+  g.fx.push({ kind: 'zone', src: e, x, y, r, t: 0, delay, life: delay + 0.15, dmg: g.bxDmg(e, dmg), by: e.D.name, done: false, colors, shards: shards || 0, proj: shot ? `ug_shots/unstruck_god.${shot}` : undefined });
 }
 
 // ---- I. The Untouched

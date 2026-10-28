@@ -58,7 +58,7 @@ function moves() {
       if (e.rfBst === 'surface') { wormSteer(e, A, p.x, p.y, 1.6, 2, dt); if (e.rfBt > 1.4) { e.rfBst = 'dive'; e.rfBt = 0; } }
       else if (e.rfBst === 'dive') { wormSteer(e, A, p.x, p.y, 2, 2, dt); if (e.rfBt > 0.4) { e.rfBst = 'follow'; e.rfBt = 0; e.rfDig = e.hidden = e.under = true; } }
       else if (e.rfBst === 'follow') { const dx = p.x - e.x, dy = p.y - e.y, d = Math.hypot(dx, dy); if (d > 0.1) { const k = Math.min(d, 6 * dt); e.x += (dx / d) * k; e.y += (dy / d) * k; }
-        if (e.rfBt > 1) { e.rfBst = 'lock'; e.rfBt = 0; const s = e.bx.B.rfData.shots.erupt || {}; g.fx.push({ kind: 'zone', x: e.x, y: e.y, r: 1.7, t: 0, delay: 0.7, life: 0.85, dmg: Math.round((s.dmg || 140) * (e.bx.B.rfBal ? e.bx.B.rfBal.bossDmg : 1)), by: e.D.name, done: false, colors: ['#e0a85e', '#fff0c0'] }); } }
+        if (e.rfBt > 1) { e.rfBst = 'lock'; e.rfBt = 0; const s = e.bx.B.rfData.shots.erupt || {}; g.fx.push({ kind: 'zone', src: e, x: e.x, y: e.y, r: 1.7, t: 0, delay: 0.7, life: 0.85, dmg: Math.round((s.dmg || 140) * (e.bx.B.rfBal ? e.bx.B.rfBal.bossDmg : 1)), by: e.D.name, done: false, colors: ['#e0a85e', '#fff0c0'] }); } }
       else if (e.rfBst === 'lock') { if (e.rfBt > 0.7) { e.rfBst = 'surface'; e.rfBt = 0; e.rfDig = e.hidden = e.under = false; e.rfWa = -Math.PI / 2;   // up it comes, its body out of the sand below it
         e.rfHist = []; for (let k = 12; k >= 0; k--) e.rfHist.push({ x: e.x, y: e.y + k * 0.5 }); g.vx({ k: 'burst', x: e.x, y: e.y, n: 20, colors: ['#e0a85e', '#fff0c0', '#8a6a3a'] }); g.vx({ k: 'shake', amt: 5 }); e.rfErupt = (e.rfErupt || 0) + 1; } }
       wormBody(e, (e.rfMv && e.rfMv.segs) || 9); },
@@ -123,7 +123,7 @@ function fire(g, e, B, bal, em, vol, org) {
   const shot = (a, x = ox, y = oy, sp = s.speed || 5, rg = s.range || 8) => { const b = g.shoot('e', x, y, a, sp, rg, dmg, `rfx_shots/${B.id}.${em.s}`, 0.35, false, e.D.name); if (SIDE && b) b.rfSide = SIDE; return b; };
   const INK = em.ink && e.bx.B.phases[e.bx.phase] && e.bx.B.phases[e.bx.phase].rfP.ink;
   const zone = (x, y, r, delay) => {
-    g.fx.push({ kind: 'zone', x, y, r, t: 0, delay, life: delay + 0.15, dmg: Math.round((s.dmg || 80) * bal.bossDmg), by: e.D.name, done: false, colors: [s.color || '#ff6a4a', '#ffffff'] });
+    g.fx.push({ kind: 'zone', src: e, x, y, r, t: 0, delay, life: delay + 0.15, dmg: Math.round((s.dmg || 80) * bal.bossDmg), by: e.D.name, done: false, colors: [s.color || '#ff6a4a', '#ffffff'] });
     if (INK) g.fx.push({ kind: 'scorch', x, y, r: INK.r || 1.4, t: -delay, life: INK.life || 7, dps: 0, tick: 0, by: e.D.name, ink: INK.slow || 0.55, col: '#2a1840' });   // (a pool of ink where it lands)
   };
   const laser = (x0, y0, a, len, tele, act) => g.fx.push({ kind: 'laser', x0, y0, a, len, t: 0, tele, act, life: tele + act + 0.1, dmg: Math.round((s.dmg || 90) * bal.bossDmg), by: e.D.name, hit: false });
@@ -217,7 +217,7 @@ function fire(g, e, B, bal, em, vol, org) {
       const c0 = cl(Math.floor((p.x - BD.x0) / BD.S) + Math.floor(Math.random() * 5) - 2, 7), r0 = cl(Math.floor((p.y - BD.y0) / BD.S) + Math.floor(Math.random() * 5) - 2, BD.rows - 1);
       const x = BD.x0 + (c0 + 0.5) * BD.S, y = BD.y0 + (r0 + 0.5) * BD.S, tl = (em.tele || 1.4) + k * 0.35, du = Math.min(1, em.dur || 0.45);
       if (kind === 'knight') { for (const [dx, dy] of [[1, 2], [2, 1], [-1, 2], [-2, 1], [1, -2], [2, -1], [-1, -2], [-2, -1]]) { const nx = c0 + dx, ny = r0 + dy; if (nx < 0 || nx > 7 || ny < 0 || ny >= BD.rows) continue;
-        g.fx.push({ kind: 'zone', x: BD.x0 + (nx + 0.5) * BD.S, y: BD.y0 + (ny + 0.5) * BD.S, r: BD.S * 0.48, t: 0, delay: tl, life: tl + 0.15, dmg: kd, by: e.D.name, done: false, colors: [(B.shots[ks] || s).color || '#ff3040', '#ffffff'] }); } }
+        g.fx.push({ kind: 'zone', src: e, x: BD.x0 + (nx + 0.5) * BD.S, y: BD.y0 + (ny + 0.5) * BD.S, r: BD.S * 0.48, t: 0, delay: tl, life: tl + 0.15, dmg: kd, by: e.D.name, done: false, colors: [(B.shots[ks] || s).color || '#ff3040', '#ffffff'] }); } }
       else { const dirs = []; if (kind !== 'bishop') dirs.push([1, 0], [0, 1]); if (kind !== 'rook') dirs.push([1, 1], [1, -1]);
         for (const [dx, dy] of dirs) { const a = Math.atan2(dy, dx); laser(x - Math.cos(a) * L, y - Math.sin(a) * L, a, L * 2, tl, du); } }
       g.fx.push({ kind: 'rfpiece', x, y, key: `rfx_shots/${B.id}.${kind}`, sz: BD.S * 0.9, t: 0, life: tl + du });   // the piece itself, standing on its square
@@ -286,7 +286,7 @@ function phaseRules(g, e, B, bal, dt) {
     const h = ph.heat, A = box(e, B), sz = h.size || 3, par = (e.rfHeatK = (e.rfHeatK || 0) + 1) % 2, s = B.shots[h.s] || {};
     e.rfHeatT = h.every || 2.6;
     for (let j = 0; j * sz < A.h; j++) for (let i = 0; i * sz < A.w; i++) if ((i + j) % 2 === par)
-      g.fx.push({ kind: 'zone', x: A.x0 + i * sz + sz / 2, y: A.y0 + j * sz + sz / 2, r: sz * 0.5, t: 0, delay: h.warn || 1.2, life: (h.warn || 1.2) + 0.15, dmg: Math.round((h.dmg || 110) * bal.bossDmg), by: 'the hot floor', done: false, colors: [s.color || '#ff7a1a', '#ffd650'] });
+      g.fx.push({ kind: 'zone', src: e, x: A.x0 + i * sz + sz / 2, y: A.y0 + j * sz + sz / 2, r: sz * 0.5, t: 0, delay: h.warn || 1.2, life: (h.warn || 1.2) + 0.15, dmg: Math.round((h.dmg || 110) * bal.bossDmg), by: 'the hot floor', done: false, colors: [s.color || '#ff7a1a', '#ffd650'] });
   }
   // the leash: every player too far from it burns (each on their own clock)
   if (ph.leash) {
@@ -329,7 +329,7 @@ function arenaRules(g, e, B, bal, dt) {
   if (e.rfLPh !== S.phase || !g.rfZ || g.rfZ.e !== e) { e.rfLPh = S.phase; g.rfZ = { e }; }   // this player's state for the phase
   const Z = g.rfZ, tick = (k, per) => { Z[k] = (Z[k] || 0) - dt; if (Z[k] <= 0) { Z[k] = per; return true; } return false; };
   const hurt = (d, by) => g.hurtPlayer(dm(d), by);
-  const mark = (x, y, r, tele, key) => { const s = B.shots[key] || {}; g.fx.push({ kind: 'zone', x, y, r, t: 0, delay: tele, life: tele + 0.15, dmg: dm(s.dmg || 80), by: e.D.name, done: false, colors: [s.color || '#ff6a4a', '#ffffff'] }); };
+  const mark = (x, y, r, tele, key) => { const s = B.shots[key] || {}; g.fx.push({ kind: 'zone', src: e, x, y, r, t: 0, delay: tele, life: tele + 0.15, dmg: dm(s.dmg || 80), by: e.D.name, done: false, colors: [s.color || '#ff6a4a', '#ffffff'] }); };
   const push = (dx, dy) => g.moveCircle(p, dx, dy, 0.32);
   const outside = (w) => p.x < A.x0 + w || p.x > A.x0 + A.w - w || p.y < A.y0 + w || p.y > A.y0 + A.h - w;
   // the still hour: its shots hang in the air; the lances, turned by the mirror, end there
@@ -972,7 +972,7 @@ function puzzleStep(g, e, B, bal, dt, P) {
   } else {
     g.banner(Z.lose || 'The hour turns against you.', 2600);
     for (const c of O.crystals || []) if (!c.dead) sand(c.x, c.y, 12);
-    if (e.rfPlN) { const s = B.shots.rune || {}; for (let i = 0; i < e.rfPlN; i++) { const pl = plateAt(A, i); g.fx.push({ kind: 'zone', x: pl.x, y: pl.y, r: 1.4, t: 0, delay: 0.8, life: 0.95, dmg: Math.round((s.dmg || 100) * bal.bossDmg), by: e.D.name, done: false, colors: ['#ffd650', '#ffffff'] }); } }
+    if (e.rfPlN) { const s = B.shots.rune || {}; for (let i = 0; i < e.rfPlN; i++) { const pl = plateAt(A, i); g.fx.push({ kind: 'zone', src: e, x: pl.x, y: pl.y, r: 1.4, t: 0, delay: 0.8, life: 0.95, dmg: Math.round((s.dmg || 100) * bal.bossDmg), by: e.D.name, done: false, colors: ['#ffd650', '#ffffff'] }); } }
     if (O.disc && !O.disc.rfDocked) sand(O.disc.x, O.disc.y, 16);
   }
   endPieces(e);

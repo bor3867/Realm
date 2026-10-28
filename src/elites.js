@@ -66,7 +66,7 @@ const methods = {
         for (let k = 1; k <= 7; k++) {
           const x = e.x + Math.cos(a) * k * 1.1, y = e.y + Math.sin(a) * k * 1.1, delay = 0.45 + k * 0.09;
           if (isSolid(this.map, x, y)) break;
-          this.fx.push({ kind: 'zone', x, y, r: 0.85, t: 0, delay, life: delay + 0.3, dmg, by, done: false, shards: k % 2 ? 0 : 3, proj: S('coral_spike'), colors: ['#ff8fbf', '#ffd0e0', '#5ac8c8'] });
+          this.fx.push({ kind: 'zone', src: e, x, y, r: 0.85, t: 0, delay, life: delay + 0.3, dmg, by, done: false, shards: k % 2 ? 0 : 3, proj: S('coral_spike'), colors: ['#ff8fbf', '#ffd0e0', '#5ac8c8'] });
         }
         this.vx({ k: 'shake', amt: 2 });
         break;
