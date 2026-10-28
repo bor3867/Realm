@@ -2305,6 +2305,7 @@ export class Game {
     if (e.D && e.D.opens) e.rfOpenUntil = this.t + e.D.opens;   // (a Realmforge creature that opens as it strikes)
     if (A.pattern === 'pulse') { e.pulseUntil = this.t + (A.dur || 0.8); e.pulseC = A.color; return; }   // a pulse: for a moment it pushes you away
     if (A.pattern === 'raise') { if (this.map.rf) this.rfRaise(e, A); return; }
+    if (A.pattern === 'ghostfire') { if (this.map.rf) this.rfGhostfire(e, A); return; }
     if (A.pattern === 'mark') {                        // circles marked where you stand (and round you), then it lands; a ring from each
       for (let q = 0; q < A.count; q++) {
         const x = p.x + (q ? (R() - 0.5) * 3 : 0), y = p.y + (q ? (R() - 0.5) * 3 : 0);
@@ -2380,16 +2381,18 @@ export class Game {
     const tag = (b, k) => { if (A.mv) { b.mv = A.mv; b.cs = A.mv.curveK ? k - (A.count - 1) / 2 : A.mv.alt && k % 2 ? -1 : 1; } if (A.chill) b.chill = A.chill; if (A.bounce) { b.bounce = A.bounce; b.life *= 1.6; } if (A.pull) b.pull = A.pull; if (A.ap) b.ap = true; if (A.poison) b.poison = A.poison; if (A.slowHit) b.slowHit = A.slowHit; if (A.sick) b.sick = A.sick; };   // (poison, a slow: what the shot leaves you with)
     if (A.pattern === 'radial') {
       e.spin = (e.spin || 0) + (A.turn || 0);
-      const base = A.fixed ? 0 : A.rot ? (this.t - e.born) * A.rot : A.aimRing ? aim : A.rand ? R() * TAU : e.spin, gap = A.gap ? Math.floor(R() * A.count) : -9;   // (Realmforge's rings: turning, aimed, or anywhere; some with a gap)
+      const base = A.fixBase ?? (A.fixed ? 0 : A.rot ? (this.t - e.born) * A.rot : A.aimRing ? aim : A.rand ? R() * TAU : e.spin), gap = A.fixGap ?? (A.gap ? Math.floor(R() * A.count) : -9);   // (Realmforge's rings: turning, aimed, or anywhere; some with a gap)
       for (let k = 0; k < A.count; k++) if (k !== gap && k !== gap + 1) tag(this.shoot('e', ox, oy, base + (k / A.count) * TAU, A.speed, A.range, A.dmg, A.proj, size, false, e.D.name), k);
+      if (A.echo && !A.echoed) e.queue.push({ t: A.echo, atk: { ...A, echoed: true, fixBase: base, fixGap: gap, speed: A.speed * 0.8, dmg: Math.round(A.dmg * 0.6) } });   // its echo: the ring again, slower, fainter
     } else {
+      if (A.echo && !A.echoed && !A.seq) e.queue.push({ t: A.echo, atk: { ...A, echoed: true, fixAim: aim, count: 1, arc: 0, waves: 0, speed: A.speed * 0.8, dmg: Math.round(A.dmg * 0.6) } });   // its echo: one shot the same way, slower, fainter
       if (A.seq && !isWave) {                            // a sweep: one shot after another across the arc
         for (let k = 0; k < A.count; k++) e.queue.push({ t: k * A.seq, atk: { ...A, seq: 0, count: 1, arc: 0, off: A.count > 1 ? (k / (A.count - 1) - 0.5) * A.arc : 0 } });
         e.queue.sort((a, b) => a.t - b.t); return;
       }
       for (let k = 0; k < A.count; k++) {
         const off = (A.off || 0) + (A.count > 1 ? (k / (A.count - 1) - 0.5) * (A.arc || 0) : 0);
-        tag(this.shoot('e', ox, oy, aim + off, A.speed, A.range, A.dmg, A.proj, size, false, e.D.name), k);
+        tag(this.shoot('e', ox, oy, (A.fixAim ?? aim) + off, A.speed, A.range, A.dmg, A.proj, size, false, e.D.name), k);
       }
     }
   }

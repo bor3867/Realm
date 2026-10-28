@@ -10,13 +10,13 @@ import { rfBalance } from './balance.js';
 // code run as theirs ran it (D.rfMove: Game.rfMoveStep, src/rf/host.js)
 const MOVE = { chase: 'shamble', kite: 'kite', drift: 'drift', hop: 'hop', burrow: 'burrow', still: 'rooted', swoop: 'swoop', orbit: 'orbit',
   blink: 'blink', patrol: 'shamble', leader: 'leader', formation: 'formation', mirror: 'flank', chess: 'shamble' };
-const RF_MOVE = new Set(['chase', 'kite', 'drift', 'hop', 'burrow', 'still', 'swoop', 'orbit', 'blink', 'patrol', 'leader', 'formation']);
+const RF_MOVE = new Set(['chase', 'kite', 'drift', 'hop', 'burrow', 'still', 'swoop', 'orbit', 'blink', 'patrol', 'leader', 'formation', 'chess', 'mirror']);
 // approximations: their kind came over, but as the nearest thing we have (said so in the report)
-const NEAR_MOVE = new Set(['mirror', 'chess']);
+const NEAR_MOVE = new Set();
 // their attacks that bring others' protection: our rule is that monsters never shield or guard each other
 const REFUSED = new Set(['shield', 'eclipseShield', 'encase']);   // (encase: an ice shell on an ally that soaks your shots)
 // theirs we have nothing like yet (left out, listed)
-const MISSING = new Set(['ghostfire']);
+const MISSING = new Set();
 
 // what a shot or a touch leaves you with, as theirs (inflict in explore.js): sick stops your regeneration a while;
 // slow is 0.55 of your step, root 0.12
@@ -42,7 +42,8 @@ export function translateCreature(DATA, dg, id, e) {
     xp: Math.max(4, Math.round(((e.hp || 300) * bal.hp) / 30)), r, ai: MOVE[e.move] || 'shamble', aggro: e.sight || 7.5, fly: !!e.fly,
     rfMove: RF_MOVE.has(e.move) ? e.move : null, weave: e.weave, rg: e.range, hopCd: e.hopCd, per: e.per,
     rfVuln: e.moonVuln ? 'moon' : dg === 'temple' && e.side ? 'side' : dg === 'temple' && id === 'idol' ? 'idol' : dg === 'grove' ? 'grove' : e.coolArmor ? 'cool' : e.shadeVuln ? 'shade' : e.solar ? 'solar' : dg === 'stage' ? 'stage' : undefined, side: e.side, opens: e.opens,
-    reflect: e.reflect ? { dmg: dmg(0.6), proj: shot(e.shot) } : undefined, solar: !!e.solar,   // (a reflector turns your shot back at you unless it has just struck; a sun-disc sleeps in shadow)   // (when a blow tells: Game.rfVulnK)
+    reflect: e.reflect ? { dmg: dmg(0.6), proj: shot(e.shot) } : undefined, solar: !!e.solar,
+    piece: e.piece, every: e.every, chessKeep: e.keep, land: e.land ? dmg() : 0, afterimage: !!e.afterimage, echoBody: !!e.echoBody,   // (a chess piece; a blinker's afterimage; an echo's trailing bodies)   // (a reflector turns your shot back at you unless it has just struck; a sun-disc sleeps in shadow)   // (when a blow tells: Game.rfVulnK)
     post: dg === 'grove' && !!e.guard,   // (the Grove's guardians keep near their post: their 'guard' is a leash, not a guard over others) blinkCd: e.blinkCd, up: e.up, down: e.down, dashTrail: e.dashTrail ? { kind: e.dashTrail, dmg: dmg(0.3) } : undefined,
     rad: e.rad, spin: e.spin, reg: `rf_crea/${dg}_${id}`, scale: e.art && e.art.frames[0].length > 10 ? 0.5 : 1, contact: 0, attacks, loot: [], rfCrea: { dg, id }, desc: e.how,   // (scale: their 8px art at the player's pixel size, bigger art at the fine size)
   };
@@ -52,11 +53,11 @@ export function translateCreature(DATA, dg, id, e) {
     const T = { cd, trigger: a.range || 10, tell: a.tele ? Math.round(a.tele * 1000) : 0, ...(a.beat ? { beat: true, parity: a.parity } : {}) };   // (fired within its range; a tele: a wind-up first; some only on the beat)
     switch (a.k) {
       case 'contact': D.contact = dmg(); D.touchR = r + 0.35; D.touchCd = 0.8; if (a.inflict) D.touch = inflict(a.inflict); break;
-      case 'aim': { const n = a.n || 1; attacks.push({ ...T, pattern: 'aimed', count: n, arc: (a.sp || 0.2) * (n - 1), speed: v, range: v * 3, dmg: dm, proj, ...(a.bounce ? { bounce: a.bounce } : {}), ...(a.curve ? { mv: { curve: a.curve, curveK: true } } : {}), ...inflict(a.inflict) }); break; }
+      case 'aim': { const n = a.n || 1; attacks.push({ ...T, ...(e.echo ? { echo: e.echo } : {}), pattern: 'aimed', count: n, arc: (a.sp || 0.2) * (n - 1), speed: v, range: v * 3, dmg: dm, proj, ...(a.bounce ? { bounce: a.bounce } : {}), ...(a.curve ? { mv: { curve: a.curve, curveK: true } } : {}), ...inflict(a.inflict) }); break; }
       case 'fan': { const n = a.n || 5; attacks.push({ ...T, pattern: 'aimed', count: n, arc: (a.sp || 0.25) * (n - 1), seq: a.gapT || 0.09, speed: v, range: v * 3, dmg: dm, proj }); break; }   // (one shot after another, sweeping)
       case 'line': attacks.push({ ...T, pattern: 'aimed', count: 1, waves: a.n || 4, gap: a.gapT || 0.12, speed: v, range: v * 3, dmg: dm, proj }); break;   // (the same shot again, quickly, each at you)
       case 'snipe': attacks.push({ ...T, pattern: 'aimed', count: 1, speed: a.v || 14, range: (a.v || 14) * 1.6, dmg: dm, proj, tell: Math.round((a.aim || 0.9) * 1000), ...inflict(a.inflict) }); break;
-      case 'ring': attacks.push({ ...T, pattern: 'radial', count: a.n || 8, speed: v, range: v * (a.life || 3), dmg: dm, proj, gap: !!a.gap, rot: a.rot, aimRing: !!a.aimed, rand: !a.rot && !a.aimed, ...(a.curve ? { mv: { curve: a.curve } } : {}), ...inflict(a.inflict) }); break;
+      case 'ring': attacks.push({ ...T, ...(e.echo ? { echo: e.echo } : {}), pattern: 'radial', count: a.n || 8, speed: v, range: v * (a.life || 3), dmg: dm, proj, gap: !!a.gap, rot: a.rot, aimRing: !!a.aimed, rand: !a.rot && !a.aimed, ...(a.curve ? { mv: { curve: a.curve } } : {}), ...inflict(a.inflict) }); break;
       case 'spiral': attacks.push({ ...T, pattern: 'radial', count: a.arms || 2, turn: a.step || 0.42, speed: v, range: v * (a.life || 2.6), dmg: dm, proj }); break;
       case 'wave': attacks.push({ ...T, pattern: 'radial', count: a.n || 20, speed: a.v || 3.5, range: (a.v || 3.5) * (a.life || 2.2), dmg: dm, proj, fixed: true, ...inflict(a.inflict || { k: 'slow', t: 1 }) }); break;   // (a slow ring, every way at once)
       case 'diag': attacks.push({ ...T, pattern: 'cross', x: true, count: 4, speed: a.v || 7, range: (a.v || 7) * 3, dmg: dmg(), proj }); break;   // (their Keep's bishop: always the four diagonals)
@@ -69,6 +70,7 @@ export function translateCreature(DATA, dg, id, e) {
       case 'raise': attacks.push({ ...T, trigger: 99, pattern: 'raise', count: 0, r: a.r || 8, range: 0, dmg: 0, color: a.c }); break;   // (one of the fallen near it stands again)
       case 'heal': attacks.push({ ...T, trigger: 99, pattern: 'mend', count: 0, r: a.r || 6, amt: a.amt || 0.25, range: 0, dmg: 0, color: a.c }); break;   // (the most hurt of its kin near it)
       case 'trail': attacks.push({ ...T, pattern: 'trail', count: 0, r: a.r || 0.55, life: a.life || 4, dmg: a.dmg ? dmg(a.dmg) : 0, slow: a.slow, root: a.root, kind: a.kind || 'fire', range: 0 }); break;
+      case 'ghostfire': attacks.push({ ...T, pattern: 'ghostfire', count: 0, range: 0, speed: 6.5, dmg: dmg(0.7), proj: shot(e.shot || 'blink') }); break;   // (shots from where it just was)
       case 'chain': D.chain = { with: `rf_${dg}_${a.with || id}`, r: a.r || 7, dmg: dmg(a.dmg || 1), color: e.chainC }; break;   // (lightning between it and its kin: don't cross it)
       default:
         if (REFUSED.has(a.k)) notes.push(`${a.k}: left out (monsters never shield each other)`);
@@ -79,7 +81,7 @@ export function translateCreature(DATA, dg, id, e) {
   // their one-off traits we have yet to build (the ones that matter to a fight)
   // (rebirth: their kill rule leaves the ember, for ours too; gaze: their dungeon's own rule runs it, for ours too; mirageVuln: their engine never reads it; moonVuln and the
   // Temple's sides: ours, Game.rfVulnK)
-  for (const k of ['shieldsOthers', 'copyShots', 'echo', 'afterimage', 'lava', 'cuckoo'])
+  for (const k of ['shieldsOthers', 'copyShots', 'lava', 'cuckoo'])
     if (e[k]) notes.push(`${k}: ${k === 'shieldsOthers' ? 'left out (monsters never guard each other)' : 'not in our engine yet'}`);
   if (e.split) D.split = { id: `rf_${dg}_${typeof e.split === 'string' ? e.split : id}`, n: e.split.n || 2 };
   return { id: `rf_${dg}_${id}`, D, notes };

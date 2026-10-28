@@ -163,8 +163,12 @@ their creatures follow their rules, not ours. The plan, a step a turn:
    sun-disc sleeps and is faint in shadow: their sunShadow, exposed by one builder seam), the Stage (blows tell 1.6x
    while you stand in the spotlight). Reflect built (a reflector turns your shot back at you unless it has just
    struck): the crystals, diamonds and the glass golem are ours. All 24 dungeons; 182 of 195 kinds whole.
-   Still theirs: kinds a dungeon's own rule moves (KEEP_THEIRS: lurker, windup, cuckoo, blight, eel), and the traits
-   left to build: echo, afterimage, ghostfire, chess, mirror.
+   The last traits (2026-10-27): echo (an attack again a moment later, the same way, slower and fainter), ghostfire
+   (shots from where the Rift's echo just was: their E.ghosts), afterimage and echo bodies (faint copies drawn), chess
+   (a piece's move on the beat, to stand its distance; the knight lands hard), mirror (your reflection across its
+   room). 190 of 195 kinds whole; the 5 left: the three protections our rule leaves out (shield, eclipse shield,
+   encase) and the eel and cuckoo, which stay theirs with the lurker, windup and blight (KEEP_THEIRS: moved by
+   their dungeons' own rules).
    Their layout, props, traps and puzzles stay hosted until step 5.
 5. **Online**: the server hosts rf_ dungeons like ours (their layout from its seed), so a group shares one.
 Check each step with the dungeon checks and `tools/check_enemy_hits.mjs` on the new monsters.

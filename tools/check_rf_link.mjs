@@ -27,14 +27,14 @@ for (const dg of list) {
   const res = { linked: 0, ours: 0, theirKills: 0, hurt: 0, xp: 0, errors: [] };
   try {
     g.enter(`rf_${dg}`);
-    const T = (res.traits = { raised: 0, chainHits: 0, pulses: 0, formation: 0, mirrored: 0, forged: 0, onBeat: 0, waterCopies: 0, told: 0, barely: 0, reborn: 0, reflected: 0, split: 0 });
+    const T = (res.traits = { raised: 0, chainHits: 0, pulses: 0, formation: 0, mirrored: 0, forged: 0, onBeat: 0, waterCopies: 0, told: 0, barely: 0, reborn: 0, reflected: 0, split: 0, echoes: 0, ghostfire: 0, chessMoves: 0 });
     const dm0 = g.damageEnemy.bind(g); g.damageEnemy = (e, ...a) => { const n0 = g.projectiles.length; const r = dm0(e, ...a); if (e.D && e.D.reflect && g.projectiles.length > n0) T.reflected++; return r; };
     const mk0 = g.rfVulnK.bind(g); g.rfVulnK = (e) => { const k = mk0(e); if (k > 1) T.told++; else if (k < 1) T.barely++; return k; };   // (blows that told, and that barely did)   // their traits and rules, in our engine
     const m0 = g.rfMirror.bind(g); g.rfMirror = (b, dt) => { const n0 = g.projectiles.length; m0(b, dt); if (g.projectiles.length > n0 + 1) T.split++; else if (g.projectiles.length > n0) T.waterCopies++; else if (b.refl) T.mirrored++; };
     const r0 = g.rfRaise.bind(g); g.rfRaise = (e, A) => { const n = g.map.rf.E.en_.length; r0(e, A); if (g.map.rf.E.en_.length > n) T.raised++; };
     const c0 = g.chainBeam.bind(g); g.chainBeam = (e, q) => { const t0 = q.chainT; c0(e, q); if (q.chainT !== t0) T.chainHits++; };
     const f0 = g.formation.bind(g); g.formation = (e, dt) => { const r = f0(e, dt); if (r) T.formation++; return r; };
-    const fp = g.firePattern.bind(g); g.firePattern = (e, A, w) => { if (A.pattern === 'pulse') T.pulses++; if (A.beat) T.onBeat++; return fp(e, A, w); };
+    const fp = g.firePattern.bind(g); g.firePattern = (e, A, w) => { if (A.pattern === 'pulse') T.pulses++; if (A.beat) T.onBeat++; if (A.echoed) T.echoes++; if (A.pattern === 'ghostfire') T.ghostfire++; return fp(e, A, w); };
     const E = g.map.rf.E, k0 = E.kills;
     let hurt = 0; const h0 = g.hurtPlayer.bind(g); g.hurtPlayer = (d, by, ig) => { const b = p.hp; h0(d, by, ig); hurt += Math.max(0, b - p.hp); p.hp = g.stat('hp'); p.dead = false; };
     let next = 0, at = null; const tried = new Map(), live = (q) => q.hp > 0 && q.st !== 'gone' && !q.hidden;
@@ -52,6 +52,7 @@ for (const dg of list) {
       I.fire = !!tg; if (tg) { I.aimX = tg.x; I.aimY = tg.y - 0.5; }
       g.update(1 / 30);
       if (g.enemies.some((o) => !o.dead && o.rfE && o.rfE.forged)) T.forged++;
+      for (const o of g.enemies) if (o.to && o.mv === 0 && o.D.piece) T.chessMoves++;
     }
     I.fire = false; for (let k = 0; k < 30; k++) g.update(1 / 30);   // (the last deaths reach their dungeon)
     T.reborn = E.en_.filter((q) => q.reborn).length + g.enemies.filter((o) => o.rfE && o.rfE.reborn).length;

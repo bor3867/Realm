@@ -5,7 +5,7 @@
 // our renderer draws all of it (their art, 8 pixels to a tile, drawn at 2x like ours).
 import { makeExplore } from './explore_gen.js';
 import { TID, isSolid } from '../world/maps.js';
-import { lift, liftA, liftB, R, TAU } from '../util.js';
+import { lift, liftA, liftB, liftO, R, TAU } from '../util.js';
 import { rollLoot } from '../data/items.js';
 import { bossData } from './boss.js';
 import { RF_FOE_LANDS } from '../data/rf_foes.js';
@@ -172,17 +172,51 @@ const methods = {
         for (let k = 0; k < 14; k++) {
           const aa = R() * TAU, rr = 2.5 + R() * 2.5, x = p.x + Math.cos(aa) * rr, y = p.y + Math.sin(aa) * rr;
           if (!isSolid(this.map, x, y) && (!w || X.roomOf(x, y) === w.room) && this.seesFoe({ x, y }, p)) {
-            this.vx({ k: 'burst', ...liftA(e.x, e.y, 0.5), n: 8, colors: ['#ffffff', '#b888ff'] }); e.x = x; e.y = y; this.vx({ k: 'burst', ...liftA(x, y, 0.5), n: 10, colors: ['#ffffff', '#b888ff'] });
+            this.vx({ k: 'burst', ...liftA(e.x, e.y, 0.5), n: 8, colors: ['#ffffff', '#b888ff'] }); if (D.afterimage) (e.rfAfter = e.rfAfter || []).push([e.x, e.y, this.t + 0.8]); e.x = x; e.y = y; this.vx({ k: 'burst', ...liftA(x, y, 0.5), n: 10, colors: ['#ffffff', '#b888ff'] });
             break;
           }
         }
       }
+    } else if (m === 'chess') {                                       // a game piece: it moves only on the beat, a piece's move, to stand its distance from you
+      const E = this.map.rf && this.map.rf.E;
+      if (e.to) {
+        e.mv += dt * 5; const q = Math.min(1, e.mv);
+        e.x = e.from[0] + (e.to[0] - e.from[0]) * q; e.y = e.from[1] + (e.to[1] - e.from[1]) * q;
+        if (q >= 1) { e.to = null; if (D.land) { this.vx({ k: 'boom', ...liftO(e.x, e.y, 0.2), r: 1.1 }); if (Math.hypot(p.x - e.x, p.y - e.y) < 1.1) this.hurtPlayer(D.land, D.name); } }   // (the knight lands hard)
+      } else if (E && E.onBeat && !(e.cm > E.t)) {
+        e.cm = E.t + (D.every || 1) * (E.cfg.beat || 1) - 0.05;
+        const opts = D.piece === 'knight' ? [[1, 2], [2, 1], [-1, 2], [-2, 1], [1, -2], [2, -1], [-1, -2], [-2, -1]]
+          : (D.piece === 'bishop' ? [[1, 1], [-1, 1], [1, -1], [-1, -1]] : [[1, 0], [-1, 0], [0, 1], [0, -1]]).flatMap(([x, y]) => [1, 2, 3].map((k) => [x * k, y * k]));
+        let best = null, bd = 1e9;
+        for (const [ox, oy] of opts) {
+          const nx = Math.floor(e.x) + ox + 0.5, ny = Math.floor(e.y) + oy + 0.5;
+          if (X.solidMove(nx, ny) || (w && X.roomOf(nx, ny) !== w.room)) continue;
+          const dd = Math.abs(Math.hypot(p.x - nx, p.y - ny) - (D.chessKeep || 0));
+          if (dd < bd) { bd = dd; best = [nx, ny]; }
+        }
+        if (best) { e.from = [e.x, e.y]; e.to = best; e.mv = 0; }
+      }
+    } else if (m === 'mirror') {                                      // your reflection across the middle of its room
+      const r = w && this.map.rf.E.M.rooms[w.room];
+      if (r) { const tx = 2 * r.cx + 1 - p.x, ty = p.y, q = Math.atan2(ty - e.y, tx - e.x), dd = Math.hypot(tx - e.x, ty - e.y), s = Math.min(dd * 5, (w ? w.spd : D.speed) * 1.4) * dt; if (dd > 0.15) this.moveCircle(e, Math.cos(q) * s, Math.sin(q) * s, 0.38); }
     } else if (m === 'burrow') {                                      // under the ground it can't be hurt; it comes up close by, strikes, dives again
       e.bt = (e.bt ?? 1.5) - dt;
       if (e.under) { go(1.1); if (e.bt <= 0 && dist < 3.4) { e.under = false; e.bt = D.up || 2.2; this.vx({ k: 'burst', x: e.x, y: e.y, n: 14, colors: ['#ffffff', '#8a7e6a'] }); } }
       else if (e.bt <= 0) { e.under = true; e.bt = D.down || 2.4; }
     } else return false;
     return true;
+  },
+  // the Rift's echo: shots from where it was a moment ago (their engine keeps its trail: E.ghosts)
+  rfGhostfire(e, A) {
+    const E = this.map.rf.E, h = (e.rfE && E.ghosts && E.ghosts.get(e.rfE)) || [], p = this.player;
+    for (const [x, y] of h.slice(0, 2)) { const [ox, oy] = lift(x, y, 0.5); this.shoot('e', ox, oy, Math.atan2(p.y - 0.4 - oy, p.x - ox), A.speed, A.speed * 3, A.dmg, A.proj, 0.35, false, e.D.name); }
+  },
+  // the faint copies of a creature drawn beside it: a blinker's afterimage where it was, an echo's trailing bodies
+  rfGhostsOf(e) {
+    const out = [];
+    if (e.rfAfter) { e.rfAfter = e.rfAfter.filter((q) => q[2] > this.t); for (const [x, y, u] of e.rfAfter) out.push([x, y, 0.5 * (u - this.t) / 0.8]); }
+    if (e.D.echoBody && this.map.rf) { const h = (e.rfE && this.map.rf.E.ghosts && this.map.rf.E.ghosts.get(e.rfE)) || []; for (const [x, y] of h.slice(0, 2)) out.push([x, y, 0.22]); }
+    return out;
   },
   // their summoners call their own kind into their rooms (their list: the room counts them), at most so many alive
   rfSummon(e, A) {
