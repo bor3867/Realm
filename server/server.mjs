@@ -85,7 +85,7 @@ function onMessage(c, text) {
   if (m.t === 'tk' && Array.isArray(m.parts)) { for (const part of m.parts.slice(0, 6)) if (part && typeof part === 'object' && part.t !== 'tk') onMessage(c, JSON.stringify(part)); return; }   // one bundle a tick
   // back after a drop, in a shared dungeon the server no longer has (it restarted): made again from its seed, for the
   // group to come back to (its monsters fresh)
-  if (m.t === 'rejoin' && world && typeof m.to === 'string' && DUNGEONS[m.to]) {
+  if (m.t === 'rejoin' && world && typeof m.to === 'string' && (DUNGEONS[m.to] || /^rf_[a-z_]+$/.test(m.to))) {
     const iid = Math.floor(num(m.iid, 1, 1e12)), room = 'dg:' + iid, seed = Math.floor(num(m.seed, 1, 0xffffff));
     if (!iid || !seed || dungeons.has(room) || dungeons.size >= 12) return;
     try {
@@ -97,6 +97,10 @@ function onMessage(c, text) {
       const K = m.kills && typeof m.kills === 'object' ? m.kills : {}, out = new Set();
       for (const [ri, ids] of Object.entries(K).slice(0, 200)) { const r = R[Math.floor(num(+ri, 0, 1e4))]; if (!r || !ids || typeof ids !== 'object') continue;
         for (const [id, n] of Object.entries(ids).slice(0, 40)) { let left = Math.floor(num(n, 0, 200)); for (const e of g.enemies) { if (left <= 0) break; if (!out.has(e) && e.id === id && e.x >= r.x && e.x < r.x + r.w && e.y >= r.y && e.y < r.y + r.h) { out.add(e); left--; } } } }
+      if (g.map.rf && Array.isArray(m.rfDead)) {                     // a Realmforge dungeon: the creatures they saw fall, by number, stay dead (quietly: its keys and gates follow)
+        const dead = new Set(m.rfDead.slice(0, 400).map((v) => Math.floor(num(v, 0, 1e5))));
+        for (const e of g.map.rf.E.en_) if (dead.has(e.rfSid) && e.hp > 0) g.map.rf.X.kill(e);
+      }
       if (out.size) {
         g.enemies = g.map.enemies = g.enemies.filter((e) => !out.has(e));
         // a warden that stays dead has broken its seal again (quietly: no banners for a seal long broken), or the gate stays shut
@@ -161,11 +165,10 @@ function onMessage(c, text) {
     c.portalT = Date.now() + 5000;
     const iid = nextIid++, seed = randomInt(1, 0xffffff) | 3, room = 'dg:' + iid, life = num(m.life, 10, 120);
     try {
-      if (m.to.startsWith('rf_')) dungeons.set(room, { world: null, to: m.to, until: Date.now() + life * 1000, idleSince: Date.now() });   // (an rf_ dungeon: one layout, its players together; no server world yet)
-      else { const dw = makeWorld(seed, (id, obj) => { const t = clients.get(id); if (t) send(t, obj); }, m.to); dw.onBag = (x, y, items) => publicBag(room, x, y, items); dungeons.set(room, { world: dw, to: m.to, until: Date.now() + life * 1000 }); }
+      { const dw = makeWorld(seed, (id, obj) => { const t = clients.get(id); if (t) send(t, obj); }, m.to); dw.onBag = (x, y, items) => publicBag(room, x, y, items); dungeons.set(room, { world: dw, to: m.to, until: Date.now() + life * 1000 }); }
     }
     catch (err) { console.error('dungeon', m.to, err); return; }
-    toRoom(c.room, { t: 'portal', iid, seed, to: m.to, x: num(m.x, 0, 4096), y: num(m.y, 0, 4096), life });
+    toRoom(c.room, { t: 'portal', iid, seed, to: m.to, x: num(m.x, 0, 4096), y: num(m.y, 0, 4096), life, served: 1 });   // (served: the server runs it, Realmforge's too)
     return;
   }
   if (m.t === 'ohit' && worldOf(c.room)) { worldOf(c.room).ohit(c.id, num(m.i, 0, 1e6), str(m.k, 40), num(m.d, 0, 1e6)); return; }   // a blow on something breakable

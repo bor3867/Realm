@@ -1263,7 +1263,7 @@ export class Renderer {
     const F = Object.keys(def.frames), mv = (def.anims.move || def.anims.walk) ? (def.anims.move || def.anims.walk).frames : F.slice(0, 2);
     const fAtk = def.anims.attack ? def.anims.attack.frames[def.anims.attack.frames.length - 1] : F[2], fHurt = def.anims.hurt ? def.anims.hurt.frames[0] : F[3];   // by clip: some have three gallop frames
     let fr;
-    if (e.asDormant && def.anims.dormant) fr = def.anims.dormant.frames[0];        // the Vault Keeper, asleep by its chest
+    if ((e.asDormant || e.rfDormant) && def.anims.dormant) fr = def.anims.dormant.frames[0];   // (or a Realmforge creature still asleep)        // the Vault Keeper, asleep by its chest
     else if (e.asWakeT > 0 && def.anims.wake) { const A = def.anims.wake; fr = A.frames[Math.min(A.frames.length - 1, Math.floor((0.8 - e.asWakeT) * A.fps))]; }
     else if (e.abil && def.anims.ability) { const A = def.anims.ability; fr = A.frames[Math.min(A.frames.length - 1, Math.floor(e.abil.t * A.fps))]; }   // an elite's ability: the clip is the telegraph
     else if (e.dead && def.anims.death) { const A = def.anims.death; fr = A.frames[Math.min(A.frames.length - 1, Math.floor(e.deadT * A.fps))]; }
@@ -1289,7 +1289,7 @@ export class Renderer {
       if (Math.random() < h * 0.6) this.parts.push({ x: e.x + (Math.random() - 0.5) * 0.6, y: e.y, z: 4 + Math.random() * 6, vx: 0, vy: 0, vz: 10, g: 0, life: 0.5, max: 0.5, color: Math.random() < 0.5 ? '#ff7a1a' : '#ffc94a' });
     }
     if (!e.dead && e.hp < e.maxHp && !e.D.noBar) this.hpBar(sx, sy + 3, e.hp / e.maxHp, e.D.ability ? 20 : 12);
-    if (!e.dead && e.rfE && (e.rfE.forged || e.rfE.wrath)) { const b = this.b; b.fillStyle = e.rfE.wrath ? `rgba(216,74,74,${0.35 + 0.25 * Math.sin(g.t * 10)})` : `rgba(255,138,42,${0.4 + 0.3 * Math.sin(g.t * 12)})`; b.fillRect(Math.round(sx) + 5, Math.round(sy) - 18, 2, 2); }   // a Realmforge smith at its anvil: a spark
+    if (!e.dead && ((e.rfE && (e.rfE.forged || e.rfE.wrath)) || e.rfForged || e.rfWrath)) { const b = this.b; b.fillStyle = (e.rfE ? e.rfE.wrath : e.rfWrath) ? `rgba(216,74,74,${0.35 + 0.25 * Math.sin(g.t * 10)})` : `rgba(255,138,42,${0.4 + 0.3 * Math.sin(g.t * 12)})`; b.fillRect(Math.round(sx) + 5, Math.round(sy) - 18, 2, 2); }   // a Realmforge smith at its anvil: a spark
     if (!e.dead && e.stunT > 0) this.stunStars(g, sx, sy, 18);
   }
   // what an elite's ability shows: the siren's charm ring, the gryphon's line, the after-images of a dive or a dash

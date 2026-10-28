@@ -327,7 +327,7 @@ export class Game {
     } else if (DUNGEONS[where]) this.map = dungeon((opt && opt.seed) || ((Date.now() & 0xffffff) | 3), DUNGEONS[where]);
     else if (where.startsWith('rfa_')) { const m = this.rfArenaMap(where); if (!m) { this.banner('That boss is not ready.', 2000); return; } this.map = m; }   // a boss's own room (src/rf/boss.js)
     else if (where.startsWith('rf_boss:')) { const m = this.rfBossMap(where); if (!m) { this.banner('That boss is not ready.', 2000); return; } this.map = m; }
-    else if (where.startsWith('rf_')) { const m = this.rfMap(where, opt && opt.seed); if (!m) { this.banner('That dungeon is not ready.', 2000); return; } this.map = m; if (opt && opt.iid) m.netIid = opt.iid; }   // (a shared portal: the same layout for all)
+    else if (where.startsWith('rf_')) { const m = this.rfMap(where, opt && opt.seed); if (!m) { this.banner('That dungeon is not ready.', 2000); return; } this.map = m; if (opt && opt.iid) { m.netIid = opt.iid; m.netTo = where; m.netSeed = opt.seed; m.netServed = !!opt.served; } }   // (a shared portal: the same layout for all)
     this.projectiles = [];
     this.allies = [];
     this.decoys = [];
@@ -343,6 +343,7 @@ export class Game {
     if (where === 'realm' && !this.map.populated) this.populateRealm();
     if (where === 'realm' || where === 'nexus') this.netWorldCheck();   // the server runs these monsters (src/net.js)
     if (this.map.rf) this.map.portals.push({ kind: 'realm', x: this.map.spawn.x, y: this.map.spawn.y + 1.5, label: this.exitLabel(), to: 'realm' });
+    if (this.map.rf && this.map.netIid) this.netWorldCheck();     // a shared Realmforge dungeon the server runs (src/net.js)
     if (this.map.rfArena) { this.rfArenaPopulate(this.map); if (opt && opt.iid) { this.map.netIid = opt.iid; this.netWorldCheck(); } }   // (shared: the server's boss)
     if (DUNGEONS[where]) {
       this.populateDungeon(DUNGEONS[where]);
@@ -2291,6 +2292,7 @@ export class Game {
   chainBeam(e, p) {
     const C = e.D.chain, room = e.rfE && e.rfE.room;
     const o = e.chainTo = this.active.find((q) => q !== e && !q.dead && q.id === C.with && dist2(q.x, q.y, e.x, e.y) < C.r * C.r && (!q.rfE || q.rfE.room === room)) || null;
+    e.chainNid = o ? o.nid || 0 : 0;                              // (a server sends whom it is joined to)
     if (!o) return;
     const vx = o.x - e.x, vy = o.y - e.y, t = clamp(((p.x - e.x) * vx + (p.y - e.y) * vy) / (vx * vx + vy * vy || 1), 0, 1);
     if (dist(e.x + vx * t, e.y + vy * t, p.x, p.y) < 0.4 && !(p.chainT > this.t)) { p.chainT = this.t + 0.5; this.hurtPlayer(C.dmg, e.D.name); }
@@ -2405,7 +2407,7 @@ export class Game {
       if (!e.net) { e.rfSnareHp--; if (!quiet) this.float(x, y - 0.8, e.rfSnareHp > 0 ? `VINES ${e.rfSnareHp}` : 'FREE!', '#7ac85a'); return 0; }
     }
     if (e.rfC || e.rfBossP) return this.rfAbilityHit(e, dmg);   // an rf_ dungeon's creature or boss
-    if (e.rfHold && !e.dead) return this.rfHoldHit(e, dmg);       // a server's stand-in for a Realmforge creature still on their engine
+    if (e.rfHold && e.rfE && !e.dead) return this.rfHoldHit(e, dmg);       // a server's stand-in for a Realmforge creature still on their engine
     if (e.dead || e.state === 'dead') return 0;
     if (e.spawnT > 0) return 0;                                  // an elite still arriving
     // (no monster blocks or is guarded any more: the sentinel's ward, a
@@ -2428,13 +2430,13 @@ export class Game {
       return 0;
     }
     if (this.player && this.player.armS) dmg = this.armTaken(e, dmg);   // asleep, crowned (src/armory.js)
-    if (e.D && e.D.reflect && !(e.rfOpenUntil > this.t)) {         // a Realmforge reflector, shut: your shot comes back at you
+    if (e.D && e.D.reflect && !e.net && !(e.rfOpenUntil > this.t)) {         // a Realmforge reflector, shut: your shot comes back at you
       const p = this.player;
       this.shoot('e', x, y, Math.atan2(p.y - 0.4 - y, p.x - x) + (R() - 0.5) * 0.4, 7, 21, e.D.reflect.dmg, e.D.reflect.proj, 0.35, false, e.D.name);
       this.vx({ k: 'burst', x, y, n: 5, colors: ['#ffffff', '#c0ecff'] });
       return 0;
     }
-    if (e.D && e.D.rfVuln) { const k = this.rfVulnK(e); if (k === 0) { this.vx({ k: 'burst', x, y, n: 4, colors: ['#aaaaaa'] }); return 0; } dmg *= k; }   // a Realmforge creature by its dungeon's rule: moonlight, the sun's side, the Grove's runes (src/rf/host.js)
+    if (e.D && e.D.rfVuln && !e.net) { const k = this.rfVulnK(e); if (k === 0) { this.vx({ k: 'burst', x, y, n: 4, colors: ['#aaaaaa'] }); return 0; } dmg *= k; }   // a Realmforge creature by its dungeon's rule: moonlight, the sun's side, the Grove's runes (src/rf/host.js)
     let d = e.netRawHit ? Math.round(dmg) : mitigate(dmg, e.D ? (this.armAP || e.armBreakT > this.t ? 0 : e.D.def) : 0, false);   // (armour-piercing, or armour broken: the Mad God Armory)   // (a player's blow on the server: Defense already taken off)
     if (this.map.ckCandles || (this.map.def && this.map.def.style === 'keep')) d = this.ckDamage(e, d);   // the Keep: thralls burn in candlelight
     if (e.D && e.D.bx && !e.bxKill && e.bx && e.bx.B.hitScale) d = Math.round(d * e.bx.B.hitScale(this, e));   // (a boss that takes more or less, by its state: Emily mid-sentence, or out of breath)
@@ -4345,7 +4347,7 @@ export class Game {
     if (pt.to.startsWith('rfa_') && this.map.netIid && !pt.netIid && this.net && this.net.open) {   // a shared dungeon's boss door: the server opens one room for the group
       this.netWantArena = pt.to; this.net.ws.send(JSON.stringify({ t: 'portal', to: pt.to, x: +pt.x.toFixed(2), y: +pt.y.toFixed(2), life: 120 })); this.banner('The door grinds open...', 1500); return; }
     if (pt.life !== undefined && !pt.netIid) this.map.portals = this.map.portals.filter((x) => x !== pt);   // used portals close (a shared one stays for the others)
-    if (pt.netIid) { this.netEnterNext = { iid: pt.netIid, seed: pt.netSeed }; }
+    if (pt.netIid) { this.netEnterNext = { iid: pt.netIid, seed: pt.netSeed, served: pt.netServed }; }
     this.travel(pt.to);
   }
   toNexus() {

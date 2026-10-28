@@ -61,7 +61,7 @@ const methods = {
         const M = this.map, inR = (r, e) => e.x >= r.x && e.x < r.x + r.w && e.y >= r.y && e.y < r.y + r.h;
         const cleared = [...(M.netDeadRooms || [])].filter((ri) => M.rooms[ri] && !this.enemies.some((e) => e.net && !e.dead && inR(M.rooms[ri], e))).slice(0, 200);
         N.byId.clear(); this.enemies = M.enemies = [];
-        N.ws.send(JSON.stringify({ t: 'rejoin', iid: M.netIid, seed: M.netSeed, to: M.netTo, cleared, kills: M.netKills || {} }));   // (and every monster you saw fall, by kind and room: a warden stays dead)   // (made again if the server lost it)
+        N.ws.send(JSON.stringify({ t: 'rejoin', iid: M.netIid, seed: M.netSeed, to: M.netTo, cleared, kills: M.netKills || {}, rfDead: [...(M.netRfDead || [])].slice(0, 400) }));   // (and every monster you saw fall, by kind and room: a warden stays dead)   // (made again if the server lost it)
       }
     } else if (m.t === 'online') N.online = m.n;
     else if (m.t === 'gift') {                            // an admin's gift: your own chests and chickens (shared chickens in the realm come as monsters)
@@ -114,7 +114,7 @@ const methods = {
       }
       if (!M || !M.netWorld || (M.kind !== 'realm' && M.kind !== 'nexus') || (!D && !String(m.to).startsWith('rf_'))) return;
       if (D) { M.portals.push({ kind: D.portal, x: m.x, y: m.y, label: D.name, to: m.to, life: m.life, netIid: m.iid, netSeed: m.seed }); this.say(`A portal to ${D.name} has opened!`, '#3befff'); }
-      else { const n0 = M.portals.length; this.rfOpenPortal(m.to, m.x, m.y, m.life); for (const q of M.portals.slice(n0)) { q.netIid = m.iid; q.netSeed = m.seed; } }   // (an rf_ dungeon's own portal art)
+      else { const n0 = M.portals.length; this.rfOpenPortal(m.to, m.x, m.y, m.life); for (const q of M.portals.slice(n0)) { q.netIid = m.iid; q.netSeed = m.seed; q.netServed = !!m.served; } }   // (served: the server runs its creatures for the group)   // (an rf_ dungeon's own portal art)
     }
     else if (m.t === 'dlog') { if (this.map.netWorld && this.map.kind === 'dungeon') this.netDungeonState(m); }
     else if (m.t === 'hurt') { if (this.map.netWorld && !this.player.dead) this.hurtPlayer(m.d, m.by, m.ap); }
@@ -278,7 +278,7 @@ const methods = {
   netWorldCheck() {
     const N = this.net, m = this.map;
     if (!N || !N.world || !N.open || !m || m.netWorld) return;
-    if (!(m.kind === 'realm' && m.seed === N.seed) && !(m.kind === 'dungeon' && m.netIid && !m.rf) && !(m.kind === 'nexus' && N.nexusWorld)) return;
+    if (!(m.kind === 'realm' && m.seed === N.seed) && !(m.kind === 'dungeon' && m.netIid && (!m.rf || m.netServed)) && !(m.kind === 'nexus' && N.nexusWorld)) return;
     m.netWorld = true; N.byId.clear(); N.held = new Map();
     for (const o of m.objects) if (o.guards) o.guards = null;   // (camp chests: the server's guards are the ones that count)
     this.enemies = m.enemies = [];
@@ -325,6 +325,7 @@ const methods = {
       // without it a shared boss never died for you, and dropped nothing. 2026-10-22)
       if (how === 1) { e.netKill = true; e.bxKill = true; e.hp = 0; e.spawnT = 0; e.bulwarkT = 0; e.wardT = 0; this.damageEnemy(e, 1, e.x, e.y, true); }   // yours too: your rewards
       if (!e.dead) { e.dead = true; e.deadT = 0; this.vx({ k: 'death', e, big: !!e.rb }); }
+      if (M.rf && e.rfSid !== undefined) this.rfNetDeath(e.rfSid, how === 1);   // a Realmforge creature: your copy of its dungeon counts it (its room, its key, its gate)
     }
   },
   // what the shared monsters did this moment: their shots (dodged and taken here), ground zones, effects, words
@@ -382,6 +383,8 @@ const methods = {
     if (e.stunT > 0) e.stunT -= dt;                       // (and a stun, between the server's word on it)
     if (e.slowT > 0 && e.slowF > 0 && (e.slowF !== e.netSF || e.slowT > (e.netST || 0) + 0.3)) { e.netSF = e.slowF; e.netST = e.slowT; this.netEfx(e, 'slow', e.slowT, e.slowF); }
     if (e.bx && e.bx.anim) e.bx.anim.update(dt);
+    if (e.pulseUntil > this.t && this.map.rf) { const p = this.player, d = Math.hypot(p.x - e.x, p.y - e.y); if (!p.dead && d < 8 && d > 0.4) { const k = (3.5 * dt) / d; this.moveCircle(p, (p.x - e.x) * k, (p.y - e.y) * k, 0.3); } }   // a Realmforge pulse pushes you away
+    if (e.chainNid !== undefined) e.chainTo = (e.chainNid && this.net.byId.get(e.chainNid)) || null;   // (its lightning, to the one the server joins it to)
     if (e.bx) {                                          // its planets, black holes...: gliding to where the server has them
       // (each goes evenly from where it is drawn to where the server last had it, over the time between its words: it
       // used to catch up and stop, ten times a second, and shook)
@@ -434,6 +437,7 @@ const methods = {
   // the dungeon as the server has it: tiles changed (gates opened, walls broken) and things' states (chests, levers)
   netDungeonState(m) {
     const M = this.map;
+    if (M.rf) { this.rfNetTiles(m.tiles || []); return; }      // a Realmforge dungeon: what the server opened, opened in your copy (src/rf/host.js)
     for (const [i, tid, solid] of m.tiles || []) { M.tiles[i] = tid; if (M.solid) M.solid[i] = solid; }
     if ((m.tiles || []).length) { M.miniDirty = true; M.tilesV = (M.tilesV || 0) + 1; M.ogridDirty = true; }
     for (const [i, k, f] of m.objs || []) { const o = M.objects[i]; if (o && (o.interact || o.sprite || '') === k) Object.assign(o, f); }

@@ -19,6 +19,8 @@ const TS = 16, K = 2;                                             // our tile is
 export const RF_CODE_TILE = ['rf_wall', 'rf_floor', 'rf_path', 'rf_pit', 'rf_secret', 'rf_gate', 'rf_haz', 'rf_liq', 'rf_ice', 'rf_bridge', 'rf_tog', 'rf_break', 'rf_conv', 'rf_deep'];
 let DATA = null, X = null;
 const XG = () => X;
+let RF_NAME = null;                                               // (our tile ids -> names, for a shared dungeon's tiles)
+const NET_HELD = { rfHold: false, net: true };                   // (a browser's creature in a dungeon the server runs: never stepped)
 // one engine (docs/realmforge_port.md, Phase 5): which of their creatures our monster engine runs. A kind goes over when it
 // came over whole (src/rf/creatures.js: no approximation, nothing left out) and its dungeon has no rule of its own about
 // how its creatures move, fight, take hits or die (their module hooks below); the rest stay on their engine until theirs
@@ -327,15 +329,17 @@ const methods = {
   rfUpdate(dt) {
     const m = this.map, R = m.rf, E = R.E, p = this.player, ep = E.p;
     if (!ep) return;
+    const served = !!m.netWorld;                                   // (the server runs its creatures: yours stand still, unseen)
     ep.x = p.x; ep.y = p.y; ep.hp = p.hp;
     const bx = ep.x, by = ep.y;
-    this.rfLinkIn();
+    if (served) { for (const e of E.en_) if (!e.ours) e.ours = NET_HELD; }
+    else this.rfLinkIn();
     this.rfXe().tick(dt);
-    this.rfLinkOut();
+    if (!served) this.rfLinkOut();
     if (ep.noRegen > E.t) p.noRegenUntil = Math.max(p.noRegenUntil || 0, this.t + (ep.noRegen - E.t));   // their sickness: no regeneration a while
     if (ep.x !== bx || ep.y !== by) { p.x = ep.x; p.y = ep.y; this.unstick(p); }   // their portals, a collapsing floor, a push
     for (const e of E.en_) this.rfScale(e);
-    this.rfTheirsTick(dt);
+    if (!served) this.rfTheirsTick(dt);
     if ((R.tick = (R.tick || 0) + 1) % 3 === 0 || E.ogDirty === 0) this.rfSync(m);
     if (E.pots > R.pots) { for (let k = R.pots; k < E.pots; k++) this.rfPotion(); }
     R.pots = E.pots;
@@ -355,6 +359,7 @@ const methods = {
       if (!o || e.hp <= 0 || o.rfHold) continue;
       if (o.dead) { e.rfByOurs = 1; this.rfXe().kill(e); continue; }       // our blow: their kill (its key, its corpse, its room)
       e.x = o.x; e.y = o.y; e.hp = o.hp; e.aggro = true; e.rfAt = [e.x, e.y]; e.rfHp = e.hp;
+      o.rfForged = !!e.forged; o.rfWrath = !!e.wrath;                // (for the wire: a smith at its anvil, the Grove's wrath)
       if (e.wrath && !o.rfWrath) { o.rfWrath = 1; o.cds = o.cds.map((c) => c * 0.5); }   // the Grove's wrath: its next blows come sooner (its pace, theirs: e.spd)
     }
   },
@@ -387,6 +392,24 @@ const methods = {
       }
     }
   },
+  // a shared dungeon's tiles as the server has them: a gate, a secret or a breakable wall it opened opens in your copy
+  // too (what moves or toggles on its own keeps your copy's own time)
+  rfNetTiles(list) {
+    const M = this.map, E = M.rf.E, X = this.rfXe(), C = X.C, SHUT = new Set([C.GATE, C.SECRET, C.BREAK]);
+    const name = RF_NAME || (RF_NAME = Object.fromEntries(Object.entries(TID).map(([k, v]) => [v, k])));
+    for (const [i, tid] of list) {
+      const code = RF_CODE_TILE.indexOf(name[tid]), here = E.M.t[i];
+      if (code >= 0 && code !== here && SHUT.has(here) && !X.BM[code]) X.setTile(i % E.M.W, Math.floor(i / E.M.W), code);
+    }
+  },
+  // the server says one of the creatures fell: your copy of the dungeon counts it (its room, key and gate follow)
+  rfNetDeath(sid, mine) {
+    const M = this.map, E = M.rf && M.rf.E;
+    if (!E) return;
+    (M.netRfDead || (M.netRfDead = new Set())).add(sid);
+    const e = E.en_.find((q) => q.rfSid === sid && q.hp > 0);
+    if (e) { e.rfByOurs = 1; e.rfNetNoLoot = !mine; this.rfXe().kill(e); }
+  },
   // a blow on a server's stand-in for one still theirs: their rules take it (it wakes, its weakness, its death)
   rfHoldHit(o, dmg) {
     const e = o.rfE, h0 = e.hp;
@@ -412,6 +435,7 @@ const methods = {
   // a creature dies: experience, and now and then a bag (their keys stay theirs: the locks count them)
   rfKill(e) {
     const d = e.d, big = e.boss || d.size > 16, T = this.map.rf.E.t;
+    if (e.rfNetNoLoot) return;                                  // (a shared dungeon: one you didn't fight leaves you nothing)
     if (!e.rfByOurs) {                                           // (one of ours: our death already paid its experience and kill effects)
       this.rfOnKill({ x: e.x, y: e.y, rb: !!e.boss, curseT: e.rfCurseT > T ? 1 : 0, burn: e.rfDot && e.rfDot.t > T ? { t: 1 } : null, D: { r: 0.5 } });   // the uniques that answer a kill
       this.gainXp(Math.round((d.hp || 300) / (big ? 12 : 25)));
