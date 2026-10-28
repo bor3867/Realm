@@ -90,9 +90,11 @@ const methods = {
       shrine: () => { g.player.status.berserk = Math.max(g.player.status.berserk || 0, 20); },
       bossDoor: () => {},
     });
+    if (this.rfServe) Object.assign(HOST, { msg() {}, hurt: () => 0, ground() {}, pickup() {}, drop() {}, chest() {}, heal() {}, kill() {}, shrine() {} });   // a server's copy: each player's own game hurts, rewards and tells them
     const seed = seed0 || ((Date.now() & 0xffffff) | 5);
     if (!X.setup(dg, seed)) return null;
     const E = X.E || (X.state ? X.state() : null);
+    E.en_.forEach((e, i) => { e.rfSid = i; });                  // (each creature's number: the same on every machine for the same seed)
     const M = E.M, m = {
       kind: 'dungeon', name: dg.name, w: M.W, h: M.H, tiles: new Uint8Array(M.W * M.H), solid: new Uint8Array(M.W * M.H),
       biome: new Int8Array(M.W * M.H).fill(-1), objects: [], portals: [], rooms: [], spawn: { x: M.start.x, y: M.start.y },
@@ -337,7 +339,7 @@ const methods = {
     if ((R.tick = (R.tick || 0) + 1) % 3 === 0 || E.ogDirty === 0) this.rfSync(m);
     if (E.pots > R.pots) { for (let k = R.pots; k < E.pots; k++) this.rfPotion(); }
     R.pots = E.pots;
-    if (E.banner && E.banner !== R.banner) { R.banner = E.banner; this.banner(E.banner.t, 2200, false); }
+    if (E.banner && E.banner !== R.banner && !this.rfServe) { R.banner = E.banner; this.banner(E.banner.t, 2200, false); }
     if (E.M.bossDoor && !R.door && E.atDoor) {                 // the boss's door: it opens onto the boss's own room
       R.door = { kind: 'dungeon', hidden: true, x: E.M.bossDoor.x + 0.5, y: E.M.bossDoor.y + 1, label: E.B.name, to: `rfa_${E.B.id}` };
       m.portals.push(R.door);
@@ -350,7 +352,7 @@ const methods = {
     const E = this.map.rf.E;
     for (const e of E.en_) {
       const o = e.ours;
-      if (!o || e.hp <= 0) continue;
+      if (!o || e.hp <= 0 || o.rfHold) continue;
       if (o.dead) { e.rfByOurs = 1; this.rfXe().kill(e); continue; }       // our blow: their kill (its key, its corpse, its room)
       e.x = o.x; e.y = o.y; e.hp = o.hp; e.aggro = true; e.rfAt = [e.x, e.y]; e.rfHp = e.hp;
       if (e.wrath && !o.rfWrath) { o.rfWrath = 1; o.cds = o.cds.map((c) => c * 0.5); }   // the Grove's wrath: its next blows come sooner (its pace, theirs: e.spd)
@@ -360,13 +362,21 @@ const methods = {
   rfLinkOut() {
     const m = this.map, E = m.rf.E, dg = m.rf.id;
     for (const e of E.en_) {
-      const o = e.ours;
-      if (!o) {
-        if (e.hp > 0 && e.aggro && !e.dormant && !e.hidden && e.st !== 'gone' && LINK_DG.has(dg) && OURS.has(`rf_${dg}_${e.k}`) && !KEEP_THEIRS.has(`rf_${dg}_${e.k}`)) {
-          const n = this.addEnemy(`rf_${dg}_${e.k}`, e.x, e.y);
-          n.hp = e.hp; n.maxHp = e.max; n.seen = true; n.aggro = true; n.rfE = e; n.squad = e.squad; e.ours = n;
-          n.cds = n.D.attacks.map((A) => A.cd * (0.4 + Math.random() * 0.8));   // (their first cooldowns)
-        }
+      let o = e.ours;
+      const id = `rf_${dg}_${e.k}`, fights = e.hp > 0 && e.aggro && !e.dormant && !e.hidden && e.st !== 'gone' && LINK_DG.has(dg) && OURS.has(id) && !KEEP_THEIRS.has(id);
+      if (!o && e.hp > 0 && e.st !== 'gone' && (fights || (this.rfServe && ENEMIES[id]))) {   // ours, or (a server) a stand-in everyone sees while it is still theirs
+        o = this.addEnemy(id, e.x, e.y);
+        o.hp = e.hp; o.maxHp = e.max; o.seen = true; o.rfE = e; o.squad = e.squad; o.rfSid = e.rfSid; e.ours = o;
+        o.rfHold = !fights;
+        if (fights) o.cds = o.D.attacks.map((A) => A.cd * (0.4 + Math.random() * 0.8));   // (their first cooldowns)
+        continue;
+      }
+      if (!o) continue;
+      if (o.rfHold) {                                             // a stand-in: where theirs is, how it is; ours once it wakes to fight
+        o.x = e.x; o.y = e.y; o.maxHp = e.max; o.under = !!e.hidden; o.rfDormant = !!e.dormant;
+        if (e.hp <= 0) { if (!o.dead) { o.dead = true; o.deadT = 0; o.hp = 0; } continue; }
+        o.hp = e.hp;
+        if (fights) { o.rfHold = false; o.rfDormant = false; o.cds = o.D.attacks.map((A) => A.cd * (0.4 + Math.random() * 0.8)); }
         continue;
       }
       if (o.dead || !e.rfAt) continue;
@@ -376,6 +386,14 @@ const methods = {
         if (e.hp <= 0) { o.dead = true; o.deadT = 0; o.hp = 0; o.noLoot = true; this.vx({ k: 'death', e: o, big: false }); }   // (their kill paid for it)
       }
     }
+  },
+  // a blow on a server's stand-in for one still theirs: their rules take it (it wakes, its weakness, its death)
+  rfHoldHit(o, dmg) {
+    const e = o.rfE, h0 = e.hp;
+    this.rfXe().damageEnemy(e, Math.round(dmg), { x: e.x, y: e.y });
+    o.hp = Math.max(0, e.hp);
+    if (e.hp <= 0 && !o.dead) { o.dead = true; o.deadT = 0; }
+    return Math.max(0, h0 - Math.max(0, e.hp));
   },
   // what the ground does to you: ice slides you, liquid slows and may hurt, conveyors, winds and currents push
   rfGround(p, ground, dt, mod) {

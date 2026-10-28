@@ -83,6 +83,7 @@ export function makeWorld(seed, send, where = 'realm') {
   const g = new Game({ reg }, { fame: 0, gold: 0, essence: 0, vaults: [[]], graveyard: [], chars: [], slots: 8, bestLevel: 0 });
   g.newCharacter('priest'); g.persist = () => {}; g.save = { ...g.save };
   g.rfOwnEngine = true;                // (a Realmforge dungeon here gets an engine of its own: src/rf/host.js)
+  g.rfServe = true;                    // (and is the group's: it hurts and rewards no one itself; every creature goes to the players)
   // (the world's own stand-in gains nothing: each player's browser grants its own XP. It used to: a kill the world made
   // itself (a burn, a trap, a boss's creatures going with it) levelled it up, and its 'Level 2', 'Level 3' banners went
   // to everyone there. 2026-10-24)
@@ -225,8 +226,11 @@ export function makeWorld(seed, send, where = 'realm') {
       // the world's bookkeeping happens round a player: take turns
       const list = [...P.values()].filter((q) => !q.dead), at = list[Math.floor(g.t * 2) % Math.max(1, list.length)];
       if (at) { anchor.x = at.x; anchor.y = at.y; }
+      const RF = g.map.rf && g.map.rf.E;                               // a Realmforge dungeon: their engine knows one player; each takes it in turn, with the room they are in
+      if (RF && at) RF.room = at.rfRoom ?? RF.room;
       const seenShots = new Set(g.projectiles), seenFx = new Set(g.fx), seenBub = new Set(g.bubbles || []), objN = g.map.objects.length;
       g.update(dt);
+      if (RF && at) at.rfRoom = RF.room;
       anchor.hp = 1e9; anchor.dead = false; g.mode = 'play';
       for (const e of g.enemies) if (!e.nid) e.nid = ++nid;
       if (dung) for (const e of g.enemies) if (e.rb && e.dead && !e.netExit) { e.netExit = true; out.push({ k: 'exit', x: e.x, y: e.y, name: e.D.name }); }   // its master falls: a way out for all

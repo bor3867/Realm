@@ -314,7 +314,7 @@ export function makeExplore(DATA,HOST){
     for(const pr of M.props)if(pr.pair&&!(pr.pair.off)){const d=Math.hypot(pr.x+0.5-p.x,pr.y+0.5-p.y);if(d<0.55&&!(E.portT>E.t)){const P=pr.pair,o=pr.end==='a'?[P.bx,P.by]:[P.ax,P.ay];E.portT=E.t+0.9;
       pfx('boom',p.x,p.y,{r:1,c:E.dg.glow});p.x=o[0]+0.5;p.y=o[1]+0.5;pfx('boom',p.x,p.y,{r:1,c:E.dg.glow});if(mod.portal)mod.portal(pr);}}
     if(!E.flowT||E.t-E.flowT>0.25)flowUpdate();
-    for(const e of E.en_){if(e.hp<=0||e.ours)continue;stepEnemy(e,dt);}
+    for(const e of E.en_){if(e.hp<=0||e.ours&&!e.ours.rfHold)continue;stepEnemy(e,dt);}
     for(const e of E.en_)if(e.hp<=0)e.dead=(e.dead||0)+dt;E.en_=E.en_.filter(e=>e.hp>0||e.dead<0.3);
     // enemy shots
     for(const b of E.bul){b.age+=dt;if(b.delay){b.delay-=dt;if(b.delay>0){b.age-=dt;continue;}}if(b.accel)b.v=Math.min(b.max||12,b.v*Math.pow(b.accel,dt));if(b.curve)b.a+=b.curve*dt;b.x+=Math.cos(b.a)*b.v*dt;b.y+=Math.sin(b.a)*b.v*dt;

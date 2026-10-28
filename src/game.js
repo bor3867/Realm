@@ -1969,6 +1969,7 @@ export class Game {
       if ((e.asDormant || e.asWakeT > 0) && this.asDormantTick(e, dt)) continue;      // the Vault Keeper, asleep or waking (src/astral.js)
       if (e.D.ability && this.updateEliteAbility(e, dt, Math.sqrt(d2))) continue;   // an elite using its ability
       if (e.stunT > 0) { e.stunT -= dt; continue; }
+      if (e.rfHold) continue;                                    // (a server's stand-in for a Realmforge creature: their engine moves it)
       if (e.rb) { if (e.D.bx) this.updateBx(e, dt, Math.sqrt(d2)); continue; }   // (every boss is on the three-phase engine: src/bossx.js)
       if (e.kids) {
         e.kids = e.kids.filter((k) => !k.dead);
@@ -2404,6 +2405,7 @@ export class Game {
       if (!e.net) { e.rfSnareHp--; if (!quiet) this.float(x, y - 0.8, e.rfSnareHp > 0 ? `VINES ${e.rfSnareHp}` : 'FREE!', '#7ac85a'); return 0; }
     }
     if (e.rfC || e.rfBossP) return this.rfAbilityHit(e, dmg);   // an rf_ dungeon's creature or boss
+    if (e.rfHold && !e.dead) return this.rfHoldHit(e, dmg);       // a server's stand-in for a Realmforge creature still on their engine
     if (e.dead || e.state === 'dead') return 0;
     if (e.spawnT > 0) return 0;                                  // an elite still arriving
     // (no monster blocks or is guarded any more: the sentinel's ward, a

@@ -53,7 +53,7 @@ patch("if(o.core&&Math.random()<0.3)E.drops.push({k:'potion',x:o.x+1.3,y:o.y+1})
 patch("if(pr.k==='shrine'&&d<1.1){pr.used=1;p.buff=60;", "if(pr.k==='shrine'&&d<1.1){pr.used=1;p.buff=60;HOST.shrine();")
 # one engine (docs/realmforge_port.md, Phase 5): a creature our engine has taken over moves and fights as ours; theirs
 # only keeps its place in their rooms (src/rf/host.js rfLink moves it with ours)
-patch("for(const e of E.en_){if(e.hp<=0)continue;stepEnemy(e,dt);}", "for(const e of E.en_){if(e.hp<=0||e.ours)continue;stepEnemy(e,dt);}")
+patch("for(const e of E.en_){if(e.hp<=0)continue;stepEnemy(e,dt);}", "for(const e of E.en_){if(e.hp<=0||e.ours&&!e.ours.rfHold)continue;stepEnemy(e,dt);}")   # (a server's stand-in for one still theirs: rfHold)
 
 # the Sanctum's sun and shadow, for our engine's creatures there (src/rf/host.js rfShadow)
 patch("    vuln(e){if(e.d.shadeVuln)return sunShadow(e.x,e.y)?0.4:2;},", "    shadow(x,y){return sunShadow(x,y);},\n    vuln(e){if(e.d.shadeVuln)return sunShadow(e.x,e.y)?0.4:2;},")
