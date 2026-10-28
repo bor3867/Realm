@@ -332,14 +332,14 @@ const methods = {
     const served = !!m.netWorld;                                   // (the server runs its creatures: yours stand still, unseen)
     ep.x = p.x; ep.y = p.y; ep.hp = p.hp;
     const bx = ep.x, by = ep.y;
-    if (served) { for (const e of E.en_) if (!e.ours) e.ours = NET_HELD; }
+    if (served) { for (const e of E.en_) if (!e.ours && !KEEP_THEIRS.has(`rf_${R.id}_${e.k}`)) e.ours = NET_HELD; }   // (the kinds their own rooms move stay yours: each player meets their own)
     else this.rfLinkIn();
     this.rfXe().tick(dt);
     if (!served) this.rfLinkOut();
     if (ep.noRegen > E.t) p.noRegenUntil = Math.max(p.noRegenUntil || 0, this.t + (ep.noRegen - E.t));   // their sickness: no regeneration a while
     if (ep.x !== bx || ep.y !== by) { p.x = ep.x; p.y = ep.y; this.unstick(p); }   // their portals, a collapsing floor, a push
     for (const e of E.en_) this.rfScale(e);
-    if (!served) this.rfTheirsTick(dt);
+    this.rfTheirsTick(dt);                                         // (theirs only: yours online are the kinds their rooms move)
     if ((R.tick = (R.tick || 0) + 1) % 3 === 0 || E.ogDirty === 0) this.rfSync(m);
     if (E.pots > R.pots) { for (let k = R.pots; k < E.pots; k++) this.rfPotion(); }
     R.pots = E.pots;
@@ -369,7 +369,7 @@ const methods = {
     for (const e of E.en_) {
       let o = e.ours;
       const id = `rf_${dg}_${e.k}`, fights = e.hp > 0 && e.aggro && !e.dormant && !e.hidden && e.st !== 'gone' && LINK_DG.has(dg) && OURS.has(id) && !KEEP_THEIRS.has(id);
-      if (!o && e.hp > 0 && e.st !== 'gone' && (fights || (this.rfServe && ENEMIES[id]))) {   // ours, or (a server) a stand-in everyone sees while it is still theirs
+      if (!o && e.hp > 0 && e.st !== 'gone' && (fights || (this.rfServe && ENEMIES[id] && !KEEP_THEIRS.has(id)))) {   // ours, or (a server) a stand-in everyone sees while it is still theirs
         o = this.addEnemy(id, e.x, e.y);
         o.hp = e.hp; o.maxHp = e.max; o.seen = true; o.rfE = e; o.squad = e.squad; o.rfSid = e.rfSid; e.ours = o;
         o.rfHold = !fights;
