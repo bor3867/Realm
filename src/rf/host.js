@@ -4,8 +4,8 @@
 // our player stands in for theirs, our shots hit their creatures, their hits hurt us, kills and chests reward us, and
 // our renderer draws all of it (their art, 8 pixels to a tile, drawn at 2x like ours).
 import { makeExplore } from './explore_gen.js';
-import { TID } from '../world/maps.js';
-import { lift, liftA, liftB, R } from '../util.js';
+import { TID, isSolid } from '../world/maps.js';
+import { lift, liftA, liftB, R, TAU } from '../util.js';
 import { rollLoot } from '../data/items.js';
 import { bossData } from './boss.js';
 import { RF_FOE_LANDS } from '../data/rf_foes.js';
@@ -127,6 +127,69 @@ const methods = {
     const k = E.mod.hurt(1, null);
     return k === 0 ? 0 : k || 1;
   },
+  // a creature of theirs, fighting, moves by their own code (explore.js stepEnemy), in our world: it heads at you (round
+  // walls by our flow field when it can't see you), and each kind its own way. Returns true when it moved itself
+  rfMoveStep(e, dt, p, dist) {
+    const D = e.D, m = D.rfMove, t = this.t - e.born, w = e.rfE, hx = w ? w.hx : e.hx, hy = w ? w.hy : e.hy;
+    const spd = (w ? w.spd : D.speed) * (1 - (e.slowF || 0)), a = Math.atan2(p.y - e.y, p.x - e.x), sees = this.seesFoe(e, p);
+    const flowA = () => { const q = this.flowStep(e); return q ? Math.atan2(q[1] - e.y, q[0] - e.x) : null; };
+    const go = (k, off = 0, ang) => {
+      let aa = (ang ?? a) + off;
+      if (!sees && k > 0 && ang == null) { const fa = flowA(); if (fa != null) aa = fa; }
+      this.moveCircle(e, Math.cos(aa) * spd * k * dt, Math.sin(aa) * spd * k * dt, Math.min(0.42, D.r * 0.65));
+    };
+    const rg = D.rg || [4, 7];
+    if (m === 'still') return true;
+    if (m === 'chase') go(1, D.weave ? Math.sin(t * D.weave + hx) * 0.7 : 0);
+    else if (m === 'patrol') go(sees ? 0.9 : 1);
+    else if (m === 'leader') go(0.6, Math.sin(t * 0.8) * 0.5);
+    else if (m === 'formation') { if (!this.formation(e, dt)) go(1); }
+    else if (m === 'drift') go(0.8, Math.sin(t * 1.7 + hy) * 0.9);
+    else if (m === 'kite') { if (dist < rg[0]) go(-0.8); else if (dist > rg[1]) go(0.8); else go(0.5, (Math.PI / 2) * (Math.sin(t * 0.7 + hx) > 0 ? 1 : -1)); }
+    else if (m === 'orbit') {
+      const want = rg[0], radial = dist > want + 0.6 ? 0.7 : dist < want - 0.6 ? -0.7 : 0, tang = a + (Math.PI / 2) * (hx % 2 < 1 ? 1 : -1);
+      this.moveCircle(e, (Math.cos(a) * radial + Math.cos(tang)) * spd * dt, (Math.sin(a) * radial + Math.sin(tang)) * spd * dt, 0.38);
+    } else if (m === 'hop') {
+      e.hopT = (e.hopT || 0) - dt;
+      if (e.hopT <= 0) { e.hopT = D.hopCd || 1.1; e.hopA = sees ? a + (R() - 0.5) * 0.8 : flowA() ?? a; e.hopV = 0.32; }
+      if (e.hopV > 0) { e.hopV -= dt; e.rfHop = true; this.moveCircle(e, Math.cos(e.hopA) * spd * 2.6 * dt, Math.sin(e.hopA) * spd * 2.6 * dt, 0.38); } else e.rfHop = false;
+    } else if (m === 'swoop') { e.sw = (e.sw || 0) + dt; const per = D.per || 3.2; if (e.sw % per < per * 0.45) go(1.5, 0.3); else go(-1.1, 0.6); }
+    else if (m === 'blink') {
+      e.bt = (e.bt ?? 1 + R()) - dt;
+      if (e.bt <= 0) {
+        e.bt = D.blinkCd || 2.6;
+        for (let k = 0; k < 14; k++) {
+          const aa = R() * TAU, rr = 2.5 + R() * 2.5, x = p.x + Math.cos(aa) * rr, y = p.y + Math.sin(aa) * rr;
+          if (!isSolid(this.map, x, y) && (!w || X.roomOf(x, y) === w.room) && this.seesFoe({ x, y }, p)) {
+            this.vx({ k: 'burst', ...liftA(e.x, e.y, 0.5), n: 8, colors: ['#ffffff', '#b888ff'] }); e.x = x; e.y = y; this.vx({ k: 'burst', ...liftA(x, y, 0.5), n: 10, colors: ['#ffffff', '#b888ff'] });
+            break;
+          }
+        }
+      }
+    } else if (m === 'burrow') {                                      // under the ground it can't be hurt; it comes up close by, strikes, dives again
+      e.bt = (e.bt ?? 1.5) - dt;
+      if (e.under) { go(1.1); if (e.bt <= 0 && dist < 3.4) { e.under = false; e.bt = D.up || 2.2; this.vx({ k: 'burst', x: e.x, y: e.y, n: 14, colors: ['#ffffff', '#8a7e6a'] }); } }
+      else if (e.bt <= 0) { e.under = true; e.bt = D.down || 2.4; }
+    } else return false;
+    return true;
+  },
+  // their summoners call their own kind into their rooms (their list: the room counts them), at most so many alive
+  rfSummon(e, A) {
+    const E = this.map.rf.E, w = e.rfE;
+    if (!w) return;
+    const live = E.en_.filter((o) => o.from === w && o.hp > 0).length;
+    if (live >= A.max) return;
+    const k = A.what.slice(`rf_${this.map.rf.id}_`.length);
+    for (let q = 0; q < A.n; q++) {
+      const sx = e.x + Math.cos(q * Math.PI + E.t) * 1.2, sy = e.y + Math.sin(q * Math.PI + E.t) * 1.2;
+      if (X.solidMove(sx, sy)) continue;
+      const o = X.mkEnemy({ k, x: sx, y: sy, room: w.room, aggro: true });
+      o.from = w; o.summoned = 1; this.rfScale(o); E.en_.push(o);
+      this.vx({ k: 'burst', ...this.rfLift(sx, sy), n: 8, colors: ['#ffffff', '#c9ccd8'] });
+    }
+  },
+  // their dungeon's beat (some creatures strike only on it; some only on every other)
+  rfOnBeat(A) { const E = this.map.rf && this.map.rf.E; return !!(E && E.onBeat && (A.parity == null || E.beat % 2 === A.parity)); },
   // their Hall of Mirrors: a monster's shot about to meet a mirror turns back once (as their bullet rule does)
   rfMirror(b, dt) {
     const M = this.map.rf.E.M;
@@ -163,6 +226,7 @@ const methods = {
     this.rfLinkIn();
     X.tick(dt);
     this.rfLinkOut();
+    if (ep.noRegen > E.t) p.noRegenUntil = Math.max(p.noRegenUntil || 0, this.t + (ep.noRegen - E.t));   // their sickness: no regeneration a while
     if (ep.x !== bx || ep.y !== by) { p.x = ep.x; p.y = ep.y; this.unstick(p); }   // their portals, a collapsing floor, a push
     for (const e of E.en_) this.rfScale(e);
     this.rfTheirsTick(dt);
@@ -196,6 +260,7 @@ const methods = {
         if (e.hp > 0 && e.aggro && !e.dormant && !e.hidden && e.st !== 'gone' && LINK_DG.has(dg) && OURS.has(`rf_${dg}_${e.k}`)) {
           const n = this.addEnemy(`rf_${dg}_${e.k}`, e.x, e.y);
           n.hp = e.hp; n.maxHp = e.max; n.seen = true; n.aggro = true; n.rfE = e; n.squad = e.squad; e.ours = n;
+          n.cds = n.D.attacks.map((A) => A.cd * (0.4 + Math.random() * 0.8));   // (their first cooldowns)
         }
         continue;
       }

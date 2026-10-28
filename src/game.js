@@ -1062,7 +1062,7 @@ export class Game {
       p.dir = Math.abs(ax) > Math.abs(ay) ? (ax > 0 ? 'right' : 'left') : (ay > 0 ? 'front' : 'back');
     }
     // regen
-    p.hp = Math.min(this.stat('hp'), p.hp + hpRegen(this.stat('vit')) * dt);
+    if (!(p.noRegenUntil > this.t)) p.hp = Math.min(this.stat('hp'), p.hp + hpRegen(this.stat('vit')) * dt);   // (sick: none)
     p.mp = Math.min(this.stat('mp'), p.mp + mpRegen(this.stat('wis')) * dt);
     // lava
     const ti = this.map.tiles[Math.floor(p.y) * this.map.w + Math.floor(p.x)];
@@ -1409,13 +1409,23 @@ export class Game {
           for (const e of this.enemiesIn(f.x, f.y, f.r)) this.damageEnemy(e, f.dmg, ...lift(e.x, e.y, 0.5), true);
         }
       }
-      if (f.kind === 'pool' && !p.dead && (f.tick = (f.tick || 0) - dt) <= 0 && dist2(p.x, p.y, f.x, f.y) < f.r * f.r) { f.tick = 0.5; this.hurtPlayer(f.dmg, f.by); }   // a hazard a monster leaves behind it: it hurts while you stand in it
+      if (f.kind === 'pool' && !p.dead && dist2(p.x, p.y, f.x, f.y) < f.r * f.r) {
+        if (f.dmg && (f.tick = (f.tick || 0) - dt) <= 0) { f.tick = 0.45; this.hurtPlayer(f.dmg, f.by); }
+        if (f.slow) { p.dragUntil = Math.max(p.dragUntil || 0, this.t + 0.3); p.dragF = 0.55; }
+        if (f.root && !(p.rootT > this.t)) { p.rootT = this.t + 2; p.dragUntil = Math.max(p.dragUntil || 0, this.t + f.root); p.dragF = 0.12; }
+      }   // a hazard a monster leaves behind it: it hurts while you stand in it
       if (f.kind === 'zone' && !f.done && f.t >= f.delay) {   // boss ground slams: telegraphed, then they hurt
         f.done = true;
         const [hx, hy] = [p.x, p.y];
-        if (!p.dead && dist2(hx, hy, f.x, f.y) < f.r * f.r) this.hurtPlayer(f.dmg, f.by);
+        if (!p.dead && dist2(hx, hy, f.x, f.y) < f.r * f.r) {
+          this.hurtPlayer(f.dmg, f.by);
+          if (f.sick) p.noRegenUntil = Math.max(p.noRegenUntil || 0, this.t + f.sick);
+          if (f.poison) this.poison(f.poison);
+          if (f.slowHit) { p.dragUntil = Math.max(p.dragUntil || 0, this.t + f.slowHit.t); p.dragF = f.slowHit.f; }
+        }
+        if (f.pool) this.fx.push({ kind: 'pool', x: f.x, y: f.y, r: f.r, t: 0, life: f.pool.life, dmg: f.pool.dmg, by: f.by, col: TRAIL_COL[f.pool.kind] || '#ff8a2a' });
         this.vx({ k: 'burst', x: f.x, y: f.y, n: 18, colors: f.colors || ['#ff4a5a', '#ffc94a'] });
-        if (f.shards) for (let k = 0; k < f.shards; k++) this.shoot('e', f.x, f.y, (k / f.shards) * TAU + f.t, 4.5, 6, Math.round(f.dmg * 0.5), f.proj || 'quake', 0.38, false, f.by);
+        if (f.shards) for (let k = 0; k < f.shards; k++) this.shoot('e', f.x, f.y, (k / f.shards) * TAU + f.t, f.shardV || 4.5, f.shardV ? f.shardV * 3 : 6, Math.round(f.dmg * (f.shardF || 0.5)), f.proj || 'quake', 0.38, false, f.by);
       }
     }
   }
@@ -1983,7 +1993,7 @@ export class Game {
         this.fx.push({ kind: 'zone', x: e.x, y: e.y, r: D.bomb.r, t: 0, delay: D.bomb.fuse, life: D.bomb.fuse + 0.1, dmg: 0, by: D.name, done: false, colors: ['#8db03a', '#d4ff5a'] });
         continue;
       }
-      if (D.contact && !p.dead && !e.under && (e.contactT = (e.contactT || 0) - dt) <= 0 && d2 < 0.7) { e.contactT = 0.6; this.hurtPlayer(D.contact, D.name); this.touchFx(D); }
+      if (D.contact && !p.dead && !e.under && (e.contactT = (e.contactT || 0) - dt) <= 0 && d2 < (D.touchR ? D.touchR * D.touchR : 0.7)) { e.contactT = D.touchCd || 0.6; this.hurtPlayer(D.contact, D.name); this.touchFx(D); }
       // engaged: within its aggro range, or chasing you still (4 s of memory, out to 1.6x the range: a detour round a
       // wall can take it further from you than where it started, and it must not lose interest halfway round)
       if (d < D.aggro) e.engagedUntil = this.t + 4;
@@ -2012,14 +2022,16 @@ export class Game {
       if (e.state === 'tell') {
         if (e.st <= 0) {
           const atk = D.attacks[e.atk];
-          if (atk.charge) { e.state = 'charge'; e.st = 0.7; const a = angleTo(e.x, e.y, p.x, p.y); e.cvx = Math.cos(a) * atk.charge; e.cvy = Math.sin(a) * atk.charge; }
+          if (atk.charge) { e.state = 'charge'; e.st = atk.chargeT || 0.7; const a = angleTo(e.x, e.y, p.x, p.y); e.cvx = Math.cos(a) * atk.charge; e.cvy = Math.sin(a) * atk.charge; }
           else { e.state = 'attack'; e.st = 0.18; this.firePattern(e, atk); this.speak(e, 'atk', 0.008); if (atk.pick) this.throwPick(e, atk); }
         }
         continue;
       }
       if (e.state === 'charge') {
         this.moveCircle(e, e.cvx * dt, e.cvy * dt, 0.4);
-        if (D.contact && dist2(e.x, e.y, p.x, p.y) < 0.8) { this.hurtPlayer(D.contact, D.name); this.touchFx(D); e.st = 0; }
+        const ca = D.attacks[e.atk], cdmg = (ca && ca.chargeDmg) || D.contact;
+        if (cdmg && dist2(e.x, e.y, p.x, p.y) < 0.8) { this.hurtPlayer(cdmg, D.name); this.touchFx(D); e.st = 0; }
+        if (D.dashTrail && (e.dtT = (e.dtT || 0) - dt) <= 0) { e.dtT = 0.08; this.fx.push({ kind: 'pool', x: e.x, y: e.y, r: 0.5, t: 0, life: 2.5, dmg: D.dashTrail.dmg, by: D.name, col: TRAIL_COL[D.dashTrail.kind] || '#ff8a2a' }); }   // (what it leaves as it rushes)
         if (e.st <= 0) { e.state = 'attack'; e.st = 0.2; this.firePattern(e, D.attacks[e.atk]); }
         continue;
       }
@@ -2037,7 +2049,8 @@ export class Game {
           e.cds[k] -= dt * (1 - (e.slowF || 0) * 0.6) * (e.enraged ? 1.6 : 1) * (e.cuedUntil > this.t ? 1.6 : 1) * (e.rfE && e.rfE.forged ? 1.8 : 1);   // (a Realmforge smith at its anvil works faster)
           const A = D.attacks[k];
           if (A.when && (A.when === 'hot') !== (e.hp < e.maxHp * 0.35)) continue;    // the scorpion's split stinger waits for it to run hot
-          if (e.cds[k] <= 0 && d < A.range + 1 && (!AIMED.has(A.pattern) || (A.mv && A.mv.lob) || this.foe(e) !== p || D.noclip || this.seesFoe(e, p))) {   // (no shot aimed at you through a wall: it comes round first; mortars lob over)
+          if (A.beat && !this.rfOnBeat(A)) continue;               // (a Realmforge creature that strikes on its dungeon's beat)
+          if (e.cds[k] <= 0 && (A.trigger !== undefined ? d <= A.trigger : d < A.range + 1) && (!AIMED.has(A.pattern) || (A.mv && A.mv.lob) || this.foe(e) !== p || D.noclip || this.seesFoe(e, p))) {   // (no shot aimed at you through a wall: it comes round first; mortars lob over)
             e.cds[k] = A.cd * (0.85 + R() * 0.3);
             e.atk = k; e.state = 'tell'; e.st = A.tell / 1000;
             break;
@@ -2075,6 +2088,7 @@ export class Game {
     const D = e.D, ai = D.ai, p = aggro ? this.foe(e) : this.player;
     if (ai === 'satellite') return this.asSatellite(e, dt);          // orrery drones wheel round their acolyte
     if (ai === 'carousel' && this.hmHorse(e, dt, aggro)) return;    // carousel horses ride their circle
+    if (D.rfMove && aggro && this.rfMoveStep(e, dt, p, d)) return;   // a Realmforge creature, fighting: their own movement (src/rf/host.js)
     if (e.fetch) {                                       // the crag dwarf runs to where his pick fell, and picks it up
       if (this.t < e.fetch.land) return;
       const dd = dist(e.x, e.y, e.fetch.x, e.fetch.y);
@@ -2253,7 +2267,7 @@ export class Game {
     e.sk = { vx: Math.cos(a) * s2, vy: Math.sin(a) * s2, t: near ? 0.12 + R() * 0.06 : Math.min(0.16 + R() * 0.1, dd / s2) };
   }
   // what a monster's touch leaves you with (D.touch: poison seconds, or a slow), as a shot's would
-  touchFx(D) { const T = D.touch, p = this.player; if (!T || p.dead) return; if (T.poison) this.poison(T.poison); if (T.slowHit) { p.dragUntil = Math.max(p.dragUntil || 0, this.t + T.slowHit.t); p.dragF = T.slowHit.f; } }
+  touchFx(D) { const T = D.touch, p = this.player; if (!T || p.dead) return; if (T.poison) this.poison(T.poison); if (T.sick) p.noRegenUntil = Math.max(p.noRegenUntil || 0, this.t + T.sick); if (T.slowHit) { p.dragUntil = Math.max(p.dragUntil || 0, this.t + T.slowHit.t); p.dragF = T.slowHit.f; } }
   // a formation: its squad wheels round their leader (D.rad tiles out, D.spin turns a second), spaced evenly
   formation(e, dt) {
     const L = this.active.find((o) => !o.dead && o.D.ai === 'leader' && o.squad === e.squad);
@@ -2278,12 +2292,35 @@ export class Game {
     const [px, py] = this.up(p.x, p.y, 0.4);
     const aim = angleTo(ox, oy, px, py);
     if (e.rb && A.pattern === 'radial') this.vx({ k: 'shake', amt: 2 });
-    const size = A.size || 0.35;
+    const size = A.size || 0.35, nm = e.D ? e.D.name : 'The Unstruck';
     if (A.pattern === 'pulse') { e.pulseUntil = this.t + (A.dur || 0.8); e.pulseC = A.color; return; }   // a pulse: for a moment it pushes you away
-    if (A.pattern === 'raise') { if (this.map.rf) this.rfRaise(e, A); return; }   // a raiser: one of the fallen near it stands again (src/rf/host.js keeps the dead)
+    if (A.pattern === 'raise') { if (this.map.rf) this.rfRaise(e, A); return; }
+    if (A.pattern === 'mark') {                        // circles marked where you stand (and round you), then it lands; a ring from each
+      for (let q = 0; q < A.count; q++) {
+        const x = p.x + (q ? (R() - 0.5) * 3 : 0), y = p.y + (q ? (R() - 0.5) * 3 : 0);
+        this.fx.push({ kind: 'zone', x, y, r: A.r, t: 0, delay: A.at, life: A.at + 0.3, dmg: A.dmg, by: nm, done: false, shards: A.ring, proj: A.proj, shardF: 0.45, shardV: 5, colors: A.color ? [A.color, '#ffffff'] : undefined, sick: A.sick, slowHit: A.slowHit, poison: A.poison });
+      }
+      return;
+    }
+    if (A.pattern === 'trail') { this.fx.push({ kind: 'pool', x: e.x, y: e.y + 0.2, r: A.r, t: 0, life: A.life, dmg: A.dmg, slow: A.slow, root: A.root, by: nm, col: TRAIL_COL[A.kind] || '#8de04a' }); return; }   // what it leaves on the floor
+    if (A.pattern === 'overheat') {                    // it glows, holding still; then a ring, and fire round where it stood
+      e.st = Math.max(e.st, A.wind); e.heatUntil = this.t + A.wind;
+      e.queue.push({ t: A.wind, atk: { ...A, pattern: 'overheatGo' } }); return;
+    }
+    if (A.pattern === 'overheatGo') {
+      for (let q = 0; q < A.count; q++) this.shoot('e', ox, oy, (q / A.count) * TAU, A.speed, A.range, A.dmg, A.proj, size, false, nm);
+      for (let q = 0; q < 4; q++) this.fx.push({ kind: 'pool', x: e.x + Math.cos(q * 1.57) * 0.8, y: e.y + Math.sin(q * 1.57) * 0.8, r: 0.6, t: 0, life: 3, dmg: A.poolDmg, by: nm, col: TRAIL_COL.fire || '#ff8a2a' });
+      return;
+    }
+    if (A.pattern === 'summon') { if (this.map.rf) this.rfSummon(e, A); else { const live = this.enemies.filter((o) => o.from === e && !o.dead).length; for (let q = 0; q < A.n && live + q < A.max; q++) { const s = this.addEnemy(A.what, e.x + Math.cos(q * Math.PI) * 1.2, e.y + Math.sin(q * Math.PI) * 1.2); s.from = e; s.seen = true; this.unstick(s, 0.5); } } return; }
+    if (A.pattern === 'mend') {                        // the most hurt of its kin near it, mended a share
+      let tg = null;
+      for (const o of this.active) if (o !== e && !o.dead && o.hp < o.maxHp && dist2(o.x, o.y, e.x, e.y) < A.r * A.r && (!tg || o.hp / o.maxHp < tg.hp / tg.maxHp)) tg = o;
+      if (tg) { tg.hp = Math.min(tg.maxHp, tg.hp + tg.maxHp * A.amt); this.vx({ k: 'heal', ...liftA(e.x, e.y, 0.6), ...liftB(tg.x, tg.y, 0.6) }); this.float(...lift(tg.x, tg.y, 1.2), '+', '#7aff9a'); }
+      return;
+    }   // a raiser: one of the fallen near it stands again (src/rf/host.js keeps the dead)
     if (A.waves && !isWave) for (let w = 1; w < A.waves; w++) e.queue.push({ t: w * A.gap, atk: A });
     if (A.mv && A.mv.lob) return this.lobVolley(e, A, ox, oy, p);
-    const nm = e.D ? e.D.name : 'The Unstruck';
     if (A.pattern === 'wall') {                        // a marching wall of shots, perpendicular to you
       const perp = aim + Math.PI / 2;
       for (let k = 0; k < A.count; k++) {
@@ -2321,7 +2358,8 @@ export class Game {
     }
     if (A.pattern === 'slam') {                        // a slam: its ground marked round it, then struck, a ring of shots thrown from it
       const delay = A.wind ?? 0.5;
-      this.fx.push({ kind: 'zone', x: e.x, y: e.y, r: A.r || 1.8, t: 0, delay, life: delay + 0.3, dmg: A.dmg, by: nm, done: false, shards: A.count || 0, proj: A.proj, colors: A.colors });
+      this.fx.push({ kind: 'zone', x: e.x, y: e.y, r: A.r || 1.8, t: 0, delay, life: delay + 0.3, dmg: A.dmg, by: nm, done: false, shards: A.count || 0, proj: A.proj, colors: A.colors, shardV: A.shardV, shardF: A.shardF, pool: A.pool });
+      if (A.freeze) e.st = Math.max(e.st, delay);              // (it holds still while it winds up)
       return;
     }
     if (A.pattern === 'beam') {                        // a laser: a thin red warning line, then a searing beam
@@ -2329,13 +2367,18 @@ export class Game {
         dmg: A.dmg, by: nm, hit: false, col: A.col || '#ffd650' });
       return;
     }
-    const tag = (b, k) => { if (A.mv) { b.mv = A.mv; b.cs = A.mv.alt && k % 2 ? -1 : 1; } if (A.chill) b.chill = A.chill; if (A.bounce) { b.bounce = A.bounce; b.life *= 1.6; } if (A.pull) b.pull = A.pull; if (A.ap) b.ap = true; if (A.poison) b.poison = A.poison; if (A.slowHit) b.slowHit = A.slowHit; };   // (poison, a slow: what the shot leaves you with)
+    const tag = (b, k) => { if (A.mv) { b.mv = A.mv; b.cs = A.mv.curveK ? k - (A.count - 1) / 2 : A.mv.alt && k % 2 ? -1 : 1; } if (A.chill) b.chill = A.chill; if (A.bounce) { b.bounce = A.bounce; b.life *= 1.6; } if (A.pull) b.pull = A.pull; if (A.ap) b.ap = true; if (A.poison) b.poison = A.poison; if (A.slowHit) b.slowHit = A.slowHit; if (A.sick) b.sick = A.sick; };   // (poison, a slow: what the shot leaves you with)
     if (A.pattern === 'radial') {
       e.spin = (e.spin || 0) + (A.turn || 0);
-      for (let k = 0; k < A.count; k++) tag(this.shoot('e', ox, oy, e.spin + (k / A.count) * TAU, A.speed, A.range, A.dmg, A.proj, size, false, e.D.name), k);
+      const base = A.fixed ? 0 : A.rot ? (this.t - e.born) * A.rot : A.aimRing ? aim : A.rand ? R() * TAU : e.spin, gap = A.gap ? Math.floor(R() * A.count) : -9;   // (Realmforge's rings: turning, aimed, or anywhere; some with a gap)
+      for (let k = 0; k < A.count; k++) if (k !== gap && k !== gap + 1) tag(this.shoot('e', ox, oy, base + (k / A.count) * TAU, A.speed, A.range, A.dmg, A.proj, size, false, e.D.name), k);
     } else {
+      if (A.seq && !isWave) {                            // a sweep: one shot after another across the arc
+        for (let k = 0; k < A.count; k++) e.queue.push({ t: k * A.seq, atk: { ...A, seq: 0, count: 1, arc: 0, off: A.count > 1 ? (k / (A.count - 1) - 0.5) * A.arc : 0 } });
+        e.queue.sort((a, b) => a.t - b.t); return;
+      }
       for (let k = 0; k < A.count; k++) {
-        const off = A.count > 1 ? (k / (A.count - 1) - 0.5) * (A.arc || 0) : 0;
+        const off = (A.off || 0) + (A.count > 1 ? (k / (A.count - 1) - 0.5) * (A.arc || 0) : 0);
         tag(this.shoot('e', ox, oy, aim + off, A.speed, A.range, A.dmg, A.proj, size, false, e.D.name), k);
       }
     }
@@ -2516,7 +2559,7 @@ export class Game {
       b.ha += Math.max(-M.seek * dt, Math.min(M.seek * dt, da));
     }
     if (M.accel) b.hs = Math.min(b.s0 * (M.max || 3), b.hs + M.accel * dt);
-    if (M.curve) b.ha += M.curve * (b.cs || 1) * dt;
+    if (M.curve) b.ha += M.curve * (b.cs ?? 1) * dt;   // (b.cs 0: the middle shot of a spreading volley flies straight)
     if (M.brake && !b.re && b.t > M.brake) {
       b.hs = Math.max(0.15, b.hs - b.hs * 7 * dt);       // stops dead in the air...
       if (b.t > M.brake + 0.35) {                        // ...then snaps toward you
@@ -3495,6 +3538,7 @@ export class Game {
           if (b.chill) this.addChill(b.chill);
           if (b.sig) this.owSig(b);
           if (b.poison) this.poison(b.poison);
+          if (b.sick) p.noRegenUntil = Math.max(p.noRegenUntil || 0, this.t + b.sick);   // sick: no regeneration for a while
           if (b.slowHit) { p.dragUntil = Math.max(p.dragUntil || 0, this.t + b.slowHit.t); p.dragF = b.slowHit.f; }   // slowed (rooted: nearly still) for a moment
         }
       }
