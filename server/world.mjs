@@ -270,8 +270,12 @@ export function makeWorld(seed, send, where = 'realm') {
         if (nt.length || no.length) for (const q of P.values()) send(q.netId, { t: 'dlog', tiles: nt, objs: no });
       }
       if (sendNow && Math.floor(g.t * 10) % 10 === 0) {            // the bosses here, wherever they are, once a second: for everyone's minimap
-        const list = g.enemies.filter((e) => !e.dead && !e.noLoot && e.nid && (e.rb || (e.D && e.D.bx))).slice(0, 24).map((e) => [e.nid, e.id, Math.round(e.x), Math.round(e.y), (e.D && e.D.biome) || '']);
-        for (const q of P.values()) send(q.netId, { t: 'bosses', list });
+        // (and the heralds and the melon, and the realm's events: a fallen star, a coin thief. Only bosses went, and a
+        // browser knows only the monsters near it: the rest were missing from everyone's minimap. 2026-10-28)
+        const list = g.enemies.filter((e) => !e.dead && !e.noLoot && e.nid && (e.rb || (e.D && e.D.bx) || e.herald || (e.D && e.D.melon))).slice(0, 32)
+          .map((e) => [e.nid, e.id, Math.round(e.x), Math.round(e.y), (e.D && e.D.biome) || '', e.rb || (e.D && e.D.bx) ? 'b' : e.herald ? 'h' : 'm']);
+        const ev = (g.map.events || []).filter((v) => !(v.chest && v.chest.opened) && !(v.e && v.e.dead)).slice(0, 12).map((v) => [v.kind, Math.round(v.e ? v.e.x : v.x), Math.round(v.e ? v.e.y : v.y)]);
+        for (const q of P.values()) send(q.netId, { t: 'bosses', list, ev });
       }
       const ev = out; out = [];
       // to each player: the events near them, and (10 a second) the monsters near them

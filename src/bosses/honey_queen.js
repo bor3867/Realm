@@ -26,7 +26,7 @@ function song(g, e, V) {
   g.banner('The Queen sings... get out of her song!', 1600);
   for (let k = 0; k < 3; k++) e.bx.vol.push({ t: 0.5 + k * 1.1, V: { form: 'special', name: 'notes', k, dmg: V.dmg } });
 }
-function notes(g, e, V) { const n = 10, off = (V.k % 2) * (Math.PI / n); for (let i = 0; i < n; i++) g.bxShot(e, e.x, e.y - 1, off + (i / n) * TAU, { shot: 'note', speed: 2.6, range: 9, dmg: V.dmg || 40 }); }
+function notes(g, e, V) { const n = 10, off = (V.k % 2) * (Math.PI / n); for (let i = 0; i < n; i++) g.bxShotAt(e, e.x, e.y, 1, off + (i / n) * TAU, { shot: 'note', speed: 2.6, range: 9, dmg: V.dmg || 40 }); }
 
 // ---- I: stings in hexes, the swarm, the brood
 function hexsting(g, e, V) {

@@ -2645,7 +2645,10 @@ export class Renderer {
     }
     for (const e of g.activeMap === m ? g.notable : g.enemies) if (e.herald && !e.dead) mark(e.x, e.y, 'miniboss', blink ? '#ff4ad8' : '#ff9ae8', '#05040a', true, 2);   // (a herald: a miniboss)
     for (const e of g.activeMap === m ? g.notable : g.enemies) if (e.D.melon && !e.dead) mark(e.x, e.y, 'star', blink ? '#5ae05a' : '#ff6a7a', '#ffffff', true);
-    for (const ev of m.events || []) {                       // fallen stars and coin thieves
+    // online, the far ones (the server's word, once a second: src/net.js): heralds and the melon your browser hasn't met
+    const NP = m.netWorld && g.net && g.net.bossPinsMap === m ? g.net : null;
+    if (NP) for (const q of NP.bossPins || []) if (q.tag !== 'b' && !NP.byId.has(q.nid)) { if (q.tag === 'h') mark(q.x, q.y, 'miniboss', blink ? '#ff4ad8' : '#ff9ae8', '#05040a', true, 2); else mark(q.x, q.y, 'star', blink ? '#5ae05a' : '#ff6a7a', '#ffffff', true); }
+    for (const ev of NP ? NP.eventPins || [] : m.events || []) {   // fallen stars and coin thieves (online, the server's)
       if (ev.chest && ev.chest.opened) continue;
       if (ev.e && ev.e.dead) continue;
       const x = ev.e ? ev.e.x : ev.x, y = ev.e ? ev.e.y : ev.y;
@@ -2661,7 +2664,7 @@ export class Renderer {
     // Online the server says where the far ones are (src/net.js netBossPins), since it only sends the monsters near you
     const pins = [], seen = new Set();
     for (const e of g.enemies) if (!e.dead && !e.noLoot && (e.rb || (e.D && e.D.bx) || e.rfBossP)) { pins.push({ x: e.x, y: e.y, id: e.id, biome: e.D && e.D.biome, key: e.nid ?? e }); if (e.nid !== undefined) seen.add(e.nid); }
-    if (m.netWorld && g.net && g.net.bossPins && g.net.bossPinsMap === m) for (const q of g.net.bossPins) if (!seen.has(q.nid)) pins.push({ ...q, key: q.nid });
+    if (m.netWorld && g.net && g.net.bossPins && g.net.bossPinsMap === m) for (const q of g.net.bossPins) if (q.tag === 'b' && !seen.has(q.nid)) pins.push({ ...q, key: q.nid });
     // each boss marked loudly: a ring that pulses round it, and when it first appears, a ping spreading out (3 s)
     const born = (this.pinBorn = this.pinBorn || new Map()), now2 = performance.now() / 1000;
     const ring = (x, y, r, col, a) => { const px = Math.round((x - x0) * k), py = Math.round((y - y0) * k); mc.globalAlpha = a; mc.strokeStyle = col; mc.lineWidth = 2; mc.beginPath(); mc.arc(px, py, r, 0, Math.PI * 2); mc.stroke(); mc.globalAlpha = 1; };

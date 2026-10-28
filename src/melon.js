@@ -43,8 +43,8 @@ const methods = {
     }
     return null;
   },
-  spawnMelon(at, announce = true) {
-    if (!at || this.melonAlive()) return null;
+  spawnMelon(at, announce = true, force = false) {          // (force: an admin's, beside one already growing)
+    if (!at || (this.melonAlive() && !force)) return null;
     const e = this.addEnemy('giant_watermelon', at.x, at.y);
     e.hitUp = 0.6; e.melonUntil = this.t + MELON.life;
     if (announce) { this.banner('A Giant Watermelon has ripened somewhere in the realm!', 4200); this.sfx('rare'); }
@@ -58,13 +58,10 @@ const methods = {
       m.melonCheck = MELON.every;
       if (!this.melonAlive() && R() < MELON.p) this.spawnMelon(this.melonSpot(this.player));
     }
-    const e = this.melonAlive();
-    if (e && this.t > e.melonUntil) {                        // rotted: it just sinks away
+    for (const e of this.enemies) if (e.D.melon && !e.dead && this.t > e.melonUntil) {   // rotted: it just sinks away (each of them: an admin may grow several)
       e.dead = true; e.deadT = 9; e.rotted = true;
       this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.4), n: 20, colors: ['#4a6a2a', '#8a6a3a', '#3a3a2a'] });
     }
-    for (const d of m.melonDrops || []) if (!d.done && this.t >= d.at) { d.done = true; this.addBag(d.x, d.y + 0.6, d.items); }
-    if (m.melonDrops) m.melonDrops = m.melonDrops.filter((d) => !d.done);
     if (m.objects.some((o) => o.melonOpen && this.t > o.until)) { m.objects = m.objects.filter((o) => !o.melonOpen || this.t <= o.until); m.ogridDirty = true; }
   },
   melonLoot() {
@@ -74,6 +71,13 @@ const methods = {
     return items.filter((id) => ITEMS[id]);
   },
   // the fruit bursts: juice everywhere; the loot lands as the burst ends, and the halves stay a while
+  // a burst melon's loot lands on the burst's last frame: every frame, on any map, online too (it waited on the realm's
+  // own clock, which a browser in the shared realm doesn't run: online a melon dropped nothing. 2026-10-28)
+  melonDropTick() {
+    const m = this.map;
+    for (const d of m.melonDrops || []) if (!d.done && this.t >= d.at) { d.done = true; this.addBag(d.x, d.y + 0.6, d.items); }
+    if (m.melonDrops) m.melonDrops = m.melonDrops.filter((d) => !d.done);
+  },
   melonBurst(e) {
     const m = this.map;
     for (const dx of [-1.3, 1.3]) this.vx({ k: 'regfx', key: 'mx_effects/juice_splash', x: e.x + dx, y: e.y - 0.2, fps: 10 });   // a splash each side: the burst itself stays in view

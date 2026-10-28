@@ -166,6 +166,10 @@ export const BXF = {
   // ---------------------------------------------------------------- volleys (generic forms; specials live with each boss)
   bxOrigin(e) { return this.up(e.x, e.y, e.hitUp); },      // the middle of its body as drawn (up the screen, whatever the camera's turn)
   bxDmg(e, d) { return Math.round((d || 60) * ((e.bx && e.bx.B.dmgScale) || 1)); },   // the boss's damage scale, for shots made outside bxShot (lobs)
+  // a shot from a point h tiles up the screen from (x, y), whatever the camera's turn, and flying at that height (a
+  // boss's hand, its crown, a drum): lifted with the camera, it stays on its path as the camera turns. (Bosses used to
+  // lift such points by hand, 'y - 0.8', right only with the camera upright. 2026-10-28)
+  bxShotAt(e, x, y, h, a, V, extra) { const b = this.bxShot(e, ...this.up(x, y, h), a, V, extra); if (b && !b.dead) b.h = h; return b; },
   bxShot(e, x, y, a, V, extra) {
     // a dying boss throws nothing more: what its own mechanics still call for comes to nothing (a shot not in play, so the
     // caller can still dress it). Three bosses kept firing through their death clip (tools/check_shot_lifecycle.mjs)
@@ -179,7 +183,9 @@ export const BXF = {
     // how high it flies (src/game.js liftShift): from its body, the body's height; from anywhere else (its planets, a black
     // hole, the floor's rim, a marked tile) the ground's. Every shot used to fly at the body's, so turning the camera threw
     // the others off their sources (and the boss put them back each step: they flickered, high above it). 2026-10-24
-    { const [ox, oy] = this.bxOrigin(e); b.h = Math.hypot(x - ox, y - oy) < 2 ? e.hitUp || 1.4 : 0; }
+    // (2026-10-28: by which it is nearer, its body or its feet: a slam's shards at its feet, under a tall boss, are within
+    // 2 tiles of its body too, took its height, and slid off the floor as the camera turned)
+    b.h = this.shotHeight(e, x, y);
     if (extra) Object.assign(b, extra);
     return b;
   },

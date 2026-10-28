@@ -619,7 +619,7 @@ function allyStep(g, e, B, bal, dt, ph) {
     if (down || S.state === 'morph') continue;
     if (al.role === 'knight') {
       if (m.rfSnareHp > 0) {                               // snared: shoot the vines
-        if (g.t > m.rfSnareUntil) { m.rfSnareHp = 0; m.rfDownUntil = g.t + 6; g.banner('The vines take Sir Rindley down!', 1800); const s = B.shots.seed || {}; for (let k = 0; k < 12; k++) g.shoot('e', m.x, m.y - 0.5, (k / 12) * TAU, s.speed || 5, s.range || 7, Math.round((s.dmg || 70) * bal.bossDmg), `rfx_shots/${B.id}.seed`, 0.35, false, e.D.name); }
+        if (g.t > m.rfSnareUntil) { m.rfSnareHp = 0; m.rfDownUntil = g.t + 6; g.banner('The vines take Sir Rindley down!', 1800); const s = B.shots.seed || {}; for (let k = 0; k < 12; k++) g.shootAt('e', m.x, m.y, 0.5, (k / 12) * TAU, s.speed || 5, s.range || 7, Math.round((s.dmg || 70) * bal.bossDmg), `rfx_shots/${B.id}.seed`, 0.35, false, e.D.name); }
         continue;
       }
       if (m.rfWasSnared) { m.rfWasSnared = false; e.rfStagT = 3; g.banner('Free! Now, together! (the Lord staggers)', 1800); m.rfChg = 0; }
@@ -637,7 +637,7 @@ function allyStep(g, e, B, bal, dt, ph) {
         if (e.rfCurseProg >= P.curse.need) { m.rfCurseUntil = 0; e.rfCurseK = (e.rfCurseK || 0) + 1; e.rfStagT = 2.5; g.banner('You broke the curse! Bless you! (the Lord staggers)', 2000); }
         continue;
       }
-      if (m.rfCursed) { m.rfCursed = false; if (!(e.rfCurseProg >= (P.curse ? P.curse.need : 0))) { m.rfDownUntil = g.t + 5; const s = B.shots.rot || {}; for (let k = 0; k < 14; k++) g.shoot('e', m.x, m.y - 0.5, (k / 14) * TAU, s.speed || 5, s.range || 7, Math.round((s.dmg || 80) * bal.bossDmg), `rfx_shots/${B.id}.rot`, 0.35, false, e.D.name); g.banner('The curse bursts out of her as rot!', 1800); } }
+      if (m.rfCursed) { m.rfCursed = false; if (!(e.rfCurseProg >= (P.curse ? P.curse.need : 0))) { m.rfDownUntil = g.t + 5; const s = B.shots.rot || {}; for (let k = 0; k < 14; k++) g.shootAt('e', m.x, m.y, 0.5, (k / 14) * TAU, s.speed || 5, s.range || 7, Math.round((s.dmg || 80) * bal.bossDmg), `rfx_shots/${B.id}.rot`, 0.35, false, e.D.name); g.banner('The curse bursts out of her as rot!', 1800); } }
       if ((m.rfHeal = (m.rfHeal ?? 2) - dt) <= 0) { m.rfHeal = P.healEvery || 6; e.rfHealK = (e.rfHealK || 0) + 1; }   // a beam of healing (each player's browser heals its own)
       if (P.curse && (e.rfCuT = (e.rfCuT || 0) + dt) >= P.curse.every) { e.rfCuT = 0; m.rfCurseUntil = g.t + P.curse.time; m.rfCursed = true; e.rfCurseProg = 0; g.banner(`"${P.curse.say || 'Sleep, little priest.'}" Sister Honeydew is cursed: stand beside her!`, 2400); }
       if (P.dome) {                                      // the Harvest Moon: her dome near the nearest player, then the sky burns
@@ -705,7 +705,7 @@ function vitreaStep(g, e, B, bal, dt, ph) {
     if (m && m.dead && !m.rfShattered) {                 // shot: it shatters and fires back
       m.rfShattered = true; e.rfBroke[k] = S.t + 2.5;
       const q = who.reduce((a, b) => (Math.hypot(b.x - m.x, b.y - m.y) < Math.hypot(a.x - m.x, a.y - m.y) ? b : a), who[0]), a = Math.atan2(q.y - m.y, q.x - m.x), s = B.shots.sliver || {};
-      for (let j = -1; j <= 1; j++) g.shoot('e', m.x, m.y - 1, a + j * 0.2, s.speed || 7, s.range || 9, Math.round((s.dmg || 90) * bal.bossDmg), `rfx_shots/${B.id}.sliver`, 0.35, false, e.D.name);
+      for (let j = -1; j <= 1; j++) g.shootAt('e', m.x, m.y, 1, a + j * 0.2, s.speed || 7, s.range || 9, Math.round((s.dmg || 90) * bal.bossDmg), `rfx_shots/${B.id}.sliver`, 0.35, false, e.D.name);
     }
     if ((!m || m.dead) && !(e.rfBroke[k] > S.t)) m = e.rfMirrors[k] = mk(at.x, at.y, false);
     if (m && !m.dead) { m.x = at.x; m.y = at.y; }
@@ -718,7 +718,7 @@ function vitreaStep(g, e, B, bal, dt, ph) {
   if (e.rfThHits >= (T.hits || 16)) {
     e.rfThHits = 0; e.rfShufT = T.shuffle; g.banner('The true Vitrea cracks! Every reflection shatters', 2000);
     const s = B.shots.shard || B.shots.sliver || {};
-    for (const m of e.rfMirrors) if (m && !m.dead) { for (let j = 0; j < 8; j++) g.shoot('e', m.x, m.y - 1, (j * TAU) / 8, s.speed || 6, s.range || 7, Math.round((s.dmg || 80) * bal.bossDmg), `rfx_shots/${B.id}.${B.shots.shard ? 'shard' : 'sliver'}`, 0.35, false, e.D.name); m.noLoot = true; m.dead = true; m.deadT = 0; m.rfShattered = true; }
+    for (const m of e.rfMirrors) if (m && !m.dead) { for (let j = 0; j < 8; j++) g.shootAt('e', m.x, m.y, 1, (j * TAU) / 8, s.speed || 6, s.range || 7, Math.round((s.dmg || 80) * bal.bossDmg), `rfx_shots/${B.id}.${B.shots.shard ? 'shard' : 'sliver'}`, 0.35, false, e.D.name); m.noLoot = true; m.dead = true; m.deadT = 0; m.rfShattered = true; }
     e.rfMirrors = []; e.rfBroke = {}; for (let k = 0; k < n - 1; k++) e.rfBroke[k] = S.t + 2.5; e.rfTrue = Math.floor(Math.random() * n);   // (back in a moment)
   }
 }
@@ -846,7 +846,7 @@ function shellStep(g, e, B, bal, dt, C) {
   if (e.rfShSt !== 'done') { e.rfSlotX = mine.x; e.rfSlotY = mine.y; e.x = mine.x; e.y = mine.y; }
   if (e.rfShSt === 'shuffle' || e.rfShSt === 'choose') if ((Z.ct += dt) >= 1) { Z.ct = 0; const s = B.shots.card || {};   // the cabinets throw cards
     for (let i = 0; i < 3; i++) { const c = cup(i), q = who.reduce((a, b) => (Math.hypot(b.x - c.x, b.y - c.y) < Math.hypot(a.x - c.x, a.y - c.y) ? b : a), who[0]), a0 = Math.atan2(q.y - c.y, q.x - c.x);
-      for (const d of [-0.18, 0.18]) g.shoot('e', c.x, c.y - 1, a0 + d, s.speed || 6, s.range || 9, Math.round((s.dmg || 70) * bal.bossDmg), `rfx_shots/${B.id}.card`, 0.35, false, e.D.name); } }
+      for (const d of [-0.18, 0.18]) g.shootAt('e', c.x, c.y, 1, a0 + d, s.speed || 6, s.range || 9, Math.round((s.dmg || 70) * bal.bossDmg), `rfx_shots/${B.id}.card`, 0.35, false, e.D.name); } }
   if (e.rfShSt === 'shuffle') {
     const sw = Z.swaps[Z.k]; if (!sw) { e.rfShSt = 'choose'; e.rfShT = 0; return; }
     const q = Math.min(1, e.rfShT / Z.dur), k = q < 0.5 ? 2 * q * q : 1 - Math.pow(-2 * q + 2, 2) / 2;
@@ -857,8 +857,8 @@ function shellStep(g, e, B, bal, dt, C) {
     return; }
   const open = (i) => { const c = cup(i); e['rfShO' + i] = true; if (i === Z.hid) return;
     const cs = B.shots.card || {}, ds = B.shots.dove || cs;
-    for (let j = 0; j < 10; j++) g.shoot('e', c.x, c.y - 1, (j * TAU) / 10 + 0.2, cs.speed || 6, cs.range || 8, Math.round((cs.dmg || 70) * bal.bossDmg), `rfx_shots/${B.id}.card`, 0.35, false, e.D.name);
-    for (let j = 0; j < 6; j++) g.shoot('e', c.x, c.y - 1, (j * TAU) / 6, ds.speed || 4, ds.range || 8, Math.round((ds.dmg || 70) * bal.bossDmg), `rfx_shots/${B.id}.${B.shots.dove ? 'dove' : 'card'}`, 0.35, false, e.D.name);
+    for (let j = 0; j < 10; j++) g.shootAt('e', c.x, c.y, 1, (j * TAU) / 10 + 0.2, cs.speed || 6, cs.range || 8, Math.round((cs.dmg || 70) * bal.bossDmg), `rfx_shots/${B.id}.card`, 0.35, false, e.D.name);
+    for (let j = 0; j < 6; j++) g.shootAt('e', c.x, c.y, 1, (j * TAU) / 6, ds.speed || 4, ds.range || 8, Math.round((ds.dmg || 70) * bal.bossDmg), `rfx_shots/${B.id}.${B.shots.dove ? 'dove' : 'card'}`, 0.35, false, e.D.name);
     g.vx({ k: 'burst', x: c.x, y: c.y - 1, n: 16, colors: ['#ffffff', '#ffd690', '#ff6a8a'] }); };
   if (e.rfShSt === 'choose') {
     let on = -1; for (let i = 0; i < 3; i++) { const c = cup(i); if (who.some((p) => !p.dead && Math.hypot(p.x - c.x, p.y - (c.y + 0.4)) < 1.3)) on = i; }
@@ -898,7 +898,7 @@ function ritualStep(g, e, B, bal, dt, R) {
   else if (e.rfRitT >= R.cast) {
     e.rfRit = ''; e.rfRitT = 0; e.rfRitFail = (e.rfRitFail || 0) + 1;
     const s = B.shots[R.s] || {}, n = R.n || 28;
-    for (let i = 0; i < n; i++) g.shoot('e', e.x, e.y - 0.5, (i * TAU) / n + 0.1, s.speed || 5, s.range || 9, Math.round((s.dmg || 70) * bal.bossDmg), `rfx_shots/${B.id}.${R.s}`, 0.35, false, e.D.name);
+    for (let i = 0; i < n; i++) g.shootAt('e', e.x, e.y, 0.5, (i * TAU) / n + 0.1, s.speed || 5, s.range || 9, Math.round((s.dmg || 70) * bal.bossDmg), `rfx_shots/${B.id}.${R.s}`, 0.35, false, e.D.name);
     g.banner(R.done || 'It is done!', 2200);
   }
 }
@@ -986,7 +986,7 @@ const KINDS = new Set(['segside', 'segout', 'staff', 'along', 'chess', 'aim', 'r
 function tickMinions(g, e, B, bal, dt) {
   for (const m of e.rfMins || []) {
     if (!m.dead && m.rfLife > 0 && (m.rfLife -= dt) <= 0) { m.noLoot = true; g.damageEnemy(m, 1e9, m.x, m.y, true); }
-    if (m.dead && m.rfBurst && !m.rfBurst.done) { m.rfBurst.done = true; const s = B.shots[m.rfBurst.s]; if (s) for (let k = 0; k < m.rfBurst.n; k++) g.shoot('e', m.x, m.y - 0.3, (k * TAU) / m.rfBurst.n, s.speed || 5, s.range || 6, Math.round((s.dmg || 50) * bal.bossDmg), `rfx_shots/${B.id}.${m.rfBurst.s}`, 0.35, false, e.D.name); }
+    if (m.dead && m.rfBurst && !m.rfBurst.done) { m.rfBurst.done = true; const s = B.shots[m.rfBurst.s]; if (s) for (let k = 0; k < m.rfBurst.n; k++) g.shootAt('e', m.x, m.y, 0.3, (k * TAU) / m.rfBurst.n, s.speed || 5, s.range || 6, Math.round((s.dmg || 50) * bal.bossDmg), `rfx_shots/${B.id}.${m.rfBurst.s}`, 0.35, false, e.D.name); }
   }
 }
 

@@ -233,6 +233,15 @@ export class Game {
   // carries that height (b.h). When the camera turns, "up" turns with it, so every shot moves by the change: a ring stays
   // centred on the boss that fired it, and your own hitbox (lifted the same way) stays where the shots are. (2026-10-24:
   // turning the camera slid a boss's rings away from it.)
+  // a shot from a point h tiles up the screen from (x, y), whatever the camera's turn, flying at that height (see bxShotAt)
+  shootAt(from, x, y, h, ...rest) { const b = this.shoot(from, ...this.up(x, y, h), ...rest); b.h = h; return b; }
+  // how high a shot of a monster's flies, by where it left: nearer the middle of its body (as drawn), the body's height;
+  // nearer its feet, or far from it (the floor, a ground mark, a thing it set down: a lob's landing), the ground's
+  shotHeight(S, x, y) {
+    if (!Number.isFinite(S.x) || !Number.isFinite(S.y)) return 0;
+    const H = S.hitUp || (S.rb ? 1.4 : 0.5), [ox, oy] = this.up(S.x, S.y, H), d0 = Math.hypot(x - ox, y - oy), dg = Math.hypot(x - S.x, y - S.y);
+    return d0 < 2.5 && d0 <= dg ? H : 0;
+  }
   liftShift(a0, a1) {
     const sx = Math.sin(a1) - Math.sin(a0), cy = Math.cos(a1) - Math.cos(a0);
     for (const b of this.projectiles || []) { const h = b.h ?? 0.5; b.x -= h * sx; b.y -= h * cy; if (b.lob) { b.lob.x0 -= h * sx; b.lob.y0 -= h * cy; } }
@@ -976,6 +985,7 @@ export class Game {
     this.updateProjectiles(dt);
     this.updateWorld(dt);
     if (this.map.kind === 'realm' && !this.map.netWorld) { this.owTick(dt); this.maintainRealm(dt); this.eventClock(dt); this.melonTick(dt); this.eventBossTick(dt); }
+    if (this.map.melonDrops) this.melonDropTick();               // (a burst melon's loot: on any map, online too)
     this.updateEliteAuras(dt);
     if (this.map.rf) this.rfUpdate(dt);
     else if (this.map.rfBoss) this.rfBossUpdate(dt);
@@ -1429,7 +1439,7 @@ export class Game {
         }
         if (f.pool) this.fx.push({ kind: 'pool', x: f.x, y: f.y, r: f.r, t: 0, life: f.pool.life, dmg: f.pool.dmg, by: f.by, col: TRAIL_COL[f.pool.kind] || '#ff8a2a' });
         this.vx({ k: 'burst', x: f.x, y: f.y, n: 18, colors: f.colors || ['#ff4a5a', '#ffc94a'] });
-        if (f.shards) for (let k = 0; k < f.shards; k++) this.shoot('e', f.x, f.y, (k / f.shards) * TAU + f.t, f.shardV || 4.5, f.shardV ? f.shardV * 3 : 6, Math.round(f.dmg * (f.shardF || 0.5)), f.proj || 'quake', 0.38, false, f.by);
+        if (f.shards) for (let k = 0; k < f.shards; k++) { const s = this.shoot('e', f.x, f.y, (k / f.shards) * TAU + f.t, f.shardV || 4.5, f.shardV ? f.shardV * 3 : 6, Math.round(f.dmg * (f.shardF || 0.5)), f.proj || 'quake', 0.38, false, f.by); s.h = 0; }   // (from the ground: they stay on it as the camera turns)
       }
     }
   }
@@ -1729,7 +1739,7 @@ export class Game {
     const b = { from, x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, life: range / Math.max(0.01, speed),
       dmg, sprite, r: size, pierce, hit: pierce ? new Set() : null, a, by };
     b.k = shotScale(sprite, size, from);                      // big art is drawn (and hits) at the size its attack meant
-    const S = from === 'e' ? this.curShooter : null; b.h = S ? S.hitUp || (S.rb ? 1.4 : 0.5) : 0.5;   // how high it flies (see liftShift)
+    const S = from === 'e' ? this.curShooter : null; b.h = S ? this.shotHeight(S, x, y) : 0.5;   // how high it flies (see liftShift)
     this.projectiles.push(b);
     if (from === 'p' && this.net) this.netShot(b);            // others see your shots (src/net.js)
     if (from === 'p' && this.player && !this.netTargets) this.player.shotsFired = (this.player.shotsFired || 0) + 1;   // (for the death screen)
@@ -2786,7 +2796,7 @@ export class Game {
         }
       } else if (f.kind === 'mine' && !f.done && f.t >= f.life - 0.02) {   // a star mine bursts
         f.done = true;
-        for (let k = 0; k < f.shards; k++) this.shoot('e', f.x, f.y, (k / f.shards) * TAU, 4.5, 6, f.dmg, f.proj, 0.4, false, f.by);
+        for (let k = 0; k < f.shards; k++) this.shoot('e', f.x, f.y, (k / f.shards) * TAU, 4.5, 6, f.dmg, f.proj, 0.4, false, f.by).h = 0;   // (from the ground: they stay on it as the camera turns)
         this.vx({ k: 'burst', x: f.x, y: f.y, n: 12, colors: ['#ffffff', '#ffe45c', '#8af6ff'] });
       } else if (f.kind === 'constellation' && f.t >= f.tele && !p.dead) {   // the lines between the stars burn
         f.hitT -= dt;
@@ -4308,8 +4318,8 @@ export class Game {
       }
       case 'melon': {                                      // /melon: a Giant Watermelon right here
         if (this.map.kind !== 'realm') { say('Melons only grow in the realm.'); break; }
-        const e = this.spawnMelon({ x: p.x + 3.5, y: p.y + 0.5 }, false);
-        say(e ? 'A Giant Watermelon plops down beside you.' : 'One is already growing somewhere.');
+        const e = this.spawnMelon({ x: p.x + 3.5, y: p.y + 0.5 }, false, true);   // (another, even with one growing)
+        say(e ? 'A Giant Watermelon plops down beside you.' : 'No room for a melon here.');
         break;
       }
       case 'killall': {                                    // /killall [R]: every monster within R tiles (15), immune or not

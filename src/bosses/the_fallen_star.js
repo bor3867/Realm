@@ -88,7 +88,7 @@ export default {
   update(g, e, dt) {
     const S = e.bx; if (S.state === 'sleep' || S.state === 'intro') return;
     if ((e.fsMines || []).length && (e.fsLineT = (e.fsLineT ?? 1.2) - dt) <= 0) { e.fsLineT = S.phase === 3 ? 1.4 : 1.9; lines(g, e); }
-    const C = e.fsRun; if (C && g.t >= C.at) { if (g.t >= C.until) e.fsRun = null; else { const k = (g.t - C.at) / (C.until - C.at); e.x = C.x0 + (C.x1 - C.x0) * k; e.y = C.y0 + (C.y1 - C.y0) * k; if (Math.random() < 0.4) g.bxShot(e, e.x, e.y - 1, R() * TAU, { shot: 'ember', speed: 2.5, range: 6, dmg: 50 }); } }
+    const C = e.fsRun; if (C && g.t >= C.at) { if (g.t >= C.until) e.fsRun = null; else { const k = (g.t - C.at) / (C.until - C.at); e.x = C.x0 + (C.x1 - C.x0) * k; e.y = C.y0 + (C.y1 - C.y0) * k; if (Math.random() < 0.4) g.bxShotAt(e, e.x, e.y, 1, R() * TAU, { shot: 'ember', speed: 2.5, range: 6, dmg: 50 }); } }
   },
   // in your own browser: when the supernova lands, a mine's shadow is the only shelter
   local(g, e) { if (e.net && e.fsNovaUntil > 0 && g.t >= e.fsNovaUntil && e.fsNovaSeen !== e.fsNovaUntil) { e.fsNovaSeen = e.fsNovaUntil; novaHits(g, e); } },

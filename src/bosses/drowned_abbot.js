@@ -126,7 +126,7 @@ function toll(g, e, V) {                                    // a bell tolls by i
   hangBells(g, e);
   const B = e.abBells[Math.floor(R() * e.abBells.length)]; if (!B) return;
   B.abRingUntil = g.t + 1; const n = 20, gap = Math.floor(R() * n);
-  for (let i = 0; i < n; i++) { if (((i - gap + n) % n) < 3) continue; g.bxShot(e, B.x, B.y - 1, (i / n) * TAU, { shot: 'toll', speed: 3.2, range: 13, dmg: V.dmg || 55 }); }
+  for (let i = 0; i < n; i++) { if (((i - gap + n) % n) < 3) continue; g.bxShotAt(e, B.x, B.y, 1, (i / n) * TAU, { shot: 'toll', speed: 3.2, range: 13, dmg: V.dmg || 55 }); }
 }
 
 // ---- last: THE LAST VERSE. Ring all four before he finishes it

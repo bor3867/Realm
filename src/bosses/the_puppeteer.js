@@ -41,7 +41,7 @@ function trapdoor(g, e, V) {
 function trapStep(g, e) {
   if (!(e.lpTrapUntil > 0) || g.t < e.lpTrapUntil) return;
   e.lpTrapUntil = 0; e.x = e.lpH2x; e.y = e.lpH2y; hide(e, false);            // up he comes, in a ring of ribbons
-  for (let k = 0; k < 16; k++) { const b = g.bxShot(e, e.x, e.y - 1, (k / 16) * TAU, { shot: 'ribbon', speed: 5, range: 11, dmg: e.lpTrapDmg }); if (b) { b.mv = { d4: true, serp: 2.2 }; } }
+  for (let k = 0; k < 16; k++) { const b = g.bxShotAt(e, e.x, e.y, 1, (k / 16) * TAU, { shot: 'ribbon', speed: 5, range: 11, dmg: e.lpTrapDmg }); if (b) { b.mv = { d4: true, serp: 2.2 }; } }
   g.vx({ k: 'shake', amt: 5 });
 }
 // ---- jigs, scissors, the bow
@@ -90,7 +90,7 @@ const finale = {
     if ((e.lpBowT -= dt) <= 0) {                              // he bows: outside a spotlight, the strings take you
       e.lpBowT = 3; e.lpBows++; e.lpBowUntil = g.t + 0.6; g.float(e.x, e.y - 3.5, 'BRAVO!', '#f2d070');
       if (!g.netTargets) bowHits(g, e);
-      for (let k = 0; k < 20; k++) g.bxShot(e, e.x, e.y - 1, (k / 20) * TAU + e.lpBows * 0.15, { shot: 'mask', speed: 3.6, range: 12, dmg: 60 });
+      for (let k = 0; k < 20; k++) g.bxShotAt(e, e.x, e.y, 1, (k / 20) * TAU + e.lpBows * 0.15, { shot: 'mask', speed: 3.6, range: 12, dmg: 60 });
     }
   },
   end(g, e) { e.lpSpots = 0; },
@@ -105,7 +105,7 @@ function bowHits(g, e) {
 function strung(g, e, V) {                                // strings strung across your path ahead: they hang a moment, glinting, then drift at you
   if (!running(e)) return;
   const [x, y] = ahead(g, e, 0.6), [hx, hy] = heading(e);
-  for (let k = -2; k <= 2; k++) g.bxShot(e, x - hy * k * 0.75, y + hx * k * 0.75 - 0.4, Math.atan2(-hy, -hx), { shot: 'string', speed: 2.2, range: 4, dmg: V.dmg || 72, mv: { hold: 0.55 } });
+  for (let k = -2; k <= 2; k++) g.bxShotAt(e, x - hy * k * 0.75, y + hx * k * 0.75, 0.4, Math.atan2(-hy, -hx), { shot: 'string', speed: 2.2, range: 4, dmg: V.dmg || 72, mv: { hold: 0.55 } });
 }
 
 export default {
@@ -148,7 +148,7 @@ export default {
   local(g, e, dt) {
     const p = g.player, A = arena(e); if (p.dead) return;
     if (e.lpMimicUntil > g.t) { const mx = 2 * (A.x + A.w / 2) - p.x, my = 2 * (A.y + A.h / 2) - p.y;
-      if (p.lastShot > 0 && p.lastShot !== e.lpMimLast) { e.lpMimLast = p.lastShot; if ((e.lpMimCd = (e.lpMimCd || 0)) <= g.t) { e.lpMimCd = g.t + 0.35; g.shoot('e', mx, my - 0.6, angleTo(mx, my, p.x, p.y), 8, 14, g.bxDmg(e, 60), 'hollow_shots/the_puppeteer.string', 0.35, false, 'your mirror-puppet'); } } }
+      if (p.lastShot > 0 && p.lastShot !== e.lpMimLast) { e.lpMimLast = p.lastShot; if ((e.lpMimCd = (e.lpMimCd || 0)) <= g.t) { e.lpMimCd = g.t + 0.35; g.shootAt('e', mx, my, 0.6, angleTo(mx, my, p.x, p.y), 8, 14, g.bxDmg(e, 60), 'hollow_shots/the_puppeteer.string', 0.35, false, 'your mirror-puppet'); } } }
     if (e.lpCurtW > 0.3 && (p.x < A.x + e.lpCurtW || p.x > A.x + A.w - e.lpCurtW) && (e.lpCurtHitT = (e.lpCurtHitT || 0) - dt) <= 0) { e.lpCurtHitT = 0.5; g.hurtPlayer(g.bxDmg(e, 60), `${e.D.name}'s curtain`); }
     if (e.net && e.lpBowUntil > g.t && e.lpBowSeen !== e.lpBowUntil) { e.lpBowSeen = e.lpBowUntil; bowHits(g, e); }
   },

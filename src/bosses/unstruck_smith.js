@@ -34,7 +34,7 @@ function anvilRing(g, e, V) {
 }
 function anvilWave(g, e, V) {
   const [ax, ay] = anvil(e), n = 22, gap = Math.floor(R() * n), off = V.k * 0.14;
-  for (let i = 0; i < n; i++) { if (((i - gap + n) % n) < 3) continue; g.bxShot(e, ax, ay - 0.5, off + (i / n) * TAU, { shot: 'spark', speed: 4 + V.k * 0.6, range: 14, dmg: V.dmg }); }
+  for (let i = 0; i < n; i++) { if (((i - gap + n) % n) < 3) continue; g.bxShotAt(e, ax, ay, 0.5, off + (i / n) * TAU, { shot: 'spark', speed: 4 + V.k * 0.6, range: 14, dmg: V.dmg }); }
 }
 // ---- the quench: steam rises from the floor in a checkerboard, then the other squares
 function quench(g, e, V) {
@@ -118,7 +118,7 @@ export default {
         e.x = C.x0 + (C.x1 - C.x0) * k; e.y = C.y0 + (C.y1 - C.y0) * k;
         if ((C.spark -= dt) <= 0) {                          // sparks thrown off to either side
           C.spark = 0.12; const a = angleTo(C.x0, C.y0, C.x1, C.y1);
-          for (const s of [-1, 1]) g.bxShot(e, e.x, e.y - 1, a + s * Math.PI / 2, { shot: 'spark', speed: 4, range: 6, dmg: 110 });
+          for (const s of [-1, 1]) g.bxShotAt(e, e.x, e.y, 1, a + s * Math.PI / 2, { shot: 'spark', speed: 4, range: 6, dmg: 110 });
         }
         return;
       }

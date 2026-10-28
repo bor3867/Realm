@@ -39,11 +39,11 @@ function beat(g, e) {
 function arteries(g, e, V) {                               // rings of blood, each turned half a step
   for (let k = 0; k < (V.rings || 2); k++) e.bx.vol.push({ t: k * 0.3, V: { form: 'special', name: 'bloodRing', k, dmg: V.dmg } });
 }
-function bloodRing(g, e, V) { const n = 24, off = (V.k % 2) * (Math.PI / n); for (let i = 0; i < n; i++) g.bxShot(e, e.x, e.y - 1, off + (i / n) * TAU, { shot: 'blood', speed: 3.8, range: 12, dmg: V.dmg || 120 }); }
+function bloodRing(g, e, V) { const n = 24, off = (V.k % 2) * (Math.PI / n); for (let i = 0; i < n; i++) g.bxShotAt(e, e.x, e.y, 1, off + (i / n) * TAU, { shot: 'blood', speed: 3.8, range: 12, dmg: V.dmg || 120 }); }
 function shards(g, e, V) {                                 // gold shards off its scars, at you, in waves
   for (let w = 0; w < (V.waves || 3); w++) e.bx.vol.push({ t: w * 0.22, V: { form: 'special', name: 'shardFan', w, dmg: V.dmg } });
 }
-function shardFan(g, e, V) { const q = target(g, e), a = angleTo(e.x, e.y - 1, q.x, q.y); for (let k = -3; k <= 3; k++) g.bxShot(e, e.x, e.y - 1, a + k * 0.16 + (V.w % 2) * 0.08, { shot: 'kintsugi', speed: 8, range: 12, dmg: V.dmg || 130 }); }
+function shardFan(g, e, V) { const q = target(g, e), a = angleTo(e.x, e.y - 1, q.x, q.y); for (let k = -3; k <= 3; k++) g.bxShotAt(e, e.x, e.y, 1, a + k * 0.16 + (V.w % 2) * 0.08, { shot: 'kintsugi', speed: 8, range: 12, dmg: V.dmg || 130 }); }
 
 // ---- II: the saints, and their prayers
 const SAINT = 'fh_saint';
@@ -81,13 +81,13 @@ function prayers(g, e, dt) {
 function choir(g, e, V) {                                  // prayer-light, out of it in a turning spiral
   for (let k = 0; k < 14; k++) e.bx.vol.push({ t: k * 0.12, V: { form: 'special', name: 'choirArm', k, dmg: V.dmg } });
 }
-function choirArm(g, e, V) { for (let i = 0; i < 4; i++) g.bxShot(e, e.x, e.y - 1, V.k * 0.21 + (i * TAU) / 4, { shot: 'prayer', speed: 3.6, range: 12, dmg: V.dmg || 110 }); }
+function choirArm(g, e, V) { for (let i = 0; i < 4; i++) g.bxShotAt(e, e.x, e.y, 1, V.k * 0.21 + (i * TAU) / 4, { shot: 'prayer', speed: 3.6, range: 12, dmg: V.dmg || 110 }); }
 
 // ---- III: the eye, and the breathing room
 function gaze(g, e, V) {                                   // the eye looks at each of you: a marked line, then it burns
   for (const q of players(g)) { const a = angleTo(e.x, e.y - 1, q.x, q.y), L = reach(e) * 1.4;
     g.fx.push({ kind: 'laser', x0: e.x, y0: e.y - 1, a, len: L, t: 0, tele: V.tele || 0.9, act: 0.45, life: (V.tele || 0.9) + 0.55, dmg: g.bxDmg(e, V.dmg || 150), by: e.D.name, hit: false });
-    g.bxShot(e, e.x, e.y - 1, a + 0.35, { shot: 'gaze', speed: 5, range: 12, dmg: 110 }); g.bxShot(e, e.x, e.y - 1, a - 0.35, { shot: 'gaze', speed: 5, range: 12, dmg: 110 }); }
+    g.bxShotAt(e, e.x, e.y, 1, a + 0.35, { shot: 'gaze', speed: 5, range: 12, dmg: 110 }); g.bxShotAt(e, e.x, e.y, 1, a - 0.35, { shot: 'gaze', speed: 5, range: 12, dmg: 110 }); }
 }
 
 // ---- last: THE LAST BEAT. It races, it stops, and in the silence the gold scars glow: stand in one

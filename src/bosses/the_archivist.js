@@ -55,7 +55,7 @@ function recite(g, e, V) {
   slots.forEach((on, i) => {
     if (!on) return;
     const s = off + (i + 0.5) * sp;
-    if (vertical) g.bxShot(e, A.x + s, from ? A.y + 0.4 : A.y + A.h - 0.4, from ? Math.PI / 2 : -Math.PI / 2, { shot: 'glyph', speed: V.speed || 2.8, range: A.h - 0.6, dmg: V.dmg || 60 });
+    if (vertical) g.bxShotAt(e, A.x + s, from ? A.y + 0.4 : A.y + A.h, 0.4, from ? Math.PI / 2 : -Math.PI / 2, { shot: 'glyph', speed: V.speed || 2.8, range: A.h - 0.6, dmg: V.dmg || 60 });
     else g.bxShot(e, from ? A.x + 0.4 : A.x + A.w - 0.4, A.y + s, from ? 0 : Math.PI, { shot: 'glyph', speed: V.speed || 2.8, range: A.w - 0.6, dmg: V.dmg || 60 });
   });
 }
@@ -84,13 +84,13 @@ function copyStep(g, e, dt) {
   e.arLaughT = (e.arLaughT || 0) - dt;
   if (m.hp < m.arLast) {                                    // struck: the original laughs
     if (e.arLaughT <= 0) { e.arLaughT = 0.6; e.hp = Math.min(e.maxHp, e.hp + Math.round(e.maxHp * 0.006)); e.arLaughs = (e.arLaughs || 0) + 1;
-      g.float(e.x, e.y - 3.2, 'HA HA HA', '#8a3ad8'); for (let i = 0; i < 10; i++) g.bxShot(e, e.x, e.y - 1.5, (i / 10) * TAU, { shot: 'ink', speed: 4, range: 9, dmg: 55 }); }
+      g.float(e.x, e.y - 3.2, 'HA HA HA', '#8a3ad8'); for (let i = 0; i < 10; i++) g.bxShotAt(e, e.x, e.y, 1.5, (i / 10) * TAU, { shot: 'ink', speed: 4, range: 9, dmg: 55 }); }
   }
   if (m.hp < 5e5) m.hp = m.maxHp;
   m.arLast = m.hp;
   if ((m.arFireT = (m.arFireT ?? 1.4) - dt) <= 0) {          // it reads too: ink at you
     m.arFireT = 1.6; const q = target(g, m), a = angleTo(m.x, m.y - 1.5, q.x, q.y);
-    for (let k = -1; k <= 1; k++) g.bxShot(e, m.x, m.y - 1.5, a + k * 0.25, { shot: 'ink', speed: 5, range: 11, dmg: 50 });
+    for (let k = -1; k <= 1; k++) g.bxShotAt(e, m.x, m.y, 1.5, a + k * 0.25, { shot: 'ink', speed: 5, range: 11, dmg: 50 });
   }
   if ((e.arSwapT = (e.arSwapT ?? 9) - dt) <= 0) {            // they trade places, in a flurry of pages
     e.arSwapT = 9; const x = e.x, y = e.y; e.x = m.x; e.y = m.y; m.x = x; m.y = y;

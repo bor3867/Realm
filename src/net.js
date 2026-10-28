@@ -101,7 +101,7 @@ const methods = {
         if (Array.isArray(s.d)) b.dust = s.d;                 // (its trail, as its owner sees it)
       }
     } else if (m.t === 'ws') this.netWorldState(m);
-    else if (m.t === 'bosses') { N.bossPins = (m.list || []).map(([nid, id, x, y, biome]) => ({ nid, id, x, y, biome })); N.bossPinsMap = this.map; }   // where the bosses here are, near or far (for the minimap)
+    else if (m.t === 'bosses') { N.bossPins = (m.list || []).map(([nid, id, x, y, biome, tag]) => ({ nid, id, x, y, biome, tag: tag || 'b' })); N.eventPins = (m.ev || []).map(([kind, x, y]) => ({ kind, x, y })); N.bossPinsMap = this.map; }   // where the bosses here are, near or far (for the minimap)
     else if (m.t === 'wev') this.netWorldEvents(m.ev);
     else if (m.t === 'wlog') { if (this.map.netWorld) { for (const a of m.tiles) this.netTile(a); for (const o of m.objs) this.netObj(o); } }
     else if (m.t === 'portal') {                          // a dungeon opened in the shared realm: everyone's way in

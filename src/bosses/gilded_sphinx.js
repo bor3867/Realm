@@ -55,7 +55,7 @@ function swarm(g, e) {
 function obeliskSand(g, e, V) {
   const S = e.bx, [cx, cy] = centre(e), p = g.player, k = (S.obK = ((S.obK || 0) + 1) % 4), a = Math.PI / 4 + k * Math.PI / 2;
   const x = cx + Math.cos(a) * 9.5, y = cy + Math.sin(a) * 9.5;
-  for (const off of [-0.16, 0, 0.16]) g.bxShot(e, x, y - 1, angleTo(x, y - 1, p.x, p.y) + off, { shot: 'sand_crescent', speed: 5.5, range: 20, dmg: V.dmg || 60, mv: { curve: off * 3.2 } });
+  for (const off of [-0.16, 0, 0.16]) g.bxShotAt(e, x, y, 1, angleTo(x, y - 1, p.x, p.y) + off, { shot: 'sand_crescent', speed: 5.5, range: 20, dmg: V.dmg || 60, mv: { curve: off * 3.2 } });
   g.vx({ k: 'burst', x, y: y - 1, n: 5, colors: ['#ffd650', '#e8cf96'] });
 }
 // moulting (P2 pressure): as it glides between obelisks it sheds feathers that drift down onto the floor below it

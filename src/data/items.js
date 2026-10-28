@@ -1125,10 +1125,10 @@ function gated(slot, t, rank) {
   return Math.min(t, cap);
 }
 export function rollLoot(table, luck = 1, rank = 'mob') {
-  const out = [];
+  const out = [], named = [];                               // (named: a table's own items, kept first when a full bag is cut to eight)
   for (const e of table) {
     if (R() > e.p * luck) continue;
-    if (e.id) out.push(maybeEnchant(e.id));
+    if (e.id) (/^(pot_|stat_)/.test(e.id) ? out : named).push(maybeEnchant(e.id));
     else if (e.stat) out.push(`stat_${R.pick(STATS)}`);
     else {
       // e.type / e.ring: that kind exactly (an overworld boss lists every class's); e.ladder: its tiers are today's,
@@ -1141,7 +1141,9 @@ export function rollLoot(table, luck = 1, rank = 'mob') {
       }
     }
   }
-  return out.slice(0, 8);
+  // a bag holds eight: what is cut is ordinary gear, never a table's own item (a boss's relic added after its bag was
+  // laid out sat last in its table, and a full bag cut it: the Forgeheart's band never dropped. 2026-10-28)
+  return [...named, ...out].slice(0, 8);
 }
 
 // ---- quirks

@@ -53,7 +53,7 @@ function stars(g, e, V) {                           // stars fall where the play
   const [ox, oy] = g.bxOrigin(e);
   for (const q of players(g)) for (let k = 0; k < (V.n || 3); k++) {
     const a = R() * TAU, d = k ? 1.5 + R() * 2.5 : 0, x1 = q.x + Math.cos(a) * d, y1 = q.y + Math.sin(a) * d;
-    const b = g.shoot('e', ox, oy - 1, angleTo(ox, oy, x1, y1), 6, 99, g.bxDmg(e, V.dmg || 130), 'ug_shots/unstruck_god.star', 0.45, false, e.D.name);
+    const b = g.shootAt('e', ox, oy, 1, angleTo(ox, oy, x1, y1), 6, 99, g.bxDmg(e, V.dmg || 130), 'ug_shots/unstruck_god.star', 0.45, false, e.D.name);
     b.bxOf = e;
     b.lob = { x0: ox, y0: oy - 1, x1, y1, t: 0, T: 1.3 + k * 0.25, h: 46, n: 8, r: 1.3, ss: 4.5, sprite: 'ug_shots/unstruck_god.star', bxOf: e };
   }
@@ -103,7 +103,7 @@ const finale = {
 function pincer(g, e, V) {                                // the pincer: two spears from either side of you, meeting where you will be
   if (!running(e)) return;
   const [x, y] = ahead(g, e, 0.85), [hx, hy] = heading(e);
-  for (const s of [-1, 1]) g.bxShot(e, x - hy * s * 6.4, y + hx * s * 6.4 - 0.4, Math.atan2(-hx * s, hy * s), { shot: 'spear', speed: 7.5, range: 13, dmg: V.dmg || 105 });
+  for (const s of [-1, 1]) g.bxShotAt(e, x - hy * s * 6.4, y + hx * s * 6.4, 0.4, Math.atan2(-hx * s, hy * s), { shot: 'spear', speed: 7.5, range: 13, dmg: V.dmg || 105 });
 }
 
 export default {

@@ -54,7 +54,7 @@ function darts(g, e, V) {                           // pennant darts from the bu
 function juggle(g, e, V) {
   const D = drums(g, e), p = g.player, d = D[Math.floor(R() * D.length)], spin = R() < 0.5 ? 1 : -1;
   if (Math.hypot(d[0] - e.x, d[1] - e.y) < 2) return;
-  for (let k = 0; k < 2; k++) g.bxShot(e, d[0], d[1] - 0.8, angleTo(d[0], d[1], p.x, p.y) - spin * (0.45 + k * 0.2), { shot: 'juggling_pin', speed: 6 + k, range: 22, dmg: V.dmg || 110, mv: { curve: spin * 0.75 } });
+  for (let k = 0; k < 2; k++) g.bxShotAt(e, d[0], d[1], 0.8, angleTo(d[0], d[1], p.x, p.y) - spin * (0.45 + k * 0.2), { shot: 'juggling_pin', speed: 6 + k, range: 22, dmg: V.dmg || 110, mv: { curve: spin * 0.75 } });
 }
 // the grin (P3 pressure): cards fly from the tent's mouth, a little fan straight at you
 function grinCards(g, e, V) {

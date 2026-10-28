@@ -70,7 +70,7 @@ function flock(g, e, V) {                                 // a flock of sheep ac
 }
 function flockSheep(g, e, V) {                         // three abreast, so the stampede covers your path either side of where you'll be
   const [x, y] = ahead(g, e, 0.8), [hx, hy] = heading(e), s = V.k % 2 ? 1 : -1;
-  for (const o of [-0.8, 0, 0.8]) g.bxShot(e, x + hx * o - hy * s * 5.5, y + hy * o + hx * s * 5.5 - 0.4, Math.atan2(-hx * s, hy * s), { shot: 'sheep', speed: 7, range: 11, dmg: V.dmg || 110 });
+  for (const o of [-0.8, 0, 0.8]) g.bxShotAt(e, x + hx * o - hy * s * 5.5, y + hy * o + hx * s * 5.5, 0.4, Math.atan2(-hx * s, hy * s), { shot: 'sheep', speed: 7, range: 11, dmg: V.dmg || 110 });
 }
 
 export default {

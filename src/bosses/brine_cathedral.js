@@ -34,7 +34,7 @@ function riteToll(g, e, V) { const q = target(g, e); ring(g, e, e.x, e.y - 1, 36
 function undertow(g, e, V) {                              // the undertow: a row of bubbles wells up ahead of you and rolls back at you
   if (!running(e)) return;
   const [x, y] = ahead(g, e, 0.75), [hx, hy] = heading(e);
-  for (let k = -3; k <= 3; k++) g.bxShot(e, x + hx * 1.2 - hy * k * 0.7, y + hy * 1.2 + hx * k * 0.7 - 0.4, Math.atan2(-hy, -hx), { shot: 'bubble', speed: 2.6, range: 6, dmg: V.dmg || 44, mv: { hold: 0.35 } });
+  for (let k = -3; k <= 3; k++) g.bxShotAt(e, x + hx * 1.2 - hy * k * 0.7, y + hy * 1.2 + hx * k * 0.7, 0.4, Math.atan2(-hy, -hx), { shot: 'bubble', speed: 2.6, range: 6, dmg: V.dmg || 44, mv: { hold: 0.35 } });
 }
 
 export default {

@@ -56,7 +56,7 @@ function lensStep(g, e, dt) {
   if (bare) {
     e.pwBareUntil = g.t + 0.18; e.pwBareFor = (e.pwBareFor || 0) + dt;
     if (e.bx.phase === 3 && e.pwBareFor > 2.2 && !fin) {     // held too long: she drinks the light and throws it back
-      e.pwBareFor = 0; for (let k = 0; k < 28; k++) g.bxShot(e, e.x, e.y - 1.2, (k / 28) * TAU, { shot: 'shard', speed: 5 + (k % 2), range: 12, dmg: 130 });
+      e.pwBareFor = 0; for (let k = 0; k < 28; k++) g.bxShotAt(e, e.x, e.y, 1.2, (k / 28) * TAU, { shot: 'shard', speed: 5 + (k % 2), range: 12, dmg: 130 });
       g.banner('OVERCHARGE! She throws the light back!', 1400); g.vx({ k: 'shake', amt: 6 });
     }
   } else e.pwBareFor = Math.max(0, (e.pwBareFor || 0) - dt * 2);
