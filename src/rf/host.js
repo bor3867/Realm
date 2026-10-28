@@ -29,10 +29,11 @@ const CREATURE_HOOKS = ['enemy', 'vuln', 'hitEnemy', 'alpha', 'atk', 'bullet', '
 // turns a monster's shot back once off a mirror
 const HOOKS_OURS = { forge: ['drawEnemy'], keep: ['atk'], rift: ['atk', 'drawEnemy'], mirrors: ['bullet'], sewers: ['enemy'], clocktower: ['enemy'],
   glade: ['vuln', 'alpha', 'bullet'],     // (the Glade: moon-spirits solid only in moonlight; still water mirrors a shot)
-  temple: ['vuln', 'alpha', 'atk'] };     // (the Temple: sun things by day, moon things by night; its one atk rule is a shield, which our rule leaves out)
+  temple: ['vuln', 'alpha', 'atk'],       // (the Temple: sun things by day, moon things by night; its one atk rule is a shield, which our rule leaves out)
+  grove: ['enemy', 'vuln', 'drawEnemy'] }; // (the Grove: guardians keep near their post, nothing is hurt by its runes, wrath)
 // kinds a dungeon's own rule still moves (they stay on their engine): the Sewers' lurker, stranded by low water; the
 // Clocktower's windup, stepping on the beat, and its cuckoo, out only on the hour
-const KEEP_THEIRS = new Set(['rf_sewers_lurker', 'rf_clocktower_windup', 'rf_clocktower_cuckoo']);
+const KEEP_THEIRS = new Set(['rf_sewers_lurker', 'rf_clocktower_windup', 'rf_clocktower_cuckoo', 'rf_grove_blight']);   // (and the Grove's blight, marching on the sapling)
 const HOST = {};                                                  // filled in by rfMap: the calls their engine makes to us
 
 // boot: the Realmforge data (dungeons, creatures, art) is loaded once, in the background
@@ -144,6 +145,7 @@ const methods = {
       this.moveCircle(e, Math.cos(aa) * spd * k * dt, Math.sin(aa) * spd * k * dt, Math.min(0.42, D.r * 0.65));
     };
     const rg = D.rg || [4, 7];
+    if (D.post && !(w && w.wrath) && Math.hypot(e.x - hx, e.y - hy) > 7) { const ha = Math.atan2(hy - e.y, hx - e.x); this.moveCircle(e, Math.cos(ha) * spd * dt, Math.sin(ha) * spd * dt, 0.38); }   // a Grove guardian pulled back to its post (and it still moves as it would)
     if (m === 'still') return true;
     if (m === 'chase') go(1, D.weave ? Math.sin(t * D.weave + hx) * 0.7 : 0);
     else if (m === 'patrol') go(sees ? 0.9 : 1);
@@ -202,6 +204,11 @@ const methods = {
     if (v === 'moon') return E.M.beams && E.M.beams.some((q) => Math.hypot(q.x - e.x, q.y - e.y) < q.r) ? 1.6 : 0.12;
     if (v === 'side') return (e.D.side === 'sun') === E.day ? 1.3 : 0.12;
     if (v === 'idol') return E.t - E.lastFlip < 1.2 ? 1.5 : 0.08;
+    if (v === 'grove') {                                             // the Grove: nothing standing by its room's runes is hurt; wrath, 1.15
+      const w = e.rfE, r = w && E.M.rooms[w.room];
+      if (r && r.runes && r.runes.some(([x, y]) => Math.hypot(x + 0.5 - e.x, y + 0.5 - e.y) < 1.3)) return 0;
+      return w && w.wrath ? 1.15 : 1;
+    }
     return 1;
   },
   rfFaint(e) { const v = e.D.rfVuln; return v === 'moon' && this.rfVulnK(e) < 1 ? 0.45 : v === 'side' && this.rfVulnK(e) < 1 ? 0.55 : 1; },
@@ -273,6 +280,7 @@ const methods = {
       if (!o || e.hp <= 0) continue;
       if (o.dead) { e.rfByOurs = 1; X.kill(e); continue; }       // our blow: their kill (its key, its corpse, its room)
       e.x = o.x; e.y = o.y; e.hp = o.hp; e.aggro = true; e.rfAt = [e.x, e.y]; e.rfHp = e.hp;
+      if (e.wrath && !o.rfWrath) { o.rfWrath = 1; o.cds = o.cds.map((c) => c * 0.5); }   // the Grove's wrath: its next blows come sooner (its pace, theirs: e.spd)
     }
   },
   // after their frame: what their world did to it (a push, a trap, a portal) reaches ours; and the newly woken go over

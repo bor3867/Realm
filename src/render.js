@@ -1288,7 +1288,7 @@ export class Renderer {
       if (Math.random() < h * 0.6) this.parts.push({ x: e.x + (Math.random() - 0.5) * 0.6, y: e.y, z: 4 + Math.random() * 6, vx: 0, vy: 0, vz: 10, g: 0, life: 0.5, max: 0.5, color: Math.random() < 0.5 ? '#ff7a1a' : '#ffc94a' });
     }
     if (!e.dead && e.hp < e.maxHp && !e.D.noBar) this.hpBar(sx, sy + 3, e.hp / e.maxHp, e.D.ability ? 20 : 12);
-    if (!e.dead && e.rfE && e.rfE.forged) { const b = this.b; b.fillStyle = `rgba(255,138,42,${0.4 + 0.3 * Math.sin(g.t * 12)})`; b.fillRect(Math.round(sx) + 5, Math.round(sy) - 18, 2, 2); }   // a Realmforge smith at its anvil: a spark
+    if (!e.dead && e.rfE && (e.rfE.forged || e.rfE.wrath)) { const b = this.b; b.fillStyle = e.rfE.wrath ? `rgba(216,74,74,${0.35 + 0.25 * Math.sin(g.t * 10)})` : `rgba(255,138,42,${0.4 + 0.3 * Math.sin(g.t * 12)})`; b.fillRect(Math.round(sx) + 5, Math.round(sy) - 18, 2, 2); }   // a Realmforge smith at its anvil: a spark
     if (!e.dead && e.stunT > 0) this.stunStars(g, sx, sy, 18);
   }
   // what an elite's ability shows: the siren's charm ring, the gryphon's line, the after-images of a dive or a dash

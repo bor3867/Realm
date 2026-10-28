@@ -153,7 +153,10 @@ their creatures follow their rules, not ours. The plan, a step a turn:
    The Temple: sun things take 1.3x a blow by day and 0.12x by night (moon things the other way), faint when off;
    its idol 1.5x just after day and night turn, 0.08x otherwise (Game.rfVulnK); the priest's eclipse shield on others
    stays out by our rule. 19 dungeons.
-   Next: the 5 dungeons with creature rules left (unmelting, grove, pyre, sanctum, stage), each rule
+   The Grove: a guardian keeps within 7 tiles of its post (their 'guard' is a leash, not a guard over others), no
+   creature by its room's runes is hurt, wrath (1.15x a blow, quicker, sooner) shows; the blight, marching on the
+   sapling, stays theirs. 20 dungeons. (The link check's bot now ascends: the deep bands are tough.)
+   Next: the 4 dungeons with creature rules left (unmelting, pyre, sanctum, stage), each rule
    rebuilt in our engine, and the last traits (reflect, rebirth,
    afterimage, echo, encase, ghostfire, the moon/shade weaknesses, chess, mirror).
    Their layout, props, traps and puzzles stay hosted until step 5.

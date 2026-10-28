@@ -22,6 +22,7 @@ let fail = 0;
 for (const dg of list) {
   const g = new Game({ reg }, { fame: 0, gold: 0, essence: 0, vaults: [[]], graveyard: [], chars: [], slots: 8, bestLevel: 0 });
   g.newCharacter('priest'); g.persist = () => {}; g.gainXp(999999);
+  g.adminOk = () => true; g.command('/ascend');   // (the bot at its best: the deep dungeons' creatures are tough)
   const p = g.player, I = g.input; I.scripted = true;
   const res = { linked: 0, ours: 0, theirKills: 0, hurt: 0, xp: 0, errors: [] };
   try {
