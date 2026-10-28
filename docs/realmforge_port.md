@@ -142,8 +142,14 @@ their creatures follow their rules, not ours. The plan, a step a turn:
    Then 4 more whose rules were rebuilt (`HOOKS_OURS`): the Forge's smith works faster at its anvil, the Keep's bishop
    shoots only the diagonals, the Rift's rules touch only its echoes (still theirs), the Hall of Mirrors turns a
    monster's shot back once off a mirror. 15 dungeons now.
-   Next: the 9 dungeons with creature rules left (glade, unmelting, temple, grove, pyre, clocktower, sanctum, sewers,
-   stage), each rule rebuilt in our engine, and the last traits (reflect, rebirth,
+   Exact (2026-10-27): every attack and movement now as their explore.js has it (src/rf/creatures.js and
+   Game.rfMoveStep): their damage, shot lives, cooldowns and speeds; lob a marked circle, wave a slowing ring, fan a
+   sweep, rings turning/aimed/random with gaps, curves, bounces, slams that hold, overheat, dashes and their trails,
+   summons into their rooms, mends, trails that slow or root, strikes on the beat, sickness (no regeneration).
+   Sewers and Clocktower switched too (KEEP_THEIRS: the lurker, the windup and the cuckoo, which their own rules move,
+   stay theirs). 17 dungeons.
+   Next: the 7 dungeons with creature rules left (glade, unmelting, temple, grove, pyre, sanctum, stage), each rule
+   rebuilt in our engine, and the last traits (reflect, rebirth,
    afterimage, echo, encase, ghostfire, the moon/shade weaknesses, chess, mirror).
    Their layout, props, traps and puzzles stay hosted until step 5.
 5. **Online**: the server hosts rf_ dungeons like ours (their layout from its seed), so a group shares one.

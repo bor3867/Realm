@@ -26,12 +26,12 @@ for (const dg of list) {
   const res = { linked: 0, ours: 0, theirKills: 0, hurt: 0, xp: 0, errors: [] };
   try {
     g.enter(`rf_${dg}`);
-    const T = (res.traits = { raised: 0, chainHits: 0, pulses: 0, formation: 0, mirrored: 0, forged: 0 });   // their traits and rules, in our engine
+    const T = (res.traits = { raised: 0, chainHits: 0, pulses: 0, formation: 0, mirrored: 0, forged: 0, onBeat: 0 });   // their traits and rules, in our engine
     const m0 = g.rfMirror.bind(g); g.rfMirror = (b, dt) => { m0(b, dt); if (b.refl) T.mirrored++; };
     const r0 = g.rfRaise.bind(g); g.rfRaise = (e, A) => { const n = g.map.rf.E.en_.length; r0(e, A); if (g.map.rf.E.en_.length > n) T.raised++; };
     const c0 = g.chainBeam.bind(g); g.chainBeam = (e, q) => { const t0 = q.chainT; c0(e, q); if (q.chainT !== t0) T.chainHits++; };
     const f0 = g.formation.bind(g); g.formation = (e, dt) => { const r = f0(e, dt); if (r) T.formation++; return r; };
-    const fp = g.firePattern.bind(g); g.firePattern = (e, A, w) => { if (A.pattern === 'pulse') T.pulses++; return fp(e, A, w); };
+    const fp = g.firePattern.bind(g); g.firePattern = (e, A, w) => { if (A.pattern === 'pulse') T.pulses++; if (A.beat) T.onBeat++; return fp(e, A, w); };
     const E = g.map.rf.E, k0 = E.kills;
     let hurt = 0; const h0 = g.hurtPlayer.bind(g); g.hurtPlayer = (d, by, ig) => { const b = p.hp; h0(d, by, ig); hurt += Math.max(0, b - p.hp); p.hp = g.stat('hp'); p.dead = false; };
     let next = 0, at = null; const tried = new Map(), live = (q) => q.hp > 0 && q.st !== 'gone' && !q.hidden;

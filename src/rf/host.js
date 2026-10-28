@@ -27,7 +27,10 @@ const CREATURE_HOOKS = ['enemy', 'vuln', 'hitEnemy', 'alpha', 'atk', 'bullet', '
 // the rules of theirs our engine keeps now, dungeon by dungeon: the Forge's smith works faster at its anvil (and sparks);
 // the Keep's bishop shoots the diagonals; the Rift's rules touch only its echoes (still theirs); the Hall of Mirrors
 // turns a monster's shot back once off a mirror
-const HOOKS_OURS = { forge: ['drawEnemy'], keep: ['atk'], rift: ['atk', 'drawEnemy'], mirrors: ['bullet'] };
+const HOOKS_OURS = { forge: ['drawEnemy'], keep: ['atk'], rift: ['atk', 'drawEnemy'], mirrors: ['bullet'], sewers: ['enemy'], clocktower: ['enemy'] };
+// kinds a dungeon's own rule still moves (they stay on their engine): the Sewers' lurker, stranded by low water; the
+// Clocktower's windup, stepping on the beat, and its cuckoo, out only on the hour
+const KEEP_THEIRS = new Set(['rf_sewers_lurker', 'rf_clocktower_windup', 'rf_clocktower_cuckoo']);
 const HOST = {};                                                  // filled in by rfMap: the calls their engine makes to us
 
 // boot: the Realmforge data (dungeons, creatures, art) is loaded once, in the background
@@ -257,7 +260,7 @@ const methods = {
     for (const e of E.en_) {
       const o = e.ours;
       if (!o) {
-        if (e.hp > 0 && e.aggro && !e.dormant && !e.hidden && e.st !== 'gone' && LINK_DG.has(dg) && OURS.has(`rf_${dg}_${e.k}`)) {
+        if (e.hp > 0 && e.aggro && !e.dormant && !e.hidden && e.st !== 'gone' && LINK_DG.has(dg) && OURS.has(`rf_${dg}_${e.k}`) && !KEEP_THEIRS.has(`rf_${dg}_${e.k}`)) {
           const n = this.addEnemy(`rf_${dg}_${e.k}`, e.x, e.y);
           n.hp = e.hp; n.maxHp = e.max; n.seen = true; n.aggro = true; n.rfE = e; n.squad = e.squad; e.ours = n;
           n.cds = n.D.attacks.map((A) => A.cd * (0.4 + Math.random() * 0.8));   // (their first cooldowns)
