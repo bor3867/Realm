@@ -40,7 +40,8 @@ export function translateCreature(DATA, dg, id, e) {
   const attacks = [], D = {
     name: e.name, biome: `rf_${dg}`, hp: Math.max(1, Math.round((e.hp || 300) * bal.hp)), def: Math.round((e.armor || 0) * 10), speed: e.spd || 0,
     xp: Math.max(4, Math.round(((e.hp || 300) * bal.hp) / 30)), r, ai: MOVE[e.move] || 'shamble', aggro: e.sight || 7.5, fly: !!e.fly,
-    rfMove: RF_MOVE.has(e.move) ? e.move : null, weave: e.weave, rg: e.range, hopCd: e.hopCd, per: e.per, moonVuln: !!e.moonVuln, blinkCd: e.blinkCd, up: e.up, down: e.down, dashTrail: e.dashTrail ? { kind: e.dashTrail, dmg: dmg(0.3) } : undefined,
+    rfMove: RF_MOVE.has(e.move) ? e.move : null, weave: e.weave, rg: e.range, hopCd: e.hopCd, per: e.per,
+    rfVuln: e.moonVuln ? 'moon' : dg === 'temple' && e.side ? 'side' : dg === 'temple' && id === 'idol' ? 'idol' : undefined, side: e.side,   // (when a blow tells: Game.rfVulnK) blinkCd: e.blinkCd, up: e.up, down: e.down, dashTrail: e.dashTrail ? { kind: e.dashTrail, dmg: dmg(0.3) } : undefined,
     rad: e.rad, spin: e.spin, reg: `rf_crea/${dg}_${id}`, scale: e.art && e.art.frames[0].length > 10 ? 0.5 : 1, contact: 0, attacks, loot: [], rfCrea: { dg, id }, desc: e.how,   // (scale: their 8px art at the player's pixel size, bigger art at the fine size)
   };
   if (!MOVE[e.move]) notes.push(`move "${e.move}": walks`); else if (NEAR_MOVE.has(e.move)) notes.push(`move "${e.move}": as ${D.ai}`);
@@ -74,8 +75,8 @@ export function translateCreature(DATA, dg, id, e) {
     }
   }
   // their one-off traits we have yet to build (the ones that matter to a fight)
-  // (gaze: their dungeon's own rule runs it, for ours too; mirageVuln: their engine never reads it; moonVuln: ours,
-  // Game.rfMoonK)
+  // (gaze: their dungeon's own rule runs it, for ours too; mirageVuln: their engine never reads it; moonVuln and the
+  // Temple's sides: ours, Game.rfVulnK)
   for (const k of ['reflect', 'rebirth', 'guard', 'shieldsOthers', 'copyShots', 'echo', 'afterimage', 'shadeVuln', 'solar', 'lava', 'cuckoo'])
     if (e[k]) notes.push(`${k}: ${k === 'guard' || k === 'shieldsOthers' ? 'left out (monsters never guard each other)' : 'not in our engine yet'}`);
   if (e.split) D.split = { id: `rf_${dg}_${typeof e.split === 'string' ? e.split : id}`, n: e.split.n || 2 };

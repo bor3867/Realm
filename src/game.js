@@ -2413,7 +2413,7 @@ export class Game {
       return 0;
     }
     if (this.player && this.player.armS) dmg = this.armTaken(e, dmg);   // asleep, crowned (src/armory.js)
-    if (e.D && e.D.moonVuln) dmg *= this.rfMoonK(e);              // a Realmforge moon-spirit: solid only in moonlight (src/rf/host.js)
+    if (e.D && e.D.rfVuln) dmg *= this.rfVulnK(e);                // a Realmforge creature that only half exists: moonlight, the sun's side (src/rf/host.js)
     let d = e.netRawHit ? Math.round(dmg) : mitigate(dmg, e.D ? (this.armAP || e.armBreakT > this.t ? 0 : e.D.def) : 0, false);   // (armour-piercing, or armour broken: the Mad God Armory)   // (a player's blow on the server: Defense already taken off)
     if (this.map.ckCandles || (this.map.def && this.map.def.style === 'keep')) d = this.ckDamage(e, d);   // the Keep: thralls burn in candlelight
     if (e.D && e.D.bx && !e.bxKill && e.bx && e.bx.B.hitScale) d = Math.round(d * e.bx.B.hitScale(this, e));   // (a boss that takes more or less, by its state: Emily mid-sentence, or out of breath)

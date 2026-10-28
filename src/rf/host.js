@@ -28,7 +28,8 @@ const CREATURE_HOOKS = ['enemy', 'vuln', 'hitEnemy', 'alpha', 'atk', 'bullet', '
 // the Keep's bishop shoots the diagonals; the Rift's rules touch only its echoes (still theirs); the Hall of Mirrors
 // turns a monster's shot back once off a mirror
 const HOOKS_OURS = { forge: ['drawEnemy'], keep: ['atk'], rift: ['atk', 'drawEnemy'], mirrors: ['bullet'], sewers: ['enemy'], clocktower: ['enemy'],
-  glade: ['vuln', 'alpha', 'bullet'] };   // (the Glade: moon-spirits solid only in moonlight; still water mirrors a shot)
+  glade: ['vuln', 'alpha', 'bullet'],     // (the Glade: moon-spirits solid only in moonlight; still water mirrors a shot)
+  temple: ['vuln', 'alpha', 'atk'] };     // (the Temple: sun things by day, moon things by night; its one atk rule is a shield, which our rule leaves out)
 // kinds a dungeon's own rule still moves (they stay on their engine): the Sewers' lurker, stranded by low water; the
 // Clocktower's windup, stepping on the beat, and its cuckoo, out only on the hour
 const KEEP_THEIRS = new Set(['rf_sewers_lurker', 'rf_clocktower_windup', 'rf_clocktower_cuckoo']);
@@ -192,8 +193,18 @@ const methods = {
       this.vx({ k: 'burst', ...this.rfLift(sx, sy), n: 8, colors: ['#ffffff', '#c9ccd8'] });
     }
   },
-  // the Glade's moon-spirits: in a moonbeam they take 1.6 times a blow, out of it 0.12 (and are faint to see)
-  rfMoonK(e) { const B = this.map.rf && this.map.rf.E.M.beams; return !B ? 1 : B.some((q) => Math.hypot(q.x - e.x, q.y - e.y) < q.r) ? 1.6 : 0.12; },
+  // when a blow tells, by their dungeon's rule: the Glade's moon-spirits take 1.6 times it in a moonbeam and 0.12 out
+  // of it; the Temple's sun things 1.3 by day and 0.12 by night (moon things the other way round), and its idol 1.5 just
+  // after day and night turn, 0.08 otherwise. Under 1, it is faint to see (rfFaint)
+  rfVulnK(e) {
+    const E = this.map.rf && this.map.rf.E, v = e.D.rfVuln;
+    if (!E) return 1;
+    if (v === 'moon') return E.M.beams && E.M.beams.some((q) => Math.hypot(q.x - e.x, q.y - e.y) < q.r) ? 1.6 : 0.12;
+    if (v === 'side') return (e.D.side === 'sun') === E.day ? 1.3 : 0.12;
+    if (v === 'idol') return E.t - E.lastFlip < 1.2 ? 1.5 : 0.08;
+    return 1;
+  },
+  rfFaint(e) { const v = e.D.rfVuln; return v === 'moon' && this.rfVulnK(e) < 1 ? 0.45 : v === 'side' && this.rfVulnK(e) < 1 ? 0.55 : 1; },
   // their dungeon's beat (some creatures strike only on it; some only on every other)
   rfOnBeat(A) { const E = this.map.rf && this.map.rf.E; return !!(E && E.onBeat && (A.parity == null || E.beat % 2 === A.parity)); },
   // their Hall of Mirrors: a monster's shot about to meet a mirror turns back once (as their bullet rule does)

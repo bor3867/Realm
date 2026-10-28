@@ -150,7 +150,10 @@ their creatures follow their rules, not ours. The plan, a step a turn:
    stay theirs). 17 dungeons.
    The Glade (2026-10-27): moon-spirits take 1.6x a blow in a moonbeam and 0.12x out of it, and are faint out of it
    (Game.rfMoonK); a monster's shot crossing still water sends its reflection back once. 18 dungeons.
-   Next: the 6 dungeons with creature rules left (unmelting, temple, grove, pyre, sanctum, stage), each rule
+   The Temple: sun things take 1.3x a blow by day and 0.12x by night (moon things the other way), faint when off;
+   its idol 1.5x just after day and night turn, 0.08x otherwise (Game.rfVulnK); the priest's eclipse shield on others
+   stays out by our rule. 19 dungeons.
+   Next: the 5 dungeons with creature rules left (unmelting, grove, pyre, sanctum, stage), each rule
    rebuilt in our engine, and the last traits (reflect, rebirth,
    afterimage, echo, encase, ghostfire, the moon/shade weaknesses, chess, mirror).
    Their layout, props, traps and puzzles stay hosted until step 5.
