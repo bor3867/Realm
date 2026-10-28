@@ -255,7 +255,7 @@ export class UI {
       || '<p class="mut">Nothing in your backpack to feed. Pets eat gear, potions and relics: higher tiers, and relics from harder bosses, make bigger meals.</p>'
       : '<p class="mut">Choose a companion first.</p>';
     const eggs = g.eggsForSale().map(([r, pr, f]) => this.itemCell(`egg_${f}_${r}`, `<button class="btn sm" data-egg="${r}">${pr}g</button>`)).join('') + '<p class="mut">New families every day.</p>';
-    const o = this.overlay(`<div class="screen shop"><h1>The Pet Yard</h1>
+    const o = this.overlay(`<div class="screen shop"><h1>The Pet Room</h1>
       <h2>"Every pet heals the hand that feeds it." · ${this.wallet()} · <span style="color:#ffb84a">${g.save.fame || 0} fame</span> · ${pets.length}/${PET_MAX} pets</h2>
       ${act ? `<section class="petnow">${card(act, '')}<p class="mut">${PET_KINDS[act.kind].desc}</p></section>` : ''}
       ${morphBox}

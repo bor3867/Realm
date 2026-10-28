@@ -237,14 +237,13 @@ export function nexus() {
   put(m, 'merchant', 15, CY - 10, true, { interact: 'shop', label: 'Trade with the Salt-Peddler', hint: 'Buy potions and gear; sell what you do not need' });
   for (const [x, y] of [[5, CY - 8], [12, CY - 13], [17, CY - 3], [5, CY - 1]]) put(m, 'nx_objects/nexus_stall', x, y, false);
   for (const [x, y] of [[11, CY - 4], [18, CY - 14]]) put(m, 'nx_objects/nexus_lamp', x, y, false);
-  // ---- the Hall of Legends: its banner (the legends), the training dummies
+  // ---- the Hall of Legends: its banner (the legends). (Its training dummies stand in your vault now: see vaultRoom)
   put(m, 'banner', W - 12, CY - 13, true, { interact: 'legends', label: 'Read the Hall of Legends', tag: 'LEGENDS', hint: 'Your fallen heroes, and the stars each class has earned' });
   for (const x of [W - 18, W - 15, W - 9, W - 6]) put(m, 'nx_objects/nexus_banner_red', x, CY - 14, false);
-  m.dummies = [[W - 15.5, CY - 4.5], [W - 12.5, CY - 5.5], [W - 9.5, CY - 4.5], [W - 14, CY - 2], [W - 11, CY - 2]];
-  put(m, 'signpost', W - 17, CY - 2, true, { label: 'Training dummies: hit them to read your damage per second', tag: 'TRAINING DUMMIES', hint: 'Hit them to see your damage per second' });
-  // ---- the Gardens: the pet yard, the quest board, the Dungeon Atlas, the pond; blossom trees and flowers
-  put(m, 'petkeeper', 7, CY + 9, true, { interact: 'petyard', label: 'Visit the Petkeeper (pets, eggs, feeding)', tag: 'PETS', hint: 'Hatch eggs, raise pets, choose the companion who heals you' });
-  m.pen = { x0: 4, y0: CY + 11, x1: 11, y1: CY + 15 };
+  put(m, 'signpost', W - 17, CY - 2, true, { label: 'The training dummies are in your vault now: its training room', tag: 'DUMMIES: VAULT', hint: 'The training dummies are in your vault' });
+  // ---- the Gardens: the quest board, the Dungeon Atlas, the pond; blossom trees and flowers. (The pet yard, its
+  // Petkeeper and your pets are in your vault now: its pet room)
+  put(m, 'signpost', 7, CY + 9, true, { label: 'Your pets and the Petkeeper are in your vault now: its pet room', tag: 'PETS: VAULT', hint: 'Your pets live in your vault now' });
   put(m, 'board', 17, CY + 9, true, { interact: 'board', label: 'Read the quest board', tag: 'QUESTS', hint: 'Take quests for gold, essence and fame' });
   put(m, 'bookshelf', 18, H - 8, true, { interact: 'atlas', label: 'Read the Dungeon Atlas', tag: 'ATLAS', hint: 'Every dungeon: how hard it is, its boss, where its portal drops' });
   put(m, 'fishspot', 13, H - 12, true, { interact: 'fish', label: 'Fish in the pond', tag: 'FISHING', hint: 'Cast a line: now and then something good bites' });
@@ -281,12 +280,7 @@ export function nexusMeadow() {
     const d = ((x - CX) / 31) ** 2 + ((y - CY) / 26.5) ** 2 + (Math.sin(x * 0.9) + Math.cos(y * 1.3)) * 0.03;
     if (d < 1) set(x, y, TID.grass);
   }
-  // the Pet Yard: a second clearing east of the market, joined by a cobbled path through the hedge
-  const YX = CX + 39, YY = CY;
-  for (let y = 1; y < H - 1; y++) for (let x = 1; x < W - 1; x++) {
-    if (((x - YX) / 10.5) ** 2 + ((y - YY) / 10) ** 2 + (Math.sin(x * 1.1) + Math.cos(y * 0.9)) * 0.03 < 1) set(x, y, TID.grass);
-  }
-  for (let y = CY - 1; y <= CY + 1; y++) for (let x = CX + 15; x <= YX - 6; x++) set(x, y, TID.cobble);
+  // (the Pet Yard that stood east of the market lives in your vault now: see vaultRoom. 2026-10-28)
   // lanes
   const lane = (x0, y0, x1, y1, w, t) => {
     for (let y = Math.min(y0, y1) - w; y <= Math.max(y0, y1) + w; y++) for (let x = Math.min(x0, x1) - w; x <= Math.max(x0, x1) + w; x++) {
@@ -351,9 +345,9 @@ export function nexusMeadow() {
     if (Math.abs(x - 12) > 1) put(m, 'fence_h', x, TY1 + 1, true);
   }
   for (let y = TY0; y <= TY1; y++) { put(m, 'fence_v', TX0 - 1, y, true); put(m, 'fence_v', TX1 + 1, y, true); }
-  m.dummies = [[TX0 + 2.5, TY0 + 2.5], [TX0 + 6.5, TY0 + 1.5], [TX0 + 10.5, TY0 + 2.5], [TX0 + 4.5, TY0 + 5.5], [TX0 + 8.5, TY0 + 5.5]];
+  // (the dummies stand in your vault's training room now: see vaultRoom)
   put(m, 'haybale', TX0, TY1, true); put(m, 'haybale', TX1, TY0, true);
-  put(m, 'signpost', 14 + OX, TY1 + 2, true, { label: 'Training yard: hit the dummies to read your damage per second', tag: 'TRAINING YARD', hint: 'Hit the dummies to see your damage per second' });
+  put(m, 'signpost', 14 + OX, TY1 + 2, true, { label: 'The training dummies and your pets live in your vault now (west of the square)', tag: 'TO THE VAULT', hint: 'The dummies and your pets are in your vault' });
   put(m, 'board', CX + 8, CY - 3, true, { interact: 'board', label: 'Read the quest board', tag: 'QUEST BOARD', hint: 'Take quests for gold, essence and fame' });       // quests
   put(m, 'bard', CX - 3, CY - 3, true, { interact: 'bard', label: 'Listen to the bard', tag: 'BARD', hint: 'Listen for a little inspiration' });            // a bard by the fire
   bigProp(m, 'tent', CX - 15, CY - 1);                                                                // the fortune teller
@@ -363,16 +357,8 @@ export function nexusMeadow() {
   m.strolls = [[CX - 6, CY + 7], [CX + 7, CY + 4], [CX + 12, CY - 4], [CX - 9, CY - 4], [CX + 2, CY + 12], [CX - 12, CY + 6]];
   m.villagers = [['villager_farmer', 0], ['villager_child', 2], ['villager_guard', 4]].map(([sp, k]) => ({ sprite: sp, x: m.strolls[k][0] + 0.5, y: m.strolls[k][1] + 0.5, goal: (k + 1) % 6, wait: 0 }));
   put(m, 'cat', CX - 2, CY + 2, false, { interact: 'cat', label: 'Pet the cat' });
-  // the Pet Yard: a fenced pen where your pets play, and the Petkeeper at its gate
-  const pen = { x0: YX - 5, y0: YY - 5, x1: YX + 6, y1: YY + 5 };
-  m.pen = pen;
-  for (let x = pen.x0 - 1; x <= pen.x1 + 1; x++) { put(m, 'fence_h', x, pen.y0 - 1, true); put(m, 'fence_h', x, pen.y1 + 1, true); }
-  for (let y = pen.y0; y <= pen.y1; y++) { if (Math.abs(y - YY) > 1) put(m, 'fence_v', pen.x0 - 1, y, true); put(m, 'fence_v', pen.x1 + 1, y, true); }
-  for (let y = pen.y0; y <= pen.y1; y++) for (let x = pen.x0; x <= pen.x1; x++) if ((x + y) % 7 === 0) set(x, y, TID.dirt);
-  put(m, 'haybale', pen.x1, pen.y0, true); put(m, 'haybale', pen.x1, pen.y1, true); put(m, 'barrel', pen.x1 - 1, pen.y0, true);
-  put(m, 'petkeeper', YX - 8, YY - 2, true, { interact: 'petyard', label: 'Visit the Petkeeper (pets, eggs, feeding)', tag: 'PET YARD', hint: 'Hatch eggs, raise pets, choose the companion who heals you' });
-  put(m, 'signpost', YX - 8, YY + 2, true, { label: 'The Pet Yard: hatch eggs, raise pets, and pick the companion who heals you' });
-  for (const [x, y] of [[YX - 7, YY - 4], [YX - 7, YY + 4], [CX + 22, CY - 2], [CX + 22, CY + 2]]) put(m, 'lamppost', x, y, true);                  // the cat, by the fire
+  // (your pets, their pen and the Petkeeper are in your vault now: see vaultRoom)
+  for (const [x, y] of [[CX + 22, CY - 2], [CX + 22, CY + 2]]) put(m, 'lamppost', x, y, true);                  // the cat, by the fire
   put(m, 'fishspot', PX - 6, PY + 2, true, { interact: 'fish', label: 'Fish in the pond', tag: 'FISHING', hint: 'Cast a line: now and then something good bites' });         // the pond's little dock
   for (let x = 4; x <= 13 + OX; x++) set(x, 40 + OY, TID.grass);                                 // a secret tunnel through the hedge...
   for (let y = 38 + OY; y <= 42 + OY; y++) for (let x = 2; x <= 5; x++) set(x, y, TID.grass);     // ...to a grotto
@@ -403,18 +389,36 @@ export function nexusMeadow() {
 
 // ------------------------------------------------------------------ VAULT (personal: one chest that grows)
 export function vaultRoom() {
-  const W = 27, H = 16, CX = 13;
+  // three rooms (2026-10-28, the user: the training dummies and the pets live here now): the hall in the middle (your
+  // vault chest, your trophies), the training room to the west (the dummies), the pet room to the east (your pets in
+  // their pen, the Petkeeper at its gate)
+  const W = 51, H = 24, CX = 25, MY = 11;
   const m = makeMap('vault', 'Your Vault', W, H, TID.void);
-  for (let y = 2; y < H - 2; y++) for (let x = 2; x < W - 2; x++) m.tiles[idx(m, x, y)] = TID.marble;
+  const floor = (x0, y0, x1, y1) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) m.tiles[idx(m, x, y)] = TID.marble; };
+  floor(18, 2, 32, H - 3);                                  // the hall
+  floor(2, 5, 13, 18); floor(14, MY, 17, MY + 1);            // the training room, and its passage
+  floor(37, 4, 48, 19); floor(33, MY, 36, MY + 1);           // the pet room, and its passage
   wallUp(m);
   put(m, 'vault_chest', CX, 3, true, { interact: 'vault', chest: 0 });                 // one chest; buy Vault Chests to make it bigger
-  for (const x of [2, W - 3]) put(m, 'brazier', x, 2);
-  // your trophies: a pedestal round the walls for every great foe; the ones you have beaten wear their statue.
-  // The throne's own and the penguin's flank the chest.
+  for (const x of [18, 32]) put(m, 'brazier', x, 2);
+  // your trophies: a pedestal for every great foe; the ones you have beaten wear their statue. The throne's own and
+  // the penguin's flank the chest
   const T = [['the_unstruck_god', CX - 4, 4], ['emily_the_yapper', CX + 4, 4],
-    ['brine_cathedral', 5, 4], ['wick_mother', W - 6, 4], ['orrery_of_winter', 4, 7], ['penitent_colossus', W - 5, 7],
-    ['drowned_abbot', 4, 10], ['unstruck', W - 5, 10], ['the_archivist', 7, 12], ['fallen_heart', W - 8, 12]];
+    ['brine_cathedral', 19, 5], ['wick_mother', 31, 5], ['orrery_of_winter', 19, 8], ['penitent_colossus', 31, 8],
+    ['drowned_abbot', 19, 15], ['unstruck', 31, 15], ['the_archivist', 21, 18], ['fallen_heart', 29, 18]];
   for (const [id, x, y] of T) put(m, 'pedestal', x, y, true, { trophy: id });
+  // the training room: the dummies (they read your damage per second), hay, a sign
+  m.dummies = [[4.5, 8.5], [8.5, 7.5], [11.5, 8.5], [6.5, 12.5], [10.5, 12.5]];
+  put(m, 'haybale', 2, 5, true); put(m, 'haybale', 13, 18, true);
+  put(m, 'signpost', 13, 9, true, { label: 'Training room: hit the dummies to read your damage per second', tag: 'TRAINING ROOM', hint: 'Hit the dummies to see your damage per second' });
+  // the pet room: a fenced pen where your pets play (its gate on the west), the Petkeeper at the gate
+  const pen = { x0: 41, y0: 6, x1: 47, y1: 17 };
+  m.pen = pen;
+  for (let x = pen.x0 - 1; x <= pen.x1 + 1; x++) { put(m, 'fence_h', x, pen.y0 - 1, true); put(m, 'fence_h', x, pen.y1 + 1, true); }
+  for (let y = pen.y0; y <= pen.y1; y++) { if (y !== MY && y !== MY + 1) put(m, 'fence_v', pen.x0 - 1, y, true); }
+  put(m, 'haybale', pen.x1, pen.y0, true); put(m, 'haybale', pen.x1, pen.y1, true);
+  put(m, 'petkeeper', 38, MY - 3, true, { interact: 'petyard', label: 'Visit the Petkeeper (pets, eggs, feeding)', tag: 'PET ROOM', hint: 'Hatch eggs, raise pets, choose the companion who heals you' });
+  put(m, 'signpost', 38, MY + 4, true, { label: 'The pet room: hatch eggs, raise pets, and pick the companion who heals you' });
   m.portals = [{ kind: 'nexus', x: CX + 0.5, y: H - 2.5, label: 'Back to the Nexus', to: 'nexus' }];
   m.spawn = { x: CX + 0.5, y: H - 4.5 };
   return finalize(m);

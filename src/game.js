@@ -377,8 +377,8 @@ export class Game {
     if (where === 'nexus') {
       this.rollQuestOffers();
       this.rollShop();
-      (this.map.dummies || []).forEach(([x, y], k) => this.addEnemy(k >= 3 ? 'armored_dummy' : 'training_dummy', x, y));
     }
+    if (!this.map.netWorld) (this.map.dummies || []).forEach(([x, y], k) => this.addEnemy(k >= 3 ? 'armored_dummy' : 'training_dummy', x, y));   // the training dummies (your vault's training room)
     this.banner(where === 'nexus' ? 'The Nexus' : this.map.name, 2200, where !== 'vault');
     if (this.map.kind === 'dungeon') this.dungeonBeat('enter');   // its story begins
     this.sfx('portal');
@@ -3114,7 +3114,7 @@ export class Game {
   activePet() { return this.pets().find((q) => q.id === this.save.activePet) || null; }
   // an egg hatches at your feet: it wobbles, wobbles, cracks and bursts (its own clip), and the pet comes out on the burst
   hatch(rarity, family) {
-    if (this.pets().length >= PET_MAX) { this.toast(`Your Pet Yard is full (${PET_MAX} pets). Release one first.`); return false; }
+    if (this.pets().length >= PET_MAX) { this.toast(`Your pet room is full (${PET_MAX} pets). Release one first.`); return false; }
     if (this.hatching) { this.toast('One egg at a time: this one is still hatching.'); return false; }
     if (!FAMILIES[family]) family = R.pick(Object.keys(FAMILIES));
     const p = this.player;
@@ -3132,7 +3132,7 @@ export class Game {
       this.pets().push(pet);
       if (!this.activePet()) { this.save.activePet = pet.id; this.pet = null; this.petAt = { x: H.x, y: H.y }; }
       this.petJoy(pet);
-      this.banner(`The egg hatches: a ${RARITY[H.rarity].name} ${petName(pet)}!${this.save.activePet === pet.id ? ' It follows you now.' : ' Visit the Pet Yard to choose your companion.'}`, 3400);
+      this.banner(`The egg hatches: a ${RARITY[H.rarity].name} ${petName(pet)}!${this.save.activePet === pet.id ? ' It follows you now.' : ' Visit the pet room in your vault to choose your companion.'}`, 3400);
       this.vx({ k: 'burst', ...liftO(H.x, H.y, 0.4), n: 36, colors: [RARITY[H.rarity].color, '#ffffff', '#fff6c8'] });
       this.sfx('rare'); this.persist();
     }
@@ -3177,7 +3177,7 @@ export class Game {
   }
   updatePet(dt) {
     const P = this.activePet(), p = this.player;
-    if (!P || p.dead || this.map.kind === 'vault') { this.pet = null; return; }
+    if (!P || p.dead) { this.pet = null; return; }   // (it follows you into your vault too: its pet room is there now)
     if (!this.pet || this.pet.ref !== P) this.pet = { ref: P, kind: P.kind, rarity: P.rarity, sprite: petSprite(P), x: p.x - 1, y: p.y + 0.6, tick: PET_TICK, face: false, moving: false };
     if (this.petAt) { this.pet.x = this.petAt.x; this.pet.y = this.petAt.y; this.petAt = null; }   // a fresh hatchling starts where its egg was
     // it follows in your footsteps, RotMG's way: along the path you walked, a little over a tile behind you, and when you
@@ -3871,7 +3871,7 @@ export class Game {
   updateQuirks(dt) {
     const p = this.player, m = this.map;
     // your pets wander their pen in the Pet Yard
-    if (m.kind === 'nexus' && m.pen) {
+    if (m.pen) {                                            // (in your vault's pet room)
       const L = this.pets().filter((q) => q.id !== this.save.activePet);
       if (!m.penPets || m.penPets.length !== L.length || m.penPets.some((v, k) => v.ref !== L[k])) {
         m.penPets = L.map((q, k) => ({ ref: q, rarity: q.rarity, sprite: petSprite(q), x: m.pen.x0 + 1 + (k * 2.3) % (m.pen.x1 - m.pen.x0 - 1), y: m.pen.y0 + 1.5 + Math.floor(k / 4) * 2, tx: 0, ty: 0, wait: R() * 2, moving: false, face: false }));
@@ -4272,7 +4272,7 @@ export class Game {
       }
       case 'pet': {                                        // /pet [kind] [rarity] [max]: a pet for testing (max = every ability at its cap)
         const kind = PET_KINDS[args[0]] ? args[0] : hatchKind(undefined, R), rar = RARITY[args[1]] ? args[1] : 'common';
-        if (this.pets().length >= PET_MAX) { say('Your Pet Yard is full.'); break; }
+        if (this.pets().length >= PET_MAX) { say('Your pet room is full.'); break; }
         const q = newPet(kind, rar);
         if (args[2] === 'max') for (const A of Object.values(q.ab)) A.lv = petCap(q);
         this.pets().push(q); if (!this.activePet()) this.save.activePet = q.id; this.persist();
