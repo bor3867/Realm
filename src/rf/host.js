@@ -30,10 +30,11 @@ const CREATURE_HOOKS = ['enemy', 'vuln', 'hitEnemy', 'alpha', 'atk', 'bullet', '
 const HOOKS_OURS = { forge: ['drawEnemy'], keep: ['atk'], rift: ['atk', 'drawEnemy'], mirrors: ['bullet'], sewers: ['enemy'], clocktower: ['enemy'],
   glade: ['vuln', 'alpha', 'bullet'],     // (the Glade: moon-spirits solid only in moonlight; still water mirrors a shot)
   temple: ['vuln', 'alpha', 'atk'],       // (the Temple: sun things by day, moon things by night; its one atk rule is a shield, which our rule leaves out)
-  grove: ['enemy', 'vuln', 'drawEnemy'] }; // (the Grove: guardians keep near their post, nothing is hurt by its runes, wrath)
+  grove: ['enemy', 'vuln', 'drawEnemy'],  // (the Grove: guardians keep near their post, nothing is hurt by its runes, wrath)
+  pyre: ['enemy', 'vuln', 'kill'] };     // (the Pyre: a brute's cooled armour cracks open as it strikes; a phoenixling's ember, by their kill rule)
 // kinds a dungeon's own rule still moves (they stay on their engine): the Sewers' lurker, stranded by low water; the
 // Clocktower's windup, stepping on the beat, and its cuckoo, out only on the hour
-const KEEP_THEIRS = new Set(['rf_sewers_lurker', 'rf_clocktower_windup', 'rf_clocktower_cuckoo', 'rf_grove_blight']);   // (and the Grove's blight, marching on the sapling)
+const KEEP_THEIRS = new Set(['rf_sewers_lurker', 'rf_clocktower_windup', 'rf_clocktower_cuckoo', 'rf_grove_blight', 'rf_pyre_eel']);   // (and the Grove's blight, marching on the sapling; the Pyre's eel, swimming its lava)
 const HOST = {};                                                  // filled in by rfMap: the calls their engine makes to us
 
 // boot: the Realmforge data (dungeons, creatures, art) is loaded once, in the background
@@ -209,6 +210,7 @@ const methods = {
       if (r && r.runes && r.runes.some(([x, y]) => Math.hypot(x + 0.5 - e.x, y + 0.5 - e.y) < 1.3)) return 0;
       return w && w.wrath ? 1.15 : 1;
     }
+    if (v === 'cool') return e.rfOpenUntil > this.t ? 1 : 0.25;    // the Pyre's brute: cooled armour, open only just after it strikes
     return 1;
   },
   rfFaint(e) { const v = e.D.rfVuln; return v === 'moon' && this.rfVulnK(e) < 1 ? 0.45 : v === 'side' && this.rfVulnK(e) < 1 ? 0.55 : 1; },

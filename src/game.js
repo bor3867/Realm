@@ -2293,6 +2293,7 @@ export class Game {
     const aim = angleTo(ox, oy, px, py);
     if (e.rb && A.pattern === 'radial') this.vx({ k: 'shake', amt: 2 });
     const size = A.size || 0.35, nm = e.D ? e.D.name : 'The Unstruck';
+    if (e.D && e.D.opens) e.rfOpenUntil = this.t + e.D.opens;   // (a Realmforge creature that opens as it strikes)
     if (A.pattern === 'pulse') { e.pulseUntil = this.t + (A.dur || 0.8); e.pulseC = A.color; return; }   // a pulse: for a moment it pushes you away
     if (A.pattern === 'raise') { if (this.map.rf) this.rfRaise(e, A); return; }
     if (A.pattern === 'mark') {                        // circles marked where you stand (and round you), then it lands; a ring from each

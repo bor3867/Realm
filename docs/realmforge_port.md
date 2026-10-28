@@ -156,7 +156,9 @@ their creatures follow their rules, not ours. The plan, a step a turn:
    The Grove: a guardian keeps within 7 tiles of its post (their 'guard' is a leash, not a guard over others), no
    creature by its room's runes is hurt, wrath (1.15x a blow, quicker, sooner) shows; the blight, marching on the
    sapling, stays theirs. 20 dungeons. (The link check's bot now ascends: the deep bands are tough.)
-   Next: the 4 dungeons with creature rules left (unmelting, pyre, sanctum, stage), each rule
+   The Pyre: a brute's cooled armour takes 0.25x a blow but for a moment after it strikes; a phoenixling's ember (and
+   its rebirth) by their kill rule, which runs for ours; the eel, swimming its lava, stays theirs. 21 dungeons.
+   Next: the 3 dungeons with creature rules left (unmelting, sanctum, stage), each rule
    rebuilt in our engine, and the last traits (reflect, rebirth,
    afterimage, echo, encase, ghostfire, the moon/shade weaknesses, chess, mirror).
    Their layout, props, traps and puzzles stay hosted until step 5.

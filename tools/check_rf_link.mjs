@@ -27,7 +27,7 @@ for (const dg of list) {
   const res = { linked: 0, ours: 0, theirKills: 0, hurt: 0, xp: 0, errors: [] };
   try {
     g.enter(`rf_${dg}`);
-    const T = (res.traits = { raised: 0, chainHits: 0, pulses: 0, formation: 0, mirrored: 0, forged: 0, onBeat: 0, waterCopies: 0, told: 0, barely: 0 });
+    const T = (res.traits = { raised: 0, chainHits: 0, pulses: 0, formation: 0, mirrored: 0, forged: 0, onBeat: 0, waterCopies: 0, told: 0, barely: 0, reborn: 0 });
     const mk0 = g.rfVulnK.bind(g); g.rfVulnK = (e) => { const k = mk0(e); if (k > 1) T.told++; else if (k < 1) T.barely++; return k; };   // (blows that told, and that barely did)   // their traits and rules, in our engine
     const m0 = g.rfMirror.bind(g); g.rfMirror = (b, dt) => { const n0 = g.projectiles.length; m0(b, dt); if (g.projectiles.length > n0) T.waterCopies++; else if (b.refl) T.mirrored++; };
     const r0 = g.rfRaise.bind(g); g.rfRaise = (e, A) => { const n = g.map.rf.E.en_.length; r0(e, A); if (g.map.rf.E.en_.length > n) T.raised++; };
@@ -53,6 +53,7 @@ for (const dg of list) {
       if (g.enemies.some((o) => !o.dead && o.rfE && o.rfE.forged)) T.forged++;
     }
     I.fire = false; for (let k = 0; k < 30; k++) g.update(1 / 30);   // (the last deaths reach their dungeon)
+    T.reborn = E.en_.filter((q) => q.reborn).length + g.enemies.filter((o) => o.rfE && o.rfE.reborn).length;
     const linkedDead = E.en_.filter((q) => q.ours && q.hp <= 0).length + 0, oursAlive = g.enemies.filter((o) => o.rfE && !o.dead && o.rfE.hp <= 0).length;
     if (oursAlive) res.errors.push(`${oursAlive} of ours alive whose creature died`);
     const ghost = E.en_.filter((q) => q.ours && q.hp > 0 && q.ours.dead).length;
