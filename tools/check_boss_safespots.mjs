@@ -11,6 +11,7 @@ let CLOCK = 1.7e12; Date.now = () => CLOCK;
 const { buildRegistry } = await import('../src/registry.js');
 const { Game } = await import('../src/game.js');
 const { BX } = await import('../src/bosses/index.js');
+const { DUNGEONS } = await import('../src/data/enemies.js');
 const { R: GR } = await import('../src/util.js');
 const B0 = new URL('../art/bundle/', import.meta.url), J = (q) => JSON.parse(readFileSync(new URL(q, B0), 'utf8')), idx = J('index.json');
 const reg = buildRegistry(idx.atlases.map((a) => ({ pack: a.split('/')[0], json: J(a) })), J(idx.hover), (q) => q);
@@ -18,12 +19,15 @@ const only = process.argv.slice(2).filter((a) => !a.startsWith('--')), SPEED = 6
 function fight(id, strat) {
   RNG = 41; GR.seed(11); CLOCK = 1.7e12;
   const g = new Game({ reg }, { fame: 0, gold: 0, essence: 0, vaults: [[]], graveyard: [], chars: [], slots: 8, bestLevel: 0 });
-  g.newCharacter('priest'); g.persist = () => {}; g.god = false; g.enter(BX[id].map || 'realm'); g.enemies.length = 0; g.command(`/bx ${id}`);
+  g.newCharacter('priest'); g.persist = () => {}; g.god = false;
+  const home = Object.keys(DUNGEONS).find((k) => DUNGEONS[k].boss === id);   // a dungeon boss fights in its own room (its arena, its drums and pillars)
+  if (home) { g.enter(home); for (const q of g.enemies) if (q.D.bx !== id) { q.dead = true; q.noLoot = true; } g.enemies = g.map.enemies = g.enemies.filter((q) => q.D.bx === id); }
+  else { g.enter(BX[id].map || 'realm'); g.enemies.length = 0; g.command(`/bx ${id}`); }
   const e = g.enemies.find((q) => q.D.bx === id), p = g.player;
   if (!e) return null;
   let hits = 0; const hurt = g.hurtPlayer.bind(g), why = (fight.why = {}); g.hurtPlayer = (d, by, x) => { if (by) { hits++; const k = (e.bx && e.bx.pat && e.bx.pat.name) || (e.bx && e.bx.state) || '?'; why[k] = (why[k] || 0) + 1; } return hurt(d, by, x); };
   const used = (fight.used = {});
-  const A = e.room, cx = A ? A.x + A.w / 2 : e.x, cy = A ? A.y + A.h / 2 : e.y, Rr = A ? Math.min(A.w, A.h) / 2 - 1.5 : 9;
+  const A = e.room || (e.bx && e.bx.arena), cx = A ? A.x + A.w / 2 : e.x, cy = A ? A.y + A.h / 2 : e.y, Rr = A ? Math.min(A.w, A.h) / 2 - 1.5 : 9;
   const spots = { middle: [0, 0], half: [0.5, 0.3], north: [0, -1], south: [0, 1], east: [1, 0], west: [-1, 0] };
   const prevPos = new Map(); let dir = [0, 0];
   const place = (x, y) => { p.x = x; p.y = y; g.unstick(p); };
