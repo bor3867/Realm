@@ -35,6 +35,7 @@ function supabase(url, key) {
     async dropSession(t) { await api('DELETE', `sessions?token=eq.${encodeURIComponent(t)}`); },
     async save(id) { const r = await api('GET', `saves?account_id=eq.${id}&select=data`); return r[0] ? r[0].data : null; },
     async putSave(id, data) { await api('POST', 'saves', { account_id: id, data, updated_at: new Date().toISOString() }, 'resolution=merge-duplicates'); },
+    async graveyards() { return (await api('GET', 'saves?select=g:data->graveyard')).map((r) => r.g); },   // (every account's fallen, nothing else of its save)
   };
 }
 
@@ -53,6 +54,7 @@ function fileStore() {
     async dropSession(t) { D.sessions = D.sessions.filter((s) => s.token !== t); flush(); },
     async save(id) { return D.saves[id] || null; },
     async putSave(id, data) { D.saves[id] = data; flush(); },
+    async graveyards() { return Object.values(D.saves).map((d) => d && d.graveyard); },
   };
 }
 
@@ -86,8 +88,20 @@ export function makeDb() {
     },
     async logout(t) { await S.dropSession(String(t)); },
     async writeSave(id, data) { await S.putSave(id, data); },
+    // the Hall of Legends across the game: the 50 greatest fallen characters of every account (from the graveyards in
+    // their saves: no table of its own), the greatest first; worked out at most every two minutes
+    async legends() {
+      if (LEG && Date.now() - LEG.at < 120000) return LEG.list;
+      const all = [];
+      for (const G of await S.graveyards()) if (Array.isArray(G)) for (const d of G) if (d && typeof d === 'object' && (d.fame || 0) > 0) all.push(d);
+      const K = ['name', 'cls', 'level', 'fame', 'by', 'date', 'kills', 'bossKills', 'dungeons', 'shots', 'hits', 'dmgDealt', 'dmgTaken', 'potions', 'abilities', 'chests', 'secrets', 'lore', 'quests', 'mins', 'xp', 'maxed', 'equip'];
+      const list = all.sort((a, b) => (b.fame || 0) - (a.fame || 0)).slice(0, 50).map((d) => Object.fromEntries(K.filter((k) => d[k] !== undefined).map((k) => [k, d[k]])));
+      LEG = { at: Date.now(), list };
+      return list;
+    },
   };
 }
+let LEG = null;
 
 // the tables, for Supabase's SQL editor (docs/multiplayer.md has the same)
 export const SQL = `create table if not exists accounts (

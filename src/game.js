@@ -157,6 +157,10 @@ const BIOME_TARGET = { shore: 210, fen: 170, runeholt: 125, godfall: 85 };
 const TILES_PER_GROUP = [1700, 1600, 1200, 560];
 const parentTarget = (m, b) => Math.round((m.area ? m.area[BIOMES.indexOf(b)] : 60000) / TILES_PER_GROUP[BIOME_RING[BIOMES.indexOf(b)]]);
 const MAX_REALM_BOSSES = 3;
+// a character's record, kept with it (the character tab, its legend when it falls)
+// a new character slot: five times what it was (the 4th 7,500 gold, the 8th 37,500; the user, 2026-10-28)
+export const slotPrice = (slots) => 7500 * (slots - 3);
+export const REC_KEYS = ['shotsFired', 'shotsHit', 'dmgTaken', 'dmgDealt', 'playT', 'potions', 'abilities', 'chests', 'secrets'];
 const ENEMY_DMG = 1.5;                                      // every enemy hits this many times its number (see enemyScale)
 // things you walk up to and press F on
 // Phase 7: an egg's burst frame (its hatch clip: 9 frames at 6 fps), how hard each land is, and the families it keeps
@@ -295,7 +299,7 @@ export class Game {
     this.persist();
   }
   unlockSlot() {
-    const price = 1500 * (this.save.slots - 3);
+    const price = slotPrice(this.save.slots);
     if (this.save.slots >= 8) return 'All 8 slots are open.';
     if ((this.save.gold || 0) < price) return `You need ${price} gold.`;
     this.save.gold -= price; this.save.slots++;
@@ -303,7 +307,8 @@ export class Game {
     return 'A new character slot opens.';
   }
   persist() {
-    const keep = ['id', 'created', 'cls', 'level', 'xp', 'totalXp', 'base', 'equip', 'inv', 'kills', 'quests', 'lore', 'petted', 'fame', 'fameXp', 'bossKills', 'dungeons', 'waypoints', 'pots'];
+    const keep = ['id', 'created', 'cls', 'level', 'xp', 'totalXp', 'base', 'equip', 'inv', 'kills', 'quests', 'lore', 'petted', 'fame', 'fameXp', 'bossKills', 'dungeons', 'waypoints', 'pots',
+      ...REC_KEYS];   // (its record: src/ui.js, the character tab; shots, hits, damage and time used to be lost on every reload)
     const chars = this.save.chars.map((c) => Object.fromEntries(keep.map((k) => [k, c[k]])));
     const data = { ...this.save, chars, savedAt: Date.now() };   // (when: the newer of this browser's copy and the server's wins)
     this.save.savedAt = data.savedAt;
@@ -652,6 +657,7 @@ export class Game {
         else if (roll < 0.97) { this.toast('Inside: angry bees. (They are crabs.)'); for (let k = 0; k < 3; k++) this.addEnemy('brine_slimelet', p.x + Math.cos(k * 2) * 2, p.y + Math.sin(k * 2) * 2); }
         else { this.toast('Inside: a relic!'); give([R.pick(Object.values(ITEMS).filter((x) => x.ut && !x.mythic && !x.admin && x.slot !== 'consumable').map((x) => x.id))]); }
       }
+      if (it.use.heal || it.use.mana) p.potions = (p.potions || 0) + 1;   // (its record)
       if (it.use.heal) { const h0 = p.hp; p.hp = Math.min(this.stat('hp'), p.hp + it.use.heal); if (p.hp > h0) this.pFloat(`+${Math.round(p.hp - h0)}`, '#5ef08a'); }
       if (it.use.regen) { p.regenRate = it.use.regen.hp / it.use.regen.t; p.regenUntil = this.t + it.use.regen.t; this.vx({ k: 'hearts', x: p.x, y: p.y }); }
       if (it.use.mana) { const m0 = p.mp; p.mp = Math.min(this.stat('mp'), p.mp + it.use.mana); if (p.mp > m0) this.pFloat(`+${Math.round(p.mp - m0)}`, '#6ab4ff'); }
@@ -1183,6 +1189,7 @@ export class Game {
     if (p.abilityT > 0 || p.hook) return;
     p.mp -= cost;
     p.abilityT = 0.5;
+    p.abilities = (p.abilities || 0) + 1;                // (its record)
     this.sfx('ability');
     if (A.berserk) p.status.berserk = A.berserk;
     if (A.armored) p.status.armored = A.armored;
@@ -1865,6 +1872,7 @@ export class Game {
     this.deathInfo = { cls: p.cls, level: p.level, fame, base: rep.base, bonuses: rep.bonuses, by, kills: p.kills, maxed, date: new Date().toISOString().slice(0, 10),
       name: (this.account && this.account.name) || CLASSES[p.cls].name, equip: p.equip.slice(), shots: p.shotsFired || 0, hits: p.shotsHit || 0, dmgTaken: p.dmgTaken || 0,
       mins: Math.round((p.playT || 0) / 60), bossKills: p.bossKills || 0, dungeons: p.dungeons || 0, xp: p.totalXp || 0,
+      dmgDealt: Math.round(p.dmgDealt || 0), potions: p.potions || 0, abilities: p.abilities || 0, chests: p.chests || 0, secrets: p.secrets || 0, lore: (p.lore || []).length, quests: (p.quests || []).filter((q) => q.done).length,
       lastHits: (p.lastHits || []).filter((h) => this.t - h.t < 8).map((h) => [h.by, h.d, Math.max(0, this.t - h.t)]) };
     // a gravestone where you fell (others in the same place see it too: src/net.js), its size by the fame you earned
     if (this.map) (this.map.graves = this.map.graves || []).push({ x: p.x, y: p.y, name: this.deathInfo.name, level: p.level, cls: p.cls, fame, t: this.t });
@@ -2454,6 +2462,7 @@ export class Game {
     if (e.D && e.D.bx && !e.bxKill && !e.net) d = this.bxClamp(e, d);   // (a shared boss's phases, finale and death are the server's: your copy only passes your blow on. It used to start
     // the finale itself, which only the server runs: your copy stayed in it, immune, so no blow reached the server again)
     e.hp -= d; e.hurtT = 0.12;
+    if (this.player && !this.netTargets && !(e.D && e.D.dummy)) this.player.dmgDealt = (this.player.dmgDealt || 0) + Math.max(0, d);   // (its record)
     if (e.D && e.D.melon) { e.melonHurt = this.t; this.vx({ k: 'regfx', key: 'mx_effects/melon_hit', x, y: y - 0.2, fps: 14 }); }
     if (e.id === 'coin_imp' && R() < 0.35) { const g0 = 8 + Math.floor(R() * 20); this.save.gold = (this.save.gold || 0) + g0; this.float(e.x, e.y - 1.4, `+${g0}g`, '#ffd650'); this.sfx('coin'); }
     if (!quiet) { this.sfx('hit'); this.vx({ k: 'hit', x, y, crit }); }
@@ -2494,7 +2503,7 @@ export class Game {
       this.vx({ k: 'death', e, big: !!e.rb });
       if (e.D.melon) this.melonBurst(e);
       this.sfx(e.rb || e.herald ? 'bigkill' : 'kill');
-      const gold = Math.max(1, Math.round(e.D.xp / 6));
+      const gold = Math.max(1, Math.round(e.D.xp / (e.rb ? 30 : 18)));   // (was xp / 6 for all: the user, 2026-10-28, a harder economy: a third a kill, a fifth a boss)
       this.save.gold = (this.save.gold || 0) + gold;
       if (gold >= 20) this.float(...lift(e.x, e.y, 1.6), `+${gold}g`, '#f2c14e');
       if (e.rb) this.vx({ k: 'shake', amt: 6 });
@@ -3294,6 +3303,7 @@ export class Game {
     this.vx({ k: 'burst', ...liftO(o.x, o.y, 0.5), n: 30, colors: ['#9a96b0', '#ffd650', '#ffffff'] });
     this.vx({ k: 'shake', amt: 3 });
     this.banner('The cracked wall gives way... a hidden passage!', 2600);
+    if ((m.secrets || []).some((s) => s.plug && s.plug.x === xi && s.plug.y === yi)) this.player.secrets = (this.player.secrets || 0) + 1;   // (its record)
     this.sfx('rare');
     this.unveil(xi, yi);
   }
@@ -3443,6 +3453,7 @@ export class Game {
   // taken out: a shared dungeon knows its things by their place in the list.) 2026-10-24
   eraseChest(o) { const m = this.map; if (o.solid && m && m.solid) m.solid[Math.floor(o.y) * m.w + Math.floor(o.x)] = 0; o.hidden = true; o.solid = false; if (m) m.ogridDirty = true; }
   breakChest(o) {
+    if (this.player && !this.netTargets) this.player.chests = (this.player.chests || 0) + 1;   // (its record)
     o.opened = true; o.sprite = 'chest_open'; o.hp = 0; this.eraseChest(o);
     if (o.loot) this.questEvent('camp', o);
     const bag = this.addBag(o.x, o.y + 0.8, o.admin ? this.adminLoot() : rollLoot(o.starLoot || (o.loot ? CAMP_LOOT[o.loot] : (this.map.def.chestLoot || [])), o.secret ? 2.5 : 1), !o.admin);   // (one bag, coloured by its best: it used to drop two, one hiding the other)
@@ -4017,7 +4028,7 @@ export class Game {
   }
   // ------------------------------------------------------------- shop + forge
   basePrice(it) {
-    if (it.id === 'backpack') return 2500;
+    if (it.id === 'backpack') return 15000;               // (was 2500: the user, 2026-10-28, a harder economy)
     if (it.use && it.use.key) return { chapel: 600, crypt: 900, forge: 1200, ember: 1600, scriptorium: 1200, heart: 2500, throne: 6000 }[it.use.key];
     if (it.use && it.use.egg) return { common: 900, uncommon: 3500, rare: 12000, legendary: 40000, divine: 120000 }[it.use.egg];
     if (it.id === 'vault_chest') return Math.round(600 * Math.pow(this.save.vaults[0].length / 8, 1.3) / 50) * 50;

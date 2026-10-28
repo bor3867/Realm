@@ -390,7 +390,7 @@ const methods = {
     const M = m.rf.E.M, X = m.rf.X, walk = (x, y) => !X.BM[M.t[y * M.W + x]];
     for (const V of m.rfVeils) if (V.idx && (V.g.open || V.g.cells.some(([x, y]) => walk(x, y)))) {
       for (const i of V.idx) m.veil[i] = 0; V.idx = null; this.fogAt = null;
-      if (!V.g.open && !this.rfServe) { V.g.open = 1; this.banner(V.g.found || 'The cracked wall gives way... a hidden room!', 2600); this.sfx && this.sfx('rare'); }   // (a cracked wall broke: their own word on what lay behind)
+      if (!V.g.open && !this.rfServe) { V.g.open = 1; this.player.secrets = (this.player.secrets || 0) + 1; this.banner(V.g.found || 'The cracked wall gives way... a hidden room!', 2600); this.sfx && this.sfx('rare'); }   // (a cracked wall broke: their own word on what lay behind)
     }
   },
   // one engine: our monster stands in for their creature from the moment it wakes to fight; theirs stays in their rooms
@@ -511,7 +511,7 @@ const methods = {
     pr.hp -= dmg; pr.hurtT = this.t;
     this.float(...lift(cx, cy, 0.9), `${Math.round(dmg)}`, '#ffd650');
     this.vx({ k: 'burst', ...this.rfLift(cx, cy), n: 3, colors: ['#c98a44', '#ffd650'] });
-    if (pr.hp <= 0) { pr.used = 1; pr.opened = 1; this.rfChest(pr); }
+    if (pr.hp <= 0) { pr.used = 1; pr.opened = 1; this.rfChest(pr); this.player.chests = (this.player.chests || 0) + 1; }
   },
   // a chest: our loot, by how hard it was to reach
   rfChest(pr) {

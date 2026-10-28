@@ -179,6 +179,12 @@ function onMessage(c, text) {
     return;
   }
   if (m.t === 'auth' && db) { auth(c, m); return; }
+  if (m.t === 'legends') {                                                            // the Hall of Legends: the game's 50 greatest fallen
+    if ((c.legT || 0) > Date.now()) return; c.legT = Date.now() + 3000;
+    if (!db) { send(c, { t: 'legends', list: [], note: 'This server keeps no accounts.' }); return; }
+    db.legends().then((list) => send(c, { t: 'legends', list })).catch((err) => { console.error('legends', err.message); send(c, { t: 'legends', list: [], note: 'The legends could not be read just now.' }); });
+    return;
+  }
   if (m.t === 'save' && db && c.account && m.data && typeof m.data === 'object') {   // your save, kept on the server
     const json = JSON.stringify(m.data);
     if (json.length > 600000) return;

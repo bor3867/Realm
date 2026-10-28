@@ -15,6 +15,9 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #app { display: flex; height: 100%; }
 #stage { flex: 1; position: relative; display: grid; place-items: center; min-width: 0; }
 #game { image-rendering: pixelated; cursor: crosshair; display: block; }   /* (the cursor you chose replaces it: src/cursor.js) */
+#stats.recview { display: block; overflow-y: auto; overflow-x: hidden; }   /* the character record: scrolls inside the fixed box */
+#stats.recview > div { display: flex; justify-content: space-between; gap: 6px; padding: 0 6px; font-size: 11px; line-height: 1.5; white-space: nowrap; }
+#stats.recview .rk { color: #a8a2bc; }
 .settings .curprev { width: 32px; height: 32px; image-rendering: pixelated; vertical-align: middle; margin-left: 8px; background: #4a4458; border-radius: 4px; }
 #panel { width: 236px; flex: none; background: var(--panel); border-left: 2px solid var(--edge); padding: 10px; display: flex; flex-direction: column; gap: 6px; overflow-y: auto; }
 #minimap { width: 216px; height: 216px; image-rendering: pixelated; background: #000; border: 2px solid var(--edge); }
@@ -961,6 +964,10 @@ body #app #panel { height: 100% !important; --slot: 54px; --mini: 196px; }   /* 
 .screen.atlas table { margin: 10px auto; border-collapse: collapse; text-align: left; font-size: 14px; max-width: 920px; }
 .screen.atlas th { color: #ffd98a; font-weight: normal; padding: 4px 10px; border-bottom: 1px solid #3a3348; }
 .screen.atlas td { padding: 4px 10px; border-bottom: 1px solid #221d2c; color: #ece6f6; }
+.screen.legends .legtabs { display: flex; gap: 8px; justify-content: center; margin: 4px 0 8px; }
+.screen.legends .legtabs .on { border-color: #ffd650; color: #ffd650; }
+.screen.legends tr[data-pick] { cursor: pointer; } .screen.legends tr[data-pick]:hover td { background: #2a2338; }
+.screen.legends table.rec td:last-child { text-align: right; color: #ffd98a; }
 .screen.atlas td.stars { color: #ffd650; white-space: nowrap; } .screen.atlas td.stars i { color: #3a3348; font-style: normal; }
 .screen.atlas td.mut { color: #9a94ac; }
 /* QOL: an upgrade for you (in a bag or your backpack) wears a small green arrow */
@@ -1001,3 +1008,8 @@ body #app .slot.up::before { content: ''; position: absolute; right: 3px; top: 3
 .clsinfo h3 { margin: 0 0 4px; font-size: 14px; color: var(--gold); }
 .clsinfo p { margin: 0; color: #b8b2c8; font-size: 12px; line-height: 1.45; }
 @media (max-width: 760px) { .classes.pick { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); } }
+/* the character record in the side panel's box (src/ui.js recordPanel): one column of short rows, scrolling inside the
+   fixed box (the box's own grid and 16px font are for the eight stats) */
+body #app #panel #tabbody #stats.recview { display: block !important; overflow-y: auto !important; overflow-x: hidden !important; }
+body #app #panel #tabbody #stats.recview, body #app #panel #tabbody #stats.recview * { font-size: 13px !important; }
+body #app #panel #tabbody #stats.recview > div { display: flex !important; justify-content: space-between; gap: 6px; white-space: nowrap; line-height: 1.45; }

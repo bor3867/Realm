@@ -7,7 +7,7 @@ import { BX } from './bosses/index.js';
 import { armoryTip, ARM_COL } from './armory_tip.js';
 import { drawIcon as armIcon } from './armory_art.js';
 const BIOME_NAME = { shore: 'Shore', lowlands: 'Lowland', fen: 'Fen', thornwood: 'Thornwood', steppe: 'Steppe', runeholt: 'Runeholt', dunes: 'Dune', godfall: 'Godfall', frostveil: 'Frostveil' };
-import { POT_STACK } from './game.js';
+import { POT_STACK, slotPrice } from './game.js';
 import { ACTIONS, MINI_STEPS, keyLabel, resetSettings, keyName, keyParen } from './settings.js';
 import { CURSOR_STYLES, CURSOR_COLORS, CURSOR_SIZES, cursorPreview } from './cursor.js';
 import { PET_KINDS, RARITY, RARITY_ORDER, ABILITIES, PET_TICK, PET_MAX, petHeal, petMagic, petXpToNext, petCap, petMaxed, feedCost, feedValue, canMorph, FUSE_GOLD, petSprite, petName, abilityOrder, mainMaxed, petLevel } from './data/pets.js';
@@ -23,11 +23,23 @@ const HUD_ICON = {
   pet: ['............', '.#.......#..', '.##.....##..', '.#########..', '.#########..', '.##.###.##..', '.#########..', '.####.####..', '..#######...', '...#####....', '............', '............'],
   gear: ['............', '.....##.....', '..#.####.#..', '..########..', '...##..##...', '.###....###.', '.###....###.', '...##..##...', '..########..', '..#.####.#..', '.....##.....', '............'],
   bag: ['............', '....####....', '...#....#...', '...######...', '..########..', '.##########.', '.###.##.###.', '.##########.', '.##########.', '.##########.', '..########..', '............'],
+  rec: ['............', '..########..', '..#......#..', '..#.####.#..', '..#......#..', '..#.####.#..', '..#......#..', '..#.###..#..', '..#......#..', '..########..', '............', '............'],   // (a sheet: your record)
   pouch: ['............', '............', '...######...', '..#......#..', '.##########.', '.##########.', '.####..####.', '.####..####.', '.##########.', '.##########.', '............', '............'],
 };
 const hudIcon = (k) => { const G = HUD_ICON[k]; let r = '';
   G.forEach((row, y) => [...row].forEach((c, x) => { if (c === '#') r += `<rect x="${x}" y="${y}" width="1" height="1"/>`; }));
   return `<svg viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true">${r}</svg>`; };
+// a character's record as rows (the character tab, and a fallen hero's page in the Hall of Legends)
+export const liveRecord = (p) => ({ kills: p.kills || 0, bossKills: p.bossKills || 0, dungeons: p.dungeons || 0, shots: p.shotsFired || 0, hits: p.shotsHit || 0,
+  dmgDealt: Math.round(p.dmgDealt || 0), dmgTaken: Math.round(p.dmgTaken || 0), potions: p.potions || 0, abilities: p.abilities || 0, chests: p.chests || 0, secrets: p.secrets || 0,
+  lore: (p.lore || []).length, quests: (p.quests || []).filter((q) => q.done).length, mins: Math.round((p.playT || 0) / 60), xp: p.totalXp || 0 });
+export function recordRows(d, short = false) {   // (short: the labels for the side panel's narrow box)
+  const n = (v) => (v || 0).toLocaleString(), acc = d.shots ? `${Math.round((100 * (d.hits || 0)) / d.shots)}%` : '—';
+  const t = d.mins >= 60 ? `${Math.floor(d.mins / 60)}h ${d.mins % 60}m` : `${d.mins || 0}m`;
+  const L = short ? ['Kills', 'Boss kills', 'Dungeons', 'Shots', 'Hits', 'Accuracy', 'Dmg dealt', 'Dmg taken', 'Potions', 'Abilities', 'Chests', 'Secrets', 'Lore read', 'Quests', 'XP', 'Played']
+    : ['Monsters killed', 'Bosses killed', 'Dungeons completed', 'Shots fired', 'Shots hit', 'Accuracy', 'Damage dealt', 'Damage taken', 'Potions drunk', 'Abilities used', 'Chests opened', 'Secret rooms found', 'Lore stones read', 'Quests finished', 'Experience', 'Time played'];
+  return [n(d.kills), n(d.bossKills), n(d.dungeons), n(d.shots), n(d.hits), acc, n(d.dmgDealt), n(d.dmgTaken), n(d.potions), n(d.abilities), n(d.chests), n(d.secrets), n(d.lore), n(d.quests), n(d.xp), t].map((v, i) => [L[i], v]);
+}
 export function rarityColor(it) {
   if (it.arm) return ARM_COL[it.armTier];                // (the Mad God Armory's own tier colours)
   if (it.admin) return '#ff4af0';
@@ -165,17 +177,40 @@ export class UI {
     o.querySelector('#mclose').onclick = () => this.closeModal();
   }
   // the Hall of Legends: your fallen heroes (the best first) and the stars each class has earned
-  openLegends() {
-    this.modal = 'legends';
-    const s = this.g.save, G = [...(s.graveyard || [])].sort((a, b) => (b.fame || 0) - (a.fame || 0)).slice(0, 12);
-    const rows = G.map((d) => `<tr><td><b>${CLASSES[d.cls] ? CLASSES[d.cls].name : d.cls}</b></td><td>level ${d.level}</td><td class="stars">${d.fame || 0} fame</td><td class="mut">${String(d.by || '').replace(/[&<]/g, '')} · ${d.date || ''}</td></tr>`).join('') || '<tr><td class="mut" colspan="4">No legends yet. Go and make one.</td></tr>';
-    const stars = Object.keys(CLASSES).map((c) => { const f = (s.classFame || {})[c] || 0, n = FAME_GOALS.filter((x) => f >= x).length; return `<tr><td><b>${CLASSES[c].name}</b></td><td class="stars">${'★'.repeat(n)}<i>${'★'.repeat(5 - n)}</i></td><td class="mut">best ${f} fame</td><td></td></tr>`; }).join('');
-    const o = this.overlay(`<div class="screen atlas"><h1>The Hall of Legends</h1><h2>Your account: ${s.fame || 0} fame · best level ${s.bestLevel || 0}</h2>
-      <table><tr><th colspan="4">Your fallen heroes, the greatest first</th></tr>${rows}</table>
-      <table><tr><th colspan="4">Class stars (fame goals each class has reached)</th></tr>${stars}</table>
-      <button class="btn" id="mclose">Close${keyParen('settings')}</button></div>`);
+  // the Hall of Legends (2026-10-28): two tabs. Yours: your fallen heroes, the greatest first, each opening to its
+  // record; and the stars each class has earned. The realm's: the 50 greatest fallen of every player (the server's)
+  openLegends(tab = this.legTab || 'mine', pick = null) {
+    this.modal = 'legends'; this.legTab = tab;
+    const s = this.g.save, esc = (v) => String(v ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+    const cls = (d) => (CLASSES[d.cls] ? CLASSES[d.cls].name : esc(d.cls));
+    if (tab === 'realm' && !pick) { const Q = this.g.net && this.g.net.legends; if (!Q || Date.now() - Q.at > 60000) this.g.netLegends(); }   // (fresh, at most once a minute)
+    const N = this.g.net, L = tab === 'realm' ? (N && N.legends ? N.legends.list : null) : [...(s.graveyard || [])].sort((a, b) => (b.fame || 0) - (a.fame || 0));
+    const head = `<div class="legtabs"><button class="btn sm ${tab === 'mine' ? 'on' : ''}" data-leg="mine">Your legends</button><button class="btn sm ${tab === 'realm' ? 'on' : ''}" data-leg="realm">The realm's greatest</button></div>`;
+    let body;
+    if (pick) {                                                     // one hero's page: who, how they fell, their record
+      const d = pick;
+      body = `<h2>${esc(d.name || cls(d))} · ${cls(d)} · level ${d.level || 1}</h2>
+        <p class="mut">${d.fame || 0} fame · fell to ${esc(d.by || 'something')}${d.date ? ' · ' + esc(d.date) : ''}${d.maxed !== undefined ? ` · ${d.maxed}/8 stats maxed` : ''}</p>
+        <table class="rec">${recordRows(d).map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</table>
+        <button class="btn sm" id="legback">Back</button>`;
+    } else if (tab === 'realm') {
+      if (!L) body = `<p class="mut">${N && N.open ? 'Asking the realm…' : 'Go online to see the realm\'s greatest heroes.'}</p>`;
+      else if (!L.length) body = `<p class="mut">${esc((N.legends && N.legends.note) || 'No hero has fallen yet.')}</p>`;
+      else body = `<table class="legs"><tr><th>#</th><th>Hero</th><th>Class</th><th>Level</th><th>Fame</th><th>Fell to</th></tr>${L.map((d, i) => `<tr data-pick="${i}"><td class="mut">${i + 1}</td><td><b>${esc(d.name || '?')}</b></td><td>${cls(d)}</td><td>${d.level || 1}</td><td class="stars">${d.fame || 0}</td><td class="mut">${esc(d.by || '')}</td></tr>`).join('')}</table><p class="mut">Click a hero to see their record.</p>`;
+    } else {
+      const stars = Object.keys(CLASSES).map((c) => { const f = (s.classFame || {})[c] || 0, n = FAME_GOALS.filter((x) => f >= x).length; return `<tr><td><b>${CLASSES[c].name}</b></td><td class="stars">${'★'.repeat(n)}<i>${'★'.repeat(5 - n)}</i></td><td class="mut">best ${f} fame</td></tr>`; }).join('');
+      body = `<h2>Your account: ${s.fame || 0} fame · best level ${s.bestLevel || 0}</h2>
+        ${L.length ? `<table class="legs"><tr><th>Hero</th><th>Level</th><th>Fame</th><th>Fell to</th><th>When</th></tr>${L.map((d, i) => `<tr data-pick="${i}"><td><b>${cls(d)}</b></td><td>${d.level}</td><td class="stars">${d.fame || 0}</td><td class="mut">${esc(d.by)}</td><td class="mut">${esc(d.date)}</td></tr>`).join('')}</table><p class="mut">Click a hero to see their record.</p>` : '<p class="mut">None of your heroes has fallen yet.</p>'}
+        <table><tr><th colspan="3">Class stars (fame goals each class has reached)</th></tr>${stars}</table>`;
+    }
+    const o = this.overlay(`<div class="screen atlas legends"><h1>The Hall of Legends</h1>${head}${body}<button class="btn" id="mclose">Close${keyParen('settings')}</button></div>`);
+    o.querySelectorAll('[data-leg]').forEach((b) => { b.onclick = () => this.openLegends(b.dataset.leg); });
+    o.querySelectorAll('[data-pick]').forEach((r) => { r.onclick = () => this.openLegends(tab, L[+r.dataset.pick]); });
+    const back = o.querySelector('#legback'); if (back) back.onclick = () => this.openLegends(tab);
+    this.g.onLegends = () => { if (this.modal === 'legends' && this.legTab === 'realm' && !pick) this.openLegends('realm'); };
     o.querySelector('#mclose').onclick = () => this.closeModal();
   }
+
   openJournal(ev) {
     this.modal = 'journal';
     const o = this.overlay(`<div class="screen journal"><h1>${ev.title}</h1><h2>Page ${ev.page + 1} of ${ev.of}</h2>
@@ -935,6 +970,8 @@ export class UI {
     document.querySelectorAll('#iconrow [data-t]').forEach((b) => b.classList.toggle('on', this.statTab === b.dataset.t));
     this.nearbyLine();
     $('panel').dataset.tab = this.statTab || 'inv';      // Backpack | Stats | Pet share one fixed box under the equipment
+    if (this.statTab === 'rec') { this.recordPanel(); $('where').textContent = g.where || ''; $('hfame').textContent = g.save.fame; $('hgold').textContent = g.save.gold || 0; $('hess').textContent = g.save.essence || 0; this.refreshSlots(); return; }
+    $('stats').classList.remove('recview');
     if (this.statTab === 'pet') { this.petPanel(); $('where').textContent = g.where || ''; $('hfame').textContent = g.save.fame; $('hgold').textContent = g.save.gold || 0; $('hess').textContent = g.save.essence || 0; this.refreshSlots(); return; }
     $('stats').classList.remove('petview'); this.petKey = null;
     $('stats').innerHTML = STATS.slice(2).map((s) => {
@@ -1025,6 +1062,13 @@ export class UI {
     g.toast(`Vault sorted by ${mode}`);
   }
   // the sidebar's Pet tab: your companion at a glance (abilities, levels, what it does, when it next acts)
+  // the character tab: what this character has done (kept with it: src/game.js REC_KEYS), in the box under the equipment
+  recordPanel() {
+    const p = this.g.player, el = $('stats');
+    if (!p) return;
+    el.classList.remove('petview'); el.classList.add('recview'); this.petKey = null;
+    el.innerHTML = recordRows(liveRecord(p), true).map(([k, v]) => `<div><span class="rk">${k}</span><span>${v}</span></div>`).join('');
+  }
   petPanel() {
     const g = this.g, P = g.activePet(), el = $('stats');
     el.classList.add('petview');
@@ -1312,7 +1356,7 @@ export class UI {
       } else if (k < s.slots) {
         cards.push(`<button class="char empty" data-new="${k}"><span class="plus">+</span><b>New character</b><small>Choose a class</small></button>`);
       } else if (k === s.slots) {
-        cards.push(`<button class="char locked" id="unlock"><span class="plus">🔒</span><b>Unlock a slot</b><small>${1500 * (s.slots - 3)} gold</small></button>`);
+        cards.push(`<button class="char locked" id="unlock"><span class="plus">🔒</span><b>Unlock a slot</b><small>${slotPrice(s.slots).toLocaleString()} gold</small></button>`);
       }
     }
     const grave = s.graveyard.length ? s.graveyard.slice(0, 12).map((d) => `<div>${d.date} · <b>${CLASSES[d.cls].name}</b> Lv ${d.level} · killed by ${d.by} · <span class="fame">+${d.fame}</span></div>`).join('') : '<div class="mut">No one has died yet.</div>';

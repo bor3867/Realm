@@ -101,6 +101,7 @@ const methods = {
         if (Array.isArray(s.d)) b.dust = s.d;                 // (its trail, as its owner sees it)
       }
     } else if (m.t === 'ws') this.netWorldState(m);
+    else if (m.t === 'legends') { N.legends = { list: Array.isArray(m.list) ? m.list : [], note: m.note || '', at: Date.now() }; if (this.onLegends) this.onLegends(); }   // the game's greatest fallen (src/ui.js)
     else if (m.t === 'bosses') { N.bossPins = (m.list || []).map(([nid, id, x, y, biome, tag]) => ({ nid, id, x, y, biome, tag: tag || 'b' })); N.eventPins = (m.ev || []).map(([kind, x, y]) => ({ kind, x, y })); N.bossPinsMap = this.map; }   // where the bosses here are, near or far (for the minimap)
     else if (m.t === 'wev') this.netWorldEvents(m.ev);
     else if (m.t === 'wlog') { if (this.map.netWorld) { for (const a of m.tiles) this.netTile(a); for (const o of m.objs) this.netObj(o); } }
@@ -443,6 +444,7 @@ const methods = {
   netTakeEnter(where) { const q = this.netEnterNext; this.netEnterNext = null; return q && (DUNGEON_DEFS[where] || where.startsWith('rf_')) ? q : null; },
   // you used something in a shared dungeon: the server uses it too (by its place in the dungeon's list)
   netRfGate(i) { const N = this.net; if (N && N.open && this.map.netWorld) N.ws.send(JSON.stringify({ t: 'rfgate', i })); },   // a Realmforge gate you opened: the server opens it for all
+  netLegends() { const N = this.net; if (N && N.open) { N.ws.send(JSON.stringify({ t: 'legends' })); return true; } return false; },   // ask for the game's 50 greatest fallen
   netUse(o) { const N = this.net, i = this.map.objects.indexOf(o); if (N && N.open && i >= 0) N.ws.send(JSON.stringify({ t: 'use', i, k: o.interact || o.sprite || '' })); },
   // the dungeon as the server has it: tiles changed (gates opened, walls broken) and things' states (chests, levers)
   netDungeonState(m) {
