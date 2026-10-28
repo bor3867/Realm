@@ -9,7 +9,7 @@
 //                             put a mine between you and the star (felt in your own browser)
 // Art: tools/build_last_bosses.py ('bx_the_fallen_star', mines 'last_kin/mine', shots 'last_shots/the_fallen_star.<name>').
 import { ENEMIES, REALM_BOSSES } from '../data/enemies.js';
-import { TAU, R, angleTo, arena, players, target, open, ring, fan, kill } from './kit.js';
+import { TAU, R, angleTo, arena, players, target, open, ring, fan, kill, running, ahead } from './kit.js';
 
 const MINE = 'fs_mine', FIRE = ['#ff8a1f', '#ffd650'];
 if (!ENEMIES[MINE]) ENEMIES[MINE] = { name: 'A Star-Mine', biome: 'godfall', hp: 1400, def: 0, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 0, reg: 'last_kin/mine', scale: 1.4, contact: 0, attacks: [], loot: [] };
@@ -53,30 +53,36 @@ function shaded(e, p) {                                    // is a mine between 
 // the Supernova: about three quarters of a Godfall player's Life (it was 380 at a scale of 6, three times a Life (after every enemy began to hit 1.5x, 2026-10-22: tools/bench_boss_hits.mjs))
 function novaHits(g, e) { const p = g.player; if (!p.dead && !shaded(e, p)) g.hurtPlayer(g.bxDmg(e, 220), `${e.D.name}'s supernova`); }
 
+// against a steady circle (check_boss_safespots, 2026-10-27): only when you run, at where you are running to
+function starfall(g, e, V) {                              // a falling star: two marked circles on your path, landing in turn, scattering embers
+  if (!running(e)) return;
+  for (const T of [0.9, 1.3]) { const [x, y] = ahead(g, e, T); g.fx.push({ kind: 'zone', src: e, x, y, r: 1.2, t: 0, delay: T, life: T + 0.15, dmg: g.bxDmg(e, V.dmg || 52), by: e.D.name, done: false, colors: ['#fff3a0', '#ff9a3a'], shards: 6, proj: 'last_shots/the_fallen_star.ember' }); }
+}
+
 export default {
   id: 'the_fallen_star', art: 'the_fallen_star', shotSheet: 'last_shots', name: 'The Fallen Star', biome: 'godfall', hp: 240000, def: 20, xp: 8000,
   // dmgScale was 6 (set while the realm halved every blow): its embers hit for 300 and its comet run for 480, a
   // Godfall player's whole Life (after every enemy began to hit 1.5x, 2026-10-22: tools/bench_boss_hits.mjs)
   dmgScale: 1.6, r: 1.5, speed: 0.9, keep: 5, faces: false, tempo: 1, finale,
   phases: {
-    1: { move: 'pace', patterns: [
+    1: { move: 'pace', pressure: [{ every: 3.6, special: 'starfall', delay: 2.9, dmg: 52 }], patterns: [
       { name: 'embers', windup: 0.5, recover: 0.7, special: 'embers', n: 18, dmg: 50 },
       { name: 'a comet run', windup: 0.5, recover: 0.9, special: 'comet', dmg: 80 },
       { name: 'a constellation', windup: 0.8, recover: 0.8, special: 'constellation', n: 4 },
     ] },
-    2: { move: 'pace', patterns: [
+    2: { move: 'pace', pressure: [{ every: 3.2, special: 'starfall', delay: 2.6, dmg: 52 }], patterns: [
       { name: 'flares', windup: 0.5, recover: 0.6, special: 'flares', waves: 2, dmg: 52 },
       { name: 'a constellation', windup: 0.7, recover: 0.7, special: 'constellation', n: 5 },
       { name: 'a comet run', windup: 0.4, recover: 0.8, special: 'comet', dmg: 82 },
       { name: 'embers', windup: 0.4, recover: 0.6, special: 'embers', n: 22, dmg: 50 },
     ] },
-    3: { move: 'pace', patterns: [
+    3: { move: 'pace', pressure: [{ every: 2.8, special: 'starfall', delay: 2.2, dmg: 52 }], patterns: [
       { name: 'flares', windup: 0.4, recover: 0.5, special: 'flares', waves: 3, dmg: 54 },
       { name: 'a constellation', windup: 0.5, recover: 0.6, special: 'constellation', n: 6 },
       { name: 'a comet run', windup: 0.4, recover: 0.7, special: 'comet', dmg: 84 },
     ] },
   },
-  specials: { constellation, embers, comet, flares, flareRing },
+  specials: { constellation, embers, comet, flares, flareRing, starfall },
   onWake(g) { g.banner('THE FALLEN STAR · break its constellations', 3000); },
   onPhase(g, e, ph) { if (ph === 2) g.banner('IT BURNS BRIGHTER', 2400); if (ph === 3) g.banner('SUPERNOVA', 2400); },
   update(g, e, dt) {

@@ -4,6 +4,12 @@ export const angleTo = (x0, y0, x1, y1) => Math.atan2(y1 - y0, x1 - x0);
 // the fight's box: the boss room in a dungeon, else a box round where it rose (a realm boss)
 export const arena = (e, w = 24, h = 18) => e.bx.arena || { x: (e.rfHx ?? (e.rfHx = e.x)) - w / 2, y: (e.rfHy ?? (e.rfHy = e.y)) - h / 2, w, h };
 // the players it fights: the server's (everyone in the room), or you
+// a runner (2026-10-27, check_boss_safespots: a steady circle was a free pass against some bosses): whether the one it
+// fights is running (the boss's own read of their pace, bossx: S.pvx), and where they will be in T seconds at it
+export const running = (e) => Math.hypot(e.bx.pvx || 0, e.bx.pvy || 0) > 2;
+export const ahead = (g, e, T) => { const q = target(g, e); return [q.x + (e.bx.pvx || 0) * T, q.y + (e.bx.pvy || 0) * T]; };
+// the way they are running (a unit vector)
+export const heading = (e) => { const v = Math.hypot(e.bx.pvx || 0, e.bx.pvy || 0) || 1; return [(e.bx.pvx || 0) / v, (e.bx.pvy || 0) / v]; };
 export const players = (g) => (g.netTargets && g.netTargets.length ? g.netTargets : [g.player]).filter((q) => q && !q.dead);
 export const target = (g, e) => { const L = players(g); return L.length ? L.reduce((a, b) => (Math.hypot(b.x - e.x, b.y - e.y) < Math.hypot(a.x - e.x, a.y - e.y) ? b : a)) : g.player; };
 export const open = (m, x, y) => { const tx = Math.floor(x), ty = Math.floor(y); return tx >= 0 && ty >= 0 && tx < m.w && ty < m.h && !m.solid[ty * m.w + tx]; };

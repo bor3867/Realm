@@ -9,7 +9,7 @@
 //   Last: The Hands That Broke a God - its two great hands fall again and again, each following one of you
 // Art: tools/build_last_bosses.py ('bx_penitent_colossus', shots 'last_shots/penitent_colossus.<name>').
 import { REALM_BOSSES } from '../data/enemies.js';
-import { TAU, R, angleTo, players, target, fan, mark } from './kit.js';
+import { TAU, R, angleTo, players, target, fan, mark, running, ahead } from './kit.js';
 
 const GOLD = ['#f2d070', '#ffffff'];
 function kneel(g, e, V) {                                  // KNEEL: a warning, then the prayer (plain times: every browser judges its own player)
@@ -33,27 +33,34 @@ const finale = {
   },
 };
 
+// against a steady circle (check_boss_safespots, 2026-10-27): only when you run, at where you are running to
+function gazeFollows(g, e, V) {                           // its gaze follows you: a fast, tight fan of shards thrown to where you will be
+  if (!running(e)) return;
+  const [ox, oy] = g.bxOrigin(e), q = target(g, e), T = Math.min(1.2, Math.hypot(q.x - ox, q.y - oy) / 9), [x, y] = ahead(g, e, T);
+  fan(g, e, ox, oy, angleTo(ox, oy, x, y - 0.4), 3, 0.22, { shot: 'shard', speed: 9, range: 13, dmg: V.dmg || 64 });
+}
+
 export default {
   id: 'penitent_colossus', art: 'penitent_colossus', shotSheet: 'last_shots', name: 'The Penitent Colossus', biome: 'godfall', hp: 168000, def: 26, xp: 7000,
   dmgScale: 1.6, r: 1.7, speed: 0.4, keep: 6, faces: false, tempo: 1, finale,
   phases: {
-    1: { move: 'pace', pressure: [{ every: 14, special: 'kneel', warn: 1.4, dur: 2 }], patterns: [
+    1: { move: 'pace', pressure: [{ every: 3.6, special: 'gazeFollows', delay: 2.9, dmg: 64 }, { every: 14, special: 'kneel', warn: 1.4, dur: 2 }], patterns: [
       { name: 'its gaze', windup: 0.6, recover: 0.7, special: 'gaze', waves: 3, dmg: 60 },
       { name: 'the seams', windup: 0.6, recover: 0.7, special: 'seams', n: 3, dmg: 70 },
       { name: 'the slam', windup: 0.7, recover: 0.8, special: 'slam', dmg: 90 },
     ] },
-    2: { move: 'pace', pressure: [{ every: 12, special: 'kneel', warn: 1.2, dur: 2.6 }], patterns: [
+    2: { move: 'pace', pressure: [{ every: 3.2, special: 'gazeFollows', delay: 2.6, dmg: 64 }, { every: 12, special: 'kneel', warn: 1.2, dur: 2.6 }], patterns: [
       { name: 'the seams', windup: 0.5, recover: 0.6, special: 'seams', n: 4, dmg: 72 },
       { name: 'its gaze', windup: 0.5, recover: 0.6, special: 'gaze', waves: 4, dmg: 60 },
       { name: 'the slam', windup: 0.6, recover: 0.7, special: 'slam', dmg: 92 },
     ] },
-    3: { move: 'pace', pressure: [{ every: 9, special: 'kneel', warn: 1.1, dur: 2.4 }], patterns: [
+    3: { move: 'pace', pressure: [{ every: 2.8, special: 'gazeFollows', delay: 2.2, dmg: 64 }, { every: 9, special: 'kneel', warn: 1.1, dur: 2.4 }], patterns: [
       { name: 'the slam', windup: 0.5, recover: 0.6, special: 'slam', dmg: 95 },
       { name: 'the seams', windup: 0.4, recover: 0.5, special: 'seams', n: 5, dmg: 74 },
       { name: 'its gaze', windup: 0.4, recover: 0.5, special: 'gaze', waves: 4, dmg: 62 },
     ] },
   },
-  specials: { kneel, gaze, gazeFan, seams, slam },
+  specials: { kneel, gaze, gazeFan, seams, slam, gazeFollows },
   onWake(g) { g.banner('THE PENITENT COLOSSUS · when it says KNEEL, be still', 3000); },
   onPhase(g, e, ph) { if (ph === 2) g.banner('IT REMEMBERS ITS CRIMES', 2400); if (ph === 3) g.banner('PENANCE', 2400); },
   // in your own browser: move while it prays and you're lashed

@@ -9,7 +9,7 @@
 // Art: tools/build_last_bosses.py ('bx_emily_the_yapper', shots 'last_shots/emily_the_yapper.<name>').
 import { REALM_BOSSES } from '../data/enemies.js';
 import { BOSS_SPEECH } from '../data/lore.js';
-import { TAU, R, angleTo, players, target, ring, fan, mark } from './kit.js';
+import { TAU, R, angleTo, players, target, ring, fan, mark, running, ahead, heading } from './kit.js';
 
 const SNOW = ['#e0f6ff', '#ffffff'];
 function snowballs(g, e, V) { const q = target(g, e), [ox, oy] = g.bxOrigin(e); for (let w = 0; w < (V.waves || 3); w++) e.bx.vol.push({ t: w * 0.25, V: { form: 'special', name: 'snowFan', a: angleTo(ox, oy, q.x, q.y), w, dmg: V.dmg } }); }
@@ -29,30 +29,38 @@ const finale = {
     if ((e.emLineT = (e.emLineT || 0) - dt) <= 0) { e.emLineT = 1.6; const L = BOSS_SPEECH.emily_the_yapper || ['And THEN-']; g.bubble && g.bubble(e, L[Math.floor(R() * L.length)], '#ffd650'); } },
 };
 
+// against a steady circle (check_boss_safespots, 2026-10-27): only when you run, at where you are running to
+function interrupt(g, e, V) {                             // "Wait wait WAIT-": she cuts you off, a belly-slide across where you are running to
+  if (!running(e)) return;
+  const [x, y] = ahead(g, e, 1.0), [hx, hy] = heading(e), a = Math.atan2(hx, -hy), L = 7, d = 0.75;   // (across your path)
+  g.fx.push({ kind: 'lane', x: x - Math.cos(a) * L / 2, y: y - Math.sin(a) * L / 2, a, len: L, w: 1, delay: d, t: 0, life: d + 0.6, dmg: g.bxDmg(e, V.dmg || 60), by: e.D.name, hitT: 0, cols: SNOW });
+  if (R() < 0.4 && g.bubble) g.bubble(e, 'Wait wait WAIT-', '#ffd650');
+}
+
 export default {
   id: 'emily_the_yapper', art: 'emily_the_yapper', shotSheet: 'last_shots', name: 'Emily, the Yapper', biome: 'runeholt', hp: 80000, def: 14, xp: 3600,
   // dmgScale was 1.6: her biggest blow took 43% (after every enemy began to hit 1.5x, 2026-10-22: tools/bench_boss_hits.mjs)
   dmgScale: 1.3, r: 1.5, speed: 0.8, keep: 5, faces: true, tempo: 1, finale,
   phases: {
-    1: { move: 'pace', patterns: [
+    1: { move: 'pace', pressure: [{ every: 3.6, special: 'interrupt', delay: 2.9, dmg: 60 }], patterns: [
       { name: 'snowballs', windup: 0.5, recover: 0.6, special: 'snowballs', waves: 3, dmg: 34 },
       { name: 'a belly-slide', windup: 0.5, recover: 0.8, special: 'slide', dmg: 60 },
       { name: 'fish!', windup: 0.6, recover: 0.7, special: 'fish', n: 3, dmg: 44 },
     ] },
-    2: { move: 'pace', patterns: [
+    2: { move: 'pace', pressure: [{ every: 3.2, special: 'interrupt', delay: 2.6, dmg: 60 }], patterns: [
       { name: 'yap yap yap', windup: 0.5, recover: 0.6, special: 'yapring', rings: 2, dmg: 32 },
       { name: 'a belly-slide', windup: 0.4, recover: 0.7, special: 'slide', dmg: 62 },
       { name: 'snowballs', windup: 0.4, recover: 0.6, special: 'snowballs', waves: 4, dmg: 34 },
       { name: 'fish!', windup: 0.5, recover: 0.6, special: 'fish', n: 4, dmg: 44 },
     ] },
-    3: { move: 'pace', patterns: [
+    3: { move: 'pace', pressure: [{ every: 2.8, special: 'interrupt', delay: 2.2, dmg: 60 }], patterns: [
       { name: 'yap yap yap', windup: 0.4, recover: 0.5, special: 'yapring', rings: 3, dmg: 34 },
       { name: 'a belly-slide', windup: 0.4, recover: 0.6, special: 'slide', dmg: 64 },
       { name: 'snowballs', windup: 0.3, recover: 0.5, special: 'snowballs', waves: 4, dmg: 36 },
       { name: 'fish!', windup: 0.4, recover: 0.5, special: 'fish', n: 4, dmg: 46 },
     ] },
   },
-  specials: { snowballs, snowFan, slide, fish, yapring, yapRing },
+  specials: { snowballs, snowFan, slide, fish, yapring, yapRing, interrupt },
   onWake(g) { g.banner('EMILY, THE YAPPER · wait for her to breathe', 3000); },
   onPhase(g, e, ph) { if (ph === 2) g.banner('EMILY HAS A LOT TO SAY', 2400); if (ph === 3) g.banner('EMILY WILL NOT BE INTERRUPTED', 2400); },
   update(g, e, dt) {

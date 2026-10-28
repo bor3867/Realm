@@ -12,7 +12,7 @@
 //                              sleep, and it wakes (a heavy blow); fail, and the dream stampedes
 // Art: tools/build_last_bosses.py ('bx_the_sleeper', alarms 'last_kin/alarm', shots 'last_shots/the_sleeper.<name>').
 import { ENEMIES, DUNGEON_BOSSES } from '../data/enemies.js';
-import { TAU, R, angleTo, arena, players, target, open, kill } from './kit.js';
+import { TAU, R, angleTo, arena, players, target, open, kill, running, ahead, heading } from './kit.js';
 
 const box = (e) => arena(e, 26, 20);
 function sheep(g, e, V) {
@@ -63,19 +63,29 @@ const finale = {
   end(g, e) { for (const c of e.slAlarms || []) kill(c); },
 };
 
+// against a steady circle (check_boss_safespots, 2026-10-27): only when you run, at where you are running to
+function flock(g, e, V) {                                 // a flock of sheep across your path, from one side and then the other (its finale's stampede is the whole dream's)
+  if (!running(e)) return;
+  for (let k = 0; k < 2; k++) g.fvLater(k * 0.3, () => flockSheep(g, e, { k, dmg: V.dmg }));   // (its own timers: a boss's volley queue plays only in its own attacks)
+}
+function flockSheep(g, e, V) {                         // three abreast, so the stampede covers your path either side of where you'll be
+  const [x, y] = ahead(g, e, 0.8), [hx, hy] = heading(e), s = V.k % 2 ? 1 : -1;
+  for (const o of [-0.8, 0, 0.8]) g.bxShot(e, x + hx * o - hy * s * 5.5, y + hy * o + hx * s * 5.5 - 0.4, Math.atan2(-hx * s, hy * s), { shot: 'sheep', speed: 7, range: 11, dmg: V.dmg || 110 });
+}
+
 export default {
   id: 'the_sleeper', art: 'the_sleeper', shotSheet: 'last_shots', name: 'The Sleeper, Who Dreams the Realm', biome: 'dream', hp: 520000, def: 40, xp: 22000,
   // dmgScale was 2.2: every hit took 46% (after every enemy began to hit 1.5x, 2026-10-22: tools/bench_boss_hits.mjs)
   dmgScale: 1.45, r: 1.7, speed: 1.0, keep: 7, faces: true, tempo: 0.9, finale,
   phases: {
-    1: { move: 'pace', patterns: [
+    1: { move: 'pace', pressure: [{ every: 5, special: 'flock', delay: 4, dmg: 110 }], patterns: [
       { name: 'counting sheep', windup: 0.6, recover: 0.6, special: 'sheep', rows: 3, n: 7, dmg: 120 },
       { name: 'a lullaby', windup: 0.6, recover: 0.6, special: 'lullaby', waves: 3, dmg: 60 },
       { name: 'blinking stars', windup: 0.6, recover: 0.6, special: 'stars', n: 22, dmg: 100 },
       { name: 'a tide of moons', windup: 0.8, recover: 0.6, special: 'crescents', n: 16, dmg: 115 },
       { name: 'it reaches for you', windup: 0.5, recover: 0.6, special: 'reach', waves: 2, dmg: 100 },
     ] },
-    2: { move: 'pace', patterns: [
+    2: { move: 'pace', pressure: [{ every: 4.5, special: 'flock', delay: 3.6, dmg: 110 }], patterns: [
       { name: 'the dream turns', windup: 1.0, recover: 0.5, special: 'dreamshift', dur: 11 },
       { name: 'counting sheep', windup: 0.5, recover: 0.6, special: 'sheep', rows: 3, n: 7, dmg: 120 },
       { name: 'blinking stars', windup: 0.5, recover: 0.6, special: 'stars', n: 24, dmg: 100 },
@@ -83,7 +93,7 @@ export default {
       { name: 'a lullaby', windup: 0.5, recover: 0.6, special: 'lullaby', waves: 3, dmg: 60 },
       { name: 'it reaches for you', windup: 0.4, recover: 0.5, special: 'reach', waves: 3, dmg: 105 },
     ] },
-    3: { move: 'pace', patterns: [
+    3: { move: 'pace', pressure: [{ every: 4, special: 'flock', delay: 3.2, dmg: 110 }], patterns: [
       { name: 'dream logic', windup: 1.0, recover: 0.6, special: 'dreamlogic', dur: 4.5 },
       { name: 'a tide of moons', windup: 0.5, recover: 0.5, special: 'crescents', n: 20, dmg: 118 },
       { name: 'the dream turns', windup: 0.8, recover: 0.5, special: 'dreamshift', dur: 9 },
@@ -93,7 +103,7 @@ export default {
       { name: 'it reaches for you', windup: 0.4, recover: 0.4, special: 'reach', waves: 3, dmg: 110 },
     ] },
   },
-  specials: { sheep, sheepRow, lullaby, zzz, stars, crescents, dreamshift, dreamlogic, reach, reachFan },
+  specials: { sheep, sheepRow, lullaby, zzz, stars, crescents, dreamshift, dreamlogic, reach, reachFan, flock, flockSheep },
   onWake(g) { g.banner('THE SLEEPER · it dreams of you. Keep moving: stillness is sleep.', 3200); },
   onPhase(g, e, ph) { if (ph === 2) g.banner('THE DREAM TURNS', 2400); if (ph === 3) g.banner('THE NIGHTMARE WAKES', 2400); },
   update(g, e) { if (e.slShiftUntil > 0 && g.t >= e.slShiftUntil) endShift(g, e); if (e.slNight && e.slNight.dead) { e.slNight = null; e.slShiftUntil = 0; } },

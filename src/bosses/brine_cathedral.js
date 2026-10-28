@@ -8,7 +8,7 @@
 //   Last: Last Rites           - it buries into the sand and the bell tolls three times: three great rings, one gap each
 // Art: tools/build_last_bosses.py ('bx_brine_cathedral', shots 'last_shots/brine_cathedral.<name>').
 import { REALM_BOSSES } from '../data/enemies.js';
-import { TAU, R, angleTo, arena, players, target, ring, fan, mark } from './kit.js';
+import { TAU, R, angleTo, arena, players, target, ring, fan, mark, running, ahead, heading } from './kit.js';
 
 const BRINE = ['#2a7ac8', '#7ad0ff'];
 function toll(g, e, V) { const q = target(g, e), [ox, oy] = g.bxOrigin(e); for (let k = 0; k < (V.rings || 2); k++) e.bx.vol.push({ t: k * 0.45, V: { form: 'special', name: 'tollRing', ga: angleTo(ox, oy, q.x, q.y) + (R() - 0.5), k, dmg: V.dmg } }); }
@@ -30,29 +30,36 @@ const finale = {
 };
 function riteToll(g, e, V) { const q = target(g, e); ring(g, e, e.x, e.y - 1, 36, { shot: 'toll', speed: 3.2, range: 14, dmg: 70 }, V.k * 0.3, angleTo(e.x, e.y, q.x, q.y) + (R() - 0.5) * 1.2, 5); g.vx({ k: 'shake', amt: 6 }); g.float(e.x, e.y - 3, 'DONG', '#f2d070'); }
 
+// against a steady circle (check_boss_safespots, 2026-10-27): only when you run, at where you are running to
+function undertow(g, e, V) {                              // the undertow: a row of bubbles wells up ahead of you and rolls back at you
+  if (!running(e)) return;
+  const [x, y] = ahead(g, e, 0.75), [hx, hy] = heading(e);
+  for (let k = -3; k <= 3; k++) g.bxShot(e, x + hx * 1.2 - hy * k * 0.7, y + hy * 1.2 + hx * k * 0.7 - 0.4, Math.atan2(-hy, -hx), { shot: 'bubble', speed: 2.6, range: 6, dmg: V.dmg || 44, mv: { hold: 0.35 } });
+}
+
 export default {
   id: 'brine_cathedral', art: 'brine_cathedral', shotSheet: 'last_shots', name: 'The Brine Cathedral', biome: 'shore', hp: 28000, def: 4, xp: 900,
   dmgScale: 1.4, r: 1.5, speed: 0.9, keep: 5, faces: false, tempo: 1, finale,
   phases: {
-    1: { move: 'pace', patterns: [
+    1: { move: 'pace', pressure: [{ every: 3.6, special: 'undertow', delay: 2.9, dmg: 44 }], patterns: [
       { name: 'the bell tolls', windup: 0.7, recover: 0.7, special: 'toll', rings: 2, dmg: 40 },
       { name: 'its claws', windup: 0.5, recover: 0.7, special: 'claws', dmg: 48 },
       { name: 'bubbles at your feet', windup: 0.5, recover: 0.7, special: 'bubbles', dmg: 44 },
     ] },
-    2: { move: 'pace', patterns: [
+    2: { move: 'pace', pressure: [{ every: 3.2, special: 'undertow', delay: 2.6, dmg: 44 }], patterns: [
       { name: 'the tide calls', windup: 0.7, recover: 0.7, special: 'tidecall', dmg: 46 },
       { name: 'the bell tolls', windup: 0.6, recover: 0.6, special: 'toll', rings: 3, dmg: 40 },
       { name: 'its claws', windup: 0.5, recover: 0.6, special: 'claws', dmg: 48 },
       { name: 'bubbles at your feet', windup: 0.5, recover: 0.6, special: 'bubbles', dmg: 44 },
     ] },
-    3: { move: 'pace', patterns: [
+    3: { move: 'pace', pressure: [{ every: 2.8, special: 'undertow', delay: 2.2, dmg: 44 }], patterns: [
       { name: 'the cathedral floods', windup: 0.7, recover: 0.6, special: 'flood', n: 3, dmg: 42 },
       { name: 'the bell tolls', windup: 0.5, recover: 0.5, special: 'toll', rings: 3, dmg: 42 },
       { name: 'the tide calls', windup: 0.5, recover: 0.6, special: 'tidecall', dmg: 46 },
       { name: 'its claws', windup: 0.4, recover: 0.5, special: 'claws', dmg: 50 },
     ] },
   },
-  specials: { toll, tollRing, claws, clawSnap, bubbles, tidecall, flood, floodRing, riteToll },
+  specials: { toll, tollRing, claws, clawSnap, bubbles, tidecall, flood, floodRing, riteToll, undertow },
   onWake(g) { g.banner('THE BRINE CATHEDRAL · strike its doors, not its shell', 3000); },
   onPhase(g, e, ph) { if (ph === 2) g.banner('THE DOORS CLOSE · it turns its back on you, then turns again', 2600); if (ph === 3) g.banner('THE CATHEDRAL FLOODS', 2400); },
   // it turns, slowly: toward the nearest of you (I); from II, its back for 3s, then its doors for 4s, over and over

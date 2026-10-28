@@ -10,6 +10,7 @@
 //   Last: UNMADE (8%): he comes apart and the dark pours out: survive it, and he is broken.
 // Art: tools/build_unstruck_god.py ('bx_unstruck_god', shots 'ug_shots/unstruck_god.<name>').
 import { DUNGEON_BOSSES } from '../data/enemies.js';
+import { running, ahead, heading } from './kit.js';
 const TAU = Math.PI * 2, R = Math.random;
 const angleTo = (x0, y0, x1, y1) => Math.atan2(y1 - y0, x1 - x0);
 const arena = (e) => e.bx.arena || { x: e.x - 12, y: e.y - 10, w: 24, h: 18 };
@@ -98,24 +99,31 @@ const finale = {
   end(g, e) { e.bx.unm = null; },
 };
 
+// against a steady circle (check_boss_safespots, 2026-10-27): only when you run, at where you are running to
+function pincer(g, e, V) {                                // the pincer: two spears from either side of you, meeting where you will be
+  if (!running(e)) return;
+  const [x, y] = ahead(g, e, 0.85), [hx, hy] = heading(e);
+  for (const s of [-1, 1]) g.bxShot(e, x - hy * s * 6.4, y + hx * s * 6.4 - 0.4, Math.atan2(-hx * s, hy * s), { shot: 'spear', speed: 7.5, range: 13, dmg: V.dmg || 105 });
+}
+
 export default {
   id: 'unstruck_god', art: 'unstruck_god', shotSheet: 'ug_shots', name: 'Solkhar, the Sunthief', biome: 'dungeon', hp: 650000, def: 34, xp: 30000,
   r: 2.2, speed: 1.0, keep: 6, faces: false, spawnCentre: true, tempo: 0.72, dmgScale: 0.9, finale,   // (dmgScale was 1.25: a normal hit took 33% (after every enemy began to hit 1.5x, 2026-10-22: tools/bench_boss_hits.mjs)) (the last boss: a five-star throne)
   phases: {
-    1: { move: 'center', pressure: [{ every: 2.4, special: 'scorn', delay: 2, dmg: 110 }], patterns: [
+    1: { move: 'center', pressure: [{ every: 3.6, special: 'pincer', delay: 2.9, dmg: 105 }, { every: 2.4, special: 'scorn', delay: 2, dmg: 110 }], patterns: [
       { name: 'judgement', windup: 0.8, recover: 0.6, special: 'judgement', dmg: 120 },
       { name: 'the halo of blades', windup: 0.8, recover: 0.7, special: 'halo', dmg: 115 },
       { name: 'spears', windup: 0.5, recover: 0.5, special: 'spears', dmg: 120 },
       { name: 'a decree', windup: 0.7, recover: 0.8, special: 'decree', dmg: 120 },
     ] },
-    2: { move: 'pace', pressure: [{ every: 1.5, special: 'bleed', delay: 1.5, dmg: 100 }], patterns: [
+    2: { move: 'pace', pressure: [{ every: 3.2, special: 'pincer', delay: 2.6, dmg: 105 }, { every: 1.5, special: 'bleed', delay: 1.5, dmg: 100 }], patterns: [
       { name: 'seams of gold', windup: 0.6, recover: 0.8, special: 'seams', n: 3, dmg: 140 },
       { name: 'falling stars', windup: 0.8, recover: 0.6, special: 'stars', n: 3, dmg: 130 },
       { name: 'wrath', windup: 0.6, recover: 0.6, special: 'wrath', dmg: 110 },
       { name: 'judgement', windup: 0.6, recover: 0.5, special: 'judgement', extra: 3, dmg: 125 },
       { name: 'the crossing seams', windup: 0.6, recover: 0.9, special: 'seams', n: 3, cross: true, dmg: 140 },
     ] },
-    3: { move: 'center', pressure: [{ every: 1.8, special: 'embers', dmg: 110 }, { every: 2.2, special: 'bleed', dmg: 105 }], patterns: [
+    3: { move: 'center', pressure: [{ every: 2.8, special: 'pincer', delay: 2.2, dmg: 105 }, { every: 1.8, special: 'embers', dmg: 110 }, { every: 2.2, special: 'bleed', dmg: 105 }], patterns: [
       { name: 'the sun flares', windup: 1.6, recover: 0.9, tell: 'flareTell', special: 'flare', dmg: 150 },
       { name: 'falling stars', windup: 0.6, recover: 0.5, special: 'stars', n: 4, dmg: 135 },
       { name: 'a double decree', windup: 0.6, recover: 0.6, special: 'decree', twice: true, dmg: 125 },
@@ -123,7 +131,7 @@ export default {
       { name: 'judgement', windup: 0.5, recover: 0.5, special: 'judgement', extra: 3, delay: 1.2, dmg: 130 },
     ] },
   },
-  specials: { judgement, halo, decree, spears, scorn, seams, stars, wrath, bleed, flareTell, flare, embers },
+  specials: { judgement, halo, decree, spears, scorn, seams, stars, wrath, bleed, flareTell, flare, embers, pincer },
   onWake(g) { g.banner('SOLKHAR, THE SUNTHIEF · never once struck, in ten thousand years', 3400); },
   onPhase(g, e, ph) {
     if (ph === 2) g.banner('HE BLEEDS · for the first time, the god bleeds', 3000);

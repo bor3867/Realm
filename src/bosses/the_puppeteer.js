@@ -12,6 +12,7 @@
 // Art: tools/build_hollow_bosses.py ('bx_the_puppeteer', understudies 'hollow_kin/understudy', shots 'hollow_shots/the_puppeteer.<name>').
 import { ENEMIES, DUNGEON_BOSSES } from '../data/enemies.js';
 
+import { running, ahead, heading } from './kit.js';
 const TAU = Math.PI * 2, R = Math.random;
 const angleTo = (x0, y0, x1, y1) => Math.atan2(y1 - y0, x1 - x0);
 const arena = (e) => e.bx.arena || { x: e.x - 12, y: e.y - 6, w: 24, h: 18 };
@@ -100,24 +101,31 @@ function bowHits(g, e) {
   g.hurtPlayer(g.bxDmg(e, 150), `${e.D.name}'s strings`);
 }
 
+// against a steady circle (check_boss_safespots, 2026-10-27): only when you run, at where you are running to
+function strung(g, e, V) {                                // strings strung across your path ahead: they hang a moment, glinting, then drift at you
+  if (!running(e)) return;
+  const [x, y] = ahead(g, e, 0.6), [hx, hy] = heading(e);
+  for (let k = -2; k <= 2; k++) g.bxShot(e, x - hy * k * 0.75, y + hx * k * 0.75 - 0.4, Math.atan2(-hy, -hx), { shot: 'string', speed: 2.2, range: 4, dmg: V.dmg || 72, mv: { hold: 0.55 } });
+}
+
 export default {
   id: 'the_puppeteer', art: 'the_puppeteer', shotSheet: 'hollow_shots', name: 'Maestro Lucan, the Puppeteer', biome: 'theatre', hp: 140000, def: 22, xp: 9000,
   dmgScale: 0.8, r: 1.5, speed: 1.2, keep: 7, faces: true, tempo: 0.9, finale,
   phases: {
-    1: { move: 'pace', patterns: [
+    1: { move: 'pace', pressure: [{ every: 3.6, special: 'strung', delay: 2.9, dmg: 72 }], patterns: [
       { name: 'a jig', windup: 0.5, recover: 0.6, special: 'jig', waves: 3, dmg: 72 },
       { name: 'the scissors', windup: 0.7, recover: 0.6, special: 'scissors', n: 8, dmg: 82 },
       { name: 'the trapdoor', windup: 0.6, recover: 1.6, special: 'trapdoor', hide: 2.6, dmg: 76 },
       { name: 'his bow', windup: 0.5, recover: 0.5, special: 'bow', n: 5, dmg: 78 },
     ] },
-    2: { move: 'pace', patterns: [
+    2: { move: 'pace', pressure: [{ every: 3.2, special: 'strung', delay: 2.6, dmg: 72 }], patterns: [
       { name: 'the mirror-puppet', windup: 0.7, recover: 0.5, special: 'mimic', dur: 10 },
       { name: 'the scissors', windup: 0.6, recover: 0.6, special: 'scissors', n: 9, dmg: 82 },
       { name: 'the curtains', windup: 0.8, recover: 0.5, special: 'curtain', dur: 5, close: 0.4 },
       { name: 'a jig', windup: 0.5, recover: 0.6, special: 'jig', waves: 3, arms: 10, dmg: 72 },
       { name: 'his bow', windup: 0.5, recover: 0.5, special: 'bow', n: 6, dmg: 78 },
     ] },
-    3: { move: 'pace', patterns: [
+    3: { move: 'pace', pressure: [{ every: 2.8, special: 'strung', delay: 2.2, dmg: 72 }], patterns: [
       { name: 'the trapdoor', windup: 0.5, recover: 1.4, special: 'trapdoor', hide: 2.2, dmg: 80 },
       { name: 'the mirror-puppet', windup: 0.5, recover: 0.4, special: 'mimic', dur: 8 },
       { name: 'the curtains', windup: 0.6, recover: 0.4, special: 'curtain', dur: 5, close: 0.42 },
@@ -126,7 +134,7 @@ export default {
       { name: 'his bow', windup: 0.4, recover: 0.5, special: 'bow', n: 7, dmg: 80 },
     ] },
   },
-  specials: { trapdoor, jig, jigRing, scissors, bow, mimic, curtain },
+  specials: { trapdoor, jig, jigRing, scissors, bow, mimic, curtain, strung },
   onWake(g) { g.banner('MAESTRO LUCAN · the show must go on!', 3000); },
   onPhase(g, e, ph) { if (ph === 2) intermission(g, e); if (ph === 3) g.banner('ACT III · SILENCE', 2600); },
   update(g, e, dt) {

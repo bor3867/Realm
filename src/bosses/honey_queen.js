@@ -11,6 +11,7 @@
 // Art: tools/build_hollow_bosses.py ('bx_honey_queen', brood 'hollow_kin/brood', shots 'hollow_shots/honey_queen.<name>').
 import { ENEMIES, DUNGEON_BOSSES } from '../data/enemies.js';
 
+import { running, ahead } from './kit.js';
 const TAU = Math.PI * 2, R = Math.random;
 const angleTo = (x0, y0, x1, y1) => Math.atan2(y1 - y0, x1 - x0);
 const arena = (e) => e.bx.arena || { x: e.x - 11, y: e.y - 4, w: 22, h: 18 };
@@ -85,24 +86,31 @@ const finale = {
   end(g, e) { e.hqWax = false; },
 };
 
+// against a steady circle (check_boss_safespots, 2026-10-27): only when you run, at where you are running to
+function scouts(g, e, V) {                                // scout bees: four, curving in from either side to where you will be
+  if (!running(e)) return;
+  const [ox, oy] = g.bxOrigin(e), q = target(g, e), T = Math.min(1.5, Math.hypot(q.x - ox, q.y - oy) / 5.5), [x, y] = ahead(g, e, T), a = angleTo(ox, oy, x, y - 0.4);
+  for (const [off, c] of [[-0.5, 0.65], [-0.25, 0.32], [0.25, -0.32], [0.5, -0.65]]) g.bxShot(e, ox, oy, a + off, { shot: 'bee', speed: 5.5, range: 13, dmg: V.dmg || 36, mv: { curve: c } });
+}
+
 export default {
   id: 'honey_queen', art: 'honey_queen', shotSheet: 'hollow_shots', name: 'Queen Melliflua, the Honeyed Mother', biome: 'hive', hp: 52000, def: 6, xp: 4500,
   dmgScale: 2.5, r: 1.5, speed: 1.0, keep: 6, faces: true, tempo: 0.95, finale,
   phases: {
-    1: { move: 'pace', pressure: [{ every: 16, special: 'song', dur: 4, r: 7, dmg: 40 }], patterns: [
+    1: { move: 'pace', pressure: [{ every: 3.6, special: 'scouts', delay: 2.9, dmg: 36 }, { every: 16, special: 'song', dur: 4, r: 7, dmg: 40 }], patterns: [
       { name: 'hex-stings', windup: 0.6, recover: 0.6, special: 'hexsting', rings: 2, dmg: 46 },
       { name: 'the swarm', windup: 0.5, recover: 0.6, special: 'swarm', n: 14, dmg: 34 },
       { name: 'her brood', windup: 0.7, recover: 0.6, special: 'brood', n: 4, hatch: 6 },
       { name: 'hex-stings', windup: 0.5, recover: 0.6, special: 'hexsting', rings: 3, dmg: 46 },
     ] },
-    2: { move: 'pace', pressure: [{ every: 13, special: 'song', dur: 4.5, r: 7.5, dmg: 42 }], patterns: [
+    2: { move: 'pace', pressure: [{ every: 3.2, special: 'scouts', delay: 2.6, dmg: 36 }, { every: 13, special: 'song', dur: 4.5, r: 7.5, dmg: 42 }], patterns: [
       { name: 'honey rain', windup: 0.7, recover: 0.6, special: 'honeyrain', n: 7, dmg: 52 },
       { name: 'the waggle dance', windup: 0.6, recover: 0.6, special: 'waggle', n: 10, dmg: 40 },
       { name: 'the swarm', windup: 0.5, recover: 0.5, special: 'swarm', n: 16, dmg: 34 },
       { name: 'her brood', windup: 0.6, recover: 0.5, special: 'brood', n: 4, hatch: 6 },
       { name: 'hex-stings', windup: 0.5, recover: 0.6, special: 'hexsting', rings: 2, dmg: 46 },
     ] },
-    3: { move: 'pace', pressure: [{ every: 10, special: 'song', dur: 5, r: 9, dmg: 44 }], patterns: [
+    3: { move: 'pace', pressure: [{ every: 2.8, special: 'scouts', delay: 2.2, dmg: 36 }, { every: 10, special: 'song', dur: 5, r: 9, dmg: 44 }], patterns: [
       { name: 'honey rain', windup: 0.5, recover: 0.5, special: 'honeyrain', n: 9, dmg: 54 },
       { name: 'the waggle dance', windup: 0.5, recover: 0.5, special: 'waggle', n: 12, dmg: 42 },
       { name: 'the swarm', windup: 0.4, recover: 0.5, special: 'swarm', n: 18, dmg: 36 },
@@ -110,7 +118,7 @@ export default {
       { name: 'her brood', windup: 0.5, recover: 0.5, special: 'brood', n: 5, hatch: 5.5 },
     ] },
   },
-  specials: { song, notes, hexsting, hexRing, swarm, bee, brood, honeyrain, waggle },
+  specials: { song, notes, hexsting, hexRing, swarm, bee, brood, honeyrain, waggle, scouts },
   onWake(g) { g.banner('QUEEN MELLIFLUA · welcome to my hive, little drone', 3000); },
   onPhase(g, e, ph) { if (ph === 2) g.banner('THE HIVE SWARMS · mind the honey on the floor', 2600); if (ph === 3) g.banner('THE QUEEN IS FURIOUS · her song reaches further', 2600); },
   update(g, e) { const S = e.bx; if (S.state === 'sleep' || S.state === 'intro') return; hatchStep(g, e); },
