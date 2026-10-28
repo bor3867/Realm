@@ -1,6 +1,6 @@
 // Safe spots: is there anywhere a player can stand (or a lazy way to move) that a boss's attacks miss? Each modular boss
 // but the Grand Orrery (it has its own: check_orrery_fairness) fights for 60 s, hit steadily so it goes through its
-// phases, against: standing still in six places (its arena's middle, half-way out, its four edges), circling at the
+// phases, against: standing still in six places (its arena's middle, half-way out, its four edges, never further out than a weapon reaches: 9 tiles), circling at the
 // edge, and a reading player (sees every shot's motion, picks the clearest of 17 moves ten times a second).
 // A passive way of playing that takes fewer than max(8, twice the reader's) hits is a safe spot.
 //   node tools/check_boss_safespots.mjs [boss ...]
@@ -27,7 +27,7 @@ function fight(id, strat) {
   if (!e) return null;
   let hits = 0; const hurt = g.hurtPlayer.bind(g), why = (fight.why = {}); g.hurtPlayer = (d, by, x) => { if (by) { hits++; const k = (e.bx && e.bx.pat && e.bx.pat.name) || (e.bx && e.bx.state) || '?'; why[k] = (why[k] || 0) + 1; } return hurt(d, by, x); };
   const used = (fight.used = {});
-  const A = e.room || (e.bx && e.bx.arena), cx = A ? A.x + A.w / 2 : e.x, cy = A ? A.y + A.h / 2 : e.y, Rr = A ? Math.min(A.w, A.h) / 2 - 1.5 : 9;
+  const A = e.room || (e.bx && e.bx.arena), cx = A ? A.x + A.w / 2 : e.x, cy = A ? A.y + A.h / 2 : e.y, Rr = Math.min(9, A ? Math.min(A.w, A.h) / 2 - 1.5 : 9);   // (no further out than a long weapon reaches: a spot you can't fight from is no safe spot)
   const spots = { middle: [0, 0], half: [0.5, 0.3], north: [0, -1], south: [0, 1], east: [1, 0], west: [-1, 0] };
   const prevPos = new Map(); let dir = [0, 0];
   const place = (x, y) => { p.x = x; p.y = y; g.unstick(p); };
