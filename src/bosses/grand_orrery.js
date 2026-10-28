@@ -487,7 +487,7 @@ function tick(g, e, dt) {
 //   Planetfall    bursts of 10 shattered-planet chunks every 0.6 s (ice, rock, violet): they slow and hang; violet
 //                 ones split into embers
 //   Comet Wheel   6 plasma comets curving clockwise, dropping embers; ember rings of 24
-//   Gamma Burst   both polar jets marked for 1 s, then gamma rays sweep 90 degrees; 2 singularity seeds drift at you
+//   Gamma Burst   both polar jets marked for 1 s, then gamma rays sweep 90 degrees
 // The floor is a starfield in the dark; only a pool of light round you (soft at its edge) and the burning star show,
 // and shots out in the dark are dim.
 const SN = (n) => `sn_shots/${n}`;
@@ -548,11 +548,11 @@ function novaSequence(g, e, dt, tt, ox, oy) {
       L.gap += (L.wn % 2 ? 2.6 : -1.4); if (Math.abs(L.gap) > 9) L.gap = -Math.sign(L.gap) * 6;
       for (let o = -16; o <= 16; o += 1.05) {
         if (Math.abs(o - L.gap) < 1.45) continue;                  // the gap: a little under three tiles
-        const x = cx - ux * 17 + nx * o, y = cy - uy * 17 + ny * o;
-        if (Math.hypot(x - cx, y - cy) > 24) continue;
-        fire(x, y, d, ['planet_chunk_ice', 'planet_chunk_rock', 'planet_chunk_violet'][L.wn % 3], 5.2, 145, { range: 36 });
+        const x = cx - ux * 27 + nx * o, y = cy - uy * 27 + ny * o;   // (from well out in the dark: ten tiles past the rim, two seconds more to see a wall and its gap coming. It came from the rim, 2026-10-27)
+        if (Math.hypot(x - cx, y - cy) > 34) continue;
+        fire(x, y, d, ['planet_chunk_ice', 'planet_chunk_rock', 'planet_chunk_violet'][L.wn % 3], 5.2, 145, { range: 46 });
       }
-      g.spMark({ kind: 'line', x: cx - ux * 17 + nx * L.gap, y: cy - uy * 17 + ny * L.gap, a: d, len: 6, life: 0.5, color: '#5ef08a' });   // where the gap enters
+      g.spMark({ kind: 'line', x: cx - ux * 17 + nx * L.gap, y: cy - uy * 17 + ny * L.gap, a: d, len: 6, life: 2.4, color: '#5ef08a' });   // where the gap enters (marked till its wall reaches the rim)
     }
   };
   const implosion = (every) => {                                  // rings form at the rim, close on the star, dissolve near it
@@ -677,8 +677,8 @@ function gammaStart(g, e) {
   const N = e.bx.nova2, p = g.player, [ox, oy] = g.bxOrigin(e);
   N.gA = angleTo(ox, oy, p.x, p.y) - Math.PI / 4; N.gT = 0; N.rays = [];
   for (const s of [0, Math.PI]) g.spMark({ kind: 'line', x: ox, y: oy, a: N.gA + s, len: 14, life: 1, color: '#8af6ff' });
-  well(g, e, { n: 2, max: 2, life: 6 });                          // two singularity seeds
-  for (const W of e.bx.wells) { W.seed = true; W.born = g.t; }
+  // (its two singularity seeds, which drifted after you and burned on reaching you, are gone: a seeking bomb with no
+  // warning, the user, 2026-10-27)
 }
 function gammaTick(g, e, dt, ox, oy) {
   const N = e.bx.nova2;
@@ -692,7 +692,6 @@ function gammaTick(g, e, dt, ox, oy) {
   for (const b of N.rays) { const r = 1.2 + b.gamma.k * 0.95, aa = a + b.gamma.s; b.x = ox + Math.cos(aa) * r; b.y = oy + Math.sin(aa) * r; b.a = aa; b.vx = 0; b.vy = 0; b.life = N.gT < 3 ? 99 : 0; }
   if (N.gT >= 3) N.rays = [];
 }
-// the singularity seeds drift slowly toward you (in tick)
 // the dark of the Supernova, drawn over everything: a pool of light round you with a soft edge, the star's own glare;
 // out in the dark the floor is gone and shots are dim
 function supernovaDark(r, g, e) {

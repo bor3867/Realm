@@ -247,6 +247,7 @@ const methods = {
   netTick(dt) {
     const N = this.net;
     if (!N) return;
+    this.netGlide();
     const room = this.netRoom();
     for (const o of N.others.values()) {                   // glide toward where they were last seen; drop the silent
       if (this.t - o.seen > 5 || o.room !== room) { N.others.delete(o.id); continue; }
@@ -349,12 +350,14 @@ const methods = {
         if (!b) continue;
         if (x.k === 'sg') { b.life = 0; H.delete(x.sid); continue; }
         { const h = b.h ?? 0.5, a = this.camAngle || 0; if (a) { x.x -= h * Math.sin(a); x.y -= h * (Math.cos(a) - 1); } }   // (the server's camera never turns, as for a new shot)
-        // between the server's word on it (10 a second) it carries on the way it was going: smooth, not hopping
-        if (b.netAt !== undefined && x.vx === undefined) { const t = Math.max(0.05, this.t - b.netAt); b.vx = (x.x - b.netX) / t; b.vy = (x.y - b.netY) / t; }
-        b.netX = x.x; b.netY = x.y; b.netAt = this.t;
-        b.x = x.x; b.y = x.y;
+        // between the server's word on it (10 a second) it glides evenly from where it is drawn to where the server last
+        // had it, over the time between its words (netGlide): it used to guess on in a straight line and snap back at each
+        // word, and the Orrery's closing rings and spirals stuttered ten times a second (2026-10-27)
+        const dur = b.netAt !== undefined ? Math.max(0.05, Math.min(0.3, this.t - b.netAt)) : 0.1;
+        b.netPx = b.x; b.netPy = b.y; b.netTx = x.x; b.netTy = x.y; b.netAt = this.t; b.netDur = dur; b.vx = 0; b.vy = 0;
+        if (Math.hypot(x.x - b.x, x.y - b.y) > 3) { b.x = b.netPx = x.x; b.y = b.netPy = x.y; }   // (too far to glide: it is there)
         if (x.g !== undefined) { b.ghost = !!x.g || !!b.fair; b.hidden = !!x.hd; }   // (its boss lights it or hides it as it goes)
-        if (x.vx !== undefined) { b.vx = x.vx; b.vy = x.vy; b.a = x.a; b.life = x.life; b.netHeld = false; H.delete(x.sid); }
+        if (x.vx !== undefined) { b.x = x.x; b.y = x.y; b.netTx = undefined; b.vx = x.vx; b.vy = x.vy; b.a = x.a; b.life = x.life; b.netHeld = false; H.delete(x.sid); }   // (flying free: from where the server let it go)
       }
       else if (x.k === 'fx') this.fx.push(x.f);
       else if (x.k === 'vx') this.vx(x.v);
@@ -370,6 +373,12 @@ const methods = {
       else if (x.k === 'tile') this.netTile(x.a);
       else if (x.k === 'obj') this.netObj(x.o);
     }
+  },
+  // the shots a boss holds and moves itself, between the server's words on them: each glides to where it last was
+  netGlide() {
+    const H = this.net.held;
+    if (!H) return;
+    for (const b of H.values()) if (b.netTx !== undefined) { const f = Math.min(1, (this.t - b.netAt) / b.netDur); b.x = b.netPx + (b.netTx - b.netPx) * f; b.y = b.netPy + (b.netTy - b.netPy) * f; }
   },
   // a puppet between updates: it glides to where the server last had it; its burns tick here (the damage is reported);
   // a slow you put on it goes to the server; a boss's animation plays on
