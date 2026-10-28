@@ -29,6 +29,9 @@ export const DEFAULTS = {
   lookAhead: true,        // the camera sits ahead of you: you below the middle of the screen, more of what is in front (RotMG's way: on by default)
   volume: 0.5,
   muted: false,
+  cursor: 'cross',        // the cursor over the play field (src/cursor.js): cross, ring, dot, brackets, or the system's thin one
+  cursorColor: '#ffffff',
+  cursorSize: 32,
 };
 export const MINI_STEPS = [40, 80, 160, 320, 640, 9999];   // the last step always shows the whole map, however big it grows
 export const VIEW_ZOOM = { min: 0.75, max: 1.5, step: 0.05 };

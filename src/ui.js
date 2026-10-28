@@ -9,6 +9,7 @@ import { drawIcon as armIcon } from './armory_art.js';
 const BIOME_NAME = { shore: 'Shore', lowlands: 'Lowland', fen: 'Fen', thornwood: 'Thornwood', steppe: 'Steppe', runeholt: 'Runeholt', dunes: 'Dune', godfall: 'Godfall', frostveil: 'Frostveil' };
 import { POT_STACK } from './game.js';
 import { ACTIONS, MINI_STEPS, keyLabel, resetSettings, keyName, keyParen } from './settings.js';
+import { CURSOR_STYLES, CURSOR_COLORS, CURSOR_SIZES, cursorPreview } from './cursor.js';
 import { PET_KINDS, RARITY, RARITY_ORDER, ABILITIES, PET_TICK, PET_MAX, petHeal, petMagic, petXpToNext, petCap, petMaxed, feedCost, feedValue, canMorph, FUSE_GOLD, petSprite, petName, abilityOrder, mainMaxed, petLevel } from './data/pets.js';
 import { loadAccounts, saveAccounts, saveKeyFor, hashPassword, loadSave, normalizeSave, getSession, setSession } from './save.js';
 
@@ -380,6 +381,11 @@ export class UI {
         <div class="row"><span>View zoom <small class="mut" data-vz>${Math.round(S.viewZoom * 100)}%</small></span><input type="range" min="0.75" max="1.5" step="0.05" data-num="viewZoom" value="${S.viewZoom}"></div>
         <div class="row"><span>Minimap range</span><select data-sel="miniView">${MINI_STEPS.map((v) => `<option value="${v}" ${S.miniView === v ? 'selected' : ''}>${v >= 9999 ? 'Whole map' : v + ' tiles'}</option>`).join('')}</select></div>
       </section>
+      <section><h3>Cursor <img class="curprev" data-curprev alt=""></h3>
+        <div class="row"><span>Shape</span><select data-cur="cursor">${CURSOR_STYLES.map(([v, n]) => `<option value="${v}" ${S.cursor === v ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
+        <div class="row"><span>Colour</span><select data-cur="cursorColor">${CURSOR_COLORS.map(([v, n]) => `<option value="${v}" ${S.cursorColor === v ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
+        <div class="row"><span>Size</span><select data-cur="cursorSize">${CURSOR_SIZES.map(([v, n]) => `<option value="${v}" ${+S.cursorSize === v ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
+      </section>
       <section><h3>Audio</h3>
         <div class="row"><span>Volume</span><input type="range" min="0" max="1" step="0.05" data-num="volume" value="${S.volume}"></div>
         ${check('muted', 'Mute all sound')}
@@ -396,6 +402,9 @@ export class UI {
     const changed = () => { this.onSettingsChanged && this.onSettingsChanged(); this.miniLabel(); };
     o.querySelectorAll('[data-opt]').forEach((el) => { el.onchange = () => { S[el.dataset.opt] = el.checked; changed(); }; });
     o.querySelectorAll('[data-num]').forEach((el) => { el.oninput = () => { S[el.dataset.num] = +el.value; changed(); const vz = o.querySelector('[data-vz]'); if (vz) vz.textContent = Math.round(S.viewZoom * 100) + '%'; }; });
+    const curPrev = () => { const im = o.querySelector('[data-curprev]'), src = cursorPreview(S.cursor || 'cross', S.cursorColor || '#ffffff'); if (im) { im.src = src; im.style.display = src ? '' : 'none'; } };   // (the cursor you chose, shown)
+    curPrev();
+    o.querySelectorAll('[data-cur]').forEach((el) => { el.onchange = () => { const k = el.dataset.cur; S[k] = k === 'cursorSize' ? +el.value : el.value; changed(); curPrev(); }; });
     o.querySelectorAll('[data-sel]').forEach((el) => {
       el.onchange = () => { const v = el.value; S[el.dataset.sel] = el.dataset.sel === 'zoom' && v === 'auto' ? 'auto' : +v; changed(); };
     });

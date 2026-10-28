@@ -5,6 +5,7 @@ import { Game } from './game.js';
 import { Renderer } from './render.js';
 import { UI } from './ui.js';
 import { loadSettings, saveSettings, actionFor, MINI_STEPS, VIEW_ZOOM } from './settings.js';
+import { applyCursor } from './cursor.js';
 import { Sfx } from './sfx.js';
 
 const canvas = document.getElementById('game');
@@ -37,7 +38,8 @@ async function boot() {
   const sfx = new Sfx();
   sfx.setVolume(settings.volume, settings.muted);
   ui.sfx = sfx;
-  ui.onSettingsChanged = () => { saveSettings(settings); fit(); sfx.setVolume(settings.volume, settings.muted); ui.keyLine(); };
+  applyCursor(canvas, settings);                          // the cursor you chose (src/cursor.js)
+  ui.onSettingsChanged = () => { saveSettings(settings); fit(); sfx.setVolume(settings.volume, settings.muted); ui.keyLine(); applyCursor(canvas, settings); };
   ui.keyLine();                                          // the hints show your own keys
   game.onTravel = (where) => ui.travel(where);            // portals show a loading card while the next place is made
   for (const ev of ['pointerdown', 'keydown']) addEventListener(ev, () => sfx.unlock(), { once: false, passive: true });
