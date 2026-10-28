@@ -104,6 +104,7 @@ const methods = {
     };
     m.rfSolid = (x, y) => X.solidMove(x, y);
     m.rfShot = (x, y) => X.solidShot(x, y);
+    this.rfSecrets(m, E, X);                                       // (its secret rooms: veiled; a walked-into way in, a cracked wall)
     this.rfSync(m);
     m.rfMini = (i) => this.rfMiniColor(m, i);
     for (const e of E.en_) this.rfScale(e, id);                 // (this.map is not this one yet)
@@ -340,15 +341,18 @@ const methods = {
     const bx = ep.x, by = ep.y;
     if (served) { for (const e of E.en_) if (!e.ours && !KEEP_THEIRS.has(`rf_${R.id}_${e.k}`)) e.ours = NET_HELD; }   // (the kinds their own rooms move stay yours: each player meets their own)
     else this.rfLinkIn();
-    const shut = served ? E.M.gates.map((q) => !q.open) : null;
     this.rfXe().tick(dt);
     if (!served) this.rfLinkOut();
-    if (shut) E.M.gates.forEach((q, i) => { if (shut[i] && q.open && !q.netOpened) this.netRfGate(i); });   // a gate your copy opened: the group's too (src/net.js)
     if (ep.noRegen > E.t) p.noRegenUntil = Math.max(p.noRegenUntil || 0, this.t + (ep.noRegen - E.t));   // their sickness: no regeneration a while
     if (ep.x !== bx || ep.y !== by) { p.x = ep.x; p.y = ep.y; this.unstick(p); }   // their portals, a collapsing floor, a push
     for (const e of E.en_) this.rfScale(e);
     this.rfTheirsTick(dt);                                         // (theirs only: yours online are the kinds their rooms move)
     if ((R.tick = (R.tick || 0) + 1) % 3 === 0 || E.ogDirty === 0) this.rfSync(m);
+    if (m.rfVeils && R.tick % 6 === 0) this.rfUnveil(m);
+    if (served) {                                                  // a gate your copy opened (a puzzle, a key, a cracked wall you broke): the group's too (src/net.js)
+      const S = R.gShut || (R.gShut = E.M.gates.map((q) => !q.open));
+      E.M.gates.forEach((q, i) => { if (S[i] && q.open) { S[i] = false; if (!q.netOpened) this.netRfGate(i); } });
+    }
     if (E.pots > R.pots) { for (let k = R.pots; k < E.pots; k++) this.rfPotion(); }
     R.pots = E.pots;
     if (E.banner && E.banner !== R.banner && !this.rfServe) { R.banner = E.banner; this.banner(E.banner.t, 2200, false); }
@@ -356,6 +360,37 @@ const methods = {
       R.door = { kind: 'dungeon', hidden: true, x: E.M.bossDoor.x + 0.5, y: E.M.bossDoor.y + 1, label: E.B.name, to: `rfa_${E.B.id}` };
       m.portals.push(R.door);
       this.banner(`${E.B.name} waits beyond this door.`, 2500);
+    }
+  },
+  // their secret rooms (2026-10-28, the user: "hidden rooms should not be seen on the minimap or at all; a cracked wall
+  // to break reveals the room"): a secret room and its walls stay under the fog (m.veil) till its way in opens; a way
+  // in you walked into, unseen, is a cracked wall now, seen and broken by your shots (the others keep their own rule:
+  // a panel to burn, levers, a moonbeam...)
+  rfSecrets(m, E, X) {
+    const M = E.M;
+    m.veil = new Uint8Array(M.W * M.H); m.rfVeils = [];
+    for (const g of M.gates) {
+      if (g.kind !== 'secret') continue;
+      const r = M.rooms[g.room];
+      if (!r || !r.cells) continue;
+      if (g.style === 'walk') { g.style = 'shoot'; for (const [x, y] of g.cells) X.setTile(x, y, X.C.BREAK); }
+      const door = new Set(g.cells.map(([x, y]) => y * M.W + x)), idx = [];
+      for (const [cx, cy] of r.cells) for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+        const x = cx + dx, y = cy + dy, i = y * M.W + x;
+        if (x < 0 || y < 0 || x >= M.W || y >= M.H || door.has(i) || m.veil[i]) continue;
+        const ri = X.roomOf(x + 0.5, y + 0.5);
+        if (ri >= 0 && ri !== r.id) continue;                      // (another room's floor stays as it is)
+        m.veil[i] = 1; idx.push(i);
+      }
+      m.rfVeils.push({ g, idx });
+    }
+  },
+  // a secret room's way in is open (broken, burned, walked through): it can be seen
+  rfUnveil(m) {
+    const M = m.rf.E.M, X = m.rf.X, walk = (x, y) => !X.BM[M.t[y * M.W + x]];
+    for (const V of m.rfVeils) if (V.idx && (V.g.open || V.g.cells.some(([x, y]) => walk(x, y)))) {
+      for (const i of V.idx) m.veil[i] = 0; V.idx = null; this.fogAt = null;
+      if (!V.g.open && !this.rfServe) { V.g.open = 1; this.banner(V.g.found || 'The cracked wall gives way... a hidden room!', 2600); this.sfx && this.sfx('rare'); }   // (a cracked wall broke: their own word on what lay behind)
     }
   },
   // one engine: our monster stands in for their creature from the moment it wakes to fight; theirs stays in their rooms
@@ -459,6 +494,25 @@ const methods = {
     else if (R < 0.06) this.addBag(e.x, e.y + 0.4, rollLoot(this.rfLoot(1), 1));
   },
   rfDrop() {},                                                 // (no floor potions: our dungeons drop none, 2026-10-19)
+  // a chest of theirs breaks to your shots, as ours do (2026-10-28: theirs only opened when walked up to, and stood
+  // when shot); a locked one says what it waits for. Its toughness by its dungeon's stars, a rare one half again
+  // one of our shots, as their engine sees a shot (its ground point, heading, pace, blow)
+  rfShotOf(b) { return { x: b.x, y: b.y + 0.3, a: b.a ?? Math.atan2(b.vy, b.vx), v: Math.hypot(b.vx, b.vy), dmg: b.dmg, age: 0, life: 1 }; },
+  rfChestAt(x, y) {
+    const E = this.map.rf && this.map.rf.E;
+    if (!E) return null;
+    return E.M.props.find((pr) => (pr.k === 'chest' || pr.k === 'chest_rare') && !pr.used && !pr.opened && !pr.hidden && x > pr.x - 0.15 && x < pr.x + 1.15 && y > pr.y - 0.15 && y < pr.y + 1.15) || null;
+  },
+  rfChestHit(pr, dmg) {
+    const E = this.map.rf.E, X = this.rfXe(), cx = pr.x + 0.5, cy = pr.y + 0.5;
+    const shut = pr.locked === 'clear' ? E.en_.some((e) => e.room === X.roomOf(cx, cy) && e.hp > 0 && !e.d.rare) : !!pr.locked;
+    if (shut) { if ((pr.toldT || 0) < this.t) { pr.toldT = this.t + 3; this.float(...lift(cx, cy, 1.2), pr.locked === 'clear' ? 'CLEAR THE ROOM' : 'LOCKED', '#8d88a0'); } return; }
+    if (!pr.maxHp) pr.hp = pr.maxHp = Math.round(1200 * rfBalance(DATA, this.map.rf.id).stars * (pr.k === 'chest_rare' ? 1.5 : 1));
+    pr.hp -= dmg; pr.hurtT = this.t;
+    this.float(...lift(cx, cy, 0.9), `${Math.round(dmg)}`, '#ffd650');
+    this.vx({ k: 'burst', ...this.rfLift(cx, cy), n: 3, colors: ['#c98a44', '#ffd650'] });
+    if (pr.hp <= 0) { pr.used = 1; pr.opened = 1; this.rfChest(pr); }
+  },
   // a chest: our loot, by how hard it was to reach
   rfChest(pr) {
     const L = { common: 1, puzzle: 1.6, rare: 2, challenge: 2.4, secret: 2.6 }[pr.loot] || 1;

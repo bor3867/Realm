@@ -22,7 +22,13 @@ def patch(a, b, count=1):
 patch("(function(){\n  if(!DATA.explore||!DATA.dungeons)return;", "export function makeExplore(DATA,HOST){\n  if(!DATA.explore||!DATA.dungeons)return null;")
 patch('/*MODS*/', mods_src)
 patch('/*PANEL*/', '')
-patch("  window.RFExplore={", "  return {setup,tick,generate,damageEnemy,kill,mkEnemy,openGate,setTile,tileAt,roomOf,solidMove,solidShot,C,BM,WALLISH,BS,TS,MODS,BOSSES,toBoss:()=>HOST.bossDoor(),")
+# our shots on their world, as their player's shots did (their auto-fire is gone, and with it all that broke a cracked
+# wall or a crate): a wall it meets (a cracked one gives), a thing it passes over (a dungeon's own rule first), an area
+# blow on both
+patch("  window.RFExplore={", "  return {setup,tick,generate,damageEnemy,kill,mkEnemy,openGate,setTile,tileAt,roomOf,solidMove,solidShot,C,BM,WALLISH,BS,TS,MODS,BOSSES,toBoss:()=>HOST.bossDoor(),"
+  "shotWall:(b)=>{const v=tileAt(b.x,b.y);if(v===C.BREAK)hitBreak(Math.floor(b.x),Math.floor(b.y),b.dmg);if(E.mod&&E.mod.shotWall)E.mod.shotWall(b);},"
+  "shotHit:(b)=>{if(E.mod&&E.mod.shotObj&&E.mod.shotObj(b))return true;for(const o of E.M.objs)if(o.hp>0&&!o.gone&&b.x>=o.x-0.1&&b.x<=o.x+o.s+0.1&&b.y>=o.y-0.3&&b.y<=o.y+o.s+0.1){o.hp-=b.dmg;pfx('spark',b.x,b.y,{c:o.sparkC||'#ffffff'});if(o.hp<=0)breakObj(o);return true;}return false;},"
+  "blast:(x,y,r,dmg)=>{const M=E.M;for(const o of M.objs)if(o.hp>0&&!o.gone&&Math.hypot(o.x+o.s/2-x,o.y+o.s/2-y)<r+o.s/2){o.hp-=dmg;if(o.hp<=0)breakObj(o);}for(let j=Math.floor(y-r);j<=y+r;j++)for(let i=Math.floor(x-r);i<=x+r;i++)if(tileAt(i+0.5,j+0.5)===C.BREAK&&Math.hypot(i+0.5-x,j+0.5-y)<r+0.5)hitBreak(i,j,dmg);},")
 patch("draw:()=>draw()};\n})();", "draw:()=>draw()};\n}")
 # no temporary player sprite (the test piece is not in the data)
 patch("E.player=arts(X.player,true);", "E.player=null;")

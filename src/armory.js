@@ -39,6 +39,17 @@ const methods = {
   armSay(x, y, text, col) { this.float(x, y - 1.2, text, col); },
   armAim() { const I = this.input; return { x: I.aimX, y: I.aimY }; },
   armNear(x, y, r, but) { return this.enemiesIn(x, y, r).filter((e) => e !== but && !e.dead); },
+  // an area blow on the breakables in it too (chests, urns, crates, weak walls, spore pods): as a shot of yours would
+  // break them (Hosanna's pillar used to fall on a chest and leave it whole: 2026-10-28)
+  armBreak(x, y, r, dmgR, id) {
+    const m = this.map;
+    if (m.kind === 'nexus' && !m.nexusChests) return;
+    for (const o of m.objects) if ((o.interact === 'weak' || o.sdUrn || o.hmCrate || (o.mrPod && !o.burst) || (o.interact === 'chest' && !o.opened)) && (o.x - x) ** 2 + (o.y - y) ** 2 < (r + 0.6) ** 2)
+      this.hitObject(o.x, o.y, Math.round((Array.isArray(dmgR) ? roll(dmgR) : dmgR) * this.armMult(id)));
+    if (m.rf) this.rfXe().blast(x, y, r, Math.round((Array.isArray(dmgR) ? roll(dmgR) : dmgR) * this.armMult(id)));   // (their cracked walls and breakable things)
+    if (m.rf) for (const pr of m.rf.E.M.props) if ((pr.k === 'chest' || pr.k === 'chest_rare') && !pr.used && !pr.opened && !pr.hidden && (pr.x + 0.5 - x) ** 2 + (pr.y + 0.5 - y) ** 2 < (r + 0.6) ** 2)
+      this.rfChestHit(pr, Math.round((Array.isArray(dmgR) ? roll(dmgR) : dmgR) * this.armMult(id)));   // (a Realmforge chest too)
+  },
   armNearest(x, y, r = 12, but) { let best = null, bd = r * r; for (const e of this.armNear(x, y, r, but)) { const d = (e.x - x) ** 2 + (e.y - y) ** 2; if (d < bd) { bd = d; best = e; } } return best; },
   armHurt(e, dmgR, x, y, o = {}) {                         // a blow from one of its parts (a range or a number), at your Attack
     const v = Array.isArray(dmgR) ? roll(dmgR) : dmgR, id = o.id;
@@ -117,7 +128,7 @@ const methods = {
         e.armCrownT = this.t + 4;
         this.armVis({ k: 'crown', x: e.x, y: e.y, life: 0.6 });
         this.armSay(e.x, e.y - 0.6, 'CROWNED', '#fff3c4');
-        for (const o of this.armNear(e.x, e.y, 3)) { this.armHurt(o, A.st.dmg, undefined, undefined, { id: ID('Aureole') }); o.armDazeT = this.t + 1.5; o.slowT = Math.max(o.slowT || 0, 1.5); o.slowF = Math.max(o.slowF || 0, 0.5); }
+        this.armBreak(e.x, e.y, 3, A.st.dmg, ID('Aureole')); for (const o of this.armNear(e.x, e.y, 3)) { this.armHurt(o, A.st.dmg, undefined, undefined, { id: ID('Aureole') }); o.armDazeT = this.t + 1.5; o.slowT = Math.max(o.slowT || 0, 1.5); o.slowF = Math.max(o.slowF || 0, 0.5); }
       } finally { S.crowning = false; }
     }
     const tt = S.tether;
@@ -353,7 +364,7 @@ const FIRE = {
       this.armLater(0.2, () => {
         this.armVis({ k: 'pillar', x, y, life: 0.42 });
         this.vx({ k: 'burst', x, y: y - 0.3, n: 22, colors: ['#ffffff', '#fff1b8', '#f2b53a'] });
-        for (const e of this.armNear(x, y, 1.5)) this.armHurt(e, dmgR, e.x, e.y - 0.5, { id, ap: true });
+        this.armBreak(x, y, 1.5, dmgR, id); for (const e of this.armNear(x, y, 1.5)) this.armHurt(e, dmgR, e.x, e.y - 0.5, { id, ap: true });
       });
     };
     if (!judg) { smite(tx, ty, A.st.dmg); return; }
@@ -385,7 +396,7 @@ const FIRE = {
       if (this.t - h.rang < 0.45) return;
       h.rang = this.t; chain.n++;
       this.armVis({ k: 'ring', x: h.x, y: h.y + 0.5, r: 1.5, col: '#bfefff', life: 0.45 });
-      for (const o of this.armNear(h.x, h.y + 0.5, 1.5)) this.armHurt(o, EX(A, 0), undefined, undefined, { id });
+      this.armBreak(h.x, h.y + 0.5, 1.5, EX(A, 0), id); for (const o of this.armNear(h.x, h.y + 0.5, 1.5)) this.armHurt(o, EX(A, 0), undefined, undefined, { id });
       for (const o of S.ch) if (o !== h && o.until > this.t && Math.hypot(o.x - h.x, o.y - h.y) < 3 && this.t - o.rang >= 0.45) {
         this.armVis({ k: 'line', x0: h.x, y0: h.y, x1: o.x, y1: o.y, col: '#bfefff', life: 0.22 });
         this.armLater(0.12, () => { ringCh(o, chain); chorus(chain); });
@@ -395,7 +406,7 @@ const FIRE = {
     const chorus = (chain) => {
       if (chain.n >= 4 && !chain.done && S.ch.length >= 4) {
         chain.done = true; this.vx({ k: 'shake', amt: 4 }); this.armSay(this.player.x, this.player.y - 2, 'CHORUS', '#ffffff');
-        for (const o of S.ch) { this.armVis({ k: 'ring', x: o.x, y: o.y + 0.5, r: 2, col: '#ffffff', life: 0.45 }); for (const e of this.armNear(o.x, o.y + 0.5, 1.5)) this.armHurt(e, EX(A, 1), undefined, undefined, { id }); }
+        for (const o of S.ch) { this.armVis({ k: 'ring', x: o.x, y: o.y + 0.5, r: 2, col: '#ffffff', life: 0.45 }); this.armBreak(o.x, o.y + 0.5, 1.5, EX(A, 1), id); for (const e of this.armNear(o.x, o.y + 0.5, 1.5)) this.armHurt(e, EX(A, 1), undefined, undefined, { id }); }
       }
     };
     const sh = this.armShot(id, 0, ox, oy, a + (R() - 0.5) * 0.24, W.speed, W.range, A.st.dmg);
@@ -427,7 +438,7 @@ const FIRE = {
       const t = (i + 1) / 5, d = 1 + (L - 1) * t, x = p.x + Math.cos(a) * d, y = p.y + Math.sin(a) * d;
       this.armVis({ k: 'spike', x, y, life: 0.6 });
       this.vx({ k: 'burst', x, y: y - 0.2, n: 6, colors: ['#d6c49e', '#8a6d45'] });
-      for (const e of this.armNear(x, y, 0.65)) { if (this.armHurt(e, EX(A, 0), undefined, undefined, { id })) { e.slowT = Math.max(e.slowT || 0, 2); e.slowF = Math.max(e.slowF || 0, 0.3); } }
+      this.armBreak(x, y, 0.65, EX(A, 0), id); for (const e of this.armNear(x, y, 0.65)) { if (this.armHurt(e, EX(A, 0), undefined, undefined, { id })) { e.slowT = Math.max(e.slowT || 0, 2); e.slowF = Math.max(e.slowF || 0, 0.3); } }
       if (i === 4 && S.n[id] % 4 === 0) {
         S.turrets = (S.turrets || []).filter((q) => q.until > this.t);
         if (S.turrets.length >= 2) S.turrets.shift();
@@ -528,7 +539,7 @@ const FIRE = {
             (S.rx = S.rx || []).push({ ...x, t: this.t });
             this.vx({ k: 'shake', amt: 4 }); this.vx({ k: 'burst', x: x.x, y: x.y, n: 34, colors: ['#0a0410', '#e879f9', '#ffffff'] });
             this.armVis({ k: 'ring', x: x.x, y: x.y + 0.5, r: 1.5, col: '#e879f9', life: 0.45 }); this.armSay(x.x, x.y, 'RUPTURE', '#f0abfc');
-            for (const e of this.armNear(x.x, x.y + 0.5, 1.5)) this.armHurt(e, EX(A, 1), undefined, undefined, { id });
+            this.armBreak(x.x, x.y + 0.5, 1.5, EX(A, 1), id); for (const e of this.armNear(x.x, x.y + 0.5, 1.5)) this.armHurt(e, EX(A, 1), undefined, undefined, { id });
             for (const e of this.projectiles) if (e.from === 'e' && e.life > 0 && Math.hypot(e.x - x.x, e.y - x.y) < 2) e.life = 0;
           }
         }
@@ -626,7 +637,7 @@ const TICK = {
     const m = h.mass, n = Math.min(28, h.eaten);
     this.vx({ k: 'shake', amt: 6 }); this.vx({ k: 'burst', x: h.x, y: h.y - 0.5, n: 60 + m * 3, colors: ['#ffffff', '#c084fc', '#7c3aed', '#facc15'] });
     this.armVis({ k: 'ring', x: h.x, y: h.y, r: 3, col: '#f5e1ff', life: 0.45 }); this.armSay(h.x, h.y - 1.5, 'COLLAPSE · MASS ' + m, '#e9d5ff');
-    for (const e of this.armNear(h.x, h.y, 3)) this.armHurt(e, A.st.dmg, undefined, undefined, { id, k: m * 0.55 });
+    this.armBreak(h.x, h.y, 3, A.st.dmg, id); for (const e of this.armNear(h.x, h.y, 3)) this.armHurt(e, A.st.dmg, undefined, undefined, { id, k: m * 0.55 });
     if (n) this.armLater(0.25, () => { this.armSay(h.x, h.y + 1, 'HAWKING ×' + n, '#facc15'); for (let i = 0; i < n; i++) this.armShot(id, 0, h.x, h.y - 0.5, (i / n) * TAU, 9.5, 8.5, EX(A, 0), { sc: 2.5, spin: 6 }); });
   },
   'Starfall Engine'(A, id, S) {                           // marks call meteors
@@ -640,7 +651,7 @@ const TICK = {
         const Rr = 0.8 + n * 0.25;
         this.vx({ k: 'shake', amt: n >= 4 ? 6 : 3 }); this.vx({ k: 'burst', x, y: y - 0.3, n: 14 + n * 10, colors: ['#fff7ae', '#fb923c', '#ef4444'] });
         this.armVis({ k: 'ring', x, y, r: Rr, col: '#fb923c', life: 0.45 }); this.armSay(x, y - 0.5, n >= 5 ? 'CATACLYSM' : '×' + n, n >= 5 ? '#fff1a8' : '#fdba74');
-        for (const o of this.armNear(x, y, Rr)) this.armHurt(o, EX(A, 0), undefined, undefined, { id, k: Math.pow(n, 1.2) });
+        this.armBreak(x, y, Rr, EX(A, 0), id); for (const o of this.armNear(x, y, Rr)) this.armHurt(o, EX(A, 0), undefined, undefined, { id, k: Math.pow(n, 1.2) });
         if (n >= 5) S.craters = [...(S.craters || []).filter((c) => c.until > this.t), { x, y, r: Rr, until: this.t + 2, k: 0 }];
       });
     }
@@ -729,7 +740,7 @@ const TICK = {
       if (w.t < 1.2) {
         for (const e of this.armNear(w.x, w.y, 7)) if (!e.rb && !(e.D && e.D.dummy)) this.moveCircle(e, (w.x - e.x) * 4.5 * dt * 0.25, (w.y - e.y) * 4.5 * dt * 0.25, 0.35);
         w.k += dt;
-        if (w.k > 0.3 && w.n < 4) { w.k = 0; w.n++; for (const e of this.armNear(w.x, w.y, 3.75)) this.armHurt(e, A.st.dmg, undefined, undefined, { id }); S.hunger = Math.min(10, (S.hunger || 0) + 1); }
+        if (w.k > 0.3 && w.n < 4) { w.k = 0; w.n++; this.armBreak(w.x, w.y, 3.75, A.st.dmg, id); for (const e of this.armNear(w.x, w.y, 3.75)) this.armHurt(e, A.st.dmg, undefined, undefined, { id }); S.hunger = Math.min(10, (S.hunger || 0) + 1); }
         if (w.feast) for (const e of this.projectiles) if (e.from === 'e' && e.life > 0) { const aa = Math.atan2(w.y - 0.5 - e.y, w.x - e.x); e.vx = Math.cos(aa) * 15; e.vy = Math.sin(aa) * 15; e.life = Math.max(e.life, 1); if (Math.hypot(e.x - w.x, e.y - (w.y - 0.5)) < 0.75) { e.life = 0; S.eaten = (S.eaten || 0) + 1; } }
       } else if (w.t > 1.55) S.maw = null;
     }

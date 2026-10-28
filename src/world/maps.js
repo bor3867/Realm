@@ -2107,6 +2107,7 @@ export function dungeon(seed, def) {
     rooms.pop();                                                      // secrets are kept apart from the room list
     carveRoom(s); carve(tx0, ty0, tx1, ty1);
     s.plug = { x: dx > 0 ? a.x + a.w : dx < 0 ? a.x - 1 : a.cx, y: dy > 0 ? a.y + a.h : dy < 0 ? a.y - 1 : a.cy };
+    s.tunnel = [Math.min(tx0, tx1), Math.min(ty0, ty1), Math.max(tx0, tx1), Math.max(ty0, ty1)]; s.from = a;
     secrets.push(s); k++;
   }
 
@@ -2119,6 +2120,14 @@ export function dungeon(seed, def) {
     }
   }
   for (const s of secrets) { m.tiles[idx(m, s.plug.x, s.plug.y)] = WALL; put(m, 'weak_wall', s.plug.x, s.plug.y, true, { interact: 'weak', hp: 4 }); }
+  // a secret room stays unseen (on the screen and the minimap) until its cracked wall breaks: the fog never lifts over
+  // it, its tunnel or their walls (m.veil; the cracked wall itself is the one clue). game.unveil lifts it
+  m.veil = new Uint8Array(m.w * m.h);
+  for (const s of secrets) {
+    const A = s.from, inA = (x, y) => x >= A.x - 1 && x <= A.x + A.w && y >= A.y - 1 && y <= A.y + A.h;   // (not the chamber it opens from, nor its walls)
+    const veil = (x0, y0, x1, y1) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (x >= 0 && y >= 0 && x < m.w && y < m.h && !inA(x, y)) { m.veil[y * m.w + x] = 1; (s.veilIdx || (s.veilIdx = [])).push(y * m.w + x); } };
+    veil(s.x - 1, s.y - 1, s.x + s.w, s.y + s.h); veil(s.tunnel[0] - 1, s.tunnel[1] - 1, s.tunnel[2] + 1, s.tunnel[3] + 1);
+  }
   if (m.sdSeal) for (const i of m.sdSeal) m.tiles[i] = TID.sdwall;
   if (m.ckHalls) {
     for (const H of m.ckHalls) for (let y = H.y - 1; y <= H.y + H.h; y++) for (let x = H.x - 1; x <= H.x + H.w; x++) if (tile(x, y) === TID.ckwall) m.tiles[idx(m, x, y)] = TID.ckwin;

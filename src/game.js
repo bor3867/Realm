@@ -681,7 +681,8 @@ export class Game {
     // (while a monster is being struck, a number raised at it is its own: by nearness alone, a monster close to you lost
     // its damage numbers to you, and yours are hidden. 2026-10-24)
     const F = this.floatFor, who = own || (F && Math.hypot(F.x - x, F.y - (F.hitUp || 0.6) - y) < (F.rb ? 4 : 2.2) ? F : this.floatOwner(x, y));
-    // over you: only red (a hit taken), green (a health potion) and blue (a mana potion) (the user's call, 2026-10-19)
+    // over you: only red (a hit taken), green (Life back: a potion, your pet) and blue (Mana back: a potion, your pet)
+    // (the user's calls, 2026-10-19 and 2026-10-28)
     if (who && who === this.player && !this.pFloatOk) return;
     // every hit shows its own number (2026-10-19): numbers that land together each take a different spot above the
     // target, staggered so none sits beside another at the same height ("100,100"), with a little jitter
@@ -997,7 +998,7 @@ export class Game {
     for (let y = Math.max(0, ty - R); y <= Math.min(m.h - 1, ty + R); y++) {
       for (let x = Math.max(0, tx - R); x <= Math.min(m.w - 1, tx + R); x++) {
         const i = y * m.w + x;
-        if (m.seen[i] || (x - tx) ** 2 + (y - ty) ** 2 > R2) continue;
+        if (m.seen[i] || (x - tx) ** 2 + (y - ty) ** 2 > R2 || (m.veil && m.veil[i])) continue;   // (a secret room stays unseen till its wall breaks)
         m.seen[i] = 1; m.fogNew.push(i);
       }
     }
@@ -3180,8 +3181,8 @@ export class Game {
     q.tick = PET_TICK;
     if (this.map.kind === 'nexus') return;
     const hp = this.stat('hp'), mp = this.stat('mp');
-    if (p.hp < hp) { const h = Math.min(petHeal(P), hp - p.hp); p.hp += h; this.float(p.x - 0.4, p.y - 1.5, `+${h}`, '#5ef08a'); this.vx({ k: 'heal', ...liftA(q.x, q.y, 0.4), ...liftB(p.x, p.y, 0.6) }); }
-    if (p.mp < mp) { const m = Math.min(petMagic(P), mp - p.mp); p.mp += m; this.float(p.x + 0.4, p.y - 1.5, `+${m}`, '#6ab4ff'); }
+    if (p.hp < hp) { const h = Math.min(petHeal(P), hp - p.hp); p.hp += h; this.pFloat(`+${h}`, '#5ef08a'); this.vx({ k: 'heal', ...liftA(q.x, q.y, 0.4), ...liftB(p.x, p.y, 0.6) }); }   // (over you: your pet's heal shows, as a potion's does)
+    if (p.mp < mp) { const m = Math.min(petMagic(P), mp - p.mp); p.mp += m; this.pFloat(`+${m}`, '#6ab4ff'); }
   }
   // feed your companion an item, paying gold or fame. The meal is split between its abilities (see pets.js).
   feedPet(cont, i, pay = 'gold') {
@@ -3264,7 +3265,7 @@ export class Game {
     for (let yy = Math.floor(y - R); yy <= y + R; yy++) for (let xx = Math.floor(x - R); xx <= x + R; xx++) {
       if (xx < 0 || yy < 0 || xx >= m.w || yy >= m.h || (xx - x) ** 2 + (yy - y) ** 2 > R * R) continue;
       const i = yy * m.w + xx;
-      if (!m.seen[i]) { m.seen[i] = 1; m.fogNew.push(i); }
+      if (!m.seen[i] && !(m.veil && m.veil[i])) { m.seen[i] = 1; m.fogNew.push(i); }
     }
   }
   compass(dx, dy) {
@@ -3284,6 +3285,12 @@ export class Game {
     this.vx({ k: 'shake', amt: 3 });
     this.banner('The cracked wall gives way... a hidden passage!', 2600);
     this.sfx('rare');
+    this.unveil(xi, yi);
+  }
+  // a secret room's cracked wall at (x, y) is gone: the room behind it can be seen (the fog lifts as you go in)
+  unveil(x, y) {
+    const m = this.map;
+    for (const s of m.secrets || []) if (s.plug && s.plug.x === x && s.plug.y === y && s.veilIdx) { for (const i of s.veilIdx) m.veil[i] = 0; s.veilIdx = null; this.fogAt = null; }
   }
   // the mystery altar: you never know what it wants
   mystery(o) {
@@ -3298,8 +3305,8 @@ export class Game {
       this.banner('The altar offers you a gift.', 2600); this.sfx('rare');
     } else if (roll < 0.65) {
       if (m.kind === 'dungeon') {
-        for (let i = 0; i < m.seen.length; i++) if (!m.seen[i]) { m.seen[i] = 1; m.fogNew.push(i); }
-        this.banner('The altar shows you everything: every hall, every hidden way. Look for the cracked walls.', 3600);
+        for (let i = 0; i < m.seen.length; i++) if (!m.seen[i] && !(m.veil && m.veil[i])) { m.seen[i] = 1; m.fogNew.push(i); }   // (all but what lies behind the cracked walls)
+        this.banner('The altar shows you everything but what lies behind the cracked walls. Look for them.', 3600);
       } else {
         for (const s of m.sites || []) this.revealAt(s.x, s.y, 8);
         for (const w of m.waypoints || []) this.revealAt(w.x, w.y, 8);
@@ -3531,6 +3538,7 @@ export class Game {
       if (b.from === 'p' && b.rfBounce && b.life > 0 && shotBlocked(m, b.x, b.y + 0.3)) this.rfWallHit(b, m);   // the Prism Wand's bounce (src/rf/uniqmech.js)
       if (b.life <= 0 || onBreakable || (!b.back && !b.orb && !b.phase && shotBlocked(m, b.x, b.y + 0.3))) {
         if (b.from === 'p' && b.life > 0 && (m.kind !== 'nexus' || m.nexusChests)) this.hitObject(b.x, b.y + 0.3, b.dmg);
+        if (b.from === 'p' && b.life > 0 && m.rf) { const X = this.rfXe(), q = this.rfShotOf(b); if (!X.shotHit(q)) X.shotWall(q); }   // a Realmforge wall or thing: a cracked one gives (src/rf/host.js)
         if (sp && sp.split && sp.split.onEnd && !b.child && b.from === 'p') this.splitShot(b, sp.split);
         if (sp && sp.mech && b.from === 'p') this.mechEnd(b);
         if (b.arm && b.from === 'p') this.armShotEnd(b);
@@ -3538,6 +3546,7 @@ export class Game {
       }
       let alive = true;
       if (b.from === 'p' && m.rf && this.rfShotHits(b)) alive = false;   // a Realmforge creature (src/rf/host.js)
+      else if (b.from === 'p' && m.rf) { const pr = this.rfChestAt(b.x, b.y + 0.3); if (pr) { this.rfChestHit(pr, b.dmg); alive = false; } else if (this.rfXe().shotHit(this.rfShotOf(b))) alive = false; }   // and their chests, and their breakable things
       if (b.from === 'p' && m.rfBoss && this.rfBossShot(b)) alive = false;   // a Realmforge boss and its arena (src/rf/boss.js)
       if (b.from === 'p') {
         if (alive && !b.armNoHit) for (const e of targets) {

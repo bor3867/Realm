@@ -448,7 +448,7 @@ const methods = {
   netDungeonState(m) {
     const M = this.map;
     if (M.rf) { this.rfNetTiles(m.tiles || []); return; }      // a Realmforge dungeon: what the server opened, opened in your copy (src/rf/host.js)
-    for (const [i, tid, solid] of m.tiles || []) { M.tiles[i] = tid; if (M.solid) M.solid[i] = solid; }
+    for (const [i, tid, solid] of m.tiles || []) { M.tiles[i] = tid; if (M.solid) M.solid[i] = solid; if (!solid && M.veil) this.unveil(i % M.w, Math.floor(i / M.w)); }   // (a cracked wall the server broke: its secret room can be seen)
     if ((m.tiles || []).length) { M.miniDirty = true; M.tilesV = (M.tilesV || 0) + 1; M.ogridDirty = true; }
     for (const [i, k, f] of m.objs || []) { const o = M.objects[i]; if (o && (o.interact || o.sprite || '') === k) Object.assign(o, f); }
     if ((m.objs || []).length) M.ogridDirty = true;
