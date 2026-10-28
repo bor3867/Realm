@@ -1420,7 +1420,7 @@ export class Game {
       if (f.kind === 'zone' && !f.done && f.t >= f.delay) {   // boss ground slams: telegraphed, then they hurt
         f.done = true;
         const [hx, hy] = [p.x, p.y];
-        if (!p.dead && dist2(hx, hy, f.x, f.y) < f.r * f.r) {
+        if (!p.dead && f.dmg > 0 && dist2(hx, hy, f.x, f.y) < f.r * f.r) {   // (a mark with no blow of its own, a bomber's fuse, hurts no one)
           this.hurtPlayer(f.dmg, f.by);
           if (f.sick) p.noRegenUntil = Math.max(p.noRegenUntil || 0, this.t + f.sick);
           if (f.poison) this.poison(f.poison);
