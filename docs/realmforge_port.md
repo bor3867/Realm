@@ -170,7 +170,16 @@ their creatures follow their rules, not ours. The plan, a step a turn:
    encase) and the eel and cuckoo, which stay theirs with the lurker, windup and blight (KEEP_THEIRS: moved by
    their dungeons' own rules).
    Their layout, props, traps and puzzles stay hosted until step 5.
-5. **Online**: the server hosts rf_ dungeons like ours (their layout from its seed), so a group shares one.
+5. **Online** (done 2026-10-27): the server hosts rf_ dungeons like ours (their layout from its seed), so a group
+   shares one. server/world.mjs loads their engine headless (server/rfstub.mjs lends it a canvas only while it runs),
+   one engine per hosted dungeon (m.rf.X; g.rfOwnEngine); g.rfServe makes it the group's: its HOST hurts, rewards and
+   tells no one, every creature is sent (stand-ins, rfHold, for those still theirs; ours once they fight), each
+   player takes their engine's one player in turn with their own room. The portal says "served"; a browser then runs
+   its copy of the dungeon (layout, traps, puzzles, chests) with its creatures frozen and unseen (NET_HELD), counts a
+   death the server reports by number (rfSid: rfNetDeath, its room, key and gate), opens what the server opened
+   (rfNetTiles), and on a rejoin sends the numbers that fell. Checked with the local server and two browsers.
+   Not shared yet: traps, puzzles and chests stay each player's own (as before); afterimages and echo bodies are
+   not drawn online; the five kinds still theirs move but don't harm online.
 Check each step with the dungeon checks and `tools/check_enemy_hits.mjs` on the new monsters.
 
 ## Status
