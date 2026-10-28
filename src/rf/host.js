@@ -27,7 +27,8 @@ const CREATURE_HOOKS = ['enemy', 'vuln', 'hitEnemy', 'alpha', 'atk', 'bullet', '
 // the rules of theirs our engine keeps now, dungeon by dungeon: the Forge's smith works faster at its anvil (and sparks);
 // the Keep's bishop shoots the diagonals; the Rift's rules touch only its echoes (still theirs); the Hall of Mirrors
 // turns a monster's shot back once off a mirror
-const HOOKS_OURS = { forge: ['drawEnemy'], keep: ['atk'], rift: ['atk', 'drawEnemy'], mirrors: ['bullet'], sewers: ['enemy'], clocktower: ['enemy'] };
+const HOOKS_OURS = { forge: ['drawEnemy'], keep: ['atk'], rift: ['atk', 'drawEnemy'], mirrors: ['bullet'], sewers: ['enemy'], clocktower: ['enemy'],
+  glade: ['vuln', 'alpha', 'bullet'] };   // (the Glade: moon-spirits solid only in moonlight; still water mirrors a shot)
 // kinds a dungeon's own rule still moves (they stay on their engine): the Sewers' lurker, stranded by low water; the
 // Clocktower's windup, stepping on the beat, and its cuckoo, out only on the hour
 const KEEP_THEIRS = new Set(['rf_sewers_lurker', 'rf_clocktower_windup', 'rf_clocktower_cuckoo']);
@@ -191,11 +192,20 @@ const methods = {
       this.vx({ k: 'burst', ...this.rfLift(sx, sy), n: 8, colors: ['#ffffff', '#c9ccd8'] });
     }
   },
+  // the Glade's moon-spirits: in a moonbeam they take 1.6 times a blow, out of it 0.12 (and are faint to see)
+  rfMoonK(e) { const B = this.map.rf && this.map.rf.E.M.beams; return !B ? 1 : B.some((q) => Math.hypot(q.x - e.x, q.y - e.y) < q.r) ? 1.6 : 0.12; },
   // their dungeon's beat (some creatures strike only on it; some only on every other)
   rfOnBeat(A) { const E = this.map.rf && this.map.rf.E; return !!(E && E.onBeat && (A.parity == null || E.beat % 2 === A.parity)); },
   // their Hall of Mirrors: a monster's shot about to meet a mirror turns back once (as their bullet rule does)
+  // and the Glade's still water: a monster's shot crossing it sends a reflection of itself back the other way, once
   rfMirror(b, dt) {
     const M = this.map.rf.E.M;
+    if (this.map.rf.id === 'glade' && X.tileAt(b.x, b.y + 0.3) === X.C.DEEP) {
+      b.refl = 1;
+      const s = Math.hypot(b.vx, b.vy), n = this.shoot('e', b.x, b.y, Math.atan2(-b.vy, b.vx), s, s * b.life, b.dmg, b.sprite, b.r, false, b.by);
+      if (n) n.refl = 1;
+      return;
+    }
     if (!M.mirror) return;
     if (M.mirror.has(M.I(Math.floor(b.x + b.vx * dt * 1.6), Math.floor(b.y + 0.3 + b.vy * dt * 1.6)))) { b.vy = -b.vy; b.a = Math.atan2(b.vy, b.vx); b.refl = 1; b.life = Math.max(b.life, 1.4); }
   },

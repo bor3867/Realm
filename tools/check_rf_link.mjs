@@ -26,8 +26,9 @@ for (const dg of list) {
   const res = { linked: 0, ours: 0, theirKills: 0, hurt: 0, xp: 0, errors: [] };
   try {
     g.enter(`rf_${dg}`);
-    const T = (res.traits = { raised: 0, chainHits: 0, pulses: 0, formation: 0, mirrored: 0, forged: 0, onBeat: 0 });   // their traits and rules, in our engine
-    const m0 = g.rfMirror.bind(g); g.rfMirror = (b, dt) => { m0(b, dt); if (b.refl) T.mirrored++; };
+    const T = (res.traits = { raised: 0, chainHits: 0, pulses: 0, formation: 0, mirrored: 0, forged: 0, onBeat: 0, waterCopies: 0, inMoon: 0, outMoon: 0 });
+    const mk0 = g.rfMoonK.bind(g); g.rfMoonK = (e) => { const k = mk0(e); if (k > 1) T.inMoon++; else if (k < 1) T.outMoon++; return k; };   // their traits and rules, in our engine
+    const m0 = g.rfMirror.bind(g); g.rfMirror = (b, dt) => { const n0 = g.projectiles.length; m0(b, dt); if (g.projectiles.length > n0) T.waterCopies++; else if (b.refl) T.mirrored++; };
     const r0 = g.rfRaise.bind(g); g.rfRaise = (e, A) => { const n = g.map.rf.E.en_.length; r0(e, A); if (g.map.rf.E.en_.length > n) T.raised++; };
     const c0 = g.chainBeam.bind(g); g.chainBeam = (e, q) => { const t0 = q.chainT; c0(e, q); if (q.chainT !== t0) T.chainHits++; };
     const f0 = g.formation.bind(g); g.formation = (e, dt) => { const r = f0(e, dt); if (r) T.formation++; return r; };

@@ -1278,7 +1278,7 @@ export class Renderer {
       if (pd) this.drawDef(pd, Object.keys(pd.frames)[0], Math.round(qx), Math.round(qy), { center: true });
     }
     if (!e.dead && !e.noShadow) this.shadow(sx, sy, Math.max(6, (def.size[0] > 12 ? 18 : 12) * K - L.z * 0.5));   // (a reflection casts none)
-    const x = sx + L.dx, y = sy + L.dy - L.z + 1, alpha = e.dead ? Math.max(0, 1 - e.deadT / 0.6) : Math.min(1, L.rise) * (e.asVeiled > g.t ? 0.22 : 1);   // a nebula weaver in its veil is all but hidden
+    const x = sx + L.dx, y = sy + L.dy - L.z + 1, alpha = e.dead ? Math.max(0, 1 - e.deadT / 0.6) : Math.min(1, L.rise) * (e.asVeiled > g.t ? 0.22 : 1) * (e.D.moonVuln && g.rfMoonK(e) < 1 ? 0.45 : 1);   // a nebula weaver in its veil is all but hidden; a moon-spirit out of the moonlight, faint
     if (e.D.ability) this.eliteFx(g, e, def, fr, x, y, L);
     this.drawDef(def, fr, x, y, { flip: L.flip, alpha, scale: K });
     if (!e.dead && L.glow) this.drawDef(def, fr, x, y, { flip: L.flip, flash: true, alpha: 0.35, scale: K });
