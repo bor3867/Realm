@@ -18,6 +18,7 @@ const TS = 16, K = 2;                                             // our tile is
 // their tile codes (C in explore.js) -> our tile names: a code change is a tile change, so our chunk caches follow
 export const RF_CODE_TILE = ['rf_wall', 'rf_floor', 'rf_path', 'rf_pit', 'rf_secret', 'rf_gate', 'rf_haz', 'rf_liq', 'rf_ice', 'rf_bridge', 'rf_tog', 'rf_break', 'rf_conv', 'rf_deep'];
 let DATA = null, X = null;
+const XG = () => X;
 // one engine (docs/realmforge_port.md, Phase 5): which of their creatures our monster engine runs. A kind goes over when it
 // came over whole (src/rf/creatures.js: no approximation, nothing left out) and its dungeon has no rule of its own about
 // how its creatures move, fight, take hits or die (their module hooks below); the rest stay on their engine until theirs
@@ -38,11 +39,26 @@ const HOOKS_OURS = { forge: ['drawEnemy'], keep: ['atk'], rift: ['atk', 'drawEne
 // kinds a dungeon's own rule still moves (they stay on their engine): the Sewers' lurker, stranded by low water; the
 // Clocktower's windup, stepping on the beat, and its cuckoo, out only on the hour
 const KEEP_THEIRS = new Set(['rf_sewers_lurker', 'rf_clocktower_windup', 'rf_clocktower_cuckoo', 'rf_grove_blight', 'rf_pyre_eel']);   // (and the Grove's blight, marching on the sapling; the Pyre's eel, swimming its lava)
-const HOST = {};                                                  // filled in by rfMap: the calls their engine makes to us
+// (each engine has its own HOST, filled in by rfMap: the calls their engine makes to us)
+// how a call into their engine runs: as it is in a browser; on a server, with a canvas lent for it (server/rfstub.mjs)
+let RUN = (f) => f();
+export const rfRunner = (f) => { RUN = f; };
 
 // boot: the Realmforge data (dungeons, creatures, art) is loaded once, in the background
+// one of their engines (it keeps one dungeon at a time): a browser has one; a server one for each dungeon it hosts.
+// Every call into it runs through RUN
+function newEngine() {
+  const host = {}, xx = RUN(() => makeExplore(DATA, host));
+  for (const k of Object.keys(xx)) if (typeof xx[k] === 'function') { const f = xx[k]; xx[k] = (...a) => RUN(() => f(...a)); }
+  xx.HOST = host;
+  return xx;
+}
 export async function loadRF() {
-  try { DATA = await (await fetch('art/rf/data.json')).json(); X = makeExplore(DATA, HOST); bossData(DATA); addRfBosses(DATA); rfCreatures(); } catch (err) { console.warn('Realmforge data not loaded', err); }
+  try {
+    DATA = await (await fetch('art/rf/data.json')).json();
+    X = newEngine();
+    bossData(DATA); addRfBosses(DATA); rfCreatures();
+  } catch (err) { console.warn('Realmforge data not loaded', err); }
 }
 // their creatures as our monster definitions (rf_<dungeon>_<id>), and which of them our engine runs
 function rfCreatures() {
@@ -60,8 +76,8 @@ const methods = {
   // a fresh run of one of their dungeons, as our map
   rfMap(where, seed0 = 0) {
     const id = where.slice(3), dg = dgOf(id);
-    if (!X || !dg) return null;
-    const g = this;
+    if (!XG() || !dg) return null;
+    const g = this, X = this.rfOwnEngine ? newEngine() : XG(), HOST = X.HOST;   // (a server: an engine of its own for each)
     Object.assign(HOST, {
       msg: (t, dur) => g.banner(t, Math.max(1800, dur * 1000), true),
       hurt: (d, o) => { const p = g.player, hp = p.hp; g.rfHurting = true; g.hurtPlayer(Math.round(d * rfBalance(DATA, id).dmg), (o && o.d && o.d.name) || dg.name); g.rfHurting = false; return Math.max(0, Math.round(hp - p.hp)); },   // (their own rule on your hurt already ran: rfHurtK)
@@ -76,7 +92,7 @@ const methods = {
     });
     const seed = seed0 || ((Date.now() & 0xffffff) | 5);
     if (!X.setup(dg, seed)) return null;
-    const E = X.E || this.rfE();
+    const E = X.E || (X.state ? X.state() : null);
     const M = E.M, m = {
       kind: 'dungeon', name: dg.name, w: M.W, h: M.H, tiles: new Uint8Array(M.W * M.H), solid: new Uint8Array(M.W * M.H),
       biome: new Int8Array(M.W * M.H).fill(-1), objects: [], portals: [], rooms: [], spawn: { x: M.start.x, y: M.start.y },
@@ -122,7 +138,8 @@ const methods = {
   },
   // a Realmforge map's stars (its band: src/rf/balance.js)
   rfStars() { const m = this.map, id = m.rf ? m.rf.id : (DATA.dungeons.find((d) => d.boss === m.rfBoss.id) || {}).id; const b = id && rfBalance(DATA, id); return b ? b.stars : 3; },
-  rfE() { return X.state ? X.state() : null; },
+  rfXe() { return (this.map && this.map.rf && this.map.rf.X) || XG(); },
+  rfE() { return this.rfXe().state ? this.rfXe().state() : null; },
   rfScale(e, id = this.map.rf.id) {                                // (src/rf/balance.js)
     if (e.rfScaled) return;
     e.rfScaled = 1;
@@ -171,7 +188,7 @@ const methods = {
         e.bt = D.blinkCd || 2.6;
         for (let k = 0; k < 14; k++) {
           const aa = R() * TAU, rr = 2.5 + R() * 2.5, x = p.x + Math.cos(aa) * rr, y = p.y + Math.sin(aa) * rr;
-          if (!isSolid(this.map, x, y) && (!w || X.roomOf(x, y) === w.room) && this.seesFoe({ x, y }, p)) {
+          if (!isSolid(this.map, x, y) && (!w || this.rfXe().roomOf(x, y) === w.room) && this.seesFoe({ x, y }, p)) {
             this.vx({ k: 'burst', ...liftA(e.x, e.y, 0.5), n: 8, colors: ['#ffffff', '#b888ff'] }); if (D.afterimage) (e.rfAfter = e.rfAfter || []).push([e.x, e.y, this.t + 0.8]); e.x = x; e.y = y; this.vx({ k: 'burst', ...liftA(x, y, 0.5), n: 10, colors: ['#ffffff', '#b888ff'] });
             break;
           }
@@ -190,7 +207,7 @@ const methods = {
         let best = null, bd = 1e9;
         for (const [ox, oy] of opts) {
           const nx = Math.floor(e.x) + ox + 0.5, ny = Math.floor(e.y) + oy + 0.5;
-          if (X.solidMove(nx, ny) || (w && X.roomOf(nx, ny) !== w.room)) continue;
+          if (this.rfXe().solidMove(nx, ny) || (w && this.rfXe().roomOf(nx, ny) !== w.room)) continue;
           const dd = Math.abs(Math.hypot(p.x - nx, p.y - ny) - (D.chessKeep || 0));
           if (dd < bd) { bd = dd; best = [nx, ny]; }
         }
@@ -227,8 +244,8 @@ const methods = {
     const k = A.what.slice(`rf_${this.map.rf.id}_`.length);
     for (let q = 0; q < A.n; q++) {
       const sx = e.x + Math.cos(q * Math.PI + E.t) * 1.2, sy = e.y + Math.sin(q * Math.PI + E.t) * 1.2;
-      if (X.solidMove(sx, sy)) continue;
-      const o = X.mkEnemy({ k, x: sx, y: sy, room: w.room, aggro: true });
+      if (this.rfXe().solidMove(sx, sy)) continue;
+      const o = this.rfXe().mkEnemy({ k, x: sx, y: sy, room: w.room, aggro: true });
       o.from = w; o.summoned = 1; this.rfScale(o); E.en_.push(o);
       this.vx({ k: 'burst', ...this.rfLift(sx, sy), n: 8, colors: ['#ffffff', '#c9ccd8'] });
     }
@@ -250,7 +267,7 @@ const methods = {
     if (v === 'cool') return e.rfOpenUntil > this.t ? 1 : 0.25;    // the Pyre's brute: cooled armour, open only just after it strikes
     if (v === 'shade') return this.rfShadow(e) ? 0.4 : 2;          // the Sanctum's shade: 2 in the sun, 0.4 in shadow
     if (v === 'stage') {                                            // the Stage: 1.6 while you stand in the spotlight
-      const p = this.player, r = E.M.rooms[X.roomOf(p.x, p.y)];
+      const p = this.player, r = E.M.rooms[this.rfXe().roomOf(p.x, p.y)];
       return r && r.spot && Math.hypot(p.x - r.spot[0], p.y - r.spot[1]) < 2.2 ? 1.6 : 1;
     }
     return 1;
@@ -274,7 +291,7 @@ const methods = {
       }
       return;
     }
-    if (this.map.rf.id === 'glade' && X.tileAt(b.x, b.y + 0.3) === X.C.DEEP) {
+    if (this.map.rf.id === 'glade' && this.rfXe().tileAt(b.x, b.y + 0.3) === this.rfXe().C.DEEP) {
       b.refl = 1;
       const s = Math.hypot(b.vx, b.vy), n = this.shoot('e', b.x, b.y, Math.atan2(-b.vy, b.vx), s, s * b.life, b.dmg, b.sprite, b.r, false, b.by);
       if (n) n.refl = 1;
@@ -290,7 +307,7 @@ const methods = {
     const c = E.corpses.find((q) => q.room === w.room && E.t - q.t > 1.5 && Math.hypot(q.x - e.x, q.y - e.y) < (A.r || 8) && E.cfg.enemies[q.k] && !E.cfg.enemies[q.k].noRaise);
     if (!c || (E.mod.canRaise && !E.mod.canRaise(w))) return;
     E.corpses.splice(E.corpses.indexOf(c), 1);
-    const o = X.mkEnemy({ k: c.k, x: c.x, y: c.y, room: c.room, aggro: true });
+    const o = this.rfXe().mkEnemy({ k: c.k, x: c.x, y: c.y, room: c.room, aggro: true });
     o.hp = o.max * 0.6; this.rfScale(o); E.en_.push(o);
     this.vx({ k: 'zap', ...liftA(e.x, e.y, 0.5), ...liftB(c.x, c.y, 0.3) });
     this.vx({ k: 'burst', ...this.rfLift(c.x, c.y), n: 12, colors: [A.color || '#7affc8', '#ffffff'] });
@@ -301,7 +318,7 @@ const methods = {
     for (let k = 0; k < t.length; k++) {
       const v = TID[RF_CODE_TILE[t[k]]];
       if (m.tiles[k] !== v) { m.tiles[k] = v; m.miniDirty = true; m.rf.tilesV = (m.rf.tilesV || 0) + 1; }   // (the minimap follows)
-      m.solid[k] = X.BM[t[k]] && !(t[k] === X.C.DEEP && M.deepWalk) ? 1 : og && og[k] > 0 ? 1 : 0;
+      m.solid[k] = this.rfXe().BM[t[k]] && !(t[k] === this.rfXe().C.DEEP && M.deepWalk) ? 1 : og && og[k] > 0 ? 1 : 0;
     }
   },
   // one frame of their dungeon around our player
@@ -311,7 +328,7 @@ const methods = {
     ep.x = p.x; ep.y = p.y; ep.hp = p.hp;
     const bx = ep.x, by = ep.y;
     this.rfLinkIn();
-    X.tick(dt);
+    this.rfXe().tick(dt);
     this.rfLinkOut();
     if (ep.noRegen > E.t) p.noRegenUntil = Math.max(p.noRegenUntil || 0, this.t + (ep.noRegen - E.t));   // their sickness: no regeneration a while
     if (ep.x !== bx || ep.y !== by) { p.x = ep.x; p.y = ep.y; this.unstick(p); }   // their portals, a collapsing floor, a push
@@ -334,7 +351,7 @@ const methods = {
     for (const e of E.en_) {
       const o = e.ours;
       if (!o || e.hp <= 0) continue;
-      if (o.dead) { e.rfByOurs = 1; X.kill(e); continue; }       // our blow: their kill (its key, its corpse, its room)
+      if (o.dead) { e.rfByOurs = 1; this.rfXe().kill(e); continue; }       // our blow: their kill (its key, its corpse, its room)
       e.x = o.x; e.y = o.y; e.hp = o.hp; e.aggro = true; e.rfAt = [e.x, e.y]; e.rfHp = e.hp;
       if (e.wrath && !o.rfWrath) { o.rfWrath = 1; o.cds = o.cds.map((c) => c * 0.5); }   // the Grove's wrath: its next blows come sooner (its pace, theirs: e.spd)
     }
@@ -362,7 +379,7 @@ const methods = {
   },
   // what the ground does to you: ice slides you, liquid slows and may hurt, conveyors, winds and currents push
   rfGround(p, ground, dt, mod) {
-    const P = this.player, C = X.C, M = this.map.rf.E.M;
+    const P = this.player, C = this.rfXe().C, M = this.map.rf.E.M;
     let ex = p.ext[0], ey = p.ext[1];
     p.ext[0] *= Math.exp(-dt * 6); p.ext[1] *= Math.exp(-dt * 6);
     if (ground === C.CONV) { const dr = M.aux[M.I(Math.floor(p.x), Math.floor(p.y))]; ex += [1, 0, -1, 0][dr & 3] * 2.6; ey += [0, 1, 0, -1][dr & 3] * 2.6; }
@@ -422,7 +439,7 @@ const methods = {
         const nx = E.en_.filter((o) => o.hp > 0 && !o.ours && !seen.has(o) && !o.hidden && !o.dormant && Math.hypot(o.x - from.x, o.y - from.y) < 4.5).sort((a, c) => Math.hypot(a.x - from.x, a.y - from.y) - Math.hypot(c.x - from.x, c.y - from.y))[0];
         if (!nx) break;
         seen.add(nx); this.vx({ k: 'zap', ...liftA(from.x, from.y, 0.5), ...liftB(nx.x, nx.y, 0.5) });
-        X.damageEnemy(nx, Math.round(b.dmg * sp.chain.f), { x: nx.x, y: nx.y }); from = nx;
+        this.rfXe().damageEnemy(nx, Math.round(b.dmg * sp.chain.f), { x: nx.x, y: nx.y }); from = nx;
       }
     }
     if ((b.rfTide || U.unmaker) && !e.boss) { const a = Math.atan2(b.vy, b.vx); e.x += Math.cos(a) * (b.rfTide ? 0.8 : 0); e.y += Math.sin(a) * (b.rfTide ? 0.8 : 0); }
@@ -433,7 +450,7 @@ const methods = {
     const E = this.map.rf.E, t = E.t;
     for (const e of E.en_) {
       if (e.hp <= 0 || e.ours) continue;
-      if (e.rfDot && e.rfDot.t > t) { e.rfDot.acc += dt; if (e.rfDot.acc >= 0.5) { e.rfDot.acc -= 0.5; X.damageEnemy(e, Math.round(e.rfDot.dps * 0.5), { x: e.x, y: e.y }); this.float(...lift(e.x, e.y, 1.2), `${Math.round(e.rfDot.dps * 0.5)}`, '#ff9a5a'); } }
+      if (e.rfDot && e.rfDot.t > t) { e.rfDot.acc += dt; if (e.rfDot.acc >= 0.5) { e.rfDot.acc -= 0.5; this.rfXe().damageEnemy(e, Math.round(e.rfDot.dps * 0.5), { x: e.x, y: e.y }); this.float(...lift(e.x, e.y, 1.2), `${Math.round(e.rfDot.dps * 0.5)}`, '#ff9a5a'); } }
       if (e.rfSpd0 === undefined) e.rfSpd0 = e.spd;
       e.spd = e.rfSlowT > t ? e.rfSpd0 * e.rfSlowF : e.rfSpd0;
     }
@@ -454,7 +471,7 @@ const methods = {
   rfAbilityHit(e, dmg) {
     if (e.rfBossP) { this.rfBossShot({ x: e.x, y: e.y - 0.35, vx: 0, vy: 1, dmg, hit: null, pierce: true }); return dmg; }
     const hp0 = e.hp;
-    X.damageEnemy(e, Math.round(dmg), { x: e.x, y: e.y });
+    this.rfXe().damageEnemy(e, Math.round(dmg), { x: e.x, y: e.y });
     const dealt = Math.max(0, hp0 - Math.max(0, e.hp));
     if (dealt) this.float(...lift(e.x, e.y, 1.2), `${Math.round(dealt)}`, '#ff5050');
     return dealt;
@@ -470,7 +487,7 @@ const methods = {
         const t = E.t, curse = e.rfCurseT > t ? e.rfCurseF : 0;
         const dmg = Math.round(b.dmg * (1 + curse));
         const hp0 = e.hp;
-        X.damageEnemy(e, dmg, { x: e.x, y: e.y });
+        this.rfXe().damageEnemy(e, dmg, { x: e.x, y: e.y });
         const dealt = Math.max(0, hp0 - Math.max(0, e.hp));
         if (dealt) { this.float(...lift(e.x, e.y, 1.2), `${Math.round(dealt)}`, '#ff5050'); this.rfOnHitTheirs(e, b, dealt); }
         return !b.pierce;

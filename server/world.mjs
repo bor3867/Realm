@@ -14,6 +14,9 @@ const { realm, clockTiles } = await import(new URL('src/world/maps.js', ROOT));
 const { REALM_BOSSES } = await import(new URL('src/data/enemies.js', ROOT));
 // the Realmforge bosses on the three-phase engine (src/bosses/rf_translate.js): the server knows them too
 { const { addRfBosses } = await import(new URL('src/bosses/rf_translate.js', ROOT)), { arenaData } = await import(new URL('src/rf/boss.js', ROOT)), RFD = JSON.parse(readFileSync(new URL('art/rf/data.json', ROOT), 'utf8')); addRfBosses(RFD); arenaData(RFD); }   // (their bosses, and their rooms for the arenas)
+// the Realmforge dungeons themselves (their engine, src/rf/explore_gen.js, headless here: server/rfstub.mjs), so the
+// server can host one for a group: their layout from the shared seed, their creatures on our engine (src/rf/host.js)
+{ const { headless } = await import('./rfstub.mjs'), H = await import(new URL('src/rf/host.js', ROOT)); H.rfRunner(headless); await H.loadRF(); }
 const { ITEMS, bagFor } = await import(new URL('src/data/items.js', ROOT));
 const isBrown = (id) => { try { return bagFor([ITEMS[id]]) === 'brown'; } catch { return false; } };
 // the admin commands that make or end monsters: in a shared place the server runs them, so everyone has the same ones
@@ -79,6 +82,7 @@ function shotJSON(b) {
 export function makeWorld(seed, send, where = 'realm') {
   const g = new Game({ reg }, { fame: 0, gold: 0, essence: 0, vaults: [[]], graveyard: [], chars: [], slots: 8, bestLevel: 0 });
   g.newCharacter('priest'); g.persist = () => {}; g.save = { ...g.save };
+  g.rfOwnEngine = true;                // (a Realmforge dungeon here gets an engine of its own: src/rf/host.js)
   // (the world's own stand-in gains nothing: each player's browser grants its own XP. It used to: a kill the world made
   // itself (a burn, a trap, a boss's creatures going with it) levelled it up, and its 'Level 2', 'Level 3' banners went
   // to everyone there. 2026-10-24)
