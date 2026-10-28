@@ -734,7 +734,7 @@ for (const [id, D] of Object.entries(ENEMIES)) {
 
 // ================================================================ THE FINAL BOSS: Solkhar, the Sunthief, on his throne
 // On the boss framework (src/bosses/unstruck_god.js). The old five-phase fight below stays for /boss unstruck_god. (Admins: /portal throne, /tp throne, /bx unstruck_god)
-DUNGEONS.throne = { name: 'The Throne of Solkhar', floor: 'marble', wall: 'ribwall', hazard: 'lava', rooms: 3, portal: 'heart', style: 'heart',
+DUNGEONS.throne = { name: 'The Throne of Solkhar', floor: 'marble', wall: 'ribwall', hazard: 'lava', rooms: 3, portal: 'throne', style: 'heart',
   bossW: 43, bossH: 35,
   hazardFx: { kind: 'zones', name: 'falling gold', every: 4.5, n: 4, r: 1.6, delay: 1.1, dmg: 110, spread: 5, stagger: 0.08, shards: 6, proj: 'goldshard', colors: ['#ffd650', '#ffffff'] },
   chestLoot: [{ slot: 'weapon', tiers: [9, 10], p: 1 }, { slot: 'armor', tiers: [10, 11], p: 1 }, { slot: 'ability', tiers: [5, 5], p: 0.8 },

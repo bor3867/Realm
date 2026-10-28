@@ -32,13 +32,19 @@ def singular(w):
         if w.endswith(a): return w[:-len(a)] + b
     return w[:-1] if w.endswith('s') else w
 
+import cave_portals as CAVE  # noqa: E402
 foes = Sheet('rf_foes', 'enemy', cols=16, cell=24); shots = Sheet('rf_foeshots', 'shot'); portals = Sheet('rf_portals', 'decor', cols=8, cell=24)
 OUT, LANDS = {}, {}
 for dg in D['dungeons']:
     did = dg['id']; cfg = X[did]; B = BOSS[dg['boss']]
     # the portal: its art (four frames: an animated sprite)
-    pf = dg['portal']['frames']
-    for i, g in enumerate(pf): portals.add(f'{did}#{i}', g, dg['portal']['pal'])
+    if did in CAVE.RF:                              # its gateway as a cave mouth (tools/cave_portals.py), four frames
+        for i in range(4):
+            g = CAVE.frame(CAVE.RF[did], i, 4); pal = {chr(65 + k): c for k, c in enumerate(sorted({c for r in g for c in r if c}))}
+            inv = {c: k for k, c in pal.items()}; portals.add(f'{did}#{i}', [''.join(inv[c] if c else '.' for c in r) for r in g], pal)
+    else:
+        pf = dg['portal']['frames']
+        for i, g in enumerate(pf): portals.add(f'{did}#{i}', g, dg['portal']['pal'])
     src = dg['portal_from']
     m = re.match(r'(?:Dropped|Served) by (.+?) (?:in|on) (?:the )?(.+)$', src)
     if not m:                                       # the Rift: opened by a rare event, the Unmaker's Eye

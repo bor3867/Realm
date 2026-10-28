@@ -450,7 +450,8 @@
   "astral": 62,
   "sandscour": 65,
   "keep": 68,
-  "hollowmoon": 71
+  "hollowmoon": 71,
+  "throne": 312
  },
  "items": {
   "sword": 0,

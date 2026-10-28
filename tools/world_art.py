@@ -548,13 +548,14 @@ def build():
             index['objAnim'][name] = 2
     import dungeons4_art as _d4p
     import realmupdate_art as _rua
-    for kind in ('realm', 'dungeon', 'nexus', 'closed', 'chapel', 'heart', 'vault', 'scriptorium', 'crypt', 'ember', 'hive', 'theatre', 'spire', 'dream', *_rua.PORTALS):
+    import cave_portals as _cave                                # the dungeons' gateways: cave mouths (tools/cave_portals.py)
+    for kind in ('realm', 'dungeon', 'nexus', 'closed', 'chapel', 'heart', 'vault', 'scriptorium', 'crypt', 'ember', 'hive', 'theatre', 'spire', 'dream', *_rua.PORTALS, 'throne'):
         import portals as PT
         PT.KINDS.update(_d4p.PORTALS)
         PT.KINDS.update(_rua.PORTALS)
         index['portals'][kind] = len(cells)
         for f in range(3):
-            cells.append(rgba_grid(PT.KINDS[kind](f), PT.PAL))
+            cells.append(_cave.rgba(_cave.frame(_cave.OURS[kind], f, 3)) if kind in _cave.OURS else rgba_grid(PT.KINDS[kind](f), PT.PAL))
     for name, (a, b, c, d) in BAGS.items():
         index['bags'][name] = len(cells)
         cells.append(rgba_grid(BAG_SHAPE, {'o': OUTLINE, 'a': a, 'b': b, 'c': c, 'd': d}))
