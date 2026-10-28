@@ -10,6 +10,7 @@ import { keyParen } from './settings.js';
 import { SHOT_BOXES, SHOT_BIG } from './data/shot_boxes.js';
 import { installD4 } from './dungeons4.js';
 import { installMelon } from './melon.js';
+import { installAchievements } from './achievements.js';
 import { installRealmEvents } from './realmevents.js';
 import { installFrostveil } from './frostveil.js';
 import { installMirerot } from './mirerot.js';
@@ -991,6 +992,7 @@ export class Game {
     this.updateProjectiles(dt);
     this.updateWorld(dt);
     if (this.map.kind === 'realm' && !this.map.netWorld) { this.owTick(dt); this.maintainRealm(dt); this.eventClock(dt); this.melonTick(dt); this.eventBossTick(dt); }
+    this.achTick(dt);                                            // achievements (src/achievements.js)
     if (this.map.melonDrops) this.melonDropTick();               // (a burst melon's loot: on any map, online too)
     this.updateEliteAuras(dt);
     if (this.map.rf) this.rfUpdate(dt);
@@ -2518,6 +2520,7 @@ export class Game {
         this.fx.push({ kind: 'hexzone', x: e.x, y: e.y, r: 3.5, t: 0, life: 0.9 });
       }
       if (e.warden) this.breakSeal(`${e.D.name.split(',')[0]} falls.`);
+      if (e.rb && this.map.kind === 'dungeon' && this.map.def) { const dk = Object.keys(DUNGEONS).find((k) => DUNGEONS[k] === this.map.def); if (dk) this.achFlag('dg', dk); }   // (a dungeon cleared: src/achievements.js)
       if (e.rb) { this.questEvent(this.map.kind === 'dungeon' ? 'dungeon' : 'rboss', e); this.trophy(e.id); if (this.map.kind === 'dungeon') this.player.dungeons = (this.player.dungeons || 0) + 1; else this.player.bossKills = (this.player.bossKills || 0) + 1; }
       let items = e.noLoot ? [] : rollLoot(e.D.loot, e.D.lootLuck || 1, this.lootRank(e));   // (how high it may drop: LOOT_GATE)   // (an overworld boss's adds carry nothing)
       if (this.map.kind === 'realm' && !e.rb) items = items.filter((id) => !String(id).startsWith('stat_') || R() < STAT_DROP_REALM);   // stat potions are scarcer out in the realm (2026-10-19)
@@ -3453,6 +3456,7 @@ export class Game {
   // taken out: a shared dungeon knows its things by their place in the list.) 2026-10-24
   eraseChest(o) { const m = this.map; if (o.solid && m && m.solid) m.solid[Math.floor(o.y) * m.w + Math.floor(o.x)] = 0; o.hidden = true; o.solid = false; if (m) m.ogridDirty = true; }
   breakChest(o) {
+    if (o.starLoot) this.achFlag('star');                     // (a fallen star's chest: src/achievements.js)
     if (this.player && !this.netTargets) this.player.chests = (this.player.chests || 0) + 1;   // (its record)
     o.opened = true; o.sprite = 'chest_open'; o.hp = 0; this.eraseChest(o);
     if (o.loot) this.questEvent('camp', o);
@@ -4463,6 +4467,7 @@ installMythics(Game);
 installArmory(Game);
 installGearMech(Game);
 installMelon(Game);
+installAchievements(Game);
 installRealmEvents(Game);
 installFrostveil(Game);
 installMirerot(Game);

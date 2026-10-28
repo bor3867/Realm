@@ -964,6 +964,8 @@ body #app #panel { height: 100% !important; --slot: 54px; --mini: 196px; }   /* 
 .screen.atlas table { margin: 10px auto; border-collapse: collapse; text-align: left; font-size: 14px; max-width: 920px; }
 .screen.atlas th { color: #ffd98a; font-weight: normal; padding: 4px 10px; border-bottom: 1px solid #3a3348; }
 .screen.atlas td { padding: 4px 10px; border-bottom: 1px solid #221d2c; color: #ece6f6; }
+.screen.legends table.ach td:first-child { color: #5e5872; font-size: 18px; } .screen.legends table.ach tr.got td:first-child { color: #ffd650; }
+.screen.legends table.ach tr:not(.got) b { color: #a8a2bc; } .screen.legends table.ach td:last-child { white-space: nowrap; }
 .screen.legends .legtabs { display: flex; gap: 8px; justify-content: center; margin: 4px 0 8px; }
 .screen.legends .legtabs .on { border-color: #ffd650; color: #ffd650; }
 .screen.legends tr[data-pick] { cursor: pointer; } .screen.legends tr[data-pick]:hover td { background: #2a2338; }

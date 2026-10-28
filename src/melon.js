@@ -80,6 +80,7 @@ const methods = {
   },
   melonBurst(e) {
     const m = this.map;
+    this.achFlag && this.achFlag('melon');                    // (src/achievements.js)
     for (const dx of [-1.3, 1.3]) this.vx({ k: 'regfx', key: 'mx_effects/juice_splash', x: e.x + dx, y: e.y - 0.2, fps: 10 });   // a splash each side: the burst itself stays in view
     this.vx({ k: 'shake', amt: 3 });
     (m.melonDrops = m.melonDrops || []).push({ x: e.x, y: e.y, at: this.t + MELON.dropAt, items: this.melonLoot() });

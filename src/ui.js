@@ -10,6 +10,7 @@ const BIOME_NAME = { shore: 'Shore', lowlands: 'Lowland', fen: 'Fen', thornwood:
 import { POT_STACK, slotPrice } from './game.js';
 import { ACTIONS, MINI_STEPS, keyLabel, resetSettings, keyName, keyParen } from './settings.js';
 import { CURSOR_STYLES, CURSOR_COLORS, CURSOR_SIZES, cursorPreview } from './cursor.js';
+import { ACHIEVEMENTS } from './achievements.js';
 import { PET_KINDS, RARITY, RARITY_ORDER, ABILITIES, PET_TICK, PET_MAX, petHeal, petMagic, petXpToNext, petCap, petMaxed, feedCost, feedValue, canMorph, FUSE_GOLD, petSprite, petName, abilityOrder, mainMaxed, petLevel } from './data/pets.js';
 import { loadAccounts, saveAccounts, saveKeyFor, hashPassword, loadSave, normalizeSave, getSession, setSession } from './save.js';
 
@@ -185,7 +186,7 @@ export class UI {
     const cls = (d) => (CLASSES[d.cls] ? CLASSES[d.cls].name : esc(d.cls));
     if (tab === 'realm' && !pick) { const Q = this.g.net && this.g.net.legends; if (!Q || Date.now() - Q.at > 60000) this.g.netLegends(); }   // (fresh, at most once a minute)
     const N = this.g.net, L = tab === 'realm' ? (N && N.legends ? N.legends.list : null) : [...(s.graveyard || [])].sort((a, b) => (b.fame || 0) - (a.fame || 0));
-    const head = `<div class="legtabs"><button class="btn sm ${tab === 'mine' ? 'on' : ''}" data-leg="mine">Your legends</button><button class="btn sm ${tab === 'realm' ? 'on' : ''}" data-leg="realm">The realm's greatest</button></div>`;
+    const head = `<div class="legtabs"><button class="btn sm ${tab === 'mine' ? 'on' : ''}" data-leg="mine">Your legends</button><button class="btn sm ${tab === 'realm' ? 'on' : ''}" data-leg="realm">The realm's greatest</button><button class="btn sm ${tab === 'ach' ? 'on' : ''}" data-leg="ach">Achievements</button></div>`;
     let body;
     if (pick) {                                                     // one hero's page: who, how they fell, their record
       const d = pick;
@@ -193,6 +194,10 @@ export class UI {
         <p class="mut">${d.fame || 0} fame · fell to ${esc(d.by || 'something')}${d.date ? ' · ' + esc(d.date) : ''}${d.maxed !== undefined ? ` · ${d.maxed}/8 stats maxed` : ''}</p>
         <table class="rec">${recordRows(d).map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</table>
         <button class="btn sm" id="legback">Back</button>`;
+    } else if (tab === 'ach') {                                   // your achievements: earned (when, what it gave) and still to earn
+      const got = s.ach || {}, n = ACHIEVEMENTS.filter(([id]) => got[id]).length;
+      const rew = (R) => [R.gold ? `${R.gold} gold` : '', R.fame ? `${R.fame} fame` : '', R.items ? R.items.map((id) => (ITEMS[id] ? ITEMS[id].name : id)).join(', ') : ''].filter(Boolean).join(' · ');
+      body = `<h2>${n} of ${ACHIEVEMENTS.length} earned</h2><table class="ach">${ACHIEVEMENTS.map(([id, name, what, R]) => `<tr class="${got[id] ? 'got' : ''}"><td>${got[id] ? '★' : '☆'}</td><td><b>${name}</b><br><small class="mut">${what}</small></td><td class="mut">${rew(R)}</td><td class="mut">${got[id] || ''}</td></tr>`).join('')}</table>`;
     } else if (tab === 'realm') {
       if (!L) body = `<p class="mut">${N && N.open ? 'Asking the realm…' : 'Go online to see the realm\'s greatest heroes.'}</p>`;
       else if (!L.length) body = `<p class="mut">${esc((N.legends && N.legends.note) || 'No hero has fallen yet.')}</p>`;
@@ -1021,6 +1026,7 @@ export class UI {
     $('gearmenu').classList.add('hidden');
     if (what === 'options') { if (!this.settingsOpen) this.toggleSettings(); }
     else if (what === 'nexus') { if (g.mode === 'play') g.toNexus(); }
+    else if (what === 'ach') this.openLegends('ach');
     else if (what === 'chars') { this.settingsOpen = false; this.closeVault(); g.leaveToMenu(); this.titleScreen(); }
     else if (what === 'account') {
       this.settingsOpen = false; this.closeVault();
