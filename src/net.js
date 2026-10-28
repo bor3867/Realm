@@ -433,6 +433,7 @@ const methods = {
   // the shared portal you are stepping through: its instance and seed
   netTakeEnter(where) { const q = this.netEnterNext; this.netEnterNext = null; return q && (DUNGEON_DEFS[where] || where.startsWith('rf_')) ? q : null; },
   // you used something in a shared dungeon: the server uses it too (by its place in the dungeon's list)
+  netRfGate(i) { const N = this.net; if (N && N.open && this.map.netWorld) N.ws.send(JSON.stringify({ t: 'rfgate', i })); },   // a Realmforge gate you opened: the server opens it for all
   netUse(o) { const N = this.net, i = this.map.objects.indexOf(o); if (N && N.open && i >= 0) N.ws.send(JSON.stringify({ t: 'use', i, k: o.interact || o.sprite || '' })); },
   // the dungeon as the server has it: tiles changed (gates opened, walls broken) and things' states (chests, levers)
   netDungeonState(m) {

@@ -340,8 +340,10 @@ const methods = {
     const bx = ep.x, by = ep.y;
     if (served) { for (const e of E.en_) if (!e.ours && !KEEP_THEIRS.has(`rf_${R.id}_${e.k}`)) e.ours = NET_HELD; }   // (the kinds their own rooms move stay yours: each player meets their own)
     else this.rfLinkIn();
+    const shut = served ? E.M.gates.map((q) => !q.open) : null;
     this.rfXe().tick(dt);
     if (!served) this.rfLinkOut();
+    if (shut) E.M.gates.forEach((q, i) => { if (shut[i] && q.open && !q.netOpened) this.netRfGate(i); });   // a gate your copy opened: the group's too (src/net.js)
     if (ep.noRegen > E.t) p.noRegenUntil = Math.max(p.noRegenUntil || 0, this.t + (ep.noRegen - E.t));   // their sickness: no regeneration a while
     if (ep.x !== bx || ep.y !== by) { p.x = ep.x; p.y = ep.y; this.unstick(p); }   // their portals, a collapsing floor, a push
     for (const e of E.en_) this.rfScale(e);
@@ -404,9 +406,14 @@ const methods = {
   rfNetTiles(list) {
     const M = this.map, E = M.rf.E, X = this.rfXe(), C = X.C, SHUT = new Set([C.GATE, C.SECRET, C.BREAK]);
     const name = RF_NAME || (RF_NAME = Object.fromEntries(Object.entries(TID).map(([k, v]) => [v, k])));
+    const gateCell = new Set(E.M.gates.flatMap((q) => q.cells.map(([x, y]) => y * E.M.W + x)));   // (a gate may be shut with wall)
     for (const [i, tid] of list) {
       const code = RF_CODE_TILE.indexOf(name[tid]), here = E.M.t[i];
-      if (code >= 0 && code !== here && SHUT.has(here) && !X.BM[code]) X.setTile(i % E.M.W, Math.floor(i / E.M.W), code);
+      if (code >= 0 && code !== here && (SHUT.has(here) || gateCell.has(i)) && !X.BM[code]) {
+        const x = i % E.M.W, y = Math.floor(i / E.M.W);
+        X.setTile(x, y, code);
+        for (const q of E.M.gates) if (!q.open && q.cells.some(([cx, cy]) => cx === x && cy === y)) { q.open = 1; q.netOpened = 1; }
+      }
     }
   },
   // the server says one of the creatures fell: your copy of the dungeon counts it (its room, key and gate follow)

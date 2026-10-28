@@ -172,6 +172,7 @@ function onMessage(c, text) {
     return;
   }
   if (m.t === 'ohit' && worldOf(c.room)) { worldOf(c.room).ohit(c.id, num(m.i, 0, 1e6), str(m.k, 40), num(m.d, 0, 1e6)); return; }   // a blow on something breakable
+  if (m.t === 'rfgate' && dungeons.has(c.room) && dungeons.get(c.room).world) { dungeons.get(c.room).world.rfGate(c.id, num(m.i, 0, 1e4)); return; }   // a Realmforge gate a player's copy opened
   if (m.t === 'use' && dungeons.has(c.room) && dungeons.get(c.room).world) { dungeons.get(c.room).world.use(c.id, num(m.i, 0, 1e5), str(m.k, 40)); return; }
   if (m.t === 'efx' && worldOf(c.room) && Array.isArray(m.list)) {     // your stuns, slows, knockback on them
     worldOf(c.room).efx(c.id, m.list.slice(0, 40).filter((x) => Array.isArray(x) && ['stun', 'slow', 'push', 'freeze'].includes(x[1])).map((x) => [num(x[0], 0, 1e9), x[1], num(x[2], -10, 10), num(x[3], -10, 10)]));

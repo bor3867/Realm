@@ -178,7 +178,8 @@ their creatures follow their rules, not ours. The plan, a step a turn:
    its copy of the dungeon (layout, traps, puzzles, chests) with its creatures frozen and unseen (NET_HELD), counts a
    death the server reports by number (rfSid: rfNetDeath, its room, key and gate), opens what the server opened
    (rfNetTiles), and on a rejoin sends the numbers that fell. Checked with the local server and two browsers.
-   Not shared yet: traps, puzzles and chests stay each player's own (as before); afterimages and echo bodies are
+   Gates are shared (2026-10-27): one your copy opens (a puzzle, a key, a guardian) goes to the server (rfgate), which
+   opens it for the group. Not shared: traps and chests stay each player's own (loot is each player's, as RotMG's); afterimages and echo bodies are
    drawn online too (their positions sent as plain numbers: rfAx/rfAy/rfAUntil, rfG0x..). The five kinds their own rooms move (KEEP_THEIRS) are each player's own online: your browser
    runs them, the server sends none (2026-10-27).
 Check each step with the dungeon checks and `tools/check_enemy_hits.mjs` on the new monsters.

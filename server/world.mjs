@@ -174,6 +174,13 @@ export function makeWorld(seed, send, where = 'realm') {
       if (!q || !o || objKey(o) !== k || Math.hypot(o.x - q.x, o.y - q.y) > 3) return;
       g.player = q; try { g.interact(o); } catch (err) { console.warn('use', k, err.message); } finally { g.player = anchor; }
     },
+    // a Realmforge gate a player's copy opened (a puzzle, a key, a guardian): open in the group's dungeon, for all (it
+    // must be near them: a gate across the dungeon is not theirs to open)
+    rfGate(id, i) {
+      const q = P.get(id), R = g.map.rf, G = R && R.E.M.gates[i];
+      if (!q || !G || G.open || !G.cells.some(([x, y]) => Math.hypot(x + 0.5 - q.x, y + 0.5 - q.y) < 12)) return;
+      try { R.X.openGate(G); } catch (err) { console.warn('rfGate', err.message); }
+    },
     get idleMs() { return P.size ? 0 : Date.now() - lastEmpty; },
     // an admin's spawning command, run in this world round them (/spawn, /bx, /boss, /kraken, ...): what it said
     adminCmd(id, line) {
