@@ -1281,7 +1281,7 @@ export class Renderer {
     const x = sx + L.dx, y = sy + L.dy - L.z + 1, alpha = e.dead ? Math.max(0, 1 - e.deadT / 0.6) : Math.min(1, L.rise) * (e.asVeiled > g.t ? 0.22 : 1) * (e.D.rfVuln ? g.rfFaint(e) : 1);   // a nebula weaver in its veil is all but hidden; a moon-spirit out of the moonlight, faint
     if (e.D.ability) this.eliteFx(g, e, def, fr, x, y, L);
     this.drawDef(def, fr, x, y, { flip: L.flip, alpha, scale: K });
-    if (e.rfE && !e.dead) for (const [gx, gy, ga] of g.rfGhostsOf(e)) { const [qx, qy] = this.proj(gx, gy); this.drawDef(def, fr, Math.round(qx) + L.dx, Math.round(qy) + L.dy + 1, { flip: L.flip, alpha: ga, scale: K }); }   // a Realmforge afterimage or echo
+    if (e.D.rfCrea && !e.dead) for (const [gx, gy, ga] of g.rfGhostsOf(e)) { const [qx, qy] = this.proj(gx, gy); this.drawDef(def, fr, Math.round(qx) + L.dx, Math.round(qy) + L.dy + 1, { flip: L.flip, alpha: ga, scale: K }); }   // a Realmforge afterimage or echo
     if (!e.dead && L.glow) this.drawDef(def, fr, x, y, { flip: L.flip, flash: true, alpha: 0.35, scale: K });
     if (!e.dead && e.D.heat) {                             // the obsidian scorpion runs hotter as it's hurt
       const h = 1 - e.hp / e.maxHp;

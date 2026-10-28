@@ -193,7 +193,7 @@ const methods = {
         for (let k = 0; k < 14; k++) {
           const aa = R() * TAU, rr = 2.5 + R() * 2.5, x = p.x + Math.cos(aa) * rr, y = p.y + Math.sin(aa) * rr;
           if (!isSolid(this.map, x, y) && (!w || this.rfXe().roomOf(x, y) === w.room) && this.seesFoe({ x, y }, p)) {
-            this.vx({ k: 'burst', ...liftA(e.x, e.y, 0.5), n: 8, colors: ['#ffffff', '#b888ff'] }); if (D.afterimage) (e.rfAfter = e.rfAfter || []).push([e.x, e.y, this.t + 0.8]); e.x = x; e.y = y; this.vx({ k: 'burst', ...liftA(x, y, 0.5), n: 10, colors: ['#ffffff', '#b888ff'] });
+            this.vx({ k: 'burst', ...liftA(e.x, e.y, 0.5), n: 8, colors: ['#ffffff', '#b888ff'] }); if (D.afterimage) { (e.rfAfter = e.rfAfter || []).push([e.x, e.y, this.t + 0.8]); e.rfAx = e.x; e.rfAy = e.y; e.rfAUntil = this.t + 0.8; } e.x = x; e.y = y; this.vx({ k: 'burst', ...liftA(x, y, 0.5), n: 10, colors: ['#ffffff', '#b888ff'] });
             break;
           }
         }
@@ -236,9 +236,15 @@ const methods = {
   rfGhostsOf(e) {
     const out = [];
     if (e.rfAfter) { e.rfAfter = e.rfAfter.filter((q) => q[2] > this.t); for (const [x, y, u] of e.rfAfter) out.push([x, y, 0.5 * (u - this.t) / 0.8]); }
-    if (e.D.echoBody && this.map.rf) { const h = (e.rfE && this.map.rf.E.ghosts && this.map.rf.E.ghosts.get(e.rfE)) || []; for (const [x, y] of h.slice(0, 2)) out.push([x, y, 0.22]); }
+    else if (e.rfAUntil > this.t) out.push([e.rfAx, e.rfAy, 0.5 * (e.rfAUntil - this.t) / 0.8]);   // (online: the server's word on it)
+    if (e.D.echoBody && this.map.rf) {
+      if (e.rfE) this.rfEchoAt(e);
+      for (let i = 0; i < 2; i++) if (e['rfG' + i + 'x'] !== undefined) out.push([e['rfG' + i + 'x'], e['rfG' + i + 'y'], 0.22]);
+    }
     return out;
   },
+  // where an echo's trailing bodies are (their engine's trail of it), as plain numbers a server can send
+  rfEchoAt(o) { const E = this.map.rf.E, h = (E.ghosts && E.ghosts.get(o.rfE)) || []; h.slice(0, 2).forEach(([x, y], i) => { o['rfG' + i + 'x'] = x; o['rfG' + i + 'y'] = y; }); },
   // their summoners call their own kind into their rooms (their list: the room counts them), at most so many alive
   rfSummon(e, A) {
     const E = this.map.rf.E, w = e.rfE;
@@ -360,6 +366,7 @@ const methods = {
       if (o.dead) { e.rfByOurs = 1; this.rfXe().kill(e); continue; }       // our blow: their kill (its key, its corpse, its room)
       e.x = o.x; e.y = o.y; e.hp = o.hp; e.aggro = true; e.rfAt = [e.x, e.y]; e.rfHp = e.hp;
       o.rfForged = !!e.forged; o.rfWrath = !!e.wrath;                // (for the wire: a smith at its anvil, the Grove's wrath)
+      if (o.D.echoBody) this.rfEchoAt(o);                            // (and an echo's trailing bodies)
       if (e.wrath && !o.rfWrath) { o.rfWrath = 1; o.cds = o.cds.map((c) => c * 0.5); }   // the Grove's wrath: its next blows come sooner (its pace, theirs: e.spd)
     }
   },
