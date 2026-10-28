@@ -158,9 +158,13 @@ their creatures follow their rules, not ours. The plan, a step a turn:
    sapling, stays theirs. 20 dungeons. (The link check's bot now ascends: the deep bands are tough.)
    The Pyre: a brute's cooled armour takes 0.25x a blow but for a moment after it strikes; a phoenixling's ember (and
    its rebirth) by their kill rule, which runs for ours; the eel, swimming its lava, stays theirs. 21 dungeons.
-   Next: the 3 dungeons with creature rules left (unmelting, sanctum, stage), each rule
-   rebuilt in our engine, and the last traits (reflect, rebirth,
-   afterimage, echo, encase, ghostfire, the moon/shade weaknesses, chess, mirror).
+   The last three (2026-10-27): the Unmelting (a monster's shot through a crystal splits in two; its encase, an ice
+   shell on an ally, is a guard our rule leaves out), the Sanctum (a shade takes 2x in the sun and 0.4x in shadow, a
+   sun-disc sleeps and is faint in shadow: their sunShadow, exposed by one builder seam), the Stage (blows tell 1.6x
+   while you stand in the spotlight). Reflect built (a reflector turns your shot back at you unless it has just
+   struck): the crystals, diamonds and the glass golem are ours. All 24 dungeons; 182 of 195 kinds whole.
+   Still theirs: kinds a dungeon's own rule moves (KEEP_THEIRS: lurker, windup, cuckoo, blight, eel), and the traits
+   left to build: echo, afterimage, ghostfire, chess, mirror.
    Their layout, props, traps and puzzles stay hosted until step 5.
 5. **Online**: the server hosts rf_ dungeons like ours (their layout from its seed), so a group shares one.
 Check each step with the dungeon checks and `tools/check_enemy_hits.mjs` on the new monsters.

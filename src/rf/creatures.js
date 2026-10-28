@@ -14,9 +14,9 @@ const RF_MOVE = new Set(['chase', 'kite', 'drift', 'hop', 'burrow', 'still', 'sw
 // approximations: their kind came over, but as the nearest thing we have (said so in the report)
 const NEAR_MOVE = new Set(['mirror', 'chess']);
 // their attacks that bring others' protection: our rule is that monsters never shield or guard each other
-const REFUSED = new Set(['shield', 'eclipseShield']);
+const REFUSED = new Set(['shield', 'eclipseShield', 'encase']);   // (encase: an ice shell on an ally that soaks your shots)
 // theirs we have nothing like yet (left out, listed)
-const MISSING = new Set(['encase', 'ghostfire']);
+const MISSING = new Set(['ghostfire']);
 
 // what a shot or a touch leaves you with, as theirs (inflict in explore.js): sick stops your regeneration a while;
 // slow is 0.55 of your step, root 0.12
@@ -41,7 +41,8 @@ export function translateCreature(DATA, dg, id, e) {
     name: e.name, biome: `rf_${dg}`, hp: Math.max(1, Math.round((e.hp || 300) * bal.hp)), def: Math.round((e.armor || 0) * 10), speed: e.spd || 0,
     xp: Math.max(4, Math.round(((e.hp || 300) * bal.hp) / 30)), r, ai: MOVE[e.move] || 'shamble', aggro: e.sight || 7.5, fly: !!e.fly,
     rfMove: RF_MOVE.has(e.move) ? e.move : null, weave: e.weave, rg: e.range, hopCd: e.hopCd, per: e.per,
-    rfVuln: e.moonVuln ? 'moon' : dg === 'temple' && e.side ? 'side' : dg === 'temple' && id === 'idol' ? 'idol' : dg === 'grove' ? 'grove' : e.coolArmor ? 'cool' : undefined, side: e.side, opens: e.opens,   // (when a blow tells: Game.rfVulnK)
+    rfVuln: e.moonVuln ? 'moon' : dg === 'temple' && e.side ? 'side' : dg === 'temple' && id === 'idol' ? 'idol' : dg === 'grove' ? 'grove' : e.coolArmor ? 'cool' : e.shadeVuln ? 'shade' : e.solar ? 'solar' : dg === 'stage' ? 'stage' : undefined, side: e.side, opens: e.opens,
+    reflect: e.reflect ? { dmg: dmg(0.6), proj: shot(e.shot) } : undefined, solar: !!e.solar,   // (a reflector turns your shot back at you unless it has just struck; a sun-disc sleeps in shadow)   // (when a blow tells: Game.rfVulnK)
     post: dg === 'grove' && !!e.guard,   // (the Grove's guardians keep near their post: their 'guard' is a leash, not a guard over others) blinkCd: e.blinkCd, up: e.up, down: e.down, dashTrail: e.dashTrail ? { kind: e.dashTrail, dmg: dmg(0.3) } : undefined,
     rad: e.rad, spin: e.spin, reg: `rf_crea/${dg}_${id}`, scale: e.art && e.art.frames[0].length > 10 ? 0.5 : 1, contact: 0, attacks, loot: [], rfCrea: { dg, id }, desc: e.how,   // (scale: their 8px art at the player's pixel size, bigger art at the fine size)
   };
@@ -78,7 +79,7 @@ export function translateCreature(DATA, dg, id, e) {
   // their one-off traits we have yet to build (the ones that matter to a fight)
   // (rebirth: their kill rule leaves the ember, for ours too; gaze: their dungeon's own rule runs it, for ours too; mirageVuln: their engine never reads it; moonVuln and the
   // Temple's sides: ours, Game.rfVulnK)
-  for (const k of ['reflect', 'shieldsOthers', 'copyShots', 'echo', 'afterimage', 'shadeVuln', 'solar', 'lava', 'cuckoo'])
+  for (const k of ['shieldsOthers', 'copyShots', 'echo', 'afterimage', 'lava', 'cuckoo'])
     if (e[k]) notes.push(`${k}: ${k === 'shieldsOthers' ? 'left out (monsters never guard each other)' : 'not in our engine yet'}`);
   if (e.split) D.split = { id: `rf_${dg}_${typeof e.split === 'string' ? e.split : id}`, n: e.split.n || 2 };
   return { id: `rf_${dg}_${id}`, D, notes };

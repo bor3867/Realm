@@ -2040,7 +2040,7 @@ export class Game {
       if (e.state === 'attack' && e.st > 0) continue;
       e.state = 'move';
       // attacks (not while burrowed, mid-hop or mid-dive)
-      if (aggro && !e.under && !e.hop && !e.dive && !e.sk && !e.fetch && !(D.ai === 'carousel' && !e.loose)) {
+      if (aggro && !e.under && !e.hop && !e.dive && !e.sk && !e.fetch && !(D.ai === 'carousel' && !e.loose) && !(D.solar && this.rfShadow(e))) {   // (a Realmforge sun-disc sleeps in shadow)
         if (!e.seen) this.speak(e, 'see', e.herald ? 0.5 : 0.05);
         e.seen = true;
         if (D.enrage && !e.enraged && e.hp < e.maxHp * 0.4) {        // ENRAGE: faster, angrier
@@ -2423,6 +2423,12 @@ export class Game {
       return 0;
     }
     if (this.player && this.player.armS) dmg = this.armTaken(e, dmg);   // asleep, crowned (src/armory.js)
+    if (e.D && e.D.reflect && !(e.rfOpenUntil > this.t)) {         // a Realmforge reflector, shut: your shot comes back at you
+      const p = this.player;
+      this.shoot('e', x, y, Math.atan2(p.y - 0.4 - y, p.x - x) + (R() - 0.5) * 0.4, 7, 21, e.D.reflect.dmg, e.D.reflect.proj, 0.35, false, e.D.name);
+      this.vx({ k: 'burst', x, y, n: 5, colors: ['#ffffff', '#c0ecff'] });
+      return 0;
+    }
     if (e.D && e.D.rfVuln) { const k = this.rfVulnK(e); if (k === 0) { this.vx({ k: 'burst', x, y, n: 4, colors: ['#aaaaaa'] }); return 0; } dmg *= k; }   // a Realmforge creature by its dungeon's rule: moonlight, the sun's side, the Grove's runes (src/rf/host.js)
     let d = e.netRawHit ? Math.round(dmg) : mitigate(dmg, e.D ? (this.armAP || e.armBreakT > this.t ? 0 : e.D.def) : 0, false);   // (armour-piercing, or armour broken: the Mad God Armory)   // (a player's blow on the server: Defense already taken off)
     if (this.map.ckCandles || (this.map.def && this.map.def.style === 'keep')) d = this.ckDamage(e, d);   // the Keep: thralls burn in candlelight

@@ -55,6 +55,9 @@ patch("if(pr.k==='shrine'&&d<1.1){pr.used=1;p.buff=60;", "if(pr.k==='shrine'&&d<
 # only keeps its place in their rooms (src/rf/host.js rfLink moves it with ours)
 patch("for(const e of E.en_){if(e.hp<=0)continue;stepEnemy(e,dt);}", "for(const e of E.en_){if(e.hp<=0||e.ours)continue;stepEnemy(e,dt);}")
 
+# the Sanctum's sun and shadow, for our engine's creatures there (src/rf/host.js rfShadow)
+patch("    vuln(e){if(e.d.shadeVuln)return sunShadow(e.x,e.y)?0.4:2;},", "    shadow(x,y){return sunShadow(x,y);},\n    vuln(e){if(e.d.shadeVuln)return sunShadow(e.x,e.y)?0.4:2;},")
+
 # the Hall of Mirrors draws your reflection with the test player sprite, which stays out: no sprite, no reflection
 patch("const im=E.player[Math.floor(p.f)%E.player.length];", "if(!E.player||!E.player.length)return;const im=E.player[Math.floor(p.f)%E.player.length];")
 # strict mode (a module is strict, Realmforge's page was not): a loop that also tags the side names, which a page ignores

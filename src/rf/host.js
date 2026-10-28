@@ -31,7 +31,10 @@ const HOOKS_OURS = { forge: ['drawEnemy'], keep: ['atk'], rift: ['atk', 'drawEne
   glade: ['vuln', 'alpha', 'bullet'],     // (the Glade: moon-spirits solid only in moonlight; still water mirrors a shot)
   temple: ['vuln', 'alpha', 'atk'],       // (the Temple: sun things by day, moon things by night; its one atk rule is a shield, which our rule leaves out)
   grove: ['enemy', 'vuln', 'drawEnemy'],  // (the Grove: guardians keep near their post, nothing is hurt by its runes, wrath)
-  pyre: ['enemy', 'vuln', 'kill'] };     // (the Pyre: a brute's cooled armour cracks open as it strikes; a phoenixling's ember, by their kill rule)
+  pyre: ['enemy', 'vuln', 'kill'],       // (the Pyre: a brute's cooled armour cracks open as it strikes; a phoenixling's ember, by their kill rule)
+  unmelting: ['vuln', 'drawEnemy', 'atk', 'bullet'],   // (the Unmelting: a shot through a crystal splits; its encase, an ice shell on an ally, is a guard our rule leaves out)
+  sanctum: ['enemy', 'vuln', 'alpha'],   // (the Sanctum: a shade is weak in the sun, a sun-disc sleeps in shadow)
+  stage: ['enemy', 'vuln'] };            // (the Stage: blows tell more while you stand in the spotlight)
 // kinds a dungeon's own rule still moves (they stay on their engine): the Sewers' lurker, stranded by low water; the
 // Clocktower's windup, stepping on the beat, and its cuckoo, out only on the hour
 const KEEP_THEIRS = new Set(['rf_sewers_lurker', 'rf_clocktower_windup', 'rf_clocktower_cuckoo', 'rf_grove_blight', 'rf_pyre_eel']);   // (and the Grove's blight, marching on the sapling; the Pyre's eel, swimming its lava)
@@ -211,15 +214,32 @@ const methods = {
       return w && w.wrath ? 1.15 : 1;
     }
     if (v === 'cool') return e.rfOpenUntil > this.t ? 1 : 0.25;    // the Pyre's brute: cooled armour, open only just after it strikes
+    if (v === 'shade') return this.rfShadow(e) ? 0.4 : 2;          // the Sanctum's shade: 2 in the sun, 0.4 in shadow
+    if (v === 'stage') {                                            // the Stage: 1.6 while you stand in the spotlight
+      const p = this.player, r = E.M.rooms[X.roomOf(p.x, p.y)];
+      return r && r.spot && Math.hypot(p.x - r.spot[0], p.y - r.spot[1]) < 2.2 ? 1.6 : 1;
+    }
     return 1;
   },
-  rfFaint(e) { const v = e.D.rfVuln; return v === 'moon' && this.rfVulnK(e) < 1 ? 0.45 : v === 'side' && this.rfVulnK(e) < 1 ? 0.55 : 1; },
+  rfShadow(e) { const E = this.map.rf && this.map.rf.E; return !!(E && E.mod.shadow && E.mod.shadow(e.x, e.y)); },   // (the Sanctum's sun)
+  rfFaint(e) { const v = e.D.rfVuln; return v === 'solar' ? (this.rfShadow(e) ? 0.45 : 1) : v === 'moon' && this.rfVulnK(e) < 1 ? 0.45 : v === 'side' && this.rfVulnK(e) < 1 ? 0.55 : 1; },
   // their dungeon's beat (some creatures strike only on it; some only on every other)
   rfOnBeat(A) { const E = this.map.rf && this.map.rf.E; return !!(E && E.onBeat && (A.parity == null || E.beat % 2 === A.parity)); },
   // their Hall of Mirrors: a monster's shot about to meet a mirror turns back once (as their bullet rule does)
-  // and the Glade's still water: a monster's shot crossing it sends a reflection of itself back the other way, once
+  // and the Glade's still water: a monster's shot crossing it sends a reflection of itself back the other way, once;
+  // and the Unmelting's crystals: a monster's shot through one splits in two, 0.4 either side
   rfMirror(b, dt) {
     const M = this.map.rf.E.M;
+    if (this.map.rf.id === 'unmelting') {
+      if ((b.rfAge = (b.rfAge || 0) + dt) < 0.15) return;
+      for (const c of this.map.rf.E.en_) if (c.hp > 0 && (c.k === 'crystal' || c.k === 'diamond') && Math.hypot(c.x - b.x, c.y - (b.y + 0.3)) < 0.55) {
+        b.refl = 1;
+        const s = Math.hypot(b.vx, b.vy), a = Math.atan2(b.vy, b.vx);
+        for (const o of [-0.4, 0.4]) { const n = this.shoot('e', b.x, b.y, a + o, s, s * b.life, b.dmg, b.sprite, b.r, false, b.by); if (n) n.refl = 1; }
+        return;
+      }
+      return;
+    }
     if (this.map.rf.id === 'glade' && X.tileAt(b.x, b.y + 0.3) === X.C.DEEP) {
       b.refl = 1;
       const s = Math.hypot(b.vx, b.vy), n = this.shoot('e', b.x, b.y, Math.atan2(-b.vy, b.vx), s, s * b.life, b.dmg, b.sprite, b.r, false, b.by);

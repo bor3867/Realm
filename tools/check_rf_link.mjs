@@ -27,9 +27,10 @@ for (const dg of list) {
   const res = { linked: 0, ours: 0, theirKills: 0, hurt: 0, xp: 0, errors: [] };
   try {
     g.enter(`rf_${dg}`);
-    const T = (res.traits = { raised: 0, chainHits: 0, pulses: 0, formation: 0, mirrored: 0, forged: 0, onBeat: 0, waterCopies: 0, told: 0, barely: 0, reborn: 0 });
+    const T = (res.traits = { raised: 0, chainHits: 0, pulses: 0, formation: 0, mirrored: 0, forged: 0, onBeat: 0, waterCopies: 0, told: 0, barely: 0, reborn: 0, reflected: 0, split: 0 });
+    const dm0 = g.damageEnemy.bind(g); g.damageEnemy = (e, ...a) => { const n0 = g.projectiles.length; const r = dm0(e, ...a); if (e.D && e.D.reflect && g.projectiles.length > n0) T.reflected++; return r; };
     const mk0 = g.rfVulnK.bind(g); g.rfVulnK = (e) => { const k = mk0(e); if (k > 1) T.told++; else if (k < 1) T.barely++; return k; };   // (blows that told, and that barely did)   // their traits and rules, in our engine
-    const m0 = g.rfMirror.bind(g); g.rfMirror = (b, dt) => { const n0 = g.projectiles.length; m0(b, dt); if (g.projectiles.length > n0) T.waterCopies++; else if (b.refl) T.mirrored++; };
+    const m0 = g.rfMirror.bind(g); g.rfMirror = (b, dt) => { const n0 = g.projectiles.length; m0(b, dt); if (g.projectiles.length > n0 + 1) T.split++; else if (g.projectiles.length > n0) T.waterCopies++; else if (b.refl) T.mirrored++; };
     const r0 = g.rfRaise.bind(g); g.rfRaise = (e, A) => { const n = g.map.rf.E.en_.length; r0(e, A); if (g.map.rf.E.en_.length > n) T.raised++; };
     const c0 = g.chainBeam.bind(g); g.chainBeam = (e, q) => { const t0 = q.chainT; c0(e, q); if (q.chainT !== t0) T.chainHits++; };
     const f0 = g.formation.bind(g); g.formation = (e, dt) => { const r = f0(e, dt); if (r) T.formation++; return r; };

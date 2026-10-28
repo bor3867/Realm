@@ -2391,6 +2391,7 @@ export function makeExplore(DATA,HOST){
         else if(!pr.told){pr.told=1;E.msg('A sun seal set in the dial\'s face. It stays dark in the sunlight.',2.2);}}
       if(M.sand&&M.sand.has(M.I(Math.floor(p.x),Math.floor(p.y))))p.slow=E.t+0.15;},
     enemy(e,dt){if(e.d.solar){e.asleep=sunShadow(e.x,e.y);return e.asleep?true:false;}return false;},
+    shadow(x,y){return sunShadow(x,y);},
     vuln(e){if(e.d.shadeVuln)return sunShadow(e.x,e.y)?0.4:2;},
     alpha(e){return e.asleep?0.45:1;},
     drawFloor(V){const {b,sx,sy}=V;const {CX,CY,RX,RY}=SUNC;b.fillStyle='rgba(4,12,22,.32)';b.beginPath();b.moveTo(sx(CX),sy(CY));for(let i=0;i<=12;i++){const a=E.shA-Math.PI/6+i*(Math.PI/3)/12;b.lineTo(sx(CX+Math.cos(a)*1.02*RX),sy(CY+Math.sin(a)*1.02*RY));}b.closePath();b.fill();
