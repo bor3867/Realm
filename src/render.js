@@ -144,7 +144,7 @@ export class Renderer {
     this.ground = document.createElement('canvas'); this.gctx = this.ground.getContext('2d');
     this.scale = 3;
     this.parts = []; this.weather = []; this.weatherKind = null;
-    this.shake = 0; this.hurtFlash = 0; this.lastT = 0;
+    this.shake = 0; this.lastT = 0;
     this.flashCache = new Map(); this.colorCache = new Map();
     this.zaps = []; this.rings = [];
     this.miniBase = null; this.miniFor = null;
@@ -345,11 +345,6 @@ export class Renderer {
     const ctx = this.ctx, s = this.scale;
     b.setTransform(1, 0, 0, 1, 0, 0);
     ctx.drawImage(this.hi, 0, 0);
-    if (this.hurtFlash > 0) {
-      ctx.fillStyle = `rgba(200,20,40,${Math.min(0.13, this.hurtFlash)})`;
-      ctx.fillRect(0, 0, this.c.width, this.c.height);
-      this.hurtFlash = Math.max(0, this.hurtFlash - dt * 0.9);
-    }
     this.overlays(g);
     if (g.map.rf) this.rfModHud(g, g.map);                    // a Realmforge module's status line (src/rf/draw.js)
     this.minimap(g);
@@ -2504,7 +2499,8 @@ export class Renderer {
     ctx.fillStyle = bar.immune ? '#8d88a0' : bar.hot ? '#ff6a1a' : '#e8463a'; ctx.fillRect(x + 2, y + 2, fw, H - 4);
     ctx.fillStyle = 'rgba(255,255,255,0.18)'; ctx.fillRect(x + 2, y + 2, fw, Math.round((H - 4) / 3));   // a shine along the top
     for (const f of bar.pips || []) { const px = Math.round(x + 2 + (W - 4) * f); ctx.fillStyle = '#05040a'; ctx.fillRect(px - 1, y, 3, H); ctx.fillStyle = bar.f > f ? '#fff6c8' : '#8a7a5a'; ctx.fillRect(px, y + 2, 1, H - 4); }
-    const txt = hp !== null && max ? `${hp}/${max}` : `${Math.round(bar.f * 100)}%`;
+    const kn = (n) => (n >= 10000 ? `${(n / 1000).toFixed(n >= 100000 ? 0 : 1)}K` : n.toLocaleString('en-US'));   // (300000 read as a blur: 300K. 2026-10-29)
+    const txt = hp !== null && max ? `${kn(hp)} / ${kn(max)}` : `${Math.round(bar.f * 100)}%`;
     pixelLabel(ctx, txt, x + W / 2 - 14, y + 17, 16, '#ffffff');
     // the badge: a diamond at the pill's end with the boss's likeness in it
     const bx = x + W - 2, by = y + H / 2, r = 22;

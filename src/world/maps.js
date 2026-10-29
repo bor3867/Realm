@@ -240,10 +240,10 @@ function nexusCore() {
   // ---- the Hall of Legends: its banner (the legends). (Its training dummies stand in your vault now: see vaultRoom)
   put(m, 'banner', W - 12, CY - 13, true, { interact: 'legends', label: 'Read the Hall of Legends', tag: 'LEGENDS', hint: 'Your fallen heroes, and the stars each class has earned' });
   for (const x of [W - 18, W - 15, W - 9, W - 6]) put(m, 'nx_objects/nexus_banner_red', x, CY - 14, false);
-  put(m, 'signpost', W - 17, CY - 2, true, { label: 'The training dummies are in your vault now: its training room', tag: 'DUMMIES: VAULT', hint: 'The training dummies are in your vault' });
+  put(m, 'signpost', W - 17, CY - 2, true, { label: 'The training dummies stand in your vault, in its training room', tag: 'DUMMIES: VAULT', hint: 'Test your damage on the dummies in your vault' });
   // ---- the Gardens: the quest board, the Dungeon Atlas, the pond; blossom trees and flowers. (The pet yard, its
   // Petkeeper and your pets are in your vault now: its pet room)
-  put(m, 'signpost', 7, CY + 9, true, { label: 'Your pets and the Petkeeper are in your vault now: its pet room', tag: 'PETS: VAULT', hint: 'Your pets live in your vault now' });
+  put(m, 'signpost', 7, CY + 9, true, { label: 'Your pets and the Petkeeper live in your vault, in its pet room', tag: 'PETS: VAULT', hint: 'Hatch, raise and choose your pet in your vault' });
   put(m, 'board', 17, CY + 9, true, { interact: 'board', label: 'Read the quest board', tag: 'QUESTS', hint: 'Take quests for gold, essence and fame' });
   put(m, 'bookshelf', 18, H - 8, true, { interact: 'atlas', label: 'Read the Dungeon Atlas', tag: 'ATLAS', hint: 'Every dungeon: how hard it is, its boss, where its portal drops' });
   put(m, 'fishspot', 13, H - 12, true, { interact: 'fish', label: 'Fish in the pond', tag: 'FISHING', hint: 'Cast a line: now and then something good bites' });

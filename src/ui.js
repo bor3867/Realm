@@ -407,7 +407,10 @@ export class UI {
   }
   miniLabel() {
     const v = this.settings.miniView;
-    $('minilabel').textContent = v >= 9999 ? 'MAP' : `${v}×${v}`;
+    const el = $('minilabel');
+    el.textContent = v >= 9999 ? 'Whole map' : `${v} tiles`;
+    if (this.miniShown !== undefined && this.miniShown !== v) { el.classList.add('show'); clearTimeout(this.miniLabelT); this.miniLabelT = setTimeout(() => el.classList.remove('show'), 1400); }
+    this.miniShown = v;
   }
 
   // ------------------------------------------------------------- settings
@@ -1010,6 +1013,7 @@ export class UI {
     this.refreshQuests();
     this.refreshSeals();
     if (!this.helpSeen && !this.overlayOpen()) this.firstHelp();
+    if (g.map.kind === 'realm' && $('howto') && !$('howto').classList.contains('hidden')) $('howto').querySelector('.ok').click();   // (in the realm: it has done its job)
     this.fitPanel();
     this.acc = 0;
     const p = g.player, C = CLASSES[p.cls];
@@ -1156,9 +1160,11 @@ export class UI {
   }
   banner(text, ms) {
     const b = $('banner');
+    const again = b.textContent === text && !b.classList.contains('hidden') && !b.classList.contains('out');
+    this.bannerT = Math.max(again ? this.bannerT : 0, ms / 1000);
+    if (again) return;                                      // (the same one again, still up: it just stays. No flicker)
     b.textContent = text; b.classList.remove('hidden', 'pop', 'out');
-    void b.offsetWidth; b.classList.add('pop');              // (it pops in each time, fades out at its end)
-    this.bannerT = ms / 1000;
+    void b.offsetWidth; b.classList.add('pop');              // (it pops in, fades out at its end)
   }
 
   // ------------------------------------------------------------- screens

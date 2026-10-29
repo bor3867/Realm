@@ -1108,3 +1108,15 @@ body #overlay .settabs .btn { padding: 5px 18px; font-size: 16px !important; }
 @keyframes netSpin { to { transform: rotate(360deg); } }
 /* the side panel's slots: a crisp gold outline under the mouse */
 body #app #panel .slot:hover { outline: 2px solid #f2c14ecc; outline-offset: -2px; }
+
+/* ==== polish, round three (2026-10-29) ==== */
+/* the travel card in the game's pixel font, like every other screen */
+#loadcard, #loadcard * { font-family: var(--r-font) !important; font-weight: 400 !important; }
+#loadcard h2 { font-size: 32px !important; }
+#loadcard small { font-size: 13px !important; }
+#loadcard p { font-size: 15px !important; }
+/* achievement cards: the bottom right of the view (at the top they hid the active-boost chips) */
+#achcards { top: auto; bottom: 14px; right: 12px; flex-direction: column-reverse; }
+/* the minimap's range: a moment when you change it */
+body #app #minilabel { opacity: 0; transition: opacity .3s ease; pointer-events: none; }
+body #app #minilabel.show { opacity: 1; }
