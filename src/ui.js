@@ -382,14 +382,14 @@ export class UI {
     const log = $('chatlog'), now = performance.now(), open = this.chatOpen();
     const wasOpen = log.dataset.open === '1', top0 = log.scrollTop, fromEnd = log.scrollHeight - top0 - log.clientHeight;
     const reading = open && wasOpen && fromEnd > 12;
-    const lines = this.g.chat.slice(open ? -150 : -8), last = lines.length ? lines[lines.length - 1] : null;
+    const lines = this.g.chat.slice(open ? -150 : -6), last = lines.length ? lines[lines.length - 1] : null;
     const grew = last && last !== this.chatLast;
     log.innerHTML = '';
     for (const m of lines) {
       const d = document.createElement('div');
       d.textContent = m.text;
       d.style.color = m.color;
-      if (now - m.t > 14000) d.className = 'old';
+      if (now - m.t > 10000) d.className = 'old';   // (closed, a line fades after 10s: it kept the corner of a fight covered)
       log.appendChild(d);
     }
     log.dataset.open = open ? '1' : '';
@@ -1013,7 +1013,7 @@ export class UI {
     this.refreshQuests();
     this.refreshSeals();
     if (!this.helpSeen && !this.overlayOpen()) this.firstHelp();
-    if (g.map.kind === 'realm' && $('howto') && !$('howto').classList.contains('hidden')) $('howto').querySelector('.ok').click();   // (in the realm: it has done its job)
+    if (g.map.kind !== 'nexus' && g.map.kind !== 'vault' && $('howto') && !$('howto').classList.contains('hidden')) $('howto').querySelector('.ok').click();   // (out of the Nexus: it has done its job)
     this.fitPanel();
     this.acc = 0;
     const p = g.player, C = CLASSES[p.cls];
