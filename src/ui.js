@@ -1,5 +1,5 @@
 // DOM side-panel + overlay screens.
-import { CLASSES, STATS, STAT_NAMES, xpToNext, MAX_LEVEL, FAME_GOALS } from './data/classes.js';
+import { CLASSES, STATS, STAT_NAMES, xpToNext, MAX_LEVEL, FAME_GOALS, START_KIT } from './data/classes.js';
 import { outlinedFrame } from './outline.js';
 import { ITEMS, itemLabel, specialLines, canEquip, SETS, SET_PIECES } from './data/items.js';
 import { ENEMIES, DUNGEONS, DUNGEON_RATING, DUNGEON_BOSSES, portalDrop2 } from './data/enemies.js';
@@ -958,6 +958,7 @@ export class UI {
   }
   tick(dt) {
     const g = this.g;
+    if (g.mode === 'play' && document.body.classList.contains('booting')) document.body.classList.remove('booting');   // (straight into the game: show it)
     if ((this.boostT = (this.boostT || 0) - dt) <= 0) { this.boostT = 0.25; this.drawBoosts(); }   // the boost list (4 a second)
     if (g.nearBag && g.nearBag.until - g.t < 31 && (this.bagTickT = (this.bagTickT || 0) - dt) <= 0) { this.bagTickT = 0.5; this.refreshSlots(); }   // (a vanishing bag's countdown)
     for (const ev of g.events.splice(0)) {
@@ -1146,6 +1147,7 @@ export class UI {
     o.classList.remove('hidden', 'leaving', 'enter', 'swap');
     void o.offsetWidth;                                     // (restart the animation)
     o.classList.add(fresh ? 'enter' : 'swap');              // opened: it fades in and rises; already open: the new screen cross-fades
+    document.body.classList.remove('booting');
     return o;
   }
   closeOverlay() {                                          // it fades out (already gone as far as the keys are concerned)
@@ -1458,11 +1460,18 @@ export class UI {
     };
     loop();
   }
+  // a class at a glance: how far its weapon reaches, what armour it wears (2026-10-29)
+  classTags(id) {
+    const kit = START_KIT[id] || [], w = ITEMS[kit[0]], a = ITEMS[kit[2]];
+    const near = w && ['sword', 'dagger'].includes(w.type);
+    const arm = a ? { heavy: 'Heavy armor', leather: 'Leather', robe: 'Robe' }[a.type] || '' : '';
+    return `<div class="ctags"><span class="${near ? 'near' : 'far'}">${near ? 'Close range' : 'Long range'}</span>${arm ? `<span class="arm">${arm}</span>` : ''}</div>`;
+  }
   classScreen() {
     const ids = Object.keys(CLASSES);
     const o = this.overlay(`<div class="screen"><h1>Choose a class</h1><h2>Death is permanent. Your vault and fame are not.</h2>
       <div class="classes pick">${ids.map((id) => `<button class="cls" data-id="${id}"><canvas width="96" height="96" data-c="${id}"></canvas>
-        <h3>${CLASSES[id].name}</h3><div class="t">${CLASSES[id].design}</div></button>`).join('')}</div>
+        <h3>${CLASSES[id].name}</h3><div class="t">${CLASSES[id].design}</div>${this.classTags(id)}</button>`).join('')}</div>
       <div class="clsinfo"><h3></h3><p></p></div>
       <button class="btn" id="back">Back</button></div>`);
     this.splash(o);

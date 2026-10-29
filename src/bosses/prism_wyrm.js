@@ -109,7 +109,7 @@ const finale = {
 
 export default {
   id: 'prism_wyrm', art: 'prism_wyrm', shotSheet: 'hollow_shots', name: 'Aurelia, the Prism Wyrm', biome: 'prism', hp: 130000, def: 36, xp: 16000,
-  r: 1.6, speed: 1.2, keep: 6, faces: true, spawnCentre: true, tempo: 0.9, finale,
+  r: 1.6, speed: 1.2, keep: 6, faces: true, spawnCentre: true, tempo: 0.9, finale, dmgScale: 1.3,   // (was 1. 2026-10-29)
   phases: {
     1: { move: 'hold', patterns: [
       { name: 'white light, broken', windup: 0.6, recover: 0.6, special: 'disperse', n: 3, dmg: 110 },

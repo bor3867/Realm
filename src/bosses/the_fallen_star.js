@@ -63,7 +63,7 @@ export default {
   id: 'the_fallen_star', art: 'the_fallen_star', shotSheet: 'last_shots', name: 'The Fallen Star', biome: 'godfall', hp: 240000, def: 20, xp: 8000,
   // dmgScale was 6 (set while the realm halved every blow): its embers hit for 300 and its comet run for 480, a
   // Godfall player's whole Life (after every enemy began to hit 1.5x, 2026-10-22: tools/bench_boss_hits.mjs)
-  dmgScale: 1.6, r: 1.5, speed: 0.9, keep: 5, faces: false, tempo: 1, finale,
+  dmgScale: 2.4, r: 1.5, speed: 0.9, keep: 5, faces: false, tempo: 1, finale,   // (was 1.6: its embers did 4% to a maxed character. 2026-10-29)
   phases: {
     1: { move: 'pace', pressure: [{ every: 3.6, special: 'starfall', delay: 2.9, dmg: 52 }], patterns: [
       { name: 'embers', windup: 0.5, recover: 0.7, special: 'embers', n: 18, dmg: 50 },

@@ -76,7 +76,7 @@ function poolsBoil(g, e, V) {
 export default {
   lead: true,                                     // aimed volleys alternate: at you, then where you are going (a steady circle is not safe)
   id: 'count_vesper', name: 'Count Vesper, the Crimson Count', biome: 'dungeon', hp: 200000, def: 26, xp: 11000, r: 2.2, speed: 1.6, keep: 7, faces: true, shotSheet: 'bx2_shots',
-  tempo: 0.78, dmgScale: 1.1,
+  tempo: 0.78, dmgScale: 1.35,   // (was 1.1. 2026-10-29)
   phases: {
     1: { move: 'promenade', pressure: [{ every: 0.85, special: 'pillarBats', delay: 1.5, dmg: 95 }], patterns: [
       { name: 'the kneeling thralls', windup: 0.6, recover: 0.4, special: 'kneel' },

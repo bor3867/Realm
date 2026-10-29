@@ -42,7 +42,7 @@ function gazeFollows(g, e, V) {                           // its gaze follows yo
 
 export default {
   id: 'penitent_colossus', art: 'penitent_colossus', shotSheet: 'last_shots', name: 'The Penitent Colossus', biome: 'godfall', hp: 168000, def: 26, xp: 7000,
-  dmgScale: 1.6, r: 1.7, speed: 0.4, keep: 6, faces: false, tempo: 1, finale,
+  dmgScale: 2.2, r: 1.7, speed: 0.4, keep: 6, faces: false, tempo: 1, finale,   // (was 1.6: tanked by a maxed character. 2026-10-29)
   phases: {
     1: { move: 'pace', pressure: [{ every: 3.6, special: 'gazeFollows', delay: 2.9, dmg: 64 }, { every: 14, special: 'kneel', warn: 1.4, dur: 2 }], patterns: [
       { name: 'its gaze', windup: 0.6, recover: 0.7, special: 'gaze', waves: 3, dmg: 60 },

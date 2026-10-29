@@ -327,6 +327,10 @@ const methods = {
       // without it a shared boss never died for you, and dropped nothing. 2026-10-22)
       if (how === 1) { e.netKill = true; e.bxKill = true; e.hp = 0; e.spawnT = 0; e.bulwarkT = 0; e.wardT = 0; this.damageEnemy(e, 1, e.x, e.y, true); }   // yours too: your rewards
       if (!e.dead) { e.dead = true; e.deadT = 0; this.vx({ k: 'death', e, big: !!e.rb }); }
+      if (how !== -1 && M.wardens) {                     // a warden the server ran: the seal list's own copy of it falls too (it listed yours, which never died. 2026-10-29)
+        const w = M.wardens.filter((q) => !q.dead && q.id === e.id).sort((p, q) => Math.hypot(p.x - e.x, p.y - e.y) - Math.hypot(q.x - e.x, q.y - e.y))[0];
+        if (w) { w.dead = true; w.hp = 0; }
+      }
       if (M.rf && e.rfSid !== undefined) this.rfNetDeath(e.rfSid, how === 1);   // a Realmforge creature: your copy of its dungeon counts it (its room, its key, its gate)
     }
   },

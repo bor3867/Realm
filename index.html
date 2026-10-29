@@ -8,7 +8,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="booting">
+<div id="boot"><b>MELON REALMS</b><span>Loading…</span></div>
 <div id="app">
   <main id="stage">
     <canvas id="game"></canvas>
@@ -65,6 +66,7 @@
 <div id="tooltip" class="hidden"></div>
 <div id="overlay" class="hidden"></div>
 <script>
+  setTimeout(() => document.body.classList.remove('booting'), 15000);   // (whatever happens, never stuck on the loading card)
   // online, every reload runs the latest game (sw.js: it asks the server whether each file changed); not on this computer's dev server
   if ('serviceWorker' in navigator && !/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>

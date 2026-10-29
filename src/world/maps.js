@@ -137,7 +137,7 @@ function bigProp(m, name, x, y) {
 // portals to the realm), the Bazaar (the vault, the market), the Hall of Legends (your fallen heroes and class stars; the
 // training dummies), the Gardens (the Pet Yard, the quest board, the Dungeon Atlas, the pond), the Emberworks (the Forge),
 // the Crystal Plaza (the great crystal and its well), the Arrival (the guide).
-export function nexus() {
+function nexusCore() {
   // The Nexus, built in true 8x8 tiles (2026-10-22; tools/build_nexus_tiles.py): a crystal plaza of flagstones over a
   // starry chasm, its districts on their own platforms joined by bridges. Walls rim each platform; the water and the
   // chasm stop you. Where the water comes from: the great crystal weeps it. A stream falls from its tip onto the dais,
@@ -266,6 +266,63 @@ export function nexus() {
   m.decor = [];
   m.spawn = { x: CX + 0.5, y: H - 6 };
   m.lights = null;
+  finalize(m);
+  return m;
+}
+// The Nexus and the sky round it (2026-10-29, the user: "extend the nexus out so players don't see the edge of the
+// map. Maybe add some fun details"): the plaza (nexusCore) set in the middle of a much wider starry chasm, so the map's
+// edge is always off screen, and out in the chasm: little floating islands (a blossom tree, a crystal, a lamp left
+// burning, a lost melon vine), crystal shards drifting on their own, and a far-off ring of standing stones. You can't
+// reach any of it: the plaza's parapets are where you stop, as before.
+export function nexus() {
+  const C = nexusCore(), P = 30, W = C.w + 2 * P, H = C.h + 2 * P;
+  const m = makeMap('nexus', C.name, W, H, TID.nxchasm);
+  m.skin = new Uint8Array(W * H);
+  const chasm = SK.nexus_chasm;
+  for (let i = 0; i < W * H; i++) if (chasm !== undefined) m.skin[i] = chasm;
+  for (let y = 0; y < C.h; y++) for (let x = 0; x < C.w; x++) {
+    const a = y * C.w + x, b = (y + P) * W + x + P;
+    m.tiles[b] = C.tiles[a]; m.biome[b] = C.biome[a]; if (C.skin) m.skin[b] = C.skin[a];
+  }
+  const sh = (o) => { o.x += P; o.y += P; return o; };
+  m.objects = C.objects.map(sh);
+  m.portals = (C.portals || []).map(sh);
+  m.villagers = (C.villagers || []).map(sh);
+  m.strolls = (C.strolls || []).map(([x, y]) => [x + P, y + P]);
+  m.decor = C.decor || [];
+  m.spawn = sh({ ...C.spawn });
+  m.lights = C.lights;
+  // ---- out in the sky: floating islands, each a scrap of ground on a stone rim with something on it
+  const r = rng(0x5a1e);
+  const at = (x, y) => (x < 0 || y < 0 || x >= W || y >= H ? -1 : m.tiles[y * W + x]);
+  const free = (x0, y0, x1, y1) => { for (let y = y0 - 3; y <= y1 + 3; y++) for (let x = x0 - 3; x <= x1 + 3; x++) { const t = at(x, y); if (t !== -1 && t !== TID.nxchasm) return false; } return true; };
+  const GROUND = [[TID.nxgrass, () => (r() < 0.2 ? 'nexus_flowers' : r() < 0.5 ? 'nexus_grass_a' : 'nexus_grass_b')], [TID.nxstone, () => ['nexus_stone_a', 'nexus_stone_b', 'nexus_stone_c'][Math.floor(r() * 3)]], [TID.nxsand, () => (r() < 0.5 ? 'nexus_sand_a' : 'nexus_sand_b')]];
+  const ON = [['nx_objects/nexus_blossom_tree'], ['nx_objects/nexus_shard'], ['nx_objects/nexus_lamp', 'nx_objects/nexus_flower_bush'], ['nx_objects/nexus_melon_vine', 'nx_objects/nexus_melon_ripe'], ['nx_objects/nexus_brazier'], ['nx_objects/nexus_flower_bush_gold', 'nx_objects/nexus_blossom_tree'], ['nx_objects/nexus_banner_red']];
+  const islands = [];
+  for (let tries = 0; tries < 400 && islands.length < 16; tries++) {
+    const w = 4 + Math.floor(r() * 4), h = 3 + Math.floor(r() * 3);
+    const x0 = 3 + Math.floor(r() * (W - w - 6)), y0 = 3 + Math.floor(r() * (H - h - 6));
+    if (!free(x0 - 1, y0 - 1, x0 + w, y0 + h)) continue;
+    if (islands.some((q) => Math.abs(q.x - x0) < 12 && Math.abs(q.y - y0) < 10)) continue;   // (not too near another island)
+    const k = islands.length % ON.length, [T, sk] = GROUND[[0, 1, 0, 0, 1, 0, 1][k]], cx = x0 + w / 2, cy = y0 + h / 2;   // (grass under the trees, flowers and melons; stone under the rest)
+    for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) {   // a rounded scrap of ground, flat on the sky (no rim: a rim stands up as a wall)
+      if (((x + 0.5 - cx) / (w / 2)) ** 2 + ((y + 0.5 - cy) / (h / 2)) ** 2 > 1.05) continue;
+      m.tiles[y * W + x] = T; if (SK[sk()] !== undefined) m.skin[y * W + x] = SK[sk()];
+    }
+    islands.push({ x: x0, y: y0, w, h });
+  }
+  islands.forEach((q, k) => {
+    const things = ON[k % ON.length];
+    things.forEach((sp, j) => put(m, sp, q.x + Math.min(q.w - 1, Math.floor(q.w / 2) + j), q.y + Math.floor(q.h / 2), false));
+  });
+  // crystal shards drifting on their own, nearer the plaza, and a far ring of standing stones (crystal pillars)
+  for (let k = 0, n = 0; k < 300 && n < 22; k++) {
+    const x = Math.floor(r() * W), y = Math.floor(r() * H);
+    if (!free(x, y, x, y)) continue;
+    put(m, 'nx_objects/nexus_shard', x, y, false); n++;
+  }
+  const RX = W / 2, RY = H - 10;
+  for (let k = 0; k < 7; k++) { const a = Math.PI + (k / 6) * Math.PI, x = Math.round(RX + Math.cos(a) * 9), y = Math.round(RY + Math.sin(a) * 3.5) + 4; if (free(x, y, x, y)) put(m, 'nx_objects/nexus_crystal_pillar', x, y, false); }
   finalize(m);
   return m;
 }

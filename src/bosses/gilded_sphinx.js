@@ -74,7 +74,7 @@ function scales(g, e, V) {
 
 export default {
   id: 'gilded_sphinx', name: 'The Gilded Sphinx', biome: 'dungeon', hp: 85000, def: 10, xp: 5200, r: 2.3, speed: 2.4, keep: 8, faces: true,
-  tempo: 0.8, dmgScale: 1.2,
+  tempo: 0.8, dmgScale: 1.6,   // (was 1.2. 2026-10-29)
   phases: {
     1: { move: 'hold', pressure: [{ every: 1.15, special: 'obeliskSand', delay: 1.2, dmg: 60 }], patterns: [
       { name: 'crescent sweep', windup: 0.7, recover: 0.5, special: 'crescents', dmg: 60 },

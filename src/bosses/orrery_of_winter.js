@@ -41,7 +41,7 @@ const finale = {
 
 export default {
   id: 'orrery_of_winter', art: 'orrery_of_winter', shotSheet: 'last_shots', name: 'The Orrery of Winter', biome: 'runeholt', hp: 104000, def: 18, xp: 4200,
-  r: 1.6, speed: 0.5, keep: 6, faces: false, tempo: 1, finale,
+  r: 1.6, speed: 0.5, keep: 6, faces: false, tempo: 1, finale, dmgScale: 1.6,   // (was 1: tanked by a maxed character. 2026-10-29)
   phases: {
     1: { move: 'pace', patterns: [
       { name: 'it shatters', windup: 0.6, recover: 0.7, special: 'shatter', waves: 3, dmg: 36 },

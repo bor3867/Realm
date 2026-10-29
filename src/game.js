@@ -2996,7 +2996,11 @@ export class Game {
   sealStatus() {
     const m = this.map, out = [];
     if (m.kind !== 'dungeon' || !m.seals) return out;
-    for (const e of m.wardens || []) out.push({ kind: 'warden', done: !!e.dead, x: e.x, y: e.y, text: `Slay ${e.D.name.split(',')[0]}, Warden of the Seal`, sub: e.dead ? '' : `${Math.round(100 * e.hp / e.maxHp)}% life` });
+    for (const w of m.wardens || []) {
+      // (online the server's copy is the one that fights: its life, where it is. 2026-10-29)
+      const e = m.netWorld && !w.dead ? this.enemies.filter((q) => q.net && !q.dead && q.id === w.id).sort((p, q) => Math.hypot(p.x - w.x, p.y - w.y) - Math.hypot(q.x - w.x, q.y - w.y))[0] || w : w;
+      out.push({ kind: 'warden', done: !!w.dead, x: e.x, y: e.y, text: `Slay ${w.D.name.split(',')[0]}, Warden of the Seal`, sub: w.dead ? '' : `${Math.round(100 * Math.max(0, e.netHp ?? e.hp) / (e.maxHp || w.maxHp))}% life` });
+    }
     for (const o of m.objects) if (o.interact === 'lever') out.push({ kind: 'lever', done: !!o.on, x: o.x, y: o.y, text: 'Pull the hidden lever', sub: o.on ? '' : 'in a dead-end room' });
     for (const rm of m.rooms) {
       if (rm.role !== 'puzzle') continue;

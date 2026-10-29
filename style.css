@@ -1112,3 +1112,20 @@ body #overlay select:hover, body #overlay select:focus { border-color: var(--gol
 body #overlay .settings section, body #overlay .shop section { border-radius: 8px; }
 body #overlay .settings .key { border-radius: 5px; transition: border-color .12s ease, background .12s ease; }
 body #overlay .settings .key:hover { background: #1c1824; }
+
+/* while the game loads: a quiet title card, not an empty side panel (index.html body.booting; src/ui.js lifts it) */
+body.booting #app, body.booting #tooltip { visibility: hidden; }
+#boot { display: none; }
+body.booting #boot { display: flex; position: fixed; inset: 0; z-index: 40; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: radial-gradient(ellipse at 50% 40%, #1c1730 0%, #0b0910 70%); font-family: var(--r-font); }
+body.booting #boot b { color: var(--gold); font-size: 56px; font-weight: 400; letter-spacing: 5px; text-shadow: 3px 3px 0 #000, 0 0 18px rgba(242,193,78,.35); }
+body.booting #boot span { color: #8d88a0; font-size: 16px; animation: bootPulse 1.2s ease-in-out infinite; }
+@keyframes bootPulse { 50% { opacity: .35; } }
+@media (max-width: 760px) { body.booting #boot b { font-size: 32px; } }
+/* tooltips fade in */
+body #tooltip:not(.hidden) { animation: tipIn .12s ease-out; }
+@keyframes tipIn { from { opacity: 0; } to { opacity: 1; } }
+/* the class cards' tags: reach and armour */
+.classes.pick .cls .ctags { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
+body .classes.pick .cls .ctags span { font-size: 11px !important; padding: 1px 6px; border-radius: 8px; border: 1px solid #4a4258; color: #c8c0d8; background: #120f18; }
+body .classes.pick .cls .ctags span.near { border-color: #a8503a; color: #ffb08a; }
+body .classes.pick .cls .ctags span.far { border-color: #3a6aa8; color: #9ac8ff; }

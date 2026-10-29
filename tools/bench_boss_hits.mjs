@@ -22,6 +22,7 @@ for (const id of Object.keys(BX)) {
   const g = new Game({ reg }, { fame: 0, gold: 0, essence: 0, vaults: [[]], graveyard: [], chars: [], slots: 8, bestLevel: 0 });
   g.newCharacter('priest'); g.persist = () => {}; g.gainXp(999999);
   const p = g.player; p.equip = [`wand_t${tier}`, p.equip[1], `robe_t${tier}`, `ring_hp_t${Math.min(3, Math.round(tier / 4))}`];
+  if (process.env.MAXED) { const { CLASSES } = await import('../src/data/classes.js'); p.base = { ...CLASSES.priest.max }; p.equip = ['wand_t13', p.equip[1], 'robe_t13', 'ring_def_t4']; }   // MAXED=1: every stat maxed, the best gear (can it simply be tanked?)
   let e;
   try {
     if (dg) { g.enter(dg); e = g.enemies.find((q) => q.D.bx === id); const A = e.room; p.x = A.x + A.w / 2; p.y = A.y + A.h - 3; }
