@@ -2682,7 +2682,7 @@ export class Game {
       const kind = bagFor(chunk.map((id) => ITEMS[id]));
       const rare = BAG_ORDER.indexOf(kind) >= BAG_ORDER.indexOf('white');
       const legend = chunk.some((id) => ITEMS[id] && ITEMS[id].legendary);
-      made = { x: x + (k / 8) * 1.1, y, items: it, kind, rare, legend, life: rare ? 180 : 90, until: this.t + (rare ? 180 : 90) };
+      made = { x: x + (k / 8) * 1.1, y, items: it, kind, rare, legend, life: rare ? 180 : 90, until: this.t + (rare ? 180 : 90), born: this.t };   // (born: it's tossed out as it drops: src/render.js bag)
       this.bags.push(made);
       if (legend) this.banner('A LEGENDARY drops!', 3600);
       else if (rare) this.banner(`${BAG_NAMES[kind] || "A rare bag"} drops!`, 2800);

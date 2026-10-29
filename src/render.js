@@ -185,6 +185,30 @@ export class Renderer {
     return { x: this.px + (bx * this.cs + by * this.sn) / TS, y: this.py + (-bx * this.sn + by * this.cs) / TS };
   }
 
+  // the Nexus sky: now and then a shooting star streaks across the chasm (only over the sky: the plaza hides it). 2026-10-29
+  shootingStars(g, dt) {
+    const S = (this.stars = this.stars || []), W = this.buf.width / this.scale, H = this.buf.height / this.scale, m = g.map;
+    if (Math.random() < dt * 0.3 && S.length < 2) {
+      const dir = Math.random() < 0.5 ? -1 : 1, sp = 170 + Math.random() * 90;
+      S.push({ x: dir < 0 ? W * (0.4 + Math.random() * 0.6) : W * Math.random() * 0.6, y: Math.random() * H * 0.5, vx: dir * sp * 0.82, vy: sp * 0.57, life: 0.7 + Math.random() * 0.4, t: 0 });
+    }
+    const b = this.b;
+    for (let k = S.length - 1; k >= 0; k--) {
+      const s = S[k];
+      s.t += dt; s.x += s.vx * dt; s.y += s.vy * dt;
+      if (s.t > s.life) { S.splice(k, 1); continue; }
+      const fade = Math.min(1, (s.life - s.t) / 0.25, s.t / 0.1);
+      for (let i = 0; i < 14; i++) {
+        const x = Math.round(s.x - s.vx * i * 0.004), y = Math.round(s.y - s.vy * i * 0.004);
+        const w = this.toWorld(x * this.scale, y * this.scale), tx = Math.floor(w.x), ty = Math.floor(w.y);
+        if (tx < 0 || ty < 0 || tx >= m.w || ty >= m.h || m.tiles[ty * m.w + tx] !== TID.nxchasm) continue;
+        b.globalAlpha = fade * (1 - i / 14);
+        b.fillStyle = i === 0 ? '#ffffff' : i < 4 ? '#e8f0ff' : '#9ab8ff';
+        b.fillRect(x, y, 1, 1);
+      }
+    }
+    b.globalAlpha = 1;
+  }
   // ------------------------------------------------------------ frame
   draw(g) {
     const dt = Math.min(0.05, Math.max(0, g.t - this.lastT)); this.lastT = g.t;
@@ -195,6 +219,7 @@ export class Renderer {
     b.setTransform(this.scale, 0, 0, this.scale, 0, 0); b.imageSmoothingEnabled = false;
     b.fillStyle = '#0a080c'; b.fillRect(0, 0, BW, BH);
     this.drawGround(g);
+    if (g.map.kind === 'nexus') this.shootingStars(g, dt);   // (now and then a star falls through the Nexus sky)
     // shake offsets the whole sprite layer + ground together
     const sh = this.shake > 0.3 ? [Math.round((Math.random() - 0.5) * this.shake), Math.round((Math.random() - 0.5) * this.shake)] : [0, 0];
     this.shake = Math.max(0, this.shake - dt * 18);
@@ -1183,7 +1208,18 @@ export class Renderer {
       }
     }
     if (bag.t0 === undefined) bag.t0 = g.t;
-    const age = g.t - bag.t0, hop = age < 0.5 ? Math.round(Math.abs(Math.sin(age * Math.PI * 4)) * 8 * (1 - age / 0.5)) : 0;
+    // dropped just now: it's tossed out of the monster in a little arc, lands with a puff of dust and settles with two
+    // small bounces (2026-10-29). A bag you come upon later just sits there
+    const tossed = bag.born !== undefined && g.t - bag.born < 1.2, age = tossed ? g.t - bag.born : 9;
+    let hop = 0;
+    if (age < 0.38) {
+      const k = age / 0.38, side = (Math.floor(bag.x * 7 + bag.y * 3) % 2 ? 1 : -1) * 9;
+      sx -= side * (1 - k); hop = Math.round(Math.sin(k * Math.PI) * 16 + (1 - k) * 6);
+    } else if (age < 0.8) hop = Math.round(Math.abs(Math.sin((age - 0.38) * Math.PI / 0.21)) * 4 * (1 - (age - 0.38) / 0.42));
+    if (tossed && age >= 0.38 && !bag.landed) {
+      bag.landed = true;
+      for (let q = 0; q < 6; q++) this.parts.push({ x: bag.x + (Math.random() - 0.5) * 0.5, y: bag.y + 0.1, z: 1, vx: (Math.random() - 0.5) * 2.4, vy: (Math.random() - 0.5) * 0.6, vz: 4 + Math.random() * 4, g: 30, life: 0.45, max: 0.45, color: q % 2 ? '#c8b89a' : '#8a7a62' });
+    }
     this.shadow(sx, sy, 8);
     if (tinted) this.spr(tinted, 0, 0, TS, TS, sx, sy - hop, 8, 13); else this.spr(this.A.img.objects, (k % c) * TS, Math.floor(k / c) * TS, TS, TS, sx, sy - hop, 8, 13);
     if (g.hoverBag === bag) this.bagPeek(bag, sx, sy - hop);
