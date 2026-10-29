@@ -35,7 +35,7 @@ const methods = {
     ws.onopen = () => {
       // (and each browser knocks on its door every 4 minutes it's connected: see server/server.mjs, awake while anyone plays)
       clearInterval(N.keepT); if (/^wss:/.test(N.url)) N.keepT = setInterval(() => { fetch(N.url.replace(/^wss:/, 'https:'), { mode: 'no-cors', cache: 'no-store' }).catch(() => {}); }, 4 * 60 * 1000);
-      N.open = true; N.wait = 2; ws.send(JSON.stringify({ t: 'hi', name: (this.account && this.account.name) || '', cls: this.player ? this.player.cls : '' }));
+      N.open = true; N.everOpen = true; N.wait = 2; ws.send(JSON.stringify({ t: 'hi', name: (this.account && this.account.name) || '', cls: this.player ? this.player.cls : '' }));
       if (this.account && this.account.online && this.account.token) this.netAuth('resume', { token: this.account.token }).then((r) => { if (r && !r.error && this.player && !this.player.dead && this.mode === 'play') this.persist(); });   // back after a drop: still you (and your latest save goes up again: the server may have restarted)
     };
     ws.onmessage = (ev) => { let m; try { m = JSON.parse(ev.data); } catch { return; } this.netOn(m); };

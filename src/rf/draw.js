@@ -23,7 +23,7 @@ const methods = {
     if (def === undefined) C.set(key, (def = (this.R && this.R.resolve(key)) || null));
     if (!def) return;
     const F = def.anims.loop.frames, fr = def.frames[F[Math.floor(g.t * 6) % F.length]], b = this.b;
-    b.drawImage(def.img, fr.x, fr.y, fr.w, fr.h, Math.round(sx - fr.w), Math.round(sy - fr.h * 2 + 4), fr.w * 2, fr.h * 2);
+    b.drawImage(def.img, fr.x, fr.y, fr.w, fr.h, Math.round(sx - fr.w / 2), Math.round(sy - fr.h / 2), fr.w, fr.h);   // (one tile, like every other portal: they were drawn twice the size. 2026-10-29)
   },
   // a prop or object of theirs: its frames, unoutlined, and whether it lies flat (a decal, a rug: no outline)
   rfArtOf(m, k) {

@@ -494,6 +494,7 @@ export class Game {
     const A = this.container(fromC);
     let B = this.container(toC);
     if (!A || !A[fromI]) return false;
+    if (fromC === 'ground' && toC !== 'ground' && ITEMS[A[fromI]] && !((this.pickT || 0) > this.t)) { this.pickT = this.t + 0.35; this.pFloat(ITEMS[A[fromI]].name, '#ffe9a8'); }   // (what you picked up, over your head)
     // a shared bag (src/net.js): taking asks the server first; putting down is the server's bag too
     if (fromC === 'ground' && this.nearBag && this.nearBag.shared) { if (toC === 'ground') return false; this.netTake(this.nearBag, fromI, toC, toI); return true; }
     if (toC === 'ground' && fromC !== 'vault' && this.netBagsOn()) { const id = A[fromI]; this.netPreDrop(); A[fromI] = null; this.clampVitals(); this.netDrop(id); this.events.push({ type: 'ground' }); return true; }
@@ -1196,7 +1197,11 @@ export class Game {
     if (A.berserk) p.status.berserk = A.berserk;
     if (A.armored) p.status.armored = A.armored;
     if (A.invuln) p.status.invuln = A.invuln;
-    if (A.heal) { const h = Math.min(A.heal, this.stat('hp') - p.hp); p.hp += h; if (h > 0) this.float(...lift(p.x, p.y, 1.4), `+${Math.round(h)}`, '#3ac85a'); }
+    if (A.heal) {
+      const h = Math.min(A.heal, this.stat('hp') - p.hp); p.hp += h;
+      this.float(...lift(p.x, p.y, 1.4), h > 0 ? `+${Math.round(h)}` : 'FULL', h > 0 ? '#3ac85a' : '#a8e8b8');   // (at full health it still shows: in the Nexus and the vault you always are. 2026-10-29)
+      this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.5), n: 14, colors: ['#5ef08a', '#c8ffd8', '#ffffff'] });
+    }
     const B = A.burst, mult = dmgMult(this.stat('att')), I = this.input, mod = A.mod;
     const [cx0, cy0] = this.up(p.x, p.y, 0.5);
     const aim = angleTo(cx0, cy0, I.aimX, I.aimY);

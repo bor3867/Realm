@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Melon Realms</title>
+<meta name="description" content="Melon Realms: a fast pixel bullet-hell RPG in your browser. Pick a class, brave the realm, raid dungeons, and dodge everything.">
+<meta name="theme-color" content="#0e0c12">
+<meta property="og:title" content="Melon Realms">
+<meta property="og:description" content="A fast pixel bullet-hell RPG in your browser. Pick a class, brave the realm, raid dungeons, and dodge everything.">
+<meta property="og:type" content="website">
+<link rel="icon" type="image/png" href="art/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
@@ -34,8 +40,8 @@
     <div id="iconrow"><button data-t="stats" data-icon="stats" title="Stats"></button><button data-t="pet" data-icon="pet" title="Pet"></button><button data-t="rec" data-icon="rec" title="Character record"></button><span class="sp"></span><button id="gear" data-icon="gear" title="Menu" aria-label="Menu" aria-haspopup="menu"></button></div>
     <div id="gearmenu" class="hidden" role="menu"><button data-m="options" role="menuitem">Options</button><button data-m="nexus" role="menuitem">Nexus</button><button data-m="ach" role="menuitem">Achievements</button><button data-m="chars" role="menuitem">Character select</button><button data-m="account" role="menuitem">Switch account</button></div>
     <div class="bar xp"><i id="xpfill"></i><b><span class="bl" id="xplabel">Lvl</span><span class="bv" id="xptext"></span></b></div>
-    <div class="bar hp"><i id="hpfill"></i><b><span class="bl">HP</span><span class="bv" id="hptext"></span></b></div>
-    <div class="bar mp"><i id="mpfill"></i><b><span class="bl">MP</span><span class="bv" id="mptext"></span></b></div>
+    <div class="bar hp"><s id="hptrail"></s><i id="hpfill"></i><b><span class="bl">HP</span><span class="bv" id="hptext"></span></b></div>
+    <div class="bar mp"><s id="mptrail"></s><i id="mpfill"></i><b><span class="bl">MP</span><span class="bv" id="mptext"></span></b></div>
     <div id="equipbox"><div id="equip" class="slots"></div></div>
     <div id="invbox">
       <div id="stattabs"><button data-t="inv" data-pg="0" data-icon="bag" title="Backpack"></button><button data-t="inv" data-pg="1" data-icon="pouch" title="Second backpack (a Pilgrim's Satchel opens it)"></button></div>

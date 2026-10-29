@@ -83,7 +83,7 @@ const methods = {
     if (items.length) this.addBag(p.x, p.y + 0.6, items.slice(0, 8));
     const what = [gold ? `${gold} gold` : '', fame ? `${fame} fame` : '', items.length ? 'a gift at your feet' : ''].filter(Boolean).join(', ');
     const names = list.map(([, n]) => n);
-    this.banner(`${list.length > 1 ? `${list.length} achievements: ` : 'Achievement: '}${names.slice(0, 4).join(', ')}${names.length > 4 ? '...' : ''}${what ? ' · ' + what : ''}`, 3600);
+    this.events.push({ type: 'ach', names, what });          // a card slides in (src/ui.js achCard)
     if (this.say) for (const n of names) this.say(`Achievement earned: ${n}`, '#ffd650');
     this.sfx && this.sfx('rare');
     this.persist();

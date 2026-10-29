@@ -1129,3 +1129,29 @@ body #tooltip:not(.hidden) { animation: tipIn .12s ease-out; }
 body .classes.pick .cls .ctags span { font-size: 11px !important; padding: 1px 6px; border-radius: 8px; border: 1px solid #4a4258; color: #c8c0d8; background: #120f18; }
 body .classes.pick .cls .ctags span.near { border-color: #a8503a; color: #ffb08a; }
 body .classes.pick .cls .ctags span.far { border-color: #3a6aa8; color: #9ac8ff; }
+
+/* ==== polish, round two (2026-10-29) ==== */
+/* the bars ease, and the life (or magic) just lost lingers pale behind them, then drains */
+body #app #panel .bar i { transition: width .12s linear; z-index: 1; }
+body #app #panel .bar s { position: absolute; inset: 0; width: 0; display: block; text-decoration: none; background: #fff3d0; opacity: .55; transition: width .5s ease-in .35s; }
+body #app #panel .bar b { z-index: 2; }
+/* settings in tabs */
+body #overlay .settabs { display: flex; gap: 8px; justify-content: center; margin: 2px 0 10px; }
+body #overlay .settabs .btn { padding: 5px 18px; font-size: 16px !important; }
+/* an achievement: a card from the top right */
+#achcards { position: absolute; top: 52px; right: 12px; display: flex; flex-direction: column; gap: 8px; z-index: 14; pointer-events: none; }
+.achcard { display: flex; gap: 10px; align-items: center; min-width: 240px; max-width: 340px; padding: 9px 14px 9px 10px; background: linear-gradient(180deg, #2a2218f0, #1a1510f0); border: 2px solid #f2c14e; border-radius: 10px; box-shadow: 0 0 0 2px #000, 0 8px 24px -8px #000, 0 0 22px -6px #f2c14e; animation: achIn .45s cubic-bezier(.2, .9, .3, 1.2) both; }
+.achcard.out { animation: achOut .4s ease-in both; }
+.achcard .star { font-size: 30px; color: #ffd650; text-shadow: 0 0 10px #f2c14e, 2px 2px 0 #000; animation: achSpin .9s ease-out; }
+.achcard small { display: block; color: #c8a860; font-size: 12px; letter-spacing: .04em; }
+.achcard b { display: block; color: #fff3c8; font-size: 17px; font-weight: 400; text-shadow: 1px 1px 0 #000; }
+.achcard em { display: block; font-style: normal; color: #9ad89a; font-size: 13px; }
+@keyframes achIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: none; } }
+@keyframes achOut { to { opacity: 0; transform: translateX(40px); } }
+@keyframes achSpin { from { transform: rotate(-180deg) scale(.4); } to { transform: none; } }
+/* the server dropped: a pill until it's back */
+#netpill { position: absolute; top: 52px; left: 50%; transform: translateX(-50%); z-index: 13; display: flex; align-items: center; gap: 8px; padding: 5px 14px; border-radius: 14px; background: #2a1418e8; border: 1px solid #d8505a; color: #ffc8c8; font-size: 14px; box-shadow: 0 4px 14px -6px #000; pointer-events: none; }
+#netpill i { width: 10px; height: 10px; border-radius: 50%; border: 2px solid #ff8a8a; border-top-color: transparent; animation: netSpin .8s linear infinite; }
+@keyframes netSpin { to { transform: rotate(360deg); } }
+/* the side panel's slots: a crisp gold outline under the mouse */
+body #app #panel .slot:hover { outline: 2px solid #f2c14ecc; outline-offset: -2px; }

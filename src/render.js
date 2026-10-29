@@ -668,7 +668,8 @@ export class Renderer {
       else if (o.hmStriker && def.anims.ring) { const k = this.lastT - (o.ringT || -9); fr = k < 0.8 ? def.anims.ring.frames[Math.min(def.anims.ring.frames.length - 1, Math.floor(k * 8))] : def.anims.idle.frames[0]; }   // the puck flies up and rings the bell
       if (o.solid) this.shadow(sx, sy + 7, def.size[1] > 8 ? 12 : 10);
       if (o.fuse !== undefined) { this.drawDef(def, fr, sx, sy + 8, { scale: 1.3, flash: Math.floor(this.lastT * 20) % 2 === 0 }); return; }   // a spore pod about to burst
-      this.drawDef(def, fr, sx, sy + 8, o.unlit ? { alpha: 0.45 } : undefined);   // a brazier gone out is dark and still
+      const bob = o.bob ? Math.round(Math.sin(this.lastT * 1.4 + o.x * 0.9) * 2) : 0;   // (adrift in the Nexus sky: it bobs)
+      this.drawDef(def, fr, sx, sy + 8 + bob, o.unlit ? { alpha: 0.45 } : undefined);   // a brazier gone out is dark and still
       if (o.sprite === 'ow_objects/midlands_campfire' && Math.random() < 0.35) {
         const ember = Math.random() < 0.6;
         this.parts.push({ x: o.x + (Math.random() - 0.5) * 0.4, y: o.y, z: 6, vx: (Math.random() - 0.5) * 0.3, vy: 0, vz: ember ? 18 + Math.random() * 14 : 8,

@@ -455,6 +455,16 @@ export class UI {
       </section>
       <div class="actions">${this.g.mode === 'play' ? '<button class="btn" id="smenu">Character select</button><button class="btn" id="shelp">Show the controls</button>' : ''}<button class="btn" id="sreset">Reset to defaults</button><button class="btn" id="sclose">Close</button></div>
     </div>`);
+    {                                                       // three tabs: Display, Audio, Controls (it was one long page. 2026-10-29)
+      const secs = [...o.querySelectorAll('.settings > section')];
+      const tabOf = (s) => { const h = s.querySelector('h3').textContent; return /^Audio/.test(h) ? 'audio' : /^Controls/.test(h) ? 'keys' : 'view'; };
+      const bar = document.createElement('div'); bar.className = 'settabs';
+      bar.innerHTML = [['view', 'Display'], ['audio', 'Audio'], ['keys', 'Controls']].map(([k, l]) => `<button class="btn sm" data-st="${k}">${l}</button>`).join('');
+      o.querySelector('.settings h1').after(bar);
+      const show = (k) => { this.setTab = k; secs.forEach((s) => s.classList.toggle('hidden', tabOf(s) !== k)); bar.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b.dataset.st === k)); };
+      bar.querySelectorAll('button').forEach((b) => { b.onclick = () => { show(b.dataset.st); this.sfx && this.sfx.play('click'); }; });
+      show(this.setTab || 'view');
+    }
     const changed = () => { this.onSettingsChanged && this.onSettingsChanged(); this.miniLabel(); };
     o.querySelectorAll('[data-opt]').forEach((el) => { el.onchange = () => { S[el.dataset.opt] = el.checked; changed(); }; });
     o.querySelectorAll('[data-num]').forEach((el) => { el.oninput = () => { S[el.dataset.num] = +el.value; changed(); const vz = o.querySelector('[data-vz]'); if (vz) vz.textContent = Math.round(S.viewZoom * 100) + '%'; }; });
@@ -875,6 +885,15 @@ export class UI {
       }
     }));
   }
+  // an achievement earned: a card slides in at the top right, then away (2026-10-29: it was a banner)
+  achCard(ev) {
+    const el = document.createElement('div'); el.className = 'achcard';
+    const n = ev.names || [];
+    el.innerHTML = `<span class="star">★</span><div><small>${n.length > 1 ? `${n.length} achievements unlocked` : 'Achievement unlocked'}</small><b>${n.slice(0, 3).join(', ')}${n.length > 3 ? '…' : ''}</b>${ev.what ? `<em>${ev.what}</em>` : ''}</div>`;
+    const box = $('achcards') || (() => { const d = document.createElement('div'); d.id = 'achcards'; $('stage').appendChild(d); return d; })();
+    box.appendChild(el);
+    setTimeout(() => el.classList.add('out'), 5200); setTimeout(() => el.remove(), 5600);
+  }
   // the first time an account plays: a small card over the game with the controls, in your own keys. It stays until you
   // close it (or press the button); the account remembers (save.seenHelp). Settings > "Show the controls card" brings it back
   firstHelp(force = false) {
@@ -968,7 +987,11 @@ export class UI {
       if (ev.type === 'chat') this.renderChat();
       if (ev.type === 'npc') { if (ev.which === 'shop') this.openShop(); else if (ev.which === 'board') this.openBoard(); else if (ev.which === 'waypoint') this.openWaypoints(ev.from); else if (ev.which === 'petyard') this.openPetYard(); else if (ev.which === 'journal') this.openJournal(ev); else if (ev.which === 'atlas') this.openAtlas(); else if (ev.which === 'legends') this.openLegends(); else this.openForge(); }
       if (ev.type === 'death') this.deathScreen();
+      if (ev.type === 'ach') this.achCard(ev);
     }
+    { const N = g.net, lost = !!(N && N.url && N.everOpen && !N.open && g.mode === 'play'); let el = $('netpill');   // the server dropped: say so, until it's back
+      if (lost && !el) { el = document.createElement('div'); el.id = 'netpill'; el.innerHTML = '<i></i>Reconnecting to the realm…'; $('stage').appendChild(el); }
+      if (el) el.classList.toggle('hidden', !lost); }
     if (this.bannerT > 0 && (this.bannerT -= dt) <= 0) { const b = $('banner'); b.classList.add('out'); clearTimeout(this.bannerOutT); this.bannerOutT = setTimeout(() => { if (b.classList.contains('out')) b.classList.add('hidden'); }, 260); }
     this.chatAcc = (this.chatAcc || 0) + dt;
     if (this.chatAcc > 1) { this.chatAcc = 0; if (!this.chatOpen()) this.renderChat(); }   // let old lines fade
@@ -995,11 +1018,11 @@ export class UI {
     if (this.portraitFor !== p.cls) this.drawPortrait(p.cls);
     $('clevel').textContent = p.level >= MAX_LEVEL ? `Level ${p.level} · ✦ ${p.fame || 0} fame` : `Level ${p.level}`;
     const hpM = g.stat('hp'), mpM = g.stat('mp');
-    $('hpfill').style.width = (100 * Math.max(0, p.hp) / hpM) + '%';
+    $('hpfill').style.width = (100 * Math.max(0, p.hp) / hpM) + '%'; if ($('hptrail')) $('hptrail').style.width = $('hpfill').style.width;   // (its trail drains after it: style.css)
     $('hpfill').parentElement.classList.toggle('low', p.hp / hpM < 0.3);
     const plus = (k, M) => { const b = M - (p.base[k] || M); return b ? ` <em>(${b > 0 ? '+' : ''}${b})</em>` : ''; };
     $('hptext').innerHTML = `${Math.ceil(Math.max(0, p.hp))}/${hpM}${plus('hp', hpM)}`;
-    $('mpfill').style.width = (100 * p.mp / mpM) + '%';
+    $('mpfill').style.width = (100 * p.mp / mpM) + '%'; if ($('mptrail')) $('mptrail').style.width = $('mpfill').style.width;
     $('mptext').innerHTML = `${Math.floor(p.mp)}/${mpM}${plus('mp', mpM)}`;
     { const X = (CLASSES[p.cls] || {}).max || {}; $('hpfill').parentElement.classList.toggle('maxed', p.base.hp >= X.hp); $('mpfill').parentElement.classList.toggle('maxed', p.base.mp >= X.mp); }   // (gold when maxed)
     if (p.level >= MAX_LEVEL) {                           // at 20 the bar tracks fame toward the next fame goal

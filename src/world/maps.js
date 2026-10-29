@@ -319,7 +319,7 @@ export function nexus() {
   for (let k = 0, n = 0; k < 300 && n < 22; k++) {
     const x = Math.floor(r() * W), y = Math.floor(r() * H);
     if (!free(x, y, x, y)) continue;
-    put(m, 'nx_objects/nexus_shard', x, y, false); n++;
+    put(m, 'nx_objects/nexus_shard', x, y, false, { bob: true }); n++;
   }
   const RX = W / 2, RY = H - 10;
   for (let k = 0; k < 7; k++) { const a = Math.PI + (k / 6) * Math.PI, x = Math.round(RX + Math.cos(a) * 9), y = Math.round(RY + Math.sin(a) * 3.5) + 4; if (free(x, y, x, y)) put(m, 'nx_objects/nexus_crystal_pillar', x, y, false); }
