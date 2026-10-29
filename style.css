@@ -1,7 +1,7 @@
 :root {
   --bg: #0e0c12;
-  --panel: #1a1720;
-  --edge: #2e2a38;
+  
+  
   --ink: #e9e4f2;
   --mut: #8d88a0;
   --hp: #d8283c;
@@ -19,40 +19,32 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #stats.recview > div { display: flex; justify-content: space-between; gap: 6px; padding: 0 6px; font-size: 11px; line-height: 1.5; white-space: nowrap; }
 #stats.recview .rk { color: #a8a2bc; }
 .settings .curprev { width: 32px; height: 32px; image-rendering: pixelated; vertical-align: middle; margin-left: 8px; background: #4a4458; border-radius: 4px; }
-#panel { width: 236px; flex: none; background: var(--panel); border-left: 2px solid var(--edge); padding: 10px; display: flex; flex-direction: column; gap: 6px; overflow-y: auto; }
-#minimap { width: 216px; height: 216px; image-rendering: pixelated; background: #000; border: 2px solid var(--edge); }
-#who { display: flex; justify-content: space-between; font-size: 15px; }
-#clevel { color: var(--gold); }
-.bar { position: relative; height: 14px; background: #000; border: 1px solid var(--edge); }
+#panel { flex: none; display: flex; flex-direction: column; gap: 6px; overflow-y: auto; }
+#minimap { image-rendering: pixelated; background: #000; }
+#who { justify-content: space-between; }
 .bar i { position: absolute; inset: 0; width: 0; display: block; }
-.bar b { position: relative; display: block; text-align: center; font-weight: 700; font-size: 12px; line-height: 12px; text-shadow: 1px 1px 0 #000; }
-.bar.hp i { background: var(--hp); } .bar.mp i { background: var(--mp); } .bar.xp i { background: var(--xp); }
-.bar.xp { height: 8px; } .bar.xp b { display: none; }
-#stats { display: grid; grid-template-columns: 1fr 1fr; gap: 1px 10px; font-size: 13px; }
+.bar b { display: block; text-align: center; }
+  
+ 
+#stats { gap: 1px 10px; }
 #stats div { display: flex; justify-content: space-between; }
 #stats .max { color: var(--gold); }
-#stats .bonus { color: #7ad0a8; }
-.label { color: var(--mut); font-size: 12px; margin-top: 4px; }
-.label small { font-size: 11px; }
-.slots { display: grid; grid-template-columns: repeat(4, 48px); gap: 4px; }
-.slot { width: 48px; height: 48px; background: #0f0d14; border: 2px solid var(--edge); position: relative; display: grid; place-items: center; cursor: pointer; }
-.slot.eq { border-color: #4a4458; }
-.slot.over { border-color: var(--gold); }
+.slots { display: grid; gap: 4px; }
+.slot { position: relative; display: grid; place-items: center; cursor: pointer; }
 .slot.sel { border-color: #fff; }
-.slot .ico { width: 32px; height: 32px; image-rendering: pixelated; background-repeat: no-repeat; }
-.slot .hint { position: absolute; left: 3px; top: 1px; color: #45405a; font-size: 11px; }
-.slot .tier { position: absolute; right: 3px; bottom: 1px; font-size: 11px; color: var(--mut); text-shadow: 1px 1px 0 #000; }
+.slot .ico { image-rendering: pixelated; background-repeat: no-repeat; }
+.slot .hint { position: absolute; }
+.slot .tier { position: absolute; color: var(--mut); }
 .slot .tier.ut { color: var(--gold); }
-#where { color: var(--mut); font-size: 12px; margin-top: auto; }
-#keys { color: #5c5770; font-size: 11px; }
+#where { margin-top: auto; }
 .hidden { display: none !important; }
-#tooltip { position: fixed; z-index: 30; pointer-events: none; background: #120f18; border: 2px solid var(--edge); padding: 8px 10px; max-width: 260px; font-size: 13px; }
-#tooltip h4 { margin: 0 0 4px; font-weight: 700; font-size: 14px; }
+#tooltip { position: fixed; z-index: 30; pointer-events: none; border: 2px solid var(--edge); }
+#tooltip h4 { margin: 0 0 4px; font-weight: 700; }
 #tooltip .t { color: var(--mut); }
-#tooltip .d { color: #b8b2c8; margin-top: 6px; font-size: 12px; }
+#tooltip .d { color: #b8b2c8; margin-top: 6px; }
 #tooltip .s { color: #7ad0a8; }
 #tooltip .bad { color: #e2546a; }
-#banner { position: absolute; top: 64px; left: 50%; transform: translateX(-50%); padding: 6px 14px; background: #120f18e0; border: 2px solid var(--edge); font-size: 16px; color: var(--gold); pointer-events: none; }
+#banner { position: absolute; left: 50%; transform: translateX(-50%); background: #120f18e0; border: 2px solid var(--edge); color: var(--gold); pointer-events: none; }
 #overlay { position: fixed; inset: 0; z-index: 20; background: #0e0c12f2; display: grid; place-items: center; overflow-y: auto; padding: 16px; }
 .screen { width: min(820px, 100%); text-align: center; }
 .screen h1 { font-size: 40px; margin: 0 0 4px; color: var(--gold); font-weight: 700; letter-spacing: 2px; }
@@ -66,7 +58,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 .btn { background: var(--panel); color: var(--ink); border: 2px solid var(--edge); padding: 8px 16px; font: inherit; cursor: pointer; margin: 4px; }
 .btn:hover, .btn:focus-visible { border-color: var(--gold); outline: none; }
 .grave { color: var(--mut); font-size: 12px; margin-top: 14px; max-height: 140px; overflow-y: auto; }
-.fame { color: var(--gold); }
 @media (max-width: 760px) {
   #app { flex-direction: column; }
   #panel { width: 100%; height: 40%; border-left: 0; border-top: 2px solid var(--edge); }
@@ -76,13 +67,12 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 /* minimap zoom + settings */
 #miniwrap { position: relative; }
 #minibtns { position: absolute; right: 6px; bottom: 6px; display: flex; align-items: center; gap: 4px; }
-#minibtns button, #gear { background: #120f18e0; color: var(--ink); border: 2px solid var(--edge); font: inherit; cursor: pointer; line-height: 1; }
-#minibtns button { width: 22px; height: 22px; padding: 0; }
+#minibtns button, #gear { color: var(--ink); font: inherit; cursor: pointer; line-height: 1; }
+#minibtns button { padding: 0; }
 #minibtns button:hover, #gear:hover, #minibtns button:focus-visible, #gear:focus-visible { border-color: var(--gold); outline: none; }
-#minilabel { font-size: 11px; color: var(--mut); background: #120f18e0; padding: 2px 4px; }
-#who { align-items: center; gap: 8px; }
+#minilabel { color: var(--mut); background: #120f18e0; }
+#who { gap: 8px; }
 #who #cname { flex: 1; }
-#gear { padding: 2px 6px; font-size: 16px; }
 .settings { width: min(720px, 100%); text-align: left; }
 .settings h1 { text-align: center; font-size: 28px; }
 .settings section { background: var(--panel); border: 2px solid var(--edge); padding: 12px 14px; margin: 10px 0; }
@@ -100,7 +90,7 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 
 /* chat */
 #chat { position: absolute; left: 10px; bottom: 10px; width: min(460px, calc(100% - 20px)); pointer-events: none; }
-#chatlog { display: flex; flex-direction: column; gap: 1px; font-size: 13px; max-height: 190px; overflow: hidden; justify-content: flex-end; }
+#chatlog { display: flex; flex-direction: column; gap: 1px; max-height: 190px; overflow: hidden; justify-content: flex-end; }
 #chatlog div { text-shadow: 1px 1px 0 #000, -1px 0 0 #000, 0 -1px 0 #000; transition: opacity .6s; overflow-wrap: anywhere; }
 #chatlog div.old { opacity: 0; }
 #chat.open #chatlog { background: #0e0c12c0; padding: 4px 6px; overflow-y: auto; pointer-events: auto; max-height: 240px; }
@@ -131,23 +121,18 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 /* ---------- visual pass: colour, highlight, outline ---------- */
 :root { --panel: #1c1824; --edge: #3a3348; --edge-hi: #5a4f6e; }
 #panel {
-  background: linear-gradient(180deg, #221c2c 0%, #18141f 100%);
-  border-left: 3px solid #0c0a10; box-shadow: inset 2px 0 0 var(--edge-hi);
+  
+  box-shadow: inset 2px 0 0 var(--edge-hi);
 }
-#minimap { border: 3px solid #0c0a10; box-shadow: 0 0 0 2px var(--edge-hi), 0 4px 0 #0c0a10; }
-#who { padding: 4px 6px; background: #120f18; border: 2px solid #0c0a10; box-shadow: inset 0 0 0 1px var(--edge); }
-#cname { color: #fff4c2; text-shadow: 2px 2px 0 #000; }
 #clevel { text-shadow: 2px 2px 0 #000; }
 
 /* bars: dark frame, bright top highlight, darker bottom band */
-.bar { height: 16px; border: 2px solid #0c0a10; background: #0a080c; box-shadow: inset 0 0 0 1px #2a2434; }
-.bar.xp { height: 9px; }
+.bar { box-shadow: inset 0 0 0 1px #2a2434; }
 .bar i { box-shadow: inset 0 2px 0 rgba(255,255,255,.35), inset 0 -3px 0 rgba(0,0,0,.25); }
-.bar.hp i { background: #e0283c; } .bar.mp i { background: #3060f0; } .bar.xp i { background: #3ad06a; }
-.bar b { line-height: 13px; font-size: 12px; text-shadow: 1px 1px 0 #000, -1px 0 0 #000, 0 -1px 0 #000; }
+  
 
 /* stats: each stat has its own colour */
-#stats { background: #120f18; border: 2px solid #0c0a10; padding: 5px 8px; box-shadow: inset 0 0 0 1px var(--edge); }
+#stats { box-shadow: inset 0 0 0 1px var(--edge); }
 #stats div span:last-child { color: #fff; text-shadow: 1px 1px 0 #000; }
 .st { text-shadow: 1px 1px 0 #000; }
 .st-att { color: #ff6a5a; } .st-def { color: #a8b8d8; } .st-spd { color: #5ae07a; }
@@ -155,23 +140,20 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #stats .max span:last-child { color: var(--gold); }
 
 /* section labels with an accent */
-.label { color: #c8c0d8; font-size: 12px; padding-left: 6px; border-left: 3px solid var(--gold); text-shadow: 1px 1px 0 #000; }
+.label { padding-left: 6px; border-left: 3px solid var(--gold); text-shadow: 1px 1px 0 #000; }
 
 /* slots: bevelled wells; filled slots glow in their rarity colour */
-.slot { background: #0c0a10; border: 2px solid #2c2638; box-shadow: inset 2px 2px 0 #000, inset -1px -1px 0 #2a2434; border-radius: 2px; }
+.slot { box-shadow: inset 2px 2px 0 #000, inset -1px -1px 0 #2a2434; }
 .slot.eq { border-color: #4a4060; }
 .slot.has { border-color: var(--rc); box-shadow: inset 2px 2px 0 #000, inset 0 0 10px -3px var(--rc), 0 0 6px -2px var(--rc); }
-.slot.has .ico { filter: drop-shadow(0 0 2px var(--rc)); }
-.slot .tier { color: var(--rc, var(--mut)); font-size: 11px; text-shadow: 1px 1px 0 #000, -1px 0 0 #000; }
-.slot.ut { background: radial-gradient(circle at 50% 45%, #2a1c08 0%, #0c0a10 70%); }
-.slot.mythic { background: radial-gradient(circle at 50% 45%, #0a2a34 0%, #0c0a10 70%); animation: mythic 1.6s ease-in-out infinite; }
+.slot .tier { color: var(--rc, var(--mut)); text-shadow: 1px 1px 0 #000, -1px 0 0 #000; }
+.slot.mythic { animation: mythic 1.6s ease-in-out infinite; }
 @keyframes mythic { 50% { box-shadow: inset 2px 2px 0 #000, inset 0 0 14px -2px #8af6ff, 0 0 12px 0 #8af6ff; } }
-.slot:hover { border-color: #fff4c2; }
 .slot.over { border-color: #fff; box-shadow: 0 0 10px #f2c14e; }
 
 /* tooltip: framed in the item's rarity colour */
 #tooltip { background: #120f18f2; border: 2px solid var(--rc, var(--edge)); box-shadow: 0 0 0 2px #000, 0 0 16px -4px var(--rc, #000), 4px 4px 0 #000; }
-#tooltip h4 { text-shadow: 2px 2px 0 #000; font-size: 15px; }
+#tooltip h4 { text-shadow: 2px 2px 0 #000; }
 
 /* screens */
 .screen h1 { text-shadow: 3px 3px 0 #000, 0 0 18px rgba(242,193,78,.35); }
@@ -180,8 +162,8 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #banner { box-shadow: 0 0 0 2px #000, 0 0 18px -4px var(--gold); text-shadow: 2px 2px 0 #000; }
 
 /* account HUD, top-left of the play view */
-#hud { position: absolute; left: 10px; top: 10px; display: flex; gap: 6px; pointer-events: none; font-size: 14px; }
-#hud span { background: #120f18e8; border: 2px solid #0c0a10; box-shadow: inset 0 0 0 1px var(--edge-hi), 0 3px 0 #0c0a10; padding: 3px 8px; text-shadow: 1px 1px 0 #000; }
+#hud { position: absolute; display: flex; gap: 6px; pointer-events: none; }
+#hud span { background: #120f18e8; border: 2px solid #0c0a10; box-shadow: inset 0 0 0 1px var(--edge-hi), 0 3px 0 #0c0a10; text-shadow: 1px 1px 0 #000; }
 #hud b { font-weight: 700; color: #fff; }
 /* what's boosting you, with its time left: top right under the boss bar (the seals sit top left), over the game: the panel's layout never moves */
 #boosts { position: absolute; right: 10px; top: 96px; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; pointer-events: none; font-size: 14px; z-index: 6; }
@@ -223,44 +205,31 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 @media (max-width: 760px) { .homecols, .chars { grid-template-columns: 1fr; } }
 
 /* ---------- bigger, bolder side panel ---------- */
-#panel { width: 328px; padding: 14px 16px; gap: 9px; font-size: 15px; position: relative;
-  background: radial-gradient(ellipse at 50% 0%, #34284a 0%, rgba(52,40,74,0) 55%), linear-gradient(180deg, #241d30 0%, #16121c 100%); }
+#panel { gap: 9px; font-size: 15px; position: relative;
+  }
 #panel::before, #panel::after { content: ''; position: absolute; left: 8px; right: 8px; height: 3px; pointer-events: none;
   background: linear-gradient(90deg, transparent, #f2c14e 20%, #fff4c2 50%, #f2c14e 80%, transparent); opacity: .55; }
 #panel::before { top: 4px; } #panel::after { bottom: 4px; }
-#minimap { width: 296px; height: 296px; border-radius: 3px; }
 #minibtns button { width: 28px; height: 28px; font-size: 18px; }
 #minilabel { font-size: 13px; padding: 3px 6px; }
-#who { font-size: 19px; padding: 6px 10px; background: linear-gradient(180deg, #2a2236, #120f18); }
-#cname { letter-spacing: 1px; }
-#clevel { font-size: 17px; }
-#gear { font-size: 20px; padding: 3px 8px; }
-.bar { height: 22px; }
-.bar.xp { height: 11px; }
-.bar b { font-size: 14px; line-height: 18px; }
-.bar.hp i { background: linear-gradient(180deg, #ff5a6a 0%, #e0283c 45%, #a01828 100%); }
-.bar.mp i { background: linear-gradient(180deg, #6a96ff 0%, #3060f0 45%, #1a3aa8 100%); }
-.bar.xp i { background: linear-gradient(180deg, #7aff9a 0%, #3ad06a 50%, #1e8a44 100%); }
-.bar i { transition: width .12s linear; }
+#who { font-size: 19px; }
+#gear { padding: 3px 8px; }
 .bar.hp.low { animation: lowhp .7s ease-in-out infinite; }
 @keyframes lowhp { 50% { box-shadow: 0 0 12px 2px #ff2a3a, inset 0 0 0 1px #ff5a6a; } }
-#stats { font-size: 15px; gap: 3px 14px; padding: 7px 10px; }
-.label { font-size: 14px; letter-spacing: 1px; margin-top: 2px; }
-.label small { font-size: 12px; color: #8d88a0; }
-.slots { grid-template-columns: repeat(4, 66px); gap: 8px; }
-.slot { width: 66px; height: 66px; border-width: 3px; border-radius: 4px; transition: transform .08s, box-shadow .12s; }
+#stats { gap: 3px 14px; }
+.label { margin-top: 2px; }
+.label small { font-size: 12px; }
+.slots { gap: 8px; }
+.slot { width: 66px; height: 66px; border-width: 3px; transition: transform .08s, box-shadow .12s; }
 .slot .ico { width: 48px; height: 48px; }
-.slot:hover { transform: translateY(-2px); box-shadow: inset 2px 2px 0 #000, 0 4px 0 #0c0a10, 0 0 10px -2px var(--rc, #fff4c2); }
-.slot .hint { font-size: 12px; left: 4px; top: 2px; color: #5a5470; }
+.slot:hover { box-shadow: inset 2px 2px 0 #000, 0 4px 0 #0c0a10, 0 0 10px -2px var(--rc, #fff4c2); }
+.slot .hint { font-size: 12px; left: 4px; top: 2px; }
 .slot .tier { font-size: 13px; right: 4px; bottom: 2px; }
-.slot.eq { background: linear-gradient(180deg, #1a1524, #0c0a10); }
 .slot.admin { background: radial-gradient(circle at 50% 45%, #4a0a5a 0%, #0c0a10 70%); animation: adminglow 1.2s linear infinite; }
 @keyframes adminglow { 0% { box-shadow: 0 0 10px #ff4af0; } 33% { box-shadow: 0 0 10px #8af6ff; } 66% { box-shadow: 0 0 10px #ffd650; } 100% { box-shadow: 0 0 10px #ff4af0; } }
-#where { font-size: 14px; color: #c8c0d8; text-shadow: 1px 1px 0 #000; }
-#keys { font-size: 12px; color: #6c6780; }
+#where { text-shadow: 1px 1px 0 #000; }
 #hud { font-size: 17px; gap: 8px; top: 12px; left: 12px; }
 #hud span { padding: 5px 11px; }
-#tooltip { max-width: 330px; font-size: 15px; padding: 10px 12px; }
 #tooltip h4 { font-size: 17px; }
 #tooltip .d { font-size: 13px; }
 #tooltip .sp { color: #ffd650; margin-top: 4px; }
@@ -268,11 +237,11 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #banner { font-size: 19px; padding: 8px 18px; }
 #chatlog { font-size: 15px; }
 .classes { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
-@media (max-width: 1100px) { #panel { width: 290px; } #minimap { width: 258px; height: 258px; } .slots { grid-template-columns: repeat(4, 58px); gap: 6px; } .slot { width: 58px; height: 58px; } .slot .ico { width: 40px; height: 40px; } }
+@media (max-width: 1100px) {  #minimap { width: 258px; height: 258px; } .slots { grid-template-columns: repeat(4, 58px); gap: 6px; } .slot { width: 58px; height: 58px; } .slot .ico { width: 40px; height: 40px; } }
 
 /* standing on a portal: name + a clickable Enter button, where bag contents normally go */
 .portalcard { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: radial-gradient(circle at 15% 50%, #1e3a4a 0%, #120f18 70%);
-  border: 3px solid #3befff; border-radius: 4px; box-shadow: 0 0 12px -3px #3befff, inset 0 0 0 1px #0c0a10; animation: portalpulse 1.6s ease-in-out infinite; }
+  border: 3px solid #3befff; box-shadow: 0 0 12px -3px #3befff, inset 0 0 0 1px #0c0a10; animation: portalpulse 1.6s ease-in-out infinite; }
 @keyframes portalpulse { 50% { box-shadow: 0 0 18px 0 #3befff, inset 0 0 0 1px #0c0a10; } }
 .portalcard .pi { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .portalcard b { font-weight: 700; font-size: 16px; color: #cfffff; text-shadow: 1px 1px 0 #000; }
@@ -282,7 +251,7 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 
 /* quests */
 #quests { display: flex; flex-direction: column; gap: 3px; }
-#quests .q { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: #c8c0d8; background: #120f18; border: 2px solid #0c0a10;
+#quests .q { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: #c8c0d8; 
   box-shadow: inset 0 0 0 1px #2a3a2a; padding: 3px 6px; }
 #quests .q b { font-weight: 700; color: #7aff9a; white-space: nowrap; }
 .ware .qi { width: 32px; height: 32px; flex: none; display: grid; place-items: center; font-size: 20px; color: #ffd650; background: #120f18; border: 2px solid #3a3348; }
@@ -290,21 +259,20 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 /* the panel always fits the window: the minimap gives up space first, then everything tightens */
 #panel { overflow: hidden; height: 100%; }
 #panel > * { flex: none; }
-#miniwrap { flex: 0 1 296px; min-height: 90px; max-height: 296px; display: flex; justify-content: center; }
-#minimap { width: auto; height: 100%; max-width: 100%; aspect-ratio: 1 / 1; }
+#minimap { aspect-ratio: 1 / 1; }
 #panel.tight { gap: 5px; padding-top: 10px; padding-bottom: 8px; }
-#panel.tight .slots { grid-template-columns: repeat(4, 54px); gap: 5px; }
+#panel.tight .slots { gap: 5px; }
 #panel.tight .slot { width: 54px; height: 54px; }
 #panel.tight .slot .ico { width: 40px; height: 40px; }
 #panel.tight .bar { height: 18px; } #panel.tight .bar b { line-height: 14px; }
 #panel.tight #stats { font-size: 13px; padding: 4px 8px; }
 #panel.tight #keys, #panel.tight #where { display: none; }
 #panel.tight #who { padding: 3px 8px; font-size: 17px; }
-#tooltip { max-height: calc(100vh - 16px); overflow: hidden; }
+#tooltip { max-height: calc(100vh - 16px); }
 
 /* the interaction area (loot bag / portal / NPC) always holds its space, so nothing in the panel ever moves.
    A bag takes priority over a portal it sits on; the portal can still be entered from the bag's header. */
-#interact { position: relative; flex: none; }
+#interact { position: relative; }
 #interact .off { visibility: hidden; pointer-events: none; }
 #portalwrap { position: absolute; left: 0; right: 0; top: 0; }
 #groundwrap .label { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 24px; }
@@ -318,12 +286,10 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 .slot { touch-action: none; user-select: none; }
 
 /* RotMG-style slots: a mid-grey well so dark-outlined, brightly coloured items pop off it */
-.slot { background: linear-gradient(180deg, #4d4860, #3e3a4e); box-shadow: inset 2px 2px 0 #2a2636, inset -2px -2px 0 #5c5672; }
-.slot.eq { background: linear-gradient(180deg, #555070, #433e56); }
+.slot { box-shadow: inset 2px 2px 0 #2a2636, inset -2px -2px 0 #5c5672; }
 .slot.has .ico { filter: none; }
 .slot.ut { background: radial-gradient(circle at 50% 45%, #7a5a22 0%, #4a3a2a 75%); }
 .slot.mythic { background: radial-gradient(circle at 50% 45%, #2a6a7a 0%, #33405a 75%); }
-.slot .hint { color: #8a84a0; }
 
 /* enchanted items: a violet shimmer in the slot, their own block in the tooltip */
 .slot.ench::after { content: '✦'; position: absolute; left: 4px; bottom: 1px; font-size: 13px; color: #d8a8ff; text-shadow: 0 0 4px #b06bff, 1px 1px 0 #000; animation: enchtw 1.8s ease-in-out infinite; }
@@ -335,7 +301,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #tooltip .ench .eu { color: #ffd650; }
 
 /* fame: the bar turns orange at level 20, and the death screen itemises what you earned */
-.bar.xp.fame i { background: linear-gradient(180deg, #ffcf6a, #e88a1a) !important; }
 .famebox { margin: 10px auto; max-width: 320px; text-align: left; background: #120f18; border: 2px solid #3a2f1a; padding: 8px 12px; }
 .famebox .fr { display: flex; justify-content: space-between; color: #c8c0d8; }
 .famebox .fr.tot { border-top: 1px solid #3a2f1a; margin-top: 4px; padding-top: 4px; color: #ffd650; }
@@ -343,13 +308,9 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 
 /* a bigger minimap: the panel widens a little and the map keeps most of its size before anything else gives way */
 #panel { width: 380px; }
-#miniwrap { flex: 0 1 360px; min-height: 250px; max-height: 360px; }
-#minimap { width: auto; height: 100%; max-width: 100%; }
 @media (max-width: 1100px) { #panel { width: 330px; } #miniwrap { min-height: 220px; } }
 
 /* the XP bar carries its own label (and becomes the fame bar at level 20) */
-.bar.xp { height: 16px !important; }
-.bar.xp b { line-height: 16px !important; font-size: 12px; }
 .bar.xp b { display: block !important; }
 
 /* set pieces in tooltips */
@@ -367,8 +328,8 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 :root { --pane: #23222b; --pane2: #1b1a22; --well: #14131a; --line: #34323f; --soft: #9a96ab; --hi: #f2efe8; }
 #panel { background: linear-gradient(180deg, var(--pane) 0%, var(--pane2) 100%) !important; border-left: 1px solid #0c0b10 !important;
   box-shadow: inset 1px 0 0 #3a3846; gap: 8px !important; padding: 12px 14px !important; }
-#miniwrap { background: var(--well); border-radius: 8px; padding: 4px; box-shadow: inset 0 2px 6px #000a, 0 1px 0 #3a3846; }
-#minimap { border: 0 !important; border-radius: 5px; box-shadow: none !important; }
+#miniwrap { box-shadow: inset 0 2px 6px #000a, 0 1px 0 #3a3846; }
+#minimap { border: 0 !important; box-shadow: none !important; }
 #minibtns button { border-radius: 5px; border: 1px solid var(--line) !important; background: #1b1a22e6 !important; }
 #minilabel { border-radius: 4px; }
 
@@ -473,11 +434,10 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 .screen .cols.wp section h3 { margin: 4px 0 6px; }
 
 /* the potion side slots: two stacks under the backpack */
-#pots.slots { grid-template-columns: repeat(2, 66px); }
 #pots .slot .tier { color: #ffe9a0; font-weight: 800; }
-@media (max-width: 1100px) { #pots.slots { grid-template-columns: repeat(2, 58px); } }
+@media (max-width: 1100px) { }
 /* the vault: one chest that grows, shown as a compact scrolling grid */
-#ground.vault { grid-template-columns: repeat(8, 1fr); gap: 4px; max-height: 236px; overflow-y: auto; padding-right: 4px; }
+#ground.vault { gap: 4px; max-height: 236px; overflow-y: auto; padding-right: 4px; }
 #ground.vault .slot { width: auto; height: auto; aspect-ratio: 1; border-width: 2px; }
 #ground.vault .slot .ico { width: 70%; height: 70%; }
 #ground.vault .slot .tier { font-size: 9px; }
@@ -525,16 +485,16 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 .btn.ghost { background: transparent; border-color: #4a4458; color: #b8b2c8; }
 
 /* the dungeon's seal checklist */
-#seals { display: flex; flex-direction: column; gap: 3px; margin-top: 6px; }
+#seals { display: flex; flex-direction: column; gap: 3px; }
 #seals .label { color: #ffd98a; }
-#seals .q.seal { display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #ece6f6; padding: 5px 8px; border-radius: 6px; background: var(--well, #120f18); }
-#seals .q.seal i { font-style: normal; width: 16px; text-align: center; color: #ffd650; flex: none; }
+#seals .q.seal { display: flex; align-items: flex-start; gap: 8px; color: #ece6f6; border-radius: 6px; }
+#seals .q.seal i { font-style: normal; text-align: center; color: #ffd650; flex: none; }
 #seals .q.seal span { display: flex; flex-direction: column; }
-#seals .q.seal small { color: #9a94ac; font-size: 12px; }
+#seals .q.seal small { color: #9a94ac; }
 #seals .q.seal.done { opacity: 0.55; } #seals .q.seal.done i { color: #7ad08a; } #seals .q.seal.done span { text-decoration: line-through; }
 #seals .q.seal.live { outline: 2px solid #ffd650; animation: sealpulse 0.6s ease-in-out infinite alternate; }
 @keyframes sealpulse { from { outline-color: #ffd650; } to { outline-color: #ff8a1f; } }
-#seals .hintline { font-size: 11px; color: #7d7790; padding: 0 2px; }
+#seals .hintline { color: #7d7790; padding: 0 2px; }
 
 .petcard .pab { display: grid; grid-template-columns: 82px 44px 1fr; align-items: center; gap: 6px; font-size: 12px; margin-top: 3px; }
 .petcard .pab span { color: #b8b2c8; } .petcard .pab b { color: #ece6f6; text-align: right; }
@@ -551,8 +511,8 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 /* the potion slots sit on one compact row beside their label, so the bag view below keeps its room */
 .potrow { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .potrow .label { margin: 0; }
-#pots.slots, #panel.tight #pots.slots { grid-template-columns: repeat(2, 42px); gap: 6px; }
-#pots .slot, #panel.tight #pots .slot { width: 42px; height: 42px; border-width: 2px; }
+#pots.slots, #panel.tight #pots.slots { gap: 6px; }
+#pots .slot, #panel.tight #pots .slot { border-width: 2px; }
 #pots .slot .ico, #panel.tight #pots .slot .ico { width: 30px; height: 30px; }
 @media (max-width: 1100px) { #pots.slots { grid-template-columns: repeat(2, 42px); } }
 
@@ -565,7 +525,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #ground.vault { grid-template-columns: repeat(8, 1fr) !important; }
 /* the minimap never grows past its box, so it can't spill over the character row below it */
 #miniwrap { overflow: hidden; }
-#minimap { max-height: 100%; }
 
 /* ---- the sidebar's Stats | Pet tabs */
 #stattabs { display: flex; gap: 2px; margin-bottom: -2px; }
@@ -592,29 +551,24 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 .petcard.r-divine .ico.pet { filter: drop-shadow(0 0 4px #ff7af0); }
 
 /* ---- short screens: the minimap gives way first, then the slots shrink (ui.fitPanel sets --slotw) so nothing is cut off */
-#panel.tight #miniwrap { min-height: 120px !important; }
 #panel.tight .slots:not(#pots) { width: calc(var(--slotw, 100%) * 4 + 18px); max-width: 100%; margin-left: auto; margin-right: auto; }
 #panel.tight #pots.slots { width: calc(var(--slotw, 100%) * 2 + 6px); max-width: 50%; }
 
 /* ---- the seals checklist: on screen under fame and gold, out of the side panel's way */
-#seals { position: absolute; top: 50px; left: 10px; width: 270px; z-index: 6; pointer-events: none; margin-top: 0;
-  background: rgba(14, 11, 20, 0.78); border: 1px solid #2c2638; border-radius: 8px; padding: 6px 8px; gap: 3px; }
+#seals { position: absolute; top: 50px; left: 10px; pointer-events: none; margin-top: 0;
+  background: rgba(14, 11, 20, 0.78); border: 1px solid #2c2638; border-radius: 8px; gap: 3px; }
 #seals.hidden { display: none; }
-#seals .label { font-size: 11px; letter-spacing: .05em; text-transform: uppercase; margin: 0 0 2px; }
-#seals .q.seal { font-size: 12px; padding: 3px 6px; background: rgba(255, 255, 255, 0.04); }
-#seals .q.seal small { font-size: 11px; }
-#panel.tight #miniwrap { min-height: 100px !important; }
+#seals .label { letter-spacing: .05em; text-transform: uppercase; margin: 0 0 2px; }
+#seals .q.seal { background: rgba(255, 255, 255, 0.04); }
 #seals { z-index: 4; }
 #banner { z-index: 9; }
 /* ---- the minimap takes whatever room the panel has left (and gives it back when a bag needs it) */
-#miniwrap { flex: 1 1 auto !important; max-height: 400px !important; }
-#minimap { height: 100% !important; width: auto !important; max-width: 100%; max-height: 100%; }
+#minimap { height: 100% !important; width: auto !important; }
 #panel { container-type: inline-size; }
-#miniwrap { max-height: min(400px, 100cqw) !important; }   /* never taller than it is wide: the map stays square */
+   /* never taller than it is wide: the map stays square */
 /* the bag area under the potions is always reserved (room for a full 8-slot bag), so nothing shifts when you step on one */
 #interact { display: block !important; flex: none; }
 /* Phase 6: items catch the light now and then (the art's own shine frames are stepped in ui.js) */
-.slot .ico { position: relative; }
 .slot .ico.sweep::after { content: ""; position: absolute; inset: 0; pointer-events: none; -webkit-mask: var(--m) 0 0 / 100% 100% no-repeat; mask: var(--m) 0 0 / 100% 100% no-repeat;
   background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.75) 50%, transparent 60%) no-repeat; background-size: 300% 100%; animation: itemsweep 6s linear infinite; animation-delay: var(--d, 0s); }
 @keyframes itemsweep { 0%, 86% { background-position: 100% 0; } 100% { background-position: 0% 0; } }
@@ -642,10 +596,9 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #panel .slot { width: var(--slotw, 66px) !important; height: var(--slotw, 66px) !important; }
 #panel .slot .ico { width: calc(var(--slotw, 66px) * 0.74) !important; height: calc(var(--slotw, 66px) * 0.74) !important; }
 /* the loot bag: one row of eight (RotMG-style), so the equipment, backpack and potions keep their size */
-#panel #ground.slots:not(.vault) { grid-template-columns: repeat(8, 1fr) !important; gap: 3px !important; width: 100% !important; }
-#panel #ground:not(.vault) .slot { width: auto !important; height: auto !important; aspect-ratio: 1 / 1; border-width: 2px !important; }
+#panel #ground.slots:not(.vault) { grid-template-columns: repeat(8, 1fr) !important; gap: 3px !important; }
+#panel #ground:not(.vault) .slot { width: auto !important; height: auto !important; aspect-ratio: 1 / 1; }
 #panel #ground:not(.vault) .slot .ico { width: 74% !important; height: 74% !important; }
-#panel #ground:not(.vault) .slot .tier { font-size: 9px !important; }
 #panel #pots .slot { width: var(--slotw, 66px) !important; height: var(--slotw, 66px) !important; }
 #panel #pots .slot .ico { width: calc(var(--slotw, 66px) * 0.74) !important; height: calc(var(--slotw, 66px) * 0.74) !important; }
 #panel #pots.slots { grid-template-columns: repeat(2, var(--slotw, 66px)) !important; }
@@ -727,7 +680,7 @@ body #app { font-synthesis: none; }
 :root { --r-pane: #363636; --r-dark: #2a2a2a; --r-slot: #545454; --r-slot2: #4a4a4a; --r-frame: #9a9a9a; --r-num: #6c6c6c;
   --r-font: 'Realm Pixel', 'Pixelify Sans', 'Source Sans 3', system-ui, sans-serif;
   --r-ol: 1px 0 0 #000, -1px 0 0 #000, 0 1px 0 #000, 0 -1px 0 #000, 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; }
-body #app #panel { --slot: 60px; width: calc(var(--slot) * 4 + 40px) !important; padding: 8px !important; gap: 6px !important;
+body #app #panel { width: calc(var(--slot) * 4 + 40px) !important; padding: 8px !important; gap: 6px !important;
   background: var(--r-pane) !important; border-left: 2px solid #1a1a1a !important; box-shadow: none !important; font-family: var(--r-font); overflow: hidden !important; }
 body #app #panel::before, body #app #panel::after { display: none; }
 /* the panel is 9 slots + 288px tall: each window height gets the biggest slot that fits */
@@ -762,7 +715,7 @@ body #app #panel #iconrow button.on { color: #ffe060; }
 
 /* the bars */
 body #app #panel .bar { height: 22px !important; border-radius: 3px !important; border: 2px solid #1a1a1a !important; background: #1e1e1e !important; box-shadow: none !important; overflow: hidden; }
-body #app #panel .bar i { border-radius: 0 !important; box-shadow: inset 0 2px 0 #ffffff30, inset 0 -2px 0 #00000030 !important; transition: width .15s ease-out; }
+body #app #panel .bar i { border-radius: 0 !important; box-shadow: inset 0 2px 0 #ffffff30, inset 0 -2px 0 #00000030 !important; }
 body #app #panel .bar.hp i { background: #5ab030 !important; }
 body #app #panel .bar.mp i { background: #4a6ae0 !important; }
 body #app #panel .bar.xp i { background: #3a9a3a !important; }
@@ -798,7 +751,7 @@ body #app #panel #stattabs button.on { background: var(--r-dark); }
 body #app #panel #stattabs button.off { color: #6a6a6a; cursor: default; }
 body #app #panel #stattabs svg { width: 18px; height: 18px; fill: currentColor; filter: drop-shadow(1px 1px 0 #000); }
 body #app #panel #tabbody { height: calc(var(--slot) * 2 + 4px) !important; padding: 0 !important; background: none !important; border-radius: 0 !important; overflow: hidden auto; }
-body #app #panel #tabbody #stats { background: #1e1e1e !important; height: 100%; padding: 6px 10px !important; border-radius: 0; font-family: var(--r-font); font-size: 16px !important; align-content: start; }
+body #app #panel #tabbody #stats { background: #1e1e1e !important; height: 100%; padding: 6px 10px !important; border-radius: 0; font-family: var(--r-font); align-content: start; }
 body #app #panel #tabbody #stats .st { font-family: var(--r-font); font-weight: 500; text-shadow: var(--r-ol); }
 body #app #panel #pots.slots { display: grid; grid-template-columns: 1fr 1fr !important; gap: 4px !important; margin: 4px 0 0 !important; }
 body #app #panel #pots .slot { width: auto !important; height: 34px !important; aspect-ratio: auto !important; display: flex; align-items: center; justify-content: center; gap: 4px; background: #424242 !important; }
