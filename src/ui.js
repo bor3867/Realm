@@ -100,7 +100,7 @@ export class UI {
       if (b.classList.contains('off')) return;
       this.statTab = 'inv'; this.invPage = +b.dataset.pg; this.refreshSlots(); b.blur(); }; });
   }
-  overlayOpen() { return !$('overlay').classList.contains('hidden'); }
+  overlayOpen() { const o = $('overlay'); return !o.classList.contains('hidden') && !o.classList.contains('leaving'); }
 
   // ------------------------------------------------------------- shop + forge
   closeModal() { this.modal = null; this.closeOverlay(); this.refreshSlots(); }
@@ -376,9 +376,14 @@ export class UI {
     inp.blur(); inp.classList.add('hidden'); $('chat').classList.remove('open');
     this.renderChat();
   }
+  // the chat: the last few lines fade out over the game; open (Enter), the whole of it, scrolling. Scrolled up to read,
+  // it keeps your place as new lines come in and a pill below says so (click it, or scroll down, to catch up). 2026-10-29
   renderChat() {
     const log = $('chatlog'), now = performance.now(), open = this.chatOpen();
-    const lines = this.g.chat.slice(open ? -60 : -8);
+    const wasOpen = log.dataset.open === '1', top0 = log.scrollTop, fromEnd = log.scrollHeight - top0 - log.clientHeight;
+    const reading = open && wasOpen && fromEnd > 12;
+    const lines = this.g.chat.slice(open ? -150 : -8), last = lines.length ? lines[lines.length - 1] : null;
+    const grew = last && last !== this.chatLast;
     log.innerHTML = '';
     for (const m of lines) {
       const d = document.createElement('div');
@@ -387,7 +392,18 @@ export class UI {
       if (now - m.t > 14000) d.className = 'old';
       log.appendChild(d);
     }
-    if (open) log.scrollTop = log.scrollHeight;
+    log.dataset.open = open ? '1' : '';
+    if (open) log.scrollTop = reading ? top0 : log.scrollHeight;
+    this.chatLast = last;
+    let pill = $('chatnew');
+    if (!pill) {
+      pill = document.createElement('button'); pill.id = 'chatnew'; pill.className = 'hidden'; pill.textContent = 'New messages ▾';
+      $('chat').insertBefore(pill, $('chatin'));
+      pill.onclick = () => { log.scrollTop = log.scrollHeight; pill.classList.add('hidden'); $('chatin').focus(); };
+      log.addEventListener('scroll', () => { if (log.scrollHeight - log.scrollTop - log.clientHeight < 12) pill.classList.add('hidden'); });
+    }
+    if (!open) pill.classList.add('hidden');
+    else if (reading && grew) pill.classList.remove('hidden');
   }
   miniLabel() {
     const v = this.settings.miniView;
@@ -437,7 +453,7 @@ export class UI {
         <div class="row"><span>Use backpack slot 1–8</span><div class="keys"><button class="key" disabled>1 – 8</button></div></div>
         <div class="row"><span>Shoot</span><div class="keys"><button class="key" disabled>Left mouse</button></div></div>
       </section>
-      <div class="actions">${this.g.mode === 'play' ? '<button class="btn" id="smenu">Character select</button>' : ''}<button class="btn" id="sreset">Reset to defaults</button><button class="btn" id="sclose">Close</button></div>
+      <div class="actions">${this.g.mode === 'play' ? '<button class="btn" id="smenu">Character select</button><button class="btn" id="shelp">Show the controls</button>' : ''}<button class="btn" id="sreset">Reset to defaults</button><button class="btn" id="sclose">Close</button></div>
     </div>`);
     const changed = () => { this.onSettingsChanged && this.onSettingsChanged(); this.miniLabel(); };
     o.querySelectorAll('[data-opt]').forEach((el) => { el.onchange = () => { S[el.dataset.opt] = el.checked; changed(); }; });
@@ -474,6 +490,7 @@ export class UI {
       // mouse buttons can be bound too: middle (Mouse1), right (Mouse2) and the side buttons (Mouse3 back, Mouse4 forward)
       addEventListener('mousedown', (e) => { if (this.capturing && e.button > 0) { e.preventDefault(); e.stopImmediatePropagation(); this.capturing('Mouse' + e.button); } }, true);
     }
+    if (o.querySelector('#shelp')) o.querySelector('#shelp').onclick = () => { this.toggleSettings(); this.firstHelp(true); };   // (the first-time controls card, again)
     o.querySelector('#sreset').onclick = () => {
       const d = resetSettings();
       for (const k of Object.keys(S)) delete S[k];
@@ -858,6 +875,27 @@ export class UI {
       }
     }));
   }
+  // the first time an account plays: a small card over the game with the controls, in your own keys. It stays until you
+  // close it (or press the button); the account remembers (save.seenHelp). Settings > "Show the controls card" brings it back
+  firstHelp(force = false) {
+    const g = this.g;
+    this.helpSeen = true;
+    if (!force && (g.save.seenHelp || (g.save.graveyard || []).length || (g.save.chars || []).some((c) => (c.kills || 0) > 0))) return;
+    const k = (a, d) => keyName(a) || d;
+    const move = ['up', 'left', 'down', 'right'].map((a) => keyName(a)).filter(Boolean).join(' ');
+    const rows = [[move || 'W A S D', 'Move'], ['Mouse', 'Aim; click (or hold) to shoot'], [k('ability', 'Space'), 'Your class ability'],
+      [k('portal', 'F'), 'Enter a portal · talk to someone'], [`${k('potion1', 'C')} / ${k('potion2', 'V')}`, 'Drink a health / magic potion'],
+      [k('nexus', 'R'), 'Back to the Nexus (to safety)'], [`${k('rotL', 'Q')} / ${k('rotR', 'E')}`, 'Turn the camera'], [k('chat', 'Enter'), 'Chat · /help for commands'], [k('settings', 'Esc'), 'Settings and keys']];
+    let el = $('howto');
+    if (!el) { el = document.createElement('div'); el.id = 'howto'; $('stage').appendChild(el); }
+    el.innerHTML = `<div class="hh"><b>Welcome to Melon Realms</b><button class="x" title="Close">✕</button></div>
+      <div class="hk">${rows.map(([key, what]) => `<kbd>${key}</kbd><span>${what}</span>`).join('')}</div>
+      <p>The <b>Guide</b> here explains everything in the Nexus. When you're ready, step into the realm portal.</p>
+      <button class="btn primary sm ok">Got it</button>`;
+    el.classList.remove('hidden', 'out');
+    const done = () => { g.save.seenHelp = 1; g.persist(); el.classList.add('out'); setTimeout(() => el.classList.add('hidden'), 220); };
+    el.querySelector('.x').onclick = done; el.querySelector('.ok').onclick = done;
+  }
   // the key hints round the panel name your own keys (and leave out an action with none)
   keyLine() {
     const parts = [['portal', 'portal / talk'], ['lootAll', 'loot all'], ['nexus', 'nexus'], ['ability', 'ability'], ['autofire', 'autofire'], ['chat', 'chat'], ['settings', 'settings']]
@@ -930,7 +968,7 @@ export class UI {
       if (ev.type === 'npc') { if (ev.which === 'shop') this.openShop(); else if (ev.which === 'board') this.openBoard(); else if (ev.which === 'waypoint') this.openWaypoints(ev.from); else if (ev.which === 'petyard') this.openPetYard(); else if (ev.which === 'journal') this.openJournal(ev); else if (ev.which === 'atlas') this.openAtlas(); else if (ev.which === 'legends') this.openLegends(); else this.openForge(); }
       if (ev.type === 'death') this.deathScreen();
     }
-    if (this.bannerT > 0 && (this.bannerT -= dt) <= 0) $('banner').classList.add('hidden');
+    if (this.bannerT > 0 && (this.bannerT -= dt) <= 0) { const b = $('banner'); b.classList.add('out'); clearTimeout(this.bannerOutT); this.bannerOutT = setTimeout(() => { if (b.classList.contains('out')) b.classList.add('hidden'); }, 260); }
     this.chatAcc = (this.chatAcc || 0) + dt;
     if (this.chatAcc > 1) { this.chatAcc = 0; if (!this.chatOpen()) this.renderChat(); }   // let old lines fade
     if (this.armIcons && this.armIcons.length) { const now = performance.now(); for (const q of this.armIcons) if (q.cv.isConnected) armIcon(q.cv, q.A, now, false, q.seed); }   // the armory's items, live
@@ -947,6 +985,7 @@ export class UI {
     if (!g.nearVault) { this.vaultShut = false; if (this.vaultOpen) this.closeVault(); }
     this.refreshQuests();
     this.refreshSeals();
+    if (!this.helpSeen && !this.overlayOpen()) this.firstHelp();
     this.fitPanel();
     this.acc = 0;
     const p = g.player, C = CLASSES[p.cls];
@@ -1093,19 +1132,29 @@ export class UI {
   }
   banner(text, ms) {
     const b = $('banner');
-    b.textContent = text; b.classList.remove('hidden');
+    b.textContent = text; b.classList.remove('hidden', 'pop', 'out');
+    void b.offsetWidth; b.classList.add('pop');              // (it pops in each time, fades out at its end)
     this.bannerT = ms / 1000;
   }
 
   // ------------------------------------------------------------- screens
   overlay(html) {
-    const o = $('overlay');
+    const o = $('overlay'), fresh = o.classList.contains('hidden') || o.classList.contains('leaving');
+    clearTimeout(this.overlayT);
     o.innerHTML = html;
     o.querySelectorAll('button').forEach((b) => b.addEventListener('click', () => this.sfx && this.sfx.play('click')));
-    o.classList.remove('hidden');
+    o.classList.remove('hidden', 'leaving', 'enter', 'swap');
+    void o.offsetWidth;                                     // (restart the animation)
+    o.classList.add(fresh ? 'enter' : 'swap');              // opened: it fades in and rises; already open: the new screen cross-fades
     return o;
   }
-  closeOverlay() { $('overlay').classList.add('hidden'); }
+  closeOverlay() {                                          // it fades out (already gone as far as the keys are concerned)
+    const o = $('overlay');
+    if (o.classList.contains('hidden')) return;
+    clearTimeout(this.overlayT);
+    o.classList.remove('enter', 'swap'); o.classList.add('leaving');
+    this.overlayT = setTimeout(() => { o.classList.add('hidden'); o.classList.remove('leaving'); }, 160);
+  }
 
   // ------------------------------------------------------------- home: account + character select
   // ---------------------------------------------------------------- the front door: login, account, characters
@@ -1360,7 +1409,8 @@ export class UI {
           <div class="ci"><b>${C.name}</b><small>Level ${c.level}${c.level >= MAX_LEVEL ? ` · <span class="fame">${c.fame || 0} fame</span>` : ''} · ${c.kills || 0} kills</small><div class="gear">${gear}</div></div>
           <div class="ca"><button class="btn play" data-play="${k}">Play</button><button class="btn sm del" data-del="${k}">Retire</button></div></div>`);
       } else if (k < s.slots) {
-        cards.push(`<button class="char empty" data-new="${k}"><span class="plus">+</span><b>New character</b><small>Choose a class</small></button>`);
+        const first = !s.chars.length && k === 0;          // (a new account: this is where to begin)
+        cards.push(`<button class="char empty${first ? ' start' : ''}" data-new="${k}"><span class="plus">+</span><b>${first ? 'Create your first hero' : 'New character'}</b><small>${first ? 'Start here: choose a class' : 'Choose a class'}</small></button>`);
       } else if (k === s.slots) {
         cards.push(`<button class="char locked" id="unlock"><span class="plus">🔒</span><b>Unlock a slot</b><small>${slotPrice(s.slots).toLocaleString()} gold</small></button>`);
       }
@@ -1395,7 +1445,7 @@ export class UI {
     if (!cvs.length) return;
     const t0 = performance.now();
     const loop = () => {
-      if ($('overlay').classList.contains('hidden') || !cvs[0].isConnected) return;
+      if (!this.overlayOpen() || !cvs[0].isConnected) return;
       const t = (performance.now() - t0) / 1000;
       for (const cv of cvs) {
         const C = CLASSES[cv.dataset.c], S = this.r.A.sheets[C.sheet], A = S.guide.animations;
@@ -1415,6 +1465,7 @@ export class UI {
         <h3>${CLASSES[id].name}</h3><div class="t">${CLASSES[id].design}</div></button>`).join('')}</div>
       <div class="clsinfo"><h3></h3><p></p></div>
       <button class="btn" id="back">Back</button></div>`);
+    this.splash(o);
     // one card per class, small enough that all of them fit on one screen; the one you point at is described below
     // (the cards used to carry their whole description and ran off the screen: 2026-10-22)
     const info = o.querySelector('.clsinfo'), show = (id) => { info.querySelector('h3').textContent = `${CLASSES[id].name} · ${CLASSES[id].design}`; info.querySelector('p').textContent = CLASSES[id].blurb; };
@@ -1423,10 +1474,10 @@ export class UI {
     o.querySelectorAll('.cls').forEach((b) => { b.onclick = () => { this.closeOverlay(); if (!this.g.newCharacter(b.dataset.id)) this.titleScreen('All slots are full.'); }; });
     o.querySelector('#back').onclick = () => this.titleScreen();
     // animated previews: cycle walk -> attack -> ability
-    const cvs = [...o.querySelectorAll('canvas')];
+    const cvs = [...o.querySelectorAll('canvas[data-c]')];   // (not the scene behind)
     const t0 = performance.now();
     const loop = () => {
-      if ($('overlay').classList.contains('hidden') || !cvs[0].isConnected) return;
+      if (!this.overlayOpen() || !cvs[0].isConnected) return;
       const t = (performance.now() - t0) / 1000;
       for (const cv of cvs) {
         const C = CLASSES[cv.dataset.c], S = this.r.A.sheets[C.sheet], A = S.guide.animations;

@@ -1015,3 +1015,100 @@ body #app .slot.up::before { content: ''; position: absolute; right: 3px; top: 3
 body #app #panel #tabbody #stats.recview { display: block !important; overflow-y: auto !important; overflow-x: hidden !important; }
 body #app #panel #tabbody #stats.recview, body #app #panel #tabbody #stats.recview * { font-size: 13px !important; }
 body #app #panel #tabbody #stats.recview > div { display: flex !important; justify-content: space-between; gap: 6px; white-space: nowrap; line-height: 1.45; }
+
+/* ==== UX polish (2026-10-29, the user: "make buttons more beautiful, make popups smoother, allow scrolling in the
+   chat, a see-through chat when you're typing in it"). Comes last so it wins; the side panel's RotMG buttons keep their
+   own squarer look (their rules name the panel and stay stronger). ==== */
+
+/* scroll bars: thin, dark, a gold thumb (no bright white system bars beside the backpack or in the menus) */
+* { scrollbar-width: thin; scrollbar-color: #5a4f6e #120f18; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #120f18; }
+::-webkit-scrollbar-thumb { background: #4a4258; border: 2px solid #120f18; border-radius: 6px; }
+::-webkit-scrollbar-thumb:hover { background: #8a7a4a; }
+
+/* buttons: a raised bevel, a lift and a gold edge on hover, pressed down on click, a clear focus ring */
+body .btn, body #overlay .btn {
+  background: linear-gradient(180deg, #2c2638 0%, #201b2a 100%); color: var(--ink);
+  border: 2px solid #3e3650; border-radius: 6px;
+  box-shadow: inset 0 1px 0 #ffffff14, 0 3px 0 #0c0a10, 0 4px 10px -4px #000;
+  transition: transform .1s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease, filter .12s ease;
+}
+body .btn:hover, body #overlay .btn:hover { border-color: var(--gold); background: linear-gradient(180deg, #362e44 0%, #261f32 100%); transform: translateY(-1px); box-shadow: inset 0 1px 0 #ffffff1c, 0 4px 0 #0c0a10, 0 0 14px -3px #f2c14e88; }
+body .btn:active, body #overlay .btn:active { transform: translateY(2px); box-shadow: inset 0 2px 4px #0008, 0 1px 0 #0c0a10; transition-duration: .04s; }
+body .btn:focus-visible, body #overlay .btn:focus-visible { outline: 2px solid #ffe08a; outline-offset: 2px; }
+body .btn:disabled, body #overlay .btn:disabled { opacity: .45; cursor: default; transform: none; filter: grayscale(.6); }
+body .btn.primary, body #overlay .btn.primary { background: linear-gradient(180deg, #ffe07a 0%, #f2b42e 55%, #d8901a 100%) !important; border-color: #8a5a12 !important; color: #2a1608 !important; box-shadow: inset 0 1px 0 #fff6, 0 3px 0 #5a3a0a, 0 0 16px -6px #ffc94a; text-shadow: 0 1px 0 #ffe9a0; }
+body .btn.primary:hover, body #overlay .btn.primary:hover { filter: brightness(1.07); box-shadow: inset 0 1px 0 #fff8, 0 4px 0 #5a3a0a, 0 0 20px -4px #ffc94a; }
+body .btn.primary:active, body #overlay .btn.primary:active { box-shadow: inset 0 2px 4px #5a3a0a88, 0 1px 0 #5a3a0a; }
+body .btn.ghost, body #overlay .btn.ghost { background: transparent; box-shadow: none; }
+body #overlay .btn.on { border-color: var(--gold); color: #ffe08a; background: linear-gradient(180deg, #3a3020 0%, #2a2218 100%); }
+
+/* cards you pick (the classes, the character slots): the same lift and glow */
+body #overlay .cls, body #overlay .char { border-radius: 8px; transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease; }
+body #overlay .cls:hover, body #overlay .cls:focus-visible, body #overlay .char.empty:hover, body #overlay .char.locked:hover { transform: translateY(-2px); background: #241e2e; box-shadow: 0 5px 0 #0c0a10, 0 0 16px -4px #f2c14e99; }
+body #overlay .cls:active, body #overlay .char.empty:active { transform: translateY(1px); box-shadow: 0 1px 0 #0c0a10; }
+/* a new account: the first slot glows and says start here */
+body #overlay .char.empty.start { border-color: var(--gold); border-style: solid; background: linear-gradient(180deg, #2e2616, #1c1712); animation: startglow 1.6s ease-in-out infinite; }
+body #overlay .char.empty.start b { color: #ffe08a; }
+@keyframes startglow { 0%, 100% { box-shadow: 0 0 0 0 #f2c14e00, 0 3px 0 #0c0a10; } 50% { box-shadow: 0 0 18px 2px #f2c14e77, 0 3px 0 #0c0a10; } }
+
+/* popups: the backdrop fades in with a soft blur over the game; the screen rises into place. Leaving, it fades out.
+   One screen to the next cross-fades (src/ui.js overlay / closeOverlay) */
+body #overlay { background: radial-gradient(ellipse at 50% 40%, #1a1622e6 0%, #0b0910f2 70%); backdrop-filter: blur(3px); }
+body #overlay.enter { animation: ovIn .2s ease-out both; }
+body #overlay.enter > .screen { animation: scrIn .24s cubic-bezier(.2, .8, .3, 1.15) both; }
+body #overlay.swap > .screen { animation: scrSwap .18s ease-out both; }
+body #overlay.leaving { animation: ovOut .16s ease-in both; pointer-events: none; }
+@keyframes ovIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ovOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes scrIn { from { opacity: 0; transform: translateY(14px) scale(.975); } to { opacity: 1; transform: none; } }
+@keyframes scrSwap { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { body #overlay.enter, body #overlay.leaving, body #overlay > .screen { animation: none !important; } }
+
+/* banners pop in and fade away */
+body #app #banner.pop { animation: banIn .28s cubic-bezier(.2, .9, .3, 1.3) both; }
+body #app #banner.out { animation: banOut .26s ease-in both; }
+@keyframes banIn { from { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(.9); } to { opacity: 1; transform: translateX(-50%); } }
+@keyframes banOut { from { opacity: 1; transform: translateX(-50%); } to { opacity: 0; transform: translateX(-50%) translateY(-6px); } }
+
+/* the chat: it scrolls (the lines stack from the bottom, and you can scroll back up through them); open, it sits on a
+   see-through dark glass, the game showing through, with a matching box to type in */
+body #app #chatlog { justify-content: flex-start; overscroll-behavior: contain; }
+body #app #chatlog > :first-child { margin-top: auto; }
+body #app #chat.open #chatlog { background: #0c0a1270; backdrop-filter: blur(2px); border: 1px solid #ffffff12; border-bottom: 0; border-radius: 6px 6px 0 0; padding: 6px 8px; max-height: 260px; box-shadow: 0 6px 18px -8px #000; }
+body #app #chat.open #chatlog div { padding: 1px 0; }
+body #app #chatin { background: #0c0a1299; backdrop-filter: blur(3px); border: 1px solid #f2c14e99; border-radius: 0 0 6px 6px; margin-top: 0; padding: 6px 10px; box-shadow: 0 0 0 1px #0008, 0 6px 16px -8px #000; transition: border-color .12s ease, box-shadow .12s ease; animation: chatIn .15s ease-out; }
+body #app #chatin:focus { border-color: var(--gold); box-shadow: 0 0 0 1px #0008, 0 0 12px -4px #f2c14e; }
+body #app #chatin::placeholder { color: #8d88a0; }
+body #app #chatnew { display: block; margin: -30px auto 6px; position: relative; z-index: 1; pointer-events: auto; font-size: 13px !important; padding: 3px 12px; border-radius: 12px; border: 1px solid #f2c14e; background: #2a2218e6; color: #ffe08a; cursor: pointer; box-shadow: 0 2px 8px #000a; }
+body #app #chatnew:hover { background: #3a3020; }
+body #app #chatnew.hidden { display: none !important; }
+@keyframes chatIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+/* the first time you play: the controls, in your keys (src/ui.js firstHelp) */
+body #app #howto { position: absolute; top: 52px; left: 12px; width: min(360px, calc(100% - 24px)); z-index: 12; padding: 12px 14px; background: #120f18eb; backdrop-filter: blur(3px); border: 2px solid #3e3650; border-radius: 10px; box-shadow: 0 0 0 2px #000, 0 10px 30px -10px #000, 0 0 22px -10px #f2c14e; animation: helpIn .3s cubic-bezier(.2, .8, .3, 1.15) both; text-align: left; }
+body #app #howto.out { animation: ovOut .2s ease-in both; }
+body #app #howto .hh { display: flex; align-items: center; margin-bottom: 8px; }
+body #app #howto .hh b { color: var(--gold); font-size: 20px; flex: 1; text-shadow: 1px 1px 0 #000; font-weight: 400; }
+body #app #howto .x { background: none; border: 0; color: #8d88a0; font-size: 16px; cursor: pointer; padding: 2px 6px; border-radius: 4px; }
+body #app #howto .x:hover { color: #fff; background: #ffffff14; }
+body #app #howto .hk { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; align-items: center; font-size: 14px; }
+body #app #howto kbd { font-family: var(--r-font); font-size: 13px; color: #ffe08a; background: #241e2e; border: 1px solid #4a4258; border-bottom-width: 3px; border-radius: 5px; padding: 1px 7px; text-align: center; white-space: nowrap; }
+body #app #howto p { margin: 10px 0 8px; color: #b8b2c8; font-size: 14px; line-height: 1.4; }
+body #app #howto .ok { float: right; margin: 0; padding: 5px 18px; font-size: 15px; }
+body #app #howto::after { content: ""; display: block; clear: both; }
+@keyframes helpIn { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: none; } }
+
+/* little things: the HUD's icon buttons and slots answer the mouse */
+body #app #iconrow button, body #app #stattabs button, body #app .slot { transition: border-color .1s ease, filter .1s ease, background .1s ease; }
+body #app #iconrow button:hover, body #app #stattabs button:hover { filter: brightness(1.25); }
+body #app .slot:hover { filter: brightness(1.12); }
+
+/* settings: the sliders and boxes in the game's gold, the drop-downs rounded */
+body #overlay input[type=range], body #overlay input[type=checkbox] { accent-color: var(--gold); cursor: pointer; }
+body #overlay select { border-radius: 5px; padding: 2px 6px; cursor: pointer; transition: border-color .12s ease; }
+body #overlay select:hover, body #overlay select:focus { border-color: var(--gold); outline: none; }
+body #overlay .settings section, body #overlay .shop section { border-radius: 8px; }
+body #overlay .settings .key { border-radius: 5px; transition: border-color .12s ease, background .12s ease; }
+body #overlay .settings .key:hover { background: #1c1824; }
