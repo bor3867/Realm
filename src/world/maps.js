@@ -2407,6 +2407,10 @@ export function dungeon(seed, def) {
     if (t === TID.lava || t === TID.emberlava) m.lights.push({ x: x + 0.5, y: y + 0.5, r: 40, col: '#ff7a1a', fire: true });
   }
   m.ambient = def.ambient || 'rgba(10,8,20,0.5)';
+  // a bridge keeps only the tiles still bridge: an island carved later lays its floor over a bridge laid before it, and
+  // those tiles stayed on the bridge's list, so they faded in and out (and a nightmare trial locked them away, solid)
+  // in the middle of an island, cutting the room in two and stopping shots across it (2026-10-30)
+  if (m.spans) m.spans = m.spans.map((sp) => ({ ...sp, tiles: sp.tiles.filter((i) => m.tiles[i] === TID.fadebridge || m.tiles[i] === TID.dreambridge) })).filter((sp) => sp.tiles.length);
   finalize(m);
   // m.rooms: entrance first, boss last (other code relies on that); secret rooms ride along in m.secrets
   const order = [start, ...rooms.filter((n) => n !== start && n !== boss), boss];
