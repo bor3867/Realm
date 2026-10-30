@@ -15,16 +15,10 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #app { display: flex; height: 100%; }
 #stage { flex: 1; position: relative; display: grid; place-items: center; min-width: 0; }
 #game { image-rendering: pixelated; cursor: crosshair; display: block; }   /* (the cursor you chose replaces it: src/cursor.js) */
-#stats.recview { display: block; overflow-y: auto; overflow-x: hidden; }   /* the character record: scrolls inside the fixed box */
-#stats.recview > div { display: flex; justify-content: space-between; gap: 6px; padding: 0 6px; font-size: 11px; line-height: 1.5; white-space: nowrap; }
-#stats.recview .rk { color: #a8a2bc; }
+   /* the character record: scrolls inside the fixed box */
 .settings .curprev { width: 32px; height: 32px; image-rendering: pixelated; vertical-align: middle; margin-left: 8px; background: #4a4458; border-radius: 4px; }
-#panel { flex: none; display: flex; flex-direction: column; gap: 6px; overflow-y: auto; }
-#who { justify-content: space-between; }
   
  
-#stats { gap: 1px 10px; }
-#stats div { display: flex; justify-content: space-between; }
 #stats .max { color: var(--gold); }
 .slots { display: grid; gap: 4px; }
 .slot { position: relative; display: grid; place-items: center; cursor: pointer; }
@@ -33,7 +27,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 .slot .hint { position: absolute; }
 .slot .tier { position: absolute; color: var(--mut); }
 .slot .tier.ut { color: var(--gold); }
-#where { margin-top: auto; }
 .hidden { display: none !important; }
 #tooltip { position: fixed; z-index: 30; pointer-events: none; border: 2px solid var(--edge); }
 #tooltip h4 { margin: 0 0 4px; font-weight: 700; }
@@ -63,8 +56,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 
 /* minimap zoom + settings */
 #minibtns button:hover, #gear:hover, #minibtns button:focus-visible, #gear:focus-visible { border-color: var(--gold); outline: none; }
-#who { gap: 8px; }
-#who #cname { flex: 1; }
 .settings { width: min(720px, 100%); text-align: left; }
 .settings h1 { text-align: center; font-size: 28px; }
 .settings section { background: var(--panel); border: 2px solid var(--edge); padding: 12px 14px; margin: 10px 0; }
@@ -112,18 +103,11 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 
 /* ---------- visual pass: colour, highlight, outline ---------- */
 :root { --panel: #1c1824; --edge: #3a3348; --edge-hi: #5a4f6e; }
-#panel {
-  
-  box-shadow: inset 2px 0 0 var(--edge-hi);
-}
-#clevel { text-shadow: 2px 2px 0 #000; }
 
 /* bars: dark frame, bright top highlight, darker bottom band */
   
 
 /* stats: each stat has its own colour */
-#stats { box-shadow: inset 0 0 0 1px var(--edge); }
-#stats div span:last-child { color: #fff; text-shadow: 1px 1px 0 #000; }
 .st { text-shadow: 1px 1px 0 #000; }
 .st-att { color: #ff6a5a; } .st-def { color: #a8b8d8; } .st-spd { color: #5ae07a; }
 .st-dex { color: #ffd650; } .st-vit { color: #ff5e8a; } .st-wis { color: #b888ff; }
@@ -195,13 +179,9 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 @media (max-width: 760px) { .homecols, .chars { grid-template-columns: 1fr; } }
 
 /* ---------- bigger, bolder side panel ---------- */
-#panel { gap: 9px; font-size: 15px; position: relative;
-  }
 #panel::before, #panel::after { content: ''; position: absolute; left: 8px; right: 8px; height: 3px; pointer-events: none;
   background: linear-gradient(90deg, transparent, #f2c14e 20%, #fff4c2 50%, #f2c14e 80%, transparent); opacity: .55; }
 #panel::before { top: 4px; } #panel::after { bottom: 4px; }
-#who { font-size: 19px; }
-#stats { gap: 3px 14px; }
 .label { margin-top: 2px; }
 .label small { font-size: 12px; }
 .slots { gap: 8px; }
@@ -212,7 +192,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 .slot .tier { font-size: 13px; right: 4px; bottom: 2px; }
 .slot.admin { background: radial-gradient(circle at 50% 45%, #4a0a5a 0%, #0c0a10 70%); animation: adminglow 1.2s linear infinite; }
 @keyframes adminglow { 0% { box-shadow: 0 0 10px #ff4af0; } 33% { box-shadow: 0 0 10px #8af6ff; } 66% { box-shadow: 0 0 10px #ffd650; } 100% { box-shadow: 0 0 10px #ff4af0; } }
-#where { text-shadow: 1px 1px 0 #000; }
 #hud { font-size: 17px; gap: 8px; top: 12px; left: 12px; }
 #hud span { padding: 5px 11px; }
 #tooltip h4 { font-size: 17px; }
@@ -225,40 +204,18 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 @media (max-width: 1100px) {  #minimap { width: 258px; height: 258px; } .slots { grid-template-columns: repeat(4, 58px); gap: 6px; } .slot { width: 58px; height: 58px; } .slot .ico { width: 40px; height: 40px; } }
 
 /* standing on a portal: name + a clickable Enter button, where bag contents normally go */
-.portalcard { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: radial-gradient(circle at 15% 50%, #1e3a4a 0%, #120f18 70%);
-  border: 3px solid #3befff; box-shadow: 0 0 12px -3px #3befff, inset 0 0 0 1px #0c0a10; animation: portalpulse 1.6s ease-in-out infinite; }
 @keyframes portalpulse { 50% { box-shadow: 0 0 18px 0 #3befff, inset 0 0 0 1px #0c0a10; } }
-.portalcard .pi { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.portalcard b { font-weight: 700; font-size: 16px; color: #cfffff; text-shadow: 1px 1px 0 #000; }
-.portalcard small { font-size: 12px; color: #8d88a0; }
-.portalcard .btn { margin: 0; padding: 8px 16px; font-size: 15px; border-color: #3befff; color: #cfffff; background: #0e2a34; }
 .portalcard .btn:hover { border-color: #fff; box-shadow: 0 4px 0 #0c0a10, 0 0 12px #3befff; }
 
 /* quests */
-#quests { display: flex; flex-direction: column; gap: 3px; }
-#quests .q { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: #c8c0d8; 
-  box-shadow: inset 0 0 0 1px #2a3a2a; padding: 3px 6px; }
-#quests .q b { font-weight: 700; color: #7aff9a; white-space: nowrap; }
 .ware .qi { width: 32px; height: 32px; flex: none; display: grid; place-items: center; font-size: 20px; color: #ffd650; background: #120f18; border: 2px solid #3a3348; }
 
 /* the panel always fits the window: the minimap gives up space first, then everything tightens */
-#panel { overflow: hidden; height: 100%; }
-#panel > * { flex: none; }
-#panel.tight { gap: 5px; padding-top: 10px; padding-bottom: 8px; }
  
-#panel.tight #stats { font-size: 13px; padding: 4px 8px; }
-#panel.tight #keys, #panel.tight #where { display: none; }
-#panel.tight #who { padding: 3px 8px; font-size: 17px; }
 #tooltip { max-height: calc(100vh - 16px); }
 
 /* the interaction area (loot bag / portal / NPC) always holds its space, so nothing in the panel ever moves.
    A bag takes priority over a portal it sits on; the portal can still be entered from the bag's header. */
-#interact { position: relative; }
-#interact .off { visibility: hidden; pointer-events: none; }
-#portalwrap { position: absolute; left: 0; right: 0; top: 0; }
-#groundwrap .label { display: flex; align-items: center; justify-content: space-between; gap: 6px; min-height: 24px; }
-#bagportal, #baglootall { padding: 2px 8px; margin: 0; font-size: 13px; }
-#baglootall { margin-left: auto; margin-right: 6px; }
 
 /* dragging an item: it follows the cursor, the slot it left stays faintly marked */
 #dragghost { position: fixed; left: 0; top: 0; z-index: 50; pointer-events: none; background-size: 100% 100%; image-rendering: pixelated;
@@ -288,7 +245,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 .fame { color: #ffb84a; }
 
 /* a bigger minimap: the panel widens a little and the map keeps most of its size before anything else gives way */
-#panel { width: 380px; }
 @media (max-width: 1100px) { #panel { width: 330px; } #miniwrap { min-height: 220px; } }
 
 /* the XP bar carries its own label (and becomes the fame bar at level 20) */
@@ -306,26 +262,13 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
    One calm slate tone, recessed wells for the map, bars and slots, glossy rounded bars with centred numbers,
    a portrait beside your name, quiet small-caps labels. Everything reads at a glance. */
 :root { --pane: #23222b; --pane2: #1b1a22; --well: #14131a; --line: #34323f; --soft: #9a96ab; --hi: #f2efe8; }
-#panel { background: linear-gradient(180deg, var(--pane) 0%, var(--pane2) 100%) !important; border-left: 1px solid #0c0b10 !important;
-  box-shadow: inset 1px 0 0 #3a3846; gap: 8px !important; padding: 12px 14px !important; }
 
-#who { display: flex; align-items: center; gap: 10px; background: none !important; border: 0 !important; padding: 0 !important; box-shadow: none !important; }
-#portrait { width: 44px; height: 44px; flex: none; image-rendering: pixelated; background: radial-gradient(circle at 50% 60%, #3a3848 0%, var(--well) 75%);
-  border-radius: 8px; box-shadow: inset 0 2px 5px #000a, 0 1px 0 #3a3846; }
 #who .wn { display: flex; flex-direction: column; line-height: 1.1; flex: 1; min-width: 0; }
-#cname { font-size: 19px; font-weight: 800; color: var(--hi); letter-spacing: 0.3px; text-shadow: 0 1px 0 #000; }
-#clevel { font-size: 13px; font-weight: 700; color: #f2c14e; }
 #gear:hover { color: #fff; border-color: #6a6680 !important; }
 
  
 
-#stats { display: grid !important; grid-template-columns: 1fr 1fr; gap: 3px 14px !important; background: var(--well) !important; border: 0 !important;
-  border-radius: 8px; padding: 8px 12px !important; box-shadow: inset 0 2px 5px #000a, 0 1px 0 #3a3846; font-size: 14px !important; }
-#stats > div { display: flex; justify-content: space-between; align-items: baseline; }
-#stats .st { font-size: 12px; font-weight: 800; letter-spacing: 1px; }
-#stats > div > span:last-child { color: var(--hi); font-weight: 700; }
 #stats .max > span:last-child { color: #ffd650; }
-#stats .bonus { color: #7aff9a; font-size: 12px; margin-left: 2px; }
 
 .label { font-size: 12px !important; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; color: var(--soft) !important; margin: 2px 2px -3px !important; }
 .label small { text-transform: none; letter-spacing: 0; font-weight: 600; color: #6e6a80; }
@@ -338,10 +281,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 .slot:hover { transform: translateY(-1px); border-color: #8a86a0 !important; }
 .slot .hint { color: #5e5a70 !important; font-weight: 800; }
 .slot .tier { font-weight: 800; }
-#where { color: var(--soft) !important; font-size: 13px !important; }
-#keys { color: #5e5a70 !important; font-size: 11.5px !important; }
-#quests .q { border-radius: 6px; background: var(--well) !important; border: 0 !important; box-shadow: inset 0 1px 3px #0008; }
-.portalcard { border-radius: 8px !important; }
 
 
 /* ================================================================ front door: login, account, characters */
@@ -492,12 +431,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 /* the minimap never grows past its box, so it can't spill over the character row below it */
 
 /* ---- the sidebar's Stats | Pet tabs */
-#stattabs { display: flex; gap: 2px; margin-bottom: -2px; }
-#stattabs button { flex: 1; font: inherit; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; padding: 3px 0; border: 0; cursor: pointer;
-  background: #0d0b12; color: #8a8496; border-radius: 4px 4px 0 0; }
-#stattabs button.on { background: var(--well, #17141e); color: #ffe89a; }
-#stats.petview { display: block !important; }
-#stats.petview div { display: block; }
 #stats.petview .pv-head { display: flex; gap: 8px; align-items: center; margin-bottom: 4px; }
 #stats.petview .pv-head small { display: block; color: #a8a2b4; font-size: 11px; }
 #stats.petview .ico.pet { width: 32px; height: 32px; background-size: 32px; image-rendering: pixelated; flex: none; }
@@ -508,7 +441,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #stats.petview .pv-ab em { grid-column: 1 / -1; font-style: normal; color: #7ad0a8; font-size: 11px; }
 #stats.petview .pv-ab .pxp { grid-column: 1 / -1; height: 3px; background: #0a080e; border-radius: 2px; overflow: hidden; }
 #stats.petview .pv-ab .pxp i { display: block; height: 100%; background: linear-gradient(90deg, #46f5d6, #a8ffef); }
-#stats.petview .pv-foot, #stats.petview .pv-none { font-size: 11px; color: #8a8496; margin-top: 3px; }
 .pab em { font-style: normal; font-size: 10px; color: #ffe89a; text-transform: uppercase; letter-spacing: .05em; }
 .morphbox .skins { margin-top: 6px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
 .ico.pet.mini { display: inline-block; width: 16px; height: 16px; background-size: 16px; vertical-align: -3px; margin-right: 4px; image-rendering: pixelated; }
@@ -526,10 +458,8 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #seals { z-index: 4; }
 #banner { z-index: 9; }
 /* ---- the minimap takes whatever room the panel has left (and gives it back when a bag needs it) */
-#panel { container-type: inline-size; }
    /* never taller than it is wide: the map stays square */
 /* the bag area under the potions is always reserved (room for a full 8-slot bag), so nothing shifts when you step on one */
-#interact { display: block !important; flex: none; }
 /* Phase 6: items catch the light now and then (the art's own shine frames are stepped in ui.js) */
 .slot .ico.sweep::after { content: ""; position: absolute; inset: 0; pointer-events: none; -webkit-mask: var(--m) 0 0 / 100% 100% no-repeat; mask: var(--m) 0 0 / 100% 100% no-repeat;
   background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.75) 50%, transparent 60%) no-repeat; background-size: 300% 100%; animation: itemsweep 6s linear infinite; animation-delay: var(--d, 0s); }
@@ -540,7 +470,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
    inventory always fits under it). It never shrinks to make room: the slots give way instead (ui.fitPanel) */
 #invcount .pg { display: inline-block; min-width: 18px; text-align: center; margin-right: 3px; padding: 0 4px; border-radius: 4px; border: 1px solid #3a3846; color: var(--mut); cursor: pointer; font-weight: 700; }
 #invcount .pg.on { color: #1a1218; background: var(--gold); border-color: var(--gold); }
-#panel.tight { gap: 5px !important; }
 #panel.squeeze { gap: 3px !important; }
 /* the slots get the room: thinner bars and labels so equipment, backpack and potions can be as big as the panel allows */
 #panel > .label { margin: 0 !important; line-height: 14px; }
@@ -549,8 +478,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 
 /* ==== the side panel, final word (ui.fitPanel sets --slotw and --mini). Nothing above may hide the Stats | Pet tabs
    or the stats: the minimap and the slots give way instead. The bag is four by two, like the backpack. ==== */
-#panel #stattabs { display: flex !important; }
-#panel #stats:not(.petview) { display: grid !important; }
 
 /* ---- the loading card shown while a portal makes the next place */
 #loadcard { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: #07060b; transition: opacity .35s; }
@@ -578,22 +505,13 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
    fame/XP, HP and MP bars, your four equipment slots, one box for Backpack | Stats | Pet (the backpack by default),
    the potions, then a reserved place for a bag or a portal, then where you are. Short windows get one smaller
    fixed size (by the window's height, not by what is on screen). ==== */
-#app #panel { --slot: 54px; --mini: 196px; gap: 7px !important; overflow: hidden !important; }
 @media (max-height: 760px) { #app #panel { --slot: 46px; --mini: 160px; } }
 @media (max-height: 660px) { #app #panel { --slot: 40px; --mini: 124px; } }
 #app #panel #ground.vault { grid-template-columns: repeat(8, 1fr) !important; }
-#app #panel #equip { margin-top: 2px !important; }
-#app #panel #stattabs { display: flex !important; margin: 0 0 -7px !important; }
 #app #panel #stattabs small { color: inherit; font-size: 11px; }
-#app #panel #tabbody { flex: none; height: calc(var(--slot) * 2 + 18px); background: var(--well, #17141e); border-radius: 0 0 6px 6px; padding: 6px 4px; overflow-y: auto; }
-#app #panel #tabbody #stats { background: transparent !important; padding: 2px 6px !important; }
 #app #panel[data-tab="inv"] #stats { display: none !important; }
-#app #panel:not([data-tab="inv"]) #inv { display: none !important; }
 #app #panel .potrow { display: flex !important; align-items: center; justify-content: center; gap: 10px; }
 #app #panel #potkeys { color: var(--mut, #8a8496); font-size: 11px; }
-#app #panel #interact { flex: none; position: relative; height: calc(26px + var(--slot) * 2 + 6px); }
-#app #panel #interact > div { position: absolute; left: 0; right: 0; top: 0; }
-#app #panel #where { margin-top: auto !important; }
 
 /* the game's pixel font (tools/build_pixel_font.py): the damage numbers' and tier tags' 3x5 digits, with letters to
    match. Crisp at 16px and 24px (2 and 3 screen pixels a font pixel); never faux-bold */
@@ -609,8 +527,6 @@ body #app { font-synthesis: none; }
 :root { --r-pane: #363636; --r-dark: #2a2a2a; --r-slot: #545454; --r-slot2: #4a4a4a; --r-frame: #9a9a9a; --r-num: #6c6c6c;
   --r-font: 'Realm Pixel', 'Pixelify Sans', 'Source Sans 3', system-ui, sans-serif;
   --r-ol: 1px 0 0 #000, -1px 0 0 #000, 0 1px 0 #000, 0 -1px 0 #000, 1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000; }
-body #app #panel { width: calc(var(--slot) * 4 + 40px) !important; padding: 8px !important; gap: 6px !important;
-  background: var(--r-pane) !important; border-left: 2px solid #1a1a1a !important; box-shadow: none !important; font-family: var(--r-font); overflow: hidden !important; }
 body #app #panel::before, body #app #panel::after { display: none; }
 /* the panel is 9 slots + 288px tall: each window height gets the biggest slot that fits */
 @media (min-height: 1000px) { body #app #panel { --slot: 68px; } }
@@ -620,8 +536,6 @@ body #app #panel::before, body #app #panel::after { display: none; }
 @media (max-height: 736px) { body #app #panel { --slot: 42px; } }
 @media (max-height: 680px) { body #app #panel { --slot: 36px; } }
 @media (max-height: 620px) { body #app #panel { --slot: 30px; } }
-body #app #panel > * { flex: none; }
-body #app #panel .label { font-family: var(--r-font); text-transform: none; letter-spacing: 0; border: 0; padding: 0; color: #c8c8c8 !important; text-shadow: var(--r-ol); }
 
 /* minimap */
 body #app #panel #minibtns button:hover { background: #b0b0b0dd !important; }
@@ -633,44 +547,13 @@ body #app #panel #iconrow button:hover, body #app #panel #iconrow button.on { ba
     /* gold only once the stat is at its class maximum (RotMG) */
 
 /* equipment */
-body #app #panel #equipbox { background: var(--r-slot2); border: 2px solid var(--r-frame); padding: 4px; }
 
 /* the backpack box */
-body #app #panel #invbox { background: var(--r-dark); padding: 0 4px 4px; }
-body #app #panel #stattabs { display: flex !important; gap: 0; margin: 0 -4px 4px !important; height: 26px; }
-body #app #panel #stattabs button { flex: 1; display: grid; place-items: center; padding: 0; border: 0; border-radius: 0; background: #4a4a4a; color: #fff; cursor: pointer; }
-body #app #panel #stattabs button.on { background: var(--r-dark); }
-body #app #panel #stattabs button.off { color: #6a6a6a; cursor: default; }
-body #app #panel #stattabs svg { width: 18px; height: 18px; fill: currentColor; filter: drop-shadow(1px 1px 0 #000); }
-body #app #panel #tabbody { height: calc(var(--slot) * 2 + 4px) !important; padding: 0 !important; background: none !important; border-radius: 0 !important; overflow: hidden auto; }
-body #app #panel #tabbody #stats { background: #1e1e1e !important; height: 100%; padding: 6px 10px !important; border-radius: 0; font-family: var(--r-font); align-content: start; }
-body #app #panel #tabbody #stats .st { font-family: var(--r-font); font-weight: 500; text-shadow: var(--r-ol); }
  
 
 /* where you are, who is with you; a bag or a portal covers it */
-body #app #panel #bottom { position: relative; height: calc(var(--slot) * 2 + 34px); }
-body #app #panel #nearby { height: 100%; overflow: hidden; }
-body #app #panel #where { margin: 0 !important; font: 500 16px/22px var(--r-font) !important; color: #a8a8a8 !important; text-shadow: var(--r-ol) !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-body #app #panel #who { display: grid !important; grid-template-columns: 1fr 1fr; gap: 2px 8px !important; margin-top: 4px; }
-body #app #panel #who .np { display: flex; align-items: center; gap: 4px; min-width: 0; font: 500 16px var(--r-font); color: #4ac08a; text-shadow: var(--r-ol); white-space: nowrap; overflow: hidden; }
-body #app #panel #who .np span { overflow: hidden; text-overflow: ellipsis; }
-body #app #panel #who #portrait { width: 22px !important; height: 22px !important; flex: none; border-radius: 0 !important; box-shadow: none !important; background: none !important; }
 body #app #panel #who .ico.pet { width: 20px; height: 20px; flex: none; background-size: 100% 100%; image-rendering: pixelated; }
-body #app #panel #cname { font: 500 16px var(--r-font) !important; color: #4ac08a !important; text-shadow: var(--r-ol) !important; letter-spacing: 0; }
-body #app #panel #quests { margin-top: 6px; gap: 2px; }
-body #app #panel #quests .q { font: 500 16px var(--r-font); background: #2a2a2a !important; border-radius: 0; padding: 2px 6px; }
-body #app #panel #interact { position: absolute !important; inset: 0; height: auto !important; }
-body #app #panel #interact:has(> div:not(.off)) { background: var(--r-pane); }
-body #app #panel #interact > div { position: absolute; inset: 0 0 auto 0; }
-body #app #panel #interact .label { display: flex; align-items: center; gap: 6px; height: 26px; margin: 0 0 4px !important; font: 500 16px var(--r-font) !important; }
-body #app #panel #interact .label .btn { margin-left: auto; font-family: var(--r-font); border-radius: 0; background: #4a4a4a; border: 2px solid #222; }
-body #app #panel #interact .label .btn + .btn { margin-left: 0; }
-body #app #panel #interact .label > span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-body #app #panel #interact .label .btn.off { display: none; }
-body #app #panel #interact .label .btn { white-space: nowrap; flex: none; padding: 2px 8px; font-size: 16px; }
 body #app #panel #ground.vault { grid-template-columns: repeat(8, 1fr) !important; max-height: calc(var(--slot) * 2 + 4px); }
-body #app #panel .portalcard { border-radius: 0 !important; background: #2a2a2a; }
-body #app #panel .portalcard .btn { border-radius: 0; font-family: var(--r-font); }
 
 /* ==== the vault window: a big window over the game while you stand on your vault chest (ui.openVault moves the vault's
    grid into it), and the gear's dropdown menu. RotMG greys, the HUD's outlined pixel font. ==== */
@@ -718,9 +601,7 @@ html body #app .slot .tier.tt.b5, html body #app #panel .slot .tier.tt.b5 { colo
 html body #app .slot .tier .pxtag { display: block; image-rendering: pixelated; height: 14px; width: auto; }
 
 /* the nearby list shows other players only (2026-10-19): not you, not your pet */
-html body #app #who .np.me, html body #app #who #petname:empty { display: none !important; }
 /* the other players near you (src/net.js): a short list, nearest first */
-html body #app #panel #who #petname { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: flex-start; gap: 0; }
 html body #app #panel #who #petname .other { color: #bfe8ff; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 html body #app #panel #who #petname .other { cursor: pointer; pointer-events: auto; }
 html body #app #panel #who #petname .other:hover { color: #ffffff; text-decoration: underline; }
@@ -743,11 +624,9 @@ body #app #hud { font-size: 16px; }
 body #app #hud b { font-weight: 400; }
 body #app #banner { font-size: 24px; }
 body #app #chatlog { font-size: 16px; }
-body #app #panel .label, body #app #portalgo { font-size: 16px !important; }
 body #tooltip, body #tooltip * { font-family: var(--r-font) !important; font-weight: 400 !important; }
 body #tooltip, body #tooltip :not(h4) { font-size: 16px !important; }
 body #tooltip h4 { font-size: 24px !important; }
-body #app #panel #tabbody #stats, body #app #panel #tabbody #stats * { font-size: 16px !important; font-weight: 400 !important; }
 body .screen :not(h1):not(h2) { font-size: 16px !important; font-weight: 400 !important; }
 body .screen h1, body .screen h2 { font-size: 24px !important; font-weight: 400 !important; }
 body .screen .logo h1, body .screen.home > h1 { font-size: 72px !important; letter-spacing: 6px; line-height: 1.1; }   /* the title: 9 screen px a font pixel */
@@ -755,8 +634,6 @@ body .screen .logo.small h1 { font-size: 48px !important; letter-spacing: 4px; }
 @media (max-width: 760px) { body .screen .logo h1, body .screen.home > h1 { font-size: 40px !important; letter-spacing: 3px; } }
 body .screen.journal .page, body .screen.journal .page * { font-size: 17px !important; }
 body .screen .acchead .admintag { color: #ffd650; }
-html body #app #panel #who #petname .netstat { color: #7ad07a; }
-html body #app #panel #who #petname .netstat.off { color: #8a8a8a; }
 /* a quick look at another player (hover their name in the panel) */
 #tooltip .pk-gear { display: flex; flex-direction: column; gap: 3px; margin: 6px 0; }
 #tooltip .pk-item { display: flex; align-items: center; gap: 6px; }
@@ -786,7 +663,7 @@ html body #app #panel #who #petname .netstat.off { color: #8a8a8a; }
 #seals .hintline { font-size: 13px; }
 /* the HUD a size larger, still the whole of it on screen: drawn 1.15x, the panel is 1/1.15 of the window tall, and its
    fixed size steps (slots, minimap) are chosen for that height (the window-height ladder above, each step x1.15) */
-body #app #panel { height: 100% !important; --slot: 54px; --mini: 196px; }   /* (the browser already sizes a zoomed panel to the window: no dividing) */
+   /* (the browser already sizes a zoomed panel to the window: no dividing) */
 @media (min-height: 1150px) { body #app #panel { --slot: 68px; } }
 @media (min-height: 1265px) { body #app #panel { --slot: 76px; } }
 @media (max-height: 989px) { body #app #panel { --slot: 54px; } }
@@ -848,9 +725,6 @@ body #app .slot.up::before { content: ''; position: absolute; right: 3px; top: 3
 @media (max-width: 760px) { .classes.pick { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); } }
 /* the character record in the side panel's box (src/ui.js recordPanel): one column of short rows, scrolling inside the
    fixed box (the box's own grid and 16px font are for the eight stats) */
-body #app #panel #tabbody #stats.recview { display: block !important; overflow-y: auto !important; overflow-x: hidden !important; }
-body #app #panel #tabbody #stats.recview, body #app #panel #tabbody #stats.recview * { font-size: 13px !important; }
-body #app #panel #tabbody #stats.recview > div { display: flex !important; justify-content: space-between; gap: 6px; white-space: nowrap; line-height: 1.45; }
 
 /* ==== UX polish (2026-10-29, the user: "make buttons more beautiful, make popups smoother, allow scrolling in the
    chat, a see-through chat when you're typing in it"). Comes last so it wins; the side panel's RotMG buttons keep their
@@ -1094,3 +968,86 @@ body #app #panel #iconrow button.on { color: #ffe060; }
 body #app #panel #iconrow svg { width: 22px; height: 22px; fill: currentColor; display: block; filter: drop-shadow(1px 1px 0 #000); }
 body #app #minilabel { opacity: 0; transition: opacity .3s ease; }
 body #app #minilabel.show { opacity: 1; }
+
+/* ==== the rest of the side panel: its frame, the stats/pet/record box and its tabs, where you are, the nearby list,
+   quests, and the bag and portal area. One block (2026-10-29; tools/css_cascade.js rewrite): it was 117 rules across
+   the file. Each selector is the one it had, once, with only what wins; !important only where a rule that would
+   otherwise win is !important or more specific. ==== */
+#stats.recview > div { padding: 0 6px; }
+#stats.recview .rk { color: #a8a2bc; }
+#panel { flex: none; display: flex; flex-direction: column; font-size: 15px; position: relative; container-type: inline-size; }
+#who { justify-content: space-between; font-size: 19px; align-items: center; background: none; border: 0; padding: 0; box-shadow: none; }
+#stats { grid-template-columns: 1fr 1fr; gap: 3px 14px; border: 0; border-radius: 8px; box-shadow: inset 0 2px 5px #000a, 0 1px 0 #3a3846; }
+#who #cname { flex: 1; }
+#clevel { text-shadow: 2px 2px 0 #000; font-size: 13px; font-weight: 700; color: #f2c14e; }
+#stats div span:last-child { color: #fff; text-shadow: 1px 1px 0 #000; }
+.portalcard { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 3px solid #3befff; box-shadow: 0 0 12px -3px #3befff, inset 0 0 0 1px #0c0a10; animation: portalpulse 1.6s ease-in-out infinite; border-radius: 8px; }
+.portalcard .pi { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.portalcard b { font-weight: 700; font-size: 16px; color: #cfffff; text-shadow: 1px 1px 0 #000; }
+.portalcard small { font-size: 12px; color: #8d88a0; }
+.portalcard .btn { margin: 0; padding: 8px 16px; border-color: #3befff; color: #cfffff; background: #0e2a34; }
+#quests { display: flex; flex-direction: column; }
+#quests .q { display: flex; justify-content: space-between; gap: 8px; color: #c8c0d8; border-radius: 6px; border: 0; box-shadow: inset 0 1px 3px #0008; }
+#quests .q b { font-weight: 700; color: #7aff9a; white-space: nowrap; }
+#panel.tight #keys, #panel.tight #where { display: none; }
+#panel.tight #who { font-size: 17px; }
+#interact { display: block; }
+#interact .off { visibility: hidden; pointer-events: none; }
+#groundwrap .label { justify-content: space-between; min-height: 24px; }
+#bagportal, #baglootall { margin: 0; }
+#baglootall { margin-right: 6px; }
+#portrait { image-rendering: pixelated; }
+#stats > div { display: flex; justify-content: space-between; align-items: baseline; }
+#stats .st { letter-spacing: 1px; }
+#stats > div > span:last-child { color: var(--hi); }
+#stats .bonus { margin-left: 2px; }
+#keys { color: #5e5a70; font-size: 11.5px; }
+#stattabs button { font: inherit; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; }
+#stats.petview { display: block; }
+#stats.petview div { display: block; }
+#stats.petview .pv-foot, #stats.petview .pv-none { color: #8a8496; margin-top: 3px; }
+#panel #stats:not(.petview) { display: grid !important; }
+#app #panel #tabbody { flex: none; }
+#app #panel:not([data-tab="inv"]) #inv { display: none; }
+#app #panel #interact { flex: none; }
+body #app #panel { width: calc(var(--slot) * 4 + 40px); padding: 8px !important; gap: 6px !important; background: var(--r-pane) !important; border-left: 2px solid #1a1a1a !important; box-shadow: none; font-family: var(--r-font); overflow: hidden !important; height: 100%; }
+body #app #panel > * { flex: none; }
+body #app #panel .label { font-family: var(--r-font); text-transform: none; letter-spacing: 0; border: 0; padding: 0; color: #c8c8c8 !important; text-shadow: var(--r-ol); }
+body #app #panel #equipbox { background: var(--r-slot2); border: 2px solid var(--r-frame); padding: 4px; }
+body #app #panel #invbox { background: var(--r-dark); padding: 0 4px 4px; }
+body #app #panel #stattabs { display: flex !important; gap: 0; margin: 0 -4px 4px !important; height: 26px; }
+body #app #panel #stattabs button { flex: 1; display: grid; place-items: center; padding: 0; border: 0; border-radius: 0; background: #4a4a4a; color: #fff; cursor: pointer; }
+body #app #panel #stattabs button.on { background: var(--r-dark); }
+body #app #panel #stattabs button.off { color: #6a6a6a; cursor: default; }
+body #app #panel #stattabs svg { width: 18px; height: 18px; fill: currentColor; filter: drop-shadow(1px 1px 0 #000); }
+body #app #panel #tabbody { height: calc(var(--slot) * 2 + 4px); padding: 0; background: none; border-radius: 0; overflow: hidden auto; }
+body #app #panel #tabbody #stats { background: #1e1e1e !important; height: 100%; padding: 6px 10px !important; border-radius: 0; font-family: var(--r-font); align-content: start; }
+body #app #panel #tabbody #stats .st { font-family: var(--r-font); text-shadow: var(--r-ol); }
+body #app #panel #bottom { position: relative; height: calc(var(--slot) * 2 + 34px); }
+body #app #panel #nearby { height: 100%; overflow: hidden; }
+body #app #panel #where { margin: 0 !important; font: 500 16px/22px var(--r-font) !important; color: #a8a8a8 !important; text-shadow: var(--r-ol); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+body #app #panel #who { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 8px; margin-top: 4px; }
+body #app #panel #who .np { align-items: center; gap: 4px; min-width: 0; font: 500 16px var(--r-font); color: #4ac08a; text-shadow: var(--r-ol); white-space: nowrap; overflow: hidden; }
+body #app #panel #who .np span { overflow: hidden; text-overflow: ellipsis; }
+body #app #panel #who #portrait { width: 22px; height: 22px; flex: none; border-radius: 0; box-shadow: none; background: none; }
+body #app #panel #cname { font: 500 16px var(--r-font); color: #4ac08a; text-shadow: var(--r-ol); letter-spacing: 0; }
+body #app #panel #quests { margin-top: 6px; gap: 2px; }
+body #app #panel #quests .q { font: 500 16px var(--r-font); background: #2a2a2a !important; border-radius: 0; padding: 2px 6px; }
+body #app #panel #interact { position: absolute; inset: 0; height: auto; }
+body #app #panel #interact:has(> div:not(.off)) { background: var(--r-pane); }
+body #app #panel #interact > div { position: absolute; inset: 0 0 auto 0; }
+body #app #panel #interact .label { display: flex; align-items: center; gap: 6px; height: 26px; margin: 0 0 4px !important; font: 500 16px var(--r-font) !important; }
+body #app #panel #interact .label .btn { margin-left: auto; border-radius: 0; background: #4a4a4a; border: 2px solid #222; white-space: nowrap; flex: none; padding: 2px 8px; font-size: 16px; }
+body #app #panel #interact .label .btn + .btn { margin-left: 0; }
+body #app #panel #interact .label > span { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+body #app #panel #interact .label .btn.off { display: none; }
+body #app #panel .portalcard { border-radius: 0 !important; background: #2a2a2a; }
+body #app #panel .portalcard .btn { border-radius: 0; }
+html body #app #who .np.me, html body #app #who #petname:empty { display: none !important; }
+html body #app #panel #who #petname { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: flex-start; gap: 0; }
+body #app #panel .label, body #app #portalgo { font-size: 16px !important; }
+body #app #panel #tabbody #stats, body #app #panel #tabbody #stats * { font-size: 16px !important; font-weight: 400; }
+html body #app #panel #who #petname .netstat.off { color: #8a8a8a; }
+body #app #panel #tabbody #stats.recview { display: block !important; overflow-y: auto; overflow-x: hidden; }
+body #app #panel #tabbody #stats.recview, body #app #panel #tabbody #stats.recview * { font-size: 13px !important; }
+body #app #panel #tabbody #stats.recview > div { display: flex; justify-content: space-between; gap: 6px; white-space: nowrap; line-height: 1.45; }

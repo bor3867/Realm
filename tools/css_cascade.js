@@ -123,16 +123,21 @@ export function analyze(sel, states, inR, roleOf) {
 // changes rank), only the declarations that win somewhere, !important only where a rule that matches (a :hover one
 // included) would otherwise win: one marked !important, or a more specific one. Returns the block and what it drops.
 export function rewrite(sel, states, inR) {
-  const rules = sheetRules(), R = rules.filter(inR);
-  const won = new Map();                                  // rule -> Set(longhand) it wins on some element
+  const rules = sheetRules(); let R = rules.filter(inR);
+  const won = new Map(), seen = new Set();                // rule -> Set(longhand) it wins on some element; rules that matched anything
   for (const [, on, off] of states) {
     on();
-    for (const el of document.querySelectorAll(sel)) for (const x of R) for (const P of x.declared) {
-      const w = winner(el, P, rules);
-      if (w && w !== 'inline' && w.x === x) (won.get(x) || won.set(x, new Set()).get(x)).add(P);
+    for (const el of document.querySelectorAll(sel)) for (const x of R) {
+      if (!matchSpec(el, x.parts, false)) continue;
+      seen.add(x);
+      for (const P of x.declared) {
+        const w = winner(el, P, rules);
+        if (w && w !== 'inline' && w.x === x) (won.get(x) || won.set(x, new Set()).get(x)).add(P);
+      }
     }
     off();
   }
+  R = R.filter((x) => seen.has(x));                       // (a rule never seen to apply is left where it is, untouched)
   const els = [...document.querySelectorAll(sel)];
   const needImp = (x, P) => {
     const mine = Math.max(...x.parts.map((p) => 0)), ownSpecs = x.parts.map(spec);
@@ -163,5 +168,6 @@ export function rewrite(sel, states, inR) {
     }
   }
   const css = [...bySel].filter(([, M]) => M.size).map(([s, M]) => `${s} { ${[...M].map(([p, d]) => `${p}: ${d.text}${d.imp ? ' !important' : ''};`).join(' ')} }`).join('\n');
-  return { css, dropped, rules: R.map((x) => x.sel) };
+  const keep = [...bySel].map(([s, M]) => [s, [...M].map(([p, d]) => [p, d.imp])]);   // (selector -> its kept properties, and whether each still needs !important: to rebuild from the source text)
+  return { css, dropped, keep, rules: R.map((x) => x.sel) };   // (rules: the ones the block replaces)
 }
