@@ -31,15 +31,7 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #tooltip .d { color: #b8b2c8; margin-top: 6px; }
 #tooltip .s { color: #7ad0a8; }
 #tooltip .bad { color: #e2546a; }
-#overlay { position: fixed; inset: 0; z-index: 20; background: #0e0c12f2; display: grid; place-items: center; overflow-y: auto; padding: 16px; }
-.screen { width: min(820px, 100%); text-align: center; }
-.screen h1 { font-size: 40px; margin: 0 0 4px; color: var(--gold); font-weight: 700; letter-spacing: 2px; }
-.screen h2 { font-weight: 700; color: var(--mut); font-size: 15px; margin: 0 0 20px; }
-.classes { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin: 16px 0; }
-.cls { background: var(--panel); border: 2px solid var(--edge); padding: 12px; cursor: pointer; text-align: left; color: var(--ink); font: inherit; }
 .cls:hover, .cls:focus-visible { border-color: var(--gold); outline: none; }
-.cls canvas { image-rendering: pixelated; display: block; margin: 0 auto 8px; }
-.cls h3 { margin: 0; font-weight: 700; font-size: 17px; color: var(--gold); }
 .cls p { margin: 6px 0 0; color: #b8b2c8; font-size: 12px; }
 .btn { background: var(--panel); color: var(--ink); border: 2px solid var(--edge); padding: 8px 16px; font: inherit; cursor: pointer; margin: 4px; }
 .btn:hover, .btn:focus-visible { border-color: var(--gold); outline: none; }
@@ -52,29 +44,13 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 
 /* minimap zoom + settings */
 #minibtns button:hover, #gear:hover, #minibtns button:focus-visible, #gear:focus-visible { border-color: var(--gold); outline: none; }
-.settings { width: min(720px, 100%); text-align: left; }
-.settings h1 { text-align: center; font-size: 28px; }
-.settings section { background: var(--panel); border: 2px solid var(--edge); padding: 12px 14px; margin: 10px 0; }
-.settings h3 { margin: 0 0 8px; font-weight: 700; color: var(--gold); font-size: 15px; }
-.settings .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 0; border-bottom: 1px solid #241f2c; }
-.settings .row:last-child { border-bottom: 0; }
-.settings .row span { color: #b8b2c8; font-size: 13px; }
-.settings .keys { display: flex; gap: 6px; }
-.settings .key { min-width: 64px; background: #0f0d14; color: var(--ink); border: 2px solid var(--edge); padding: 4px 8px; font: inherit; font-size: 13px; cursor: pointer; }
 .settings .key:hover, .settings .key:focus-visible { border-color: var(--gold); outline: none; }
 .settings .key.listen { border-color: var(--gold); color: var(--gold); }
-.settings select, .settings input[type=range] { font: inherit; background: #0f0d14; color: var(--ink); border: 2px solid var(--edge); }
-.settings input[type=checkbox] { width: 18px; height: 18px; accent-color: #f2c14e; }
-.settings .actions { text-align: center; }
 
 /* chat */
 #chatin:focus { outline: none; }
 
 /* shop + forge */
-.shop { width: min(900px, 100%); }
-.shop .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; text-align: left; }
-.shop section { background: var(--panel); border: 2px solid var(--edge); padding: 10px; max-height: 58vh; overflow-y: auto; text-align: left; }
-.shop h3 { margin: 0 0 8px; font-weight: 700; color: var(--gold); font-size: 14px; }
 .ware { display: flex; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid #241f2c; }
 .ware .ico { width: 32px; height: 32px; flex: none; background-size: 32px 32px; image-rendering: pixelated; }
 .ware .wn { flex: 1; display: flex; flex-direction: column; font-size: 13px; }
@@ -82,7 +58,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 .ware .wn small, .mut { color: var(--mut); font-size: 11px; }
 .ware .acts { display: flex; gap: 4px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
 .btn.sm { padding: 3px 8px; font-size: 12px; margin: 0; }
-.shop .msg { min-height: 16px; color: #7ad0a8; }
 @media (max-width: 700px) { .shop .cols { grid-template-columns: 1fr; } }
 
 /* map-change fade */
@@ -115,7 +90,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 /* tooltip: framed in the item's rarity colour */
 
 /* screens */
-.screen h1 { text-shadow: 3px 3px 0 #000, 0 0 18px rgba(242,193,78,.35); }
 .cls, .btn { box-shadow: 0 3px 0 #0c0a10; }
 .cls:hover, .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 0 #0c0a10, 0 0 10px -2px var(--gold); }
 
@@ -125,7 +99,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
   
 
 /* home + character select */
-.home { width: min(980px, 100%); }
 .home .acct { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 14px; }
 .home .acct span { background: #120f18; border: 2px solid #0c0a10; box-shadow: inset 0 0 0 1px var(--edge-hi); padding: 4px 10px; }
 .home .acct .h-fame { color: #f2c14e; } .home .acct .h-gold { color: #ffd650; } .home .acct .h-ess { color: #b98cff; }
@@ -133,25 +106,11 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 .home section { background: var(--panel); border: 2px solid #0c0a10; box-shadow: inset 0 0 0 1px var(--edge); padding: 10px; }
 .home h3 { margin: 0 0 8px; font-weight: 700; color: var(--gold); font-size: 14px; }
 .chars { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.char { display: flex; align-items: center; gap: 8px; background: #120f18; border: 2px solid var(--edge); padding: 6px; min-height: 84px; font: inherit; color: var(--ink); text-align: left; }
-.char canvas { image-rendering: pixelated; background: radial-gradient(circle, #2a2434 0%, #120f18 70%); border: 2px solid #0c0a10; }
-.char .ci { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-.char .ci b { font-weight: 700; color: #fff4c2; }
-.char .ci small { color: var(--mut); font-size: 11px; }
-.char .gear { display: flex; gap: 2px; margin-top: 3px; }
-.char .gi { width: 20px; height: 20px; background-size: 20px 20px; image-rendering: pixelated; border: 1px solid var(--rc, #2a2434); background-color: #0a080c; }
-.char .ca { display: flex; flex-direction: column; gap: 4px; }
-.char .btn.play { margin: 0; padding: 6px 12px; border-color: var(--gold); }
-.char .btn.del { color: var(--mut); }
 .char .btn.del.warn { color: #ff5e78; border-color: #ff5e78; }
-.char.empty, .char.locked { flex-direction: column; justify-content: center; cursor: pointer; border-style: dashed; text-align: center; }
 .char.empty:hover, .char.locked:hover { border-color: var(--gold); }
-.char .plus { font-size: 22px; color: var(--gold); }
-.char.locked { opacity: .75; }
 .home .gy { font-size: 12px; color: #b8b2c8; max-height: 60vh; overflow-y: auto; }
 .home .gy div { padding: 2px 0; border-bottom: 1px solid #241f2c; }
 .home .gy b { font-weight: 700; color: #fff4c2; }
-.homebtns { margin-top: 10px; text-align: center; border: 0 !important; }
 @media (max-width: 760px) { .homecols, .chars { grid-template-columns: 1fr; } }
 
 /* ---------- bigger, bolder side panel ---------- */
@@ -171,7 +130,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #tooltip .d { font-size: 13px; }
 #tooltip .sp { color: #ffd650; margin-top: 4px; }
 #tooltip .sp::before { content: '✦ '; color: #f2c14e; }
-.classes { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
 @media (max-width: 1100px) {  #minimap { width: 258px; height: 258px; } .slots { grid-template-columns: repeat(4, 58px); gap: 6px; } .slot { width: 58px; height: 58px; } .slot .ico { width: 40px; height: 40px; } }
 
 /* standing on a portal: name + a clickable Enter button, where bag contents normally go */
@@ -209,9 +167,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #tooltip .ench .eu { color: #ffd650; }
 
 /* fame: the bar turns orange at level 20, and the death screen itemises what you earned */
-.famebox { margin: 10px auto; max-width: 320px; text-align: left; background: #120f18; border: 2px solid #3a2f1a; padding: 8px 12px; }
-.famebox .fr { display: flex; justify-content: space-between; color: #c8c0d8; }
-.famebox .fr.tot { border-top: 1px solid #3a2f1a; margin-top: 4px; padding-top: 4px; color: #ffd650; }
 .fame { color: #ffb84a; }
 
 /* a bigger minimap: the panel widens a little and the map keeps most of its size before anything else gives way */
@@ -253,36 +208,18 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 
 
 /* ================================================================ front door: login, account, characters */
-#overlay .splash { position: fixed; inset: 0; width: 100vw; height: 100vh; image-rendering: pixelated; z-index: -1; }
-#overlay .screen.login, #overlay .screen.account, #overlay .screen.home { position: relative; z-index: 1; }
-.screen .logo { text-align: center; margin-bottom: 18px; }
-.screen .logo h1 { font-size: 92px !important; font-weight: 800; letter-spacing: 10px; margin: 0 !important; color: #ffd650;
-  text-shadow: 0 4px 0 #8a5a12, 0 8px 0 #2a1608, 0 0 30px #ffb84a88; }
 .screen .logo h2 { font-size: 20px !important; letter-spacing: 6px; text-transform: uppercase; color: #e8dcff !important; text-shadow: 0 2px 0 #000; margin: 4px 0 0 !important; }
-.screen .logo.small h1 { font-size: 56px !important; letter-spacing: 6px; }
-.screen .card { width: min(420px, 92vw); margin: 0 auto; background: #15131ccc; backdrop-filter: blur(6px); border: 1px solid #3a3648; border-radius: 14px;
-  padding: 18px 22px; box-shadow: 0 20px 60px #000a, inset 0 1px 0 #ffffff14; }
-.screen .card.wide { width: min(760px, 94vw); }
-.screen .card h3 { margin: 10px 0 8px !important; color: #c8c0e0 !important; font-size: 13px !important; letter-spacing: 1.5px; text-transform: uppercase; }
-.screen .card input { width: 100%; box-sizing: border-box; margin: 4px 0; padding: 11px 12px; font: inherit; font-size: 16px; color: #f2efe8; background: #0d0c12;
-  border: 1px solid #3a3648; border-radius: 8px; outline: none; }
 .screen .card input:focus { border-color: #ffd650; box-shadow: 0 0 0 3px #ffd65033; }
-.screen .card .row2 { display: flex; gap: 8px; margin-top: 10px; }
-.screen .card .row2 .btn { flex: 1; margin: 0; border-radius: 8px; padding: 11px; font-size: 16px; }
 .btn.primary { background: linear-gradient(180deg, #ffd650, #e8a020) !important; color: #2a1608 !important; border-color: #8a5a12 !important; font-weight: 800; }
 .btn.primary:hover { filter: brightness(1.08); }
 .btn.big { font-size: 20px !important; padding: 14px !important; }
-.screen .card .msg { min-height: 18px; color: #ff9a8a; margin: 8px 0 0; }
-.screen .card .fine { color: #7a748e; font-size: 12px; margin: 6px 0 0; }
 .screen .card .or { text-align: center; color: #6e6880; margin: 8px 0 0; font-size: 13px; }
 .accts { display: flex; flex-direction: column; gap: 6px; }
 .acctbtn { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 8px; cursor: pointer;
   background: #221f2c; border: 1px solid #3a3648; color: #f2efe8; font: inherit; text-align: left; }
 .acctbtn:hover, .acctbtn:focus { border-color: #ffd650; outline: none; }
 .acctbtn small { color: #8a849e; }
-.acchead { display: flex; justify-content: space-between; align-items: center; }
-.acchead small { color: #8a849e; } .acchead h2 { margin: 0 !important; font-size: 30px !important; color: #fff !important; letter-spacing: 1px; }
-.acchead .btn { margin: 0; border-radius: 8px; }
+ 
 .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 14px 0 6px; }
 .tile { background: #0d0c12; border: 1px solid #2c2938; border-radius: 10px; padding: 8px 10px; }
 .tile small { display: block; color: #8a849e; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
@@ -291,17 +228,11 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 .cf { display: grid; grid-template-columns: 32px minmax(0, 1fr); column-gap: 8px; align-items: center; background: #0d0c12; border-radius: 8px; padding: 4px 8px; border: 1px solid #2c2938; min-width: 0; }   /* the class, its name, its stars under the name */
 .cf canvas { grid-row: span 2; width: 32px; height: 32px; image-rendering: pixelated; } .cf b { font-size: 13px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.2; } .cf .stars { line-height: 1.1; } .cf b, .cf .stars { text-align: left; justify-self: start; }
 .stars { color: #ffd650; font-size: 12px; letter-spacing: -1px; } .stars i { color: #3a3648; font-style: normal; }
-.screen.home { padding-top: 10px; }
-.screen.home .btn.back { position: absolute; left: 18px; top: 14px; border-radius: 8px; }
-.screen.home h1 { text-shadow: 0 4px 0 #8a5a12, 0 0 24px #ffb84a66; }
-.screen.home section { background: #15131cdd !important; backdrop-filter: blur(4px); border-radius: 12px !important; }
 @media (max-width: 760px) { .tiles, .classfame { grid-template-columns: repeat(2, 1fr); } .screen .logo h1 { font-size: 56px !important; } }
 
 /* a filled slot doesn't need its WPN / ABL / ARM / RNG hint */
 .slot.has .hint { display: none; }
 
-.screen .card .keep { display: flex; align-items: center; gap: 8px; margin: 8px 2px 0; color: #c8c0e0; font-size: 14px; cursor: pointer; user-select: none; }
-.screen .card .keep input { width: 18px; height: 18px; margin: 0; accent-color: #ffd650; }
 
 /* waypoint list: the seven lands side by side, wrapping */
 .screen .cols.wp { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; max-height: 60vh; overflow-y: auto; }
@@ -432,25 +363,8 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
    or the stats: the minimap and the slots give way instead. The bag is four by two, like the backpack. ==== */
 
 /* ---- the loading card shown while a portal makes the next place */
-#loadcard { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: #07060b; transition: opacity .35s; }
-#loadcard.off { opacity: 0; pointer-events: none; }
-#loadcard .lbox { text-align: center; color: #d8d0e4; }
-#loadcard small { letter-spacing: .2em; text-transform: uppercase; color: #8a8496; }
-#loadcard h2 { margin: 6px 0 8px; color: #ffe89a; text-shadow: 2px 2px 0 #000; }
-#loadcard .lstars { font-size: 20px; color: #ff8a3a; letter-spacing: 3px; }
 #loadcard .lstars i { color: #3a3446; font-style: normal; }
 #loadcard .lstars.safe { color: #7ad0a8; font-size: 15px; letter-spacing: .15em; text-transform: uppercase; }
-#loadcard p { margin: 10px 0 22px; color: #a8a2b4; }
-#loadcard .lspin { position: relative; width: 44px; height: 44px; margin: 0 auto; animation: lspin 1s steps(8) infinite; }
-#loadcard .lspin i { position: absolute; left: 19px; top: 0; width: 6px; height: 6px; background: #ffe89a; transform-origin: 3px 22px; }
-#loadcard .lspin i:nth-child(1) { transform: rotate(0deg); opacity: 0.2; }
-#loadcard .lspin i:nth-child(2) { transform: rotate(45deg); opacity: 0.3; }
-#loadcard .lspin i:nth-child(3) { transform: rotate(90deg); opacity: 0.4; }
-#loadcard .lspin i:nth-child(4) { transform: rotate(135deg); opacity: 0.5; }
-#loadcard .lspin i:nth-child(5) { transform: rotate(180deg); opacity: 0.6; }
-#loadcard .lspin i:nth-child(6) { transform: rotate(225deg); opacity: 0.7; }
-#loadcard .lspin i:nth-child(7) { transform: rotate(270deg); opacity: 0.8; }
-#loadcard .lspin i:nth-child(8) { transform: rotate(315deg); opacity: 0.9; }
 @keyframes lspin { to { transform: rotate(360deg); } }
 
 /* ==== THE HUD (RotMG-style). One fixed layout; it never resizes itself. Top to bottom: minimap, who you are, the
@@ -556,10 +470,7 @@ html body #app #panel #who #petname .other:hover { color: #ffffff; text-decorati
 body #app, body #app button, body #app input, body #app select, body #app textarea,
 body #overlay, body #overlay button, body #overlay input, body #overlay select, body #overlay textarea { font-family: var(--r-font) !important; }
 body .screen.journal .page { font-family: Georgia, 'Times New Roman', serif !important; }
-body .screen :not(h1):not(h2) { font-size: 16px !important; font-weight: 400 !important; }
-body .screen h1, body .screen h2 { font-size: 24px !important; font-weight: 400 !important; }
-body .screen .logo h1, body .screen.home > h1 { font-size: 72px !important; letter-spacing: 6px; line-height: 1.1; }   /* the title: 9 screen px a font pixel */
-body .screen .logo.small h1 { font-size: 48px !important; letter-spacing: 4px; }
+   /* the title: 9 screen px a font pixel */
 @media (max-width: 760px) { body .screen .logo h1, body .screen.home > h1 { font-size: 40px !important; letter-spacing: 3px; } }
 body .screen.journal .page, body .screen.journal .page * { font-size: 17px !important; }
 body .screen .acchead .admintag { color: #ffd650; }
@@ -575,14 +486,6 @@ body .screen .acchead .admintag { color: #ffd650; }
 /* the HUD a size larger (the side panel, the top bar, the chat): one fixed scale, the layout itself unchanged */
 #panel, #hud, #chat { zoom: 1.15; }
 /* the death screen: the gravestone and the gear on the left, the fame and the record of a life on the right */
-.deathscr .dcols { display: flex; gap: 18px; justify-content: center; align-items: flex-start; flex-wrap: wrap; margin: 8px 0; }
-.deathscr .dleft { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.deathscr #dgrave { image-rendering: pixelated; }
-.deathscr .dgear { display: flex; gap: 4px; }
-.deathscr .dslot { width: 44px; height: 44px; background: #120f18; border: 2px solid #3a3348; }
-.deathscr .dslot .ico { width: 100%; height: 100%; background-size: contain; background-repeat: no-repeat; image-rendering: pixelated; }
-.deathscr .dright { min-width: 260px; }
-.deathscr .dright .famebox { margin: 0 0 8px; }
 /* the boss door's checklist (the seals to break): a size larger, easy to read mid-fight */
 #seals { width: 340px; padding: 9px 11px; gap: 5px; }
 #seals .label { font-size: 14px; }
@@ -603,20 +506,12 @@ body .screen .acchead .admintag { color: #ffd650; }
 @media (max-height: 874px) { body #app #panel { --mini: 160px; } }
 @media (max-height: 759px) { body #app #panel { --mini: 124px; } }
 /* the Dungeon Atlas (the Nexus): every dungeon, its danger, its master, where its portal drops */
-.screen.atlas table { margin: 10px auto; border-collapse: collapse; text-align: left; font-size: 14px; max-width: 920px; }
-.screen.atlas th { color: #ffd98a; font-weight: normal; padding: 4px 10px; border-bottom: 1px solid #3a3348; }
-.screen.atlas td { padding: 4px 10px; border-bottom: 1px solid #221d2c; color: #ece6f6; }
-.screen.legends table.ach td:first-child { color: #5e5872; font-size: 18px; } .screen.legends table.ach tr.got td:first-child { color: #ffd650; }
-.screen.legends table.ach tr:not(.got) b { color: #a8a2bc; } .screen.legends table.ach td:last-child { white-space: nowrap; }
-.screen.legends .legtabs { display: flex; gap: 8px; justify-content: center; margin: 4px 0 8px; }
-.screen.legends .legtabs .on { border-color: #ffd650; color: #ffd650; }
-.screen.legends tr[data-pick] { cursor: pointer; } .screen.legends tr[data-pick]:hover td { background: #2a2338; }
-.screen.legends table.rec td:last-child { text-align: right; color: #ffd98a; }
-.screen.atlas td.stars { color: #ffd650; white-space: nowrap; } .screen.atlas td.stars i { color: #3a3348; font-style: normal; }
-.screen.atlas td.mut { color: #9a94ac; }
+ .screen.legends table.ach tr.got td:first-child { color: #ffd650; }
+ 
+ .screen.legends tr[data-pick]:hover td { background: #2a2338; }
+ 
 /* QOL: an upgrade for you (in a bag or your backpack) wears a small green arrow */
 body #app .slot.up::before { content: ''; position: absolute; right: 3px; top: 3px; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 7px solid #5ae05a; filter: drop-shadow(0 0 1px #000); pointer-events: none; z-index: 3; }
-.deathscr .drecap .bad { color: #ff6a6a; }
 
 /* the Mad God Armory's items (src/armory_tip.js, src/armory_art.js): drawn live in their slots; their tooltip as the armory lays it out */
 .slot .ico { position: relative; }
@@ -643,14 +538,6 @@ body #app .slot.up::before { content: ''; position: absolute; right: 3px; top: 3
 #tooltip .arm-sb { padding: 4px 12px 8px; color: #c3a6ff; font-size: 11px; letter-spacing: .05em; }
 
 /* the class picker: every class on one screen, the one you point at described underneath (2026-10-22) */
-.classes.pick { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; max-width: 900px; margin: 14px auto 10px; }
-.classes.pick .cls { padding: 10px 6px 12px; text-align: center; min-width: 0; }
-.classes.pick .cls canvas { width: 72px; height: 72px; margin-bottom: 6px; }
-.classes.pick .cls h3 { font-size: 14px; overflow-wrap: anywhere; }
-.classes.pick .cls .t { color: #8d88a0; font-size: 10px; margin-top: 3px; overflow-wrap: anywhere; }
-.clsinfo { max-width: 900px; margin: 0 auto 14px; min-height: 92px; box-sizing: border-box; padding: 10px 14px; background: var(--panel); border: 2px solid var(--edge); text-align: left; }
-.clsinfo h3 { margin: 0 0 4px; font-size: 14px; color: var(--gold); }
-.clsinfo p { margin: 0; color: #b8b2c8; font-size: 12px; line-height: 1.45; }
 @media (max-width: 760px) { .classes.pick { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); } }
 /* the character record in the side panel's box (src/ui.js recordPanel): one column of short rows, scrolling inside the
    fixed box (the box's own grid and 16px font are for the eight stats) */
@@ -681,10 +568,8 @@ body .btn.primary, body #overlay .btn.primary { background: linear-gradient(180d
 body .btn.primary:hover, body #overlay .btn.primary:hover { filter: brightness(1.07); box-shadow: inset 0 1px 0 #fff8, 0 4px 0 #5a3a0a, 0 0 20px -4px #ffc94a; }
 body .btn.primary:active, body #overlay .btn.primary:active { box-shadow: inset 0 2px 4px #5a3a0a88, 0 1px 0 #5a3a0a; }
 body .btn.ghost, body #overlay .btn.ghost { background: transparent; box-shadow: none; }
-body #overlay .btn.on { border-color: var(--gold); color: #ffe08a; background: linear-gradient(180deg, #3a3020 0%, #2a2218 100%); }
 
 /* cards you pick (the classes, the character slots): the same lift and glow */
-body #overlay .cls, body #overlay .char { border-radius: 8px; transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease; }
 body #overlay .cls:hover, body #overlay .cls:focus-visible, body #overlay .char.empty:hover, body #overlay .char.locked:hover { transform: translateY(-2px); background: #241e2e; box-shadow: 0 5px 0 #0c0a10, 0 0 16px -4px #f2c14e99; }
 body #overlay .cls:active, body #overlay .char.empty:active { transform: translateY(1px); box-shadow: 0 1px 0 #0c0a10; }
 /* a new account: the first slot glows and says start here */
@@ -694,9 +579,6 @@ body #overlay .char.empty.start b { color: #ffe08a; }
 
 /* popups: the backdrop fades in with a soft blur over the game; the screen rises into place. Leaving, it fades out.
    One screen to the next cross-fades (src/ui.js overlay / closeOverlay) */
-body #overlay { background: radial-gradient(ellipse at 50% 40%, #1a1622e6 0%, #0b0910f2 70%); backdrop-filter: blur(3px); }
-body #overlay.enter { animation: ovIn .2s ease-out both; }
-body #overlay.enter > .screen { animation: scrIn .24s cubic-bezier(.2, .8, .3, 1.15) both; }
 body #overlay.swap > .screen { animation: scrSwap .18s ease-out both; }
 body #overlay.leaving { animation: ovOut .16s ease-in both; pointer-events: none; }
 @keyframes ovIn { from { opacity: 0; } to { opacity: 1; } }
@@ -731,34 +613,21 @@ body #app #iconrow button:hover, body #app #stattabs button:hover { filter: brig
 body #app .slot:hover { filter: brightness(1.12); }
 
 /* settings: the sliders and boxes in the game's gold, the drop-downs rounded */
-body #overlay input[type=range], body #overlay input[type=checkbox] { accent-color: var(--gold); cursor: pointer; }
 body #overlay select { border-radius: 5px; padding: 2px 6px; cursor: pointer; transition: border-color .12s ease; }
 body #overlay select:hover, body #overlay select:focus { border-color: var(--gold); outline: none; }
-body #overlay .settings section, body #overlay .shop section { border-radius: 8px; }
-body #overlay .settings .key { border-radius: 5px; transition: border-color .12s ease, background .12s ease; }
 body #overlay .settings .key:hover { background: #1c1824; }
 
 /* while the game loads: a quiet title card, not an empty side panel (index.html body.booting; src/ui.js lifts it) */
 body.booting #app, body.booting #tooltip { visibility: hidden; }
-#boot { display: none; }
-body.booting #boot { display: flex; position: fixed; inset: 0; z-index: 40; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: radial-gradient(ellipse at 50% 40%, #1c1730 0%, #0b0910 70%); font-family: var(--r-font); }
-body.booting #boot b { color: var(--gold); font-size: 56px; font-weight: 400; letter-spacing: 5px; text-shadow: 3px 3px 0 #000, 0 0 18px rgba(242,193,78,.35); }
-body.booting #boot span { color: #8d88a0; font-size: 16px; animation: bootPulse 1.2s ease-in-out infinite; }
 @keyframes bootPulse { 50% { opacity: .35; } }
 @media (max-width: 760px) { body.booting #boot b { font-size: 32px; } }
 /* tooltips fade in */
 @keyframes tipIn { from { opacity: 0; } to { opacity: 1; } }
 /* the class cards' tags: reach and armour */
-.classes.pick .cls .ctags { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
-body .classes.pick .cls .ctags span { font-size: 11px !important; padding: 1px 6px; border-radius: 8px; border: 1px solid #4a4258; color: #c8c0d8; background: #120f18; }
-body .classes.pick .cls .ctags span.near { border-color: #a8503a; color: #ffb08a; }
-body .classes.pick .cls .ctags span.far { border-color: #3a6aa8; color: #9ac8ff; }
 
 /* ==== polish, round two (2026-10-29) ==== */
 /* the bars ease, and the life (or magic) just lost lingers pale behind them, then drains */
 /* settings in tabs */
-body #overlay .settabs { display: flex; gap: 8px; justify-content: center; margin: 2px 0 10px; }
-body #overlay .settabs .btn { padding: 5px 18px; font-size: 16px !important; }
 /* an achievement: a card from the top right */
 .achcard.out { animation: achOut .4s ease-in both; }
 @keyframes achIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: none; } }
@@ -773,15 +642,11 @@ body #app #panel .slot:hover { outline: 2px solid #f2c14ecc; outline-offset: -2p
 
 /* ==== polish, round three (2026-10-29) ==== */
 /* the travel card in the game's pixel font, like every other screen */
-#loadcard, #loadcard * { font-family: var(--r-font) !important; font-weight: 400 !important; }
-#loadcard h2 { font-size: 32px !important; }
-#loadcard small { font-size: 13px !important; }
-#loadcard p { font-size: 15px !important; }
 /* achievement cards: the bottom right of the view (at the top they hid the active-boost chips) */
 /* the minimap's range: a moment when you change it */
 
 /* the death screen's rows: a name never runs into its number */
-.famebox .fr { gap: 14px; } .famebox .fr span { min-width: 0; overflow-wrap: anywhere; } .famebox .fr b { flex: none; }
+  
 
 /* the vault window: at the top of the view, clear of you and the chest (it sat on top of you), no empty band under a
    small vault; a big one scrolls inside it */
@@ -1041,3 +906,145 @@ body #tooltip:not(.hidden) { animation: tipIn .12s ease-out; }
 .achcard em { display: block; font-style: normal; color: #9ad89a; font-size: 13px; }
 body #app #vaultwin { top: 52px; transform: translateX(-50%); max-height: max(200px, calc(50% - 70px)); display: flex; flex-direction: column; animation: vwIn .18s ease-out; }
 body #app #vwbody { min-height: 0; flex: 1 1 auto; }
+
+/* ==== the menus and screens: login, account, characters, the class picker, settings, shop, forge, pets, Legends,
+   the Atlas, the quest board, the death screen, the travel and boot cards. One block (2026-10-29; tools/css_cascade.js
+   rewrite): it was 143 rules across
+   the file. Each selector is the one it had, once, with only what wins; !important only where a rule that would
+   otherwise win is !important or more specific. ==== */
+#overlay { position: fixed; inset: 0; z-index: 20; display: grid; place-items: center; overflow-y: auto; padding: 16px; }
+.screen { width: min(820px, 100%); text-align: center; }
+.screen h1 { margin: 0 0 4px; color: var(--gold); letter-spacing: 2px; text-shadow: 3px 3px 0 #000, 0 0 18px rgba(242,193,78,.35); }
+.screen h2 { color: var(--mut); margin: 0 0 20px; }
+.classes { display: grid; }
+.cls { background: var(--panel); border: 2px solid var(--edge); cursor: pointer; color: var(--ink); font: inherit; }
+.cls canvas { image-rendering: pixelated; display: block; margin: 0 auto 8px; }
+.cls h3 { margin: 0; color: var(--gold); }
+.settings { width: min(720px, 100%); text-align: left; }
+.settings h1 { text-align: center; }
+.settings section { background: var(--panel); border: 2px solid var(--edge); padding: 12px 14px; margin: 10px 0; }
+.settings h3 { margin: 0 0 8px; color: var(--gold); }
+.settings .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 0; border-bottom: 1px solid #241f2c; }
+.settings .row:last-child { border-bottom: 0; }
+.settings .row span { color: #b8b2c8; }
+.settings .keys { display: flex; gap: 6px; }
+.settings .key { min-width: 64px; background: #0f0d14; color: var(--ink); border: 2px solid var(--edge); padding: 4px 8px; font: inherit; font-size: 13px; cursor: pointer; }
+.settings select, .settings input[type="range"] { font: inherit; background: #0f0d14; color: var(--ink); border: 2px solid var(--edge); }
+.settings input[type="checkbox"] { width: 18px; height: 18px; }
+.settings .actions { text-align: center; }
+.shop { width: min(900px, 100%); }
+.shop .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; text-align: left; }
+.shop section { background: var(--panel); border: 2px solid var(--edge); padding: 10px; max-height: 58vh; overflow-y: auto; text-align: left; }
+.shop h3 { margin: 0 0 8px; color: var(--gold); }
+.shop .msg { min-height: 16px; color: #7ad0a8; }
+.char { display: flex; align-items: center; gap: 8px; background: #120f18; border: 2px solid var(--edge); padding: 6px; min-height: 84px; font: inherit; color: var(--ink); text-align: left; }
+.char canvas { image-rendering: pixelated; background: radial-gradient(circle, #2a2434 0%, #120f18 70%); border: 2px solid #0c0a10; }
+.char .ci { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.char .ci b { color: #fff4c2; }
+.char .ci small { color: var(--mut); }
+.char .gear { display: flex; gap: 2px; margin-top: 3px; }
+.char .gi { width: 20px; height: 20px; background-size: 20px 20px; image-rendering: pixelated; border: 1px solid var(--rc, #2a2434); background-color: #0a080c; }
+.char .ca { display: flex; flex-direction: column; gap: 4px; }
+.char .btn.play { margin: 0; padding: 6px 12px; }
+.char.empty, .char.locked { flex-direction: column; justify-content: center; cursor: pointer; border-style: dashed; text-align: center; }
+.char .plus { color: var(--gold); }
+.char.locked { opacity: .75; }
+.homebtns { margin-top: 10px; text-align: center; border: 0 !important; }
+.famebox { max-width: 320px; text-align: left; background: #120f18; border: 2px solid #3a2f1a; padding: 8px 12px; }
+.famebox .fr { display: flex; justify-content: space-between; color: #c8c0d8; gap: 14px; }
+.famebox .fr.tot { border-top: 1px solid #3a2f1a; margin-top: 4px; padding-top: 4px; color: #ffd650; }
+#overlay .splash { position: fixed; inset: 0; width: 100vw; height: 100vh; image-rendering: pixelated; z-index: -1; }
+#overlay .screen.login, #overlay .screen.account, #overlay .screen.home { position: relative; z-index: 1; }
+.screen .logo { text-align: center; margin-bottom: 18px; }
+.screen .logo h1 { margin: 0; color: #ffd650; text-shadow: 0 4px 0 #8a5a12, 0 8px 0 #2a1608, 0 0 30px #ffb84a88; }
+.screen .card { width: min(420px, 92vw); margin: 0 auto; background: #15131ccc; backdrop-filter: blur(6px); border: 1px solid #3a3648; border-radius: 14px; padding: 18px 22px; box-shadow: 0 20px 60px #000a, inset 0 1px 0 #ffffff14; }
+.screen .card.wide { width: min(760px, 94vw); }
+.screen .card h3 { margin: 10px 0 8px; color: #c8c0e0; font-size: 13px !important; letter-spacing: 1.5px; text-transform: uppercase; }
+.screen .card input { width: 100%; box-sizing: border-box; margin: 4px 0; padding: 11px 12px; font: inherit; font-size: 16px; color: #f2efe8; background: #0d0c12; border: 1px solid #3a3648; border-radius: 8px; outline: none; }
+.screen .card .row2 { display: flex; gap: 8px; margin-top: 10px; }
+.screen .card .row2 .btn { flex: 1; margin: 0; padding: 11px; }
+.screen .card .msg { min-height: 18px; color: #ff9a8a; margin: 8px 0 0; }
+.screen .card .fine { color: #7a748e; margin: 6px 0 0; }
+.acchead { display: flex; justify-content: space-between; align-items: center; }
+.acchead small { color: #8a849e; }
+.acchead h2 { margin: 0; color: #fff; letter-spacing: 1px; }
+.acchead .btn { margin: 0; }
+.screen.home { padding-top: 10px; }
+.screen.home .btn.back { position: absolute; left: 18px; top: 14px; }
+.screen.home h1 { text-shadow: 0 4px 0 #8a5a12, 0 0 24px #ffb84a66; }
+.screen.home section { background: #15131cdd; backdrop-filter: blur(4px); border-radius: 12px; }
+.screen .card .keep { display: flex; align-items: center; gap: 8px; margin: 8px 2px 0; color: #c8c0e0; cursor: pointer; user-select: none; }
+.screen .card .keep input { width: 18px; height: 18px; margin: 0; }
+#loadcard { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: #07060b; transition: opacity .35s; }
+#loadcard.off { opacity: 0; pointer-events: none; }
+#loadcard .lbox { text-align: center; color: #d8d0e4; }
+#loadcard small { letter-spacing: .2em; text-transform: uppercase; color: #8a8496; font-size: 13px; }
+#loadcard h2 { margin: 6px 0 8px; color: #ffe89a; text-shadow: 2px 2px 0 #000; font-size: 32px; }
+#loadcard .lstars { font-size: 20px; color: #ff8a3a; letter-spacing: 3px; }
+#loadcard p { margin: 10px 0 22px; color: #a8a2b4; font-size: 15px; }
+#loadcard .lspin { position: relative; width: 44px; height: 44px; margin: 0 auto; animation: lspin 1s steps(8) infinite; }
+#loadcard .lspin i { position: absolute; left: 19px; top: 0; width: 6px; height: 6px; background: #ffe89a; transform-origin: 3px 22px; }
+#loadcard .lspin i:nth-child(1) { transform: rotate(0deg); opacity: 0.2; }
+#loadcard .lspin i:nth-child(2) { transform: rotate(45deg); opacity: 0.3; }
+#loadcard .lspin i:nth-child(3) { transform: rotate(90deg); opacity: 0.4; }
+#loadcard .lspin i:nth-child(4) { transform: rotate(135deg); opacity: 0.5; }
+#loadcard .lspin i:nth-child(5) { transform: rotate(180deg); opacity: 0.6; }
+#loadcard .lspin i:nth-child(6) { transform: rotate(225deg); opacity: 0.7; }
+#loadcard .lspin i:nth-child(7) { transform: rotate(270deg); opacity: 0.8; }
+#loadcard .lspin i:nth-child(8) { transform: rotate(315deg); opacity: 0.9; }
+body .screen :not(h1):not(h2) { font-size: 16px !important; font-weight: 400 !important; }
+body .screen h1, body .screen h2 { font-size: 24px !important; font-weight: 400 !important; }
+body .screen .logo h1, body .screen.home > h1 { font-size: 72px !important; letter-spacing: 6px; line-height: 1.1; }
+body .screen .logo.small h1 { font-size: 48px !important; letter-spacing: 4px; }
+.deathscr .dcols { display: flex; gap: 18px; justify-content: center; align-items: flex-start; flex-wrap: wrap; margin: 8px 0; }
+.deathscr .dleft { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.deathscr #dgrave { image-rendering: pixelated; }
+.deathscr .dgear { display: flex; gap: 4px; }
+.deathscr .dslot { width: 44px; height: 44px; background: #120f18; border: 2px solid #3a3348; }
+.deathscr .dslot .ico { width: 100%; height: 100%; background-size: contain; background-repeat: no-repeat; image-rendering: pixelated; }
+.deathscr .dright { min-width: 260px; }
+.deathscr .dright .famebox { margin: 0 0 8px; }
+.screen.atlas table { margin: 10px auto; border-collapse: collapse; text-align: left; max-width: 920px; }
+.screen.atlas th { color: #ffd98a; padding: 4px 10px; border-bottom: 1px solid #3a3348; }
+.screen.atlas td { padding: 4px 10px; border-bottom: 1px solid #221d2c; color: #ece6f6; }
+.screen.legends table.ach td:first-child { color: #5e5872; }
+.screen.legends table.ach tr:not(.got) b { color: #a8a2bc; }
+.screen.legends table.ach td:last-child { white-space: nowrap; }
+.screen.legends .legtabs { display: flex; gap: 8px; justify-content: center; margin: 4px 0 8px; }
+.screen.legends tr[data-pick] { cursor: pointer; }
+.screen.legends table.rec td:last-child { text-align: right; color: #ffd98a; }
+.screen.atlas td.stars { color: #ffd650; white-space: nowrap; }
+.screen.atlas td.stars i { color: #3a3348; font-style: normal; }
+.screen.atlas td.mut { color: #9a94ac; }
+.deathscr .drecap .bad { color: #ff6a6a; }
+.classes.pick { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; max-width: 900px; margin: 14px auto 10px; }
+.classes.pick .cls { padding: 10px 6px 12px; text-align: center; min-width: 0; }
+.classes.pick .cls canvas { width: 72px; height: 72px; margin-bottom: 6px; }
+.classes.pick .cls h3 { overflow-wrap: anywhere; }
+.classes.pick .cls .t { color: #8d88a0; margin-top: 3px; overflow-wrap: anywhere; }
+.clsinfo { max-width: 900px; margin: 0 auto 14px; min-height: 92px; box-sizing: border-box; padding: 10px 14px; background: var(--panel); border: 2px solid var(--edge); text-align: left; }
+.clsinfo h3 { margin: 0 0 4px; color: var(--gold); }
+.clsinfo p { margin: 0; color: #b8b2c8; line-height: 1.45; }
+body #overlay .btn.on { border-color: var(--gold); color: #ffe08a; background: linear-gradient(180deg, #3a3020 0%, #2a2218 100%); }
+body #overlay .cls, body #overlay .char { border-radius: 8px; transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease; }
+body #overlay { background: radial-gradient(ellipse at 50% 40%, #1a1622e6 0%, #0b0910f2 70%); backdrop-filter: blur(3px); }
+body #overlay.enter { animation: ovIn .2s ease-out both; }
+body #overlay.enter > .screen { animation: scrIn .24s cubic-bezier(.2, .8, .3, 1.15) both; }
+body #overlay input[type="range"], body #overlay input[type="checkbox"] { accent-color: var(--gold); cursor: pointer; }
+body #overlay .settings section, body #overlay .shop section { border-radius: 8px; }
+body #overlay .settings .key { border-radius: 5px; transition: border-color .12s ease, background .12s ease; }
+#boot { display: none; }
+body.booting #boot { display: flex; position: fixed; inset: 0; z-index: 40; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: radial-gradient(ellipse at 50% 40%, #1c1730 0%, #0b0910 70%); font-family: var(--r-font); }
+body.booting #boot b { color: var(--gold); font-size: 56px; font-weight: 400; letter-spacing: 5px; text-shadow: 3px 3px 0 #000, 0 0 18px rgba(242,193,78,.35); }
+body.booting #boot span { color: #8d88a0; font-size: 16px; animation: bootPulse 1.2s ease-in-out infinite; }
+.classes.pick .cls .ctags { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
+body .classes.pick .cls .ctags span { font-size: 11px !important; padding: 1px 6px; border-radius: 8px; border: 1px solid #4a4258; color: #c8c0d8; background: #120f18; }
+body .classes.pick .cls .ctags span.near { border-color: #a8503a; color: #ffb08a; }
+body .classes.pick .cls .ctags span.far { border-color: #3a6aa8; color: #9ac8ff; }
+body #overlay .settabs { display: flex; gap: 8px; justify-content: center; margin: 2px 0 10px; }
+body #overlay .settabs .btn { padding: 5px 18px; font-size: 16px !important; }
+#loadcard, #loadcard * { font-family: var(--r-font); font-weight: 400; }
+.famebox .fr span { min-width: 0; overflow-wrap: anywhere; }
+.famebox .fr b { flex: none; }
+/* (after the block above: .screen sets every screen's width, the home screen's is wider) */
+.home { width: min(980px, 100%); }
