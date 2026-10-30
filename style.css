@@ -1134,3 +1134,6 @@ body #app #vwbody { min-height: 0; flex: 1 1 auto; }
 /* a backpack tab pulses when something lands in it while you're looking at the other (src/ui.js) */
 body #app #stattabs button.ping { animation: packPing 1.4s ease-out; }
 @keyframes packPing { 0%, 40%, 80% { box-shadow: inset 0 0 0 2px #f2c14e, 0 0 10px #f2c14e; } 20%, 60%, 100% { box-shadow: none; } }
+
+/* the seal checklist sits below the banner's row: a long dungeon name (the Throne, the Marionette Theatre) ran over it */
+body #app #seals { top: 112px; }
