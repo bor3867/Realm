@@ -36,7 +36,7 @@ export const liveRecord = (p) => ({ kills: p.kills || 0, bossKills: p.bossKills 
   lore: (p.lore || []).length, quests: (p.quests || []).filter((q) => q.done).length, mins: Math.round((p.playT || 0) / 60), xp: p.totalXp || 0 });
 export function recordRows(d, short = false) {   // (short: the labels for the side panel's narrow box)
   const n = (v) => (v || 0).toLocaleString(), acc = d.shots ? `${Math.round((100 * (d.hits || 0)) / d.shots)}%` : '—';
-  const t = d.mins >= 60 ? `${Math.floor(d.mins / 60)}h ${d.mins % 60}m` : `${d.mins || 0}m`;
+  const mm = Math.round(d.mins || 0), t = mm >= 60 ? `${Math.floor(mm / 60)}h ${mm % 60}m` : `${mm}m`;   // (whole minutes: it could read 1h 15.4m)
   const L = short ? ['Kills', 'Boss kills', 'Dungeons', 'Shots', 'Hits', 'Accuracy', 'Dmg dealt', 'Dmg taken', 'Potions', 'Abilities', 'Chests', 'Secrets', 'Lore read', 'Quests', 'XP', 'Played']
     : ['Monsters killed', 'Bosses killed', 'Dungeons completed', 'Shots fired', 'Shots hit', 'Accuracy', 'Damage dealt', 'Damage taken', 'Potions drunk', 'Abilities used', 'Chests opened', 'Secret rooms found', 'Lore stones read', 'Quests finished', 'Experience', 'Time played'];
   return [n(d.kills), n(d.bossKills), n(d.dungeons), n(d.shots), n(d.hits), acc, n(d.dmgDealt), n(d.dmgTaken), n(d.potions), n(d.abilities), n(d.chests), n(d.secrets), n(d.lore), n(d.quests), n(d.xp), t].map((v, i) => [L[i], v]);
@@ -1536,7 +1536,7 @@ export class UI {
   deathScreen() {
     const d = this.g.deathInfo, g = this.g, C = CLASSES[d.cls];
     const acc = d.shots ? Math.min(100, Math.round((d.hits / d.shots) * 100)) : 0;
-    const stat = (k, v) => `<div class="fr"><span>${k}</span><b>${v}</b></div>`;
+    const stat = (k, v) => `<div class="fr"><span>${k}</span><b>${v}</b></div>`, nf = (n) => Math.round(n || 0).toLocaleString('en-US');   // (999,999, not 999999)
     const gear = (d.equip || []).map((id) => `<div class="dslot">${id ? `<div class="ico" style="background-image:url(${this.r.icon(id)})"></div>` : ''}</div>`).join('');
     const o = this.overlay(`<div class="screen deathscr"><h1 style="color:#e2546a">${d.name || C.name} has died</h1>
       <h2>${C.name}, level ${d.level} · killed by ${d.by}</h2>
@@ -1548,10 +1548,10 @@ export class UI {
             ${(d.bonuses || []).map(([n, v]) => `<div class="fr"><span>${n}</span><b>+${v}</b></div>`).join('')}
             <div class="fr tot"><span>Total fame</span><b class="fame">+${d.fame}</b></div></div>
           <div class="famebox dstats">
-            ${stat('Monsters killed', d.kills || 0)}${stat('Bosses killed', d.bossKills || 0)}${stat('Dungeons completed', d.dungeons || 0)}
-            ${stat('Shots fired', d.shots || 0)}${stat('Accuracy', acc + '%')}${stat('Damage taken', d.dmgTaken || 0)}
-            ${stat('Stats maxed', `${d.maxed}/8`)}${stat('Experience', d.xp || 0)}${stat('Minutes active', d.mins || 0)}</div>
-          ${(d.lastHits || []).length ? `<div class="famebox drecap"><div class="fr tot"><span>Your last seconds</span><b></b></div>${d.lastHits.map(([by, dm, ago]) => `<div class="fr"><span>${String(by).replace(/[&<]/g, '')}</span><b class="bad">-${dm}</b></div>`).join('')}</div>` : ''}
+            ${stat('Monsters killed', nf(d.kills))}${stat('Bosses killed', d.bossKills || 0)}${stat('Dungeons completed', d.dungeons || 0)}
+            ${stat('Shots fired', nf(d.shots))}${stat('Accuracy', d.shots ? acc + '%' : '—')}${stat('Damage taken', nf(d.dmgTaken))}
+            ${stat('Stats maxed', `${d.maxed}/8`)}${stat('Experience', nf(d.xp))}${stat('Minutes active', nf(d.mins))}</div>
+          ${(d.lastHits || []).length ? `<div class="famebox drecap"><div class="fr tot"><span>Your last seconds</span><b></b></div>${d.lastHits.map(([by, dm, ago]) => `<div class="fr"><span>${String(by).replace(/[&<]/g, '')}</span><b class="bad">-${Math.round(dm).toLocaleString('en-US')}</b></div>`).join('')}</div>` : ''}
         </div>
       </div>
       <p>Account fame: <span class="fame">${g.save.fame}</span></p>

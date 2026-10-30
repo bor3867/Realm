@@ -1120,3 +1120,6 @@ body #app #panel .slot:hover { outline: 2px solid #f2c14ecc; outline-offset: -2p
 /* the minimap's range: a moment when you change it */
 body #app #minilabel { opacity: 0; transition: opacity .3s ease; pointer-events: none; }
 body #app #minilabel.show { opacity: 1; }
+
+/* the death screen's rows: a name never runs into its number */
+.famebox .fr { gap: 14px; } .famebox .fr span { min-width: 0; overflow-wrap: anywhere; } .famebox .fr b { flex: none; }
