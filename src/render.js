@@ -66,6 +66,12 @@ const WEATHER = {
   astral: { n: 40, color: ['#ffffff', '#ffd690', '#c8a0ff'], vx: 0.5, vy: 0.4, size: 1, blink: true },         // stars, near and far
   keep: { n: 22, color: ['#8e1e30', '#c8b0a0', '#5a0a14'], vx: -1, vy: 1.5, size: 1, blink: false },          // dust and the odd drop of red
   hollowmoon: { n: 36, color: ['#ff8fbf', '#ffd650', '#8af6ff', '#7aff9a'], vx: 0.5, vy: 3, size: 1, blink: true },   // confetti, still falling
+  // (these dungeons fell back to the forge's rising embers: fire in a frozen library, a hive, a dream. 2026-10-29)
+  scriptorium: { n: 40, color: ['#ffffff', '#e8f6ff', '#f0e2c0'], vx: 2, vy: 5, size: 1, blink: false },     // frost sifting down, a fleck of old paper
+  hive: { n: 30, color: ['#ffd650', '#ffe9a0', '#f2a020'], vx: 2.5, vy: -1, size: 1, blink: true },          // pollen drifting in the warm air
+  theatre: { n: 24, color: ['#fff0c0', '#ffd890', '#ffffff'], vx: 0.6, vy: 1.2, size: 1, blink: true },       // dust turning in the footlights
+  spire: { n: 32, color: ['#9ae8ff', '#ff9ae0', '#fff6a0', '#ffffff'], vx: 0.8, vy: -1.2, size: 1, blink: true },   // prism glints, every colour
+  dream: { n: 30, color: ['#d0c8f4', '#ffffff', '#ffe680'], vx: 0.6, vy: -2.2, size: 1, blink: true },        // motes of sleep rising
 };
 
 // minimap markers: o outline, 1 main colour, 2 accent
@@ -2241,7 +2247,7 @@ export class Renderer {
     this.parts = keep;
   }
   drawWeather(g, dt) {
-    const dz = { chapel: 'shore', heart: 'godfall', crypt: 'crypt', ember: 'forge', frostveil: 'frostveil', mirerot: 'mirerot', astral: 'astral', sandscour: 'dunes', keep: 'keep', hollowmoon: 'hollowmoon' };
+    const dz = { chapel: 'shore', heart: 'godfall', throne: 'godfall', scriptorium: 'scriptorium', hive: 'hive', theatre: 'theatre', spire: 'spire', dream: 'dream', crypt: 'crypt', ember: 'forge', frostveil: 'frostveil', mirerot: 'mirerot', astral: 'astral', sandscour: 'dunes', keep: 'keep', hollowmoon: 'hollowmoon' };
     const bi = g.map.kind === 'realm' ? BIOMES[biomeAt(g.map, g.player.x, g.player.y)] : g.map.kind === 'dungeon' ? (dz[g.map.def && Object.keys(g.map.def).length && g.map.def.portal] || 'forge') : 'nexus';
     const kind = WEATHER[bi] ? bi : null;
     const BW = this.buf.width, BH = this.buf.height, b = this.b;
