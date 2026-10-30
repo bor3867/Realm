@@ -124,15 +124,25 @@ export function analyze(sel, states, inR, roleOf) {
 // included) would otherwise win: one marked !important, or a more specific one. Returns the block and what it drops.
 export function rewrite(sel, states, inR) {
   const rules = sheetRules(); let R = rules.filter(inR);
-  const won = new Map(), seen = new Set();                // rule -> Set(longhand) it wins on some element; rules that matched anything
+  const won = new Map(), seen = new Set(), need = new Map();   // need: rule -> Set(longhand) that must stay !important                // rule -> Set(longhand) it wins on some element; rules that matched anything
   for (const [, on, off] of states) {
     on();
     for (const el of document.querySelectorAll(sel)) for (const x of R) {
+      if (!el.getClientRects().length) continue;            // (a hidden element proves nothing: what it would look like shown is untested)
       if (!matchSpec(el, x.parts, false)) continue;
       seen.add(x);
+      const s0 = matchSpec(el, x.parts, false);
       for (const P of x.declared) {
         const w = winner(el, P, rules);
-        if (w && w !== 'inline' && w.x === x) (won.get(x) || won.set(x, new Set()).get(x)).add(P);
+        if (!(w && w !== 'inline' && w.x === x)) continue;
+        (won.get(x) || won.set(x, new Set()).get(x)).add(P);
+        // would it still win without !important? (judged here, in the state where it applies)
+        if (x.r.style.getPropertyPriority(P) !== 'important') continue;
+        for (const y of rules) {
+          if (y === x || !y.declared.has(P)) continue;
+          const s = matchSpec(el, y.parts, true); if (!s) continue;
+          if (y.r.style.getPropertyPriority(P) === 'important' || cmp(s, s0) > 0) { (need.get(x) || need.set(x, new Set()).get(x)).add(P); break; }
+        }
       }
     }
     off();
@@ -163,7 +173,7 @@ export function rewrite(sel, states, inR) {
       const longs = [...x.declared].filter((P) => covers(prop, P));
       const live = longs.filter((P) => W && W.has(P));
       if (!live.length) { dropped.push(`${keyS} { ${prop} }`); continue; }
-      const imp = /!\s*important/.test(d) && live.some((P) => needImp(x, P));
+      const imp = /!\s*important/.test(d) && live.some((P) => need.get(x)?.has(P));
       M.delete(prop); M.set(prop, { text, imp, order: x.order });
     }
   }

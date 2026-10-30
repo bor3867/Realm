@@ -28,13 +28,9 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 .slot .tier { position: absolute; color: var(--mut); }
 .slot .tier.ut { color: var(--gold); }
 .hidden { display: none !important; }
-#tooltip { position: fixed; z-index: 30; pointer-events: none; border: 2px solid var(--edge); }
-#tooltip h4 { margin: 0 0 4px; font-weight: 700; }
-#tooltip .t { color: var(--mut); }
 #tooltip .d { color: #b8b2c8; margin-top: 6px; }
 #tooltip .s { color: #7ad0a8; }
 #tooltip .bad { color: #e2546a; }
-#banner { position: absolute; left: 50%; transform: translateX(-50%); background: #120f18e0; border: 2px solid var(--edge); color: var(--gold); pointer-events: none; }
 #overlay { position: fixed; inset: 0; z-index: 20; background: #0e0c12f2; display: grid; place-items: center; overflow-y: auto; padding: 16px; }
 .screen { width: min(820px, 100%); text-align: center; }
 .screen h1 { font-size: 40px; margin: 0 0 4px; color: var(--gold); font-weight: 700; letter-spacing: 2px; }
@@ -72,13 +68,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 .settings .actions { text-align: center; }
 
 /* chat */
-#chat { position: absolute; left: 10px; bottom: 10px; width: min(460px, calc(100% - 20px)); pointer-events: none; }
-#chatlog { display: flex; flex-direction: column; gap: 1px; max-height: 190px; overflow: hidden; justify-content: flex-end; }
-#chatlog div { text-shadow: 1px 1px 0 #000, -1px 0 0 #000, 0 -1px 0 #000; transition: opacity .6s; overflow-wrap: anywhere; }
-#chatlog div.old { opacity: 0; }
-#chat.open #chatlog { background: #0e0c12c0; padding: 4px 6px; overflow-y: auto; pointer-events: auto; max-height: 240px; }
-#chat.open #chatlog div.old { opacity: 1; }
-#chatin { width: 100%; margin-top: 4px; pointer-events: auto; background: #0e0c12e8; color: var(--ink); border: 2px solid var(--gold); font: inherit; font-size: 14px; padding: 5px 8px; }
 #chatin:focus { outline: none; }
 
 /* shop + forge */
@@ -97,8 +86,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 @media (max-width: 700px) { .shop .cols { grid-template-columns: 1fr; } }
 
 /* map-change fade */
-#fade { position: absolute; inset: 0; background: #0a080c; opacity: 0; pointer-events: none; }
-#fade.go { animation: fadein .45s ease-out; }
 @keyframes fadein { from { opacity: 1; } to { opacity: 0; } }
 
 /* ---------- visual pass: colour, highlight, outline ---------- */
@@ -126,27 +113,16 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 .slot.over { border-color: #fff; box-shadow: 0 0 10px #f2c14e; }
 
 /* tooltip: framed in the item's rarity colour */
-#tooltip { background: #120f18f2; border: 2px solid var(--rc, var(--edge)); box-shadow: 0 0 0 2px #000, 0 0 16px -4px var(--rc, #000), 4px 4px 0 #000; }
-#tooltip h4 { text-shadow: 2px 2px 0 #000; }
 
 /* screens */
 .screen h1 { text-shadow: 3px 3px 0 #000, 0 0 18px rgba(242,193,78,.35); }
 .cls, .btn { box-shadow: 0 3px 0 #0c0a10; }
 .cls:hover, .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 0 #0c0a10, 0 0 10px -2px var(--gold); }
-#banner { box-shadow: 0 0 0 2px #000, 0 0 18px -4px var(--gold); text-shadow: 2px 2px 0 #000; }
 
 /* account HUD, top-left of the play view */
-#hud { position: absolute; display: flex; gap: 6px; pointer-events: none; }
-#hud span { background: #120f18e8; border: 2px solid #0c0a10; box-shadow: inset 0 0 0 1px var(--edge-hi), 0 3px 0 #0c0a10; text-shadow: 1px 1px 0 #000; }
-#hud b { font-weight: 700; color: #fff; }
 /* what's boosting you, with its time left: top right under the boss bar (the seals sit top left), over the game: the panel's layout never moves */
-#boosts { position: absolute; right: 10px; top: 96px; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; pointer-events: none; font-size: 14px; z-index: 6; }
-#boosts .bst { background: #120f18e8; border: 2px solid #0c0a10; box-shadow: inset 0 0 0 1px var(--edge-hi); padding: 2px 7px; text-shadow: 1px 1px 0 #000; display: flex; gap: 8px; align-items: baseline; }
-#boosts .bst b { color: #7aff9a; font-weight: 700; }
 #boosts .bst.bad b { color: #ff6a7a; }
-#boosts .bst i { font-style: normal; color: #c8c0d8; }
-#boosts .bst em { font-style: normal; color: #fff; margin-left: auto; min-width: 34px; text-align: right; }
-#hud .h-fame { color: #f2c14e; } #hud .h-gold { color: #ffd650; } #hud .h-ess { color: #b98cff; }
+  
 
 /* home + character select */
 .home { width: min(980px, 100%); }
@@ -192,14 +168,9 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 .slot .tier { font-size: 13px; right: 4px; bottom: 2px; }
 .slot.admin { background: radial-gradient(circle at 50% 45%, #4a0a5a 0%, #0c0a10 70%); animation: adminglow 1.2s linear infinite; }
 @keyframes adminglow { 0% { box-shadow: 0 0 10px #ff4af0; } 33% { box-shadow: 0 0 10px #8af6ff; } 66% { box-shadow: 0 0 10px #ffd650; } 100% { box-shadow: 0 0 10px #ff4af0; } }
-#hud { font-size: 17px; gap: 8px; top: 12px; left: 12px; }
-#hud span { padding: 5px 11px; }
-#tooltip h4 { font-size: 17px; }
 #tooltip .d { font-size: 13px; }
 #tooltip .sp { color: #ffd650; margin-top: 4px; }
 #tooltip .sp::before { content: '✦ '; color: #f2c14e; }
-#banner { font-size: 19px; padding: 8px 18px; }
-#chatlog { font-size: 15px; }
 .classes { grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
 @media (max-width: 1100px) {  #minimap { width: 258px; height: 258px; } .slots { grid-template-columns: repeat(4, 58px); gap: 6px; } .slot { width: 58px; height: 58px; } .slot .ico { width: 40px; height: 40px; } }
 
@@ -212,7 +183,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 
 /* the panel always fits the window: the minimap gives up space first, then everything tightens */
  
-#tooltip { max-height: calc(100vh - 16px); }
 
 /* the interaction area (loot bag / portal / NPC) always holds its space, so nothing in the panel ever moves.
    A bag takes priority over a portal it sits on; the portal can still be entered from the bag's header. */
@@ -255,7 +225,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #tooltip .setbox .on { color: #c8ffd6; } #tooltip .setbox .off { color: #6a7a70; }
 
 /* the boss bar sits at y=58 on the canvas: announcements drop below it */
-#banner { top: 112px !important; }
 
 
 /* ================================================================ the side panel, RotMG-clean
@@ -348,33 +317,17 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #ground.vault .slot .tier { font-size: 9px; }
 
 /* ---- the item tooltip, laid out in sections: header, story, numbers, bonuses, specials, comparisons, controls */
-#tooltip { width: 320px; max-width: 320px; padding: 0; font-size: 14px; line-height: 1.35; border-radius: 8px; overflow: hidden; }
-#tooltip .th { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 10px 12px 8px;
-  background: linear-gradient(180deg, color-mix(in srgb, var(--rc, #888) 22%, #120f18), #120f18); border-bottom: 1px solid #2a2434; }
-#tooltip .th h4 { margin: 0; font-size: 17px; color: var(--rc, #fff); line-height: 1.2; }
-#tooltip .th .t { color: #9a94ac; font-size: 12px; margin-top: 2px; }
-#tooltip .badge { flex: none; font-size: 11px; font-weight: 800; letter-spacing: .5px; color: #120f18; background: var(--rc, #ccc);
-  padding: 2px 6px; border-radius: 4px; margin-top: 2px; }
-#tooltip .flav { padding: 8px 12px; color: #c9c2d8; font-style: italic; font-size: 13px; border-bottom: 1px solid #221d2c; }
-#tooltip .sec { padding: 8px 12px; border-bottom: 1px solid #221d2c; }
 #tooltip .sec:last-child { border-bottom: 0; }
 #tooltip .ab { color: #ffd98a; font-weight: 800; font-size: 14px; }
 #tooltip .abd { color: #b8b2c8; font-size: 13px; margin-top: 2px; }
-#tooltip .stats { display: grid; gap: 3px; }
-#tooltip .kv { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; }
-#tooltip .kv span { color: #8f89a2; }
-#tooltip .kv b { color: #ece6f6; font-weight: 700; text-align: right; }
 #tooltip .kv.good b { color: #7ad0a8; }
 #tooltip .chips { display: flex; flex-wrap: wrap; gap: 5px; }
 #tooltip .chip { font-size: 12px; font-weight: 700; padding: 2px 7px; border-radius: 10px; background: #1b2a22; color: #7ad0a8; border: 1px solid #2a4a3a; }
 #tooltip .chip.down { background: #2a1518; color: #e2546a; border-color: #4a2228; }
 #tooltip .sp { margin: 0; }
-#tooltip .cmp { margin: 8px 12px; padding: 6px 8px; border-radius: 6px; background: #17141f; border: 1px solid #2a2434; font-size: 13px; }
-#tooltip .cmp .ch { color: #9a94ac; font-size: 12px; margin-bottom: 2px; }
-#tooltip .cmp .good { color: #7ad0a8; } #tooltip .cmp .bad { color: #e2546a; }
+ #tooltip .cmp .bad { color: #e2546a; }
 #tooltip .setbox, #tooltip .ench { margin: 8px 12px; border-radius: 6px; }
 #tooltip .nope { padding: 6px 12px; }
-#tooltip .keys { padding: 7px 12px; font-size: 11px; color: #7d7790; background: #0e0c13; border-top: 1px solid #221d2c; }
 /* hovering a loot bag in the world: what's inside */
 #tooltip .bagtip { padding: 6px 10px 8px; display: grid; gap: 4px; }
 #tooltip .bagtip .bi { display: flex; align-items: center; gap: 8px; font-size: 13px; }
@@ -456,7 +409,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #seals .label { letter-spacing: .05em; text-transform: uppercase; margin: 0 0 2px; }
 #seals .q.seal { background: rgba(255, 255, 255, 0.04); }
 #seals { z-index: 4; }
-#banner { z-index: 9; }
 /* ---- the minimap takes whatever room the panel has left (and gives it back when a bag needs it) */
    /* never taller than it is wide: the map stays square */
 /* the bag area under the potions is always reserved (room for a full 8-slot bag), so nothing shifts when you step on one */
@@ -557,25 +509,9 @@ body #app #panel #ground.vault { grid-template-columns: repeat(8, 1fr) !importan
 
 /* ==== the vault window: a big window over the game while you stand on your vault chest (ui.openVault moves the vault's
    grid into it), and the gear's dropdown menu. RotMG greys, the HUD's outlined pixel font. ==== */
-#vaultwin { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 12; width: min(760px, calc(100% - 32px)); max-height: calc(100% - 40px);
-  display: flex; flex-direction: column; background: var(--r-pane, #363636); border: 2px solid #9a9a9a; box-shadow: 0 0 0 2px #1a1a1a, 0 12px 40px #000c; font-family: var(--r-font); }
 #vaultwin.hidden { display: none; }
-#vaultwin .vwhead { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: #2a2a2a; border-bottom: 2px solid #1a1a1a; flex-wrap: wrap; }
-#vaultwin .vwhead b { font: 600 16px var(--r-font); color: #fff; text-shadow: var(--r-ol); }
-#vaultwin .vwhead small { color: #a8a8a8; font: 500 16px var(--r-font); }
-#vaultwin .vwhead .sp { flex: 1; }
-#vaultwin .vwsort { color: #c8c8c8; font: 500 16px var(--r-font); display: flex; align-items: center; gap: 4px; }
-#vaultwin .vwsort button, #vwclose { font: 500 16px var(--r-font); color: #fff; background: #4a4a4a; border: 2px solid #222; padding: 2px 8px; cursor: pointer; text-shadow: var(--r-ol); }
 #vaultwin .vwsort button:hover, #vwclose:hover { background: #5e5e5e; border-color: #9a9a9a; }
-#vwclose { font-size: 16px; line-height: 18px; padding: 2px 9px; }
-#vwbody { overflow-y: auto; padding: 10px; min-height: 120px; }
-#vaultwin #ground.vault.slots { display: grid !important; grid-template-columns: repeat(auto-fill, 58px) !important; gap: 6px !important; justify-content: center;
-  max-height: none !important; width: auto !important; padding: 0 !important; }
-#vaultwin #ground.vault .slot { width: 58px !important; height: 58px !important; aspect-ratio: auto !important; border-radius: 0 !important; background: var(--r-slot, #545454) !important; border: 2px solid #3a3a3a !important; box-shadow: none !important; }
 #vaultwin #ground.vault .slot:hover { border-color: #d0d0d0 !important; }
-#vaultwin #ground.vault .slot .ico { width: 46px !important; height: 46px !important; }
-#vaultwin #ground.vault .slot .tier { font: 500 16px/1 var(--r-font) !important; color: #fff !important; text-shadow: var(--r-ol) !important; right: 3px; bottom: 2px; }
-#vaultwin .vwfoot { padding: 6px 10px 8px; color: #8a8a8a; font: 500 16px var(--r-font); border-top: 2px solid #1a1a1a; background: #2a2a2a; }
 body #app #panel #groundlabel[style*="pointer"]:hover { color: #fff; text-decoration: underline; }
 
 #gearmenu { position: absolute; z-index: 20; right: 8px; top: calc(100% * 0); margin-top: 0; display: flex; flex-direction: column; min-width: 170px;
@@ -620,13 +556,6 @@ html body #app #panel #who #petname .other:hover { color: #ffffff; text-decorati
 body #app, body #app button, body #app input, body #app select, body #app textarea,
 body #overlay, body #overlay button, body #overlay input, body #overlay select, body #overlay textarea { font-family: var(--r-font) !important; }
 body .screen.journal .page { font-family: Georgia, 'Times New Roman', serif !important; }
-body #app #hud { font-size: 16px; }
-body #app #hud b { font-weight: 400; }
-body #app #banner { font-size: 24px; }
-body #app #chatlog { font-size: 16px; }
-body #tooltip, body #tooltip * { font-family: var(--r-font) !important; font-weight: 400 !important; }
-body #tooltip, body #tooltip :not(h4) { font-size: 16px !important; }
-body #tooltip h4 { font-size: 24px !important; }
 body .screen :not(h1):not(h2) { font-size: 16px !important; font-weight: 400 !important; }
 body .screen h1, body .screen h2 { font-size: 24px !important; font-weight: 400 !important; }
 body .screen .logo h1, body .screen.home > h1 { font-size: 72px !important; letter-spacing: 6px; line-height: 1.1; }   /* the title: 9 screen px a font pixel */
@@ -777,18 +706,12 @@ body #overlay.leaving { animation: ovOut .16s ease-in both; pointer-events: none
 @media (prefers-reduced-motion: reduce) { body #overlay.enter, body #overlay.leaving, body #overlay > .screen { animation: none !important; } }
 
 /* banners pop in and fade away */
-body #app #banner.pop { animation: banIn .28s cubic-bezier(.2, .9, .3, 1.3) both; }
 body #app #banner.out { animation: banOut .26s ease-in both; }
 @keyframes banIn { from { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(.9); } to { opacity: 1; transform: translateX(-50%); } }
 @keyframes banOut { from { opacity: 1; transform: translateX(-50%); } to { opacity: 0; transform: translateX(-50%) translateY(-6px); } }
 
 /* the chat: it scrolls (the lines stack from the bottom, and you can scroll back up through them); open, it sits on a
    see-through dark glass, the game showing through, with a matching box to type in */
-body #app #chatlog { justify-content: flex-start; overscroll-behavior: contain; }
-body #app #chatlog > :first-child { margin-top: auto; }
-body #app #chat.open #chatlog { background: #0c0a1270; backdrop-filter: blur(2px); border: 1px solid #ffffff12; border-bottom: 0; border-radius: 6px 6px 0 0; padding: 6px 8px; max-height: 260px; box-shadow: 0 6px 18px -8px #000; }
-body #app #chat.open #chatlog div { padding: 1px 0; }
-body #app #chatin { background: #0c0a1299; backdrop-filter: blur(3px); border: 1px solid #f2c14e99; border-radius: 0 0 6px 6px; margin-top: 0; padding: 6px 10px; box-shadow: 0 0 0 1px #0008, 0 6px 16px -8px #000; transition: border-color .12s ease, box-shadow .12s ease; animation: chatIn .15s ease-out; }
 body #app #chatin:focus { border-color: var(--gold); box-shadow: 0 0 0 1px #0008, 0 0 12px -4px #f2c14e; }
 body #app #chatin::placeholder { color: #8d88a0; }
 body #app #chatnew { display: block; margin: -30px auto 6px; position: relative; z-index: 1; pointer-events: auto; font-size: 13px !important; padding: 3px 12px; border-radius: 12px; border: 1px solid #f2c14e; background: #2a2218e6; color: #ffe08a; cursor: pointer; box-shadow: 0 2px 8px #000a; }
@@ -797,16 +720,8 @@ body #app #chatnew.hidden { display: none !important; }
 @keyframes chatIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
 /* the first time you play: the controls, in your keys (src/ui.js firstHelp) */
-body #app #howto { position: absolute; top: 52px; left: 12px; width: min(360px, calc(100% - 24px)); z-index: 12; padding: 12px 14px; background: #120f18eb; backdrop-filter: blur(3px); border: 2px solid #3e3650; border-radius: 10px; box-shadow: 0 0 0 2px #000, 0 10px 30px -10px #000, 0 0 22px -10px #f2c14e; animation: helpIn .3s cubic-bezier(.2, .8, .3, 1.15) both; text-align: left; }
 body #app #howto.out { animation: ovOut .2s ease-in both; }
-body #app #howto .hh { display: flex; align-items: center; margin-bottom: 8px; }
-body #app #howto .hh b { color: var(--gold); font-size: 20px; flex: 1; text-shadow: 1px 1px 0 #000; font-weight: 400; }
-body #app #howto .x { background: none; border: 0; color: #8d88a0; font-size: 16px; cursor: pointer; padding: 2px 6px; border-radius: 4px; }
 body #app #howto .x:hover { color: #fff; background: #ffffff14; }
-body #app #howto .hk { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; align-items: center; font-size: 14px; }
-body #app #howto kbd { font-family: var(--r-font); font-size: 13px; color: #ffe08a; background: #241e2e; border: 1px solid #4a4258; border-bottom-width: 3px; border-radius: 5px; padding: 1px 7px; text-align: center; white-space: nowrap; }
-body #app #howto p { margin: 10px 0 8px; color: #b8b2c8; font-size: 14px; line-height: 1.4; }
-body #app #howto .ok { float: right; margin: 0; padding: 5px 18px; font-size: 15px; }
 body #app #howto::after { content: ""; display: block; clear: both; }
 @keyframes helpIn { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: none; } }
 
@@ -832,7 +747,6 @@ body.booting #boot span { color: #8d88a0; font-size: 16px; animation: bootPulse 
 @keyframes bootPulse { 50% { opacity: .35; } }
 @media (max-width: 760px) { body.booting #boot b { font-size: 32px; } }
 /* tooltips fade in */
-body #tooltip:not(.hidden) { animation: tipIn .12s ease-out; }
 @keyframes tipIn { from { opacity: 0; } to { opacity: 1; } }
 /* the class cards' tags: reach and armour */
 .classes.pick .cls .ctags { display: flex; gap: 4px; justify-content: center; flex-wrap: wrap; margin-top: 6px; }
@@ -846,13 +760,7 @@ body .classes.pick .cls .ctags span.far { border-color: #3a6aa8; color: #9ac8ff;
 body #overlay .settabs { display: flex; gap: 8px; justify-content: center; margin: 2px 0 10px; }
 body #overlay .settabs .btn { padding: 5px 18px; font-size: 16px !important; }
 /* an achievement: a card from the top right */
-#achcards { position: absolute; display: flex; gap: 8px; z-index: 14; pointer-events: none; }
-.achcard { display: flex; gap: 10px; align-items: center; min-width: 240px; max-width: 340px; padding: 9px 14px 9px 10px; background: linear-gradient(180deg, #2a2218f0, #1a1510f0); border: 2px solid #f2c14e; border-radius: 10px; box-shadow: 0 0 0 2px #000, 0 8px 24px -8px #000, 0 0 22px -6px #f2c14e; animation: achIn .45s cubic-bezier(.2, .9, .3, 1.2) both; }
 .achcard.out { animation: achOut .4s ease-in both; }
-.achcard .star { font-size: 30px; color: #ffd650; text-shadow: 0 0 10px #f2c14e, 2px 2px 0 #000; animation: achSpin .9s ease-out; }
-.achcard small { display: block; color: #c8a860; font-size: 12px; letter-spacing: .04em; }
-.achcard b { display: block; color: #fff3c8; font-size: 17px; font-weight: 400; text-shadow: 1px 1px 0 #000; }
-.achcard em { display: block; font-style: normal; color: #9ad89a; font-size: 13px; }
 @keyframes achIn { from { opacity: 0; transform: translateX(40px); } to { opacity: 1; transform: none; } }
 @keyframes achOut { to { opacity: 0; transform: translateX(40px); } }
 @keyframes achSpin { from { transform: rotate(-180deg) scale(.4); } to { transform: none; } }
@@ -870,7 +778,6 @@ body #app #panel .slot:hover { outline: 2px solid #f2c14ecc; outline-offset: -2p
 #loadcard small { font-size: 13px !important; }
 #loadcard p { font-size: 15px !important; }
 /* achievement cards: the bottom right of the view (at the top they hid the active-boost chips) */
-#achcards { top: auto; bottom: 14px; right: 12px; flex-direction: column-reverse; }
 /* the minimap's range: a moment when you change it */
 
 /* the death screen's rows: a name never runs into its number */
@@ -878,9 +785,7 @@ body #app #panel .slot:hover { outline: 2px solid #f2c14ecc; outline-offset: -2p
 
 /* the vault window: at the top of the view, clear of you and the chest (it sat on top of you), no empty band under a
    small vault; a big one scrolls inside it */
-body #app #vaultwin { top: 52px; transform: translateX(-50%); max-height: max(200px, calc(50% - 70px)); display: flex; flex-direction: column; animation: vwIn .18s ease-out; }
 body #app #vaultwin.hidden { display: none; }
-body #app #vwbody { min-height: 0; flex: 1 1 auto; }
 @keyframes vwIn { from { opacity: 0; transform: translateX(-50%) translateY(-8px); } to { opacity: 1; transform: translateX(-50%); } }
 
 /* a backpack tab pulses when something lands in it while you're looking at the other (src/ui.js) */
@@ -1051,3 +956,88 @@ html body #app #panel #who #petname .netstat.off { color: #8a8a8a; }
 body #app #panel #tabbody #stats.recview { display: block !important; overflow-y: auto; overflow-x: hidden; }
 body #app #panel #tabbody #stats.recview, body #app #panel #tabbody #stats.recview * { font-size: 13px !important; }
 body #app #panel #tabbody #stats.recview > div { display: flex; justify-content: space-between; gap: 6px; white-space: nowrap; line-height: 1.45; }
+
+/* ==== over the game: the top bar, the chat, banners, boost chips, the vault window, tooltips, the welcome and
+   achievement cards. One block (2026-10-29; tools/css_cascade.js rewrite): it was 95 rules across
+   the file. Each selector is the one it had, once, with only what wins; !important only where a rule that would
+   otherwise win is !important or more specific. ==== */
+#tooltip { position: fixed; z-index: 30; pointer-events: none; background: #120f18f2; border: 2px solid var(--rc, var(--edge)); box-shadow: 0 0 0 2px #000, 0 0 16px -4px var(--rc, #000), 4px 4px 0 #000; max-height: calc(100vh - 16px); width: 320px; max-width: 320px; padding: 0; line-height: 1.35; border-radius: 8px; overflow: hidden; }
+#tooltip h4 { text-shadow: 2px 2px 0 #000; }
+#banner { position: absolute; left: 50%; transform: translateX(-50%); background: #120f18e0; border: 2px solid var(--edge); color: var(--gold); pointer-events: none; box-shadow: 0 0 0 2px #000, 0 0 18px -4px var(--gold); text-shadow: 2px 2px 0 #000; padding: 8px 18px; top: 112px; z-index: 9; }
+#chat { position: absolute; left: 10px; bottom: 10px; width: min(460px, calc(100% - 20px)); pointer-events: none; }
+#chatlog { display: flex; flex-direction: column; gap: 1px; max-height: 190px; overflow: hidden; }
+#chatlog div { text-shadow: 1px 1px 0 #000, -1px 0 0 #000, 0 -1px 0 #000; transition: opacity .6s; overflow-wrap: anywhere; }
+#chatlog div.old { opacity: 0; }
+#chat.open #chatlog { overflow-y: auto; pointer-events: auto; }
+#chat.open #chatlog div.old { opacity: 1; }
+#chatin { width: 100%; pointer-events: auto; color: var(--ink); font: inherit; font-size: 14px; }
+#fade { position: absolute; inset: 0; background: #0a080c; opacity: 0; pointer-events: none; }
+#fade.go { animation: fadein .45s ease-out; }
+#hud { position: absolute; display: flex; pointer-events: none; gap: 8px; top: 12px; left: 12px; }
+#hud span { background: #120f18e8; border: 2px solid #0c0a10; box-shadow: inset 0 0 0 1px var(--edge-hi), 0 3px 0 #0c0a10; text-shadow: 1px 1px 0 #000; padding: 5px 11px; }
+#hud b { color: #fff; }
+#boosts { position: absolute; right: 10px; top: 96px; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; pointer-events: none; font-size: 14px; z-index: 6; }
+#boosts .bst { background: #120f18e8; border: 2px solid #0c0a10; box-shadow: inset 0 0 0 1px var(--edge-hi); padding: 2px 7px; text-shadow: 1px 1px 0 #000; display: flex; gap: 8px; align-items: baseline; }
+#boosts .bst b { color: #7aff9a; font-weight: 700; }
+#boosts .bst i { font-style: normal; color: #c8c0d8; }
+#boosts .bst em { font-style: normal; color: #fff; margin-left: auto; min-width: 34px; text-align: right; }
+#hud .h-fame { color: #f2c14e; }
+#hud .h-gold { color: #ffd650; }
+#hud .h-ess { color: #b98cff; }
+#tooltip .th { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; padding: 10px 12px 8px; background: linear-gradient(180deg, color-mix(in srgb, var(--rc, #888) 22%, #120f18), #120f18); border-bottom: 1px solid #2a2434; }
+#tooltip .th h4 { margin: 0; color: var(--rc, #fff); line-height: 1.2; }
+#tooltip .th .t { color: #9a94ac; margin-top: 2px; }
+#tooltip .badge { flex: none; letter-spacing: .5px; color: #120f18; background: var(--rc, #ccc); padding: 2px 6px; border-radius: 4px; margin-top: 2px; }
+#tooltip .flav { padding: 8px 12px; color: #c9c2d8; font-style: italic; border-bottom: 1px solid #221d2c; }
+#tooltip .sec { padding: 8px 12px; border-bottom: 1px solid #221d2c; }
+#tooltip .stats { display: grid; gap: 3px; }
+#tooltip .kv { display: flex; justify-content: space-between; gap: 12px; }
+#tooltip .kv span { color: #8f89a2; }
+#tooltip .kv b { color: #ece6f6; text-align: right; }
+#tooltip .cmp { margin: 8px 12px; padding: 6px 8px; border-radius: 6px; background: #17141f; border: 1px solid #2a2434; }
+#tooltip .cmp .ch { color: #9a94ac; margin-bottom: 2px; }
+#tooltip .cmp .good { color: #7ad0a8; }
+#tooltip .keys { padding: 7px 12px; color: #7d7790; background: #0e0c13; border-top: 1px solid #221d2c; }
+#vaultwin { position: absolute; left: 50%; z-index: 12; width: min(760px, calc(100% - 32px)); background: var(--r-pane, #363636); border: 2px solid #9a9a9a; box-shadow: 0 0 0 2px #1a1a1a, 0 12px 40px #000c; font-family: var(--r-font); }
+#vaultwin .vwhead { display: flex; align-items: center; gap: 10px; padding: 8px 10px; background: #2a2a2a; border-bottom: 2px solid #1a1a1a; flex-wrap: wrap; }
+#vaultwin .vwhead b { font: 600 16px var(--r-font); color: #fff; text-shadow: var(--r-ol); }
+#vaultwin .vwhead small { color: #a8a8a8; font: 500 16px var(--r-font); }
+#vaultwin .vwhead .sp { flex: 1; }
+#vaultwin .vwsort { color: #c8c8c8; font: 500 16px var(--r-font); display: flex; align-items: center; gap: 4px; }
+#vaultwin .vwsort button, #vwclose { font: 500 16px var(--r-font); color: #fff; background: #4a4a4a; border: 2px solid #222; padding: 2px 8px; cursor: pointer; text-shadow: var(--r-ol); }
+#vwclose { font-size: 16px; line-height: 18px; padding: 2px 9px; }
+#vwbody { overflow-y: auto; padding: 10px; }
+#vaultwin #ground.vault.slots { display: grid; grid-template-columns: repeat(auto-fill, 58px) !important; gap: 6px !important; justify-content: center; max-height: none; width: auto; padding: 0; }
+#vaultwin #ground.vault .slot { width: 58px !important; height: 58px !important; aspect-ratio: auto; border-radius: 0 !important; background: var(--r-slot, #545454) !important; border: 2px solid #3a3a3a !important; box-shadow: none !important; }
+#vaultwin #ground.vault .slot .ico { width: 46px !important; height: 46px !important; }
+#vaultwin #ground.vault .slot .tier { font: 500 16px/1 var(--r-font) !important; color: #fff !important; text-shadow: var(--r-ol) !important; right: 3px; bottom: 2px; }
+#vaultwin .vwfoot { padding: 6px 10px 8px; color: #8a8a8a; font: 500 16px var(--r-font); border-top: 2px solid #1a1a1a; background: #2a2a2a; }
+body #app #hud { font-size: 16px; }
+body #app #hud b { font-weight: 400; }
+body #app #banner { font-size: 24px; }
+body #app #chatlog { font-size: 16px; justify-content: flex-start; overscroll-behavior: contain; }
+body #tooltip, body #tooltip * { font-family: var(--r-font); font-weight: 400 !important; }
+body #tooltip, body #tooltip :not(h4) { font-size: 16px !important; }
+body #tooltip h4 { font-size: 24px !important; }
+body #app #banner.pop { animation: banIn .28s cubic-bezier(.2, .9, .3, 1.3) both; }
+body #app #chatlog > :first-child { margin-top: auto; }
+body #app #chat.open #chatlog { background: #0c0a1270; backdrop-filter: blur(2px); border: 1px solid #ffffff12; border-bottom: 0; border-radius: 6px 6px 0 0; padding: 6px 8px; max-height: 260px; box-shadow: 0 6px 18px -8px #000; }
+body #app #chat.open #chatlog div { padding: 1px 0; }
+body #app #chatin { background: #0c0a1299; backdrop-filter: blur(3px); border: 1px solid #f2c14e99; border-radius: 0 0 6px 6px; margin-top: 0; padding: 6px 10px; box-shadow: 0 0 0 1px #0008, 0 6px 16px -8px #000; transition: border-color .12s ease, box-shadow .12s ease; animation: chatIn .15s ease-out; }
+body #app #howto { position: absolute; top: 52px; left: 12px; width: min(360px, calc(100% - 24px)); z-index: 12; padding: 12px 14px; background: #120f18eb; backdrop-filter: blur(3px); border: 2px solid #3e3650; border-radius: 10px; box-shadow: 0 0 0 2px #000, 0 10px 30px -10px #000, 0 0 22px -10px #f2c14e; animation: helpIn .3s cubic-bezier(.2, .8, .3, 1.15) both; text-align: left; }
+body #app #howto .hh { display: flex; align-items: center; margin-bottom: 8px; }
+body #app #howto .hh b { color: var(--gold); font-size: 20px; flex: 1; text-shadow: 1px 1px 0 #000; font-weight: 400; }
+body #app #howto .x { background: none; border: 0; color: #8d88a0; font-size: 16px; cursor: pointer; padding: 2px 6px; border-radius: 4px; }
+body #app #howto .hk { display: grid; grid-template-columns: auto 1fr; gap: 4px 10px; align-items: center; font-size: 14px; }
+body #app #howto kbd { font-family: var(--r-font); font-size: 13px; color: #ffe08a; background: #241e2e; border: 1px solid #4a4258; border-bottom-width: 3px; border-radius: 5px; padding: 1px 7px; text-align: center; white-space: nowrap; }
+body #app #howto p { margin: 10px 0 8px; color: #b8b2c8; font-size: 14px; line-height: 1.4; }
+body #app #howto .ok { float: right; margin: 0; padding: 5px 18px; font-size: 15px; }
+body #tooltip:not(.hidden) { animation: tipIn .12s ease-out; }
+#achcards { position: absolute; display: flex; gap: 8px; z-index: 14; pointer-events: none; top: auto; bottom: 14px; right: 12px; flex-direction: column-reverse; }
+.achcard { display: flex; gap: 10px; align-items: center; min-width: 240px; max-width: 340px; padding: 9px 14px 9px 10px; background: linear-gradient(180deg, #2a2218f0, #1a1510f0); border: 2px solid #f2c14e; border-radius: 10px; box-shadow: 0 0 0 2px #000, 0 8px 24px -8px #000, 0 0 22px -6px #f2c14e; animation: achIn .45s cubic-bezier(.2, .9, .3, 1.2) both; }
+.achcard .star { font-size: 30px; color: #ffd650; text-shadow: 0 0 10px #f2c14e, 2px 2px 0 #000; animation: achSpin .9s ease-out; }
+.achcard small { display: block; color: #c8a860; font-size: 12px; letter-spacing: .04em; }
+.achcard b { display: block; color: #fff3c8; font-size: 17px; font-weight: 400; text-shadow: 1px 1px 0 #000; }
+.achcard em { display: block; font-style: normal; color: #9ad89a; font-size: 13px; }
+body #app #vaultwin { top: 52px; transform: translateX(-50%); max-height: max(200px, calc(50% - 70px)); display: flex; flex-direction: column; animation: vwIn .18s ease-out; }
+body #app #vwbody { min-height: 0; flex: 1 1 auto; }
