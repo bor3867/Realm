@@ -889,7 +889,10 @@ export class UI {
     const t0 = performance.now();
     requestAnimationFrame(() => requestAnimationFrame(() => {   // let the card paint, then do the heavy work
       try { g.enter(where); } finally {
-        setTimeout(() => { L.className = 'off'; this.loading = false; g.loading = false; this.refreshSlots(); this.refreshPortal(); }, Math.max(0, 700 - (performance.now() - t0)));
+        // (the card stays at least a moment so it never just flickers: a beat for the Nexus and your vault, which you hop
+        // to all the time, a little longer where its name and danger are worth reading. It was 700ms for every trip. 2026-10-30)
+        const hold = where === 'nexus' || where === 'vault' ? 250 : 500;
+        setTimeout(() => { L.className = 'off'; this.loading = false; g.loading = false; this.refreshSlots(); this.refreshPortal(); }, Math.max(0, hold - (performance.now() - t0)));
       }
     }));
   }

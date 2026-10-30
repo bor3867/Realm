@@ -612,6 +612,13 @@ export class Game {
     if (!id) return;
     const it = ITEMS[id], p = this.player;
     if (it.slot === 'consumable') {
+      // a plain health or magic potion with nothing to restore stays in the bottle (RotMG's way: a key mashed at full
+      // health used to waste one. 2026-10-30)
+      if (Object.keys(it.use).every((k) => !it.use[k] || k === 'heal' || k === 'mana') && (it.use.heal || it.use.mana)
+        && (!it.use.heal || p.hp >= this.stat('hp')) && (!it.use.mana || p.mp >= this.stat('mp'))) {
+        this.toast(it.use.heal && it.use.mana ? 'Already at full health and magic.' : it.use.heal ? 'Already at full health.' : 'Already at full magic.');
+        return;
+      }
       if (it.use.backpack) {
         if (p.inv.length >= 16) { this.toast('This character already carries a second backpack.'); return; }
         C[i] = null;
