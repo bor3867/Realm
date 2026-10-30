@@ -1094,7 +1094,7 @@ export class Game {
     const W = this.weapon();
     if (firing && W && p.fireCd <= 0 && !(p.status.asleep > 0) && !(p.frozenUntil > this.t)) {
       const rate = W.rate * fireRate(this.stat('dex')) * (p.status.berserk ? 1.5 : 1) * this.chillSlow() * (p.owDazed > this.t ? 0.5 : 1);
-      p.fireCd = 1 / rate;
+      p.fireCd = Math.max(p.fireCd, -dt) + 1 / rate;   // (the part of a frame it was late carries over: a steady rhythm at the stated rate; it was set flat, and a 0.12s weapon fired every 0.133s at 60fps. Never banks more than a frame, so a pause doesn't save up a burst. 2026-10-30)
       p.lastShot = this.t;
       p.shotPeriod = 1 / rate;
       const [ox, oy] = this.up(p.x, p.y, 0.5);
@@ -1732,14 +1732,16 @@ export class Game {
     const vd = (x, y) => nv && m.tiles[Math.floor(y) * m.w + Math.floor(x)] === TID.asvoid && !(m.asClocks && this.asArmAt(x, y));   // (a clockwork's plank is footing)
     const free = (x, y) => !isSolid(m, x - r, y - r) && !isSolid(m, x + r, y - r) && !isSolid(m, x - r, y + r) && !isSolid(m, x + r, y + r) && !(nv && (vd(x - r, y - r) || vd(x + r, y - r) || vd(x - r, y + r) || vd(x + r, y + r)));
     if (free(o.x + dx, o.y)) o.x += dx;
-    else if (o !== this.player && Math.abs(dx) > Math.abs(dy) * 0.5) {   // a monster caught on a corner slides toward the gap: centre it on its row
+    else if (Math.abs(dx) > Math.abs(dy) * 0.5) {   // caught on a corner: slide toward the gap, centring on the row
       const c = Math.floor(o.y) + 0.5 - o.y, s = Math.sign(c) * Math.min(Math.abs(c), Math.abs(dx));
-      if (s && free(o.x, o.y + s)) o.y += s;                 // (step by step toward the centre, until the way ahead opens)
+      // (step by step toward the centre, until the way ahead opens. You too, but only when the row's centre ahead is
+      // open: a doorway you clipped eases you in; walking into a wall never drags you along it. 2026-10-30)
+      if (s && free(o.x, o.y + s) && (o !== this.player || free(o.x + dx, o.y + c))) o.y += s;
     }
     if (free(o.x, o.y + dy)) o.y += dy;
-    else if (o !== this.player && Math.abs(dy) > Math.abs(dx) * 0.5) {   // ... or on its column
+    else if (Math.abs(dy) > Math.abs(dx) * 0.5) {   // ... or on its column
       const c = Math.floor(o.x) + 0.5 - o.x, s = Math.sign(c) * Math.min(Math.abs(c), Math.abs(dy));
-      if (s && free(o.x + s, o.y)) o.x += s;
+      if (s && free(o.x + s, o.y) && (o !== this.player || free(o.x + c, o.y + dy))) o.x += s;
     }
   }
 
