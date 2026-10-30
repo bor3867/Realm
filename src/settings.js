@@ -6,13 +6,13 @@ export const ACTIONS = [
   ['ability', 'Use ability'], ['potion1', 'Drink from potion slot 1'], ['potion2', 'Drink from potion slot 2'], ['lootAll', 'Take everything from a bag'], ['autofire', 'Toggle autofire'], ['portal', 'Enter portal'], ['nexus', 'Escape to Nexus'],
   ['rotL', 'Rotate camera left'], ['rotR', 'Rotate camera right'], ['resetCam', 'Reset camera upright'],
   ['snapCam', 'Snap camera to nearest 90°'], ['lookAhead', 'Look ahead (you near the bottom of the screen)'], ['viewIn', 'Zoom view in'], ['viewOut', 'Zoom view out'], ['miniIn', 'Minimap zoom in'], ['miniOut', 'Minimap zoom out'],
-  ['chat', 'Open chat'], ['command', 'Type a command (/)'], ['settings', 'Open settings'],
+  ['chat', 'Open chat'], ['command', 'Type a command (/)'], ['waypoints', 'Waypoint travel (anywhere in the realm)'], ['settings', 'Open settings'],
 ];
 
 export const DEFAULTS = {
   binds: {
     up: ['KeyW', 'ArrowUp'], down: ['KeyS', 'ArrowDown'], left: ['KeyA', 'ArrowLeft'], right: ['KeyD', 'ArrowRight'],
-    ability: ['Space'], potion1: ['KeyC'], potion2: ['KeyV'], lootAll: ['KeyG'], autofire: ['KeyT'], portal: ['KeyF'], nexus: ['KeyR'], chat: ['Enter'], command: ['Slash'],
+    ability: ['Space'], potion1: ['KeyC'], potion2: ['KeyV'], lootAll: ['KeyG'], autofire: ['KeyT'], portal: ['KeyF'], nexus: ['KeyR'], chat: ['Enter'], command: ['Slash'], waypoints: ['KeyM'],
     rotL: ['KeyQ'], rotR: ['KeyE'], resetCam: ['KeyZ'], snapCam: ['KeyX'], lookAhead: ['KeyH'], viewIn: ['BracketRight'], viewOut: ['BracketLeft'],
     miniIn: ['Equal', 'NumpadAdd'], miniOut: ['Minus', 'NumpadSubtract'], settings: ['Escape'],
   },

@@ -1048,3 +1048,6 @@ body #overlay .settabs .btn { padding: 5px 18px; font-size: 16px !important; }
 .famebox .fr b { flex: none; }
 /* (after the block above: .screen sets every screen's width, the home screen's is wider) */
 .home { width: min(980px, 100%); }
+
+/* the realm's clock in the top bar: orange in its last minute */
+body #app #hud .h-realm b { color: #ffd890; } body #app #hud .h-realm.soon b { color: #ff8a3a; }

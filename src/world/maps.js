@@ -1,4 +1,5 @@
 // Map generation: the Nexus (hub), the Realm (procedural island), the Drowned Forge (dungeon).
+import { keyParen } from '../settings.js';
 import { rng, noise2, dist } from '../util.js';
 
 export const TILE_NAMES = ['water', 'deep', 'sand', 'fen', 'mud', 'snow', 'runefloor', 'runeglyph',
@@ -652,7 +653,7 @@ export function realm(seed) {
         for (const w of m.waypoints) near = Math.min(near, (w.x - at[0]) ** 2 + (w.y - at[1]) ** 2);
         if (near > bd) { bd = near; best = at; }
       }
-      if (best) m.waypoints.push({ name: names[k], biome: BIOMES[b], x: best[0], y: best[1] });
+      if (best) m.waypoints.push({ name: names[k], biome: BIOMES[b], x: best[0], y: best[1], great: k === 0 });   // (each land's first: a great waypoint, always open)
     }
   }
   // ---- roads: the waypoints and the landing beach joined by a minimum spanning tree of winding dirt and cobble paths
@@ -814,9 +815,11 @@ export function realm(seed) {
     }
   }
   for (const w of m.waypoints) {                              // the obelisks themselves, on a little paved square
-    wipe(w.x, w.y, 1);
-    floor(w.x, w.y, 1, TID.cobble, false);
-    put(m, 'waypoint', w.x, w.y, true, { interact: 'waypoint', name: w.name, label: 'Travel' });
+    // (each land's great waypoint stands twice the size on a wider square, and is open to everyone from the start: the
+    // user, 2026-10-30, "so it isn't a slog to travel")
+    wipe(w.x, w.y, w.great ? 2 : 1);
+    floor(w.x, w.y, w.great ? 2 : 1, TID.cobble, false);
+    put(m, 'waypoint', w.x, w.y, true, w.great ? { interact: 'waypoint', name: w.name, label: 'Travel', great: true, tag: 'GREAT WAYPOINT', hint: `Travel from here to any waypoint you know${keyParen('waypoints')}` } : { interact: 'waypoint', name: w.name, label: 'Travel' });
     if (w.name === 'Haywain Cross') {                         // the Greenmarch's crossroads: a well and a signpost by the stone
       wipe(w.x, w.y, 3);
       put(m, OW + 'lowlands_well', w.x + 3, w.y - 2, true, { interact: 'wish', biome: 'shore', label: 'Make a wish (50 gold)' });

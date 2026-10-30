@@ -53,6 +53,7 @@ const methods = {
       N.id = m.id; N.online = m.online; N.world = !!m.world; N.nexusWorld = !!m.nexus; N.db = !!m.db;
       for (const f of N.waiters || []) f(true); N.waiters = [];
       if (N.seed !== m.seed) { N.seed = m.seed; if (this.realmMap && this.realmMap.seed !== m.seed && this.map !== this.realmMap) this.realmMap = null; }   // the shared realm from now on
+      N.realmEnds = m.ends ? Date.now() + Math.max(0, m.ends - (m.now || Date.now())) : 0;   // (when it erupts: src/game.js realmClock)
       if (this.map && this.map === this.realmMap && this.map.seed !== m.seed && this.mode === 'play' && !this.player.dead) {   // out in a realm of your own: over to the shared one
         this.realmMap = null; this.enter('realm'); this.banner('You join the shared realm.', 2600);
       } else if (this.map && (this.map === this.realmMap || this.map.kind === 'nexus')) this.netWorldCheck();
@@ -101,6 +102,17 @@ const methods = {
         if (Array.isArray(s.d)) b.dust = s.d;                 // (its trail, as its owner sees it)
       }
     } else if (m.t === 'ws') this.netWorldState(m);
+    else if (m.t === 'whisper') {                                                     // a private line (src/game.js /w): blue, the other player's name in []
+      if (m.err) this.say(m.err, '#8d88a0');
+      else if (m.from) { this.lastWhisper = m.from; this.say(`[${m.from}] ${m.text}`, '#5ab4ff'); this.sfx('coin'); }
+      else this.say(`[to ${m.to}] ${m.text}`, '#5ab4ff');
+    }
+    else if (m.t === 'realmseed') {                                                   // a new realm has risen (the old one erupted)
+      N.realmEnds = m.ends ? Date.now() + Math.max(0, m.ends - (m.now || Date.now())) : 0;
+      if (N.seed !== m.seed) { N.seed = m.seed; if (this.realmMap && this.realmMap.seed !== m.seed) { if (this.map === this.realmMap) this.realmStale = true; else this.realmMap = null; } }
+    }
+    else if (m.t === 'realmwarn') this.realmWarn(m.left);                            // the realm erupts soon
+    else if (m.t === 'erupt') this.realmErupt(m);                                    // it erupts: into the shared Throne
     else if (m.t === 'legends') { N.legends = { list: Array.isArray(m.list) ? m.list : [], note: m.note || '', at: Date.now() }; if (this.onLegends) this.onLegends(); }   // the game's greatest fallen (src/ui.js)
     else if (m.t === 'bosses') { N.bossPins = (m.list || []).map(([nid, id, x, y, biome, tag]) => ({ nid, id, x, y, biome, tag: tag || 'b' })); N.eventPins = (m.ev || []).map(([kind, x, y]) => ({ kind, x, y })); N.bossPinsMap = this.map; }   // where the bosses here are, near or far (for the minimap)
     else if (m.t === 'wev') this.netWorldEvents(m.ev);
@@ -448,6 +460,8 @@ const methods = {
   netTakeEnter(where) { const q = this.netEnterNext; this.netEnterNext = null; return q && (DUNGEON_DEFS[where] || where.startsWith('rf_')) ? q : null; },
   // you used something in a shared dungeon: the server uses it too (by its place in the dungeon's list)
   netRfGate(i) { const N = this.net; if (N && N.open && this.map.netWorld) N.ws.send(JSON.stringify({ t: 'rfgate', i })); },   // a Realmforge gate you opened: the server opens it for all
+  netWhisper(to, text) { const N = this.net; if (!N || !N.open) return false; N.ws.send(JSON.stringify({ t: 'whisper', to, text })); return true; },
+  netErupt() { const N = this.net; if (!N || !N.open || !(this.account && this.account.online && this.account.admin)) return false; N.ws.send(JSON.stringify({ t: 'erupt' })); return true; },
   netLegends() { const N = this.net; if (N && N.open) { N.ws.send(JSON.stringify({ t: 'legends' })); return true; } return false; },   // ask for the game's 50 greatest fallen
   netUse(o) { const N = this.net, i = this.map.objects.indexOf(o); if (N && N.open && i >= 0) N.ws.send(JSON.stringify({ t: 'use', i, k: o.interact || o.sprite || '' })); },
   // the dungeon as the server has it: tiles changed (gates opened, walls broken) and things' states (chests, levers)

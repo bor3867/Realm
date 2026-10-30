@@ -287,10 +287,10 @@ export class UI {
     const total = (m.waypoints || []).length, found = (m.waypoints || []).filter((w) => known.includes(w.name)).length;
     const sec = Object.entries(lands).map(([b, list]) => `<section><h3>${LABEL[b] || b}</h3>${list.map((w) => {
       const has = known.includes(w.name), cur = w.name === here;
-      return `<div class="ware"><div class="qi">${has ? '◆' : '◇'}</div><div class="wn"><b>${has ? w.name : '???'}</b><small>${cur ? 'You are here' : has ? 'Discovered' : 'Not yet found'}</small></div>${has && !cur ? `<button class="btn sm" data-go="${w.name.replace(/"/g, '&quot;')}">Travel</button>` : ''}</div>`;
+      return `<div class="ware"><div class="qi">${w.great ? '★' : has ? '◆' : '◇'}</div><div class="wn"><b>${has ? w.name : '???'}</b><small>${cur ? 'You are here' : w.great ? 'Great waypoint · always open' : has ? 'Discovered' : 'Not yet found'}</small></div>${has && !cur ? `<button class="btn sm" data-go="${w.name.replace(/"/g, '&quot;')}">Travel</button>` : ''}</div>`;
     }).join('')}</section>`).join('');
     const o = this.overlay(`<div class="screen shop"><h1>Waypoints</h1>
-      <h2>Touch an obelisk to remember it. ${found} of ${total} found.</h2>
+      <h2>Touch an obelisk to remember it. Each land's great waypoint is always open. ${found} of ${total} known.${keyName('waypoints') ? ` Open this anywhere in the realm with ${keyName('waypoints')}.` : ''}</h2>
       <div class="cols wp">${sec}</div>
       <p class="msg">${msg}</p><button class="btn" id="mclose">Close${keyParen('settings')}</button></div>`);
     o.querySelectorAll('[data-go]').forEach((b) => { b.onclick = () => { const err = g.warpTo(b.dataset.go); if (err) this.openWaypoints(here, err); else this.closeModal(); }; });
@@ -362,7 +362,7 @@ export class UI {
           if (v) { H.push(v); if (H.length > 30) H.shift(); }
           this.histAt = undefined;
           if (v) {
-            if (v.startsWith('/')) { this.g.say(v, '#8d88a0'); this.g.command(v); }
+            if (v.startsWith('/')) { if (!/^\/(w|whisper|tell|msg|r|reply)\b/i.test(v)) this.g.say(v, '#8d88a0'); this.g.command(v); }   // (a whisper shows itself, in blue, once sent)
             else if (!this.g.netChat(v)) this.g.say(`${(this.g.account && this.g.account.name) || 'You'}: ${v}`, '#e9e4f2');   // online: everyone hears it
           }
           this.closeChat();
@@ -989,7 +989,11 @@ export class UI {
   tick(dt) {
     const g = this.g;
     if (g.mode === 'play' && document.body.classList.contains('booting')) document.body.classList.remove('booting');   // (straight into the game: show it)
-    if ((this.boostT = (this.boostT || 0) - dt) <= 0) { this.boostT = 0.25; this.drawBoosts(); }   // the boost list (4 a second)
+    if ((this.boostT = (this.boostT || 0) - dt) <= 0) {
+      this.boostT = 0.25; this.drawBoosts();                 // the boost list (4 a second)
+      const left = g.mode === 'play' && g.map && g.map.kind === 'realm' ? g.realmLeft() : null, chip = $('hrealm') && $('hrealm').parentElement;   // the realm's clock (src/game.js)
+      if (chip) { chip.classList.toggle('hidden', left === null); if (left !== null) { const s = Math.ceil(left); $('hrealm').textContent = `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; chip.classList.toggle('soon', s <= 60); } }
+    }
     if (g.nearBag && g.nearBag.until - g.t < 31 && (this.bagTickT = (this.bagTickT || 0) - dt) <= 0) { this.bagTickT = 0.5; this.refreshSlots(); }   // (a vanishing bag's countdown)
     for (const ev of g.events.splice(0)) {
       if (ev.type === 'banner' || ev.type === 'toast') this.banner(ev.text, ev.ms || 1800);

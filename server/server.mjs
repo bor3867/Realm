@@ -7,7 +7,7 @@ import { createServer } from 'node:http';
 import { createHash, randomInt } from 'node:crypto';
 
 const PORT = +process.env.PORT || 8787;
-const SEED = (+process.env.REALM_SEED || randomInt(1, 0xffffff)) | 1;   // the shared realm (a new one each start)
+let SEED = (+process.env.REALM_SEED || randomInt(1, 0xffffff)) | 1;   // the shared realm (a new one each start)
 const LIMIT = { msg: 65536, name: 16, chat: 200, perSec: 40 };           // what one player may send
 const ROOM = /^(nexus|realm:\d+)$/;                                        // the places players share (stage 1)
 const CLASSES = new Set(['brawler', 'forge_knight', 'priest', 'summoner', 'harpooner', 'duelist', 'stormwright', 'clockmaker', 'runeblade', 'hexweaver']);
@@ -42,8 +42,8 @@ const db = makeDb();
 if (db) console.log(`accounts and saves: ${db.kind}`);
 // stage 2: the shared realm's monsters run here (server/world.mjs). WORLD=0 in the environment turns it off.
 const { makeWorld } = process.env.WORLD === '0' ? {} : await import('./world.mjs');
-const world = makeWorld ? makeWorld(SEED, (id, obj) => { const c = clients.get(id); if (c) send(c, obj); }) : null;
-const REALM = 'realm:' + SEED;
+let world = makeWorld ? makeWorld(SEED, (id, obj) => { const c = clients.get(id); if (c) send(c, obj); }) : null;
+let REALM = 'realm:' + SEED;
 if (world) world.onBag = (x, y, items) => publicBag(REALM, x, y, items);
 // the Nexus has a shared world too: what an admin spawns there (bosses to try, chickens) is everyone's
 const nexusWorld = makeWorld ? makeWorld(1, (id, obj) => { const c = clients.get(id); if (c) send(c, obj); }, 'nexus') : null;
@@ -56,6 +56,37 @@ const dungeons = new Map();          // 'dg:N' -> { world, to, until }
 // so they were sent another layout's monsters: in walls, the boss nowhere in its room. 2026-10-24)
 let nextIid = Date.now() % 1e9;
 const worldOf = (room) => (room === REALM ? world : room === 'nexus' ? nexusWorld : room && dungeons.has(room) ? dungeons.get(room).world : null);
+// ---- the realm's life (2026-10-30, the user: "Have the realm run on a timer. It stays active for 15 minutes before
+// erupting and sending players to the final boss. This also lets the realm reset"). Warnings as it nears; then everyone
+// in it is thrown together into one shared Throne of Solkhar, and a fresh realm (a new seed) takes its place. An admin
+// can set it off early (/erupt).
+const REALM_LIFE = (+process.env.REALM_LIFE_S || 15 * 60) * 1000, REALM_WARN = [300, 60, 30, 10];   // (REALM_LIFE_S: shorter, to try it locally)
+let realmBorn = Date.now(), realmWarned = new Set();
+const realmEnds = () => realmBorn + REALM_LIFE;
+function newRealm() {
+  SEED = randomInt(1, 0xffffff) | 1; REALM = 'realm:' + SEED;
+  if (makeWorld) { world = makeWorld(SEED, (id, obj) => { const c = clients.get(id); if (c) send(c, obj); }); world.onBag = (x, y, items) => publicBag(REALM, x, y, items); }
+  realmBorn = Date.now(); realmWarned = new Set();
+  toAll({ t: 'realmseed', seed: SEED, ends: realmEnds(), now: Date.now() });
+  console.log(`a new realm, seed ${SEED}`);
+}
+function erupt(by) {
+  const inRealm = [...clients.values()].filter((c) => c.room === REALM && !c.sock.destroyed);
+  let pass = null;
+  if (inRealm.length && makeWorld && DUNGEONS.throne) {
+    const iid = nextIid++, seed = randomInt(1, 0xffffff) | 3, room = 'dg:' + iid;
+    try { const dw = makeWorld(seed, (id, obj) => { const t = clients.get(id); if (t) send(t, obj); }, 'throne'); dw.onBag = (x, y, items) => publicBag(room, x, y, items); dungeons.set(room, { world: dw, to: 'throne', until: Date.now() + 120000 }); pass = { iid, seed }; }
+    catch (err) { console.error('erupt', err); }
+  }
+  for (const c of inRealm) send(c, { t: 'erupt', to: 'throne', ...(pass || {}) });
+  toAll({ t: 'chat', id: 0, name: 'Server', text: `The realm has erupted${by ? ` (${by})` : ''}! Those in it are thrown before Solkhar. A new realm rises.` });
+  newRealm();
+}
+setInterval(() => {
+  const left = Math.round((realmEnds() - Date.now()) / 1000);
+  for (const w of REALM_WARN) if (left <= w && left > w - 5 && !realmWarned.has(w)) { realmWarned.add(w); toAll({ t: 'realmwarn', left: w }); }
+  if (left <= 0) erupt();
+}, 1000);
 const roomOk = (room) => typeof room === 'string' && (ROOM.test(room) || dungeons.has(room));
 let nextId = 1;
 const arenaOf = new Map();                        // a shared rf_ dungeon's room -> its boss room (one for the group)
@@ -79,7 +110,7 @@ function onMessage(c, text) {
   if (m.t === 'hi') {
     c.name = str(m.name, LIMIT.name).trim() || `Player ${c.id}`;
     c.cls = CLASSES.has(m.cls) ? m.cls : 'priest';
-    send(c, { t: 'welcome', id: c.id, seed: SEED, online: clients.size, world: !!world, nexus: !!nexusWorld, db: !!db });
+    send(c, { t: 'welcome', id: c.id, seed: SEED, ends: realmEnds(), now: Date.now(), online: clients.size, world: !!world, nexus: !!nexusWorld, db: !!db });
     return;
   }
   if (m.t === 'tk' && Array.isArray(m.parts)) { for (const part of m.parts.slice(0, 6)) if (part && typeof part === 'object' && part.t !== 'tk') onMessage(c, JSON.stringify(part)); return; }   // one bundle a tick
@@ -210,6 +241,18 @@ function onMessage(c, text) {
     b.items[i] = null;
     send(c, { t: 'took', rid: m.rid, ok: true, id: m.id });
     if (b.items.some(Boolean)) toRoom(c.room, bagMsg(b)); else { B.delete(b.bid); toRoom(c.room, { t: 'bag', bid: b.bid, gone: true }); }
+    return;
+  }
+  if (m.t === 'erupt' && c.account && c.account.admin) { erupt(c.name); return; }   // an admin sets the realm off early
+  if (m.t === 'whisper') {                                // a private line to one player, by name (theirs and yours only)
+    if (Date.now() - (c.chatAt || 0) < G.CHAT_GAP) return;
+    c.chatAt = Date.now();
+    const to = str(m.to, LIMIT.name).trim().toLowerCase(), text = str(m.text, LIMIT.chat).trim();
+    if (!to || !text) return;
+    const t = [...clients.values()].find((q) => q !== c && !q.sock.destroyed && (q.name || '').toLowerCase() === to);
+    if (!t) { send(c, { t: 'whisper', err: `No one named ${str(m.to, LIMIT.name)} is online.` }); return; }
+    send(t, { t: 'whisper', from: c.name, text });
+    send(c, { t: 'whisper', to: t.name, text });
     return;
   }
   if (m.t === 'acmd' && c.account && c.account.admin && typeof m.line === 'string' && worldOf(c.room)) {   // an admin's world command

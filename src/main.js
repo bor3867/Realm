@@ -137,6 +137,7 @@ async function boot() {
       case 'portal': ui.enterNear(); break;
       case 'lootAll': game.lootAll(); ui.refreshSlots(); break;
       case 'nexus': game.toNexus(); break;
+      case 'waypoints': if (game.mode === 'play' && game.map.kind === 'realm' && !ui.modal) ui.openWaypoints(null); else if (game.mode === 'play') game.toast('Waypoints work in the realm.'); break;   // (from anywhere in the realm)
       case 'viewIn': viewZoom(1); break;
       case 'viewOut': viewZoom(-1); break;
       case 'autofire': I.auto = !I.auto; game.toast(`Autofire ${I.auto ? 'on' : 'off'}`); break;

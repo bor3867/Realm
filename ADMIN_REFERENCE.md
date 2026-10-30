@@ -8,6 +8,9 @@ Type commands in chat (`/` or Enter). Ids use underscores. Regenerate with `node
 | --- | --- |
 | `/help` | List the commands in chat |
 | `/teleport NAME` | Teleport to another player in the same place (anyone; every 10 s). Clicking their name or minimap dot does it too |
+| `/w NAME message` | Whisper to one player (anyone; also /whisper, /tell, /msg). Shown in blue, their name in [] |
+| `/r message` | Reply to whoever last whispered to you (anyone; also /reply) |
+| `/erupt` | The realm erupts now: everyone in it is sent together into a shared Throne of Solkhar, and a new realm rises (online: the shared realm; it also erupts on its own every 15 minutes) |
 | `/admin` | Equip the admin kit (old gear goes to your backpack) |
 | `/god` | Toggle god mode |
 | `/mortal` | God mode off and the admin kit to your backpack (to be hurt again) |

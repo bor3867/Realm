@@ -41,6 +41,7 @@ import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUES
 
 import { PET_KINDS, RARITY, PET_TICK, PET_MAX, petHeal, petMagic, petCap, petLevel, feedCost, feedValue, hatchKind, newPet, upgradePet, feed, canMorph, morph, FUSE_GOLD, petSprite, petName, petStage, START_LV, FAMILIES, eggId } from './data/pets.js';
 const PLAYER_R = 0.32;
+const REALM_LIFE = 15 * 60 * 1000;                         // a realm lasts 15 minutes, then erupts (online the server keeps the clock)
 // hits follow the art. You are an upright capsule a little inside your sprite (feet to the top of your head); a shot is a
 // capsule along its flight the size of its visible pixels (src/data/shot_boxes.js, made by tools/shot_boxes.mjs),
 // trimmed by HIT_K so that a graze of a pixel or two does not count. tools/check_hitboxes.mjs holds them to the art.
@@ -337,7 +338,8 @@ export class Game {
     if (where === 'nexus') this.map = nexus();
     else if (where === 'vault') this.map = vaultRoom();
     else if (where === 'realm') {
-      if (!this.realmMap) this.realmMap = realm(this.netSeed() || ((Date.now() & 0xffffff) | 1));   // the shared realm when online (src/net.js)
+      if (this.realmStale || (!this.netSeed() && this.realmMap && this.realmBorn !== undefined && Date.now() - this.realmBorn > REALM_LIFE)) { this.realmMap = null; this.realmStale = false; }   // (it erupted: a new one)
+      if (!this.realmMap) { this.realmMap = realm(this.netSeed() || ((Date.now() & 0xffffff) | 1)); if (!this.netSeed()) { this.realmBorn = Date.now(); this.realmWarned = {}; } }   // the shared realm when online (src/net.js)
       this.map = this.realmMap;
     } else if (DUNGEONS[where]) this.map = dungeon((opt && opt.seed) || ((Date.now() & 0xffffff) | 3), DUNGEONS[where]);
     else if (where.startsWith('rfa_')) { const m = this.rfArenaMap(where); if (!m) { this.banner('That boss is not ready.', 2000); return; } this.map = m; }   // a boss's own room (src/rf/boss.js)
@@ -374,6 +376,7 @@ export class Game {
       this.placeFetches();
       const known = p.waypoints || (p.waypoints = []), home = this.map.waypoints && this.map.waypoints[0];
       if (home && !known.includes(home.name)) known.push(home.name);      // you always know the way back to the landing beach
+      for (const w of this.map.waypoints || []) if (w.great && !known.includes(w.name)) known.push(w.name);   // and every land's great waypoint (2026-10-30)
     }
     if (where === 'nexus') {
       this.rollQuestOffers();
@@ -1001,6 +1004,7 @@ export class Game {
     this.updateWorld(dt);
     if (this.map.kind === 'realm' && !this.map.netWorld) { this.owTick(dt); this.maintainRealm(dt); this.eventClock(dt); this.melonTick(dt); this.eventBossTick(dt); }
     this.achTick(dt);                                            // achievements (src/achievements.js)
+    this.realmClock();                                           // the realm's 15 minutes (offline; online the server's)
     if (this.map.melonDrops) this.melonDropTick();               // (a burst melon's loot: on any map, online too)
     this.updateEliteAuras(dt);
     if (this.map.rf) this.rfUpdate(dt);
@@ -3282,6 +3286,34 @@ export class Game {
     this.sfx('coin'); this.persist();
     return `Bought a ${ITEMS[id].name}. Use it (shift-click) to hatch it.`;
   }
+  // ---- the realm's clock (2026-10-30): 15 minutes, then it erupts and throws whoever is in it before the final boss
+  // (the Throne of Solkhar); a new realm rises. Online the server keeps the clock and the shared Throne; offline, here.
+  realmLeft() {
+    const N = this.net;
+    if (N && N.open && N.world) return N.realmEnds ? Math.max(0, (N.realmEnds - Date.now()) / 1000) : null;
+    return this.realmBorn ? Math.max(0, (this.realmBorn + REALM_LIFE - Date.now()) / 1000) : null;
+  }
+  realmClock() {                                          // offline: its warnings, and the eruption (online they come from the server)
+    const N = this.net;
+    if ((N && N.open && N.world) || this.map.kind !== 'realm' || !this.realmBorn) return;
+    const left = this.realmLeft(), W = (this.realmWarned = this.realmWarned || {});
+    for (const w of [300, 60, 30, 10]) if (left <= w && left > w - 5 && !W[w]) { W[w] = 1; this.realmWarn(w); }
+    if (left <= 0) this.realmErupt();
+  }
+  realmWarn(left) {
+    const t = left >= 60 ? `${left / 60} minute${left >= 120 ? 's' : ''}` : `${left} seconds`;
+    if (this.map.kind === 'realm') this.banner(`The realm erupts in ${t}!`, 3000);
+    this.say(`The realm erupts in ${t}.`, '#ff8a3a');
+  }
+  realmErupt(m) {
+    if (this.map.kind !== 'realm' || this.erupting) { this.realmStale = true; return; }
+    this.erupting = true;
+    this.banner('THE REALM ERUPTS!', 2600); this.vx({ k: 'shake', amt: 10 }); this.sfx('boss');
+    this.say('The realm erupts! You are thrown before Solkhar.', '#ff8a3a');
+    this.realmStale = true;
+    if (m && m.iid) this.netEnterNext = { iid: m.iid, seed: m.seed, served: 1 };   // (the shared Throne the server opened for all of you)
+    setTimeout(() => { this.erupting = false; if (this.map.kind === 'realm' && !this.player.dead) this.travel('throne'); }, 1200);
+  }
   // ---- waypoints: travel between the ones you have found (warpTo: it was also named travel, and the portals' travel,
   // defined later in the class, replaced it, so a waypoint sent you to the realm's landing beach)
   warpTo(name) {
@@ -4148,17 +4180,29 @@ export class Game {
     const say = (t) => this.say(t, '#7ad0a8');
     const near = (d = 4) => { const a = R() * TAU; return { x: p.x + Math.cos(a) * d, y: p.y + Math.sin(a) * d }; };
     const n = (v, dflt) => (v === undefined || isNaN(+v) ? dflt : +v);
-    if (!['help', 'dance', 'teleport'].includes((cmd || '').toLowerCase()) && !this.adminOk()) {
+    if (!['help', 'dance', 'teleport', 'w', 'whisper', 'tell', 'msg', 'r', 'reply'].includes((cmd || '').toLowerCase()) && !this.adminOk()) {
       say(this.account && this.account.online ? 'That command is for admins.' : 'That command is for admins: sign in to your online admin account (this is an offline one).'); return;
     }
     // in a shared place the monsters are the server's: commands that make or end them run there, for everyone (src/net.js)
     if (this.map && this.map.netWorld && this.netWorldCmd && this.netWorldCmd(line, (cmd || '').toLowerCase(), args)) { say('(sent to the server: everyone here sees it)'); return; }
     switch ((cmd || '').toLowerCase()) {
       case 'help':
-        say('Player: /teleport NAME (to someone here)  /dance  · Enter to chat, Esc for settings and your keys.');
+        say('Player: /w NAME message (a whisper)  /r message (reply)  /teleport NAME (to someone here)  /dance  · Enter to chat, Esc for settings and your keys.');
         if (!this.adminOk()) break;
-        say('/admin  /ascend (top level, stats maxed; a priest gets the Hosanna set)  /backpack  /maxlevel  /level N  /maxstats  /heal  /god  /give ITEM [N]  /give dungeon ID (its whole loot set)  /items TEXT  /spawn ID [N] (any monster, elite or boss; /spawn chicken N, /spawn pigeon N: up to 100 XP birds)  /boss ID  ' +
+        say('/erupt (the realm erupts now: everyone in it to the Throne, a new realm)  /admin  /ascend (top level, stats maxed; a priest gets the Hosanna set)  /backpack  /maxlevel  /level N  /maxstats  /heal  /god  /give ITEM [N]  /give dungeon ID (its whole loot set)  /items TEXT  /spawn ID [N] (any monster, elite or boss; /spawn chicken N, /spawn pigeon N: up to 100 XP birds)  /boss ID  ' +
             '/bx BOSS (a three-phase boss beside you)  /kraken  /treant  /melon  /event BIOME  /adminchest [N] (best loot)  /armory [TIER] (the Mad God Armory)  /keys [dungeon N] (dungeon keys)  /pet [kind rarity max]  /star (a falling star in Godfall)  /seals (open a dungeon boss gate)  /progress BIOME N  /gold N  /essence N  /bosses  /tp LAND|nexus|realm|DUNGEON (lands: shore fen runeholt godfall dunes thornwood steppe lowlands)  /killall  /clearbags  /fame N  /portal DUNGEON  (all ids: ADMIN_REFERENCE.md; final boss: /portal throne)');
+        break;
+      case 'w': case 'whisper': case 'tell': case 'msg': case 'r': case 'reply': {   // a whisper: one player only (src/net.js)
+        const back = /^(r|reply)$/i.test(cmd), to = back ? this.lastWhisper : args[0], text = (back ? args : args.slice(1)).join(' ').trim();
+        if (!to) { say(back ? 'No one has whispered to you yet.' : 'Whisper to someone: /w NAME message'); break; }
+        if (!text) { say(`Whisper to ${to}: /w ${to} message`); break; }
+        if (!this.netWhisper || !this.netWhisper(to, text)) say('Whispers need the online server.');
+        break;
+      }
+      case 'erupt':                                       // the realm erupts now (online: the shared one, for everyone in it)
+        if (this.netErupt && this.netErupt()) say('The realm erupts (sent to the server).');
+        else if (this.map && this.map.kind === 'realm') this.realmErupt();
+        else { this.realmBorn = 0; say('Your realm will be new the next time you enter it.'); }
         break;
       case 'maxlevel': {
         const C = CLASSES[p.cls];

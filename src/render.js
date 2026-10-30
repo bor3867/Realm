@@ -714,7 +714,7 @@ export class Renderer {
     const n = resting ? 0 : (this.W.objAnim || {})[o.sprite];
     const k = this.W.objects[o.sprite] + (n ? Math.floor(this.lastT * (o.sprite === 'campfire' ? 8 : 2.5) + o.x * 3) % n : 0), c = this.W.objectsCols;
     if (resting) this.b.globalAlpha = 0.55;
-    const grand = o.sprite === 'admin_chest' || o.sprite === 'throne';          // grand things are drawn twice life-size
+    const grand = o.sprite === 'admin_chest' || o.sprite === 'throne' || o.great;   // grand things are drawn twice life-size (a great waypoint too)
     if (grand) { this.sprK = 2; this.shadow(sx, sy, 24); }
     this.spr(this.A.img.objects, (k % c) * TS, Math.floor(k / c) * TS, TS, TS, sx, sy, 8, 8);
     this.sprK = 1;
