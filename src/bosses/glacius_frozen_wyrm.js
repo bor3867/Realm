@@ -161,11 +161,15 @@ export default {
   id: 'glacius_frozen_wyrm', name: 'Glacius, the Frozen Wyrm', biome: 'dungeon', hp: 300000, def: 24, xp: 14000, r: 2.2, speed: 2.6, keep: 8, faces: true,
   tempo: 0.68, dmgScale: 1, finale,   // (was 1.45, then 1.25: it killed a player standing still in 1s (after every enemy began to hit 1.5x, 2026-10-22: tools/bench_boss_hits.mjs))
   phases: {
-    1: { move: 'hold', pressure: [{ every: 2.4, special: 'rimeCrawl', delay: 1.5, dmg: 95 }], patterns: [
-      { name: 'frost breath', windup: 0.8, recover: 0.6, tell: 'sweepTell', special: 'sweep', dmg: 100 },
-      { name: 'ice lances', windup: 0.6, recover: 0.5, special: 'lances', dmg: 110 },
-      { name: 'glacier maze', windup: 0.7, recover: 0.8, special: 'maze', dmg: 100 },
-      { name: 'ice lances', windup: 0.5, recover: 0.5, special: 'lances', dmg: 110 },
+    // (phase 1 eased, 2026-10-30, the user: "the beginning of the boss fight is really nearly impossible for unmaxed
+    // characters" in a 3-star dungeon. It dealt 531 a second to a tier-9 character standing still, against about 320 for
+    // the Count, its peer. The rime less often, every blow a little softer, more time to read each one. Phases 2 and 3
+    // are as they were)
+    1: { move: 'hold', pressure: [{ every: 3.6, special: 'rimeCrawl', delay: 1.7, dmg: 75 }], patterns: [
+      { name: 'frost breath', windup: 1.0, recover: 0.8, tell: 'sweepTell', special: 'sweep', dmg: 80 },
+      { name: 'ice lances', windup: 0.8, recover: 0.7, special: 'lances', dmg: 80 },
+      { name: 'glacier maze', windup: 0.9, recover: 1.0, special: 'maze', dmg: 80 },
+      { name: 'ice lances', windup: 0.7, recover: 0.7, special: 'lances', dmg: 80 },
     ] },
     2: { move: 'circle', pressure: [{ every: 0.6, special: 'frostWake', dmg: 95 }], patterns: [
       { name: 'blizzard orbs', windup: 0.6, recover: 0.5, special: 'orbs', dmg: 105 },
