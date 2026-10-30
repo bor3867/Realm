@@ -23,7 +23,7 @@ export function spec(sel) {
 export const cmp = (x, y) => (x[0] - y[0]) || (x[1] - y[1]) || (x[2] - y[2]);
 
 export function sheetRules() {
-  const sheet = [...document.styleSheets].find((s) => s.href && /style\.css/.test(s.href));
+  const sheet = [...document.styleSheets].find((s) => s.href && /\.css(\?|$)/.test(s.href) && !/fonts\.googleapis/.test(s.href));   // (the game's sheet, under whatever name it's loaded)
   const rules = []; let order = 0;
   const walk = (list, media) => {
     for (const r of list) {
@@ -38,10 +38,10 @@ export function sheetRules() {
 }
 function matchSpec(el, parts, stripState) {
   let best = null;
-  for (let p of parts) {
-    if (/::/.test(p)) continue;
-    if (stripState) p = p.replace(PSEUDO_STATE, '');
-    try { if (el.matches(p)) { const s = spec(p); if (!best || cmp(s, best) > 0) best = s; } } catch { /* a selector the browser can't test */ }
+  for (const p0 of parts) {
+    if (/::/.test(p0)) continue;
+    const p = stripState ? p0.replace(PSEUDO_STATE, '') : p0;   // (matched as if hovered, but ranked as written: :hover counts)
+    try { if (el.matches(p)) { const s = spec(p0); if (!best || cmp(s, best) > 0) best = s; } } catch { /* a selector the browser can't test */ }
   }
   return best;
 }
@@ -58,6 +58,7 @@ export function winner(el, P, rules) {
   if (el.style && el.style.getPropertyValue(P) && !(w && w.imp)) return 'inline';
   return w;
 }
+export { matchSpec };
 export function importantElsewhere(el, P, rules, inR) {
   for (const x of rules) {
     if (inR(x) || !x.declared.has(P) || x.r.style.getPropertyPriority(P) !== 'important') continue;
@@ -65,13 +66,21 @@ export function importantElsewhere(el, P, rules, inR) {
   }
   return false;
 }
+// does a declaration of `n` (a shorthand, or the longhand itself) set the longhand P?
+export function covers(n, P) {
+  return P === n || P.startsWith(n + '-') || (n === 'border-radius' && /radius$/.test(P)) || (n === 'gap' && /gap$/.test(P))
+    || (n === 'font' && (P === 'line-height' || P.startsWith('font-'))) || (n === 'border' && /^border-(top|right|bottom|left)-(width|style|color)$|^border-image/.test(P))
+    || (/^border-(width|style|color)$/.test(n) && /^border-(top|right|bottom|left)-/.test(P) && P.endsWith(n.slice(6)))
+    || (n === 'inset' && /^(top|right|bottom|left|inset-)/.test(P)) || (n === 'overflow' && /^overflow-[xy]$/.test(P))
+    || (n === 'flex' && /^flex-(grow|shrink|basis)$/.test(P)) || (n === 'transition' && P.startsWith('transition-'))
+    || (n === 'place-items' && /^(align|justify)-items$/.test(P)) || (n === 'outline' && P.startsWith('outline-'));
+}
 // a longhand's value as written: the longhand itself, or (a var() in a shorthand leaves the longhand blank) its shorthand
 export function valueOf(rule, P) {
   const v = rule.style.getPropertyValue(P);
   if (v) return { prop: P, text: v };
   const decls = rule.style.cssText.split(/;(?![^(]*\))/).map((d) => d.trim()).filter(Boolean).map((d) => { const k = d.indexOf(':'); return [d.slice(0, k).trim(), d.slice(k + 1).replace(/!\s*important/, '').trim()]; });
-  const SH = (n) => P === n || P.startsWith(n + '-') || (n === 'border-radius' && /radius$/.test(P)) || (n === 'gap' && /gap$/.test(P)) || (n === 'font' && P === 'line-height') || (n === 'border' && /^border-(top|right|bottom|left)-(width|style|color)$|^border-image/.test(P)) || (/^border-(width|style|color)$/.test(n) && P.endsWith(n.slice(6))) || (n === 'inset' && /^(top|right|bottom|left)$/.test(P)) || (n === 'overflow' && /^overflow-[xy]$/.test(P));
-  const hit = decls.filter(([n]) => SH(n)).pop();
+  const hit = decls.filter(([n]) => covers(n, P)).pop();
   return hit ? { prop: hit[0], text: hit[1] } : null;
 }
 
@@ -108,4 +117,51 @@ export function analyze(sel, states, inR, roleOf) {
     if (decl.size) lines.push(`${role} { ${[...decl].map(([k, d]) => `${k}: ${d.text}${d.imp ? ' !important' : ''};`).join(' ')} }`);
   }
   return { css: lines.join('\n'), conflicts, unmatched: [...unmatched], rules: R.map((x) => x.sel) };
+}
+
+// rewrite the rules R in place of themselves: each selector once (its own specificity, so nothing it competes with
+// changes rank), only the declarations that win somewhere, !important only where a rule that matches (a :hover one
+// included) would otherwise win: one marked !important, or a more specific one. Returns the block and what it drops.
+export function rewrite(sel, states, inR) {
+  const rules = sheetRules(), R = rules.filter(inR);
+  const won = new Map();                                  // rule -> Set(longhand) it wins on some element
+  for (const [, on, off] of states) {
+    on();
+    for (const el of document.querySelectorAll(sel)) for (const x of R) for (const P of x.declared) {
+      const w = winner(el, P, rules);
+      if (w && w !== 'inline' && w.x === x) (won.get(x) || won.set(x, new Set()).get(x)).add(P);
+    }
+    off();
+  }
+  const els = [...document.querySelectorAll(sel)];
+  const needImp = (x, P) => {
+    const mine = Math.max(...x.parts.map((p) => 0)), ownSpecs = x.parts.map(spec);
+    for (const el of els) {
+      const s0 = matchSpec(el, x.parts, false); if (!s0) continue;
+      for (const y of rules) {
+        if (y === x || !y.declared.has(P)) continue;
+        const s = matchSpec(el, y.parts, true); if (!s) continue;
+        if (y.r.style.getPropertyPriority(P) === 'important' || cmp(s, s0) > 0) return true;
+      }
+    }
+    return false;
+  };
+  const bySel = new Map();                                // selector text -> Map(prop -> {text, imp, order})
+  const dropped = [];
+  for (const x of R) {
+    const W = won.get(x);
+    const keyS = x.parts.join(', ');
+    const M = bySel.get(keyS) || bySel.set(keyS, new Map()).get(keyS);
+    const decls = x.r.style.cssText.split(/;(?![^(]*\))/).map((d) => d.trim()).filter(Boolean);
+    for (const d of decls) {
+      const k = d.indexOf(':'), prop = d.slice(0, k).trim(), text = d.slice(k + 1).replace(/!\s*important/, '').trim();
+      const longs = [...x.declared].filter((P) => covers(prop, P));
+      const live = longs.filter((P) => W && W.has(P));
+      if (!live.length) { dropped.push(`${keyS} { ${prop} }`); continue; }
+      const imp = /!\s*important/.test(d) && live.some((P) => needImp(x, P));
+      M.delete(prop); M.set(prop, { text, imp, order: x.order });
+    }
+  }
+  const css = [...bySel].filter(([, M]) => M.size).map(([s, M]) => `${s} { ${[...M].map(([p, d]) => `${p}: ${d.text}${d.imp ? ' !important' : ''};`).join(' ')} }`).join('\n');
+  return { css, dropped, rules: R.map((x) => x.sel) };
 }

@@ -20,7 +20,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #stats.recview .rk { color: #a8a2bc; }
 .settings .curprev { width: 32px; height: 32px; image-rendering: pixelated; vertical-align: middle; margin-left: 8px; background: #4a4458; border-radius: 4px; }
 #panel { flex: none; display: flex; flex-direction: column; gap: 6px; overflow-y: auto; }
-#minimap { image-rendering: pixelated; background: #000; }
 #who { justify-content: space-between; }
   
  
@@ -63,12 +62,7 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 }
 
 /* minimap zoom + settings */
-#miniwrap { position: relative; }
-#minibtns { position: absolute; right: 6px; bottom: 6px; display: flex; align-items: center; gap: 4px; }
-#minibtns button, #gear { color: var(--ink); font: inherit; cursor: pointer; line-height: 1; }
-#minibtns button { padding: 0; }
 #minibtns button:hover, #gear:hover, #minibtns button:focus-visible, #gear:focus-visible { border-color: var(--gold); outline: none; }
-#minilabel { color: var(--mut); background: #120f18e0; }
 #who { gap: 8px; }
 #who #cname { flex: 1; }
 .settings { width: min(720px, 100%); text-align: left; }
@@ -206,10 +200,7 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #panel::before, #panel::after { content: ''; position: absolute; left: 8px; right: 8px; height: 3px; pointer-events: none;
   background: linear-gradient(90deg, transparent, #f2c14e 20%, #fff4c2 50%, #f2c14e 80%, transparent); opacity: .55; }
 #panel::before { top: 4px; } #panel::after { bottom: 4px; }
-#minibtns button { width: 28px; height: 28px; font-size: 18px; }
-#minilabel { font-size: 13px; padding: 3px 6px; }
 #who { font-size: 19px; }
-#gear { padding: 3px 8px; }
 #stats { gap: 3px 14px; }
 .label { margin-top: 2px; }
 .label small { font-size: 12px; }
@@ -253,7 +244,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 /* the panel always fits the window: the minimap gives up space first, then everything tightens */
 #panel { overflow: hidden; height: 100%; }
 #panel > * { flex: none; }
-#minimap { aspect-ratio: 1 / 1; }
 #panel.tight { gap: 5px; padding-top: 10px; padding-bottom: 8px; }
  
 #panel.tight #stats { font-size: 13px; padding: 4px 8px; }
@@ -318,10 +308,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 :root { --pane: #23222b; --pane2: #1b1a22; --well: #14131a; --line: #34323f; --soft: #9a96ab; --hi: #f2efe8; }
 #panel { background: linear-gradient(180deg, var(--pane) 0%, var(--pane2) 100%) !important; border-left: 1px solid #0c0b10 !important;
   box-shadow: inset 1px 0 0 #3a3846; gap: 8px !important; padding: 12px 14px !important; }
-#miniwrap { box-shadow: inset 0 2px 6px #000a, 0 1px 0 #3a3846; }
-#minimap { border: 0 !important; box-shadow: none !important; }
-#minibtns button { border-radius: 5px; border: 1px solid var(--line) !important; background: #1b1a22e6 !important; }
-#minilabel { border-radius: 4px; }
 
 #who { display: flex; align-items: center; gap: 10px; background: none !important; border: 0 !important; padding: 0 !important; box-shadow: none !important; }
 #portrait { width: 44px; height: 44px; flex: none; image-rendering: pixelated; background: radial-gradient(circle at 50% 60%, #3a3848 0%, var(--well) 75%);
@@ -329,7 +315,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #who .wn { display: flex; flex-direction: column; line-height: 1.1; flex: 1; min-width: 0; }
 #cname { font-size: 19px; font-weight: 800; color: var(--hi); letter-spacing: 0.3px; text-shadow: 0 1px 0 #000; }
 #clevel { font-size: 13px; font-weight: 700; color: #f2c14e; }
-#gear { border-radius: 8px !important; border: 1px solid var(--line) !important; background: var(--well) !important; width: 34px; height: 34px; font-size: 17px !important; color: var(--soft); }
 #gear:hover { color: #fff; border-color: #6a6680 !important; }
 
  
@@ -505,7 +490,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #pots .slot, #panel.tight #pots .slot { width: 46px !important; height: 46px !important; }
 #ground.vault { grid-template-columns: repeat(8, 1fr) !important; }
 /* the minimap never grows past its box, so it can't spill over the character row below it */
-#miniwrap { overflow: hidden; }
 
 /* ---- the sidebar's Stats | Pet tabs */
 #stattabs { display: flex; gap: 2px; margin-bottom: -2px; }
@@ -542,7 +526,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #seals { z-index: 4; }
 #banner { z-index: 9; }
 /* ---- the minimap takes whatever room the panel has left (and gives it back when a bag needs it) */
-#minimap { height: 100% !important; width: auto !important; }
 #panel { container-type: inline-size; }
    /* never taller than it is wide: the map stays square */
 /* the bag area under the potions is always reserved (room for a full 8-slot bag), so nothing shifts when you step on one */
@@ -555,10 +538,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 .slot.legend .tier { color: #ffe9a0; }
 /* ---- the minimap, RotMG-style: one fixed square at the top of the panel, as wide as the panel allows (capped so the
    inventory always fits under it). It never shrinks to make room: the slots give way instead (ui.fitPanel) */
-#miniwrap { flex: none !important; width: 100% !important; height: clamp(170px, min(100cqw, 26vh), 300px) !important; min-height: 0 !important; max-height: none !important;
-  aspect-ratio: auto !important; padding: 0 !important; background: #000 !important; border-radius: 4px !important; display: flex; justify-content: center; align-items: center; }
-#minimap { width: clamp(170px, min(100cqw, 26vh), 300px) !important; height: clamp(170px, min(100cqw, 26vh), 300px) !important; max-width: 100% !important; max-height: 100% !important; border-radius: 4px !important; }
-#panel.tight #miniwrap, #panel.squeeze #miniwrap { min-height: 0 !important; }
 #invcount .pg { display: inline-block; min-width: 18px; text-align: center; margin-right: 3px; padding: 0 4px; border-radius: 4px; border: 1px solid #3a3846; color: var(--mut); cursor: pointer; font-weight: 700; }
 #invcount .pg.on { color: #1a1218; background: var(--gold); border-color: var(--gold); }
 #panel.tight { gap: 5px !important; }
@@ -570,8 +549,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 
 /* ==== the side panel, final word (ui.fitPanel sets --slotw and --mini). Nothing above may hide the Stats | Pet tabs
    or the stats: the minimap and the slots give way instead. The bag is four by two, like the backpack. ==== */
-#panel #miniwrap { height: var(--mini, 214px) !important; }
-#panel #minimap { width: var(--mini, 214px) !important; height: var(--mini, 214px) !important; }
 #panel #stattabs { display: flex !important; }
 #panel #stats:not(.petview) { display: grid !important; }
 
@@ -604,8 +581,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #app #panel { --slot: 54px; --mini: 196px; gap: 7px !important; overflow: hidden !important; }
 @media (max-height: 760px) { #app #panel { --slot: 46px; --mini: 160px; } }
 @media (max-height: 660px) { #app #panel { --slot: 40px; --mini: 124px; } }
-#app #panel #miniwrap { flex: none !important; height: var(--mini) !important; }
-#app #panel #minimap { width: var(--mini) !important; height: var(--mini) !important; }
 #app #panel #ground.vault { grid-template-columns: repeat(8, 1fr) !important; }
 #app #panel #equip { margin-top: 2px !important; }
 #app #panel #stattabs { display: flex !important; margin: 0 0 -7px !important; }
@@ -649,23 +624,10 @@ body #app #panel > * { flex: none; }
 body #app #panel .label { font-family: var(--r-font); text-transform: none; letter-spacing: 0; border: 0; padding: 0; color: #c8c8c8 !important; text-shadow: var(--r-ol); }
 
 /* minimap */
-body #app #panel #miniwrap { width: 100% !important; height: calc(var(--slot) * 4 + 24px) !important; background: #000 !important; border-radius: 0 !important;
-  padding: 0 !important; box-shadow: none !important; display: flex; justify-content: center; align-items: center; position: relative; overflow: hidden; }
-body #app #panel #minimap { width: 100% !important; height: 100% !important; border-radius: 0 !important; border: 0 !important; box-shadow: none !important; }
-body #app #panel #minibtns { position: absolute; top: 4px; right: 4px; bottom: auto; left: auto; display: flex; flex-direction: column; gap: 4px; }
-body #app #panel #minibtns button { width: 28px; height: 28px; padding: 0; border-radius: 0 !important; border: 0 !important; background: #8a8a8acc !important;
-  color: #fff; font: 700 24px/26px var(--r-font); text-shadow: none; }
 body #app #panel #minibtns button:hover { background: #b0b0b0dd !important; }
-body #app #panel #minilabel { position: absolute; left: 4px; bottom: 4px; font: 500 16px var(--r-font); color: #9a9a9a; background: none; text-shadow: var(--r-ol); pointer-events: none; }
 
 /* the icon row */
-body #app #panel #iconrow { display: flex; align-items: center; gap: 2px; height: 26px; }
-body #app #panel #iconrow .sp { flex: 1; }
-body #app #panel #iconrow button, body #app #panel #gear { width: 30px !important; height: 26px !important; padding: 2px 4px !important; background: none !important; border: 0 !important;
-  border-radius: 3px !important; color: #fff; cursor: pointer; box-shadow: none !important; }
-body #app #panel #iconrow svg { width: 22px; height: 22px; fill: currentColor; display: block; filter: drop-shadow(1px 1px 0 #000); }
 body #app #panel #iconrow button:hover, body #app #panel #iconrow button.on { background: #4e4e4e !important; }
-body #app #panel #iconrow button.on { color: #ffe060; }
 
 /* the bars */
     /* gold only once the stat is at its class maximum (RotMG) */
@@ -1036,8 +998,6 @@ body #app #panel .slot:hover { outline: 2px solid #f2c14ecc; outline-offset: -2p
 /* achievement cards: the bottom right of the view (at the top they hid the active-boost chips) */
 #achcards { top: auto; bottom: 14px; right: 12px; flex-direction: column-reverse; }
 /* the minimap's range: a moment when you change it */
-body #app #minilabel { opacity: 0; transition: opacity .3s ease; pointer-events: none; }
-body #app #minilabel.show { opacity: 1; }
 
 /* the death screen's rows: a name never runs into its number */
 .famebox .fr { gap: 14px; } .famebox .fr span { min-width: 0; overflow-wrap: anywhere; } .famebox .fr b { flex: none; }
@@ -1109,3 +1069,28 @@ body #app #panel .slots .slot .hint { font: 500 24px/1 var(--r-font); color: var
 body #app #panel #equip .slot .hint, body #app #panel #pots .slot .hint { display: none; }
 /* under the mouse: a light edge (as specific as the slots above, or they'd hide it) */
 body #app #panel #equip .slot:hover, body #app #panel #inv .slot:hover, body #app #panel #ground .slot:hover, body #app #panel #pots .slot:hover { border-color: #d0d0d0 !important; }
+
+/* ==== the side panel's top: the minimap, its zoom buttons and range label, and the icon row (stats, pet, record,
+   settings). One block (2026-10-29; tools/css_cascade.js rewrite): it was 36 rules across the file. Each selector is
+   the one it had (so it ranks against hover rules as before), with only what wins; !important stays where a rule
+   that would otherwise win is !important or more specific. ==== */
+#minimap { image-rendering: pixelated; background: #000; aspect-ratio: 1 / 1; max-width: 100%; max-height: 100%; }
+#miniwrap { min-height: 0; max-height: none; aspect-ratio: auto; }
+#minibtns { align-items: center; }
+#minibtns button, #gear { font: inherit; cursor: pointer; line-height: 1; }
+#minilabel { padding: 3px 6px; border-radius: 4px; }
+#gear { font-size: 17px; }
+#panel.tight #miniwrap, #panel.squeeze #miniwrap { min-height: 0; }
+#app #panel #miniwrap { flex: 0 0 auto !important; }
+body #app #panel #miniwrap { display: flex; justify-content: center; align-items: center; position: relative; overflow: hidden; width: 100% !important; height: calc(var(--slot) * 4 + 24px) !important; padding: 0 !important; background: #000 !important; border-radius: 0 !important; box-shadow: none; }
+body #app #panel #minimap { width: 100% !important; height: 100% !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; }
+body #app #panel #minibtns { position: absolute; inset: 4px 4px auto auto; display: flex; flex-direction: column; gap: 4px; }
+body #app #panel #minibtns button { width: 28px; height: 28px; padding: 0; font: 700 24px/26px var(--r-font); color: #fff; text-shadow: none; border: 0 !important; border-radius: 0; background: #8a8a8acc !important; }
+body #app #panel #minilabel { position: absolute; left: 4px; bottom: 4px; font: 500 16px var(--r-font); color: #9a9a9a; background: none; text-shadow: var(--r-ol); pointer-events: none; }
+body #app #panel #iconrow { display: flex; align-items: center; gap: 2px; height: 26px; }
+body #app #panel #iconrow .sp { flex: 1; }
+body #app #panel #iconrow button, body #app #panel #gear { width: 30px; height: 26px; padding: 2px 4px; color: #fff; cursor: pointer; background: none !important; border: 0 !important; border-radius: 3px !important; box-shadow: none; }
+body #app #panel #iconrow button.on { color: #ffe060; }
+body #app #panel #iconrow svg { width: 22px; height: 22px; fill: currentColor; display: block; filter: drop-shadow(1px 1px 0 #000); }
+body #app #minilabel { opacity: 0; transition: opacity .3s ease; }
+body #app #minilabel.show { opacity: 1; }
