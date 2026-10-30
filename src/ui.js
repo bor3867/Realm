@@ -683,6 +683,11 @@ export class UI {
     this.slots.inv.forEach((el, i) => el.classList.toggle('hidden', big ? (i >= 8) !== (pg === 1) : i >= 8));
     const inv = (this.statTab || 'inv') === 'inv';
     document.querySelectorAll('#stattabs [data-pg]').forEach((b) => { b.classList.toggle('on', inv && +b.dataset.pg === pg); b.classList.toggle('off', !big && b.dataset.pg === '1'); });
+    if (big) {                                              // something new landed in the backpack you aren't looking at: its tab pulses
+      const P = this.g.player.inv, n = [P.slice(0, 8), P.slice(8)].map((h) => h.filter(Boolean).length), was = this.packN || n;
+      for (const k of [0, 1]) if (k !== pg && n[k] > was[k]) { const t = document.querySelector(`#stattabs [data-pg="${k}"]`); if (t) { t.classList.remove('ping'); void t.offsetWidth; t.classList.add('ping'); } }
+      this.packN = n;
+    }
     const g = this.g;
     const show = g.nearVault || g.nearBag;
     $('groundwrap').classList.toggle('off', !show);
