@@ -897,6 +897,33 @@ export class Game {
     for (const e of this.enemies) if (!e.dead && e.pack) packs[e.pack] = (packs[e.pack] || 0) + 1;
     for (const [b, list] of Object.entries(PACKS)) for (const [id, n] of list) if ((packs[id] || 0) < n * 1.5 * 2) this.spawnPack(b, id);
     this.rfMaintain(packs);                                     // the Realmforge portal droppers (src/rf/host.js)
+    const roamers = {};                                         // the lone wanderers: about six in each land
+    for (const e of this.enemies) if (!e.dead && e.roamer) roamers[e.D.biome] = (roamers[e.D.biome] || 0) + 1;
+    for (const b of BIOMES) if ((roamers[b] || 0) < 6) this.spawnRoamer(b);
+  }
+  // ---- a livelier realm (2026-10-30, the user: "Enemies can roam a little more from their parents. But keep them in
+  // their biomes. Also, maybe build some single enemies to run around"). A realm monster's home drifts now and then, a
+  // few tiles, never out of the land it was born in (a camp's or a door's guard keeps to its post); a lone wanderer's
+  // home moves on all the time, so it crosses its land.
+  roamHome(e) {
+    const m = this.map, roam = e.roamer;
+    if (!roam && R() > 0.3) return;                               // (most of the time it stays put a while)
+    if (e.homeB === undefined) e.homeB = biomeAt(m, e.hx, e.hy);
+    for (let k = 0; k < 6; k++) {
+      const a = R() * TAU, d = roam ? 6 + R() * 7 : 2 + R() * 4, x = e.hx + Math.cos(a) * d, y = e.hy + Math.sin(a) * d;
+      if (x < 2 || y < 2 || x > m.w - 3 || y > m.h - 3 || isSolid(m, x, y) || biomeAt(m, x, y) !== e.homeB) continue;
+      e.hx = x; e.hy = y; return;
+    }
+  }
+  // the lone wanderers: a few of each land's own monsters, on their own
+  spawnRoamer(b) {
+    const pool = (this.roamPool = this.roamPool || {})[b] || (this.roamPool[b] = Object.entries(ENEMIES)
+      .filter(([, D]) => D.biome === b && !D.children && !D.escort && !D.bx && !D.rb && !D.elite && D.ai !== 'rooted' && (D.speed || 0) > 0).map(([id]) => id));
+    if (!pool.length) return;
+    const at = randomTileInBiome(this.map, BIOMES.indexOf(b), R, this.player, 20);
+    if (!at) return;
+    const e = this.addEnemy(R.pick(pool), at.x, at.y);
+    e.roamer = true;
   }
   // ---- mini-events: heralds. Three heralds in a biome summon that biome's realm boss.
   eventClock(dt) {
@@ -2235,10 +2262,12 @@ export class Game {
       const pa = e.parent && !e.parent.dead ? e.parent : null;          // children mill around their parent
       if (e.wt <= 0) {
         e.wt = 1.2 + R() * 1.8;
-        const cx = pa ? pa.x : e.hx, cy = pa ? pa.y : e.hy, rad = pa ? 5 : 8;
+        if (!pa && this.map.kind === 'realm' && !e.leash && !D.leash && ai !== 'rooted') this.roamHome(e);   // (it drifts about its land)
+        const cx = pa ? pa.x : e.hx, cy = pa ? pa.y : e.hy, rad = pa ? 9 : 8;
         e.wx = cx + (R() - 0.5) * rad; e.wy = cy + (R() - 0.5) * rad;
       }
-      if (pa && dist(e.x, e.y, pa.x, pa.y) > 7) { e.wx = pa.x; e.wy = pa.y; sp = D.speed; }
+      if (e.roamer) sp = D.speed * 0.8;                           // (a lone wanderer goes about its way, not idly)
+      if (pa && dist(e.x, e.y, pa.x, pa.y) > 11) { e.wx = pa.x; e.wy = pa.y; sp = D.speed; }   // (they roam further from their parent: 2026-10-30, it was 7)
       if (ai === 'rooted') sp = 0;
     }
     // a wall between you: come round it (by the flow field) instead of pressing into it. Kiters do too, until they
