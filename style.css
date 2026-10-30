@@ -255,9 +255,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #panel > * { flex: none; }
 #minimap { aspect-ratio: 1 / 1; }
 #panel.tight { gap: 5px; padding-top: 10px; padding-bottom: 8px; }
-#panel.tight .slots { gap: 5px; }
-#panel.tight .slot { width: 54px; height: 54px; }
-#panel.tight .slot .ico { width: 40px; height: 40px; }
  
 #panel.tight #stats { font-size: 13px; padding: 4px 8px; }
 #panel.tight #keys, #panel.tight #where { display: none; }
@@ -535,8 +532,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 .petcard.r-divine .ico.pet { filter: drop-shadow(0 0 4px #ff7af0); }
 
 /* ---- short screens: the minimap gives way first, then the slots shrink (ui.fitPanel sets --slotw) so nothing is cut off */
-#panel.tight .slots:not(#pots) { width: calc(var(--slotw, 100%) * 4 + 18px); max-width: 100%; margin-left: auto; margin-right: auto; }
-#panel.tight #pots.slots { width: calc(var(--slotw, 100%) * 2 + 6px); max-width: 50%; }
 
 /* ---- the seals checklist: on screen under fame and gold, out of the side panel's way */
 #seals { position: absolute; top: 50px; left: 10px; pointer-events: none; margin-top: 0;
@@ -571,17 +566,7 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 /* the slots get the room: thinner bars and labels so equipment, backpack and potions can be as big as the panel allows */
 #panel > .label { margin: 0 !important; line-height: 14px; }
 /* every slot follows --slotw (ui.fitPanel: as big as the panel allows) */
-#panel .slots { grid-template-columns: repeat(4, var(--slotw, 66px)) !important; gap: 6px !important; justify-content: center; width: auto !important; max-width: none !important; }
-#panel #pots.slots { grid-template-columns: repeat(2, var(--slotw, 66px)) !important; }
-#panel .slot { width: var(--slotw, 66px) !important; height: var(--slotw, 66px) !important; }
-#panel .slot .ico { width: calc(var(--slotw, 66px) * 0.74) !important; height: calc(var(--slotw, 66px) * 0.74) !important; }
 /* the loot bag: one row of eight (RotMG-style), so the equipment, backpack and potions keep their size */
-#panel #ground.slots:not(.vault) { grid-template-columns: repeat(8, 1fr) !important; gap: 3px !important; }
-#panel #ground:not(.vault) .slot { width: auto !important; height: auto !important; aspect-ratio: 1 / 1; }
-#panel #ground:not(.vault) .slot .ico { width: 74% !important; height: 74% !important; }
-#panel #pots .slot { width: var(--slotw, 66px) !important; height: var(--slotw, 66px) !important; }
-#panel #pots .slot .ico { width: calc(var(--slotw, 66px) * 0.74) !important; height: calc(var(--slotw, 66px) * 0.74) !important; }
-#panel #pots.slots { grid-template-columns: repeat(2, var(--slotw, 66px)) !important; }
 
 /* ==== the side panel, final word (ui.fitPanel sets --slotw and --mini). Nothing above may hide the Stats | Pet tabs
    or the stats: the minimap and the slots give way instead. The bag is four by two, like the backpack. ==== */
@@ -589,10 +574,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #panel #minimap { width: var(--mini, 214px) !important; height: var(--mini, 214px) !important; }
 #panel #stattabs { display: flex !important; }
 #panel #stats:not(.petview) { display: grid !important; }
-#panel #ground.slots:not(.vault) { grid-template-columns: repeat(4, var(--slotw, 66px)) !important; gap: 6px !important; width: auto !important; justify-content: center; }
-#panel #ground:not(.vault) .slot { width: var(--slotw, 66px) !important; height: var(--slotw, 66px) !important; border-width: 3px !important; }
-#panel #ground:not(.vault) .slot .ico { width: calc(var(--slotw, 66px) * 0.74) !important; height: calc(var(--slotw, 66px) * 0.74) !important; }
-#panel #ground:not(.vault) .slot .tier { font-size: inherit !important; }
 
 /* ---- the loading card shown while a portal makes the next place */
 #loadcard { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: #07060b; transition: opacity .35s; }
@@ -625,11 +606,7 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 @media (max-height: 660px) { #app #panel { --slot: 40px; --mini: 124px; } }
 #app #panel #miniwrap { flex: none !important; height: var(--mini) !important; }
 #app #panel #minimap { width: var(--mini) !important; height: var(--mini) !important; }
-#app #panel .slots:not(#pots) { grid-template-columns: repeat(4, var(--slot)) !important; gap: 6px !important; justify-content: center; width: auto !important; max-width: none !important; margin: 0 !important; }
-#app #panel .slots:not(#pots) .slot { width: var(--slot) !important; height: var(--slot) !important; }
-#app #panel .slots:not(#pots) .slot .ico { width: calc(var(--slot) * 0.74) !important; height: calc(var(--slot) * 0.74) !important; }
 #app #panel #ground.vault { grid-template-columns: repeat(8, 1fr) !important; }
-#app #panel #ground.vault .slot { width: auto !important; height: auto !important; }
 #app #panel #equip { margin-top: 2px !important; }
 #app #panel #stattabs { display: flex !important; margin: 0 0 -7px !important; }
 #app #panel #stattabs small { color: inherit; font-size: 11px; }
@@ -638,9 +615,6 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #app #panel[data-tab="inv"] #stats { display: none !important; }
 #app #panel:not([data-tab="inv"]) #inv { display: none !important; }
 #app #panel .potrow { display: flex !important; align-items: center; justify-content: center; gap: 10px; }
-#app #panel #pots.slots { grid-template-columns: repeat(2, calc(var(--slot) * 0.82)) !important; gap: 6px !important; margin: 0 !important; }
-#app #panel #pots .slot { width: calc(var(--slot) * 0.82) !important; height: calc(var(--slot) * 0.82) !important; }
-#app #panel #pots .slot .ico { width: calc(var(--slot) * 0.6) !important; height: calc(var(--slot) * 0.6) !important; }
 #app #panel #potkeys { color: var(--mut, #8a8496); font-size: 11px; }
 #app #panel #interact { flex: none; position: relative; height: calc(26px + var(--slot) * 2 + 6px); }
 #app #panel #interact > div { position: absolute; left: 0; right: 0; top: 0; }
@@ -698,18 +672,6 @@ body #app #panel #iconrow button.on { color: #ffe060; }
 
 /* equipment */
 body #app #panel #equipbox { background: var(--r-slot2); border: 2px solid var(--r-frame); padding: 4px; }
-body #app #panel .slots:not(#pots) { grid-template-columns: repeat(4, var(--slot)) !important; gap: 4px !important; justify-content: center; margin: 0 !important; width: auto !important; }
-body #app #panel .slot { width: var(--slot) !important; height: var(--slot) !important; border-radius: 0 !important; background: var(--r-slot) !important;
-  border: 2px solid #3a3a3a !important; box-shadow: none !important; transform: none !important; }
-body #app #panel .slot:hover { border-color: #d0d0d0 !important; }
-body #app #panel .slot.has { border-color: #3a3a3a !important; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--rc) 45%, transparent) !important; }
-body #app #panel .slot.has:hover { border-color: #d0d0d0 !important; }
-body #app #panel .slot .ico { width: calc(var(--slot) * 0.78) !important; height: calc(var(--slot) * 0.78) !important; }
-body #app #panel .slot .tier { font: 500 16px/1 var(--r-font) !important; color: #fff !important; text-shadow: var(--r-ol) !important; right: 3px !important; bottom: 2px !important; }
-body #app #panel .slot .tier.ut { color: #ffd84a !important; }
-body #app #panel .slot .hint { font: 500 24px/1 var(--r-font) !important; color: var(--r-num) !important; left: 0 !important; right: 0; top: 50% !important;
-  transform: translateY(-50%); text-align: center; }
-body #app #panel #equip .slot .hint { display: none; }
 
 /* the backpack box */
 body #app #panel #invbox { background: var(--r-dark); padding: 0 4px 4px; }
@@ -721,14 +683,7 @@ body #app #panel #stattabs svg { width: 18px; height: 18px; fill: currentColor; 
 body #app #panel #tabbody { height: calc(var(--slot) * 2 + 4px) !important; padding: 0 !important; background: none !important; border-radius: 0 !important; overflow: hidden auto; }
 body #app #panel #tabbody #stats { background: #1e1e1e !important; height: 100%; padding: 6px 10px !important; border-radius: 0; font-family: var(--r-font); align-content: start; }
 body #app #panel #tabbody #stats .st { font-family: var(--r-font); font-weight: 500; text-shadow: var(--r-ol); }
-body #app #panel #pots.slots { display: grid; grid-template-columns: 1fr 1fr !important; gap: 4px !important; margin: 4px 0 0 !important; }
-body #app #panel #pots .slot { width: auto !important; height: 34px !important; aspect-ratio: auto !important; display: flex; align-items: center; justify-content: center; gap: 4px; background: #424242 !important; }
-body #app #panel #pots .slot .hint { display: none; }
-body #app #panel #pots .slot .ico { width: 26px !important; height: 26px !important; flex: none; }
-body #app #panel #pots .slot.ghost .ico { opacity: .35; filter: grayscale(1); }
-body #app #panel #pots .slot .tier { position: static; font: 500 16px/1 var(--r-font) !important; color: #fff !important; }
-body #app #panel #pots .slot .tier b { font-size: 24px; font-weight: 600; color: #ff8a2a; }
-body #app #panel #pots .slot .tier b.full { color: #4af04a; } body #app #panel #pots .slot .tier b.none { color: #8a8a8a; }
+ 
 
 /* where you are, who is with you; a bag or a portal covers it */
 body #app #panel #bottom { position: relative; height: calc(var(--slot) * 2 + 34px); }
@@ -752,8 +707,6 @@ body #app #panel #interact .label > span { flex: 1; min-width: 0; white-space: n
 body #app #panel #interact .label .btn.off { display: none; }
 body #app #panel #interact .label .btn { white-space: nowrap; flex: none; padding: 2px 8px; font-size: 16px; }
 body #app #panel #ground.vault { grid-template-columns: repeat(8, 1fr) !important; max-height: calc(var(--slot) * 2 + 4px); }
-body #app #panel #ground.vault .slot { width: auto !important; height: auto !important; aspect-ratio: 1; }
-body #app #panel #ground.vault .slot .ico { width: 78% !important; height: 78% !important; }
 body #app #panel .portalcard { border-radius: 0 !important; background: #2a2a2a; }
 body #app #panel .portalcard .btn { border-radius: 0; font-family: var(--r-font); }
 
@@ -1120,3 +1073,39 @@ body #app #panel .bar .bl { width: 42px; flex: none; }
 body #app #panel .bar .bv { flex: 1; margin-right: 42px; overflow: hidden; color: #fff; text-align: center; }
 body #app #panel .bar.maxed .bv { color: #ffd84a; }   /* gold only once the stat is at its class maximum (RotMG) */
 body #app #panel .bar .bv em { font-style: normal; color: #7ab8ff; }
+
+/* ==== the side panel's slots: one block (2026-10-29; tools/css_cascade.js). They were set by 45 rules across the
+   file; this is what those came to. The equipment, the backpack and a bag at your feet (four across, --slot wide), the
+   vault when its window is shut (its slots fill the row), and the two potion slots. The !important ones are needed:
+   generic .slot rules elsewhere (a :hover one among them) are !important too. Hover outlines live elsewhere. ==== */
+body #app #panel #equip.slots, body #app #panel #inv.slots, body #app #panel #ground.slots { gap: 4px !important; width: auto; max-width: none; margin: 0; justify-content: center; }
+body #app #panel #equip.slots, body #app #panel #inv.slots, body #app #panel #ground.slots:not(.vault) { grid-template-columns: repeat(4, var(--slot)) !important; }
+body #app #panel #equip.slots { margin-top: 0 !important; }
+body #app #panel #pots.slots { display: grid; grid-template-columns: 1fr 1fr !important; gap: 4px !important; width: auto; max-width: none; margin: 4px 0 0; justify-content: center; }
+
+body #app #panel #equip .slot, body #app #panel #inv .slot, body #app #panel #ground .slot, body #app #panel #pots .slot {
+  border: 2px solid #3a3a3a !important; border-radius: 0 !important; background: var(--r-slot) !important; box-shadow: none !important; transform: none; }
+body #app #panel #equip .slot, body #app #panel #inv .slot, body #app #panel #ground:not(.vault) .slot { width: var(--slot) !important; height: var(--slot) !important; }
+body #app #panel #ground .slot { aspect-ratio: 1 / 1; }
+body #app #panel #ground:not(.vault) .slot { border-width: 3px !important; }
+body #app #panel #ground.vault .slot { width: auto !important; height: auto !important; }
+body #app #panel #pots .slot { width: auto !important; height: 34px !important; aspect-ratio: auto; display: flex; align-items: center; justify-content: center; gap: 4px; background: #424242 !important; }
+body #app #panel #equip .slot.has, body #app #panel #inv .slot.has, body #app #panel #ground .slot.has, body #app #panel #pots .slot.has { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--rc) 45%, transparent) !important; }
+
+body #app #panel #equip .slot .ico, body #app #panel #inv .slot .ico, body #app #panel #ground:not(.vault) .slot .ico { width: calc(var(--slot) * 0.74) !important; height: calc(var(--slot) * 0.74) !important; }
+body #app #panel #ground.vault .slot .ico { width: 78% !important; height: 78% !important; }
+body #app #panel #pots .slot .ico { width: 26px !important; height: 26px !important; flex: none; }
+body #app #panel #pots .slot.ghost .ico { opacity: .35; filter: grayscale(1); }
+
+body #app #panel .slots .slot .tier { font: 500 16px/1 var(--r-font); color: #fff; text-shadow: var(--r-ol); right: 3px !important; bottom: 2px !important; }
+body #app #panel .slots .slot .tier.ut { color: #ffd84a; }
+body #app #panel #ground:not(.vault) .slot .tier { font-size: inherit; }
+body #app #panel #pots .slot .tier { position: static; }
+body #app #panel #pots .slot .tier b { font-size: 24px; font-weight: 600; color: #ff8a2a; }
+body #app #panel #pots .slot .tier b.full { color: #4af04a; }
+body #app #panel #pots .slot .tier b.none { color: #8a8a8a; }
+
+body #app #panel .slots .slot .hint { font: 500 24px/1 var(--r-font); color: var(--r-num) !important; left: 0; right: 0; top: 50%; transform: translateY(-50%); text-align: center; }
+body #app #panel #equip .slot .hint, body #app #panel #pots .slot .hint { display: none; }
+/* under the mouse: a light edge (as specific as the slots above, or they'd hide it) */
+body #app #panel #equip .slot:hover, body #app #panel #inv .slot:hover, body #app #panel #ground .slot:hover, body #app #panel #pots .slot:hover { border-color: #d0d0d0 !important; }
