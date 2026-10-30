@@ -66,7 +66,25 @@ function wireJSON(v) {
   } catch { return null; }
 }
 // a monster's kind, once, for the wire (data only: no functions, no loops)
-function safe(o) { const seen = new WeakSet(); return JSON.parse(JSON.stringify(o, (k, v) => { if (typeof v === 'object' && v) { if (seen.has(v)) return undefined; seen.add(v); } return typeof v === 'function' ? undefined : v; })); }
+// Only a loop is cut (an object inside itself), not an object met twice: a boss's loot table shares one tier range
+// across its gear lines, and cutting every repeat sent them with no tiers, so every online boss's roll threw and you got
+// nothing from it, not a tier, not a white. (2026-10-30; +4% on the wire, each kind sent once)
+function safe(o) {
+  const up = new Set();
+  const c = (v) => {
+    if (typeof v === 'function') return undefined;
+    if (!v || typeof v !== 'object') return v;
+    if (typeof v.toJSON === 'function') { v = v.toJSON(); if (!v || typeof v !== 'object') return v; }
+    if (up.has(v)) return undefined;
+    up.add(v);
+    let r;
+    if (Array.isArray(v)) r = v.map((x) => { const y = c(x); return y === undefined ? null : y; });
+    else { r = {}; for (const k of Object.keys(v)) { const y = c(v[k]); if (y !== undefined) r[k] = y; } }
+    up.delete(v);
+    return r;
+  };
+  return JSON.parse(JSON.stringify(c(o)));
+}
 const Dcache = new WeakMap(), Dof = (D) => { let x = Dcache.get(D); if (!x) Dcache.set(D, (x = safe(D))); return x; };
 // a shot or a ground zone for the wire: plain data; a monster it points at goes as that monster's number
 function shotJSON(b) {

@@ -1133,6 +1133,7 @@ export function rollLoot(table, luck = 1, rank = 'mob') {
     else {
       // e.type / e.ring: that kind exactly (an overworld boss lists every class's); e.ladder: its tiers are today's,
       // not the old ladders the older tables were written for
+      if (!e.tiers) continue;                                 // (a line that lost its tiers is skipped, not the whole roll)
       const t = R.int(e.tiers[0], e.tiers[1]), L = (s) => (e.ladder ? t : ladderTier(s, t));
       if (e.slot === 'ring') out.push(maybeEnchant(`ring_${e.ring || R.pick(STATS)}_t${gated('ring', L('ring'), rank)}`));
       else {

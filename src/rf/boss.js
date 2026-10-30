@@ -11,6 +11,7 @@ import { rollLoot, ITEMS } from '../data/items.js';
 import { mitigate, moveSpeed } from '../data/classes.js';
 import { bandOfBoss } from './balance.js';
 import { BX, bxEnemyDef } from '../bosses/index.js';
+import { bossLoot } from '../bosses/boss_loot.js';
 
 export const RFB = { dropUt: 0.05, dropLeg: 0.02, dropMyth: 0.005, phaseMax: 60 };   // a boss's own uniques, by rarity: about one in twelve kills (was 0.2/0.08/0.02, one in three: 2026-10-22) (HP and damage: src/rf/balance.js)
 const DPR = 1.6, TP = 30;                                                      // their pixels to a tile; 30 * 1.6 = 48 = 16 * 3
@@ -208,9 +209,11 @@ const methods = {
       const c = d.rarity === 'mythic' ? RFB.dropMyth : d.rarity === 'legendary' ? RFB.dropLeg : RFB.dropUt;
       if (Math.random() < c) items.push(id);
     }
-    const T = F.bal.tiers, T2 = [T[0] + 1, T[1] + 1];                     // a boss gives a tier better than its dungeon's chests
-    items.push(...rollLoot([{ slot: 'weapon', tiers: T2, p: 0.8 }, { slot: 'armor', tiers: T2, p: 0.8 }, { slot: 'ring', tiers: [1, 3], p: 0.5 },
-      { slot: 'ability', tiers: [3, 5], p: 0.5 }, { stat: true, p: 0.6 }, { id: 'pot_hp', p: 1 }], 2.5, (this.rfStars ? this.rfStars() : 3) >= 5 ? 'top' : 'dboss'));
+    // the same bag as every other boss (src/bosses/boss_loot.js): a tiered weapon and armour for sure, and a chance at
+    // every class's gear, its tiers by the dungeon's stars; a harder dungeon, higher tiers. (It was a weapon and an armour
+    // at 80% on a narrower scale. 2026-10-30)
+    const stars = Math.max(1, Math.min(5, this.rfStars ? this.rfStars() : 3));
+    items.push(...rollLoot(bossLoot([], stars), 1, stars >= 5 ? 'top' : 'dboss'));
     const A = F.A, bx = A.b1.x / TP + 1, by = A.b1.y / TP + 2;
     this.addBag(bx, by + 0.5, items);
     m.portals.push({ kind: 'realm', x: bx, y: by + 2, label: this.exitLabel(), to: 'realm' });
