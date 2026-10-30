@@ -33,7 +33,7 @@ const methods = {
   armS() { const p = this.player; return p.armS || (p.armS = { n: {}, cd: {}, vis: [], later: [], marked: new Set() }); },
   armA(id) { const it = ITEMS[id]; return it && it.arm; },
   armHeld(id) { return this.player.equip.includes(id); },
-  armMult(id) { const S = this.armS(); return dmgMult(this.stat('att')) * (id === ID('Paradox Script') ? 1 + 0.04 * (S.caus || 0) : 1); },
+  armMult(id) { const S = this.armS(); return dmgMult(this.stat('att')) * (id === ID('Paradox Script') ? 1 + 0.03 * (S.caus || 0) : 1); },
   armLater(s, fn) { this.armS().later.push({ t: this.t + s, fn }); },
   armVis(v) { v.t0 = this.t; this.armS().vis.push(v); return v; },
   armSay(x, y, text, col) { this.float(x, y - 1.2, text, col); },
@@ -501,27 +501,49 @@ const FIRE = {
       if (feast) { const n = S.eaten || 0; S.eaten = 0; for (let i = 0; i < n; i++) this.armLater(i * 0.025, () => this.armShot(id, 0, m.x, m.y - 0.5, i * 0.45, 10.5, 12.6, EX(A, 1), { sc: 3, home: 1.2 })); this.armSay(m.x, m.y + 1, 'CRIMSON STORM ×' + n, '#ff6b81'); }
     });
   },
-  // a shot that expires without hitting rewinds to you and re-fires at the nearest enemy; every shot writes a delayed echo
-  'Paradox Script'(A, id, S, ox, oy, a0) {
-    const W = ITEMS[id].weapon, a = a0 + (R() - 0.5) * 0.76, p = this.player;
-    const mk = (o, x = ox, y = oy) => {
-      const sh = this.armShot(id, 0, x, y, a, W.speed, W.range, o.dmg || A.st.dmg, { alpha: o.alpha });
-      sh.echo = !!o.echo;
-      sh.armOnHit = (b) => { b.landed = true; };
-      sh.armEnd = (b) => {
-        if (b.landed || b.echo) return;
-        this.armVis({ k: 'rewind', x0: b.x, y0: b.y, life: 0.26 });
-        this.armLater(0.26, () => {
-          const [px, py] = lift(p.x, p.y, 0.5), e = this.armNearest(p.x, p.y, 12);
-          if (!e) return;
-          this.armSay(p.x, p.y, 'REWRITTEN', '#67e8f9');
-          const q = this.armShot(id, 0, px, py, angleTo(px, py, ...this.up(e.x, e.y, 0.5)), W.speed * 1.2, W.range, EX(A, 0), {});
-          q.armOnHit = () => { S.caus = Math.min(10, (S.caus || 0) + 1); S.causUntil = this.t + 4; this.armSay(p.x, p.y - 0.4, 'CAUSALITY ' + S.caus, '#a5b4fc'); };
-        });
-      };
+  // Paradox Script (reworked 2026-10-30, the user: "terrible ... Make it unique and powerful for being a celestial"):
+  // true aim; a shot that lands is rewound, back from its target to you, piercing all it passes; every hit writes
+  // Causality (+3% a stack, 12 at most); at 12 the next shot is The Paradox, striking all along its path at once; a shot
+  // that lands nothing still rewinds and re-fires at the nearest enemy
+  'Paradox Script'(A, id, S, ox, oy, a) {
+    const W = ITEMS[id].weapon, p = this.player;
+    const write = () => { S.caus = Math.min(12, (S.caus || 0) + 1); S.causUntil = this.t + 4; };
+    if ((S.caus || 0) >= 12) {                                   // The Paradox: everything this shot will ever hit, now
+      S.caus = 0; S.causUntil = 0;
+      const L = W.range, ux = Math.cos(a), uy = Math.sin(a), [px, py] = [p.x, p.y];
+      for (const e of this.armNear(px + ux * L / 2, py + uy * L / 2, L / 2 + 1)) {
+        const t = (e.x - px) * ux + (e.y - py) * uy, off = Math.abs((e.x - px) * uy - (e.y - py) * ux);
+        if (t < 0 || t > L || off > 0.9 + (e.D && e.D.r || 0.4)) continue;
+        this.armHurt(e, EX(A, 2), e.x, e.y - 0.5, { id });
+      }
+      this.armVis({ k: 'rewind', x0: px + ux * L, y0: py + uy * L, life: 0.45 });
+      this.armSay(p.x, p.y, 'THE PARADOX', '#c7d2fe'); this.vx({ k: 'shake', amt: 4 });
+    }
+    const sh = this.armShot(id, 0, ox, oy, a, W.speed, W.range, A.st.dmg, {});
+    sh.armOnHit = (b, e) => {
+      b.landed = true; write();
+      if (!e || b.rewound) return;
+      const hx = b.x, hy = b.y;
+      this.armLater(0.12, () => {                               // the Causal Loop: back from where it struck, to you
+        const [qx, qy] = lift(p.x, p.y, 0.5), d = Math.hypot(qx - hx, qy - hy);
+        if (d < 0.5) return;
+        this.armVis({ k: 'rewind', x0: hx, y0: hy, life: 0.2 });
+        const r = this.armShot(id, 0, hx, hy, angleTo(hx, hy, qx, qy), W.speed * 1.4, d, EX(A, 1), { pierce: true, alpha: 0.65 });
+        r.rewound = true;
+        r.armOnHit = () => write();
+      });
     };
-    mk({});
-    this.armLater(0.23, () => mk({ echo: true, alpha: 0.5, dmg: EX(A, 1) }, ox - Math.sin(a) * 0.35, oy + Math.cos(a) * 0.35));
+    sh.armEnd = (b) => {                                          // it landed nothing: rewritten at the nearest enemy
+      if (b.landed) return;
+      this.armVis({ k: 'rewind', x0: b.x, y0: b.y, life: 0.26 });
+      this.armLater(0.26, () => {
+        const [px, py] = lift(p.x, p.y, 0.5), e = this.armNear(p.x, p.y, 12)[0];
+        if (!e) return;
+        this.armSay(p.x, p.y, 'REWRITTEN', '#67e8f9');
+        const q = this.armShot(id, 0, px, py, angleTo(px, py, ...this.up(e.x, e.y, 0.5)), W.speed * 1.2, W.range, EX(A, 0), {});
+        q.landed = true; q.armOnHit = () => write();
+      });
+    };
   },
   // arrows tear the world along their path (1.5s); enemies crossing a tear take damage; where two tears cross, reality ruptures
   'World Ripper'(A, id, S, ox, oy, a) {

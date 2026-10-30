@@ -145,7 +145,7 @@ const methods = {
     const bar = (f, col, y = 12) => { b.fillStyle = 'rgba(255,255,255,.15)'; b.fillRect(px - 10, py + y, 20, 2); b.fillStyle = col; b.fillRect(px - 10, py + y, 20 * Math.max(0, Math.min(1, f)), 2); };
     if (g.armHeld && g.armHeld(this.armId('The Hunger'))) bar((S.hunger || 0) / 10, (S.hunger || 0) >= 10 ? '#ff3b4e' : '#b91c1c');
     if (g.armHeld && g.armHeld(this.armId('Null Walker'))) bar((S.nul || 0) / 12, '#c084fc');
-    if (g.armHeld && g.armHeld(this.armId('Paradox Script'))) for (let i = 0; i < 10; i++) { b.fillStyle = i < (S.caus || 0) ? '#a5b4fc' : 'rgba(255,255,255,.15)'; b.fillRect(px - 10 + i * 2, py + 12, 1.5, 2); }
+    if (g.armHeld && g.armHeld(this.armId('Paradox Script'))) for (let i = 0; i < 12; i++) { b.fillStyle = (S.caus || 0) >= 12 ? '#e0e7ff' : i < (S.caus || 0) ? '#a5b4fc' : 'rgba(255,255,255,.15)'; b.fillRect(px - 12 + i * 2, py + 12, 1.5, 2); }   // (12 Causality: the bar burns white, the next shot is The Paradox)
     if (g.armHeld && g.armHeld(this.armId('The Last Verse'))) { const CL = ['#ef4444', '#67e8f9', '#fde047', '#a855f7', '#84cc16']; const pr = S.m ? S.m.el : (S.verse ?? -1); for (let i = 0; i < 5; i++) { b.fillStyle = i <= pr && pr < 5 ? CL[i] : 'rgba(255,255,255,.15)'; b.fillRect(px - 10 + i * 4, py + 12, 3, 2); } }
     if (S.phase) { b.save(); b.globalAlpha = 0.5; b.fillStyle = '#7c3aed'; b.beginPath(); b.arc(px, py - 6, 9, 0, 7); b.fill(); b.restore(); for (const e of S.phase.marked) { const [x, y] = this.proj(e.x, e.y - 0.5); b.save(); b.strokeStyle = '#c084fc'; b.setLineDash([2, 2]); b.beginPath(); b.arc(x, y, 10, 0, 7); b.stroke(); b.restore(); } }
     // Time Echo: you, two seconds behind
