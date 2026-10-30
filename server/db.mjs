@@ -90,6 +90,7 @@ export function makeDb() {
     async writeSave(id, data) { await S.putSave(id, data); },
     // the Hall of Legends across the game: the 50 greatest fallen characters of every account (from the graveyards in
     // their saves: no table of its own), the greatest first; worked out at most every two minutes
+    legendsReset() { LEG = null; },                        // (an admin cleared their dead: work the list out again)
     async legends() {
       if (LEG && Date.now() - LEG.at < 120000) return LEG.list;
       const all = [];

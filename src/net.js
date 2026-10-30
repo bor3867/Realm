@@ -461,6 +461,7 @@ const methods = {
   // you used something in a shared dungeon: the server uses it too (by its place in the dungeon's list)
   netRfGate(i) { const N = this.net; if (N && N.open && this.map.netWorld) N.ws.send(JSON.stringify({ t: 'rfgate', i })); },   // a Realmforge gate you opened: the server opens it for all
   netWhisper(to, text) { const N = this.net; if (!N || !N.open) return false; N.ws.send(JSON.stringify({ t: 'whisper', to, text })); return true; },
+  netClearDeaths() { const N = this.net; if (!N || !N.open || !(this.account && this.account.online && this.account.admin)) return false; N.ws.send(JSON.stringify({ t: 'cleardeaths' })); if (N.legends) N.legends = null; return true; },
   netErupt() { const N = this.net; if (!N || !N.open || !(this.account && this.account.online && this.account.admin)) return false; N.ws.send(JSON.stringify({ t: 'erupt' })); return true; },
   netLegends() { const N = this.net; if (N && N.open) { N.ws.send(JSON.stringify({ t: 'legends' })); return true; } return false; },   // ask for the game's 50 greatest fallen
   netUse(o) { const N = this.net, i = this.map.objects.indexOf(o); if (N && N.open && i >= 0) N.ws.send(JSON.stringify({ t: 'use', i, k: o.interact || o.sprite || '' })); },

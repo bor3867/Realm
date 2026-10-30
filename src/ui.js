@@ -206,12 +206,15 @@ export class UI {
       const stars = Object.keys(CLASSES).map((c) => { const f = (s.classFame || {})[c] || 0, n = FAME_GOALS.filter((x) => f >= x).length; return `<tr><td><b>${CLASSES[c].name}</b></td><td class="stars">${'★'.repeat(n)}<i>${'★'.repeat(5 - n)}</i></td><td class="mut">best ${f} fame</td></tr>`; }).join('');
       body = `<h2>Your account: ${s.fame || 0} fame · best level ${s.bestLevel || 0}</h2>
         ${L.length ? `<table class="legs"><tr><th>Hero</th><th>Level</th><th>Fame</th><th>Fell to</th><th>When</th></tr>${L.map((d, i) => `<tr data-pick="${i}"><td><b>${cls(d)}</b></td><td>${d.level}</td><td class="stars">${d.fame || 0}</td><td class="mut">${esc(d.by)}</td><td class="mut">${esc(d.date)}</td></tr>`).join('')}</table><p class="mut">Click a hero to see their record.</p>` : '<p class="mut">None of your heroes has fallen yet.</p>'}
-        <table><tr><th colspan="3">Class stars (fame goals each class has reached)</th></tr>${stars}</table>`;
+        <table><tr><th colspan="3">Class stars (fame goals each class has reached)</th></tr>${stars}</table>
+        ${this.g.adminOk() && L.length ? '<button class="btn sm" id="clrdead">Clear my deaths</button>' : ''}`;
     }
     const o = this.overlay(`<div class="screen atlas legends"><h1>The Hall of Legends</h1>${head}${body}<button class="btn" id="mclose">Close${keyParen('settings')}</button></div>`);
     o.querySelectorAll('[data-leg]').forEach((b) => { b.onclick = () => this.openLegends(b.dataset.leg); });
     o.querySelectorAll('[data-pick]').forEach((r) => { r.onclick = () => this.openLegends(tab, L[+r.dataset.pick]); });
     const back = o.querySelector('#legback'); if (back) back.onclick = () => this.openLegends(tab);
+    const clr = o.querySelector('#clrdead');                       // (an admin: forget your fallen heroes; a second click to be sure)
+    if (clr) clr.onclick = () => { if (!clr.dataset.sure) { clr.dataset.sure = 1; clr.textContent = `Click again: forget all ${L.length}`; return; } this.g.clearDeaths(); this.openLegends('mine'); };
     this.g.onLegends = () => { if (this.modal === 'legends' && this.legTab === 'realm' && !pick) this.openLegends('realm'); };
     o.querySelector('#mclose').onclick = () => this.closeModal();
   }

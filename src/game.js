@@ -3315,6 +3315,13 @@ export class Game {
     this.sfx('coin'); this.persist();
     return `Bought a ${ITEMS[id].name}. Use it (shift-click) to hatch it.`;
   }
+  // an admin's own fallen heroes, forgotten: off your account and off the game's Hall of Legends (2026-10-30). The
+  // fame they earned stays on your account; achievements stay earned
+  clearDeaths() {
+    this.save.graveyard = [];
+    this.persist();
+    if (this.netClearDeaths) this.netClearDeaths();          // (the server saves it at once and lists the realm's greatest again)
+  }
   // ---- the realm's clock (2026-10-30): 15 minutes, then it erupts and throws whoever is in it before the final boss
   // (the Throne of Solkhar); a new realm rises. Online the server keeps the clock and the shared Throne; offline, here.
   realmLeft() {
@@ -4218,7 +4225,7 @@ export class Game {
       case 'help':
         say('Player: /w NAME message (a whisper)  /r message (reply)  /teleport NAME (to someone here)  /dance  · Enter to chat, Esc for settings and your keys.');
         if (!this.adminOk()) break;
-        say('/erupt (the realm erupts now: everyone in it to the Throne, a new realm)  /admin  /ascend (top level, stats maxed; a priest gets the Hosanna set)  /backpack  /maxlevel  /level N  /maxstats  /heal  /god  /give ITEM [N]  /give dungeon ID (its whole loot set)  /items TEXT  /spawn ID [N] (any monster, elite or boss; /spawn chicken N, /spawn pigeon N: up to 100 XP birds)  /boss ID  ' +
+        say('/cleardeaths (forget your fallen heroes, off the Hall of Legends too)  /erupt (the realm erupts now: everyone in it to the Throne, a new realm)  /admin  /ascend (top level, stats maxed; a priest gets the Hosanna set)  /backpack  /maxlevel  /level N  /maxstats  /heal  /god  /give ITEM [N]  /give dungeon ID (its whole loot set)  /items TEXT  /spawn ID [N] (any monster, elite or boss; /spawn chicken N, /spawn pigeon N: up to 100 XP birds)  /boss ID  ' +
             '/bx BOSS (a three-phase boss beside you)  /kraken  /treant  /melon  /event BIOME  /adminchest [N] (best loot)  /armory [TIER] (the Mad God Armory)  /keys [dungeon N] (dungeon keys)  /pet [kind rarity max]  /star (a falling star in Godfall)  /seals (open a dungeon boss gate)  /progress BIOME N  /gold N  /essence N  /bosses  /tp LAND|nexus|realm|DUNGEON (lands: shore fen runeholt godfall dunes thornwood steppe lowlands)  /killall  /clearbags  /fame N  /portal DUNGEON  (all ids: ADMIN_REFERENCE.md; final boss: /portal throne)');
         break;
       case 'w': case 'whisper': case 'tell': case 'msg': case 'r': case 'reply': {   // a whisper: one player only (src/net.js)
@@ -4226,6 +4233,12 @@ export class Game {
         if (!to) { say(back ? 'No one has whispered to you yet.' : 'Whisper to someone: /w NAME message'); break; }
         if (!text) { say(`Whisper to ${to}: /w ${to} message`); break; }
         if (!this.netWhisper || !this.netWhisper(to, text)) say('Whispers need the online server.');
+        break;
+      }
+      case 'cleardeaths': {                               // an admin clears their own fallen heroes (and so off the Hall of Legends)
+        const n = (this.save.graveyard || []).length;
+        if ((args[0] || '').toLowerCase() !== 'confirm') { say(n ? `This forgets your ${n} fallen hero${n > 1 ? 'es' : ''} for good, here and on the Hall of Legends. Type /cleardeaths confirm` : 'You have no fallen heroes.'); break; }
+        this.clearDeaths(); say(`Your ${n} fallen hero${n === 1 ? '' : 'es'} cleared.`);
         break;
       }
       case 'erupt':                                       // the realm erupts now (online: the shared one, for everyone in it)

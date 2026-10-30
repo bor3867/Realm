@@ -244,6 +244,10 @@ function onMessage(c, text) {
     return;
   }
   if (m.t === 'erupt' && c.account && c.account.admin) { erupt(c.name); return; }   // an admin sets the realm off early
+  if (m.t === 'cleardeaths' && c.account && c.account.admin && db) {   // an admin cleared their fallen heroes: their save now, then the Hall again
+    (async () => { if (c.pendingSave) await flushSave(c); if (db.legendsReset) db.legendsReset(); send(c, { t: 'chat', id: 0, name: 'Server', text: 'Your fallen heroes are off the Hall of Legends.' }); })().catch((err) => console.error('cleardeaths', err.message));
+    return;
+  }
   if (m.t === 'whisper') {                                // a private line to one player, by name (theirs and yours only)
     if (Date.now() - (c.chatAt || 0) < G.CHAT_GAP) return;
     c.chatAt = Date.now();
