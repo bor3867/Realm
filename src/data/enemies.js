@@ -1602,3 +1602,19 @@ ENEMIES.xp_pigeon = { name: 'XP Pigeon', biome: 'nexus', hp: 450, def: 0, speed:
 ENEMIES.kraken_tentacle = { name: 'Kraken Tentacle', biome: 'shore', hp: 1400, def: 6, speed: 0, xp: 30, r: 0.5, ai: 'rooted', aggro: 12, contact: 60,
   reg: 'rs_enemies/kraken_tentacle', scale: 1,
   attacks: [{ pattern: 'aimed', proj: 'bx_shots/abyssal_kraken.barbed_hook', count: 3, arc: 0.35, dmg: 55, speed: 7, range: 8, cd: 1.5, tell: 400 }], loot: [] };
+
+// ---- the heralds hardened (2026-10-30, the user: "increase the hp and size of the smaller realm bosses. Then add some
+// more shots to harden them"). Twice the Life, half again as big (body and art), four more shots in each ring, and one
+// attack more each, its own. Last in the file, after every pass that thins attacks, so it stands as written.
+for (const [id, extra] of Object.entries({
+  tide_herald: { pattern: 'cross', proj: 'conchwave', count: 8, dmg: 32, speed: 4, range: 7, cd: 3.2, tell: 450 },
+  bog_bellringer: { pattern: 'shotgun', proj: 'clapper', count: 5, arc: 0.8, dmg: 50, speed: 6, range: 7, cd: 2.6, tell: 400 },
+  rime_herald: { pattern: 'wall', proj: 'hailstone', count: 6, dmg: 75, speed: 4.5, range: 8, cd: 3.4, tell: 500 },
+  gilded_penitent: { pattern: 'cross', proj: 'gildlash', count: 8, dmg: 110, speed: 5, range: 8, cd: 3.0, tell: 450 },
+})) {
+  const D = ENEMIES[id];
+  if (!D) continue;
+  D.hp *= 2; D.scale = 1.6; D.r = +(D.r * 1.5).toFixed(2);
+  for (const a of D.attacks) if (a.pattern === 'radial') a.count += id === 'rime_herald' ? 2 : 4;   // (the Rime Herald's ring splits each shot in four: two more is plenty)
+  D.attacks.push(extra);
+}
