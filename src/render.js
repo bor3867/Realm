@@ -1288,7 +1288,7 @@ export class Renderer {
     const b = this.b, x = Math.round(sx), y = Math.round(sy - 7 - (e.D.fly ? 3 + Math.sin(g.t * 6 + (e.phase || 0)) * 1.5 : 0)), r = Math.max(4, Math.round((e.D.r || 0.4) * 14));
     this.shadow(sx, sy, r * 2);
     b.fillStyle = '#05040a'; b.beginPath(); b.ellipse(x, y, r + 1, r * 0.8 + 1, 0, 0, Math.PI * 2); b.fill();
-    b.fillStyle = e.hurtT > 0 ? '#ffffff' : '#9aa0b0'; b.beginPath(); b.ellipse(x, y, r, r * 0.8, 0, 0, Math.PI * 2); b.fill();
+    b.fillStyle = '#9aa0b0'; b.beginPath(); b.ellipse(x, y, r, r * 0.8, 0, 0, Math.PI * 2); b.fill();
     b.fillStyle = '#05040a'; b.fillRect(x + Math.round(r * 0.35), y - 2, 2, 2);
   }
   // a Realm Update monster (registry art, 4 frames: two to move, attack, hurt), with the same body language as the rest
@@ -1410,7 +1410,6 @@ export class Renderer {
     } else if (e.state === 'attack') {                   // the strike: lunge at the player
       out.dx += Math.round((tx / d) * k); out.dy += Math.round((ty / d) * k);
     }
-    if (e.hurtT > 0.03) { out.dx -= Math.round(tx / d); out.dy -= Math.round(ty / d); }   // recoil
     if (e.born !== undefined && g.t - e.born < 0.45 && g.t > 1) {
       out.rise = Math.max(0.1, (g.t - e.born) / 0.45);
       if (!e.dusted) {
@@ -2177,7 +2176,7 @@ export class Renderer {
       else if (v.k === 'hurt') { /* getting hit no longer shakes or flashes the screen (RotMG doesn't) */ }
       else if (v.k === 'levelup') this.sprFx('level_up_ring', v.x, v.y, 7);
       else if (v.k === 'regfx') this.sprFx(v.key, v.x, v.y, v.fps || 12);
-      else if (v.k === 'hit') this.sprFx('hit_spark', v.x, v.y, 20), this.spray(v.x, v.y, v.crit ? 10 : 3, v.crit ? ['#ffd650', '#ffffff', '#ff8a1f'] : ['#ffffff', '#fff4c2'], v.crit ? 5 : 2.5, 0.22, v.crit ? 8 : 4);
+      else if (v.k === 'hit') { if (v.crit) this.spray(v.x, v.y, 8, ['#ffd650', '#ff8a1f'], 5, 0.22, 8); }   // (no white spark or flash on a hit: the user's call, 2026-10-29. A crit keeps a gold spray)
       else if (v.k === 'boom') { this.spray(v.x, v.y, 18, ['#ffc94a', '#ff7a1a', '#ffffff', '#8c2a12'], 4 + v.r * 2, 0.45, 8); this.rings.push({ x: v.x, y: v.y, t: 0, max: v.r, color: '#ffc94a' }); }
       else if (v.k === 'zap') this.zaps.push({ ...v, t: 0 });
       else if (v.k === 'suck') {

@@ -113,7 +113,7 @@ const methods = {
     if (e.dormant && e.wake != null) alpha = 0.5 + 0.5 * Math.sin(E.t * 30);
     if (e.hp <= 0) alpha = Math.max(0, 1 - (e.dead || 0) * 3.5);
     if (E.mod.alpha) alpha *= E.mod.alpha(e);
-    this.rfDraw(im, rx, ry + zy + 3, K, { alpha, flip: e.face < 0 && !d.noflip, flash: e.flash > 0 || e.hp <= 0 });
+    this.rfDraw(im, rx, ry + zy + 3, K, { alpha, flip: e.face < 0 && !d.noflip, flash: e.hp <= 0 });   // (no white flash when hit: the user's call, 2026-10-29; it still whitens as it dies)
     if (e.shield > 0) { b.strokeStyle = '#8a8aff'; b.globalAlpha = 0.7; b.beginPath(); b.arc(rx, ry - h / 2, h * 0.6 + 2, 0, TAU); b.stroke(); b.globalAlpha = 1; }
     if (e.teleT > E.t) { b.strokeStyle = E.danger; b.globalAlpha = 0.5 + 0.5 * Math.sin(E.t * 30); b.beginPath(); b.arc(rx, ry - h / 2 + 2, h * 0.6 + 4, 0, TAU); b.stroke(); b.globalAlpha = 1; }
     if (e.hp > 0 && e.hp < e.max && !d.rare) this.hpBar(rx, ry + 3, e.hp / e.max, e.boss ? 20 : 12);   // our own health bar, under the feet
