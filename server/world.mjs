@@ -126,6 +126,7 @@ export function makeWorld(seed, send, where = 'realm') {
   const ev0 = g.evSet.bind(g);
   g.evSet = function (x, y, tid, skin = 0) { ev0(x, y, tid, skin); const a = [x, y, tid, skin]; log.tiles.push(a); out.push({ k: 'tile', a }); };
   g.netTargets = [];
+  g.onChestBack = (o) => { const i = g.map.objects.indexOf(o); if (i >= 0) out.push({ k: 'ostate', i, key: objKey(o), f: OBJ(o), x: o.x, y: o.y }); };   // (a realm chest closed again: everyone sees it)
   let nid = 0, out = [];               // events this tick: shots, zones, effects, hurts
   let sid = 0;                          // every monster shot's number, so a shot this world steers can be followed
   const steered = new Map();            // shot -> where it was (a shot moved by a boss, not by its own speed)

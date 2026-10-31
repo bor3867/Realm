@@ -358,6 +358,10 @@ export class Game {
     this.unstick(p);
     this.realmReturn = null;                              // dungeons let out onto the beach
     if (where === 'realm' && !this.map.populated) this.populateRealm();
+    // (back in the shared realm: the copy of its monsters you kept from your last visit stood frozen where you left them,
+    // and what the server sent again didn't match it, so its bosses went missing. Start clean: the server, on your
+    // coming back, sends everything near you anew. 2026-10-31)
+    if (where === 'realm' && this.map.netWorld) this.map.netWorld = false;
     if (where === 'realm' || where === 'nexus') this.netWorldCheck();   // the server runs these monsters (src/net.js)
     if (this.map.rf) this.map.portals.push({ kind: 'realm', x: this.map.spawn.x, y: this.map.spawn.y + 1.5, label: this.exitLabel(), to: 'realm' });
     if (this.map.rf && this.map.netIid) this.netWorldCheck();     // a shared Realmforge dungeon the server runs (src/net.js)
@@ -903,6 +907,28 @@ export class Game {
     const roamers = {};                                         // the lone wanderers: about six in each land
     for (const e of this.enemies) if (!e.dead && e.roamer) roamers[e.D.biome] = (roamers[e.D.biome] || 0) + 1;
     for (const b of BIOMES) if ((roamers[b] || 0) < 6) this.spawnRoamer(b);
+    this.chestsReturn();
+  }
+  // the realm stays as it is while it lasts (2026-10-31, the user: "chests opened should respawn slowly ... the realm should
+  // not reset if I leave it"): a chest broken open closes again five minutes later, whole, and a camp's band is back
+  // round it. (Online the server's realm does this, and tells everyone: onChestBack)
+  chestsReturn() {
+    const m = this.map;
+    for (const o of m.objects) {
+      if (!o.opened || o.openedAt === undefined || o.openedAt === null || this.t - o.openedAt < 300) continue;
+      if ((this.netTargets || [this.player]).some((q) => q && Math.hypot(o.x - q.x, o.y - q.y) < 10)) continue;   // (never under anyone's nose)
+      o.opened = false; o.openedAt = null; o.sprite = 'chest'; o.hidden = false; o.solid = true; o.hp = o.maxHp || o.hp; o.netHit = null;
+      if (m.solid) m.solid[Math.floor(o.y) * m.w + Math.floor(o.x)] = 1;
+      m.ogridDirty = true;
+      const c = (m.camps || []).find((q) => Math.abs(o.x - q.x) < 0.1 && Math.abs(o.y - q.y) < 0.1);
+      if (c) {
+        const lead = this.addEnemy(R.pick(GROUPS[c.biome]), c.x + 1.5, c.y + 1.5);
+        lead.kids = []; lead.childT = lead.D.every; lead.leash = 8; lead.hx = c.x; lead.hy = c.y;
+        for (let k = 0; k < 4; k++) this.spawnChild(lead, R);
+        o.guards = [lead, ...lead.kids];
+      }
+      if (this.onChestBack) this.onChestBack(o);
+    }
   }
   // ---- a livelier realm (2026-10-30, the user: "Enemies can roam a little more from their parents. But keep them in
   // their biomes. Also, maybe build some single enemies to run around"). A realm monster's home drifts now and then, a
@@ -3634,6 +3660,7 @@ export class Game {
     if (o.starLoot) this.achFlag('star');                     // (a fallen star's chest: src/achievements.js)
     if (this.player && !this.netTargets) this.player.chests = (this.player.chests || 0) + 1;   // (its record)
     o.opened = true; o.sprite = 'chest_open'; o.hp = 0; this.eraseChest(o);
+    if (this.map && this.map.kind === 'realm' && o.loot && !o.starLoot && !o.admin) o.openedAt = this.t;   // (the realm's chests come back: maintainRealm)
     if (o.loot) this.questEvent('camp', o);
     const bag = this.addBag(o.x, o.y + 0.8, o.admin ? this.adminLoot() : rollLoot(o.starLoot || (o.loot ? CAMP_LOOT[o.loot] : (this.map.def.chestLoot || [])), o.secret ? 2.5 : 1), !o.admin);   // (one bag, coloured by its best: it used to drop two, one hiding the other)
     if (bag) bag.soulbound = true;

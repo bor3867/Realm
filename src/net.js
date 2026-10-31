@@ -392,7 +392,7 @@ const methods = {
         if (M.kind === 'dungeon' && !M.portals.some((q) => q.to === 'realm' && q.life && Math.hypot(q.x - x.x, q.y - x.y) < 4)) M.portals.push({ kind: 'realm', x: x.x + 1.5, y: x.y + 1, label: this.exitLabel(), to: 'realm', life: 90 });
         this.banner(`${x.name} has fallen!`, 3000);
       }
-      else if (x.k === 'ostate') { const o = this.netObj2(x.i, x.key); if (o) { const { opened, ...f } = x.f; Object.assign(o, f); if (opened && !o.opened) { o.opened = true; o.sprite = f.sprite || 'chest_open'; if (o.interact === 'chest' || /chest/.test(o.sprite)) this.eraseChest(o); } this.map.brk = null; this.map.ogridDirty = true; } }   // something broke or changed, for all
+      else if (x.k === 'ostate') { const o = this.netObj2(x.i, x.key); if (o) { const { opened, ...f } = x.f; Object.assign(o, f); if (opened === false && o.opened) { o.opened = false; const M = this.map; if (M.solid && o.solid) M.solid[Math.floor(o.y) * M.w + Math.floor(o.x)] = 1; M.ogridDirty = true; }   /* (a chest closed again: the realm's come back) */ if (opened && !o.opened) { o.opened = true; o.sprite = f.sprite || 'chest_open'; if (o.interact === 'chest' || /chest/.test(o.sprite)) this.eraseChest(o); } this.map.brk = null; this.map.ogridDirty = true; } }   // something broke or changed, for all
       else if (x.k === 'tile') this.netTile(x.a);
       else if (x.k === 'obj') this.netObj(x.o);
     }
