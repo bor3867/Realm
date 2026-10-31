@@ -10,6 +10,15 @@ const FLAGTXT = { MultiHit: 'Shots hit multiple targets', PassesCover: 'Shots pa
 const kindOf = (A) => (A.cls === 'Tome' ? 'Tome' : A.st.ability ? 'Ability · ' + A.st.ability : A.cls);
 const RNG = (s) => (s.speed ? (s.speed * s.lt) / 10000 : s.beam || s.target || 7);
 const shotURL = new Map();
+// a special line drops a damage range in brackets that a stat row above already shows (the row is where it's read)
+const RE = (r) => r.replace('–', '[–-]');
+const unrepeat = (x, s) => {
+  for (const r of [...(s.extra || []).map(([, q]) => q.join('–')), s.dmg && s.dmg.join('–')].filter(Boolean)) {
+    const e = RE(r);
+    x = x.replace(new RegExp(`\\s*\\(${e}( each)?\\)`, 'g'), '').replace(new RegExp(`, ${e}( each)?\\)`, 'g'), ')').replace(new RegExp(`\\(${e}( each)?, `, 'g'), '(');
+  }
+  return x;
+};
 
 // worn: the names of the armory pieces the player has on (for the set block)
 export function armoryTip(it, worn = []) {
@@ -45,7 +54,7 @@ export function armoryTip(it, worn = []) {
     <div class="flav">${A.desc}</div>
     <div class="sec stats">${rows.map(([a, b]) => `<div class="kv"><span>${a}</span><b class="arm-v">${b}</b></div>`).join('')}</div>
     ${flags ? `<div class="sec arm-flags">${flags}</div>` : ''}${eq ? `<div class="sec arm-eq"><span class="lbl">On Equip</span> ${eq}</div>` : ''}
-    <ul class="sec arm-special">${s.special.map((x) => `<li${x.startsWith('Price:') ? ' class="price"' : ''}>${x}</li>`).join('')}</ul>
+    <ul class="sec arm-special">${s.special.map((x) => `<li${x.startsWith('Price:') ? ' class="price"' : ''}>${unrepeat(x, s)}</li>`).join('')}</ul>
     <div class="sec arm-shots"><span class="lbl">Projectile${A.shots.length > 1 ? 's' : ''}</span>${shots}</div>
     ${set}<div class="arm-sb">Soulbound</div></div>`;
 }
