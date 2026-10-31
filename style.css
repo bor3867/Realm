@@ -1055,3 +1055,29 @@ body #app #hud .h-realm b { color: #ffd890; } body #app #hud .h-realm.soon b { c
 /* the character tab: the fame you would leave if you fell now, and the bonuses earned (2026-10-31) */
 body #app #stats.recview .fame-death b { color: var(--gold); }
 body #app #stats.recview .fame-bonus span:last-child { color: #7aff9a; }
+
+/* narrow windows (2026-10-31, the polish pass): the account button sat on top of the logo, and the menu could be
+   scrolled sideways by its own scrollbar's width */
+#overlay { overflow-x: hidden; grid-template-columns: minmax(0, 100%); }   /* (its one column the window's width: a screen's 100% was the width of what it held, so a wide grid pushed it off the edge) */
+@media (max-width: 720px) {
+  .screen.home .btn.back { position: static; display: inline-block; margin: 0 auto 6px; }
+}
+
+/* the Mad God Armory's tooltips, compact (2026-10-31, the polish pass): the Paradox Script's stood 784px tall, nearly
+   the whole screen. The gaps tighter; nothing taken out (the pixel font stays 16px: it is only crisp at 8px steps) */
+#tooltip .arm-tip .th { padding: 8px 12px 6px; }
+#tooltip .arm-tip .flav { padding: 5px 12px; line-height: 1.25; }
+#tooltip .arm-tip .sec { padding: 5px 12px; }
+#tooltip .arm-tip .sec.stats { row-gap: 0; }
+#tooltip .arm-tip .th .arm-role { margin-top: 2px; }
+#tooltip .arm-tip .arm-special li { margin: 1px 0; line-height: 1.3; }
+#tooltip .arm-tip .arm-sb { padding: 3px 12px 6px; }
+
+/* the settings' dropdowns one width, their edges in line (2026-10-31, the polish pass: 84 to 164px, ragged) */
+body #overlay .screen.settings select { width: 172px; }
+
+/* the class picker in a narrow window (2026-10-31, the polish pass): five cards a row left 92px each and broke names
+   mid-word ("Stormwrig/ht"); the narrow rule above came before the five-column one and lost to it. As many cards as
+   hold a whole name, and words kept whole */
+@media (max-width: 760px) { body #overlay .classes.pick { width: 100%; box-sizing: border-box; grid-template-columns: repeat(auto-fill, minmax(134px, 1fr)); } }
+body #overlay .classes.pick .cls h3, body #overlay .classes.pick .cls p { overflow-wrap: normal; word-break: normal; }
