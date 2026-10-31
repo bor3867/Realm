@@ -131,7 +131,11 @@ const methods = {
     }
     else if (m.t === 'dlog') { if (this.map.netWorld && this.map.kind === 'dungeon') this.netDungeonState(m); }
     else if (m.t === 'hurt') { if (this.map.netWorld && !this.player.dead) this.hurtPlayer(m.d, m.by, m.ap); }
-    else if (m.t === 'chat') this.say(`${m.name}: ${m.text}`, m.id === N.id ? '#e9e4f2' : '#bfe8ff');
+    else if (m.t === 'chat') {
+      this.say(`${m.name}: ${m.text}`, m.id === N.id ? '#e9e4f2' : '#bfe8ff');
+      const who = m.id === N.id ? this.player : N.others.get(m.id);   // a speech bubble over whoever said it, if they're here (2026-10-30)
+      if (who && m.id && this.mode === 'play' && (m.id === N.id || who.room === this.netRoom())) this.bubble(who, m.text, '#ffffff', true);
+    }
   },
   // an admin's command that makes or ends monsters, in a shared place: run by the server (true: sent)
   netWorldCmd(line, cmd, args) {

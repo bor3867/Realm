@@ -88,6 +88,14 @@ function pixelLabel(ctx, text, x, y, size, color) {
   for (const [dx, dy] of [[-1, -1], [0, -1], [1, -1], [-1, 0], [1, 0], [-1, 1], [0, 1], [1, 1]]) ctx.fillText(text, X + dx * P, Y + dy * P);
   ctx.fillStyle = color; ctx.fillText(text, X, Y);
 }
+// the same, on a dark plate (2026-10-30: over the Nexus's pale stone a bare label was hard to read)
+function platedLabel(ctx, text, x, y, size, color) {
+  ctx.font = `${size}px "Realm Pixel", "Pixelify Sans", monospace`;
+  const w = Math.ceil(ctx.measureText(text).width) + size * 0.75, h = Math.round(size * 1.05), X = Math.round(x - w / 2), Y = Math.round(y - size * 0.82);
+  ctx.fillStyle = 'rgba(12,10,18,0.72)'; ctx.fillRect(X, Y, w, h);
+  ctx.fillStyle = 'rgba(255,255,255,0.08)'; ctx.fillRect(X, Y, w, 1);
+  pixelLabel(ctx, text, x, y, size, color);
+}
 // status icons over heads (Renderer.statusIcons): o outline, 1 main colour, 2 accent; 7 wide
 const STATUS_GLYPH = {
   slow: ['ooooooo', 'o11111o', 'oo121oo', '.oo1oo.', '..ooo..'],
@@ -2334,8 +2342,8 @@ export class Renderer {
       const [bx, by] = this.proj(o.x, o.y), x = bx * s, y = (by - (o.kind ? 30 : 26)) * s;
       if (x < -120 || x > W + 120 || y < -40 || y > H + 40) continue;
       const near = Math.hypot(p.x - o.x, p.y - o.y), at = g.nearNPC === o || g.nearPortal === o, ty = at ? y - s * 9 : y;
-      if (o.tag) pixelLabel(ctx, o.tag, x, ty, 24, '#ffd650');      // the HUD's pixel font, crisp at 8px steps, with a hard black rim
-      if (o.hint && near < 5 && !at) pixelLabel(ctx, o.hint, x, y + s * 7, 16, '#e8e4f0');
+      if (o.tag) platedLabel(ctx, o.tag, x, ty, 24, '#ffd650');      // the HUD's pixel font, crisp at 8px steps, with a hard black rim, on a dark plate
+      if (o.hint && near < 5 && !at) platedLabel(ctx, o.hint, x, y + s * 7, 16, '#e8e4f0');
     }
   }
   // status icons over the head, RotMG's way: one small pixel glyph per effect, in a row (the slow, the stunned, the
@@ -2469,12 +2477,12 @@ export class Renderer {
       const [bx, by] = this.proj(g.nearPortal.x, g.nearPortal.y);
       const L = g.nearPortal.life, x = bx * s, y = (by - 20) * s;
       const t = `${keyHint('portal')}${g.nearPortal.label}${L !== undefined ? ` (${Math.ceil(L)}s)` : ''}`;   // the key shown is yours (none if unbound)
-      pixelLabel(ctx, t, x, y, 16, '#f2c14e');
+      platedLabel(ctx, t, x, y, 16, '#f2c14e');
     }
     if (g.nearNPC && !g.nearPortal) {
       const [bx, by] = this.proj(g.nearNPC.x, g.nearNPC.y);
       const x = bx * s, y = (by - 20) * s, t = `${keyHint('portal')}${g.nearNPC.label}`;
-      pixelLabel(ctx, t, x, y, 16, '#f2c14e');
+      platedLabel(ctx, t, x, y, 16, '#f2c14e');
     }
     let bar = null;
     {
@@ -2545,13 +2553,17 @@ export class Renderer {
   // speech bubbles: a dark rounded box with a tail, above whoever is talking
   speech(g) {
     const ctx = this.ctx, s = this.scale;
-    g.bubbles = g.bubbles.filter((B) => g.t - B.t0 < (B.big ? 3.6 : 2.6));
+    const life = (B) => (B.chat ? 4.5 : B.big ? 3.6 : 2.6);   // (a player's chat line stays a little longer)
+    g.bubbles = g.bubbles.filter((B) => g.t - B.t0 < life(B));
     ctx.font = textFont(Math.max(12, Math.round(s * 3.2) * 1.3));
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     for (const B of g.bubbles) {
       if (B.e && !B.e.dead && B.e.x !== undefined) { B.x = B.e.x; B.y = B.e.y; }
-      const [bx, by] = this.proj(B.x, B.y), age = g.t - B.t0, life = B.big ? 3.6 : 2.6;
-      const hgt = B.e && B.e.rb ? (rbK(B.e) > 1 ? 98 : 54) : B.e && B.e.D && B.e.D.sheet === 'champions' ? 30 : 22;
+      const [bx, by] = this.proj(B.x, B.y), age = g.t - B.t0, life = B.chat ? 4.5 : B.big ? 3.6 : 2.6;
+      let hgt = B.e && B.e.rb ? (rbK(B.e) > 1 ? 98 : 54) : B.e && B.e.D && B.e.D.sheet === 'champions' ? 30 : 22;
+      if (B.e && (g.nearNPC === B.e || g.nearPortal === B.e)) hgt = B.e.tag ? 52 : 38;   // (above the prompt you stand at, and its sign's name)
+      else if (B.e && B.e.tag) hgt = 42;                        // (above its sign's name)
+      else if (B.chat && B.e !== g.player) hgt = 30;           // (another player: above their name)
       const x = bx * s, y = (by - hgt) * s - Math.min(1, age * 8) * 4;
       const w = ctx.measureText(B.text).width + 14, h = Math.max(16, s * 5.5);
       ctx.globalAlpha = Math.min(1, (life - age) * 3, age * 10);

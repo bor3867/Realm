@@ -996,8 +996,9 @@ export class Game {
     e.sayT = this.t + 6;
     this.bubble(e, R.pick(lines), e.rb ? '#ffd650' : '#ffffff');
   }
-  bubble(e, text, col = '#ffffff') {
-    this.bubbles.push({ e, x: e.x, y: e.y, text, t0: this.t, col, big: !!e.rb });
+  bubble(e, text, col = '#ffffff', chat = false) {
+    if (chat) { this.bubbles = this.bubbles.filter((b) => b.e !== e); text = text.length > 48 ? text.slice(0, 47) + '…' : text; }   // (a player's new line replaces their last)
+    this.bubbles.push({ e, x: e.x, y: e.y, text, t0: this.t, col, big: !!e.rb, chat });
     if (this.bubbles.length > 12) this.bubbles.shift();
   }
   // ------------------------------------------------------------- update

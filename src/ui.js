@@ -366,7 +366,7 @@ export class UI {
           this.histAt = undefined;
           if (v) {
             if (v.startsWith('/')) { if (!/^\/(w|whisper|tell|msg|r|reply)\b/i.test(v)) this.g.say(v, '#8d88a0'); this.g.command(v); }   // (a whisper shows itself, in blue, once sent)
-            else if (!this.g.netChat(v)) this.g.say(`${(this.g.account && this.g.account.name) || 'You'}: ${v}`, '#e9e4f2');   // online: everyone hears it
+            else if (!this.g.netChat(v)) { this.g.say(`${(this.g.account && this.g.account.name) || 'You'}: ${v}`, '#e9e4f2'); if (this.g.player) this.g.bubble(this.g.player, v, '#ffffff', true); }   // online: everyone hears it (and the bubble comes back with it)
           }
           this.closeChat();
         } else if (e.key === 'Escape') this.closeChat();
