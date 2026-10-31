@@ -830,6 +830,7 @@ export class Game {
     if (this.map && this.map.netWorld) return { id, D, x, y, hp: D.hp, maxHp: D.hp, state: 'move', st: 0, cds: [], queue: [], dead: false, deadT: 0, netGhost: true };   // (the server's to make)
     const e = { id, D, x, y, hx: x, hy: y, hp: D.hp, maxHp: D.hp, state: 'move', st: 0, cds: D.attacks.map(() => 0.5 + R() * 1.5),
       atk: -1, wx: x, wy: y, wt: 0, hurtT: 0, deadT: 0, queue: [], seen: false, phase: R() * TAU, born: this.t };
+    if (D.hitUp) e.hitUp = D.hitUp;                         // (where shots strike it and leave it: a big one's middle)
     this.enemies.push(e);
     return e;
   }
