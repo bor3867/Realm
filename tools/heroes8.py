@@ -1,4 +1,4 @@
-"""The classes as RotMG-style 8x8 sprites (redrawn 2026-10-31).
+"""The classes as RotMG-style 8x8 sprites (redrawn 2026-10-31, after RotMG's own Rogue, Archer and Priest).
 
 Each class is a true 8x8 figure: a hat or hood, a face, a body in two flat tones, two legs. No shading tricks, no
 outline in the art (the game draws a thin one: src/outline.js). Pixels are stored doubled (16x16 frames), so every
@@ -21,118 +21,110 @@ import os
 from pixlib import hex_rgba, write_png
 
 ROOT = os.path.join(os.path.dirname(__file__), '..', 'art', 'sprites', 'player')
-SKIN = {'s': '#F2B48A', 'e': '#1A1218'}
-FEET = {   # stand, step, step
-    'front': ['..l..l..', '..l.....', '.....l..'],
-    'side': ['...l.l..', '..l...l.', '....l...'],
-    'back': ['..l..l..', '.....l..', '..l.....'],
+SKIN = {'s': '#F7E26B', 'e': '#0C0C0C'}            # RotMG's own: a pale yellow face, two pure black eyes
+FEET = {   # stand, step, step: two dark feet
+    'front': ['.l..l...', 'l...l...', '.l...l..'],
+    'side': ['..l.l...', '.l...l..', '...l....'],
+    'back': ['.l..l...', '.l...l..', 'l...l...'],
 }
 
-# ---- the weapon layer, by family. Letters: w the blade / shaft / limb, W the tip, edge or gem, h the hilt or grip.
-# Idle and front/back attack: an 8x8 overlay ('.' is see-through). Side attack: two 16x8 overlays (body on cols 0-7).
+# ---- the weapon layer, by family. Letters: w the blade / shaft / limb, W the tip, edge, gem or bowstring, h the grip.
+# The body fills columns 0-5; the weapon is held tight at its side in column 6 (a bow's limb in 7). Idle and front/back
+# attack: an 8x8 overlay. Side attack: two 16x8 overlays, the hand at column 6, the weapon reaching out ahead.
 WEAPON = {
     'sword': {
-        'idle': {(7, 0): 'W', (7, 1): 'w', (7, 2): 'w', (7, 3): 'w', (7, 4): 'h', (7, 5): 'h'},
-        'up': {(7, 0): 'W', (7, 1): 'W', (6, 0): 'w', (7, 2): 'w', (7, 3): 'h', (7, 4): 'h'},
-        'side': [{(7, 4): 'h', (8, 3): 'w', (9, 2): 'w', (10, 1): 'w', (11, 0): 'W'},
-                 {(7, 4): 'h', (8, 4): 'w', (9, 4): 'w', (10, 4): 'w', (11, 4): 'w', (12, 4): 'W', (10, 3): 'W', (11, 5): 'W'}],
+        'idle': {(6, 0): 'W', (6, 1): 'w', (6, 2): 'w', (6, 3): 'w', (6, 4): 'h', (6, 5): 'h'},
+        'up': {(6, 0): 'W', (7, 0): 'W', (6, 1): 'W', (6, 2): 'w', (6, 3): 'h', (6, 4): 'h'},
+        'side': [{(6, 4): 'h', (7, 3): 'w', (8, 2): 'w', (9, 1): 'w', (10, 0): 'W'},
+                 {(6, 4): 'h', (7, 4): 'w', (8, 4): 'w', (9, 4): 'w', (10, 4): 'w', (11, 4): 'W', (9, 3): 'W', (10, 5): 'W'}],
     },
     'dagger': {
-        'idle': {(7, 3): 'W', (7, 4): 'w', (7, 5): 'h'},
-        'up': {(7, 2): 'W', (7, 3): 'w', (7, 4): 'h'},
-        'side': [{(7, 4): 'h', (8, 4): 'w', (9, 4): 'W'},
-                 {(7, 4): 'h', (8, 4): 'w', (9, 4): 'w', (10, 4): 'w', (11, 4): 'w', (12, 4): 'W'}],
+        'idle': {(6, 2): 'W', (6, 3): 'w', (6, 4): 'h', (6, 5): 'h'},
+        'up': {(6, 1): 'W', (6, 2): 'w', (6, 3): 'h', (6, 4): 'h'},
+        'side': [{(6, 4): 'h', (7, 4): 'w', (8, 4): 'W'},
+                 {(6, 4): 'h', (7, 4): 'w', (8, 4): 'w', (9, 4): 'w', (10, 4): 'w', (11, 4): 'W'}],
     },
     'bow': {
-        'idle': {(6, 1): 'w', (7, 2): 'w', (7, 3): 'w', (7, 4): 'w', (6, 5): 'w'},
-        'up': {(6, 0): 'w', (7, 1): 'w', (7, 2): 'w', (7, 3): 'w', (6, 4): 'w', (5, 2): 'W'},
-        # (held out in the hand: drawn, the arrow across it; loosed, the arrow away ahead and the bow still in hand)
-        'side': [{(7, 1): 'w', (8, 2): 'w', (8, 3): 'w', (8, 4): 'w', (8, 5): 'w', (7, 6): 'w', (7, 4): 'h', (9, 4): 'h', (10, 4): 'W'},
-                 {(7, 1): 'w', (8, 2): 'w', (8, 3): 'w', (8, 4): 'w', (8, 5): 'w', (7, 6): 'w', (7, 4): 's', (11, 4): 'h', (12, 4): 'h', (13, 4): 'W'}],
+        'idle': {(6, 0): 'w', (7, 1): 'w', (7, 2): 'w', (7, 3): 'w', (7, 4): 'w', (7, 5): 'w', (6, 6): 'w', (6, 1): 'W', (6, 2): 'W', (6, 3): 'W', (6, 4): 'W', (6, 5): 'W'},
+        'up': {(6, 0): 'w', (7, 0): 'w', (7, 1): 'w', (7, 2): 'w', (7, 3): 'w', (7, 4): 'w', (6, 5): 'w', (6, 1): 'W', (6, 2): 'W', (6, 3): 'W', (6, 4): 'W'},
+        # (held out: drawn, an arrow across it; loosed, the arrow away ahead and the bow still in hand)
+        'side': [{(7, 1): 'w', (8, 2): 'w', (8, 3): 'w', (8, 4): 'w', (8, 5): 'w', (7, 6): 'w', (7, 2): 'W', (7, 5): 'W', (6, 4): 'h', (7, 4): 'h', (9, 4): 'h', (10, 4): 'W'},
+                 {(7, 1): 'w', (8, 2): 'w', (8, 3): 'w', (8, 4): 'w', (8, 5): 'w', (7, 6): 'w', (7, 2): 'W', (7, 3): 'W', (7, 4): 'W', (7, 5): 'W', (11, 4): 'h', (12, 4): 'h', (13, 4): 'W'}],
     },
     'staff': {
-        'idle': {(7, 0): 'W', (7, 1): 'h', (7, 2): 'h', (7, 3): 'h', (7, 4): 'h', (7, 5): 'h', (7, 6): 'h'},
-        'up': {(7, 0): 'W', (6, 0): 'W', (7, 1): 'W', (7, 2): 'h', (7, 3): 'h', (7, 4): 'h', (7, 5): 'h'},
-        'side': [{(8, 0): 'W', (8, 1): 'h', (8, 2): 'h', (8, 3): 'h', (8, 4): 'h', (8, 5): 'h', (7, 4): 'h'},
-                 {(7, 5): 'h', (8, 4): 'h', (9, 4): 'h', (10, 3): 'h', (11, 3): 'h', (12, 2): 'W', (13, 2): 'W', (13, 1): 'W', (12, 1): 'W'}],
+        'idle': {(6, 0): 'W', (6, 1): 'h', (6, 2): 'h', (6, 3): 'h', (6, 4): 'h', (6, 5): 'h', (6, 6): 'h'},
+        'up': {(6, 0): 'W', (7, 0): 'W', (6, 1): 'W', (6, 2): 'h', (6, 3): 'h', (6, 4): 'h', (6, 5): 'h'},
+        'side': [{(7, 0): 'W', (7, 1): 'h', (7, 2): 'h', (7, 3): 'h', (7, 4): 'h', (7, 5): 'h', (6, 4): 'h'},
+                 {(6, 5): 'h', (7, 4): 'h', (8, 4): 'h', (9, 3): 'h', (10, 3): 'h', (11, 2): 'W', (12, 2): 'W', (12, 1): 'W', (11, 1): 'W'}],
     },
     'wand': {
-        'idle': {(7, 2): 'W', (7, 3): 'h', (7, 4): 'h', (7, 5): 'h'},
-        'up': {(7, 1): 'W', (6, 1): 'W', (7, 2): 'h', (7, 3): 'h', (7, 4): 'h'},
-        'side': [{(7, 4): 'h', (8, 3): 'h', (9, 2): 'W'},
-                 {(7, 4): 'h', (8, 4): 'h', (9, 4): 'h', (10, 4): 'W', (11, 3): 'W', (11, 5): 'W', (12, 4): 'W'}],
+        'idle': {(6, 2): 'W', (6, 3): 'h', (6, 4): 'h', (6, 5): 'h'},
+        'up': {(6, 1): 'W', (7, 1): 'W', (6, 2): 'h', (6, 3): 'h', (6, 4): 'h'},
+        'side': [{(6, 4): 'h', (7, 3): 'h', (8, 2): 'W'},
+                 {(6, 4): 'h', (7, 4): 'h', (8, 4): 'h', (9, 4): 'W', (10, 3): 'W', (10, 5): 'W', (11, 4): 'W'}],
     },
 }
 
-# ---- the classes: front, side (facing right) and back, the 7 rows above the feet. Column 7 (front, side) or 0 (back) is
-# left for the weapon. pal: the body's colours, l the legs, and w/W/h the weapon's
+# ---- the classes, after RotMG's own (the user's references, 2026-10-31: its Rogue, Archer and Priest). Short and
+# square: a big head (rows 0-3, four or five wide) with two black dot eyes, a body as wide as its arms (rows 4-6, six
+# wide), two dark feet (row 7). Flat colour, two tones at most a material. Front, side (facing right), back: the 7 rows
+# above the feet; columns 6-7 are the weapon's. pal: the body, l the feet, and w/W/h_ the weapon.
 C = {}
-# the Forgefist: shirtless, a red headband (its tails behind), brown hair and trousers
-C['brawler'] = dict(file='forgefist', weapon='sword', pal={'h': '#5A3420', 'r': '#E0303A', 'k': '#D89470', 'b': '#7A4A2A', 'B': '#3A2414', 'l': '#3A2414',
-                                                          'w': '#D8E0EC', 'W': '#FFFFFF', 'h_': '#C98A22'},
-    F=['..hhhh..', '.rrrrrr.', '..sese..', '..ssss..', '.sskkss.', '..BBBB..', '..bbbb..'],
-    S=['..hhhh..', '.rrrrrr.', 'r.hhse..', '..hsss..', '..sssss.', '..BBBB..', '..bbbb..'],
-    B=['..hhhh..', '.rrrrrr.', '..hhhhr.', '..hhhh.r', '.ssssss.', '..BBBB..', '..bbbb..'])
-# the Anvilheart: a closed silver helm with a dark visor, a red tabard with a gold anvil
-C['forge_knight'] = dict(file='anvilheart', weapon='sword', pal={'i': '#C8D2E4', 'I': '#7A86A0', 'k': '#1A1E2A', 'r': '#D8283A', 'd': '#E0A22A', 'l': '#5E6680',
-                                                                 'w': '#E4ECF8', 'W': '#FFFFFF', 'h_': '#C98A22'},
-    F=['..iiii..', '.iiiiii.', '.ikkkki.', '..iiii..', '.irddri.', '.irrrri.', '..IrrI..'],
-    S=['..iiii..', '.iiiii..', '.iiikk..', '..iiii..', '..irri..', '..irri..', '..IrrI..'],
-    B=['..iiii..', '.iiiiii.', '.iiiiii.', '..iiii..', '.iIIIIi.', '.iIIIIi.', '..IiiI..'])
-# the Heliarch: a tall white mitre banded in gold, a white robe with a gold stole, a gold wand with a blue stone
-C['priest'] = dict(file='heliarch', weapon='wand', pal={'y': '#E0A22A', 'f': '#F4F0E6', 'F': '#C4BED4', 'l': '#B08A60',
-                                                       'w': '#E0A22A', 'W': '#4AA8F0', 'h_': '#E0A22A'},
-    F=['...ff...', '..fyyf..', '..sese..', '..ssss..', '.ffyyff.', '.ffyyff.', '.ffFFff.'],
-    S=['...ff...', '..fyyf..', '..ffse..', '..ffss..', '..fffff.', '..fffyf.', '.ffFFff.'],
-    B=['...ff...', '..fyyf..', '..ffff..', '..ffff..', '.ffyyff.', '.ffyyff.', '.ffFFff.'])
-# the Reliquarian: a pointed purple hood over darkness and two green eyes, bone-pale hands, a staff with a green stone
-C['summoner'] = dict(file='reliquarian', weapon='staff', pal={'K': '#6A48B0', 'P': '#3E2A78', 'k': '#140C20', 'c': '#5EF0A8', 'f': '#E8E0C8', 'l': '#3E2A78',
+C['brawler'] = dict(file='forgefist', weapon='sword', pal={'h': '#7A4A2A', 'r': '#DB0416', 'k': '#D8C050', 'b': '#7A4A2A', 'B': '#3A2414', 'l': '#3A2414',
+                                                          'w': '#B9B9B9', 'W': '#FFFFFF', 'h_': '#A29446'},
+    F=['.hhhh...', 'rrrrrr..', '.seses..', '.sssss..', 'sskkss..', 'sBBBBs..', '.bbbb...'],
+    S=['..hhh...', '.rrrrr..', 'r.hses..', '..hsss..', '..ssss..', '..BBBs..', '..bbb...'],
+    B=['.hhhh...', 'rrrrrr..', '.hhhhr..', '.hhhh.r.', 'ssssss..', 'sBBBBs..', '.bbbb...'])
+C['forge_knight'] = dict(file='anvilheart', weapon='sword', pal={'i': '#C8D2E4', 'I': '#7A86A0', 'k': '#0C0C0C', 'r': '#DB0416', 'd': '#F2C14E', 'l': '#3A3E50',
+                                                                 'w': '#DDDDDD', 'W': '#FFFFFF', 'h_': '#C98A22'},
+    F=['.iiii...', 'iiiiii..', 'ikkkki..', '.iiii...', 'iirrii..', 'irddri..', '.IrrI...'],
+    S=['.iiii...', '.iiiii..', '.iiikk..', '..iiii..', '..irri..', '..irri..', '..IrrI..'],
+    B=['.iiii...', 'iiiiii..', 'iiiiii..', '.iiii...', 'iiIIii..', 'iIIIIi..', '.IiiI...'])
+C['priest'] = dict(file='heliarch', weapon='wand', pal={'y': '#F2C14E', 'f': '#F4F4F4', 'F': '#DDDDDD', 'o': '#E07A20', 'l': '#B08A60',
+                                                       'w': '#8A5A2A', 'W': '#4AA8F0', 'h_': '#8A5A2A'},
+    F=['.ffff...', '.yyyy...', '.seses..', '.sssss..', 'ffffff..', 'yooooy..', '.FFFF...'],
+    S=['..fff...', '..yyy...', '..sses..', '..ssss..', '..ffff..', '..ooyo..', '..FFF...'],
+    B=['.ffff...', '.yyyy...', '.ffff...', '.ffff...', 'ffffff..', 'yooooy..', '.FFFF...'])
+C['summoner'] = dict(file='reliquarian', weapon='staff', pal={'K': '#6A48B0', 'P': '#3E2A78', 'k': '#140C20', 'c': '#5EF0A8', 'f': '#E8E0C8', 'l': '#2A1A50',
                                                              'w': '#7A6A52', 'W': '#7CFFB0', 'h_': '#7A6A52'},
-    F=['...KK...', '..KKKK..', '.KkkkkK.', '.KckkcK.', '.KKKKKK.', 'fKPKKPf.', '.KKKKKK.'],
-    S=['...KK...', '..KKKK..', '.KKKkk..', '.KKKkc..', '.KKKKK..', '.KPKKKf.', '.KKKKKK.'],
-    B=['...KK...', '..KKKK..', '.KKKKKK.', '.KKKKKK.', '.KKccKK.', '.KPKKPK.', '.KKKKKK.'])
-# the Wreck-Whaler: a yellow sou'wester and slicker, a red neckerchief, blue overalls
-C['harpooner'] = dict(file='wreckwhaler', weapon='bow', pal={'Y': '#FFD030', 'y': '#B88410', 'r': '#E0303A', 'N': '#3058A0', 'l': '#2A3A60',
-                                                            'w': '#8A6038', 'W': '#E4ECF8', 'h_': '#F0E6D0'},
-    F=['..YYYY..', '.YyyyyY.', '..sese..', '..rrrr..', '.YNNNNY.', '.YNyyNY.', '..NNNN..'],
-    S=['..YYYY..', '.YYYyy..', '..YYse..', '..Yrrr..', '..YNNN..', '..YNyN..', '..NNNN..'],
-    B=['..YYYY..', '.YyyyyY.', '..YYYY..', '..YYYY..', '.YYYYYY.', '.YYYYYY.', '..NNNN..'])
-# the Mirror-Knight: a magenta hat with a white plume, a magenta coat with gold buttons
-C['duelist'] = dict(file='mirrorknight', weapon='dagger', pal={'m': '#D04890', 'M': '#8A2860', 'p': '#F4F0F8', 'y': '#FFD650', 'l': '#6A2A50',
-                                                              'w': '#E4ECF8', 'W': '#FFFFFF', 'h_': '#C98A22'},
-    F=['...pm...', '..mmmm..', '.mmmmmm.', '..sese..', '..ssss..', '.mmyymm.', '..mMMm..'],
-    S=['..pm....', '..mmmm..', '.mmmmmm.', '..mmse..', '..mmss..', '..mmymm.', '..mMMm..'],
-    B=['...pm...', '..mmmm..', '.mmmmmm.', '..mmmm..', '..mmmm..', '.mmMMmm.', '..mMMm..'])
-# the Kite-Hermit: a wide straw hat, a long white beard, a blue robe, a staff with a storm crystal
-C['stormwright'] = dict(file='kitehermit', weapon='staff', pal={'t': '#E8C878', 'T': '#B8964A', 'f': '#F4F4F8', 'u': '#3A7AE8', 'U': '#2A58B0', 'l': '#6A5A3A',
+    F=['..KK....', '.KKKK...', 'KkkkkK..', 'KckkcK..', 'KKKKKK..', 'fKPPKf..', '.KKKK...'],
+    S=['..KK....', '.KKKK...', '.KKKkk..', '.KKKkc..', '.KKKKK..', '.KPKKf..', '.KKKK...'],
+    B=['..KK....', '.KKKK...', 'KKKKKK..', 'KKKKKK..', 'KKccKK..', 'KPKKPK..', '.KKKK...'])
+C['harpooner'] = dict(file='wreckwhaler', weapon='bow', pal={'Y': '#FFD030', 'y': '#B88410', 'r': '#DB0416', 'N': '#3058A0', 'l': '#1E2A48',
+                                                            'w': '#8A6038', 'W': '#DDDDDD', 'h_': '#F0E6D0'},
+    F=['.YYYY...', 'YYYYYY..', '.seses..', '.rrrr...', 'YNNNNY..', 'YNyyNY..', '.NNNN...'],
+    S=['.YYYY...', '.YYYYY..', '..Yses..', '..Yrrr..', '..YNNN..', '..YNyN..', '..NNN...'],
+    B=['.YYYY...', 'YYYYYY..', '.YYYY...', '.YYYY...', 'YYYYYY..', 'YYYYYY..', '.NNNN...'])
+C['duelist'] = dict(file='mirrorknight', weapon='dagger', pal={'m': '#D04890', 'M': '#8A2860', 'p': '#F4F0F8', 'y': '#FFD650', 'l': '#4A1A38',
+                                                              'w': '#DDDDDD', 'W': '#FFFFFF', 'h_': '#C98A22'},
+    F=['..pm....', '.mmmm...', 'mmmmmm..', '.seses..', 'mmyymm..', 'mmyymm..', '.mMMm...'],
+    S=['.pm.....', '.mmmm...', 'mmmmmm..', '..mses..', '..mymm..', '..mymm..', '..mMM...'],
+    B=['..pm....', '.mmmm...', 'mmmmmm..', '.mmmm...', 'mmMMmm..', 'mmMMmm..', '.mMMm...'])
+C['stormwright'] = dict(file='kitehermit', weapon='staff', pal={'t': '#E8C878', 'T': '#B8964A', 'f': '#F4F4F8', 'u': '#3A7AE8', 'U': '#2A58B0', 'l': '#4A3A2A',
                                                                'w': '#C87A3A', 'W': '#8AF6FF', 'h_': '#C87A3A'},
-    F=['...tt...', '.tttttt.', '..sese..', '..ffff..', '.uuffuu.', '.uuuuuu.', '.uUuuUu.'],
-    S=['...tt...', '.tttttt.', '..Tsse..', '...fff..', '..uuuf..', '..uuuu..', '.uuuuuu.'],
-    B=['...tt...', '.tttttt.', '..TTTT..', '..TTTT..', '.uuuuuu.', '.uuuuuu.', '.uUuuUu.'])
-# the Horologist: a black top hat, brass goggles, a brown coat with a gold clock face
-C['clockmaker'] = dict(file='horologist', weapon='wand', pal={'k': '#2E2836', 'y': '#F2C14E', 'c': '#8AE6FF', 'b': '#A0582A', 'B': '#5A3420', 'g': '#F2C14E', 'H': '#5A3A22', 'l': '#3A2414',
+    F=['..tt....', '.tttt...', 'tttttt..', '.seses..', 'uffffu..', 'uuffuu..', '.uUUu...'],
+    S=['..tt....', '.tttt...', 'tttttt..', '..Tses..', '..uffu..', '..uufu..', '..uUu...'],
+    B=['..tt....', '.tttt...', 'tttttt..', '.TTTT...', 'uuuuuu..', 'uuuuuu..', '.uUUu...'])
+C['clockmaker'] = dict(file='horologist', weapon='wand', pal={'k': '#2E2836', 'c': '#8AE6FF', 'b': '#A0582A', 'B': '#5A3420', 'g': '#F2C14E', 'H': '#5A3A22', 'l': '#2A1A10',
                                                              'w': '#B0B0C0', 'W': '#FFE08A', 'h_': '#B0B0C0'},
-    F=['..kkkk..', '..kkkk..', '.kkkkkk.', '..ycyc..', '.bbggbb.', '.bbggbb.', '..bBBb..'],
-    S=['..kkk...', '..kkk...', '.kkkkk..', '..Hsyc..', '..bbbb..', '..bbgb..', '..bBBb..'],
-    B=['..kkkk..', '..kkkk..', '.kkkkkk.', '..HHHH..', '.bbbbbb.', '.bbggbb.', '..bBBb..'])
-# the Rune-Knight: a silver helm with a red crest and two glowing eyes, a red cloak, a rune-lit sword
-C['runeblade'] = dict(file='runeblade', weapon='sword', pal={'i': '#A4AEC6', 'I': '#5E6680', 'c': '#46F5D6', 'r': '#C83A3A', 'l': '#5E6680',
+    F=['.kkkk...', '.kkkk...', 'kkkkkk..', '.scsc...', '.ssss...', 'bbggbb..', '.bBBb...'],
+    S=['..kkk...', '..kkk...', '.kkkkk..', '..Hsc...', '..Hss...', '..bbgb..', '..bBB...'],
+    B=['.kkkk...', '.kkkk...', 'kkkkkk..', '.HHHH...', '.HHHH...', 'bbbbbb..', '.bBBb...'])
+C['runeblade'] = dict(file='runeblade', weapon='sword', pal={'i': '#B9C2D6', 'I': '#5E6680', 'c': '#46F5D6', 'r': '#C83A3A', 'l': '#2E3240',
                                                             'w': '#C8F8FF', 'W': '#46F5D6', 'h_': '#C98A22'},
-    F=['...rr...', '..iiii..', '.icIIci.', '..iiii..', '.riccir.', '.riIIir.', '..IiiI..'],
-    S=['..rr....', '..iiii..', '..iIIc..', '..iiii..', '.rriii..', '.rriIi..', '..IiiI..'],
-    B=['...rr...', '..iiii..', '..iiii..', '.rrrrrr.', '.rrrrrr.', '.rrrrrr.', '..IrrI..'])
-# the Orb-Witch: a tall purple hood over darkness and two yellow eyes, a gold sigil on the breast, a staff with a cyan orb
-C['hexweaver'] = dict(file='hexweaver', weapon='staff', pal={'p': '#9058E0', 'P': '#5A2E9A', 'k': '#140C20', 'y': '#FFD650', 'l': '#5A2E9A',
+    F=['..rr....', '.iiii...', 'iiiiii..', 'icIIci..', 'riiiir..', 'riIIir..', '.IiiI...'],
+    S=['.rr.....', '.iiii...', '.iiiii..', '.iiIc...', 'rriii...', 'rriIi...', '..IiI...'],
+    B=['..rr....', '.iiii...', 'iiiiii..', '.iiii...', 'rrrrrr..', 'rrrrrr..', '.rrrr...'])
+C['hexweaver'] = dict(file='hexweaver', weapon='staff', pal={'p': '#9058E0', 'P': '#5A2E9A', 'k': '#140C20', 'y': '#FFD650', 'l': '#3A1A60',
                                                             'w': '#7A5A3A', 'W': '#8AF6FF', 'h_': '#7A5A3A'},
-    F=['...pp...', '..pppp..', '.pkkkkp.', '.pykkyp.', '.ppyypp.', '.pPyyPp.', '.pppppp.'],
-    S=['...pp...', '..pppp..', '..ppkk..', '..ppky..', '..ppppp.', '.pPppP..', '.pppppp.'],
-    B=['...pp...', '..pppp..', '.pppppp.', '.pppppp.', '.ppyypp.', '.pPyyPp.', '.pppppp.'])
-# the Ranger: a green hood, a leather jerkin with a strap, a quiver of red-fletched arrows on the back
-C['ranger'] = dict(file='thornhood', weapon='bow', pal={'g': '#6CC048', 'G': '#2E7A34', 'L': '#8A5A30', 'b': '#5A3A1E', 'r': '#E0303A', 'l': '#5A3A22',
-                                                       'w': '#C89048', 'W': '#E4ECF8', 'h_': '#F0EAD8'},
-    F=['...gg...', '..gggg..', '.gseseg.', '..gssg..', '.LLbLLL.', '.LLLbLL.', '..GLLG..'],
-    S=['...gg...', '..gggg..', '.rggse..', '.bggss..', '..LLLL..', '..LbLL..', '..GLLG..'],
-    B=['..rgg...', '..bggg..', '.gbgggg.', '.ggbggg.', '.LLbLLL.', '.LLLLLL.', '..GLLG..'])
+    F=['..p.....', '.ppp....', 'pkkkkp..', 'pykkyp..', 'pppppp..', 'pPyyPp..', '.pppp...'],
+    S=['.p......', '.ppp....', '.pppkk..', '.pppky..', '.ppppp..', '.pPppP..', '..ppp...'],
+    B=['..p.....', '.ppp....', 'pppppp..', 'pppppp..', 'pppppp..', 'pPyyPp..', '.pppp...'])
+C['ranger'] = dict(file='thornhood', weapon='bow', pal={'g': '#A0CC2A', 'G': '#6C8C1E', 'b': '#8A4E1A', 'q': '#9D9D9D', 'r': '#DB0416', 'l': '#4A2A10',
+                                                       'w': '#A86A2A', 'W': '#B9B9B9', 'h_': '#F0EAD8'},
+    F=['.GggG...', 'Gggggg..', 'Gseseg..', 'Gsssgg..', 'gGggGg..', 'sbbqbs..', '.GGGG...'],
+    S=['..ggG...', '.ggggG..', '.rgses..', '.bgsss..', '..gggg..', '..bbqb..', '..GGG...'],
+    B=['.GggG...', 'Ggggrg..', 'Gggbgg..', 'Gggbgg..', 'gGgbGg..', 'sbbbbs..', '.GGGG...'])
 
 
 def frame(top, feet):
@@ -174,14 +166,13 @@ def build(cls, D):
     pal = {k: hex_rgba(v) for k, v in {**SKIN, **P}.items()}
     Wp = WEAPON[D['weapon']]
     f = lambda top, view, k=0: frame(top, FEET[view][k])
-    arm = lambda g: [r if i != 4 else (r[:6] + ('s' if r[6] == '.' else r[6]) + r[7]) for i, r in enumerate(g)]   # the hand out in front (side view)
     Fi = lambda k=0: with_weapon(f(D['F'], 'front', k), Wp['idle'])
     Si = lambda k=0: with_weapon(f(D['S'], 'side', k), Wp['idle'])
-    Bi = lambda k=0: with_weapon(f(D['B'], 'back', k), Wp['idle'], mirror=True)
+    Bi = lambda k=0: with_weapon(f(D['B'], 'back', k), Wp['idle'])
     walk = lambda mk: [mk(0), mk(1), mk(0), mk(2)]
     FA = [with_weapon(f(D['F'], 'front'), Wp['up']), Fi()]
-    BA = [with_weapon(f(D['B'], 'back'), Wp['up'], mirror=True), Bi()]
-    SA = [with_weapon(wide(arm(f(D['S'], 'side', 1))), L) for L in Wp['side']]
+    BA = [with_weapon(f(D['B'], 'back'), Wp['up']), Bi()]
+    SA = [with_weapon(wide(f(D['S'], 'side', 1)), L) for L in Wp['side']]
     rows = [
         [Fi(), Fi()] + walk(Fi),
         [Si(), Si()] + walk(Si),
