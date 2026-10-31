@@ -148,6 +148,10 @@ const BOSS_TINT = { shore: '#3a8af0', fen: '#3ac85a', runeholt: '#e8e4f0', godfa
 const EVENT_BOSS = new Set(['emily_the_yapper', 'the_fallen_star', 'abyssal_kraken', 'thornheart_treant']);
 
 
+// the town's people and animals (the Nexus's merchants, smith, bard, guards, villagers, its cat, and the realm's named
+// folk): their art is fine 1-pixel work at its own size, so beside the players' doubled 8x8 figures they looked tiny
+// (the user, 2026-10-31: "so players don't look huge"). Drawn half again as big, standing where they stood
+const FOLK = /^(merchant|smith|bard|cat|villager_|npc_)/;
 export class Renderer {
   constructor(canvas, mini, assets) {
     this.c = canvas; this.ctx = canvas.getContext('2d');
@@ -727,7 +731,8 @@ export class Renderer {
     if (resting) this.b.globalAlpha = 0.55;
     const grand = o.sprite === 'admin_chest' || o.sprite === 'throne' || o.great;   // grand things are drawn twice life-size (a great waypoint too)
     if (grand) { this.sprK = 2; this.shadow(sx, sy, 24); }
-    this.spr(this.A.img.objects, (k % c) * TS, Math.floor(k / c) * TS, TS, TS, sx, sy, 8, 8);
+    if (FOLK.test(o.sprite)) { this.sprK = 1.5; this.spr(this.A.img.objects, (k % c) * TS, Math.floor(k / c) * TS, TS, TS, sx, sy + 7, 8, 15); }   // (the town's folk: half again as big, on their feet)
+    else this.spr(this.A.img.objects, (k % c) * TS, Math.floor(k / c) * TS, TS, TS, sx, sy, 8, 8);
     this.sprK = 1;
     if (o.sprite === 'admin_chest' && Math.random() < 0.5) this.parts.push({ x: o.x + (Math.random() - 0.5) * 1.6, y: o.y, z: 4 + Math.random() * 24, vx: 0, vy: 0, vz: 6, g: 0, life: 0.8, max: 0.8, color: ['#ffe89a', '#c8a0ff', '#ffffff', '#ff3a5a'][Math.floor(Math.random() * 4)] });
     this.b.globalAlpha = 1;
@@ -771,8 +776,8 @@ export class Renderer {
   villager(g, v, sx, sy) {
     if (v.sprite && v.sprite.startsWith('pt2_')) return this.petBody(g, v, sx, sy);
     const k = this.W.objects[v.sprite] + (v.moving ? Math.floor(g.t * 6) % 2 : 0), c = this.W.objectsCols;
-    this.shadow(sx, sy, 8);
-    this.spr(this.A.img.objects, (k % c) * TS, Math.floor(k / c) * TS, TS, TS, sx, sy, 8, 15, !!v.face);
+    this.shadow(sx, sy, 11);
+    this.sprK = 1.5; this.spr(this.A.img.objects, (k % c) * TS, Math.floor(k / c) * TS, TS, TS, sx, sy, 8, 15, !!v.face); this.sprK = 1;   // (half again as big: FOLK)
     const aura = { rare: ['#7aa8ff', '#ffffff', 0.05], legendary: ['#ffd650', '#fff6c8', 0.1], divine: ['#ff7af0', '#8af6ff', 0.16] }[v.rarity];
     if (aura && Math.random() < aura[2]) {                // rarer pets glitter as they go
       this.parts.push({ x: v.x + (Math.random() - 0.5) * 0.8, y: v.y, z: 3 + Math.random() * 10, vx: 0, vy: 0, vz: 5 + Math.random() * 5, g: 0, life: 0.7, max: 0.7, color: aura[Math.random() < 0.6 ? 0 : 1] });
