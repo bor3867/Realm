@@ -1433,6 +1433,10 @@ applyGearRework(ITEMS);
 // arrows drawn at 0.7 (2026-10-31, the user: "Bow projectiles are currently far too large"): a bow's arrow art spans its
 // whole 8x8 cell, so at full size each of a volley's three arrows was a tile long. Its own drawn shots (Armory) are left be
 for (const it of Object.values(ITEMS)) if (it.type === 'bow' && it.weapon && !it.weapon.shotK && String(it.weapon.proj || '').includes('/')) it.weapon = { ...it.weapon, shotK: 0.7 };
+// a shot hits where it is drawn (2026-10-31, the user: "Verify that projectile visuals match actual collision"): six heavy
+// relics drawn one tile wide hit as if 1.3-1.6 tiles (a reach of 0.65-0.8 either side); now no more than its drawing
+// and a little grace, 0.55 (tools: the weapon audit in the session; bench_weapons for what it costs them)
+for (const it of Object.values(ITEMS)) if (it.weapon && typeof it.tier !== 'number' && !String(it.weapon.proj || '').includes('/') && !(it.weapon.special && it.weapon.special.armory) && it.weapon.size > 0.55) it.weapon = { ...it.weapon, size: 0.55 };
 
 // tiered abilities carry stats that fit the class they are made for, rising with the tier, and from T3 a little Life
 // (or Mana, for the casters) on top (the user's call, 2026-10-19)

@@ -10,15 +10,19 @@ import { isSolid } from './world/maps.js';
 //            Life x   damage x   adds: who, how many, how often (s), where (near you or the boss), how long they stay
 // life: its Life outright (2026-10-31, the user: the best weapons do about 2,500 a second and "many bosses currently have
 // too little HP"; targets: a large realm boss 200-350k, a random special boss 350-600k). By its land, the shore's least
-// and the godlands' most; the two event bosses and the falling star are the random special ones
+// and the godlands' most; the two event bosses and the falling star are the random special ones. Their blows, by the
+// gear a player has in their land (tools/sim_realm_fights.mjs: a plain dodging player, alone, geared for the land):
+// the shore's and the fen's took 11-14 times a T4-T7 player's Life a minute (22-55 deaths); now about what the
+// godlands' bosses ask of godlands gear, 6-7 times
 export const OW_BOSSES = {
-  brine_cathedral: { life: 200000, hp: 2.2, dmg: 3.0, adds: { id: 'brine_pilgrim', n: 3, every: 13, near: 'boss', life: 25 } },
-  abyssal_kraken: { life: 380000, hp: 2.0, dmg: 2.6, adds: { id: 'kraken_tentacle', n: 3, every: 8, near: 'you', life: 11 } },
-  wick_mother: { life: 220000, hp: 1.7, dmg: 2.0, adds: { id: 'candle_mite', n: 4, every: 11, near: 'boss', life: 25 } },
-  thornheart_treant: { life: 420000, hp: 3.0, dmg: 2.6, adds: { id: 'thorn_sprite', n: 3, every: 11, near: 'boss', life: 25 } },
+  brine_cathedral: { life: 200000, hp: 2.2, dmg: 1.4,   // (dmg was 3.0: see below)
+  adds: { id: 'brine_pilgrim', n: 3, every: 13, near: 'boss', life: 25 } },
+  abyssal_kraken: { life: 380000, hp: 2.0, dmg: 1.4, adds: { id: 'kraken_tentacle', n: 3, every: 8, near: 'you', life: 11 } },
+  wick_mother: { life: 220000, hp: 1.7, dmg: 1.15, adds: { id: 'candle_mite', n: 4, every: 11, near: 'boss', life: 25 } },
+  thornheart_treant: { life: 420000, hp: 3.0, dmg: 2.0, adds: { id: 'thorn_sprite', n: 3, every: 11, near: 'boss', life: 25 } },
   orrery_of_winter: { life: 260000, hp: 1.6, dmg: 2.3,   // (its blows were a median 189, over the 100-150 a large boss's should be)
   adds: { id: 'frost_wraith', n: 2, every: 13, near: 'boss', life: 25 } },
-  emily_the_yapper: { life: 280000, hp: 1.6, dmg: 2.3,   // (her biggest took 379)
+  emily_the_yapper: { life: 280000, hp: 1.6, dmg: 1.8,   // (her biggest took 379)
   adds: { id: 'emily_chick', n: 4, every: 10, near: 'boss', life: 25 } },
   penitent_colossus: { life: 340000, hp: 1.3, dmg: 1.0, adds: null },   // (already the hardest by the dodging bot: Life only)
   the_fallen_star: { life: 500000, hp: 1.1, dmg: 1.3, adds: { id: 'rift_wraith', n: 2, every: 14, near: 'boss', life: 25 } },
