@@ -501,32 +501,41 @@ const FIRE = {
       if (feast) { const n = S.eaten || 0; S.eaten = 0; for (let i = 0; i < n; i++) this.armLater(i * 0.025, () => this.armShot(id, 0, m.x, m.y - 0.5, i * 0.45, 10.5, 12.6, EX(A, 1), { sc: 3, home: 1.2 })); this.armSay(m.x, m.y + 1, 'CRIMSON STORM ×' + n, '#ff6b81'); }
     });
   },
-  // Paradox Script (reworked a third time 2026-10-31, the user: Plagiarism was "too strong/annoying"; "something
-  // powerful and normal ... the shot appears normal but then if it hits or at max range has an explosion/spiral effect
-  // that shows its truth"): a plain true-aim bolt; where it lands, or where it runs out, a burst and six glyphs that
-  // spiral out from that point and curl away
+  // Paradox Script (2026-10-31, the user: "two shots that arc outward almost to max range and then converge onto each
+  // other to do the explosion ... make the shots hit multiple targets so it only explodes on the end. Then increase the
+  // explosion damage"): two piercing bolts curve out to either side and meet near full range; where they meet, and only
+  // there, the truth: a burst, and six glyphs spiralling out of it
   'Paradox Script'(A, id, S, ox, oy, a) {
-    const W = ITEMS[id].weapon;
-    const sh = this.armShot(id, 0, ox, oy, a, W.speed, W.range, A.st.dmg, {});
-    const truth = (b) => {
-      if (b.truth) return;
-      b.truth = true;
-      const x = b.x, y = b.y;
-      for (const e of this.armNear(x, y + 0.5, 1.3)) this.armHurt(e, EX(A, 0), e.x, e.y - 0.5, { id });
-      this.armBreak(x, y + 0.5, 1.3, EX(A, 0), id);
-      this.armVis({ k: 'rewind', x0: x, y0: y, life: 0.01 });
-      this.vx({ k: 'burst', x, y, n: 14, colors: ['#eef2ff', '#818cf8', '#4338ca'] });
-      this.fx.push({ kind: 'ring', x, y, t: 0, max: 1.4, color: '#a5b4fc' });
+    // (they meet at your cursor, or near full range if you aim past it; never nearer than 3 tiles: aimed at something
+    // close, the two used to curve round it and burst behind it, and it took nothing)
+    const W = ITEMS[id].weapon, I = this.input, L = Math.max(3, Math.min(W.range * 0.92, Math.hypot(I.aimX - ox, I.aimY - oy))), life = L / W.speed, grp = { done: false };
+    const ex = ox + Math.cos(a) * L, ey = oy + Math.sin(a) * L, px = -Math.sin(a), py = Math.cos(a);
+    const truth = () => {
+      if (grp.done) return;
+      grp.done = true;
+      for (const e of this.armNear(ex, ey + 0.5, 1.6)) this.armHurt(e, EX(A, 0), e.x, e.y - 0.5, { id });
+      this.armBreak(ex, ey + 0.5, 1.6, EX(A, 0), id);
+      this.vx({ k: 'burst', x: ex, y: ey, n: 22, colors: ['#eef2ff', '#818cf8', '#4338ca'] });
+      this.fx.push({ kind: 'ring', x: ex, y: ey, t: 0, max: 1.7, color: '#a5b4fc' });
       const a0 = Math.random() * TAU;
       for (let k = 0; k < 6; k++) {                         // the truth: six glyphs turning out of it
-        const g = this.armShot(id, 0, x, y, a0, 0.01, 99, EX(A, 1), { sc: 2.5, pierce: true });
+        const g = this.armShot(id, 0, ex, ey, a0, 0.01, 99, EX(A, 1), { sc: 2.5, pierce: true });
         g.vx = g.vy = 0; g.max = g.life = 0.75;
         const ph = a0 + (k / 6) * TAU;
-        g.armPath = (q) => { const r = q.t * 4.2, ang = ph + q.t * 5; const nx = x + Math.cos(ang) * r, ny = y + Math.sin(ang) * r; q.a = Math.atan2(ny - q.y, nx - q.x); q.x = nx; q.y = ny; };
+        g.armPath = (q) => { const r = q.t * 4.2, ang = ph + q.t * 5; const nx = ex + Math.cos(ang) * r, ny = ey + Math.sin(ang) * r; q.a = Math.atan2(ny - q.y, nx - q.x); q.x = nx; q.y = ny; };
       }
     };
-    sh.armOnHit = (b) => truth(b);
-    sh.armEnd = (b) => truth(b);
+    for (const side of [-1, 1]) {                          // the pair: out to either side, back together at the end
+      const sh = this.armShot(id, 0, ox, oy, a, 0.01, 99, A.st.dmg, { pierce: true });
+      sh.vx = sh.vy = 0; sh.max = sh.life = life;
+      sh.armPath = (b) => {
+        const t = Math.min(1, b.t / life), w = Math.sin(Math.PI * t) * Math.min(1.7, L * 0.2) * side;
+        const nx = ox + Math.cos(a) * L * t + px * w, ny = oy + Math.sin(a) * L * t + py * w;
+        if (nx !== b.x || ny !== b.y) b.a = Math.atan2(ny - b.y, nx - b.x);
+        b.x = nx; b.y = ny;
+      };
+      sh.armEnd = () => truth();
+    }
   },
   // arrows tear the world along their path (1.5s); enemies crossing a tear take damage; where two tears cross, reality ruptures
   'World Ripper'(A, id, S, ox, oy, a) {
