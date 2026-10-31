@@ -1616,7 +1616,10 @@ export class Renderer {
       if (Math.random() < 0.15) this.parts.push({ x: p.x + (Math.random() - 0.5), y: p.y, z: 14, vx: 0, vy: 0, vz: 8, g: 0, life: 0.8, max: 0.8, color: ['#ff4af0', '#8af6ff', '#ffd650'][Math.floor(Math.random() * 3)] });
     }
     if (!p.dead) this.shadow(sx, sy, 12);
-    this.spr(S.img, (an.col + frame) * 16, an.row * 16, 16, 16, sx, sy - hop, 8, 15, flip, false);   // no white blink when hit
+    // a wide frame (an.w: the side attack, its weapon reaching out ahead of the 8x8 body): anchored on the body, the side
+    // it faces (2026-10-31)
+    const fw = an.w || 16, ax = an.w ? (flip ? fw - (an.px || 8) : an.px || 8) : 8;
+    this.spr(S.img, an.col * 16 + frame * fw, an.row * 16, fw, 16, sx, sy - hop, ax, 15, flip, false);   // no white blink when hit
     const maxHp = p.remote ? p.maxHp : g.stat('hp');
     if (!p.dead && p.hp < maxHp) this.hpBar(sx, sy + 3, p.hp / maxHp, 14);   // RotMG-style bar at your feet
     if (!p.dead && p.chill > 0) {                                      // Frostveil's chill: a pale bar under the life bar

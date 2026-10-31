@@ -3,7 +3,7 @@
   "frameWidth": 16,
   "frameHeight": 16,
   "columns": 6,
-  "rows": 6,
+  "rows": 7,
   "art": 8,
   "pivot": {
     "x": 8,
@@ -59,16 +59,9 @@
       "fps": 10,
       "loop": false
     },
-    "side_attack": {
-      "row": 3,
-      "col": 2,
-      "frames": 2,
-      "fps": 10,
-      "loop": false
-    },
     "back_attack": {
       "row": 3,
-      "col": 4,
+      "col": 2,
       "frames": 2,
       "fps": 10,
       "loop": false
@@ -93,6 +86,15 @@
       "frames": 4,
       "fps": 6,
       "loop": false
+    },
+    "side_attack": {
+      "row": 6,
+      "col": 0,
+      "frames": 2,
+      "fps": 10,
+      "loop": false,
+      "w": 32,
+      "px": 8
     }
   }
 }
