@@ -5,7 +5,7 @@
 // (a fair, plain player: no better than a human). Each fight runs until the boss dies or 6 minutes pass. A death puts
 // it back on its feet at full Life and is counted. Reported: time to kill, deaths, and the damage it took a minute as
 // a share of its Life.
-//   node tools/sim_realm_fights.mjs [id ...]
+//   node tools/sim_realm_fights.mjs [id ...] [--by]     (--by: what its damage came from)
 import { readFileSync } from 'node:fs';
 globalThis.localStorage = { getItem: () => null, setItem: () => {} };
 let RNG = 9; Math.random = () => ((RNG = (RNG * 1103515245 + 12345) % 2147483648) / 2147483648);
@@ -18,7 +18,7 @@ const reg = buildRegistry(idx.atlases.map((a) => ({ pack: a.split('/')[0], json:
 // the gear a player has by the time they face what lives in each land: [weapon/armour tier, ability, ring, stat share]
 const GEAR = { shore: [4, 2, 1, 0.35], lowlands: [5, 2, 1, 0.45], fen: [7, 3, 2, 0.55], dunes: [7, 3, 2, 0.55], thornwood: [8, 3, 2, 0.6],
   runeholt: [10, 4, 3, 0.75], steppe: [10, 4, 3, 0.75], godfall: [12, 5, 4, 0.9] };
-const only = process.argv.slice(2);
+const only = process.argv.slice(2).filter((a) => !a.startsWith('--'));
 const heralds = Object.keys(ENEMIES).filter((k) => ENEMIES[k].herald);
 const ids = only.length ? only : [...heralds, ...Object.keys(REALM_BOSSES), 'abyssal_kraken', 'thornheart_treant'];
 const C = CLASSES.priest;
@@ -40,7 +40,7 @@ for (const id of ids) {
   e.seen = true; if (e.state === 'sleep') e.state = 'idle';
   const maxHp = g.stat('hp'); p.hp = maxHp;
   let deaths = 0, taken = 0, t = 0;
-  const hurt = g.hurtPlayer.bind(g); g.hurtPlayer = (d, ...r) => { const h0 = p.hp; const out = hurt(d, ...r); taken += Math.max(0, h0 - p.hp); return out; };
+  const by = {}; const hurt = g.hurtPlayer.bind(g); g.hurtPlayer = (d, ...r) => { const h0 = p.hp; const out = hurt(d, ...r); const k = Math.max(0, h0 - p.hp); taken += k; by[r[0] || '?'] = (by[r[0] || '?'] || 0) + k; return out; };
   for (let f = 0; f < 60 * 360 && !e.dead; f++) {
     t += 1 / 60;
     if (p.dead || p.hp <= 0) { deaths++; p.dead = false; p.hp = maxHp; p.status.invuln = 2; g.mode = 'play'; }
@@ -58,4 +58,5 @@ for (const id of ids) {
   }
   const mins = t / 60;
   console.log(`${id.padEnd(20)} ${biome.padEnd(9)} T${String(T).padEnd(2)} life ${String(e.maxHp).padStart(6)}  ${e.dead ? 'killed in ' + t.toFixed(0).padStart(3) + 's' : 'ALIVE after 6 min (' + Math.round(100 * e.hp / e.maxHp) + '% left)'}  deaths ${deaths}  took ${Math.round(taken / mins / maxHp * 100)}% of its Life a minute (max ${maxHp})`);
+  if (process.argv.includes('--by')) console.log('   from:', Object.entries(by).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([k, v]) => `${k} ${Math.round(100 * v / taken)}%`).join(', '));
 }
