@@ -80,7 +80,7 @@ export const WEAPON_REWORK = {
   honeydew_scepter: { stats: { dmg: [145, 235] }, mech: { kind: 'dart', theme: 'honey', at: 0.75, hold: 0.1, s: 1.8, f: 1.25 } },
   sporecaller_wand: { stats: { count: 3, dmg: [52, 82] }, mech: { kind: 'center', theme: 'nature', arc: 0.1, flankF: 0.55, mark: 0.2 } },
   abbots_crozier: { stats: { dmg: [63, 98] }, mech: { kind: 'glyph', theme: 'sea', r: 1.3, f: 0.55 } },
-  orrery_rod: { stats: { count: 1, arc: 0, dmg: [105, 155] }, mech: { kind: 'dart', theme: 'astral', at: 0.65, hold: 0.14, s: 1.9, f: 1.2 } },
+  orrery_rod: { stats: { count: 1, arc: 0, dmg: [95, 140], pierce: false }, mech: { kind: 'sight', theme: 'astral', tol: 0.105, max: 5, per: 0.05, twin: 0.45 } },   // (its own: Sightline. It was the Honeydew Scepter's dart, 2026-10-31)
   the_cuckoo: { stats: { dmg: [70, 99] }, mech: { kind: 'stack', theme: 'time', cash: 0.55 } },
   the_last_second: { stats: { dmg: [52, 68] }, mech: { kind: 'echo', theme: 'time' } },
   maestros_baton: { stats: { count: 3, dmg: [47, 66] }, mech: { kind: 'center', theme: 'song', arc: 0.1, flankF: 0.6, mark: 0.18 } },
@@ -100,6 +100,7 @@ export function mechLine(M) {
     shards: `The first hit throws two shards out to the sides (${pc(M.f)})`,
     converge: 'Swings alternate: one narrow cut, then a pair that meets at mid-range',
     dart: `Stops short, then darts onward once, harder (${pc(M.f)})`,
+    sight: `Hold your aim: each shot within ${Math.round((M.tol || 0.105) * 57.3)}° of the last lines up a star (up to ${M.max || 5}), +${pc(M.per || 0.12)} damage each; from 3 stars its shots pierce, at ${M.max || 5} each throws a second star; moving your aim breaks the line`,
     stack: `Left hand, right hand: the second hit on an enemy ${({ fire: 'burns', blood: 'bleeds', ice: 'chills', sea: 'slows', astral: 'slows', nature: 'slows', rune: 'hexes', death: 'hexes', arcane: 'hexes' })[M.theme] || 'hexes'} it, the third cashes it in (+${pc(M.cash)})`,
     glyph: `Cuts through the first enemy and leaves a glyph; your next swing detonates it (${pc(M.f)})`,
     center: `Three cuts: the outer two hit softer, the centre marks (+${pc(M.mark)} damage taken)`,

@@ -104,6 +104,18 @@ const methods = {
         return true;
       }
       case 'dart': { for (let k = 0; k < cnt; k++) fire(ox, oy, a + spread(k), roll(), { b: { dart: { at: M.at, hold: M.hold, s: M.s, f: M.f, t: 0 } } }); return true; }
+      case 'sight': {                                           // the Astrolabe: hold your aim and the stars line up (2026-10-31)
+        const da = Math.abs((((a - (p.mechSightA ?? a + 9)) % TAU) + TAU * 1.5) % TAU - Math.PI);
+        const k0 = p.mechSight || 0, k = da < (M.tol || 0.105) ? Math.min(M.max || 5, k0 + 1) : 0;
+        p.mechSight = k; p.mechSightA = a;
+        const f = 1 + (M.per || 0.12) * k, col = THEME.astral.col;
+        for (let j = 0; j < cnt; j++) fire(ox, oy, a + spread(j), Math.round(roll() * f), { pierce: k >= 3 });
+        if (k >= (M.max || 5)) fire(ox - Math.cos(a) * 0.7, oy - Math.sin(a) * 0.7, a, Math.round(roll() * f * (M.twin || 0.45)), { pierce: true, b: { child: true } });   // aligned: a second star behind it
+        if (k > k0) this.vx({ k: 'burst', x: ox + Math.cos(a) * 0.6, y: oy + Math.sin(a) * 0.6, n: 2 + k, colors: col });
+        if (k === (M.max || 5) && k0 < k) this.float(...lift(p.x, p.y, 1.6), 'ALIGNED', '#fff2a8');
+        else if (k0 >= 3 && k === 0) this.float(...lift(p.x, p.y, 1.6), 'the line breaks', '#c8b8ff');
+        return true;
+      }
       default: {                                                // follow, shards, glyph, phantom, starfall, brand: the usual volley
         for (let k = 0; k < cnt; k++) fire(ox, oy, a + spread(k), roll());
         return true;

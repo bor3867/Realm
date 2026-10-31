@@ -352,7 +352,7 @@ const UT = [
     desc: 'They hold a candle that has never once gone out.' },
   { id: 'orrery_rod', type: 'sunrod', slot: 'weapon', name: 'The Astrolabe Rod', bag: 'urn',
     weapon: { dmg: [60, 90], count: 2, arc: 0.15, range: 8, speed: 14, rate: 1.1, proj: 'pj_orrery', size: 0.45, pierce: true },
-    desc: 'An axle of the winter engine. It throws two stars at once.' },
+    desc: 'An axle of the winter engine, still sighting its stars. Hold it steady on one line and they align.' },
   { id: 'kintsugi_band', type: 'ring', slot: 'ring', name: 'The Kintsugi Band', bag: 'urn', bonus: { att: 6, def: 6, hp: 40 },
     desc: 'Broken, and mended with gold. Stronger at the seam.' },
   { id: 'unstruck_anvil', type: 'seal', slot: 'ability', name: 'The Unstruck Anvil', bag: 'urn',
