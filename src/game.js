@@ -1349,6 +1349,13 @@ export class Game {
       this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.5), n: 30, colors: ['#e3b95a', '#fff6c8', '#8d88a0'] });
       if (this.map.netWorld) for (const e of this.enemiesIn(p.x, p.y, B.range)) if (e.net) this.netEfx(e, 'freeze', A.stop);   // the monsters there are the server's: it holds them still
       this.vx({ k: 'shake', amt: 3 });
+    } else if (type === 'skyfall') {
+      // SKYFALL (the Ranger, 2026-10-30): arrows called down on the cursor in three waves. Each wave hits everything
+      // under it; the middle of the rain takes half again, and the last wave falls twice as hard
+      const at = tgt(B.range), Rn = A.rain;
+      this.fx.push({ kind: 'skyfall', x: at.x, y: at.y, r: Rn.r, t: 0, delay: 0.35, gap: Rn.gap, waves: Rn.waves, hit: 0,
+        life: 0.35 + Rn.gap * (Rn.waves - 1) + 0.5, dmg: Math.round(B.dmg * mult) });
+      this.sfx('shoot', 'harpooner');
     } else if (type === 'godability') {
       for (const e of this.enemiesIn(p.x, p.y, B.range)) this.damageEnemy(e, B.dmg, ...lift(e.x, e.y, 0.5), true);
       this.fx.push({ kind: 'ring', ...liftO(p.x, p.y, 0.5), t: 0, max: 16, color: '#ff4af0' });
@@ -1432,6 +1439,15 @@ export class Game {
         this.vx({ k: 'burst', x: f.x, y: f.y, n: 40, colors: f.frost ? ['#cfffff', '#3befff', '#a6acc4', '#ffffff'] : ['#ffc94a', '#f2641a', '#a6acc4', '#fff6c8'] });
         this.fx.push({ kind: 'ring', x: f.x, y: f.y, t: 0, max: f.r + 0.6, color: f.frost ? '#3befff' : '#ffc94a' });
         this.sfx('forge');
+      }
+      if (f.kind === 'skyfall' && f.hit < f.waves && f.t >= f.delay + f.hit * f.gap) {   // a wave of the Ranger's arrows lands
+        const last = ++f.hit === f.waves;
+        for (const e of this.enemiesIn(f.x, f.y, f.r)) {
+          const mid = dist(e.x, e.y, f.x, f.y) < f.r * 0.45;
+          this.damageEnemy(e, Math.round(f.dmg * (mid ? 1.5 : 1) * (last ? 2 : 1)), ...lift(e.x, e.y, 0.5));
+        }
+        this.vx({ k: 'burst', x: f.x, y: f.y, n: last ? 26 : 12, colors: ['#f0ead8', '#6cc048', '#e0303a'] });
+        if (last) { this.fx.push({ kind: 'ring', x: f.x, y: f.y, t: 0, max: f.r + 0.4, color: '#6cc048' }); this.vx({ k: 'shake', amt: 2 }); }
       }
       if (f.kind === 'star' && !f.done && f.t >= f.delay) {
         f.done = true;

@@ -647,7 +647,7 @@
      },
      "meta": {}
     },
-    "bellows_t7": {
+    "skyfall_t6": {
      "frames": {
       "0": [
        80,
@@ -658,7 +658,7 @@
      },
      "meta": {}
     },
-    "seal_t7": {
+    "bellows_t7": {
      "frames": {
       "0": [
        88,
@@ -669,7 +669,7 @@
      },
      "meta": {}
     },
-    "halo_t7": {
+    "seal_t7": {
      "frames": {
       "0": [
        96,
@@ -680,7 +680,7 @@
      },
      "meta": {}
     },
-    "reliquary_t7": {
+    "halo_t7": {
      "frames": {
       "0": [
        104,
@@ -691,7 +691,7 @@
      },
      "meta": {}
     },
-    "hookline_t7": {
+    "reliquary_t7": {
      "frames": {
       "0": [
        112,
@@ -702,7 +702,7 @@
      },
      "meta": {}
     },
-    "mirror_t7": {
+    "hookline_t7": {
      "frames": {
       "0": [
        120,
@@ -713,7 +713,7 @@
      },
      "meta": {}
     },
-    "kite_t7": {
+    "mirror_t7": {
      "frames": {
       "0": [
        0,
@@ -724,7 +724,7 @@
      },
      "meta": {}
     },
-    "stopwatch_t7": {
+    "kite_t7": {
      "frames": {
       "0": [
        8,
@@ -735,7 +735,7 @@
      },
      "meta": {}
     },
-    "runeward_t7": {
+    "stopwatch_t7": {
      "frames": {
       "0": [
        16,
@@ -746,10 +746,32 @@
      },
      "meta": {}
     },
-    "hex_t7": {
+    "runeward_t7": {
      "frames": {
       "0": [
        24,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "hex_t7": {
+     "frames": {
+      "0": [
+       32,
+       32,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "skyfall_t7": {
+     "frames": {
+      "0": [
+       40,
        32,
        8,
        8

@@ -57,7 +57,7 @@ Type commands in chat (`/` or Enter). Ids use underscores. Regenerate with `node
 ## Places
 
 - Lands: `shore`, `dunes`, `lowlands`, `fen`, `thornwood`, `runeholt`, `steppe`, `godfall`
-- Classes: `brawler`, `forge_knight`, `priest`, `summoner`, `harpooner`, `duelist`, `stormwright`, `clockmaker`, `runeblade`, `hexweaver`
+- Classes: `brawler`, `forge_knight`, `priest`, `summoner`, `harpooner`, `duelist`, `stormwright`, `clockmaker`, `runeblade`, `ranger`, `hexweaver`
 
 ## Dungeons
 

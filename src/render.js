@@ -326,6 +326,7 @@ export class Renderer {
       else if (f.kind === 'meteor') this.meteorFx(f, g);
       else if (f.kind === 'scorch') this.scorchFx(f, g);
       else if (f.kind === 'hexzone') this.hexFx(f, g);
+      else if (f.kind === 'skyfall') this.skyfallFx(f, g);
       else if (f.kind === 'lane') this.laneFx(f, g);
       else if (f.kind === 'wglyph' || f.kind === 'wphantom') this.mechFx(f, g);
       else if (f.kind === 'halo') this.haloFx(f, g);
@@ -1938,6 +1939,30 @@ export class Renderer {
       const a = (j / 48) * Math.PI * 2 + g.t * 1.5;
       b.fillStyle = j % 6 === 0 ? '#e6ffff' : j % 2 ? '#ab82f2' : '#7a48c8';
       b.fillRect(Math.round(sx + Math.cos(a) * r), Math.round(sy + Math.sin(a) * r), j % 6 === 0 ? 2 : 1, j % 6 === 0 ? 2 : 1);
+    }
+    b.globalAlpha = 1;
+  }
+  // Skyfall: a dashed ring where the rain will land, then arrows dropping out of the sky in waves, and the ones that
+  // stuck standing in the ground until it ends
+  skyfallFx(f, g) {
+    const b = this.b, [sx, sy] = this.proj(f.x, f.y), R = f.r * TS, end = f.delay + f.gap * (f.waves - 1);
+    const fade = Math.max(0, Math.min(1, (f.life - f.t) / 0.4));
+    b.globalAlpha = 0.85 * fade; b.fillStyle = f.t < end ? (Math.floor(g.t * 10) % 2 ? '#6cc048' : '#f0ead8') : '#6cc048';
+    for (let a = 0; a < 44; a++) { if (a % 3 === 2) continue; const t = (a / 44) * Math.PI * 2; b.fillRect(Math.round(sx + Math.cos(t) * R), Math.round(sy + Math.sin(t) * R), 1, 1); }
+    const N = 9 + Math.round(f.r * 3);
+    for (let w = 0; w < f.waves; w++) {
+      const land = f.delay + w * f.gap;
+      for (let i = 0; i < N; i++) {
+        const h = Math.sin((w * 97 + i * 13.7 + f.x * 3.1 + f.y * 1.7) * 12.9898) * 43758.5453, u = h - Math.floor(h), v = (h * 7.31) - Math.floor(h * 7.31);
+        const rr = Math.sqrt(u) * R * 0.95, aa = v * Math.PI * 2, x = Math.round(sx + Math.cos(aa) * rr), y = Math.round(sy + Math.sin(aa) * rr * 0.8);
+        const k = (f.t - (land - 0.22 - (i % 3) * 0.03)) / 0.22;          // 0..1 as it falls, then stuck
+        if (k < 0) continue;
+        const drop = k < 1 ? Math.round((1 - k) * 60) : 0;
+        b.globalAlpha = fade;
+        b.fillStyle = '#c89048'; b.fillRect(x, y - 6 - drop, 1, 6);          // the shaft
+        b.fillStyle = '#e0303a'; b.fillRect(x - 1, y - 7 - drop, 3, 2);      // the fletching
+        if (k < 1) { b.fillStyle = '#ffffff'; b.fillRect(x, y - drop, 1, 2); }   // the head, until it buries itself
+      }
     }
     b.globalAlpha = 1;
   }

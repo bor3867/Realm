@@ -277,7 +277,7 @@ TIER_RAMPS = [  # a dark, b mid, c light, d gem   (saturated so tiers read at a 
 
 TYPE_TIERS = {'sword': 11, 'dagger': 11, 'bow': 11, 'staff': 11, 'wand': 11, 'heavy': 12, 'leather': 12, 'robe': 12,
               'bellows': 6, 'seal': 6, 'halo': 6, 'reliquary': 6, 'hookline': 6, 'mirror': 6, 'kite': 6, 'stopwatch': 6, 'ring': 6,
-              'runeward': 6, 'hex': 6}
+              'runeward': 6, 'hex': 6, 'skyfall': 6}
 # relics drawn on a retired per-class shape now use their RotMG family's icon
 BASE_REMAP = {'gauntlet': 'sword', 'tongs': 'sword', 'hammer': 'sword', 'head': 'sword', 'sunrod': 'wand', 'psalter': 'wand',
               'pendulum': 'wand', 'lantern': 'staff', 'coil': 'staff', 'harpoon': 'bow', 'rapier': 'dagger', 'plate': 'heavy',

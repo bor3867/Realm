@@ -95,6 +95,15 @@ C['hexweaver'] = dict(file='hexweaver', pal={'p': '#9058E0', 'P': '#5A2E9A', 'y'
     SA=['...pp...', '..ppp...', '..ppse..', '..pps...', '..ppysnoo'[:8], '.pPppP..', '.pppppp.'],
     BA=['...pp.oo', '..pppp.o', '.ppppppn', '..pPPpsn', '.spPPp..', '.pPppPp.', '.pppppp.'])
 
+# the Ranger (2026-10-30): a green hood, a leather jerkin, a quiver of red-fletched arrows on the back, a longbow
+C['ranger'] = dict(file='thornhood', pal={'g': '#6CC048', 'G': '#2E7A34', 'L': '#8A5A30', 'b': '#5A3A1E', 'w': '#C89048', 'q': '#F0EAD8', 'r': '#E0303A', 'A': '#E4ECF8', 'l': '#5A3A22'}, flat='se',
+    F=['...gg...', '..gggg.w', '.gseseGw', '.GgssgGw', '.sLbLLsw', '..LLbL.w', '..LGGL..'],
+    S=['...gg...', '..gggg.w', '.rGgse.w', '.bGgss.w', '.bLLLssw', '..LLbL.w', '..LGGL..'],
+    B=['..rgg...', '..bggg.w', '.GgbggGw', '.GggbgGw', '.sLLbLsw', '..LLLL.w', '..LGGL..'],
+    FA=['...gg.Aw', '..gggg.w', '.gseseGw', '.Ggssgsw', '.sLbLL..', '..LLbL..', '..LGGL..'],
+    SA=['...gg..w', '..gggg.q', '.rGgse.q', '.bGgsssA', '.bLLLs.q', '..LLbL.w', '..LGGL..'],
+    BA=['..rgg.Aw', '..bggg.w', '.GgbggGw', '.GggbgGs', '.sLLbL..', '..LLLL..', '..LGGL..'])
+
 
 def frame(top, feet):
     g = list(top) + [feet]
@@ -172,7 +181,7 @@ def build(cls, D):
 
 if __name__ == '__main__':
     for cls, D in C.items():
-        build(cls, D)          # all ten, the Runeblade and the Hexweaver included (no longer from the sprite pack)
+        build(cls, D)          # all eleven, the Runeblade and the Hexweaver included (no longer from the sprite pack)
     print('built', list(C))
     import apply_remaster                                # the Realm Remaster's classes replace these (realm_update_2)
     apply_remaster.creatures()

@@ -28,6 +28,7 @@ ART = {
     'kite': ['..ckb...', '.cckbb..', 'kkkkkkk.', '.cbkbb..', '..bkb...', '...k....', '...L.d..', '.d..L...'],  # a kite: spars, sail and tail
     'stopwatch': ['...cc...', '...bb...', '.bbbbbb.', 'bfffkffb', 'bfffkffb', 'bfffkkfb', 'bffffffb', '.bbbbbb.'],           # a stopwatch with its crown and hands
     'runeward': ['.abccba.', 'abccccba', 'bcdccdcb', 'bccddccb', 'bccddccb', '.bcdcdb.', '..bccb..', '...bb...'],  # a rune-cut shield
+    'skyfall': ['..d.d.d.', '..w.w.w.', '..w.w.w.', '.bbbbbbb', '.lLLLLLb', '.lLLdLLb', '.lLLLLLb', '..bbbbb.'],   # a quiver of tier-fletched arrows
     'hex': ['.aaaaaf.', '.abbbaf.', '.abdbaf.', '.adddaf.', '.abdbaf.', '.abbbaf.', '.aaaaaF.', '..FFFFF.'],        # a grimoire with a glowing hex
     # ---- armour
     'plate': ['cbb..bbc', 'cbbbbbbc', '.bbccbb.', '.bbccbb.', '.bbccbb.', '..bccb..', '.aaddaa.', '..aaaa..'],                # a breastplate with pauldrons and a ridge

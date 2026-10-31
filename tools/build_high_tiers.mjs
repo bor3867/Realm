@@ -53,7 +53,7 @@ const items = new Sheet('hi_items', 'item', 8), shots = new Sheet('hi_shots', 's
 const fr = (sheet, key) => sheet.sprites[key].frames['0'];
 const WEAPONS = ['sword', 'dagger', 'bow', 'staff', 'wand'], ARMOURS = ['heavy', 'leather', 'robe'];
 const STATS = ['hp', 'mp', 'att', 'def', 'spd', 'dex', 'vit', 'wis'];
-const ABILITIES = ['bellows', 'seal', 'halo', 'reliquary', 'hookline', 'mirror', 'kite', 'stopwatch', 'runeward', 'hex'];
+const ABILITIES = ['bellows', 'seal', 'halo', 'reliquary', 'hookline', 'mirror', 'kite', 'stopwatch', 'runeward', 'hex', 'skyfall'];
 for (const [t, ramp] of [[14, 'abyssal'], [15, 'radiant']]) {
   for (const type of WEAPONS) {
     const [x, y, w, h] = fr(A.rf_items, `${type}_t13`); items.add(`${type}_t${t}`, grab(rfItems, x, y, w, h, ramp));

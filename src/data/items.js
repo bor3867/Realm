@@ -13,6 +13,7 @@ const NAMES = {
   tongs: ['Rusted Tongs', 'Iron Tongs', 'Bronze Pincers', 'Steel Grippers', 'Verdigris Clamps', 'Cobalt Billet-Tongs', 'Crimson Quench-Tongs', 'Violet Pyre-Tongs', 'Sunsmith Tongs', 'Obsidian Ember-Tongs', 'Rune-White Oath-Tongs'],
   sunrod: ['Ash Rod', 'Iron Censer-Rod', 'Bronze Dawnrod', 'Steel Vigil', 'Verdigris Psalter', 'Cobalt Litany', 'Crimson Sermon', 'Violet Vesper', 'Gold Noonrod', 'Obsidian Eclipse', 'Rune-White Zenith'],
   runeward: ['Chalk Rune', 'Iron Rune-Ward', 'Bronze Rune-Ward', 'Steel Rune-Ward', 'Verdigris Aegis-Rune', 'Cobalt Aegis-Rune'],
+  skyfall: ['Reed Quiver', 'Iron-Tipped Quiver', 'Bronze-Banded Quiver', 'Steel-Banded Quiver', 'Verdigris Skyfall', 'Cobalt Skyfall'],
   hex: ['Scrawled Hex', 'Iron-Bound Grimoire', 'Bronze-Clasped Grimoire', 'Steel-Clasped Grimoire', 'Verdigris Codex', 'Cobalt Codex'],
   bellows: ['Patched Bellows', 'Iron Bellows', 'Bronze Bellows', 'Steel Bellows', 'Verdigris Lung', 'Cobalt Gale-Bellows'],
   seal: ['Rust Seal', 'Iron Oath-Seal', 'Bronze Oath-Seal', 'Steel Oath-Seal', 'Verdigris Covenant', 'Cobalt Covenant'],
@@ -51,20 +52,20 @@ export const TYPE_SLOT = {
   sword: 'weapon', dagger: 'weapon', bow: 'weapon', staff: 'weapon', wand: 'weapon', heavy: 'armor', leather: 'armor', robe: 'armor', gauntlet: 'weapon', tongs: 'weapon', sunrod: 'weapon', lantern: 'weapon', harpoon: 'weapon',
   rapier: 'weapon', coil: 'weapon', pendulum: 'weapon', mirror: 'ability', kite: 'ability', stopwatch: 'ability',
   glassmail: 'armor', stormcloak: 'armor', brasscoat: 'armor',
-  bellows: 'ability', seal: 'ability', halo: 'ability', reliquary: 'ability', hookline: 'ability', runeward: 'ability', hex: 'ability',
+  bellows: 'ability', seal: 'ability', halo: 'ability', reliquary: 'ability', hookline: 'ability', runeward: 'ability', hex: 'ability', skyfall: 'ability',
   plate: 'armor', coat: 'armor', vestment: 'armor', shroud: 'armor', oilskin: 'armor', ring: 'ring',
   godweapon: 'weapon', godability: 'ability', godarmor: 'armor', godring: 'ring', relic: 'ability' };
 export const TYPE_CLASS = { gauntlet: 'brawler', bellows: 'brawler', coat: 'brawler', tongs: 'forge_knight', seal: 'forge_knight', plate: 'forge_knight',
   sunrod: 'priest', halo: 'priest', vestment: 'priest', lantern: 'summoner', reliquary: 'summoner', shroud: 'summoner',
   harpoon: 'harpooner', hookline: 'harpooner', oilskin: 'harpooner', rapier: 'duelist', mirror: 'duelist', glassmail: 'duelist',
   coil: 'stormwright', kite: 'stormwright', stormcloak: 'stormwright', pendulum: 'clockmaker', stopwatch: 'clockmaker', brasscoat: 'clockmaker',
-  runeward: 'runeblade', hex: 'hexweaver' };
+  runeward: 'runeblade', hex: 'hexweaver', skyfall: 'ranger' };
 const TYPE_LABEL = { sword: 'Sword', dagger: 'Dagger', bow: 'Bow', staff: 'Staff', wand: 'Wand', heavy: 'Heavy Armor', leather: 'Leather Armor', robe: 'Robe', gauntlet: 'Gauntlet', tongs: 'Tongs', sunrod: 'Sun-Rod', bellows: 'Bellows', seal: 'Oath-Seal', halo: 'Halo', plate: 'Forgeplate',
   coat: 'Soot-Coat', vestment: 'Vestment', ring: 'Ring', lantern: 'Soul-Lantern', reliquary: 'Reliquary', shroud: 'Shroud', harpoon: 'Harpoon',
   hookline: 'Grapple Line', oilskin: 'Oilskin', rapier: 'Rapier', mirror: 'Mirror', glassmail: 'Glassmail', coil: 'Coil', kite: 'Storm Kite',
-  stormcloak: 'Stormcloak', pendulum: 'Pendulum', stopwatch: 'Stopwatch', runeward: 'Rune-Ward', hex: 'Grimoire', brasscoat: 'Brasscoat', godweapon: 'Admin Weapon', godability: 'Admin Ability', godarmor: 'Admin Armor', godring: 'Admin Ring', relic: 'Ability' };
+  stormcloak: 'Stormcloak', pendulum: 'Pendulum', stopwatch: 'Stopwatch', runeward: 'Rune-Ward', hex: 'Grimoire', skyfall: 'Quiver', brasscoat: 'Brasscoat', godweapon: 'Admin Weapon', godability: 'Admin Ability', godarmor: 'Admin Armor', godring: 'Admin Ring', relic: 'Ability' };
 export const WEAPON_TYPES = ['sword', 'dagger', 'bow', 'staff', 'wand'];                 // RotMG weapon families, shared between classes
-export const ABILITY_TYPES = ['bellows', 'seal', 'halo', 'reliquary', 'hookline', 'mirror', 'kite', 'stopwatch', 'runeward', 'hex'];
+export const ABILITY_TYPES = ['bellows', 'seal', 'halo', 'reliquary', 'hookline', 'mirror', 'kite', 'stopwatch', 'runeward', 'hex', 'skyfall'];
 export const ARMOR_TYPES = ['heavy', 'leather', 'robe'];
 export const LEGACY_TYPE = { gauntlet: 'sword', tongs: 'sword', sunrod: 'wand', pendulum: 'wand', lantern: 'staff', coil: 'staff',
   harpoon: 'bow', rapier: 'dagger', plate: 'heavy', coat: 'heavy', oilskin: 'leather', glassmail: 'leather',
@@ -139,6 +140,8 @@ function ability(type, t) {
     runeward: { cost: 50 + 5 * t, ward: 120 + 50 * t, burst: { count: 10, proj: 'rune_slash', dmg: 70 + 22 * t, range: 3.5, pierce: true } },
     // HEX: a curse thrown at the cursor; everything inside takes more damage and slows
     hex: { cost: 60 + 6 * t, curse: { t: 4 + 0.5 * t, f: 0.2 + 0.02 * t, r: 2.6 + 0.15 * t }, burst: { count: 8, proj: 'hex_bolt', dmg: 50 + 16 * t, range: 4 } },
+    // SKYFALL: arrows called down on the cursor in three waves; the middle of the rain is thickest, the last wave heaviest
+    skyfall: { cost: 50 + 5 * t, rain: { waves: 3, gap: 0.3, r: 2.1 + 0.12 * t }, burst: { count: 0, proj: 'none', dmg: 55 + 18 * t, range: 8 + 0.3 * t } },
     stopwatch: { cost: 80 + 6 * t, stop: 2 + 0.4 * t, burst: { count: 0, proj: 'none', dmg: 0, range: 6 + t * 0.4 } },
   }[type];
 }
@@ -1346,6 +1349,7 @@ for (const it of Object.values(BASE_ITEMS)) {
     hookline: 'The line never tangles and never lets go.', mirror: 'Your reflection is braver than you are.',
     kite: 'It only flies well in a storm, and it prefers to start one.', stopwatch: 'Wind it once and the whole world holds its breath.',
     runeward: 'Every rune cut into it is a word that means "no".', hex: 'The pages turn by themselves to the right curse.',
+    skyfall: 'Loose one arrow at the sky and it comes back as a hundred.',
   };
   const RING_TIER = ['A tin band, bent by hand.', 'Iron, plain and honest.', 'Bronze, warm to the touch.', 'Steel, cold and certain.', 'Verdigris-green and very old.', 'Cobalt, blue as deep water.'];
   const RING = { hp: 'Its wearer is harder to kill, and knows it.', mp: 'It hums when your mana runs low, and fills it a little.', att: 'It makes every blow land a little heavier.',
@@ -1421,7 +1425,7 @@ applyGearRework(ITEMS);
 {
   const FIT = { bellows: ['att', 'vit', 'hp'], seal: ['def', 'vit', 'hp'], halo: ['wis', 'spd', 'mp'], reliquary: ['wis', 'att', 'mp'],
     hookline: ['att', 'spd', 'hp'], mirror: ['dex', 'spd', 'hp'], kite: ['wis', 'dex', 'mp'], stopwatch: ['def', 'wis', 'mp'],
-    runeward: ['att', 'def', 'hp'], hex: ['wis', 'dex', 'mp'] };
+    runeward: ['att', 'def', 'hp'], hex: ['wis', 'dex', 'mp'], skyfall: ['dex', 'att', 'hp'] };
   const MAIN = [1, 1, 2, 3, 3, 4, 5, 6], SIDE = [0, 1, 1, 1, 2, 3, 3, 4], POOL = [0, 0, 0, 20, 30, 40, 50, 60];
   for (const [type, [a, b, pool]] of Object.entries(FIT)) for (let t = 0; t <= TIER_CAP.ability; t++) {
     const it = ITEMS[`${type}_t${t}`];
@@ -1440,7 +1444,7 @@ applyGearRework(ITEMS);
   const POOL = { sword: ['att', 'vit', 'def'], dagger: ['dex', 'spd', 'att'], bow: ['dex', 'att', 'spd'], staff: ['wis', 'att', 'mp'],
     wand: ['wis', 'dex', 'mp'], heavy: ['def', 'vit', 'hp'], leather: ['spd', 'dex', 'def'], robe: ['wis', 'mp', 'def'],
     bellows: ['att', 'vit', 'hp'], seal: ['def', 'vit', 'hp'], halo: ['wis', 'spd', 'mp'], reliquary: ['wis', 'att', 'mp'], hookline: ['att', 'spd', 'hp'],
-    mirror: ['dex', 'spd', 'hp'], kite: ['wis', 'dex', 'mp'], stopwatch: ['def', 'wis', 'mp'], runeward: ['att', 'def', 'hp'], hex: ['wis', 'dex', 'mp'] };
+    mirror: ['dex', 'spd', 'hp'], kite: ['wis', 'dex', 'mp'], stopwatch: ['def', 'wis', 'mp'], runeward: ['att', 'def', 'hp'], hex: ['wis', 'dex', 'mp'], skyfall: ['dex', 'att', 'spd'] };
   const hash = (s) => { let h = 2166136261; for (const c of s) h = Math.imul(h ^ c.charCodeAt(0), 16777619); return h >>> 0; };
   for (const it of Object.values(ITEMS)) {
     if (it.base || it.admin || !(it.ut || it.mythic || it.legendary)) continue;

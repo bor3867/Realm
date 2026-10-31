@@ -109,6 +109,17 @@ export const CLASSES = {
     max: { hp: 700, mp: 260, att: 50, def: 30, spd: 50, dex: 50, vit: 45, wis: 45 },
     grow: { hp: [20, 30], mp: [5, 14], att: [1, 2], def: [0, 1], spd: [1, 2], dex: [1, 2], vit: [0, 2], wis: [1, 2] },
   },
+  ranger: {
+    name: 'Ranger',
+    design: 'The Thornhood',
+    blurb: 'A hunter in a green hood who keeps the old roads, a quiver of red-fletched arrows on her back. Bows and leather armor: the steadiest aim in the realm. Ability: SKYFALL, arrows called down on your cursor in three waves.',
+    sheet: 'ranger',
+    anim: { side: 'mirror', attack: { front: 'front_attack', right: 'side_attack', left: 'side_attack', back: 'back_attack' } },
+    weapon: 'bow', ability: 'skyfall', armor: 'leather',
+    base: { hp: 165, mp: 110, att: 13, def: 1, spd: 12, dex: 14, vit: 10, wis: 11 },
+    max: { hp: 660, mp: 280, att: 50, def: 26, spd: 50, dex: 50, vit: 45, wis: 45 },
+    grow: { hp: [18, 27], mp: [6, 15], att: [1, 2], def: [0, 1], spd: [1, 2], dex: [1, 2], vit: [1, 2], wis: [1, 2] },
+  },
   hexweaver: {
     name: 'Hexweaver',
     design: 'The Orb-Witch',
@@ -127,6 +138,7 @@ export const START_KIT = {
   brawler: ['sword_t0', 'bellows_t0', 'heavy_t0'], forge_knight: ['sword_t0', 'seal_t0', 'heavy_t0'],
   priest: ['wand_t0', 'halo_t0', 'robe_t0'], summoner: ['staff_t0', 'reliquary_t0', 'robe_t0'],
   harpooner: ['bow_t0', 'hookline_t0', 'leather_t0'],
+  ranger: ['bow_t0', 'skyfall_t0', 'leather_t0'],
   runeblade: ['sword_t0', 'runeward_t0', 'leather_t0'], hexweaver: ['staff_t0', 'hex_t0', 'robe_t0'],
 };
 

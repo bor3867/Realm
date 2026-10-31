@@ -773,6 +773,7 @@ export class UI {
         stopwatch: ['Stop Time', `Every monster and bullet within ${a.burst.range.toFixed(1)} tiles freezes for ${a.stop && a.stop.toFixed(1)}s (bosses for half). You keep moving.`],
         runeward: ['Rune Ward', `Runes close around you and soak up the next ${Math.round(a.ward || 0)} damage (for up to 6s), while rune-slashes cut a ring outward.`],
         hex: ['Hex', a.curse ? `Throw a curse at your cursor. Everything within ${a.curse.r.toFixed(1)} tiles takes +${Math.round(a.curse.f * 100)}% damage and is slowed for ${a.curse.t.toFixed(1)}s, and hex-bolts burst from it.` : 'Throw a curse at your cursor.'],
+        skyfall: ['Skyfall', a.rain ? `Call arrows down on your cursor in ${a.rain.waves} waves, ${a.rain.gap.toFixed(1)}s apart, over ${a.rain.r.toFixed(1)} tiles. The middle of the rain hits half again as hard, and the last wave twice as hard.` : 'Call arrows down on your cursor.'],
         godability: ['DELETE', 'Everything within 16 tiles stops existing.'] }[it.type] || ['Ability', ''];
       h += `<div class="sec"><div class="ab">${what[0]}</div><div class="abd">${what[1]}</div></div>`;
       stats += row('Mana cost', a.cost);
@@ -780,7 +781,8 @@ export class UI {
         seal: `Anvil ${Math.round(a.burst.dmg * 2.4)}`, halo: `Pillar 6 × ${Math.round(a.burst.dmg * 0.8)}`,
         reliquary: `Claw ${Math.round(a.burst.dmg * 1.3)} / 0.5s${a.burst.count > 1 ? ', cleaving' : ''}`, hookline: `Hook ${a.burst.dmg}`, godability: 'Infinite',
         mirror: `Shatter ${a.burst.count} × ${a.burst.dmg}`, kite: `Bolt ${a.burst.dmg}`, stopwatch: null,
-        runeward: `Rune-slash ${a.burst.count} × ${a.burst.dmg}`, hex: `Hex-bolt ${a.burst.count} × ${a.burst.dmg}` }[it.type];
+        runeward: `Rune-slash ${a.burst.count} × ${a.burst.dmg}`, hex: `Hex-bolt ${a.burst.count} × ${a.burst.dmg}`,
+        skyfall: a.rain ? `${a.rain.waves - 1} × ${a.burst.dmg} + ${a.burst.dmg * 2}` : null }[it.type];
       if (pw) stats += row('Damage', pw);
       if (it.type === 'seal') stats += row('Stun', `${(1.4 + ((a.armored || 2.5) - 2.5) * 0.2).toFixed(1)}s`);
       if (it.type === 'hookline') stats += row('Hook range', `${a.burst.range.toFixed(1)} tiles`);

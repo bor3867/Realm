@@ -10,6 +10,7 @@ const SHEETS = {
   stormwright: 'art/sprites/player/stormwright/kitehermit_sheet',
   clockmaker: 'art/sprites/player/clockmaker/horologist_sheet',
   runeblade: 'art/sprites/player/runeblade/runeblade_sheet',
+  ranger: 'art/sprites/player/ranger/thornhood_sheet',
   hexweaver: 'art/sprites/player/hexweaver/hexweaver_sheet',
   enemies: 'art/sprites/enemies/enemies_sheet',
   champions: 'art/sprites/enemies/champions_sheet',
