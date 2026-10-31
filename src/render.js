@@ -2468,7 +2468,7 @@ export class Renderer {
       const mine = f.color === '#e2546a' || (f.who && f.who === g.player), pop = f.t < 0.12 ? 1.3 - (f.t / 0.12) * 0.3 : 1, q = Math.min(1, f.t / 0.9), rise = 1 - (1 - q) ** 3;   // an eased rise: quick, then settling
       const x = bx * s, y = by * s - rise * (num && pixelable(f.text) ? 16 : 30) - (f.dy || 0) * TS * s;
       if (num && pixelable(f.text)) {                   // numbers in the pixel font (src/pixelfont.js): crisp, a size per kind
-        const P = Math.max(2, Math.round(s * (mine ? 1 : 0.85))), I = pixelText(f.text, f.color, P);
+        const P = Math.max(2, Math.round(s * (mine ? 1 : f.text.endsWith('!') ? 1.15 : 0.85))), I = pixelText(f.text, f.color, P);   // (a crit a size up)
         ctx.globalAlpha = f.t < 0.06 ? f.t / 0.06 : f.t < 0.5 ? 1 : Math.max(0, 1 - (f.t - 0.5) / 0.25);   // a soft fade in, a quick one out (old numbers clear away)
         ctx.imageSmoothingEnabled = false; ctx.drawImage(I, Math.round(x - I.width / 2), Math.round(y - I.height));
         continue;

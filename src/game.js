@@ -720,7 +720,14 @@ export class Game {
     if (who) {
       // the live numbers over it, where they are now (risen part-way), as boxes in tiles; the first spot that touches none
       const W = (t) => (String(t).length * 4 + 1) * 0.0625, H = 0.44 + 0.04, rise = (t) => 0.32 * (1 - (1 - Math.min(1, t / 0.9)) ** 3);   // (the font: 1/16 tile a pixel, 7 tall with its rim)
-      const live = this.floaters.filter((f) => f.who === who && f.t < 0.9).map((f) => ({ x: f.dx, y: f.dy + rise(f.t), w: W(f.text) }));
+      const mine = this.floaters.filter((f) => f.who === who && f.t < 0.9);
+      // (a crowd of numbers over one target, from a fast weapon: past six, a new hit adds into the newest number of its
+      // kind instead, which pops again; the screen stays readable. 2026-10-31)
+      if (mine.length >= 6 && /^\d+!?$/.test(String(text))) {
+        const crit = String(text).endsWith('!'), last = mine.filter((f) => f.color === color && /^\d+!?$/.test(f.text) && f.text.endsWith('!') === crit).sort((a, b) => a.t - b.t)[0];
+        if (last && last.t < 0.45) { last.text = `${parseInt(last.text, 10) + parseInt(text, 10)}${crit ? '!' : ''}`; last.t = Math.min(last.t, 0.05); return; }
+      }
+      const live = mine.map((f) => ({ x: f.dx, y: f.dy + rise(f.t), w: W(f.text) }));
       const w = W(text), hit = (cx, cy) => live.reduce((n, o) => n + (Math.abs(cx - o.x) < (w + o.w) / 2 + 0.06 && Math.abs(cy - o.y) < H ? 1 : 0), 0);
       let best = FLOAT_SLOTS[0], bn = Infinity;
       for (const S of FLOAT_SLOTS) { const n = hit(S[0], S[1]); if (n < bn) { bn = n; best = S; if (!n) break; } }
