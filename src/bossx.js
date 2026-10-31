@@ -208,6 +208,10 @@ export const BXF = {
     return angleUp(ox, oy, p.x + (S.pvx || 0) * T, p.y + (S.pvy || 0) * T, 0.4);
   },
   bxVolley(e, V) {
+    if (/^(ring|fan|spiral|stream|curtain|wall)$/.test(V.form) && V.shot) {   // (remembered for the Paradox Script to copy: plain data only)
+      const L = (e.plagSeen = e.plagSeen || []), sprite = V.sprite || `${e.bx.B.shotSheet || 'bx_shots'}/${e.bx.B.art || e.D.bx}.${V.shot}`;
+      if (!L.some((q) => q.form === V.form && q.sprite === sprite)) { L.push({ form: V.form, sprite, count: V.count, arms: V.arms, dur: V.dur, every: V.every, turn: V.turn, n: V.n, spread: V.spread, speed: V.speed, range: V.range, size: V.size }); if (L.length > 6) L.shift(); }
+    }
     const S = e.bx, p = this.player, [ox, oy] = V.from ? V.from(this, e) : this.bxOrigin(e);
     const aim = V.angle !== undefined ? V.angle : V.form === 'fan' || V.form === 'wall' ? this.bxAim(e, ox, oy, V.speed || 5) : angleTo(ox, oy, ...lift(p.x, p.y, 0.4));
     const gaps = (n, k) => V.gaps && ((k + (V.gapAt || 0)) % n) < V.gaps;

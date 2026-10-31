@@ -33,7 +33,7 @@ const methods = {
   armS() { const p = this.player; return p.armS || (p.armS = { n: {}, cd: {}, vis: [], later: [], marked: new Set() }); },
   armA(id) { const it = ITEMS[id]; return it && it.arm; },
   armHeld(id) { return this.player.equip.includes(id); },
-  armMult(id) { const S = this.armS(); return dmgMult(this.stat('att')) * (id === ID('Paradox Script') ? 1 + 0.03 * (S.caus || 0) : 1); },
+  armMult(id) { void id; return dmgMult(this.stat('att')); },
   armLater(s, fn) { this.armS().later.push({ t: this.t + s, fn }); },
   armVis(v) { v.t0 = this.t; this.armS().vis.push(v); return v; },
   armSay(x, y, text, col) { this.float(x, y - 1.2, text, col); },
@@ -80,6 +80,79 @@ const methods = {
   // the Hosanna set's 2-piece bonus: +5 WIS, +40 MP
   armStat(s) { if (!this.player || !this.player.equip) return 0; const n = this.armSetCount('Hosanna'); return n >= 2 ? ({ wis: 5, mp: 40 })[s] || 0 : 0; },
 
+  // a hit reads a page of it: enough, in time, and its attack is copied
+  plagRead(id, A, S, e) {
+    const R0 = (S.read = S.read || new Map()), need = e.rb || e.D.bx ? 16 : 8;
+    let r = R0.get(e);
+    if (!r || this.t - r.t > 4) { r = { n: 0, t0: this.t }; R0.set(e, r); }
+    r.n++; r.t = this.t; S.readOf = e; S.readN = r.n; S.readNeed = need;
+    if (r.n < need) return;
+    R0.delete(e); S.readN = 0;
+    const P = this.plagCopy(e);
+    if (!P) { this.armSay(e.x, e.y, 'NOTHING TO COPY', '#94a3b8'); return; }
+    S.plag = (S.plag || []).filter((q) => q.until > this.t);
+    if (S.plag.length >= 2) S.plag.shift();                    // (the second page: two at most; a third replaces the older)
+    S.plag.push({ ...P, until: this.t + 8, born: this.t });
+    S.plagNext = 0;
+    this.armVis({ k: 'rewind', x0: e.x, y0: e.y - 0.5, life: 0.45 });
+    this.vx({ k: 'burst', x: e.x, y: e.y - 0.6, n: 18, colors: ['#a5f3fc', '#e0e7ff', '#0f172a'] });
+    if (this.bubble) this.bubble(this.player, `Plagiarized: ${P.name}`, '#a5f3fc');
+  },
+  // what can be copied from it: a monster's bullet attack (not its pulses, marks, pools, summons or mending); a boss's
+  // generic volleys as it has thrown them (plagSeen), or, if none were seen here (a shared boss runs on the server), a
+  // ring of the shots it last threw at you
+  plagCopy(e) {
+    const name = (e.D.name || 'it').split(',')[0];
+    if (e.rb || e.D.bx) {
+      const seen = e.plagSeen || [];
+      if (seen.length) { const V = seen[Math.floor(Math.random() * seen.length)]; return { name, boss: true, V }; }
+      const last = [...this.projectiles].reverse().find((b) => b.from === 'e' && b.by === e.D.name && b.sprite);
+      return last ? { name, boss: true, V: { form: 'ring', count: 18, sprite: last.sprite, speed: 6, range: 12 } } : null;
+    }
+    const NO = new Set(['pulse', 'raise', 'ghostfire', 'mark', 'trail', 'overheat', 'overheatGo', 'summon', 'mend', 'slam', 'beam']);
+    const ok = (e.D.attacks || []).filter((Q) => !NO.has(Q.pattern) && !(Q.mv && Q.mv.lob) && Q.proj);
+    if (!ok.length) return null;
+    const Q = ok.reduce((x, y) => ((y.count || 1) * (y.waves || 1) > (x.count || 1) * (x.waves || 1) ? y : x));   // (its biggest)
+    return { name, src: e, A: Q };
+  },
+  // a copied volley's shots share a budget: 2.4 bolts' worth, over the square root of how many it throws, never under
+  // 0.4 of a bolt a shot
+  plagDmg(A, n) { const avg = (A.st.dmg[0] + A.st.dmg[1]) / 2 * this.armMult(ID('Paradox Script')); return Math.round(avg * Math.max(0.4, 2.4 / Math.sqrt(Math.max(1, n)))); },
+  plagFire(id, A, P, ox, oy, a) {
+    const p = this.player, aimAt = () => ({ x: this.input.aimX, y: this.input.aimY });
+    if (P.A) {                                                // a monster's attack: its own pattern code, fired from you
+      const Q = P.A, n = (Q.count || 1) * (Q.waves || 1), dmg = this.plagDmg(A, n);
+      const go = () => {
+        if (this.player !== p || p.dead) return;
+        const fake = Object.create(P.src); fake.x = p.x; fake.y = p.y; fake.queue = []; fake.rb = false; fake.herald = false; fake.hitUp = 0.5;
+        const T = aimAt(), ca = this.camAngle || 0, foe0 = this.foe, cur0 = this.curShooter;
+        this.foe = () => ({ x: T.x + 0.4 * Math.sin(ca), y: T.y + 0.4 * Math.cos(ca) });
+        this.plag = { dmg }; this.curShooter = null;
+        try { this.firePattern(fake, Q, true); } finally { this.plag = null; this.foe = foe0; this.curShooter = cur0; }
+      };
+      go();
+      for (let w = 1; w < (Q.waves || 1); w++) this.armLater(w * (Q.gap || 0.25), go);
+      return;
+    }
+    const V = P.V, T = aimAt(), aim = angleTo(ox, oy, T.x, T.y), sprite = V.sprite, sp = V.speed || 6, rg = V.range || 12;
+    const shot = (x, y, ang, dmg) => { const b = this.shoot('p', x, y, ang, sp, rg, dmg, sprite, V.size || 0.45, false); b.ink = true; return b; };
+    if (V.form === 'spiral') {                                // a turning stream: its arms, a little at a time
+      const steps = Math.min(14, Math.round((V.dur || 2) / (V.every || 0.12))), arms = V.arms || 3, dmg = this.plagDmg(A, arms * steps), a0 = aim;
+      for (let k = 0; k < steps; k++) this.armLater(k * 0.06, () => { const [x, y] = this.up(this.player.x, this.player.y, 0.5); for (let i = 0; i < arms; i++) shot(x, y, a0 + k * (V.turn || 0.2) + (i / arms) * TAU, dmg); });
+    } else if (V.form === 'stream') {                         // a stream at your cursor
+      const n = V.n || 5, dmg = this.plagDmg(A, n * (V.count || 1));
+      for (let k = 0; k < n; k++) this.armLater(k * 0.07, () => { const [x, y] = this.up(this.player.x, this.player.y, 0.5), t2 = aimAt(); shot(x, y, angleTo(x, y, t2.x, t2.y), dmg); });
+    } else if (V.form === 'fan') {
+      const n = V.count || 5, dmg = this.plagDmg(A, n), spr = V.spread || 1;
+      for (let k = 0; k < n; k++) shot(ox, oy, aim + (n > 1 ? (k / (n - 1) - 0.5) * spr : 0), dmg);
+    } else if (V.form === 'curtain' || V.form === 'wall') {   // a sheet of shots, across your aim, marching out
+      const n = Math.min(14, V.count || 12), dmg = this.plagDmg(A, n), px = Math.cos(aim + Math.PI / 2), py = Math.sin(aim + Math.PI / 2);
+      for (let k = 0; k < n; k++) { const o = (k - (n - 1) / 2) * 0.6; shot(ox + px * o, oy + py * o, aim, dmg); }
+    } else {                                                  // a ring (and anything else: a ring of its shots)
+      const n = Math.min(28, V.count || 16), dmg = this.plagDmg(A, n);
+      for (let k = 0; k < n; k++) shot(ox, oy, aim + (k / n) * TAU, dmg);
+    }
+  },
   // ---------------------------------------------------------------- weapons
   armoryVolley(W, sp, ox, oy, a, mult) {
     void mult;
@@ -501,49 +574,16 @@ const FIRE = {
       if (feast) { const n = S.eaten || 0; S.eaten = 0; for (let i = 0; i < n; i++) this.armLater(i * 0.025, () => this.armShot(id, 0, m.x, m.y - 0.5, i * 0.45, 10.5, 12.6, EX(A, 1), { sc: 3, home: 1.2 })); this.armSay(m.x, m.y + 1, 'CRIMSON STORM ×' + n, '#ff6b81'); }
     });
   },
-  // Paradox Script (reworked 2026-10-30, the user: "terrible ... Make it unique and powerful for being a celestial"):
-  // true aim; a shot that lands is rewound, back from its target to you, piercing all it passes; every hit writes
-  // Causality (+3% a stack, 12 at most); at 12 the next shot is The Paradox, striking all along its path at once; a shot
-  // that lands nothing still rewinds and re-fires at the nearest enemy
+  // Paradox Script (reworked again 2026-10-31, the user: "Plagiarism ... copying might be sick"): true-aim bolts read
+  // whatever they hit; 8 hits on one monster in 4s (a boss: 16) copy its attack, and for 8s every 0.3s your trigger fires
+  // that attack from you, at your cursor, in its own shot art (an ink rim on it: yours). Copy a second while the first
+  // holds and both fire together. Each volley shares a budget over its shots (plagDmg). See plagCopy / plagFire
   'Paradox Script'(A, id, S, ox, oy, a) {
-    const W = ITEMS[id].weapon, p = this.player;
-    const write = () => { S.caus = Math.min(12, (S.caus || 0) + 1); S.causUntil = this.t + 4; };
-    if ((S.caus || 0) >= 12) {                                   // The Paradox: everything this shot will ever hit, now
-      S.caus = 0; S.causUntil = 0;
-      const L = W.range, ux = Math.cos(a), uy = Math.sin(a), [px, py] = [p.x, p.y];
-      for (const e of this.armNear(px + ux * L / 2, py + uy * L / 2, L / 2 + 1)) {
-        const t = (e.x - px) * ux + (e.y - py) * uy, off = Math.abs((e.x - px) * uy - (e.y - py) * ux);
-        if (t < 0 || t > L || off > 0.9 + (e.D && e.D.r || 0.4)) continue;
-        this.armHurt(e, EX(A, 2), e.x, e.y - 0.5, { id });
-      }
-      this.armVis({ k: 'rewind', x0: px + ux * L, y0: py + uy * L, life: 0.45 });
-      this.armSay(p.x, p.y, 'THE PARADOX', '#c7d2fe'); this.vx({ k: 'shake', amt: 4 });
-    }
+    const W = ITEMS[id].weapon;
+    const pages = (S.plag || []).filter((P) => P.until > this.t);
+    if (pages.length && !(S.plagNext > this.t)) { S.plagNext = this.t + 0.3; for (const P of pages) this.plagFire(id, A, P, ox, oy, a); return; }
     const sh = this.armShot(id, 0, ox, oy, a, W.speed, W.range, A.st.dmg, {});
-    sh.armOnHit = (b, e) => {
-      b.landed = true; write();
-      if (!e || b.rewound) return;
-      const hx = b.x, hy = b.y;
-      this.armLater(0.12, () => {                               // the Causal Loop: back from where it struck, to you
-        const [qx, qy] = lift(p.x, p.y, 0.5), d = Math.hypot(qx - hx, qy - hy);
-        if (d < 0.5) return;
-        this.armVis({ k: 'rewind', x0: hx, y0: hy, life: 0.2 });
-        const r = this.armShot(id, 0, hx, hy, angleTo(hx, hy, qx, qy), W.speed * 1.4, d, EX(A, 1), { pierce: true, alpha: 0.65 });
-        r.rewound = true;
-        r.armOnHit = () => write();
-      });
-    };
-    sh.armEnd = (b) => {                                          // it landed nothing: rewritten at the nearest enemy
-      if (b.landed) return;
-      this.armVis({ k: 'rewind', x0: b.x, y0: b.y, life: 0.26 });
-      this.armLater(0.26, () => {
-        const [px, py] = lift(p.x, p.y, 0.5), e = this.armNear(p.x, p.y, 12)[0];
-        if (!e) return;
-        this.armSay(p.x, p.y, 'REWRITTEN', '#67e8f9');
-        const q = this.armShot(id, 0, px, py, angleTo(px, py, ...this.up(e.x, e.y, 0.5)), W.speed * 1.2, W.range, EX(A, 0), {});
-        q.landed = true; q.armOnHit = () => write();
-      });
-    };
+    sh.armOnHit = (b, e) => { if (e && !e.dead) this.plagRead(id, A, S, e); };
   },
   // arrows tear the world along their path (1.5s); enemies crossing a tear take damage; where two tears cross, reality ruptures
   'World Ripper'(A, id, S, ox, oy, a) {
@@ -772,7 +812,7 @@ const TICK = {
       if (S.bite >= 1) { S.bite = 0; const d = Math.round(this.stat('hp') * 0.05); p.hp = Math.max(1, p.hp - d); this.float(...lift(p.x, p.y, 1.2), `-${d}`, '#ff3b4e'); this.armSay(p.x, p.y, 'THE HUNGER BITES', '#ff3b4e'); }
     } else if (S.lastDmg === undefined) S.lastDmg = this.t;
   },
-  'Paradox Script'(A, id, S) { if ((S.causUntil || 0) < this.t) S.caus = 0; },
+  'Paradox Script'(A, id, S) { if (S.plag) S.plag = S.plag.filter((P) => P.until > this.t); },
   'World Ripper'(A, id, S, dt) {                          // enemies crossing a tear take damage every 0.3s
     S.tears = (S.tears || []).filter((t) => t.until > this.t);
     S.tk = (S.tk || 0) + dt;

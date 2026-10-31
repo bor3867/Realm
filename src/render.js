@@ -2164,6 +2164,7 @@ export class Renderer {
     for (const pr of g.projectiles) {
       if (pr.hidden) continue;                                     // an opening in a set piece's formation
       if (pr.sprite.startsWith('arm:')) { this.armShot(pr, g); continue; }   // a Mad God Armory shot (src/armory_art.js)
+      if (pr.ink) { const [ix, iy] = this.proj(pr.x, pr.y); b.globalAlpha = 0.55; b.fillStyle = '#22d3ee'; b.beginPath(); b.arc(Math.round(ix), Math.round(iy), 5, 0, 6.283); b.fill(); b.globalAlpha = 1; }   // a copied shot (the Paradox Script): an ink rim, so it reads as yours
       if (pr.sprite.includes('/') && this.R) {                       // a Realm Update shot (registry)
         const def = pr.def || (pr.def = this.R.resolve(pr.sprite));
         if (def) {

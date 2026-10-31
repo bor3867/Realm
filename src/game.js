@@ -1805,6 +1805,8 @@ export class Game {
   }
 
   shoot(from, x, y, a, speed, range, dmg, sprite, size = 0.4, pierce = false, by = null) {
+    const PL = this.plag;                                    // (the Paradox Script firing a monster's attack: its shots are yours)
+    if (PL && from === 'e') { from = 'p'; dmg = PL.dmg; by = null; }
     // in the shared realm every monster shot comes from the server (split, burst and lob shards too): none made here
     if (from === 'e' && this.map && this.map.netWorld) return { from, x, y, vx: 0, vy: 0, life: 0, dmg, sprite, r: size, a, by };
     const MB = this.mirrorBy;
@@ -1814,6 +1816,7 @@ export class Game {
     const b = { from, x, y, vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, life: range / Math.max(0.01, speed),
       dmg, sprite, r: size, pierce, hit: pierce ? new Set() : null, a, by };
     b.k = shotScale(sprite, size, from);                      // big art is drawn (and hits) at the size its attack meant
+    if (PL) b.ink = true;
     const S = from === 'e' ? this.curShooter : null; b.h = S ? this.shotHeight(S, x, y) : 0.5;   // how high it flies (see liftShift)
     this.projectiles.push(b);
     if (from === 'p' && this.net) this.netShot(b);            // others see your shots (src/net.js)
