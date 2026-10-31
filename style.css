@@ -957,7 +957,7 @@ body #app #vwbody { min-height: 0; flex: 1 1 auto; }
 #overlay .screen.login, #overlay .screen.account, #overlay .screen.home { position: relative; z-index: 1; }
 .screen .logo { text-align: center; margin-bottom: 18px; }
 .screen .logo h1 { margin: 0; color: #ffd650; text-shadow: 0 4px 0 #8a5a12, 0 8px 0 #2a1608, 0 0 30px #ffb84a88; }
-.screen .card { width: min(420px, 92vw); margin: 0 auto; background: #15131ccc; backdrop-filter: blur(6px); border: 1px solid #3a3648; border-radius: 14px; padding: 18px 22px; box-shadow: 0 20px 60px #000a, inset 0 1px 0 #ffffff14; }
+.screen .card { width: min(420px, 92vw); margin: 0 auto; background: #15131cf5; backdrop-filter: blur(6px); border: 1px solid #3a3648; border-radius: 14px; padding: 18px 22px; box-shadow: 0 20px 60px #000a, inset 0 1px 0 #ffffff14; }
 .screen .card.wide { width: min(760px, 94vw); }
 .screen .card h3 { margin: 10px 0 8px; color: #c8c0e0; font-size: 13px !important; letter-spacing: 1.5px; text-transform: uppercase; }
 .screen .card input { width: 100%; box-sizing: border-box; margin: 4px 0; padding: 11px 12px; font: inherit; font-size: 16px; color: #f2efe8; background: #0d0c12; border: 1px solid #3a3648; border-radius: 8px; outline: none; }
