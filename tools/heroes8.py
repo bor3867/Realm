@@ -23,78 +23,88 @@ FEET = {   # stand, step, step
     'back': ['..l..l..', '.....l..', '..l.....'],
 }
 C = {}
-C['brawler'] = dict(file='forgefist', pal={'h': '#4A2A18', 'r': '#E0303A', 'b': '#9A5C34', 'B': '#6A3C20', 'g': '#FF9A2A', 'w': '#E4ECF8', 'd': '#C98A22', 'l': '#8A5A3A'},
-    F=['..hhhh..', '.rrrrrr.', '..sese.w', '..ssss.w', '.sbBBbsd', '.gbbbb..', '..bBBb..'],
-    S=['..hhhh..', '.rrrrr..', '..hses..', '..hsss..', '..bbbsdw', '..gbbb..', '..bBBb..'],
-    B=['..hhhh..', '.rrrrrr.', '..hhhh.w', '..hhhh.w', '.sbBBbsd', '.gbbbb..', '..bBBb..'],
-    FA=['..hhhh.w', '.rrrrrrw', '..sese.w', '..sssssd', '.sbBBb..', '.gbbbb..', '..bBBb..'],
-    SA=['..hhhh..', '.rrrrr..', '..hses..', '..hsss..', '..bbsdww', '..gbbb..', '..bBBb..'],
-    BA=['..hhhh.w', '.rrrrrrw', '..hhhh.w', '..hhhhsd', '.sbBBb..', '.gbbbb..', '..bBBb..'])
-C['forge_knight'] = dict(file='anvilheart', pal={'i': '#C8D2E4', 'I': '#7A86A0', 'k': '#1A1E2A', 'r': '#D8283A', 'w': '#E4ECF8', 'd': '#C98A22', 'l': '#7A86A0'},
-    F=['..iiii..', '.iiiiii.', '.iikkii.', '..iiii.w', '.irrrriw', '.iIrrIid', '..IrrI..'],
+# 2026-10-31, the user: every class a true 8x8 sprite, keeping who it is. Redrawn from the Realm Remaster's look of each
+# (its colours, its kit), but native 8x8: one art pixel is one 2x2 block, shading included.
+# the Forgefist: shirtless, a red headband with trailing tails, brown hair, a short blade
+C['brawler'] = dict(file='forgefist', pal={'h': '#5A3420', 'r': '#E0303A', 'k': '#C8885E', 'b': '#7A4A2A', 'B': '#3A2414', 'w': '#E4ECF8', 'd': '#C98A22', 'l': '#5A3420'}, flat='se',
+    F=['..hhhh..', 'rrrrrr.w', 'r.sese.w', '.sskkssw', 'ssBBBBsd', '..bbbb..', '..bbbb..'],
+    S=['..hhhh..', '.rrrrrr.', 'r.hhses.', '..hsss..', '..sssdww', '..BBBB..', '..bbbb..'],
+    B=['..hhhh..', 'rrrrrr.w', 'r.hhhh.w', '.sssssw.', 'ssBBBBsd', '..bbbb..', '..bbbb..'],
+    FA=['..hhhh.w', 'rrrrrr.w', 'r.sese.w', '.sskkssd', 'ssBBBB..', '..bbbb..', '..bbbb..'],
+    SA=['..hhhh..', '.rrrrrr.', 'r.hhses.', '..hsss..', '..ssdwww', '..BBBB..', '..bbbb..'],
+    BA=['..hhhh.w', 'rrrrrr.w', 'r.hhhh.w', '.sssssd.', 'ssBBBB..', '..bbbb..', '..bbbb..'])
+# the Anvilheart: a closed silver helm with a dark visor, a red tabard with a gold anvil, a sword
+C['forge_knight'] = dict(file='anvilheart', pal={'i': '#C8D2E4', 'I': '#7A86A0', 'k': '#1A1E2A', 'r': '#D8283A', 'w': '#E4ECF8', 'd': '#E0A22A', 'l': '#7A86A0'},
+    F=['..iiii..', '.iiiiii.', '.ikkkki.', '..iiii.w', '.irddriw', '.Irrrrid', '..IrrI..'],
     S=['..iiii..', '.iiiii..', '.iiikk..', '..iiii..', '..irridw', '..irri..', '..IrrI..'],
     B=['..iiii..', '.iiiiii.', '.iiiiii.', '..iiii.w', '.iIIIIiw', '.iIIIIid', '..IiiI..'],
-    FA=['..iiii.w', '.iiiiiiw', '.iikkiiw', '..iiiid.', '.irrrri.', '.iIrrIi.', '..IrrI..'],
+    FA=['..iiii.w', '.iiiiiiw', '.ikkkkiw', '..iiiid.', '.irddri.', '.Irrrri.', '..IrrI..'],
     SA=['..iiii..', '.iiiii..', '.iiikk..', '..iiii..', '..irdwww', '..irri..', '..IrrI..'],
     BA=['..iiii.w', '.iiiiiiw', '.iiiiiiw', '..iiiid.', '.iIIIIi.', '.iIIIIi.', '..IiiI..'])
-# the Heliarch: a white hood and robe, a gold clasp, a flat gold halo floating over the head, a wand
-C['priest'] = dict(file='heliarch', pal={'y': '#E0A22A', 'Y': '#FFE680', 'f': '#F4F0E6', 'F': '#C4BED4', 'a': '#B8C0D0', 'A': '#FFE680', 'l': '#B08A60'}, flat='se',
-    F=['..yYYy..', '..ffff.A', '..sese.a', '..ffff.a', '.sfyyfsa', '..fFFf..', '.ffffff.'],
-    S=['..yYYy..', '..ffff..', '..ffse..', '..ffss..', '..ffff..', '..fyyf..', '.ffffff.'],
-    B=['..yYYy..', '..ffff.A', '..ffff.a', '..ffff.a', '.sfyyfsa', '..fFFf..', '.ffffff.'],
-    FA=['..yYYy.A', '..ffff.a', '..sese.a', '..ffffs.', '.sfyyf..', '..fFFf..', '.ffffff.'],
-    SA=['..yYYy..', '..ffff..', '..ffse..', '..ffss..', '..fffsaA', '..fyyf..', '.ffffff.'],
-    BA=['..yYYy.A', '..ffff.a', '..ffff.a', '..ffffs.', '.sfyyf..', '..fFFf..', '.ffffff.'])
-C['summoner'] = dict(file='reliquarian', pal={'K': '#4E3880', 'k': '#1E1430', 'c': '#5EF0C8', 'f': '#E8E0C8', 'n': '#7A6A52', 'y': '#7CFFB0', 'l': '#6A5A8A'},
-    F=['..KKKK.y', '.KKKKKKn', '.KckkcKn', '.KkkkkKn', 'fKKKKKfn', '.KKKKKK.', '.KKKKKK.'],
-    S=['..KKKK.y', '.KKKKK.n', '.KKKkc.n', '.KKKkk.n', '..KKKKfn', '.KKKKK..', '.KKKKKK.'],
-    B=['..KKKK.y', '.KKKKKKn', '.KKKKKKn', '.KKKKKKn', 'fKKKKKfn', '.KKKKKK.', '.KKKKKK.'],
-    FA=['..KKKKyy', '.KKKKKKn', '.KckkcKn', '.KkkkkKn', 'fKKKKKf.', '.KKKKKK.', '.KKKKKK.'],
-    SA=['..KKKK..', '.KKKKK..', '.KKKkc..', '.KKKkk.y', '..KKKfny', '.KKKKK..', '.KKKKKK.'],
-    BA=['..KKKKyy', '.KKKKKKn', '.KKKKKKn', '.KKKKKKn', 'fKKKKKf.', '.KKKKKK.', '.KKKKKK.'])
-C['harpooner'] = dict(file='wreckwhaler', pal={'Y': '#FFD030', 'y': '#B88410', 'g': '#8AD8F0', 'N': '#3058A0', 'n': '#8A6038', 'f': '#F0E6D0', 'l': '#7A5A3A'},
-    F=['..YYYY.f', '.YyyyyYn', '.YseseYn', '.YYYYYYn', '.sNNNNsn', '..NyyN.n', '..NNNN..'],
-    S=['..YYYY..', '.YYYyy..', '.YYYse..', '.YYYYY..', '..NNNsnf', '..NyyN..', '..NNNN..'],
+# the Heliarch: a tall white mitre banded in gold, a white beard and robe, a gold staff with a blue stone
+C['priest'] = dict(file='heliarch', pal={'y': '#E0A22A', 'f': '#F4F0E6', 'F': '#C4BED4', 'a': '#D8A030', 'A': '#4AA8F0', 'l': '#B08A60'}, flat='se',
+    F=['...ff..A', '..fyyf.a', '..sese.a', '..ffff.a', '.sfyyfsa', '..fFFf..', '.ffffff.'],
+    S=['...ff..A', '..fyyf.a', '..ffse.a', '..ffff.a', '..ffffsa', '..fyyf..', '.ffffff.'],
+    B=['...ff..A', '..fyyf.a', '..ffff.a', '..ffff.a', '.sfyyfsa', '..fyyf..', '.ffffff.'],
+    FA=['...ff.AA', '..fyyf.a', '..sese.a', '..ffffsa', '.sfyyf..', '..fFFf..', '.ffffff.'],
+    SA=['...ff...', '..fyyf..', '..ffse.A', '..ffffsa', '..ffff.a', '..fyyf..', '.ffffff.'],
+    BA=['...ff.AA', '..fyyf.a', '..ffff.a', '..ffffsa', '.sfyyf..', '..fyyf..', '.ffffff.'])
+# the Reliquarian: a pointed purple hood over darkness and two green eyes, bone hands, a staff with a green stone
+C['summoner'] = dict(file='reliquarian', pal={'K': '#6A48B0', 'P': '#3E2A78', 'k': '#140C20', 'c': '#5EF0A8', 'f': '#E8E0C8', 'n': '#7A6A52', 'y': '#7CFFB0', 'l': '#4E3880'},
+    F=['...KK..y', '..KKKK.n', '.KkkkkKn', '.KckkcKn', 'fKKKKKfn', '.KPKKPK.', '.KKKKKK.'],
+    S=['...KK..y', '..KKKK.n', '.KKKkk.n', '.KKKkc.n', '.KKKKKfn', '.KPKKK..', '.KKKKKK.'],
+    B=['...KK..y', '..KKKK.n', '.KKKKKKn', '.KKKKKKn', 'fKKcKKfn', '.KPKKPK.', '.KKKKKK.'],
+    FA=['...KK.yy', '..KKKK.n', '.KkkkkKn', '.KckkcKn', 'fKKKKKf.', '.KPKKPK.', '.KKKKKK.'],
+    SA=['...KK...', '..KKKK..', '.KKKkk..', '.KKKkc.y', '.KKKKfny', '.KPKKK..', '.KKKKKK.'],
+    BA=['...KK.yy', '..KKKK.n', '.KKKKKKn', '.KKKKKKn', 'fKKcKKf.', '.KPKKPK.', '.KKKKKK.'])
+# the Wreck-Whaler: a yellow sou'wester and slicker, a red neckerchief, blue overalls, a harpoon
+C['harpooner'] = dict(file='wreckwhaler', pal={'Y': '#FFD030', 'y': '#B88410', 'r': '#E0303A', 'N': '#3058A0', 'n': '#8A6038', 'f': '#F0E6D0', 'l': '#7A5A3A'}, flat='se',
+    F=['..YYYY.f', '.YyyyyYn', '.YseseYn', '.YrrrrYn', '.sNNNNsn', '..NyyN.n', '..NNNN..'],
+    S=['..YYYY..', '.YYYyy..', '.YYYse..', '.YYrrr..', '..NNNsnf', '..NyyN..', '..NNNN..'],
     B=['..YYYY.f', '.YyyyyYn', '.YYYYYYn', '.YYYYYYn', '.sNNNNsn', '..NNNN.n', '..NNNN..'],
-    FA=['..YYYYff', '.YyyyyYn', '.YseseYn', '.YYYYYYn', '.sNNNNs.', '..NyyN..', '..NNNN..'],
-    SA=['..YYYY..', '.YYYyy..', '.YYYse..', '.YYYYY..', '..NNsnnf', '..NyyN..', '..NNNN..'],
+    FA=['..YYYYff', '.YyyyyYn', '.YseseYn', '.YrrrrYn', '.sNNNNs.', '..NyyN..', '..NNNN..'],
+    SA=['..YYYY..', '.YYYyy..', '.YYYse..', '.YYrrr..', '..NNsnnf', '..NyyN..', '..NNNN..'],
     BA=['..YYYYff', '.YyyyyYn', '.YYYYYYn', '.YYYYYYn', '.sNNNNs.', '..NNNN..', '..NNNN..'])
-C['duelist'] = dict(file='mirrorknight', pal={'v': '#A050F0', 'V': '#5E2CA0', 'p': '#F4F0F8', 'm': '#B8DCF8', 'M': '#FFFFFF', 'f': '#F4F0F8', 'w': '#E4ECF8', 'd': '#C98A22', 'l': '#6A4A9A'},
-    F=['..p.....', '.vvvvvv.', '..mMmm..', '..mmMm.w', '.sVffVsw', '..VffV.d', '..VVVV..'],
-    S=['...p....', '.vvvvvv.', '..vmMm..', '..vmmM..', '..VfVsdw', '..VVVV..', '..VVVV..'],
-    B=['..p.....', '.vvvvvv.', '..vvvv..', '..VVVV.w', '.sVVVVsw', '..VVVV.d', '..VVVV..'],
-    FA=['..p.....', '.vvvvvvw', '..mMmm.w', '..mmMmsd', '.sVffV..', '..VffV..', '..VVVV..'],
-    SA=['...p....', '.vvvvvv.', '..vmMm..', '..vmmM..', '..VfsdwW'.replace('W', 'w'), '..VVVV..', '..VVVV..'],
-    BA=['..p.....', '.vvvvvvw', '..vvvv.w', '..VVVVsd', '.sVVVV..', '..VVVV..', '..VVVV..'])
-C['stormwright'] = dict(file='kitehermit', pal={'t': '#E8C878', 'T': '#B8964A', 'f': '#F4F4F8', 'u': '#3A7AE8', 'U': '#2A58B0', 'n': '#C87A3A', 'c': '#8AF6FF', 'l': '#8A7A5A'},
+# the Mirror-Knight: a wide magenta hat with a white plume, a magenta coat with gold buttons, a rapier
+C['duelist'] = dict(file='mirrorknight', pal={'m': '#D04890', 'M': '#8A2860', 'p': '#F4F0F8', 'w': '#E4ECF8', 'd': '#C98A22', 'y': '#FFD650', 'l': '#6A2A50'}, flat='se',
+    F=['...pm...', '..mmmm.w', 'mmmmmmmw', '..sese.w', '.smyymsd', '..mMMm..', '..mmmm..'],
+    S=['..pm....', '..mmmm..', 'mmmmmmm.', '..mmse..', '..mmsdww', '..mMMm..', '..mmmm..'],
+    B=['...pm...', '..mmmm.w', 'mmmmmmmw', '..mmmm.w', '.smMMmsd', '..mMMm..', '..mmmm..'],
+    FA=['...pm..w', '..mmmm.w', 'mmmmmmmw', '..sese.d', '.smyyms.', '..mMMm..', '..mmmm..'],
+    SA=['..pm....', '..mmmm..', 'mmmmmmm.', '..mmse..', '..msdwww', '..mMMm..', '..mmmm..'],
+    BA=['...pm..w', '..mmmm.w', 'mmmmmmmw', '..mmmm.d', '.smMMms.', '..mMMm..', '..mmmm..'])
+# the Kite-Hermit: a wide straw hat, a white beard, a blue robe, a staff with a storm crystal
+C['stormwright'] = dict(file='kitehermit', pal={'t': '#E8C878', 'T': '#B8964A', 'f': '#F4F4F8', 'u': '#3A7AE8', 'U': '#2A58B0', 'n': '#C87A3A', 'c': '#8AF6FF', 'l': '#8A7A5A'}, flat='se',
     F=['...tt..c', '.tttttTn', '..sese.n', '..ffff.n', '.suffusn', '..uUUu..', '.uuuuuu.'],
     S=['...tt.c.', '.ttttTn.', '..Tsesn.', '...ffsn.', '..uuuun.', '..uUUu..', '..uuuuu.'],
     B=['...tt..c', '.tttttTn', '..TTTT.n', '..TTTT.n', '.suuuusn', '..uUUu..', '.uuuuuu.'],
     FA=['...tt.cc', '.tttttTc', '..sese.n', '..ffffsn', '.suffu..', '..uUUu..', '.uuuuuu.'],
     SA=['...tt...', '.ttttT..', '..Tses..', '...ffs.c', '..uuusnc', '..uUUu..', '..uuuuu.'],
     BA=['...tt.cc', '.tttttTc', '..TTTT.n', '..TTTTsn', '.suuuu..', '..uUUu..', '.uuuuuu.'])
-C['clockmaker'] = dict(file='horologist', pal={'k': '#2E2836', 'y': '#F2C14E', 'c': '#8AE6FF', 'b': '#8A5432', 'B': '#5A3420', 'g': '#F2C14E', 'h': '#5A3A22', 'n': '#B0B0C0', 'N': '#FFE08A', 'l': '#7A5236'},
-    F=['..kkkk.N', '..kkkk.n', '.kkkkkkn', '..ycyc.n', '.sbggbsn', '..bBBb..', '..bbbb..'],
-    S=['..kkk..N', '..kkk..n', '.kkkkk.n', '..hsyc.n', '..bbbsn.', '..bBBb..', '..bbbb..'],
-    B=['..kkkk..', '..kkkk.N', '.kkkkkkn', '..hhhh.n', '.sbggbsn', '..bggb..', '..bbbb..'],
-    FA=['..kkkkNN', '..kkkk.n', '.kkkkkkn', '..ycycsn', '.sbggb..', '..bBBb..', '..bbbb..'],
-    SA=['..kkk...', '..kkk...', '.kkkkk..', '..hsyc..', '..bbbsnN', '..bBBb..', '..bbbb..'],
-    BA=['..kkkkNN', '..kkkk.n', '.kkkkkkn', '..hhhhsn', '.sbggb..', '..bggb..', '..bbbb..'])
-C['runeblade'] = dict(file='runeblade', pal={'i': '#A4AEC6', 'I': '#5E6680', 'c': '#46F5D6', 'r': '#C83A3A', 'w': '#C8F8FF', 'W': '#46F5D6', 'd': '#C98A22', 'l': '#7A84A0'},
-    F=['..iiii.W', '.iIIIIiw', '.icIIciw', '.rrrrrrw', '.iIcIIid', '..iIIi..', '..IiiI..'],
-    S=['..iiii..', '.iIIII..', '.iIIIc..', 'rrrrrr.W', '..iIcidw', '..iIIi..', '..IiiI..'],
-    B=['..iiii.W', '.iIIIIiw', '.iIIIIiw', '.rrrrrrw', '.irrrrid', '..rrrr..', '..IrrI..'],
-    FA=['..iiiiWw', '.iIIIIiw', '.icIIcid', '.rrrrrr.', '.iIcIIi.', '..iIIi..', '..IiiI..'],
-    SA=['..iiii..', '.iIIII..', '.iIIIc..', 'rrrrrr..', '..iIcdwW', '..iIIi..', '..IiiI..'],
-    BA=['..iiiiWw', '.iIIIIiw', '.iIIIIid', '.rrrrrr.', '.irrrri.', '..rrrr..', '..IrrI..'])
-C['hexweaver'] = dict(file='hexweaver', pal={'p': '#9058E0', 'P': '#5A2E9A', 'y': '#FFD650', 'o': '#8AF6FF', 'n': '#7A5A3A', 'l': '#6A48A8'},
-    F=['...pp..o', '..pppp.n', '.psesepn', '..pssp.n', '.spyypsn', '.pPppPp.', '.pppppp.'],
-    S=['...pp..o', '..pppp.n', '..ppse.n', '..ppss.n', '..ppypsn', '.pPppP..', '.pppppp.'],
-    B=['...pp..o', '..pppp.n', '.ppppppn', '..pPPp.n', '.spPPpsn', '.pPppPp.', '.pppppp.'],
-    FA=['...pp.oo', '..pppp.o', '.psesepn', '..psspsn', '.spyyp..', '.pPppPp.', '.pppppp.'],
-    SA=['...pp...', '..ppp...', '..ppse..', '..pps...', '..ppysnoo'[:8], '.pPppP..', '.pppppp.'],
-    BA=['...pp.oo', '..pppp.o', '.ppppppn', '..pPPpsn', '.spPPp..', '.pPppPp.', '.pppppp.'])
-
+# the Horologist: a black top hat, brass goggles, a brown coat with a gold clock face, a pronged brass staff
+C['clockmaker'] = dict(file='horologist', pal={'k': '#2E2836', 'y': '#F2C14E', 'c': '#8AE6FF', 'b': '#A0582A', 'B': '#5A3420', 'g': '#F2C14E', 'h': '#5A3A22', 'n': '#B0B0C0', 'N': '#FFE08A', 'l': '#5A3420'}, flat='se',
+    F=['..kkkkNN', '..kkkk.n', '.kkkkkkn', '..ycyc.n', '.sbggbsn', '..bBBb..', '..bbbb..'],
+    S=['..kkk.NN', '..kkk..n', '.kkkkk.n', '..hsyc.n', '..bbbsn.', '..bBBb..', '..bbbb..'],
+    B=['..kkkkNN', '..kkkk.n', '.kkkkkkn', '..hhhh.n', '.sbggbsn', '..bggb..', '..bbbb..'],
+    FA=['..kkkkNN', '..kkkk.N', '.kkkkkkn', '..ycycsn', '.sbggb..', '..bBBb..', '..bbbb..'],
+    SA=['..kkk...', '..kkk...', '.kkkkk..', '..hsyc.N', '..bbbsnN', '..bBBb..', '..bbbb..'],
+    BA=['..kkkkNN', '..kkkk.N', '.kkkkkkn', '..hhhhsn', '.sbggb..', '..bggb..', '..bbbb..'])
+# the Rune-Knight: a silver helm with a red crest and glowing eyes, a red cloak behind, a rune-lit sword
+C['runeblade'] = dict(file='runeblade', pal={'i': '#A4AEC6', 'I': '#5E6680', 'c': '#46F5D6', 'r': '#C83A3A', 'w': '#C8F8FF', 'W': '#46F5D6', 'd': '#C98A22', 'l': '#5E6680'},
+    F=['...rr..W', '..iiii.w', '.icIIciw', '.iiiiiiw', 'riIccIrd', 'r.iIIi..', '..IiiI..'],
+    S=['..rr....', '..iiii..', '..iIIc.W', '.riiii.w', 'rr.iIidw', 'r.iIIi..', '..IiiI..'],
+    B=['...rr..W', '..iiii.w', '.iiiiiiw', '.rrrrrrw', '.rrrrrrd', '..rrrr..', '..IrrI..'],
+    FA=['...rr.Ww', '..iiii.w', '.icIIcid', '.iiiiii.', 'riIccIr.', 'r.iIIi..', '..IiiI..'],
+    SA=['..rr....', '..iiii..', '..iIIc..', '.riiii..', 'rr.iIdwW', 'r.iIIi..', '..IiiI..'],
+    BA=['...rr.Ww', '..iiii.w', '.iiiiiid', '.rrrrrr.', '.rrrrrr.', '..rrrr..', '..IrrI..'])
+# the Orb-Witch: a tall purple hood over darkness and two yellow eyes, a gold sigil, a staff with a cyan orb
+C['hexweaver'] = dict(file='hexweaver', pal={'p': '#9058E0', 'P': '#5A2E9A', 'k': '#140C20', 'y': '#FFD650', 'o': '#8AF6FF', 'n': '#7A5A3A', 'l': '#5A2E9A'},
+    F=['...pp..o', '..pppp.n', '.pkkkkpn', '.pykkypn', '.ppyyppn', '.pPyyPp.', '.pppppp.'],
+    S=['...pp..o', '..pppp.n', '..ppkk.n', '..ppky.n', '..pppppn', '.pPppP..', '.pppppp.'],
+    B=['...pp..o', '..pppp.n', '.ppppppn', '.ppppppn', '.ppyyppn', '.pPyyPp.', '.pppppp.'],
+    FA=['...pp.oo', '..pppp.n', '.pkkkkpn', '.pykkyp.', '.ppyypp.', '.pPyyPp.', '.pppppp.'],
+    SA=['...pp...', '..pppp..', '..ppkk..', '..ppky.o', '..pppnoo', '.pPppP..', '.pppppp.'],
+    BA=['...pp.oo', '..pppp.n', '.ppppppn', '.pppppp.', '.ppyypp.', '.pPyyPp.', '.pppppp.'])
 # the Ranger (2026-10-30): a green hood, a leather jerkin, a quiver of red-fletched arrows on the back, a longbow
 C['ranger'] = dict(file='thornhood', pal={'g': '#6CC048', 'G': '#2E7A34', 'L': '#8A5A30', 'b': '#5A3A1E', 'w': '#C89048', 'q': '#F0EAD8', 'r': '#E0303A', 'A': '#E4ECF8', 'l': '#5A3A22'}, flat='se',
     F=['...gg...', '..gggg.w', '.gseseGw', '.GgssgGw', '.sLbLLsw', '..LLbL.w', '..LGGL..'],
@@ -147,41 +157,46 @@ def build(cls, D):
         'ability': (4, 0, 3, 8), 'hit': (4, 3, 1, 1), 'death': (5, 0, 4, 6),
     }
     COLS = 6
-    W, H = COLS * 16, len(rows) * 16
-    out = [[(0, 0, 0, 0)] * W for _ in range(H)]
+    # shaded at 8x8 (light from the top-left, a step darker toward the bottom-right), one art pixel at a time, and only
+    # then doubled: every 2x2 block is one colour, a true 8x8 sprite (2026-10-31). Legs and anything marked flat stay flat
+    from retro import light, shade
+    def shade_px(px, fw, fh):                          # at 8x8 only the rim: a full shade muddies a figure this small
+        out = [r[:] for r in px]
+        for y in range(len(px)):
+            for x in range(len(px[0])):
+                if not px[y][x][3]:
+                    continue
+                fx, fy = x - x % fw, y - y % fh
+                empty = lambda dx, dy: not (fx <= x + dx < fx + fw and fy <= y + dy < fy + fh and px[y + dy][x + dx][3])
+                if empty(0, -1) or empty(-1, 0): out[y][x] = light(px[y][x])
+                elif empty(0, 1) or empty(1, 0): out[y][x] = shade(px[y][x], 0.6)
+        return out
+    W8, H8 = COLS * 8, len(rows) * 8
+    art = [[(0, 0, 0, 0)] * W8 for _ in range(H8)]
     for r, row in enumerate(rows):
         for c, g in enumerate(row):
             for y in range(8):
                 for x in range(8):
-                    ch = g[y][x]
-                    if ch == '.':
-                        continue
-                    col = pal[ch]
-                    for dy in (0, 1):
-                        for dx in (0, 1):
-                            out[r * 16 + y * 2 + dy][c * 16 + x * 2 + dx] = col
+                    if g[y][x] != '.':
+                        art[r * 8 + y][c * 8 + x] = pal[g[y][x]]
+    shaded = shade_px(art, 8, 8)
+    flat = {pal[c] for c in D.get('flat', '')}
+    for y in range(H8):
+        for x in range(W8):
+            if art[y][x][3] and (y % 8 == 7 or art[y][x] in flat):
+                shaded[y][x] = art[y][x]
+    W, H = COLS * 16, len(rows) * 16
+    out = [[shaded[y // 2][x // 2] for x in range(W)] for y in range(H)]
     d = os.path.join(ROOT, cls)
     os.makedirs(d, exist_ok=True)
     write_png(os.path.join(d, D['file'] + '_sheet.png'), out)
-    from retro import shade_sheet
-    from reduce import read_png
-    shade_sheet(os.path.join(d, D['file'] + '_sheet.png'), 16, 16)   # RotMG light and shadow
-    px = read_png(os.path.join(d, D['file'] + '_sheet.png'))          # ...but not on the legs: a one-pixel leg is all edge,
-    flat = {pal[c] for c in D.get('flat', '')}                         # (and a face kept flat where asked: shading the rim of a
-    for y in range(H):                                                 # side-on face turns it into a dark hole)
-        for x in range(W):
-            if out[y][x][3] and (y % 16 >= 14 or out[y][x] in flat):     # and shading would sink it into the outline
-                px[y][x] = out[y][x]
-    write_png(os.path.join(d, D['file'] + '_sheet.png'), px)
     guide = {'image': D['file'] + '_sheet.png', 'frameWidth': 16, 'frameHeight': 16, 'columns': COLS, 'rows': len(rows),
              'art': 8, 'pivot': {'x': 8, 'y': 15},
              'animations': {k: {'row': a, 'col': b, 'frames': n, 'fps': fps, 'loop': k.endswith(('idle', 'walk'))} for k, (a, b, n, fps) in anims.items()}}
-    json.dump(guide, open(os.path.join(d, D['file'] + '_sheet.json'), 'w'), indent=2)
+    json.dump(guide, open(os.path.join(d, D['file'] + '_sheet.json'), 'w', newline='\n'), indent=2)
 
 
 if __name__ == '__main__':
     for cls, D in C.items():
         build(cls, D)          # all eleven, the Runeblade and the Hexweaver included (no longer from the sprite pack)
-    print('built', list(C))
-    import apply_remaster                                # the Realm Remaster's classes replace these (realm_update_2)
-    apply_remaster.creatures()
+    print('built', list(C))                              # (no longer overwritten by the Realm Remaster's 16px classes: 2026-10-31)

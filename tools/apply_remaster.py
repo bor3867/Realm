@@ -26,8 +26,8 @@ ROOT = os.path.join(os.path.dirname(__file__), '..')
 RM = os.path.join(ROOT, 'art', 'remaster')
 CLASSES = {'brawler': 'forgefist', 'forge_knight': 'anvilheart', 'priest': 'heliarch', 'summoner': 'reliquarian', 'harpooner': 'wreckwhaler',
            'duelist': 'mirrorknight', 'stormwright': 'kitehermit', 'clockmaker': 'horologist', 'runeblade': 'runeblade', 'hexweaver': 'hexweaver'}
-CREATURES = {**{f'cls_{c}.png': f'art/sprites/player/{c}/{f}_sheet.png' for c, f in CLASSES.items()},
-             'enemies.png': 'art/sprites/enemies/enemies_sheet.png', 'champions.png': 'art/sprites/enemies/champions_sheet.png',
+# (the classes are no longer copied: since 2026-10-31 they are true 8x8 sprites of their own, tools/heroes8.py)
+CREATURES = {'enemies.png': 'art/sprites/enemies/enemies_sheet.png', 'champions.png': 'art/sprites/enemies/champions_sheet.png',
              'realm_bosses.png': 'art/sprites/bosses/realm_bosses_sheet.png', 'pack_bosses.png': 'art/sprites/bosses/pack_bosses_sheet.png',
              'godheart.png': 'art/sprites/bosses/godheart_sheet.png', 'godking.png': 'art/sprites/bosses/godking_sheet.png',
              'unstruck.png': 'art/sprites/bosses/unstruck_sheet.png'}

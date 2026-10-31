@@ -13,6 +13,10 @@ const B0 = new URL('../art/bundle/', import.meta.url), J = (q) => JSON.parse(rea
 const reg = buildRegistry(idx.atlases.map((a) => ({ pack: a.split('/')[0], json: J(a) })), J(idx.hover), (q) => q);
 const WHERE = { glacius_frozen_wyrm: 'frostveil', mother_mycelia: 'mirerot', grand_orrery: 'astral', gilded_sphinx: 'sandscour', count_vesper: 'keep',
   grinning_ringmaster: 'hollowmoon', tidebound_lich: 'crypt', forgeheart_colossus: 'ember', abyssal_kraken: 'event', thornheart_treant: 'event' };
+// (2026-10-31) every other boss: a dungeon's by its dungeon, the rest spawned in the realm beside you
+const { DUNGEONS } = await import('../src/data/enemies.js');
+for (const [k, d] of Object.entries(DUNGEONS)) if (d.boss && !WHERE[d.boss]) WHERE[d.boss] = k;
+for (const id of Object.keys(BX)) if (!WHERE[id] && id !== 'framework_test' && !id.startsWith('rfx_')) WHERE[id] = 'rb';
 const HARDEST = ['glacius_frozen_wyrm', 'grand_orrery', 'forgeheart_colossus'];
 const args = process.argv.slice(2), asJson = args.includes('--json'), only = args.filter((a) => !a.startsWith('--'));
 const SECS = 40;
@@ -24,7 +28,8 @@ function setup(id) {
   const g = new Game({ reg }, { fame: 0, gold: 0, essence: 0, vaults: [[]], graveyard: [], chars: [], slots: 8, bestLevel: 0 });
   g.newCharacter('priest'); g.persist = () => {};
   let e;
-  if (WHERE[id] === 'event') { g.enter('realm'); g.enemies = g.map.enemies = []; e = g.spawnEventBoss(id, false); g.player.x = e.home.x; g.player.y = e.home.y + 5; }
+  if (WHERE[id] === 'rb') { g.enter('realm'); g.enemies = g.map.enemies = []; e = g.spawnRealmBoss(id, { x: g.player.x, y: g.player.y - 7 }); }
+  else if (WHERE[id] === 'event') { g.enter('realm'); g.enemies = g.map.enemies = []; e = g.spawnEventBoss(id, false); g.player.x = e.home.x; g.player.y = e.home.y + 5; }
   else {                                                   // into the boss's own room (not always the last room: Frostveil's lake isn't)
     g.enter(WHERE[id]);
     const A = g.map.rooms.find((n) => n.boss) || g.map.rooms.at(-1); g.player.x = A.x + A.w / 2; g.player.y = A.y + A.h - 5;
