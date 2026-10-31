@@ -33,13 +33,13 @@ const hudIcon = (k) => { const G = HUD_ICON[k]; let r = '';
 // a character's record as rows (the character tab, and a fallen hero's page in the Hall of Legends)
 export const liveRecord = (p) => ({ kills: p.kills || 0, bossKills: p.bossKills || 0, dungeons: p.dungeons || 0, shots: p.shotsFired || 0, hits: p.shotsHit || 0,
   dmgDealt: Math.round(p.dmgDealt || 0), dmgTaken: Math.round(p.dmgTaken || 0), potions: p.potions || 0, abilities: p.abilities || 0, chests: p.chests || 0, secrets: p.secrets || 0,
-  lore: (p.lore || []).length, quests: (p.quests || []).filter((q) => q.done).length, mins: Math.round((p.playT || 0) / 60), xp: p.totalXp || 0 });
+  lore: (p.lore || []).length, quests: (p.quests || []).filter((q) => q.done).length, mins: Math.round((p.playT || 0) / 60), xp: p.totalXp || 0, tiles: p.tiles || 0 });
 export function recordRows(d, short = false) {   // (short: the labels for the side panel's narrow box)
   const n = (v) => (v || 0).toLocaleString(), acc = d.shots ? `${Math.round((100 * (d.hits || 0)) / d.shots)}%` : '—';
   const mm = Math.round(d.mins || 0), t = mm >= 60 ? `${Math.floor(mm / 60)}h ${mm % 60}m` : `${mm}m`;   // (whole minutes: it could read 1h 15.4m)
-  const L = short ? ['Kills', 'Boss kills', 'Dungeons', 'Shots', 'Hits', 'Accuracy', 'Dmg dealt', 'Dmg taken', 'Potions', 'Abilities', 'Chests', 'Secrets', 'Lore read', 'Quests', 'XP', 'Played']
-    : ['Monsters killed', 'Bosses killed', 'Dungeons completed', 'Shots fired', 'Shots hit', 'Accuracy', 'Damage dealt', 'Damage taken', 'Potions drunk', 'Abilities used', 'Chests opened', 'Secret rooms found', 'Lore stones read', 'Quests finished', 'Experience', 'Time played'];
-  return [n(d.kills), n(d.bossKills), n(d.dungeons), n(d.shots), n(d.hits), acc, n(d.dmgDealt), n(d.dmgTaken), n(d.potions), n(d.abilities), n(d.chests), n(d.secrets), n(d.lore), n(d.quests), n(d.xp), t].map((v, i) => [L[i], v]);
+  const L = short ? ['Kills', 'Boss kills', 'Dungeons', 'Shots', 'Hits', 'Accuracy', 'Dmg dealt', 'Dmg taken', 'Potions', 'Abilities', 'Chests', 'Secrets', 'Lore read', 'Quests', 'XP', 'Played', 'Tiles seen']
+    : ['Monsters killed', 'Bosses killed', 'Dungeons completed', 'Shots fired', 'Shots hit', 'Accuracy', 'Damage dealt', 'Damage taken', 'Potions drunk', 'Abilities used', 'Chests opened', 'Secret rooms found', 'Lore stones read', 'Quests finished', 'Experience', 'Time played', 'Tiles discovered'];
+  return [n(d.kills), n(d.bossKills), n(d.dungeons), n(d.shots), n(d.hits), acc, n(d.dmgDealt), n(d.dmgTaken), n(d.potions), n(d.abilities), n(d.chests), n(d.secrets), n(d.lore), n(d.quests), n(d.xp), t, n(d.tiles)].map((v, i) => [L[i], v]);
 }
 export function rarityColor(it) {
   if (it.arm) return ARM_COL[it.armTier];                // (the Mad God Armory's own tier colours)
@@ -1157,7 +1157,11 @@ export class UI {
     const p = this.g.player, el = $('stats');
     if (!p) return;
     el.classList.remove('petview'); el.classList.add('recview'); this.petKey = null;
-    el.innerHTML = recordRows(liveRecord(p), true).map(([k, v]) => `<div><span class="rk">${k}</span><span>${v}</span></div>`).join('');
+    // and what you would leave on falling now: base fame, the bonuses earned (each a share of it), the total
+    const F = this.g.fameReport(p), pc = (k) => `+${Math.round(k * 100)}%`;
+    el.innerHTML = `<div class="fame-death"><span class="rk">Fame on death</span><b>${F.total.toLocaleString()}</b></div><div><span class="rk">Base fame</span><span>${F.base.toLocaleString()}</span></div>`
+      + F.earned.map(([k, f]) => `<div class="fame-bonus"><span class="rk">${k}</span><span>${pc(f)}</span></div>`).join('')
+      + recordRows(liveRecord(p), true).map(([k, v]) => `<div><span class="rk">${k}</span><span>${v}</span></div>`).join('');
   }
   petPanel() {
     const g = this.g, P = g.activePet(), el = $('stats');

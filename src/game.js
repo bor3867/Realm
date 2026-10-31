@@ -162,7 +162,7 @@ const MAX_REALM_BOSSES = 3;
 // a character's record, kept with it (the character tab, its legend when it falls)
 // a new character slot: five times what it was (the 4th 7,500 gold, the 8th 37,500; the user, 2026-10-28)
 export const slotPrice = (slots) => 7500 * (slots - 3);
-export const REC_KEYS = ['shotsFired', 'shotsHit', 'dmgTaken', 'dmgDealt', 'playT', 'potions', 'abilities', 'chests', 'secrets'];
+export const REC_KEYS = ['shotsFired', 'shotsHit', 'dmgTaken', 'dmgDealt', 'playT', 'potions', 'abilities', 'chests', 'secrets', 'tiles', 'dgStars'];
 const ENEMY_DMG = 1.5;                                      // every enemy hits this many times its number (see enemyScale)
 // things you walk up to and press F on
 // Phase 7: an egg's burst frame (its hatch clip: 9 frames at 6 fps), how hard each land is, and the families it keeps
@@ -1062,6 +1062,7 @@ export class Game {
         const i = y * m.w + x;
         if (m.seen[i] || (x - tx) ** 2 + (y - ty) ** 2 > R2 || (m.veil && m.veil[i])) continue;   // (a secret room stays unseen till its wall breaks)
         m.seen[i] = 1; m.fogNew.push(i);
+        if (this.player) this.player.tiles = (this.player.tiles || 0) + 1;   // (tiles discovered: a fame bonus)
       }
     }
   }
@@ -2004,20 +2005,38 @@ export class Game {
     if (e.elite || e.herald || e.warden || e.D.biome === 'godfall') return 'hard';
     return 'mob';
   }
+  // a dungeon cleared: counted, and by its stars (the fame bonuses: fameReport)
+  dungeonDone(stars) {
+    const p = this.player;
+    if (!p) return;
+    if (stars === undefined) { const m = this.map, id = m && m.def && Object.keys(DUNGEONS).find((k) => DUNGEONS[k] === m.def); stars = (DUNGEON_RATING[id] || [3])[0]; }
+    stars = Math.max(1, Math.min(5, Math.round(stars)));
+    p.dungeons = (p.dungeons || 0) + 1;
+    const D = (p.dgStars = p.dgStars || {}); D[stars] = (D[stars] || 0) + 1;
+  }
+  // what a fallen hero's fame comes to (2026-10-31, the user: "fame bonuses for different levels of dungeons completed,
+  // accuracy, enemy kills, tiles discovered, etc. They scale"): RotMG's way, each a share of the base fame, in tiers that
+  // rise as you go (only the highest tier reached of each counts). Shown live in the character tab
   fameReport(p) {
     const base = p.fame || 0, B = [];
     const maxed = STATS.filter((s) => p.base[s] >= CLASSES[p.cls].max[s]).length;
-    const pct = (name, k) => { const v = Math.floor(base * k); if (v > 0) B.push([name, v]); };
+    const pct = (name, k) => { const v = Math.floor(base * k); if (v > 0 || !base) B.push([name, v, k]); };
+    const tier = (name, have, steps) => { let got = null; for (const [need, k, label] of steps) if (have >= need) got = [label, k]; if (got) pct(`${name} ${got[0]}`, got[1]); };
     if (maxed) pct(`Maxed stats (${maxed}/8)`, maxed * 0.05);
-    if (p.bossKills) pct(`Boss slayer (${p.bossKills})`, Math.min(1, p.bossKills * 0.1));
-    if (p.dungeons) pct(`Dungeon delver (${p.dungeons})`, Math.min(1, p.dungeons * 0.05));
+    for (let s = 1; s <= 5; s++) tier(`${s}★ Delver`, (p.dgStars || {})[s] || 0, [[1, 0.02 * s, 'I'], [5, 0.04 * s, 'II'], [20, 0.08 * s, 'III']]);
+    tier('Boss Slayer', p.bossKills || 0, [[1, 0.1, 'I'], [5, 0.25, 'II'], [20, 0.5, 'III'], [50, 1, 'IV']]);
+    tier('Slayer', p.kills || 0, [[100, 0.02, 'I'], [1000, 0.05, 'II'], [5000, 0.1, 'III'], [20000, 0.15, 'IV']]);
+    if ((p.shotsFired || 0) >= 500) { const acc = (p.shotsHit || 0) / p.shotsFired; tier('Marksman', acc * 100, [[25, 0.03, 'I'], [50, 0.06, 'II'], [75, 0.1, 'III']]); }
+    tier('Explorer', p.tiles || 0, [[5000, 0.03, 'I'], [20000, 0.06, 'II'], [60000, 0.1, 'III']]);
+    tier('Treasure Hunter', p.chests || 0, [[25, 0.02, 'I'], [100, 0.05, 'II']]);
+    tier('Secret Keeper', p.secrets || 0, [[3, 0.03, 'I'], [15, 0.06, 'II']]);
+    tier('Questor', (p.quests || []).filter((q) => q.done).length, [[5, 0.03, 'I'], [25, 0.06, 'II']]);
     const eq = p.equip.filter(Boolean).map((id) => ITEMS[id]);
     if (eq.length === 4 && eq.every((it) => it.ut || it.mythic || (typeof it.tier === 'number' && it.tier >= (it.slot === 'ability' || it.slot === 'ring' ? 4 : 8)))) pct('Well equipped', 0.1);
-    if (p.kills >= 1000) pct('Thousand cuts', 0.1);
     if (base && (p.petted || 0) > 0) B.push(['Friend of the cat', 1]);
     const firstBorn = base && !(this.save.graveyard || []).some((d) => d.cls === p.cls && d.fame >= base);
     if (firstBorn) pct('Ancestor (best of your class)', 0.1);
-    return { base, bonuses: B, total: base + B.reduce((a, [, v]) => a + v, 0), maxed };
+    return { base, bonuses: B.filter(([, v]) => v > 0).map(([n, v]) => [n, v]), earned: B.map(([n, , k]) => [n, k]), total: base + B.reduce((a, [, v]) => a + v, 0), maxed };
   }
 
   // ------------------------------------------------------------- enemies
@@ -2593,7 +2612,7 @@ export class Game {
       }
       if (e.warden) this.breakSeal(`${e.D.name.split(',')[0]} falls.`);
       if (e.rb && this.map.kind === 'dungeon' && this.map.def) { const dk = Object.keys(DUNGEONS).find((k) => DUNGEONS[k] === this.map.def); if (dk) this.achFlag('dg', dk); }   // (a dungeon cleared: src/achievements.js)
-      if (e.rb) { this.questEvent(this.map.kind === 'dungeon' ? 'dungeon' : 'rboss', e); this.trophy(e.id); if (this.map.kind === 'dungeon') this.player.dungeons = (this.player.dungeons || 0) + 1; else this.player.bossKills = (this.player.bossKills || 0) + 1; }
+      if (e.rb) { this.questEvent(this.map.kind === 'dungeon' ? 'dungeon' : 'rboss', e); this.trophy(e.id); if (this.map.kind === 'dungeon') this.dungeonDone(); else this.player.bossKills = (this.player.bossKills || 0) + 1; }
       let items = e.noLoot ? [] : rollLoot(e.D.loot, e.D.lootLuck || 1, this.lootRank(e));   // (how high it may drop: LOOT_GATE)   // (an overworld boss's adds carry nothing)
       if (this.map.kind === 'realm' && !e.rb) items = items.filter((id) => !String(id).startsWith('stat_') || R() < STAT_DROP_REALM);   // stat potions are scarcer out in the realm (2026-10-19)
       const egg = this.eggDrop(e);

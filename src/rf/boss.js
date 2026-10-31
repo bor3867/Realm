@@ -213,6 +213,7 @@ const methods = {
     // every class's gear, its tiers by the dungeon's stars; a harder dungeon, higher tiers. (It was a weapon and an armour
     // at 80% on a narrower scale. 2026-10-30)
     const stars = Math.max(1, Math.min(5, this.rfStars ? this.rfStars() : 3));
+    this.dungeonDone(stars);                                 // (counted, by its stars: the fame bonuses)
     items.push(...rollLoot(bossLoot([], stars), 1, stars >= 5 ? 'top' : 'dboss'));
     const A = F.A, bx = A.b1.x / TP + 1, by = A.b1.y / TP + 2;
     this.addBag(bx, by + 0.5, items);
