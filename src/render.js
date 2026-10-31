@@ -625,7 +625,7 @@ export class Renderer {
       else { b.save(); b.translate(dx + w * k, dy); b.scale(-1, 1); b.drawImage(I, 0, 0, w * k, h * k); b.restore(); }
       return;
     }
-    const U = this.U || 1, I = outlinedFrame(img, sx, sy, w, h, U, undefined, U >= 2 ? Math.max(1, Math.round(2 / k)) : 1), P = I.pad / U * k, W = I.width / U * k, H = I.height / U * k;   // (one rim width for everyone: 2 screen pixels)
+    const U = this.U || 1, I = this.thinRim ? outlinedFrame(img, sx, sy, w, h, U, undefined, 1, false) : outlinedFrame(img, sx, sy, w, h, U, undefined, U >= 2 ? Math.max(1, Math.round(2 / k)) : 1), P = I.pad / U * k, W = I.width / U * k, H = I.height / U * k;   // (one rim width for everyone: 2 screen pixels)
     if (!flip) b.drawImage(I, dx - P, dy - P, W, H);
     else { b.save(); b.translate(dx - P + W, dy - P); b.scale(-1, 1); b.drawImage(I, 0, 0, W, H); b.restore(); }
   }
@@ -1624,7 +1624,8 @@ export class Renderer {
     // a wide frame (an.w: the side attack, its weapon reaching out ahead of the 8x8 body): anchored on the body, the side
     // it faces (2026-10-31)
     const fw = an.w || 16, ax = an.w ? (flip ? fw - (an.px || 8) : an.px || 8) : 8;
-    this.spr(S.img, an.col * 16 + frame * fw, an.row * 16, fw, 16, sx, sy - hop, ax, 15, flip, false);   // no white blink when hit
+    // (a thin outline on the players: one screen pixel, no corners; the thick one swallowed their 8x8 figures. 2026-10-31)
+    this.thinRim = true; this.spr(S.img, an.col * 16 + frame * fw, an.row * 16, fw, 16, sx, sy - hop, ax, 15, flip, false); this.thinRim = false;   // no white blink when hit
     const maxHp = p.remote ? p.maxHp : g.stat('hp');
     if (!p.dead && p.hp < maxHp) this.hpBar(sx, sy + 3, p.hp / maxHp, 14);   // RotMG-style bar at your feet
     if (!p.dead && p.chill > 0) {                                      // Frostveil's chill: a pale bar under the life bar
