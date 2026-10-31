@@ -84,7 +84,7 @@ export const BXF = {
   bxWake(e) {
     const S = e.bx;
     e.state = 'idle'; S.state = 'intro'; S.wait = 1.6;
-    this.banner(e.D.name.toUpperCase(), 2600); this.vx({ k: 'shake', amt: 5 }); this.sfx('boss');
+    this.bxSay(e, e.D.name.toUpperCase(), 2600); this.vx({ k: 'shake', amt: 5 }); this.sfx('boss');
     this.bxLockArena(e, true);
     if (S.B.onWake) S.B.onWake(this, e);
   },
@@ -144,7 +144,7 @@ export const BXF = {
     S.fin = F; S.state = 'finale'; S.finT = 0; S.vol = []; S.pat = null; if (F === S.B.finale) S.finaleDone = true; else S.finale2Done = true;
     this.bxClearBullets(e);
     if (S.anim) S.anim.play(S.def.phases[S.phase].idle, { speed: 1 });
-    this.banner(F.name.toUpperCase() + (F.say ? ' · ' + F.say : ''), 3200); this.vx({ k: 'shake', amt: 10 }); this.sfx('boss');
+    this.bxSay(e, F.name.toUpperCase() + (F.say ? ' · ' + F.say : ''), 3200); this.vx({ k: 'shake', amt: 10 }); this.sfx('boss');
     if (F.start) F.start(this, e);
   },
   bxFinale(e, dt) {
@@ -158,11 +158,14 @@ export const BXF = {
       if (!F.keepShots) this.bxClearBullets(e);              // (a finale may leave its shots flying as it ends)
       S.state = 'grace'; S.wait = Math.max(1.2, F.after || 0); S.broken = true;
       if (F.after) e.invulnT = F.after;                       // immune while it comes out of it
-      this.banner(`${e.D.name.toUpperCase()} IS BROKEN`, 2600); this.vx({ k: 'shake', amt: 8 });
+      this.bxSay(e, `${e.D.name.toUpperCase()} IS BROKEN`, 2600); this.vx({ k: 'shake', amt: 8 });
       this.vx({ k: 'burst', x: e.x, y: e.y - e.hitUp, n: 40, colors: ['#ffffff', '#ffd650', '#ff8a1f'] });
     }
   },
 
+  // a boss's announcement: across the top of the screen, or, for one that talks (B.talks: Emily), in its own speech
+  // bubble over its head, as a player's line (2026-10-31, the user: "remove the large text on her")
+  bxSay(e, text, ms) { if (e.bx && e.bx.B.talks) { if (e.bx.B.say) e.bx.B.say(this, e, text); } else this.banner(text, ms); },
   // ---------------------------------------------------------------- volleys (generic forms; specials live with each boss)
   // where a monster's shots leave from: about a tile up its body, up the screen whatever the camera's turn (2026-10-31,
   // the user: shots came out "two tiles above the boss rather than one", and swung about as the camera turned. A shot's
@@ -325,7 +328,7 @@ export const BXF = {
     e.invulnT = 99;
     this.bxClearBullets(e);
     const ph = def.phases[S.phase];
-    this.banner(`${ph.name.toUpperCase()}`, 2600); this.vx({ k: 'shake', amt: 8 }); this.sfx('boss');
+    this.bxSay(e, `${ph.name.toUpperCase()}`, 2600); this.vx({ k: 'shake', amt: 8 }); this.sfx('boss');
     if (S.anim) S.anim.play(ph.enter || ph.idle, { speed: S.B.morphSpeed || 0.55 });   // slow and heavy (a morph can land mid-windup, while the frame is held)
     if (!ph.enter) { S.state = 'grace'; S.wait = 3; e.invulnT = 0; }
     if (S.B.onPhase) S.B.onPhase(this, e, S.phase);

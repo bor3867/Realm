@@ -879,7 +879,7 @@ body #app #panel #tabbody #stats.recview > div { display: flex; justify-content:
 #vaultwin .vwfoot { padding: 6px 10px 8px; color: #8a8a8a; font: 500 16px var(--r-font); border-top: 2px solid #1a1a1a; background: #2a2a2a; }
 body #app #hud { font-size: 16px; }
 body #app #hud b { font-weight: 400; }
-body #app #banner { font-size: 24px; }
+body #app #banner { font-size: 16px; top: 44px; padding: 4px 12px; border-width: 1px; box-shadow: 0 0 0 1px #000, 0 0 12px -4px var(--gold); max-width: 70%; text-align: center; }   /* (higher and smaller: it covered too much of the view. 2026-10-31) */
 body #app #chatlog { font-size: 16px; justify-content: flex-start; overscroll-behavior: contain; }
 body #tooltip, body #tooltip * { font-family: var(--r-font); font-weight: 400 !important; }
 body #tooltip, body #tooltip :not(h4) { font-size: 16px !important; }
