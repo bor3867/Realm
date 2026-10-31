@@ -95,7 +95,8 @@ function scouts(g, e, V) {                                // scout bees: four, c
 
 export default {
   id: 'honey_queen', art: 'honey_queen', shotSheet: 'hollow_shots', name: 'Queen Melliflua, the Honeyed Mother', biome: 'hive', hp: 52000, def: 6, xp: 4500,
-  dmgScale: 2.5, r: 1.5, speed: 1.0, keep: 6, faces: true, tempo: 0.95, finale,
+  dmgScale: 1.5,   // (was 2.5: a one-star dungeon's boss out-hit most five-stars, 2026-10-31: check_boss_pressure)
+  r: 1.5, speed: 1.0, keep: 6, faces: true, tempo: 0.95, finale,
   phases: {
     1: { move: 'pace', pressure: [{ every: 3.6, special: 'scouts', delay: 2.9, dmg: 36 }, { every: 16, special: 'song', dur: 4, r: 7, dmg: 40 }], patterns: [
       { name: 'hex-stings', windup: 0.6, recover: 0.6, special: 'hexsting', rings: 2, dmg: 46 },
@@ -110,10 +111,10 @@ export default {
       { name: 'her brood', windup: 0.6, recover: 0.5, special: 'brood', n: 4, hatch: 6 },
       { name: 'hex-stings', windup: 0.5, recover: 0.6, special: 'hexsting', rings: 2, dmg: 46 },
     ] },
-    3: { move: 'pace', pressure: [{ every: 2.8, special: 'scouts', delay: 2.2, dmg: 36 }, { every: 10, special: 'song', dur: 5, r: 9, dmg: 44 }], patterns: [
+    3: { move: 'pace', pressure: [{ every: 2.8, special: 'scouts', delay: 2.2, dmg: 36 }, { every: 14, special: 'song', dur: 4.5, r: 8, dmg: 44 }], patterns: [
       { name: 'honey rain', windup: 0.5, recover: 0.5, special: 'honeyrain', n: 9, dmg: 54 },
       { name: 'the waggle dance', windup: 0.5, recover: 0.5, special: 'waggle', n: 12, dmg: 42 },
-      { name: 'the swarm', windup: 0.4, recover: 0.5, special: 'swarm', n: 18, dmg: 36 },
+      { name: 'the swarm', windup: 0.5, recover: 0.6, special: 'swarm', n: 15, dmg: 36 },
       { name: 'hex-stings', windup: 0.4, recover: 0.5, special: 'hexsting', rings: 3, dmg: 48 },
       { name: 'her brood', windup: 0.5, recover: 0.5, special: 'brood', n: 5, hatch: 5.5 },
     ] },

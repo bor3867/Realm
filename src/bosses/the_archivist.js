@@ -65,6 +65,13 @@ function pages(g, e, V) {
   for (let w = 0; w < (V.waves || 3); w++) e.bx.vol.push({ t: w * 0.25, V: { form: 'special', name: 'pageFan', w, dmg: V.dmg } });
 }
 function pageFan(g, e, V) { const [ox, oy] = g.bxOrigin(e), q = target(g, e), a = angleTo(ox, oy, q.x, q.y); for (let k = -2; k <= 2; k++) g.bxShot(e, ox, oy, a + k * 0.2 + (V.w % 2) * 0.1, { shot: 'page', speed: 6.5, range: 12, dmg: V.dmg || 55 }); }
+// the pages turn (2026-10-31: it threw the fewest shots of any boss): two long arms of pages sweep round it like a book
+// leafing itself, the near pages slow and the far ones fast, so each arm is a curved line to step through, not a wall
+function turning(g, e, V) {
+  const dir = R() < 0.5 ? 1 : -1, a0 = R() * TAU, n = Math.round((V.dur || 2.4) / 0.12);
+  for (let k = 0; k < n; k++) e.bx.vol.push({ t: k * 0.12, V: { form: 'special', name: 'leaf', a: a0 + dir * k * 0.19, arms: V.arms || 2, dmg: V.dmg } });
+}
+function leaf(g, e, V) { const [ox, oy] = g.bxOrigin(e); for (let i = 0; i < V.arms; i++) for (const sp of [3.2, 5]) g.bxShot(e, ox, oy, V.a + (i / V.arms) * TAU, { shot: 'page', speed: sp, range: 12, dmg: V.dmg || 58 }); }
 function needles(g, e, V) { const [ox, oy] = g.bxOrigin(e); for (const q of players(g)) { const a = angleTo(ox, oy, q.x, q.y); for (let k = -1; k <= 1; k++) g.bxShot(e, ox, oy, a + k * 0.08, { shot: 'needle', speed: 9, range: 14, dmg: V.dmg || 65 }); } }
 
 // ---- II: its copy. The same body; over it, its name written backwards. Strike it and the original laughs (and heals)
@@ -141,21 +148,24 @@ export default {
       { name: 'a recitation', windup: 0.6, recover: 1.0, special: 'recite', across: 'side', dmg: 60 },
       { name: 'pages', windup: 0.5, recover: 0.7, special: 'pages', waves: 3, dmg: 55 },
       { name: 'the index', windup: 0.5, recover: 0.6, special: 'index', refs: 1, yours: true, dmg: 70 },
+      { name: 'the pages turn', windup: 0.6, recover: 0.6, special: 'turning', arms: 2, dur: 2.2, dmg: 58 },
     ] },
     2: { move: 'pace', patterns: [
       { name: 'the index', windup: 0.5, recover: 0.6, special: 'index', refs: 2, dmg: 70 },
       { name: 'a recitation', windup: 0.5, recover: 0.9, special: 'recite', across: 'any', dmg: 60 },
       { name: 'pages', windup: 0.5, recover: 0.6, special: 'pages', waves: 4, dmg: 55 },
       { name: 'the index', windup: 0.5, recover: 0.6, special: 'index', refs: 2, yours: true, dmg: 70 },
+      { name: 'the pages turn', windup: 0.5, recover: 0.6, special: 'turning', arms: 3, dur: 2.4, dmg: 58 },
     ] },
     3: { move: 'pace', pressure: [{ every: 2.8, special: 'footnotes', dmg: 60 }], patterns: [
       { name: 'the index', windup: 0.5, recover: 0.6, special: 'index', refs: 3, yours: true, delay: 1.4, dmg: 72 },
       { name: 'a recitation', windup: 0.4, recover: 0.7, special: 'recite', across: 'any', speed: 3.2, dmg: 62 },
       { name: 'needles', windup: 0.4, recover: 0.6, special: 'needles', dmg: 65 },
       { name: 'a recitation', windup: 0.4, recover: 0.8, special: 'recite', across: 'down', speed: 3.2, dmg: 62 },
+      { name: 'the pages turn', windup: 0.4, recover: 0.5, special: 'turning', arms: 3, dur: 2.8, dmg: 62 },
     ] },
   },
-  specials: { index, recite, pages, pageFan, needles, footnotes },
+  specials: { index, recite, pages, pageFan, needles, footnotes, turning, leaf },
   onWake(g) { g.banner('THE ARCHIVIST · every word is kept', 3000); },
   onPhase(g, e, ph) {
     if (ph === 2) { makeCopy(g, e); e.arSwapT = 9; g.banner('ERRATA · it copies itself: read the names', 2800); }

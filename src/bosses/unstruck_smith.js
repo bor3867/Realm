@@ -36,6 +36,15 @@ function anvilWave(g, e, V) {
   const [ax, ay] = anvil(e), n = 22, gap = Math.floor(R() * n), off = V.k * 0.14;
   for (let i = 0; i < n; i++) { if (((i - gap + n) % n) < 3) continue; g.bxShotAt(e, ax, ay, 0.5, off + (i / n) * TAU, { shot: 'spark', speed: 4 + V.k * 0.6, range: 14, dmg: V.dmg }); }
 }
+// the anvil sings (2026-10-31: a four-star, but its first phase was the gentlest of any): struck and left ringing, the
+// anvil throws sparks in two arms that wheel round it, so the safe side keeps moving, while the hammer comes for you
+function anvilSings(g, e, V) {
+  e.usStrikeUntil = g.t + 0.4;
+  const dir = R() < 0.5 ? 1 : -1;
+  e.bx.vol.push({ t: 0, V: { form: 'spiral', shot: 'spark', arms: V.arms || 2, dur: V.dur || 2.6, every: 0.11, turn: 0.24 * dir, speed: 4.4, range: 14, dmg: V.dmg || 115, from: (gg, ee) => gg.up(...anvil(ee), 0.5) } });
+  e.bx.vol.push({ t: 0.9, V: { form: 'special', name: 'hammers', n: 1, dmg: (V.dmg || 115) + 20 } });
+  g.vx({ k: 'shake', amt: 4 });
+}
 // ---- the quench: steam rises from the floor in a checkerboard, then the other squares
 function quench(g, e, V) {
   const A = arena(e), sz = 2, par0 = R() < 0.5 ? 0 : 1;
@@ -85,13 +94,14 @@ const finale = {
 
 export default {
   id: 'unstruck_smith', art: 'unstruck_smith', shotSheet: 'us_shots', name: 'The Unstruck', biome: 'dungeon', hp: 240000, def: 30, xp: 12000,
-  r: 2, speed: 1.0, keep: 5, faces: true, tempo: 0.8, dmgScale: 1.05, finale,
+  r: 2, speed: 1.0, keep: 5, faces: true, tempo: 0.75, dmgScale: 1.3, finale,   // (was 0.8 and 1.05: 2026-10-31, light for four stars)
   phases: {
-    1: { move: 'pace', pressure: [{ every: 2.6, special: 'rust', delay: 2, dmg: 95 }], patterns: [
+    1: { move: 'pace', pressure: [{ every: 2.2, special: 'rust', delay: 1.8, dmg: 95 }], patterns: [
       { name: 'the returning hammer', windup: 0.7, recover: 0.8, special: 'hammers', n: 1, dmg: 140 },
       { name: 'the anvil struck', windup: 0.8, recover: 0.7, special: 'anvilRing', rings: 3, dmg: 120 },
       { name: 'the quench', windup: 0.6, recover: 1.4, special: 'quench', dmg: 110 },
       { name: 'the returning hammer', windup: 0.6, recover: 0.7, special: 'hammers', n: 3, spread: 1.1, dmg: 135 },
+      { name: 'the anvil sings', windup: 0.7, recover: 0.6, special: 'anvilSings', arms: 2, dur: 2.4, dmg: 115 },
     ] },
     2: { move: 'pace', pressure: [{ every: 1.7, special: 'drip', delay: 1.5, dmg: 100 }], patterns: [
       { name: 'the sea comes in', windup: 0.7, recover: 0.8, special: 'cracks', n: 3, dmg: 130 },
@@ -99,6 +109,7 @@ export default {
       { name: 'the anvil struck', windup: 0.7, recover: 0.6, special: 'anvilRing', rings: 4, dmg: 120 },
       { name: 'the quench', windup: 0.5, recover: 1.2, special: 'quench', delay: 1.1, gap: 1.3, dmg: 115 },
       { name: 'the sea comes in', windup: 0.6, recover: 0.8, special: 'cracks', n: 4, dmg: 130 },
+      { name: 'the anvil sings', windup: 0.6, recover: 0.6, special: 'anvilSings', arms: 3, dur: 2.6, dmg: 120 },
     ] },
     3: { move: 'smithCharge', pressure: [{ every: 2.4, special: 'drip', dmg: 105 }, { every: 3.4, special: 'rust', dmg: 100 }], patterns: [
       { name: 'unstoppable', windup: 0.5, recover: 0.5, special: 'charge', dmg: 160 },
@@ -127,7 +138,7 @@ export default {
       if (d > 3) g.moveCircle(e, ((q.x - e.x) / d) * 1.3 * dt, ((q.y - e.y) / d) * 1.3 * dt, 0.8);
     },
   },
-  specials: { hammers, anvilRing, anvilWave, quench, rust, cracks, drip, charge, hammerfall },
+  specials: { hammers, anvilRing, anvilWave, anvilSings, quench, rust, cracks, drip, charge, hammerfall },
   onWake(g) { g.banner('THE UNSTRUCK · still swinging', 3000); },
   onPhase(g, e, ph) {
     if (ph === 2) g.banner('THE ANVIL CRACKS · and the sea comes in', 2800);

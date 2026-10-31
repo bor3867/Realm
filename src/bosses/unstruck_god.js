@@ -66,6 +66,19 @@ function stars(g, e, V) {                           // stars fall where the play
   }
 }
 function wrath(g, e, V) { e.bx.vol.push({ t: 0, V: { form: 'spiral', shot: 'seam', arms: V.arms || 4, dur: 2.2, every: 0.13, turn: 0.21, speed: 4.2, range: 13, dmg: V.dmg || 110 } }); }
+// the wound weeps (2026-10-31: his second phase was the gentlest stretch of the last fight): two streams of molten gold
+// from either side of the wound, bending in toward each other, so they close like a pair of tongs on where you stand.
+// Step out between them early, or through the gap as they cross
+function weep(g, e, V) {
+  for (let w = 0; w < (V.n || 9); w++) e.bx.vol.push({ t: w * 0.11, V: { form: 'special', name: 'tear', w, dmg: V.dmg } });
+}
+function tear(g, e, V) {
+  const [ox, oy] = g.bxOrigin(e), q = players(g)[0] || g.player, a = angleTo(ox, oy, q.x, q.y);
+  for (const s of [-1, 1]) {
+    const b = g.bxShot(e, ox + Math.cos(a + s * Math.PI / 2) * 1.2, oy + Math.sin(a + s * Math.PI / 2) * 1.2, a + s * 0.7, { shot: 'seam', speed: 6.5, range: 15, dmg: V.dmg || 110 });
+    if (b && !b.dead) { b.mv = { curve: 0.75 }; b.cs = -s; }
+  }
+}
 function bleed(g, e, V) {                           // his blood: burning drops, marked, falling near you
   const q = players(g)[Math.floor(R() * players(g).length)] || g.player, a = R() * TAU, d = R() * 3;
   mark(g, e, q.x + Math.cos(a) * d, q.y + Math.sin(a) * d, 1.1, 1.1, V.dmg || 100, RED, 0);
@@ -137,6 +150,8 @@ export default {
       { name: 'wrath', windup: 0.6, recover: 0.6, special: 'wrath', dmg: 110 },
       { name: 'judgement', windup: 0.6, recover: 0.5, special: 'judgement', extra: 3, dmg: 125 },
       { name: 'the crossing seams', windup: 0.6, recover: 0.9, special: 'seams', n: 3, cross: true, dmg: 140 },
+      { name: 'the wound weeps', windup: 0.6, recover: 0.6, special: 'weep', n: 10, dmg: 115 },
+      { name: 'the halo of blades', windup: 0.6, recover: 0.6, special: 'halo', dmg: 118 },
     ] },
     3: { move: 'center', pressure: [{ every: 2.8, special: 'pincer', delay: 2.2, dmg: 105 }, { every: 1.8, special: 'embers', dmg: 110 }, { every: 2.2, special: 'bleed', dmg: 105 }], patterns: [
       { name: 'the sun flares', windup: 1.6, recover: 0.9, tell: 'flareTell', special: 'flare', dmg: 150 },
@@ -147,7 +162,7 @@ export default {
       { name: 'judgement', windup: 0.5, recover: 0.5, special: 'judgement', extra: 3, delay: 1.2, dmg: 130 },
     ] },
   },
-  specials: { judgement, halo, decree, spears, sentence, scorn, seams, stars, wrath, bleed, flareTell, flare, embers, pincer },
+  specials: { judgement, halo, decree, spears, sentence, weep, tear, scorn, seams, stars, wrath, bleed, flareTell, flare, embers, pincer },
   onWake(g) { g.banner('SOLKHAR, THE SUNTHIEF · never once struck, in ten thousand years', 3400); },
   onPhase(g, e, ph) {
     if (ph === 2) g.banner('HE BLEEDS · for the first time, the god bleeds', 3000);

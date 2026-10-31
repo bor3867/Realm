@@ -34,6 +34,17 @@ function crescents(g, e, V) {
 // it reaches for you: a fan of stars at each of you (its one aimed attack; the rest of the dream drifts)
 function reach(g, e, V) { const [ox, oy] = g.bxOrigin(e); for (let w = 0; w < (V.waves || 2); w++) e.bx.vol.push({ t: w * 0.3, V: { form: 'special', name: 'reachFan', w, dmg: V.dmg } }); }
 function reachFan(g, e, V) { const [ox, oy] = g.bxOrigin(e); for (const q of players(g)) { const a = angleTo(ox, oy, q.x, q.y); for (let k = -2; k <= 2; k++) g.bxShot(e, ox, oy, a + k * 0.16 + (V.w % 2) * 0.08, { shot: 'star', speed: 6.5, range: 13, dmg: V.dmg || 100 }); } }
+// (2026-10-31: a five-star boss, the softest of them all by check_boss_pressure; two new attacks of its own)
+// a spiral of dreams: stars wheel out of it in three arms that slowly curl, so the safe lanes bend as they come
+function dreamspiral(g, e, V) { e.bx.vol.push({ t: 0, V: { form: 'spiral', shot: 'star', arms: V.arms || 3, dur: V.dur || 2.4, every: 0.13, turn: 0.2, speed: 3.6, range: 13, dmg: V.dmg || 105 } }); }
+// the nightmare reaches too: while its nightmare-self walks, every reach comes from both of them, so you are caught
+// between two fans and must find the lane that both leave open
+function twinreach(g, e, V) {
+  reach(g, e, V);
+  const n = e.slNight;
+  if (!n || n.dead) return;
+  for (let w = 0; w < (V.waves || 2); w++) g.fvLater(0.15 + w * 0.3, () => { if (n.dead) return; const [ox, oy] = g.up(n.x, n.y, 1); for (const q of players(g)) { const a = angleTo(ox, oy, q.x, q.y); for (let k = -2; k <= 2; k++) g.bxShot(e, ox, oy, a + k * 0.18, { shot: 'moon', speed: 6, range: 13, dmg: V.dmg || 105 }); } });
+}
 // ---- II: the dream turns. It sleeps unhurt; its nightmare-self walks, and blows on it reach the Sleeper
 function dreamshift(g, e, V) {
   if (e.slNight && !e.slNight.dead) { e.slShiftUntil = g.t + (V.dur || 11); return; }
@@ -76,34 +87,37 @@ function flockSheep(g, e, V) {                         // three abreast, so the 
 export default {
   id: 'the_sleeper', art: 'the_sleeper', shotSheet: 'last_shots', name: 'The Sleeper, Who Dreams the Realm', biome: 'dream', hp: 520000, def: 40, xp: 22000,
   // dmgScale was 2.2: every hit took 46% (after every enemy began to hit 1.5x, 2026-10-22: tools/bench_boss_hits.mjs)
-  dmgScale: 1.45, r: 1.7, speed: 1.0, keep: 7, faces: true, tempo: 0.9, finale,
+  dmgScale: 1.8, r: 1.7, speed: 1.0, keep: 7, faces: true, tempo: 0.8, finale,   // (was 1.45 and 0.9: 2026-10-31, a five-star)
   phases: {
-    1: { move: 'pace', pressure: [{ every: 5, special: 'flock', delay: 4, dmg: 110 }], patterns: [
+    1: { move: 'pace', pressure: [{ every: 4.2, special: 'flock', delay: 3.4, dmg: 110 }], patterns: [
       { name: 'counting sheep', windup: 0.6, recover: 0.6, special: 'sheep', rows: 3, n: 7, dmg: 120 },
       { name: 'a lullaby', windup: 0.6, recover: 0.6, special: 'lullaby', waves: 3, dmg: 60 },
       { name: 'blinking stars', windup: 0.6, recover: 0.6, special: 'stars', n: 22, dmg: 100 },
       { name: 'a tide of moons', windup: 0.8, recover: 0.6, special: 'crescents', n: 16, dmg: 115 },
-      { name: 'it reaches for you', windup: 0.5, recover: 0.6, special: 'reach', waves: 2, dmg: 100 },
+      { name: 'it reaches for you', windup: 0.5, recover: 0.6, special: 'reach', waves: 3, dmg: 100 },
+      { name: 'a spiral of dreams', windup: 0.6, recover: 0.6, special: 'dreamspiral', arms: 3, dur: 2.2, dmg: 100 },
     ] },
-    2: { move: 'pace', pressure: [{ every: 4.5, special: 'flock', delay: 3.6, dmg: 110 }], patterns: [
+    2: { move: 'pace', pressure: [{ every: 3.8, special: 'flock', delay: 3, dmg: 110 }], patterns: [
       { name: 'the dream turns', windup: 1.0, recover: 0.5, special: 'dreamshift', dur: 11 },
       { name: 'counting sheep', windup: 0.5, recover: 0.6, special: 'sheep', rows: 3, n: 7, dmg: 120 },
       { name: 'blinking stars', windup: 0.5, recover: 0.6, special: 'stars', n: 24, dmg: 100 },
       { name: 'a tide of moons', windup: 0.6, recover: 0.6, special: 'crescents', n: 18, dmg: 115 },
       { name: 'a lullaby', windup: 0.5, recover: 0.6, special: 'lullaby', waves: 3, dmg: 60 },
-      { name: 'it reaches for you', windup: 0.4, recover: 0.5, special: 'reach', waves: 3, dmg: 105 },
+      { name: 'they reach for you', windup: 0.4, recover: 0.5, special: 'twinreach', waves: 3, dmg: 105 },
+      { name: 'a spiral of dreams', windup: 0.5, recover: 0.5, special: 'dreamspiral', arms: 4, dur: 2.6, dmg: 105 },
     ] },
-    3: { move: 'pace', pressure: [{ every: 4, special: 'flock', delay: 3.2, dmg: 110 }], patterns: [
+    3: { move: 'pace', pressure: [{ every: 3.2, special: 'flock', delay: 2.6, dmg: 110 }], patterns: [
       { name: 'dream logic', windup: 1.0, recover: 0.6, special: 'dreamlogic', dur: 4.5 },
       { name: 'a tide of moons', windup: 0.5, recover: 0.5, special: 'crescents', n: 20, dmg: 118 },
       { name: 'the dream turns', windup: 0.8, recover: 0.5, special: 'dreamshift', dur: 9 },
       { name: 'blinking stars', windup: 0.5, recover: 0.5, special: 'stars', n: 26, dmg: 102 },
       { name: 'counting sheep', windup: 0.5, recover: 0.5, special: 'sheep', rows: 4, n: 8, dmg: 122 },
       { name: 'a lullaby', windup: 0.5, recover: 0.5, special: 'lullaby', waves: 4, dmg: 62 },
-      { name: 'it reaches for you', windup: 0.4, recover: 0.4, special: 'reach', waves: 3, dmg: 110 },
+      { name: 'they reach for you', windup: 0.4, recover: 0.4, special: 'twinreach', waves: 3, dmg: 110 },
+      { name: 'a spiral of dreams', windup: 0.4, recover: 0.5, special: 'dreamspiral', arms: 5, dur: 2.8, dmg: 108 },
     ] },
   },
-  specials: { sheep, sheepRow, lullaby, zzz, stars, crescents, dreamshift, dreamlogic, reach, reachFan, flock, flockSheep },
+  specials: { sheep, sheepRow, lullaby, zzz, stars, crescents, dreamshift, dreamlogic, reach, reachFan, flock, flockSheep, dreamspiral, twinreach },
   onWake(g) { g.banner('THE SLEEPER · it dreams of you. Keep moving: stillness is sleep.', 3200); },
   onPhase(g, e, ph) { if (ph === 2) g.banner('THE DREAM TURNS', 2400); if (ph === 3) g.banner('THE NIGHTMARE WAKES', 2400); },
   update(g, e) { if (e.slShiftUntil > 0 && g.t >= e.slShiftUntil) endShift(g, e); if (e.slNight && e.slNight.dead) { e.slNight = null; e.slShiftUntil = 0; } },
