@@ -1624,6 +1624,6 @@ for (const [id, extra] of Object.entries({
 for (const [id, [life, k]] of Object.entries({ tide_herald: [60000, 1.6], bog_bellringer: [75000, 1.6], rime_herald: [120000, 1.4], gilded_penitent: [160000, 1.1] })) {
   const D = ENEMIES[id];
   if (!D) continue;
-  D.hp = life;
+  D.hp = Math.round(life * 1.25);   // (a quarter more on top, as every realm boss: src/owbosses.js HP_BUFF; and more with each player there)
   for (const a of D.attacks) if (a.dmg) a.dmg = Math.round(a.dmg * k);
 }

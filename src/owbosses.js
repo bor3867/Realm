@@ -15,6 +15,9 @@ import { isSolid } from './world/maps.js';
 // gear a player has in their land (tools/sim_realm_fights.mjs: a plain dodging player, alone, geared for the land):
 // the shore's and the fen's took 11-14 times a T4-T7 player's Life a minute (22-55 deaths); now about what the
 // godlands' bosses ask of godlands gear, 6-7 times
+// and on top, every realm boss and herald a quarter more Life (2026-10-31, the user: "buffs to hp"), and more again for
+// every other player fighting it (PARTY_HP each: the user's call, +50%): see partyHp
+export const HP_BUFF = 1.25, PARTY_HP = 0.5;
 export const OW_BOSSES = {
   brine_cathedral: { life: 65000, hp: 2.2, dmg: 0.75,   // (dmg was 3.0: see below)
   adds: { id: 'brine_pilgrim', n: 3, every: 13, near: 'boss', life: 25 } },
@@ -67,10 +70,27 @@ const methods = {
   owTune(e) {
     const T = OW_BOSSES[e.id];
     if (!T || this.map.kind !== 'realm') return;
-    e.hp = e.maxHp = T.life || Math.round(e.maxHp * T.hp);
+    e.hp = e.maxHp = Math.round((T.life || e.maxHp * T.hp) * HP_BUFF);
     if (!/kraken|treant/.test(e.id)) e.D = { ...e.D, r: e.D.r * 1.4 };           // drawn twice life-size (render.js RB_BIG): a body to match
     e.ow = { T, addT: T.adds ? T.adds.every * 0.6 : 0, adds: [], S: OW_SIGS[e.id] || null, sigT: 2, q: [] };
     (this.owK || (this.owK = {}))[e.D.name] = T.dmg;
+  },
+  // a realm boss or herald grows with the players fighting it (2026-10-31): +50% Life for each beyond the first within 20
+  // tiles, counting the most there were in the last 15 s (so one stepping away doesn't shrink it at once). Its share of
+  // Life left stays as it was: growing never heals it past where it stood, nor moves it across a phase. The server
+  // keeps a shared boss's Life (its copy here only shows it)
+  partyHp() {
+    const who = (this.netTargets || [this.player]).filter((q) => q && !q.dead);
+    for (const e of this.enemies) {
+      if (e.dead || e.net || !(e.rb || e.herald)) continue;
+      const P = (e.party = e.party || { base: e.maxHp, k: 1, n: 1, at: 0 });
+      const n = Math.max(1, who.filter((q) => (q.x - e.x) ** 2 + (q.y - e.y) ** 2 < 400).length);
+      if (n >= P.n) { P.n = n; P.at = this.t; } else if (this.t - P.at > 15) { P.n = n; P.at = this.t; }
+      const k = 1 + PARTY_HP * (P.n - 1);
+      if (k === P.k) continue;
+      const f = e.maxHp > 0 ? e.hp / e.maxHp : 1;
+      e.maxHp = Math.round(P.base * k); e.hp = Math.max(1, Math.round(e.maxHp * f)); P.k = k;
+    }
   },
   // a blow lands on you: a boss's (or its adds') is harder
   owDmg(dmg, by) { const K = this.owK && typeof by === 'string' && this.owK[by]; return K ? Math.round(dmg * K) : dmg; },
@@ -104,6 +124,7 @@ const methods = {
       if ((p.owBurn.acc += dt) >= 0.5) { p.owBurn.acc -= 0.5; this.hurtPlayer(Math.round(p.owBurn.dps * 0.5), p.owBurn.by, true); }
     }
     if (this.map.kind !== 'realm') return;
+    this.partyHp();
     for (const e of this.enemies) {
       if (!e.ow) continue;
       const W = e.ow, A = W.T.adds;
