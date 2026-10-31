@@ -1081,3 +1081,9 @@ body #overlay .screen.settings select { width: 172px; }
    hold a whole name, and words kept whole */
 @media (max-width: 760px) { body #overlay .classes.pick { width: 100%; box-sizing: border-box; grid-template-columns: repeat(auto-fill, minmax(134px, 1fr)); } }
 body #overlay .classes.pick .cls h3, body #overlay .classes.pick .cls p { overflow-wrap: normal; word-break: normal; }
+/* the shop in a narrow window: buy above sell (its own narrow rule came before the two-column one and lost to it) */
+@media (max-width: 700px) { body #overlay .shop .cols { grid-template-columns: 1fr; } }
+/* a shop or forge row in a narrow window: the item's name and kinds keep the line, its buttons wrap below them */
+@media (max-width: 700px) { body #overlay .screen .ware { flex-wrap: wrap; } body #overlay .screen .ware .wn { flex: 1 1 210px; min-width: 0; } }
+/* a small button beside a big one sits on the same middle line (the Hall of Legends' "Clear my deaths" rode high) */
+body #overlay .btn { vertical-align: middle; }
