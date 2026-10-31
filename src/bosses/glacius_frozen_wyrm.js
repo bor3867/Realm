@@ -12,15 +12,15 @@ const centre = (e) => { const A = e.bx.arena; return A ? [A.x + A.w / 2, A.y + A
 function sweepTell(g, e) { e.bx.sweepDir = e.bx.sweepDir === 1 ? -1 : 1; e.face = e.bx.sweepDir > 0; }
 // frost breath: three puffs every 0.06 s while the head swings 130 degrees
 function sweep(g, e, V) {
-  const S = e.bx, p = g.player, [ox, oy] = g.bxOrigin(e), mid = angleTo(ox, oy, p.x, p.y), arc = 2.27, steps = 22, dir = S.sweepDir || 1;
+  const S = e.bx, p = g.player, [ox, oy] = V.at || g.bxOrigin(e), mid = angleTo(ox, oy, p.x, p.y), arc = 2.27, steps = 22, dir = V.dir || S.sweepDir || 1;
   for (let k = 0; k < steps; k++) {
     const a = mid - dir * (arc / 2) + dir * (arc * k) / (steps - 1);
-    S.vol.push({ t: k * 0.06, V: { form: 'fan', shot: 'frost_breath', count: 3, spread: 0.18, angle: a, speed: 6.5, range: 15, dmg: V.dmg || 100, chill: 12 } });
+    S.vol.push({ t: k * 0.06, V: { form: 'fan', shot: 'frost_breath', count: 3, spread: 0.18, angle: a, speed: 6.5, range: 15, dmg: V.dmg || 100, chill: 12, ...(V.at ? { from: () => V.at } : {}) } });
   }
 }
 // ice lances: three lines of five; where each line stops, the ground freezes for a while
 function lances(g, e, V) {
-  const p = g.player, [ox, oy] = g.bxOrigin(e), aim = angleTo(ox, oy, p.x, p.y);
+  const p = g.player, [ox, oy] = V.at || g.bxOrigin(e), aim = angleTo(ox, oy, p.x, p.y);
   for (const off of [-0.35, 0, 0.35]) {
     const a = aim + off;
     for (let j = 0; j < 5; j++) g.bxShot(e, ox, oy, a, { shot: 'ice_lance', speed: 9 + j * 0.9, range: 15, dmg: V.dmg || 110 });   // (across the lake: 9 left its far shore safe)
@@ -29,6 +29,40 @@ function lances(g, e, V) {
     g.fvLater(L / 13, () => g.fvFreeze(ox + Math.cos(a) * L, oy + Math.sin(a) * L, 1, 6));
   }
 }
+// THE REFLECTION (2026-10-31, the user: Glacius should be "more interesting"). Under the lake's ice its reflection
+// lies behind you, on the far side of you from the wyrm, and copies it a beat late: the ice lights up where it stirs,
+// then it throws the same attack from there. So every copied attack comes at you from both sides, and running from the
+// wyrm only runs you onto its reflection (the far rim, out of the wyrm's reach, was a place to stand and wait)
+function reflection(g, e) {
+  const [cx, cy] = centre(e), p = g.player, d = Math.hypot(p.x - e.x, p.y - e.y) || 1;
+  let x = p.x + ((p.x - e.x) / d) * 6, y = p.y + ((p.y - e.y) / d) * 6;
+  const r = Math.hypot(x - cx, y - cy);
+  if (r > 10) { x = cx + ((x - cx) / r) * 10; y = cy + ((y - cy) / r) * 10; }       // (under the ice: never past the lake)
+  if (Math.hypot(x - p.x, y - p.y) < 4) { const c = Math.hypot(cx - p.x, cy - p.y) || 1; x = p.x + ((cx - p.x) / c) * 6; y = p.y + ((cy - p.y) / c) * 6; }   // (backed onto the rim: it rises before you instead, never on top of you)
+  return [x, y];
+}
+function stir(g, x, y) {
+  g.fx.push({ kind: 'ring', x, y, t: 0, max: 2.4, color: '#bff4ff' });
+  g.vx({ k: 'burst', x, y, n: 20, colors: ['#bff4ff', '#ffffff', '#5ab4ff'] });
+}
+function mirrored(g, e, fn, V, extra) {
+  fn(g, e, V);
+  const at = reflection(g, e);
+  stir(g, ...at);
+  if (!e.bx.reflSeen) { e.bx.reflSeen = true; g.banner('Its reflection stirs under the ice...', 1800); }
+  g.fvLater(0.6, () => { if (!e.dead) { stir(g, ...at); fn(g, e, { ...V, ...extra, at }); } });
+}
+// and if you keep away from the wyrm (past 9 tiles), its reflection keeps near you: a fan of lances from under the ice at your back
+function farReach(g, e, V) {
+  const p = g.player;
+  if (Math.hypot(p.x - e.x, p.y - e.y) < 9) return;
+  const at = reflection(g, e);
+  stir(g, ...at);
+  g.fvLater(0.7, () => { if (e.dead) return; const a = angleTo(at[0], at[1], g.player.x, g.player.y); for (let k = -3; k <= 3; k++) g.bxShot(e, at[0], at[1], a + k * 0.15, { shot: 'ice_lance', speed: 8, range: 14, dmg: V.dmg || 85 }); });
+}
+function mirrorLances(g, e, V) { mirrored(g, e, lances, V, { dmg: Math.round((V.dmg || 80) * 0.75) }); }   // (softer: its first phase stays gentle for three stars)
+function mirrorBreath(g, e, V) { mirrored(g, e, sweep, V, { dir: -(e.bx.sweepDir || 1) }); }     // (it sweeps the other way)
+function mirrorNova(g, e, V) { mirrored(g, e, nova, V); }
 // blizzard orbs: they drift after you, then burst into puffs of frost
 function orbs(g, e, V) {
   const p = g.player, [ox, oy] = g.bxOrigin(e), aim = angleTo(ox, oy, p.x, p.y);
@@ -113,10 +147,10 @@ function glide(g, e) {
 function nova(g, e, V) {
   const S = e.bx, n = 26, g0 = Math.floor(R() * n);
   S.novaRot = (S.novaRot || 0) + 0.2;
-  for (let k = 0; k < 3; k++) S.vol.push({ t: k * 0.4, V: { form: 'special', name: 'novaRing', gap: (g0 + k * 3) % n, n, dmg: V.dmg || 115 } });
+  for (let k = 0; k < 3; k++) S.vol.push({ t: k * 0.4, V: { form: 'special', name: 'novaRing', gap: (g0 + k * 3) % n, n, dmg: V.dmg || 115, at: V.at } });
 }
 function novaRing(g, e, V) {
-  const [ox, oy] = g.bxOrigin(e);
+  const [ox, oy] = V.at || g.bxOrigin(e);
   for (let k = 0; k < V.n; k++) {
     if ((k - V.gap + V.n) % V.n < 2) continue;
     g.bxShot(e, ox, oy, e.bx.novaRot + (k / V.n) * TAU, { shot: 'core_nova', speed: 4.2, range: 16, dmg: V.dmg });
@@ -165,26 +199,27 @@ export default {
     // characters" in a 3-star dungeon. It dealt 531 a second to a tier-9 character standing still, against about 320 for
     // the Count, its peer. The rime less often, every blow a little softer, more time to read each one. Phases 2 and 3
     // are as they were)
-    1: { move: 'hold', pressure: [{ every: 3.6, special: 'rimeCrawl', delay: 1.7, dmg: 75 }], patterns: [
+    1: { move: 'hold', pressure: [{ every: 3.6, special: 'rimeCrawl', delay: 1.7, dmg: 75 }, { every: 1.8, special: 'farReach', dmg: 60 }], patterns: [
       { name: 'frost breath', windup: 1.0, recover: 0.8, tell: 'sweepTell', special: 'sweep', dmg: 80 },
       { name: 'ice lances', windup: 0.8, recover: 0.7, special: 'lances', dmg: 80 },
       { name: 'glacier maze', windup: 0.9, recover: 1.0, special: 'maze', dmg: 80 },
-      { name: 'ice lances', windup: 0.7, recover: 0.7, special: 'lances', dmg: 80 },
+      { name: 'the reflection throws', windup: 0.8, recover: 1.0, special: 'mirrorLances', dmg: 80 },
     ] },
     2: { move: 'circle', pressure: [{ every: 0.6, special: 'frostWake', dmg: 95 }], patterns: [
       { name: 'blizzard orbs', windup: 0.6, recover: 0.5, special: 'orbs', dmg: 105 },
       { name: 'wing beat', windup: 0.7, recover: 0.6, special: 'wingbeat', dmg: 100 },
       { name: 'glide', windup: 0.5, recover: 1.4, special: 'glide', move: 'glide' },
       { name: 'frost breath', windup: 0.7, recover: 0.5, tell: 'sweepTell', special: 'sweep', dmg: 100 },
+      { name: 'the reflection breathes', windup: 0.8, recover: 0.9, tell: 'sweepTell', special: 'mirrorBreath', dmg: 100 },
     ] },
-    3: { move: 'hold', pressure: [{ every: 1.5, special: 'heartShards', dmg: 110 }, { every: 3.4, special: 'permafrost', delay: 2, dmg: 100 }], patterns: [
-      { name: 'core nova', windup: 0.7, recover: 0.6, special: 'nova', dmg: 115 },
+    3: { move: 'hold', pressure: [{ every: 1.5, special: 'heartShards', dmg: 110 }, { every: 3.4, special: 'permafrost', delay: 2, dmg: 100 }, { every: 1.8, special: 'farReach', dmg: 85 }], patterns: [
+      { name: 'two hearts', windup: 0.8, recover: 0.9, special: 'mirrorNova', dmg: 112 },
       { name: 'aurora', windup: 0.7, recover: 0.5, special: 'aurora', dmg: 110 },
       { name: 'glacier maze', windup: 0.6, recover: 0.6, special: 'maze', dmg: 105 },
       { name: 'snuff', windup: 0.6, recover: 0.3, special: 'snuff' },
     ] },
   },
-  specials: { sweepTell, sweep, lances, orbs, wingbeat, beat, glide, nova, novaRing, aurora, snuff, rimeCrawl, maze, mazeRow, frostWake, heartShards, permafrost },
+  specials: { sweepTell, sweep, lances, farReach, mirrorLances, mirrorBreath, mirrorNova, orbs, wingbeat, beat, glide, nova, novaRing, aurora, snuff, rimeCrawl, maze, mazeRow, frostWake, heartShards, permafrost },
   moves: {
     circle(g, e, dt) {                              // it circles the lake, above the rim
       const [cx, cy] = centre(e), S = e.bx;

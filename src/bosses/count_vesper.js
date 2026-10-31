@@ -56,6 +56,31 @@ function novaRing(g, e, V) {
   for (let k = 0; k < n; k++) { const a = (k / n) * TAU; if (Math.abs(Math.atan2(Math.sin(a - V.gapA), Math.cos(a - V.gapA))) < 0.4) continue; g.bxShot(e, ox, oy, a, { shot: 'sanguine_nova', speed: 4.4, range: 18, dmg: V.dmg }); }
 }
 
+// (2026-10-31, the user: Count Vesper should be "more interesting")
+// THE CRIMSON WALTZ: two rings of blood bolts blink into the air round you and hang; the inner one closes first, then
+// the outer, each with its own gap a half-turn apart: step through one gap, then turn and find the other, like a dance
+function waltz(g, e, V) {
+  const p = g.player, n = 16, g0 = Math.floor(R() * n);
+  [[4.2, 0.9, g0], [6.4, 1.6, (g0 + n / 2) % n]].forEach(([r, hold, gap]) => {
+    for (let k = 0; k < n; k++) {
+      if ((k - gap + n) % n < 3) continue;
+      const a = (k / n) * TAU, x = p.x + Math.cos(a) * r, y = p.y + Math.sin(a) * r;
+      g.bxShot(e, x, y, a + Math.PI, { shot: 'blood_bolt', speed: 4.6, range: r * 2, dmg: V.dmg || 100, mv: { hold } });
+    }
+  });
+  g.banner('THE CRIMSON WALTZ', 1200);
+}
+// THE FINAL TOAST (III): he raises his glass to the pools he has made, and one by one, in the order they were spilt, each
+// pool throws a fan at you: the order is the tell. With no pools yet, his own nova answers
+function toast(g, e, V) {
+  const pools = (e.bx.pools || []).slice(-6);
+  if (!pools.length) { nova(g, e, V); return; }
+  g.banner('A TOAST · to the blood spilt here', 1400);
+  pools.forEach((P, i) => {
+    g.fvLater(0.3 + i * 0.35, () => g.vx({ k: 'burst', x: P.x, y: P.y, n: 14, colors: ['#ff3a4a', '#ffd0d8'] }));
+    g.fvLater(0.75 + i * 0.35, () => { if (e.dead) return; const p = g.player, a = angleTo(P.x, P.y, p.x, p.y); for (const off of [-0.3, -0.1, 0.1, 0.3]) g.bxShot(e, P.x, P.y, a + off, { shot: 'blood_bolt', speed: 6.5, range: 16, dmg: V.dmg || 105 }); });
+  });
+}
 // pillar bats (P1 pressure): a bat or two leaves the pillars down the hall's sides and flies at you
 function pillarBats(g, e, V) {
   const [cx, cy] = centre(e), p = g.player, A = e.bx.arena;
@@ -83,7 +108,7 @@ export default {
       { name: 'blood bolts', windup: 0.6, recover: 0.6, special: 'bolts', n: 2, dmg: 100 },
       { name: 'hedge of thorns', windup: 0.7, recover: 0.8, special: 'hedge', dmg: 105 },
       { name: 'blood bolts', windup: 0.5, recover: 0.6, special: 'bolts', n: 2, dmg: 100 },
-      { name: 'hedge of thorns', windup: 0.6, recover: 0.7, special: 'hedge', dmg: 105 },
+      { name: 'the crimson waltz', windup: 0.7, recover: 1.2, special: 'waltz', dmg: 100 },
       { name: 'the kneeling thralls', windup: 0.6, recover: 0.4, special: 'kneel' },
     ] },
     2: { move: 'batdash', patterns: [
@@ -97,9 +122,11 @@ export default {
       { name: 'sanguine nova', windup: 0.7, recover: 0.5, special: 'nova', dmg: 110 },
       { name: 'blood bolts', windup: 0.5, recover: 0.4, special: 'bolts', n: 3, dmg: 105 },
       { name: 'scythes', windup: 0.6, recover: 0.6, special: 'scythes', dmg: 115 },
+      { name: 'a toast', windup: 0.8, recover: 0.8, special: 'toast', dmg: 105 },
+      { name: 'the crimson waltz', windup: 0.6, recover: 1.0, special: 'waltz', dmg: 105 },
     ] },
   },
-  specials: { bolts, boltVolley, hedge, kneel, bats, batFan, scythes, rain, nova, novaRing, pillarBats, poolsBoil },
+  specials: { waltz, toast, bolts, boltVolley, hedge, kneel, bats, batFan, scythes, rain, nova, novaRing, pillarBats, poolsBoil },
   moves: {
     promenade(g, e, dt) {                           // he paces before the throne
       const [cx] = centre(e), A = e.bx.arena, S = e.bx, y = A ? A.y + 8 : e.y;
@@ -116,6 +143,7 @@ export default {
           if (Math.hypot(x - cx, y - cy) < 16) { S.dashTo = { x, y }; break; }
         }
         S.dashCd = 2.2;
+        if (S.dashTo) (S.ghosts = S.ghosts || []).push({ x: e.x, y: e.y, at: g.t + 0.9 });   // the afterimage he leaves stays, and bursts
       }
       if (S.dashTo) {
         (S.trail = S.trail || []).push({ x: e.x, y: e.y, t: g.t });
@@ -131,6 +159,12 @@ export default {
       for (const t of S.kneelers) if (!t.dead) { e.hp = Math.min(e.maxHp * (S.phase === 1 ? 1 : 0.66), e.hp + e.maxHp * 0.01); g.vx({ k: 'heal', ...liftA(t.x, t.y, 0.6), x1: e.x, y1: e.y - e.hitUp }); }
     }
     if (S.trail) S.trail = S.trail.filter((q) => g.t - q.t < 0.35);
+    for (const Q of S.ghosts || []) if (!Q.done && g.t >= Q.at) {   // an afterimage bursts: a ring of bolts, one gap toward him
+      Q.done = true; const gapA = angleTo(Q.x, Q.y, e.x, e.y);
+      for (let k = 0; k < 10; k++) { const a = gapA + 0.5 + (k / 10) * (TAU - 1); g.bxShot(e, ...g.up(Q.x, Q.y, 1), a, { shot: 'bat_swarm', speed: 4.6, range: 9, dmg: 95 }); }
+      g.vx({ k: 'burst', x: Q.x, y: Q.y - 1, n: 16, colors: ['#ff3a4a', '#2a0a14'] });
+    }
+    if (S.ghosts) S.ghosts = S.ghosts.filter((Q) => !Q.done);
     for (const P of S.rain || []) {                  // the rain falls on its patch, then leaves a pool
       if (g.t < P.at) continue;
       if (g.t < P.until) {
@@ -157,6 +191,10 @@ export default {
       const c = [r.proj(P.x - 1, P.y - 1), r.proj(P.x + 2, P.y - 1), r.proj(P.x + 2, P.y + 2), r.proj(P.x - 1, P.y + 2)];
       b.beginPath(); b.moveTo(c[0][0], c[0][1]); for (const q of c.slice(1)) b.lineTo(q[0], q[1]); b.closePath(); b.fill();
       b.globalAlpha = 1; void x; void y;
+    }
+    if (S.ghosts && S.def) for (const Q of S.ghosts) {   // the afterimages that will burst: they pulse as they wait
+      const [x, y] = r.proj(Q.x, Q.y);
+      r.drawDef(S.def, S.anim ? S.anim.frame : Object.keys(S.def.frames)[0], Math.round(x), Math.round(y), { alpha: 0.25 + 0.2 * Math.sin(g.t * 18), flip: !!e.face });
     }
     if (S.trail && S.def) {                          // the dash's afterimage
       for (const q of S.trail) {
