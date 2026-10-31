@@ -8,15 +8,20 @@ import { R, TAU } from './util.js';
 import { isSolid } from './world/maps.js';
 
 //            Life x   damage x   adds: who, how many, how often (s), where (near you or the boss), how long they stay
+// life: its Life outright (2026-10-31, the user: the best weapons do about 2,500 a second and "many bosses currently have
+// too little HP"; targets: a large realm boss 200-350k, a random special boss 350-600k). By its land, the shore's least
+// and the godlands' most; the two event bosses and the falling star are the random special ones
 export const OW_BOSSES = {
-  brine_cathedral: { hp: 2.2, dmg: 3.0, adds: { id: 'brine_pilgrim', n: 3, every: 13, near: 'boss', life: 25 } },
-  abyssal_kraken: { hp: 2.0, dmg: 2.2, adds: { id: 'kraken_tentacle', n: 3, every: 8, near: 'you', life: 11 } },
-  wick_mother: { hp: 1.7, dmg: 2.0, adds: { id: 'candle_mite', n: 4, every: 11, near: 'boss', life: 25 } },
-  thornheart_treant: { hp: 3.0, dmg: 2.6, adds: { id: 'thorn_sprite', n: 3, every: 11, near: 'boss', life: 25 } },
-  orrery_of_winter: { hp: 1.6, dmg: 2.8, adds: { id: 'frost_wraith', n: 2, every: 13, near: 'boss', life: 25 } },
-  emily_the_yapper: { hp: 1.6, dmg: 2.6, adds: { id: 'emily_chick', n: 4, every: 10, near: 'boss', life: 25 } },
-  penitent_colossus: { hp: 1.3, dmg: 1.0, adds: null },   // (already the hardest by the dodging bot: Life only)
-  the_fallen_star: { hp: 1.1, dmg: 1.3, adds: { id: 'rift_wraith', n: 2, every: 14, near: 'boss', life: 25 } },
+  brine_cathedral: { life: 200000, hp: 2.2, dmg: 3.0, adds: { id: 'brine_pilgrim', n: 3, every: 13, near: 'boss', life: 25 } },
+  abyssal_kraken: { life: 380000, hp: 2.0, dmg: 2.6, adds: { id: 'kraken_tentacle', n: 3, every: 8, near: 'you', life: 11 } },
+  wick_mother: { life: 220000, hp: 1.7, dmg: 2.0, adds: { id: 'candle_mite', n: 4, every: 11, near: 'boss', life: 25 } },
+  thornheart_treant: { life: 420000, hp: 3.0, dmg: 2.6, adds: { id: 'thorn_sprite', n: 3, every: 11, near: 'boss', life: 25 } },
+  orrery_of_winter: { life: 260000, hp: 1.6, dmg: 2.3,   // (its blows were a median 189, over the 100-150 a large boss's should be)
+  adds: { id: 'frost_wraith', n: 2, every: 13, near: 'boss', life: 25 } },
+  emily_the_yapper: { life: 280000, hp: 1.6, dmg: 2.3,   // (her biggest took 379)
+  adds: { id: 'emily_chick', n: 4, every: 10, near: 'boss', life: 25 } },
+  penitent_colossus: { life: 340000, hp: 1.3, dmg: 1.0, adds: null },   // (already the hardest by the dodging bot: Life only)
+  the_fallen_star: { life: 500000, hp: 1.1, dmg: 1.3, adds: { id: 'rift_wraith', n: 2, every: 14, near: 'boss', life: 25 } },
 };
 
 // Round two (2026-10-19, "every boss should have these things that make sense"): each boss's signature threat, a
@@ -57,7 +62,7 @@ const methods = {
   owTune(e) {
     const T = OW_BOSSES[e.id];
     if (!T || this.map.kind !== 'realm') return;
-    e.hp = e.maxHp = Math.round(e.maxHp * T.hp);
+    e.hp = e.maxHp = T.life || Math.round(e.maxHp * T.hp);
     if (!/kraken|treant/.test(e.id)) e.D = { ...e.D, r: e.D.r * 1.4 };           // drawn twice life-size (render.js RB_BIG): a body to match
     e.ow = { T, addT: T.adds ? T.adds.every * 0.6 : 0, adds: [], S: OW_SIGS[e.id] || null, sigT: 2, q: [] };
     (this.owK || (this.owK = {}))[e.D.name] = T.dmg;
@@ -66,7 +71,7 @@ const methods = {
   owDmg(dmg, by) { const K = this.owK && typeof by === 'string' && this.owK[by]; return K ? Math.round(dmg * K) : dmg; },
   // a signature volley: one wave of it from the boss
   owVolley(e, V, w) {
-    const p = this.player, [ox, oy] = this.up(e.x, e.y, e.D.bx ? 1.2 : 1.4), aim = Math.atan2(p.y - oy, p.x - ox), n = V.count, sz = V.size || 0.4;
+    const p = this.player, [ox, oy] = this.up(e.x, e.y, this.shotUp(e)), aim = Math.atan2(p.y - oy, p.x - ox), n = V.count, sz = V.size || 0.4;
     for (let k = 0; k < n; k++) {
       const a = V.form === 'ring' ? (k / n) * TAU + (V.turn || 0) * w : aim + (n > 1 ? (k / (n - 1) - 0.5) * V.arc : 0);
       const b = this.shoot('e', ox, oy, a, V.speed, V.range || 10, V.dmg, V.proj, sz, false, e.D.name);

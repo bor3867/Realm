@@ -823,6 +823,17 @@ const RF_SEEK = { bogseer: { homing: 2.4 }, orbitbow: { homing: 3.2, homingR: 3 
 // a third of a tile out), a wave (one shot swaying, 3.25 tiles from crest to crest), or a spread (shots side by side,
 // a fifth of a tile apart, opening a little as they fly)
 function rfPath(W, motion, type) {
+  // the tiered families' reach (2026-10-31, the user: "Bow shots currently have incorrect range"): bows flew 5 tiles, short of
+  // every special bow (6-9) and of the wand they should match; daggers and wands also fell short of their own relics.
+  // RotMG's order: sword < dagger < bow < wand < staff. The time a shot flies stays about the same (faster shots)
+  if (type === 'bow') { W.range = 6.6; W.speed = 16; }
+  // and their weight (tools/bench_weapons.mjs, one target at mid stats): a bow's three arrows all land on one target up
+  // close, so it out-hit a sword (127%); a wand's single bolt lagged every family (76%). A bow is for crowds and lines,
+  // a wand for one target far away
+  if (type === 'bow') W.dmg = W.dmg.map((d) => Math.round(d * 0.8));
+  if (type === 'wand') W.dmg = W.dmg.map((d) => Math.round(d * 1.25));
+  if (type === 'dagger') { W.range = 4.2; W.speed = 16; }
+  if (type === 'wand') { W.range = 7.2; W.speed = 19; }
   if (type === 'staff') { W.speed = Math.round(W.speed * 1.35 * 10) / 10; W.shotK = 0.5; }   // staves: smaller, faster bolts (the user's call, 2026-10-19)
   if (motion === 'helix') { W.special = { ...(W.special || {}), weave: { amp: 0.33, lam: 3.5 } }; W.arc = 0; W.count = Math.max(2, W.count || 2); }
   if (motion === 'wave') W.special = { ...(W.special || {}), weave: { amp: 0.26, lam: 3.25 } };
@@ -1419,6 +1430,9 @@ applyDungeonItems(ITEMS);
 applyWeaponRework(ITEMS);
 applyAbilityRework(ITEMS);
 applyGearRework(ITEMS);
+// arrows drawn at 0.7 (2026-10-31, the user: "Bow projectiles are currently far too large"): a bow's arrow art spans its
+// whole 8x8 cell, so at full size each of a volley's three arrows was a tile long. Its own drawn shots (Armory) are left be
+for (const it of Object.values(ITEMS)) if (it.type === 'bow' && it.weapon && !it.weapon.shotK && String(it.weapon.proj || '').includes('/')) it.weapon = { ...it.weapon, shotK: 0.7 };
 
 // tiered abilities carry stats that fit the class they are made for, rising with the tier, and from T3 a little Life
 // (or Mana, for the casters) on top (the user's call, 2026-10-19)

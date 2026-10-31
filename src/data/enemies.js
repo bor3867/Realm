@@ -1618,3 +1618,12 @@ for (const [id, extra] of Object.entries({
   for (const a of D.attacks) if (a.pattern === 'radial') a.count += id === 'rime_herald' ? 2 : 4;   // (the Rime Herald's ring splits each shot in four: two more is plenty)
   D.attacks.push(extra);
 }
+// ---- the heralds rebalanced (2026-10-31, the user's targets: a small boss 60-100k Life and blows of 60-95, an elite small
+// boss 100-175k and 75-115). By land: the Tide Herald and the Bog Bellringer are small, the Rime Herald and the Gilded
+// Penitent elite. Their blows were a median of 39-89 (tools/measure_realm_bosses.mjs)
+for (const [id, [life, k]] of Object.entries({ tide_herald: [60000, 1.6], bog_bellringer: [75000, 1.6], rime_herald: [120000, 1.4], gilded_penitent: [160000, 1.1] })) {
+  const D = ENEMIES[id];
+  if (!D) continue;
+  D.hp = life;
+  for (const a of D.attacks) if (a.dmg) a.dmg = Math.round(a.dmg * k);
+}
