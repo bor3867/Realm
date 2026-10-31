@@ -1,7 +1,8 @@
 """The classes as classic RotMG 8x8 sprites, every one on the same egg-shaped body (2026-10-31).
 
 The user's rule, strict: one compact, rounded, egg-like body for every class, from RotMG's own (their Rogue, Archer and
-Priest): a cap, a head, the widest middle, a rounded bottom, two one-pixel legs; or, for the robed classes, the same
+Priest), to the user's exact rows: a 3-pixel cap, three 5-pixel rows, two 7-pixel rows (the arms), one 5-pixel row,
+and a one-pixel leg under each end of it; or, for the robed classes, the same
 body in a robe that keeps its width to the ground. Classes differ only in the colours and what they wear, never in
 shape. So the bodies are fixed masks (TEMPLATES), and a class is a list of colours that fill one, row by row (it cannot
 draw outside it: build() checks every frame against the mask).
@@ -22,17 +23,17 @@ from pixlib import hex_rgba, write_png
 ROOT = os.path.join(os.path.dirname(__file__), '..', 'art', 'sprites', 'player')
 SKIN = {'s': '#F7E26B', 'e': '#0C0C0C'}            # RotMG's own: a pale yellow face, two pure black eyes
 
-# ---- the two bodies (2026-10-31, the user: the body a pixel taller, legs one pixel each, and "some classes get a robe that
-# extends outward and covers the bottom"). '#' is body. Rows 0-6 the solid egg: a cap of 3, the head (5, 5: the eyes in
-# row 2), the body (7, 7, 7), a rounded bottom of 5; row 7 two one-pixel legs. The robe: the same, but from the body down
-# it keeps its full width to the ground and hides the legs. Every class is one of these, unchanged
+# ---- the two bodies, to the user's exact spec (2026-10-31): a 3-pixel cap; three 5-pixel rows (the head); two
+# 7-pixel rows (the arms, and the hand that holds the weapon); one 5-pixel row; then the legs, one pixel at each end of
+# that last row. The robe: the same down to the arms, then 7 wide to the ground over the legs. '#' is body. Weapons and
+# shields are layers of their own and may take pixels outside it
 TEMPLATES = {
-    'body': ['..###...', '.#####..', '.#####..', '#######.', '#######.', '#######.', '.#####..', '..#.#...'],
-    'robe': ['..###...', '.#####..', '.#####..', '#######.', '#######.', '#######.', '#######.', '#######.'],
+    'body': ['..###...', '.#####..', '.#####..', '.#####..', '#######.', '#######.', '.#####..', '.#...#..'],
+    'robe': ['..###...', '.#####..', '.#####..', '.#####..', '#######.', '#######.', '#######.', '#######.'],
 }
 SPANS = {k: [[x for x in range(8) if r[x] == '#'] for r in T] for k, T in TEMPLATES.items()}
 # walking moves only the bottom row: a leg lifted in turn; a robe's hem sways, one edge then the other
-STEP = {'body': [[2, 4], [4], [2]], 'robe': [list(range(7)), list(range(1, 7)), list(range(6))]}
+STEP = {'body': [[1, 5], [5], [1]], 'robe': [list(range(7)), list(range(1, 7)), list(range(6))]}
 
 # ---- the weapon layer, by family. Letters: w the blade / shaft / limb, W the tip, edge or gem, h the grip.
 # Idle and front/back attack: an 8x8 overlay. Side attack: two 16x8 overlays, the hand at column 7, the weapon ahead.
@@ -71,65 +72,65 @@ WEAPON = {
 }
 
 # ---- the classes: their body ('body' or 'robe') and the colours that fill it, row by row, for the front (F), side
-# facing right (S) and back (B). Eight strings, one a row, as long as that row of the template (3, 5, 5, 7, 7, 7, then
+# facing right (S) and back (B). Eight strings, one a row, as long as that row of the template (3, 5, 5, 5, 7, 7, then
 # 5 and the two legs, or 7 and the 7-wide hem). Front: the eyes in row 2, columns 2 and 4. pal: the colours, and
 # w/W/h_ the weapon's
 C = {}
 C['brawler'] = dict(file='forgefist', shape='body', weapon='sword', pal={'h': '#7A4A2A', 'r': '#DB0416', 'k': '#D8C050', 'b': '#7A4A2A', 'B': '#3A2414', 'l': '#3A2414',
                                                           'w': '#B9B9B9', 'W': '#FFFFFF', 'h_': '#A29446'},
-    F=['hhh', 'rrrrr', 'seses', 'sskkkss', 'sssssss', 'sBBBBBs', 'bbbbb', 'll'],
-    S=['hhh', 'rrrrr', 'hhses', 'rssssss', 'sssssss', 'sBBBBBs', 'bbbbb', 'll'],
-    B=['hhh', 'rrrrr', 'hhhhh', 'srrssss', 'sssssss', 'sBBBBBs', 'bbbbb', 'll'])
+    F=['hhh', 'rrrrr', 'seses', 'sssss', 'sskkkss', 'sBBBBBs', 'bbbbb', 'll'],
+    S=['hhh', 'rrrrr', 'hhses', 'hssss', 'rssssss', 'sBBBBBs', 'bbbbb', 'll'],
+    B=['hhh', 'rrrrr', 'hhhhh', 'hhhhh', 'ssrssss', 'sBBBBBs', 'bbbbb', 'll'])
 C['forge_knight'] = dict(file='anvilheart', shape='body', weapon='sword', pal={'i': '#C8D2E4', 'I': '#7A86A0', 'k': '#0C0C0C', 'r': '#DB0416', 'd': '#F2C14E', 'l': '#3A3E50',
                                                                  'w': '#DDDDDD', 'W': '#FFFFFF', 'h_': '#C98A22'},
-    F=['iii', 'iiiii', 'ikkki', 'iirrrii', 'irrdrri', 'irrrrri', 'IrrrI', 'll'],
-    S=['iii', 'iiiii', 'iiikk', 'iiirrii', 'iirdrri', 'iirrrri', 'IIrrI', 'll'],
-    B=['iii', 'iiiii', 'iiiii', 'iiIIIii', 'iIIIIIi', 'iIIIIIi', 'IiiiI', 'll'])
+    F=['iii', 'iiiii', 'ikkki', 'iiiii', 'irrdrri', 'irrrrri', 'IrrrI', 'll'],
+    S=['iii', 'iiiii', 'iiikk', 'iiiii', 'iirdrri', 'iirrrri', 'IIrrI', 'll'],
+    B=['iii', 'iiiii', 'iiiii', 'iiiii', 'iIIIIIi', 'iIIIIIi', 'IiiiI', 'll'])
 C['priest'] = dict(file='heliarch', shape='robe', weapon='wand', pal={'y': '#F2C14E', 'f': '#F4F4F4', 'F': '#DDDDDD', 'o': '#E07A20', 'l': '#B8B8B8',
                                                        'w': '#8A5A2A', 'W': '#4AA8F0', 'h_': '#8A5A2A'},
-    F=['fff', 'yyyyy', 'seses', 'fffffff', 'yooooof', 'fffffff', 'fffffff', 'FFFFFFF'],
-    S=['fff', 'yyyyy', 'ffses', 'fffffff', 'foooooy', 'fffffff', 'fffffff', 'FFFFFFF'],
-    B=['fff', 'yyyyy', 'fffff', 'fffffff', 'yooooof', 'fffffff', 'fffffff', 'FFFFFFF'])
+    F=['fff', 'yyyyy', 'seses', 'sssss', 'fffffff', 'yooooof', 'fffffff', 'FFFFFFF'],
+    S=['fff', 'yyyyy', 'ffses', 'fffss', 'fffffff', 'foooooy', 'fffffff', 'FFFFFFF'],
+    B=['fff', 'yyyyy', 'fffff', 'fffff', 'fffffff', 'yooooof', 'fffffff', 'FFFFFFF'])
 C['summoner'] = dict(file='reliquarian', shape='robe', weapon='staff', pal={'K': '#6A48B0', 'P': '#3E2A78', 'k': '#140C20', 'c': '#5EF0A8', 'f': '#E8E0C8', 'l': '#2A1A50',
                                                              'w': '#7A6A52', 'W': '#7CFFB0', 'h_': '#7A6A52'},
-    F=['KKK', 'KkkkK', 'KckcK', 'KKKKKKK', 'fKPPPKf', 'KKKKKKK', 'KKKKKKK', 'PPPPPPP'],
-    S=['KKK', 'KKKkk', 'KKKkc', 'KKKKKKK', 'KKPPPKf', 'KKKKKKK', 'KKKKKKK', 'PPPPPPP'],
-    B=['KKK', 'KKKKK', 'KKKKK', 'KKKcKKK', 'KKPPPKK', 'KKKKKKK', 'KKKKKKK', 'PPPPPPP'])
+    F=['KKK', 'KkkkK', 'KckcK', 'KkkkK', 'KKKKKKK', 'fKPPPKf', 'KKKKKKK', 'PPPPPPP'],
+    S=['KKK', 'KKKkk', 'KKKkc', 'KKKkk', 'KKKKKKK', 'KKPPPKf', 'KKKKKKK', 'PPPPPPP'],
+    B=['KKK', 'KKKKK', 'KKKKK', 'KKKKK', 'KKKcKKK', 'KKPPPKK', 'KKKKKKK', 'PPPPPPP'])
 C['harpooner'] = dict(file='wreckwhaler', shape='body', weapon='bow', pal={'Y': '#FFD030', 'y': '#B88410', 'r': '#DB0416', 'N': '#3058A0', 'l': '#1E2A48',
                                                             'w': '#8A6038', 'W': '#DDDDDD', 'h_': '#F0E6D0'},
-    F=['YYY', 'YYYYY', 'seses', 'YrrrrrY', 'YNNyNNY', 'YNNNNNY', 'NNNNN', 'll'],
-    S=['YYY', 'YYYYY', 'YYses', 'YYrrrrY', 'YYNyNNY', 'YYNNNNY', 'NNNNN', 'll'],
-    B=['YYY', 'YYYYY', 'YYYYY', 'YYYYYYY', 'YYYYYYY', 'YYYYYYY', 'NNNNN', 'll'])
+    F=['YYY', 'YYYYY', 'seses', 'rrrrr', 'YNNyNNY', 'YNNNNNY', 'NNNNN', 'll'],
+    S=['YYY', 'YYYYY', 'YYses', 'YYrrr', 'YYNyNNY', 'YYNNNNY', 'NNNNN', 'll'],
+    B=['YYY', 'YYYYY', 'YYYYY', 'YYYYY', 'YYYYYYY', 'YYYYYYY', 'NNNNN', 'll'])
 C['duelist'] = dict(file='mirrorknight', shape='body', weapon='dagger', pal={'m': '#D04890', 'M': '#8A2860', 'p': '#F4F0F8', 'y': '#FFD650', 'l': '#4A1A38',
                                                               'w': '#DDDDDD', 'W': '#FFFFFF', 'h_': '#C98A22'},
-    F=['mpm', 'mmmmm', 'seses', 'mmmmmmm', 'mmyyymm', 'mmmymmm', 'MMMMM', 'll'],
-    S=['pmm', 'mmmmm', 'mmses', 'mmmmmmm', 'mmmyymm', 'mmmmymm', 'MMMMM', 'll'],
-    B=['mpm', 'mmmmm', 'mmmmm', 'mmmmmmm', 'mmMMMmm', 'mmmmmmm', 'MMMMM', 'll'])
+    F=['mpm', 'mmmmm', 'seses', 'sssss', 'mmmmmmm', 'mmyyymm', 'MMMMM', 'll'],
+    S=['pmm', 'mmmmm', 'mmses', 'mmsss', 'mmmmmmm', 'mmmyymm', 'MMMMM', 'll'],
+    B=['mpm', 'mmmmm', 'mmmmm', 'mmmmm', 'mmmmmmm', 'mmMMMmm', 'MMMMM', 'll'])
 C['stormwright'] = dict(file='kitehermit', shape='robe', weapon='staff', pal={'t': '#E8C878', 'T': '#B8964A', 'f': '#F4F4F8', 'u': '#3A7AE8', 'U': '#2A58B0', 'l': '#4A3A2A',
                                                                'w': '#C87A3A', 'W': '#8AF6FF', 'h_': '#C87A3A'},
-    F=['ttt', 'TtttT', 'seses', 'uufffuu', 'uuufuuu', 'uuuuuuu', 'uuuuuuu', 'UUUUUUU'],
-    S=['ttt', 'TtttT', 'Tsses', 'uuuuffu', 'uuuuufu', 'uuuuuuu', 'uuuuuuu', 'UUUUUUU'],
-    B=['ttt', 'TtttT', 'TTTTT', 'uuuuuuu', 'uuuuuuu', 'uuuuuuu', 'uuuuuuu', 'UUUUUUU'])
+    F=['ttt', 'TtttT', 'seses', 'fffff', 'uufffuu', 'uuufuuu', 'uuuuuuu', 'UUUUUUU'],
+    S=['ttt', 'TtttT', 'Tsses', 'TTfff', 'uuuuffu', 'uuuuufu', 'uuuuuuu', 'UUUUUUU'],
+    B=['ttt', 'TtttT', 'TTTTT', 'TTTTT', 'uuuuuuu', 'uuuuuuu', 'uuuuuuu', 'UUUUUUU'])
 C['clockmaker'] = dict(file='horologist', shape='body', weapon='wand', pal={'k': '#2E2836', 'c': '#8AE6FF', 'y': '#F2C14E', 'b': '#A0582A', 'B': '#5A3420', 'g': '#F2C14E', 'H': '#5A3A22', 'l': '#2A1A10',
                                                              'w': '#B0B0C0', 'W': '#FFE08A', 'h_': '#B0B0C0'},
-    F=['kkk', 'kkkkk', 'ycscy', 'bbbbbbb', 'bbbgbbb', 'bbbbbbb', 'BBBBB', 'll'],
-    S=['kkk', 'kkkkk', 'HHscy', 'bbbbbbb', 'bbbbgbb', 'bbbbbbb', 'BBBBB', 'll'],
-    B=['kkk', 'kkkkk', 'HHHHH', 'bbbbbbb', 'bbbbbbb', 'bbbbbbb', 'BBBBB', 'll'])
+    F=['kkk', 'kkkkk', 'ycscy', 'sssss', 'bbbbbbb', 'bbbgbbb', 'BBBBB', 'll'],
+    S=['kkk', 'kkkkk', 'HHscy', 'HHsss', 'bbbbbbb', 'bbbbgbb', 'BBBBB', 'll'],
+    B=['kkk', 'kkkkk', 'HHHHH', 'HHHHH', 'bbbbbbb', 'bbbbbbb', 'BBBBB', 'll'])
 C['runeblade'] = dict(file='runeblade', shape='body', weapon='sword', pal={'i': '#B9C2D6', 'I': '#5E6680', 'c': '#46F5D6', 'r': '#C83A3A', 'l': '#2E3240',
                                                             'w': '#C8F8FF', 'W': '#46F5D6', 'h_': '#C98A22'},
-    F=['rrr', 'iiiii', 'icIci', 'riiiiir', 'riIIIir', 'riiiiir', 'IiiiI', 'll'],
-    S=['rrr', 'iiiii', 'iiIcI', 'rriiiii', 'rriIIIi', 'rriiiii', 'IiiiI', 'll'],
-    B=['rrr', 'iiiii', 'iiiii', 'rrrrrrr', 'rrrrrrr', 'rrrrrrr', 'rrrrr', 'll'])
+    F=['rrr', 'iiiii', 'icIci', 'iiiii', 'riIIIir', 'riiiiir', 'IiiiI', 'll'],
+    S=['rrr', 'iiiii', 'iiIcI', 'iiiii', 'rriIIIi', 'rriiiii', 'IiiiI', 'll'],
+    B=['rrr', 'iiiii', 'iiiii', 'iiiii', 'rrrrrrr', 'rrrrrrr', 'rrrrr', 'll'])
 C['hexweaver'] = dict(file='hexweaver', shape='robe', weapon='staff', pal={'p': '#9058E0', 'P': '#5A2E9A', 'k': '#140C20', 'y': '#FFD650', 'l': '#3A1A60',
                                                             'w': '#7A5A3A', 'W': '#8AF6FF', 'h_': '#7A5A3A'},
-    F=['ppp', 'pkkkp', 'pykyp', 'ppppppp', 'pPyyyPp', 'ppppppp', 'ppppppp', 'PPPPPPP'],
-    S=['ppp', 'pppkk', 'pppky', 'ppppppp', 'ppPyyPp', 'ppppppp', 'ppppppp', 'PPPPPPP'],
-    B=['ppp', 'ppppp', 'ppppp', 'ppppppp', 'ppPyPpp', 'ppppppp', 'ppppppp', 'PPPPPPP'])
+    F=['ppp', 'pkkkp', 'pykyp', 'pkkkp', 'ppppppp', 'pPyyyPp', 'ppppppp', 'PPPPPPP'],
+    S=['ppp', 'pppkk', 'pppky', 'pppkk', 'ppppppp', 'ppPyyPp', 'ppppppp', 'PPPPPPP'],
+    B=['ppp', 'ppppp', 'ppppp', 'ppppp', 'ppppppp', 'ppPyPpp', 'ppppppp', 'PPPPPPP'])
 C['ranger'] = dict(file='thornhood', shape='body', weapon='bow', pal={'g': '#A0CC2A', 'G': '#6C8C1E', 'b': '#8A4E1A', 'q': '#9D9D9D', 'r': '#DB0416', 'L': '#8A5A30', 'l': '#4A2A10',
                                                        'w': '#A86A2A', 'W': '#B9B9B9', 'h_': '#F0EAD8'},
-    F=['GgG', 'GgggG', 'seses', 'GLLLLLG', 'sbbqbbs', 'GLLLLLG', 'GGGGG', 'll'],
-    S=['GgG', 'rGggg', 'bGses', 'GLLLLLG', 'sbbbqbs', 'GLLLLLG', 'GGGGG', 'll'],
-    B=['GgG', 'GgrgG', 'GgbgG', 'GLbLLLG', 'sbbbbbs', 'GLLLbLG', 'GGGGG', 'll'])
+    F=['GgG', 'GgggG', 'seses', 'GsssG', 'GLLLLLG', 'sbbqbbs', 'GGGGG', 'll'],
+    S=['GgG', 'rGggg', 'bGses', 'bGsss', 'GLLLLLG', 'sbbbqbs', 'GGGGG', 'll'],
+    B=['GgG', 'GgrgG', 'GgbgG', 'GgbgG', 'GLLbLLG', 'sbbbbbs', 'GGGGG', 'll'])
 
 
 def body(rows, legs=0, shape='body'):
