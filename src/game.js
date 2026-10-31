@@ -910,12 +910,12 @@ export class Game {
     this.chestsReturn();
   }
   // the realm stays as it is while it lasts (2026-10-31, the user: "chests opened should respawn slowly ... the realm should
-  // not reset if I leave it"): a chest broken open closes again five minutes later, whole, and a camp's band is back
+  // not reset if I leave it"): a chest broken open closes again three minutes later (the user's pick), whole, and a camp's band is back
   // round it. (Online the server's realm does this, and tells everyone: onChestBack)
   chestsReturn() {
     const m = this.map;
     for (const o of m.objects) {
-      if (!o.opened || o.openedAt === undefined || o.openedAt === null || this.t - o.openedAt < 300) continue;
+      if (!o.opened || o.openedAt === undefined || o.openedAt === null || this.t - o.openedAt < 180) continue;
       if ((this.netTargets || [this.player]).some((q) => q && Math.hypot(o.x - q.x, o.y - q.y) < 10)) continue;   // (never under anyone's nose)
       o.opened = false; o.openedAt = null; o.sprite = 'chest'; o.hidden = false; o.solid = true; o.hp = o.maxHp || o.hp; o.netHit = null;
       if (m.solid) m.solid[Math.floor(o.y) * m.w + Math.floor(o.x)] = 1;
