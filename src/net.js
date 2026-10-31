@@ -341,7 +341,9 @@ const methods = {
       e.x = e.tx; e.y = e.ty;
       // (bxKill: a three-phase boss is in its death clip by now, immune; this blow is only the kill, so it must land:
       // without it a shared boss never died for you, and dropped nothing. 2026-10-22)
-      if (how === 1) { e.netKill = true; e.bxKill = true; e.hp = 0; e.spawnT = 0; e.bulwarkT = 0; e.wardT = 0; this.damageEnemy(e, 1, e.x, e.y, true); }   // yours too: your rewards
+      // (invulnT, reflectUntil: a boss out of its finale is immune for a moment (invulnT), and your copy never counted that
+      // down, so the kill blow came back IMMUNE: no death, no loot, for the Unstruck and every boss with a finale. 2026-10-31)
+      if (how === 1) { e.netKill = true; e.bxKill = true; e.hp = 0; e.spawnT = 0; e.bulwarkT = 0; e.wardT = 0; e.invulnT = 0; e.reflectUntil = 0; this.damageEnemy(e, 1, e.x, e.y, true); }   // yours too: your rewards
       if (!e.dead) { e.dead = true; e.deadT = 0; this.vx({ k: 'death', e, big: !!e.rb }); }
       if (how !== -1 && M.wardens) {                     // a warden the server ran: the seal list's own copy of it falls too (it listed yours, which never died. 2026-10-29)
         const w = M.wardens.filter((q) => !q.dead && q.id === e.id).sort((p, q) => Math.hypot(p.x - e.x, p.y - e.y) - Math.hypot(q.x - e.x, q.y - e.y))[0];

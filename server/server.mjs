@@ -33,7 +33,7 @@ setInterval(() => { const now = Date.now(); for (const [room, C] of chests) for 
 function publicBag(room, x, y, items) {
   const B = bagsIn(room);
   for (let k = 0; k < items.length && B.size < 120; k += 8) {
-    const b = { bid: nextBid++, x: x + (k ? 0.6 : 0), y, items: [...items.slice(k, k + 8), ...Array(Math.max(0, 8 - items.slice(k, k + 8).length)).fill(null)], until: Date.now() + 90000 };
+    const b = { bid: nextBid++, x: x + (k ? 0.6 : 0), y, items: [...items.slice(k, k + 8), ...Array(Math.max(0, 8 - items.slice(k, k + 8).length)).fill(null)], until: Date.now() + 60000 };   // (a public bag is plain loot: a minute)
     B.set(b.bid, b); toRoom(room, bagMsg(b));
   }
 }
@@ -181,14 +181,14 @@ function onMessage(c, text) {
   }
   if (m.t === 'portal' && world && typeof c.room === 'string' && c.room.startsWith('dg:') && /^rfa_[a-z]+$/.test(m.to)) {   // a shared dungeon's boss door: one room for the group
     const had = arenaOf.get(c.room);
-    if (had && dungeons.has(had.room)) { send(c, { t: 'portal', iid: had.iid, seed: had.seed, to: m.to, x: num(m.x, 0, 4096), y: num(m.y, 0, 4096), life: 120 }); return; }
+    if (had && dungeons.has(had.room)) { send(c, { t: 'portal', iid: had.iid, seed: had.seed, to: m.to, x: num(m.x, 0, 4096), y: num(m.y, 0, 4096), life: 30 }); return; }
     if (dungeons.size >= 12 || (c.arenaT || 0) > Date.now()) return;
     c.arenaT = Date.now() + 2000;
     const iid = nextIid++, seed = randomInt(1, 0xffffff) | 3, room = 'dg:' + iid;
     try { const dw = makeWorld(seed, (id, obj) => { const t = clients.get(id); if (t) send(t, obj); }, m.to); dw.onBag = (x, y, items) => publicBag(room, x, y, items); dungeons.set(room, { world: dw, to: m.to, until: Date.now() + 15 * 60 * 1000 }); }
     catch (err) { console.error('arena', m.to, err); return; }
     arenaOf.set(c.room, { room, iid, seed });
-    toRoom(c.room, { t: 'portal', iid, seed, to: m.to, x: num(m.x, 0, 4096), y: num(m.y, 0, 4096), life: 120 });
+    toRoom(c.room, { t: 'portal', iid, seed, to: m.to, x: num(m.x, 0, 4096), y: num(m.y, 0, 4096), life: 30 });   // (open 30 s: 2026-10-31)
     return;
   }
   if (m.t === 'portal' && world && (c.room === REALM || c.room === 'nexus') && (DUNGEONS[m.to] || /^rf_[a-z_]+$/.test(m.to))) {   // a dungeon opened in the shared realm or the Nexus

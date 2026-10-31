@@ -571,7 +571,7 @@ export class Game {
     return true;
   }
   dropBag() {
-    const bag = { x: this.player.x, y: this.player.y + 0.3, items: Array(8).fill(null), kind: 'brown', life: 90, until: this.t + 90 };
+    const bag = { x: this.player.x, y: this.player.y + 0.3, items: Array(8).fill(null), kind: 'brown', life: 60, until: this.t + 60 };
     this.bags.push(bag);
     this.nearBag = bag;
     return bag;
@@ -636,7 +636,7 @@ export class Game {
         if (this.map.kind === 'vault') { this.toast('Use keys in the Nexus or the Realm.'); return; }
         C[i] = null;
         const a = R() * TAU;
-        this.openPortal(it.use.key, this.player.x + Math.cos(a) * 1.6, this.player.y + Math.sin(a) * 1.6, 120);
+        this.openPortal(it.use.key, this.player.x + Math.cos(a) * 1.6, this.player.y + Math.sin(a) * 1.6, 30);
         this.banner(`The ${it.name} turns. ${DUNGEONS[it.use.key].name} opens for you.`, 2800);
         this.vx({ k: 'burst', ...liftO(this.player.x, this.player.y, 0.6), n: 30, colors: ['#3befff', '#ffffff', '#ffd650'] });
         this.sfx('portal'); this.cleanBags(); this.events.push({ type: 'ground' }); this.persist();
@@ -2746,7 +2746,7 @@ export class Game {
       const kind = bagFor(chunk.map((id) => ITEMS[id]));
       const rare = BAG_ORDER.indexOf(kind) >= BAG_ORDER.indexOf('white');
       const legend = chunk.some((id) => ITEMS[id] && ITEMS[id].legendary);
-      made = { x: x + (k / 8) * 1.1, y, items: it, kind, rare, legend, life: rare ? 180 : 90, until: this.t + (rare ? 180 : 90), born: this.t };   // (born: it's tossed out as it drops: src/render.js bag)
+      made = { x: x + (k / 8) * 1.1, y, items: it, kind, rare, legend, life: rare ? 180 : 60, until: this.t + (rare ? 180 : 60), born: this.t };   // (a plain bag a minute, the user's call 2026-10-31; a special one, white and up, three)   // (born: it's tossed out as it drops: src/render.js bag)
       this.bags.push(made);
       if (legend) this.banner('A LEGENDARY drops!', 3600);
       else if (rare) this.banner(`${BAG_NAMES[kind] || "A rare bag"} drops!`, 2800);
@@ -4533,7 +4533,7 @@ export class Game {
       default: say(`Unknown command /${cmd}. Type /help.`);
     }
   }
-  openPortal(to, x, y, life = 40) {
+  openPortal(to, x, y, life = 30) {                         // (a portal stays open 30 s: the user's call, 2026-10-31)
     if (this.netPortal && this.netPortal(to, x, y, life)) return;   // in the shared realm the server opens it for everyone (src/net.js)
     if (to.startsWith('rf_')) return this.rfOpenPortal(to, x, y, life);   // a Realmforge dungeon (src/rf/host.js)
     const D = DUNGEONS[to], st = (DUNGEON_RATING[to] || [0])[0], boss = this.dungeonBossName({ def: D });
@@ -4550,7 +4550,7 @@ export class Game {
     if (!this.nearPortal) return;
     const pt = this.nearPortal;
     if (pt.to.startsWith('rfa_') && this.map.netIid && !pt.netIid && this.net && this.net.open) {   // a shared dungeon's boss door: the server opens one room for the group
-      this.netWantArena = pt.to; this.net.ws.send(JSON.stringify({ t: 'portal', to: pt.to, x: +pt.x.toFixed(2), y: +pt.y.toFixed(2), life: 120 })); this.banner('The door grinds open...', 1500); return; }
+      this.netWantArena = pt.to; this.net.ws.send(JSON.stringify({ t: 'portal', to: pt.to, x: +pt.x.toFixed(2), y: +pt.y.toFixed(2), life: 30 })); this.banner('The door grinds open...', 1500); return; }
     if (pt.life !== undefined && !pt.netIid) this.map.portals = this.map.portals.filter((x) => x !== pt);   // used portals close (a shared one stays for the others)
     if (pt.netIid) { this.netEnterNext = { iid: pt.netIid, seed: pt.netSeed, served: pt.netServed }; }
     this.travel(pt.to);
