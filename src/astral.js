@@ -125,7 +125,7 @@ const methods = {
   // an astral guardian's ability lands (the clip was its telegraph; src/elites.js)
   asEliteEffect(e) {
     const m = this.map, p = this.player, by = e.D.name, A = e.D.ability;
-    const ring = (n, proj, sp, dmg, range, a0 = Math.random() * TAU, mv) => { for (let k = 0; k < n; k++) { const b = this.shoot('e', e.x, e.y - (e.hitUp || 0.8), a0 + (k / n) * TAU, sp, range, dmg, proj, 0.45, false, by); if (mv) b.mv = { ...mv }; } };
+    const ring = (n, proj, sp, dmg, range, a0 = Math.random() * TAU, mv) => { for (let k = 0; k < n; k++) { const b = this.shoot('e', ...this.up(e.x, e.y, this.shotUp(e)), a0 + (k / n) * TAU, sp, range, dmg, proj, 0.45, false, by); if (mv) b.mv = { ...mv }; } };
     if (A.kind === 'alignment') {                               // the ring ward: shots glance off for 2 s, then it lets go as a shockwave
       e.wardT = this.t + 2;
       this.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 14, colors: ['#ffd690', '#ffffff'] });

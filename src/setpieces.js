@@ -125,7 +125,7 @@ export const SP = {
   // edge throws spray inward
   maelstrom: { dur: 5.6, say: 'The pool becomes a maelstrom!', start(g, e, P) { P.a = R() * TAU; }, tick(g, e, P, dt) {
     P.a += dt * 0.8;
-    if (every(P, 's', dt, 0.14)) for (let k = 0; k < 6; k++) g.spShot(e, e.x, e.y - e.hitUp, P.a + (k / 6) * TAU, 4.2, 12, BXS('abyssal_kraken', 'water_bolt'), { mv: { curve: 0.55 } });
+    if (every(P, 's', dt, 0.14)) for (let k = 0; k < 6; k++) g.spShot(e, ...g.bxOrigin(e), P.a + (k / 6) * TAU, 4.2, 12, BXS('abyssal_kraken', 'water_bolt'), { mv: { curve: 0.55 } });
   } },
   // the Thornheart Treant: the root network. Roots erupt along the ground toward you, branching as they go: a tree of
   // thorns growing across the clearing

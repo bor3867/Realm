@@ -58,7 +58,7 @@ const methods = {
   },
   eliteEffect(e) {
     const A = e.D.ability, p = this.player, by = e.D.name, S = (n) => `el_shots/${e.id}.${n}`;
-    const ring = (n, proj, sp, dmg, a0 = R() * TAU, range = 7) => { for (let k = 0; k < n; k++) this.shoot('e', e.x, e.y - e.hitUp, a0 + (k / n) * TAU, sp, range, dmg, proj, 0.4, false, by); };
+    const ring = (n, proj, sp, dmg, a0 = R() * TAU, range = 7) => { for (let k = 0; k < n; k++) this.shoot('e', ...this.up(e.x, e.y, this.shotUp(e)), a0 + (k / n) * TAU, sp, range, dmg, proj, 0.4, false, by); };
     const dmg = A.dmg || 30;
     switch (A.kind) {
       case 'reef': {                                     // Reef Breach: coral erupts in the line it showed, spot after spot, each marked before it bursts

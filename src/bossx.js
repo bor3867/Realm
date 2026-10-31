@@ -164,7 +164,12 @@ export const BXF = {
   },
 
   // ---------------------------------------------------------------- volleys (generic forms; specials live with each boss)
-  bxOrigin(e) { return this.up(e.x, e.y, e.hitUp); },      // the middle of its body as drawn (up the screen, whatever the camera's turn)
+  // where a monster's shots leave from: about a tile up its body, up the screen whatever the camera's turn (2026-10-31,
+  // the user: shots came out "two tiles above the boss rather than one", and swung about as the camera turned. A shot's
+  // start is lifted in the world, so the higher it starts, the wider it swings round the boss on a turn: the middle of a
+  // 6-tile body was 3 tiles up). Its hitbox stays its whole drawn body (enemyBox)
+  shotUp(e) { return e.bx ? Math.min(e.hitUp || 1, 1.1) : e.rb ? 1 : Math.min(e.hitUp || 0.5, 0.9); },
+  bxOrigin(e) { return this.up(e.x, e.y, this.shotUp(e)); },
   bxDmg(e, d) { return Math.round((d || 60) * ((e.bx && e.bx.B.dmgScale) || 1)); },   // the boss's damage scale, for shots made outside bxShot (lobs)
   // a shot from a point h tiles up the screen from (x, y), whatever the camera's turn, and flying at that height (a
   // boss's hand, its crown, a drum): lifted with the camera, it stays on its path as the camera turns. (Bosses used to

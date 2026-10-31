@@ -106,7 +106,7 @@ export default {
         const T = b.tether;
         T.out -= dt;
         if (T.out <= 0 && !T.back) { T.back = true; b.mv = null; }
-        if (T.back) { const a = angleTo(b.x, b.y, e.x, e.y - e.hitUp); b.vx = Math.cos(a) * 6; b.vy = Math.sin(a) * 6; b.a = a; if (Math.hypot(b.x - e.x, b.y - e.y + e.hitUp) < 0.8) b.life = 0; }
+        if (T.back) { const a = angleTo(b.x, b.y, ...g.bxOrigin(e)); b.vx = Math.cos(a) * 6; b.vy = Math.sin(a) * 6; b.a = a; if (Math.hypot(b.x - e.x, b.y - e.y + e.hitUp) < 0.8) b.life = 0; }
       }
       if (b.cage) {                                   // the cage turns and tightens; then it flies apart
         const C = b.cage;

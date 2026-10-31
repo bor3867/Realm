@@ -69,7 +69,7 @@ function looseRivet(g, e, V) {
 function flail(g, e, V) {
   const p = g.player, a = angleTo(e.x, e.y, p.x, p.y), dir = R() < 0.5 ? 1 : -1;
   for (let k = 0; k < 10; k++) {
-    const b = g.bxShot(e, e.x, e.y - e.hitUp, a, { shot: 'hammer_spark', speed: 0.01, range: 99, dmg: V.dmg || 120 });
+    const b = g.bxShot(e, ...g.bxOrigin(e), a, { shot: 'hammer_spark', speed: 0.01, range: 99, dmg: V.dmg || 120 });
     b.flail = { a0: a - dir * Math.PI / 2, sweep: dir * Math.PI, r: 1.4 + k * 0.75, t: 0, T: 1.1 }; b.life = 99;
   }
 }

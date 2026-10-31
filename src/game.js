@@ -245,7 +245,7 @@ export class Game {
   // nearer its feet, or far from it (the floor, a ground mark, a thing it set down: a lob's landing), the ground's
   shotHeight(S, x, y) {
     if (!Number.isFinite(S.x) || !Number.isFinite(S.y)) return 0;
-    const H = S.hitUp || (S.rb ? 1.4 : 0.5), [ox, oy] = this.up(S.x, S.y, H), d0 = Math.hypot(x - ox, y - oy), dg = Math.hypot(x - S.x, y - S.y);
+    const H = this.shotUp(S), [ox, oy] = this.up(S.x, S.y, H), d0 = Math.hypot(x - ox, y - oy), dg = Math.hypot(x - S.x, y - S.y);
     return d0 < 2.5 && d0 <= dg ? H : 0;
   }
   liftShift(a0, a1) {
@@ -858,6 +858,9 @@ export class Game {
       this.unstick(e, 0.6);                                // never spawn a warden inside a pillar or a wall
       (m.wardens = m.wardens || []).push(e);
       if (D.children) { e.kids = []; e.childT = D.every; }
+      if (def.boss === 'unstruck_god') {                  // Solkhar's own two wardens: tougher, and three phases (2026-10-31)
+        e.hp = e.maxHp = Math.round(e.maxHp * 1.3); e.wPh = [0.66, 0.33]; e.throneWarden = true;
+      }
     };
     m.rooms.slice(1, -1).forEach((rm) => {
       const big = Math.floor(rm.w * rm.h / 110);
@@ -1033,6 +1036,7 @@ export class Game {
     if (this.map.kind === 'realm' && !this.map.netWorld) { this.owTick(dt); this.maintainRealm(dt); this.eventClock(dt); this.melonTick(dt); this.eventBossTick(dt); }
     this.achTick(dt);                                            // achievements (src/achievements.js)
     this.realmClock();                                           // the realm's 15 minutes (offline; online the server's)
+    this.eruptTick();                                            // (the eruption shaking the world before it throws you)
     if (this.map.melonDrops) this.melonDropTick();               // (a burst melon's loot: on any map, online too)
     this.updateEliteAuras(dt);
     if (this.map.rf) this.rfUpdate(dt);
@@ -2128,6 +2132,7 @@ export class Game {
       if (aggro && !e.under && !e.hop && !e.dive && !e.sk && !e.fetch && !(D.ai === 'carousel' && !e.loose) && !(D.solar && this.rfShadow(e))) {   // (a Realmforge sun-disc sleeps in shadow)
         if (!e.seen) this.speak(e, 'see', e.herald ? 0.5 : 0.05);
         e.seen = true;
+        if (e.wPh && e.wPh.length && e.hp < e.maxHp * e.wPh[0]) this.wardenPhase(e);   // (a throne warden breaks into its next phase)
         if (D.enrage && !e.enraged && e.hp < e.maxHp * 0.4) {        // ENRAGE: faster, angrier
           e.enraged = true; this.speak(e, 'hurt', 1);
           this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.8), n: 16, colors: ['#ff2a3a', '#ff7a1a'] });
@@ -2385,7 +2390,7 @@ export class Game {
   firePattern(e, A, isWave = false) {
     A = this.rxAlt(e, A);                                // now and then a monster's new shot (src/remaster.js)
     const p = this.foe(e);
-    const [ox, oy] = this.up(e.x, e.y, e.hitUp || (e.rb ? 1.4 : 0.5));
+    const [ox, oy] = this.up(e.x, e.y, this.shotUp(e));      // (src/bossx.js: about a tile up, for every monster)
     const [px, py] = this.up(p.x, p.y, 0.4);
     const aim = angleTo(ox, oy, px, py);
     if (e.rb && A.pattern === 'radial') this.vx({ k: 'shake', amt: 2 });
@@ -2924,9 +2929,32 @@ export class Game {
         shards: Z.shards || 0, proj: Z.proj, colors: Z.colors, done: false });
     }
   }
+  // a throne warden's next phase (2026-10-31, the user: the two bosses before Solkhar "should be harder... more shots and
+  // more phases"). At 66% and 33% it throws off a ring with one gap in it, its old attacks come faster, and it takes up a
+  // new one of its own kind: the Jarl's blades march in walls, then cross; the Engine's organ-blasts close in a cage
+  // round you, then wheel in a four-wave spiral; the Seraph's feathers come in shotgun bursts, then cage you. Every new
+  // attack is telegraphed and leaves a way out
+  wardenPhase(e) {
+    const D = e.D, ph = 3 - e.wPh.length + 1, A0 = D.attacks[0], dmg = Math.round(A0.dmg * 0.8), proj = A0.proj;
+    e.wPh.shift();
+    const kind = /jarl/i.test(D.name) ? 'jarl' : /engine/i.test(D.name) ? 'engine' : /seraph/i.test(D.name) ? 'seraph' : 'other';
+    const NEW = {
+      jarl: [{ pattern: 'wall', count: 9, space: 0.75, speed: 5.5, range: 12 }, { pattern: 'cross', count: 16, speed: 6, range: 11 }],
+      engine: [{ pattern: 'cage', count: 10, r: 3.4, speed: 3.2, range: 6 }, { pattern: 'radial', count: 14, turn: 0.22, waves: 4, gap: 0.22, speed: 5, range: 11 }],
+      seraph: [{ pattern: 'shotgun', count: 7, arc: 0.7, speed: 7.5, range: 10, waves: 2, gap: 0.2 }, { pattern: 'cage', count: 9, r: 3.2, speed: 3.4, range: 6 }],
+      other: [{ pattern: 'radial', count: 16, turn: 0.2, waves: 3, gap: 0.25, speed: 5, range: 11 }, { pattern: 'cross', count: 12, speed: 6, range: 11 }],
+    }[kind][ph - 2];
+    const atk = { proj, dmg, cd: ph === 2 ? 2.8 : 2.2, tell: 450, ...NEW };
+    e.D = { ...D, attacks: [...D.attacks.map((A) => ({ ...A, cd: (A.cd || 2) * 0.8 })), atk] };
+    e.cds = [...e.cds, 1.2];
+    this.gapRing(e, { count: 26 + ph * 4, waves: ph - 1, gap: 0.9, shift: 0.35, speed: 5, range: 12, dmg, proj });
+    this.vx({ k: 'shake', amt: 5 });
+    this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.8), n: 30, colors: ['#ffd650', '#ffffff', '#ff7a1a'] });
+    this.say(`${D.name.split(',')[0]} tears at its seal: ${ph === 2 ? 'it fights harder' : 'its last stand'}!`, '#ffd650');
+  }
   // meteors: huge telegraphed impacts around you that leave the ground burning
   gapRing(e, G) {
-    const [ox, oy] = this.up(e.x, e.y, e.rb ? 1.4 : 2.3), p = this.player;
+    const [ox, oy] = this.up(e.x, e.y, this.shotUp(e)), p = this.player;
     const gapAt = angleTo(ox, oy, p.x, p.y) + (R() - 0.5) * 1.6;
     for (let w = 0; w < (G.waves || 1); w++) {
       const shift = w * (G.shift || 0.6);
@@ -3362,10 +3390,32 @@ export class Game {
     if (this.map.kind !== 'realm' || this.erupting) { this.realmStale = true; return; }
     this.erupting = true;
     this.banner('THE REALM ERUPTS!', 2600); this.vx({ k: 'shake', amt: 10 }); this.sfx('boss');
-    this.say('The realm erupts! You are thrown before Solkhar.', '#ff8a3a');
+    this.say('The realm erupts! In moments you are thrown before Solkhar.', '#ff8a3a');
     this.realmStale = true;
     if (m && m.iid) this.netEnterNext = { iid: m.iid, seed: m.seed, served: 1 };   // (the shared Throne the server opened for all of you)
-    setTimeout(() => { this.erupting = false; if (this.map.kind === 'realm' && !this.player.dead) this.travel('throne'); }, 1200);
+    // the world shakes for a while first (2026-10-31, the user: "should shake the world and last a bit longer"): the
+    // ground heaves harder and harder, the sky reddens and embers rain down; nothing hurts you while it lasts
+    this.eruptFx = { t0: this.t, dur: 8, next: 0, sec: 9 };
+    this.fx.push({ kind: 'erupttint', t: 0, life: 8.4 });
+  }
+  eruptTick() {
+    const E = this.eruptFx;
+    if (!E) return;
+    const p = this.player, k = (this.t - E.t0) / E.dur;
+    if (this.map.kind !== 'realm' || p.dead) { this.eruptFx = null; this.erupting = false; return; }
+    p.status.invuln = Math.max(p.status.invuln || 0, 0.3);
+    if (this.t >= E.next) {                                  // a heave of the ground, harder as it builds
+      E.next = this.t + 0.22;
+      this.vx({ k: 'shake', amt: Math.round(3 + 11 * Math.min(1, k)) });
+      for (let i = 0; i < 1 + Math.floor(k * 4); i++) {
+        const a = R() * TAU, d = 2 + R() * 9, x = p.x + Math.cos(a) * d, y = p.y + Math.sin(a) * d;
+        this.vx({ k: 'burst', x, y, n: 10, colors: ['#ff8a3a', '#ffd650', '#ff3a1a', '#2a1a14'] });
+        if (R() < 0.3) this.fx.push({ kind: 'ring', x, y, t: 0, max: 1.4, color: '#ff6a1a' });
+      }
+    }
+    const sec = Math.ceil(E.dur - (this.t - E.t0));
+    if (sec < E.sec && sec > 0) { E.sec = sec; if (sec <= 5) this.banner(`THE REALM ERUPTS IN ${sec}...`, 900); }
+    if (k >= 1) { this.eruptFx = null; this.erupting = false; this.vx({ k: 'shake', amt: 16 }); this.travel('throne'); }
   }
   // ---- waypoints: travel between the ones you have found (warpTo: it was also named travel, and the portals' travel,
   // defined later in the class, replaced it, so a waypoint sent you to the realm's landing beach)

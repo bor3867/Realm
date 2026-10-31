@@ -76,8 +76,8 @@ export default {
     1: { move: 'lurk', patterns: [
       { name: 'ink lob', windup: 0.7, recover: 0.7, special: 'ink', n: 3, dmg: 50 },
       { name: 'twin streams', windup: 0.6, recover: 0.6, volleys: [
-        { form: 'stream', shot: 'water_bolt', n: 10, every: 0.08, wobble: 0.25, speed: 7, dmg: 45, from: (g, e) => [e.x - 1.2, e.y - e.hitUp] },
-        { form: 'stream', shot: 'water_bolt', n: 10, every: 0.08, wobble: 0.25, speed: 7, dmg: 45, from: (g, e) => [e.x + 1.2, e.y - e.hitUp], t: 0.04 }] },
+        { form: 'stream', shot: 'water_bolt', n: 10, every: 0.08, wobble: 0.25, speed: 7, dmg: 45, from: (g, e) => { const [x, y] = g.bxOrigin(e); return [x - 1.2, y]; } },
+        { form: 'stream', shot: 'water_bolt', n: 10, every: 0.08, wobble: 0.25, speed: 7, dmg: 45, from: (g, e) => { const [x, y] = g.bxOrigin(e); return [x + 1.2, y]; }, t: 0.04 }] },
       { name: 'breach', windup: 0.8, recover: 0.6, volleys: [{ form: 'ring', shot: 'water_bolt', count: 20, gaps: 3, rot: 0.13, speed: 4.5, dmg: 50 }] },
     ] },
     2: { move: 'lurk', pressure: [{ every: 2.2, special: 'spout', delay: 1.5, dmg: 50 }], patterns: [

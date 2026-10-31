@@ -29,15 +29,22 @@ function judgement(g, e, V) {                       // a gilded sentence marked 
     for (let k = 0; k < (V.extra || 2); k++) { const a = R() * TAU, d = 2.5 + R() * 2; mark(g, e, q.x + Math.cos(a) * d, q.y + Math.sin(a) * d, 1.4, (V.delay || 1.4) + 0.35 * (k + 1), V.dmg || 120, GOLD, 6, 'judgement'); }
   }
 }
-function halo(g, e, V) {                            // the halo of blades flung out: two turning rings, a gap to find in each
-  [[0, 0], [0.4, 0.13]].forEach(([t, rot]) => e.bx.vol.push({ t, V: { form: 'ring', shot: 'blade', count: V.count || 24, gaps: 3, rot, speed: 4.5, range: 14, dmg: V.dmg || 115 } }));
+function halo(g, e, V) {                            // the halo of blades flung out: three turning rings, a gap to find in each
+  [[0, 0], [0.4, 0.13], [0.8, 0.26]].forEach(([t, rot]) => e.bx.vol.push({ t, V: { form: 'ring', shot: 'blade', count: V.count || 28, gaps: 3, rot, speed: 4.5, range: 14, dmg: V.dmg || 115 } }));
 }
 function decree(g, e, V) {                          // a decree sweeps the hall from one side: a gap to find
-  e.bx.vol.push({ t: 0, V: { form: 'curtain', shot: 'spear', count: 18, gaps: 3, speed: 5, dmg: V.dmg || 120 } });
-  if (V.twice) e.bx.vol.push({ t: 0.9, V: { form: 'curtain', shot: 'spear', count: 18, gaps: 3, speed: 5, dmg: V.dmg || 120 } });
+  e.bx.vol.push({ t: 0, V: { form: 'curtain', shot: 'spear', count: 22, gaps: 3, speed: 5, dmg: V.dmg || 120 } });
+  if (V.twice) e.bx.vol.push({ t: 0.9, V: { form: 'curtain', shot: 'spear', count: 22, gaps: 3, speed: 5, dmg: V.dmg || 120 } });
 }
-function spears(g, e, V) { e.bx.vol.push({ t: 0, V: { form: 'fan', shot: 'spear', count: V.n || 5, spread: 0.5, speed: 8, range: 14, dmg: V.dmg || 120 } }); }
-function scorn(g, e, V) { e.bx.vol.push({ t: 0, V: { form: 'stream', shot: 'spear', n: 3, every: 0.12, count: 1, speed: 9, range: 14, dmg: V.dmg || 110 } }); }
+function spears(g, e, V) {                          // a fan of spears, then a wider one on its heels
+  e.bx.vol.push({ t: 0, V: { form: 'fan', shot: 'spear', count: V.n || 7, spread: 0.5, speed: 8, range: 14, dmg: V.dmg || 120 } });
+  e.bx.vol.push({ t: 0.35, V: { form: 'fan', shot: 'spear', count: (V.n || 7) + 2, spread: 0.85, speed: 7, range: 14, dmg: V.dmg || 120 } });
+}
+// the sentence: rings of spears that alternate their gaps, so each one's way out is where the last one's was not
+function sentence(g, e, V) {
+  for (let k = 0; k < (V.n || 3); k++) e.bx.vol.push({ t: k * 0.55, V: { form: 'ring', shot: 'spear', count: 26, gaps: 2, rot: k * 0.6, speed: 4.6, range: 15, dmg: V.dmg || 120 } });
+}
+function scorn(g, e, V) { e.bx.vol.push({ t: 0, V: { form: 'stream', shot: 'spear', n: 5, every: 0.1, count: 1, speed: 9, range: 14, dmg: V.dmg || 110 } }); }
 
 // ---- II. The First Wound
 function seams(g, e, V) {                           // seams of molten gold across the forge: a line of light, then it burns
@@ -58,7 +65,7 @@ function stars(g, e, V) {                           // stars fall where the play
     b.lob = { x0: ox, y0: oy - 1, x1, y1, t: 0, T: 1.3 + k * 0.25, h: 46, n: 8, r: 1.3, ss: 4.5, sprite: 'ug_shots/unstruck_god.star', bxOf: e };
   }
 }
-function wrath(g, e, V) { e.bx.vol.push({ t: 0, V: { form: 'spiral', shot: 'seam', arms: V.arms || 3, dur: 2.2, every: 0.13, turn: 0.21, speed: 4.2, range: 13, dmg: V.dmg || 110 } }); }
+function wrath(g, e, V) { e.bx.vol.push({ t: 0, V: { form: 'spiral', shot: 'seam', arms: V.arms || 4, dur: 2.2, every: 0.13, turn: 0.21, speed: 4.2, range: 13, dmg: V.dmg || 110 } }); }
 function bleed(g, e, V) {                           // his blood: burning drops, marked, falling near you
   const q = players(g)[Math.floor(R() * players(g).length)] || g.player, a = R() * TAU, d = R() * 3;
   mark(g, e, q.x + Math.cos(a) * d, q.y + Math.sin(a) * d, 1.1, 1.1, V.dmg || 100, RED, 0);
@@ -71,7 +78,7 @@ function flareTell(g, e) {                          // the sun swells: get into 
   g.banner('THE SUN SWELLS · hide in his shadow', 1600);
 }
 function flare(g, e, V) {                           // the flare: a nova from the sun, all but the cone his body shades
-  const [sx, sy] = sunAt(e), shade = angleTo(sx, sy, e.x, e.y), n = 44;
+  const [sx, sy] = sunAt(e), shade = angleTo(sx, sy, e.x, e.y), n = 56;
   for (let k = 0; k < n; k++) {
     const a = (k / n) * TAU, off = Math.atan2(Math.sin(a - shade), Math.cos(a - shade));
     if (Math.abs(off) < 0.42) continue;
@@ -81,20 +88,27 @@ function flare(g, e, V) {                           // the flare: a nova from th
 }
 function embers(g, e, V) {                          // a ring of embers thrown off the sun as it passes
   const [sx, sy] = sunAt(e), a0 = R() * TAU;
-  for (let k = 0; k < (V.count || 8); k++) g.bxShot(e, sx, sy, a0 + (k / (V.count || 8)) * TAU, { shot: 'ember', speed: 3.6, range: 12, dmg: V.dmg || 110 });
+  for (let k = 0; k < (V.count || 12); k++) g.bxShot(e, sx, sy, a0 + (k / (V.count || 12)) * TAU, { shot: 'ember', speed: 3.6, range: 12, dmg: V.dmg || 110 });
 }
 
 // ---- the last: UNMADE
 const finale = {
-  at: 0.08, dur: 10, name: 'Unmade', say: 'survive the dark', after: 1.5,
-  start(g, e) { e.bx.unm = { spin: 0, mark: 0.6, k: 0 }; g.banner('He comes apart. The dark that was inside him pours out.', 3000); },
+  at: 0.08, dur: 18, name: 'Unmade', say: 'survive the dark', after: 1.5,
+  start(g, e) { e.bx.unm = { spin: 0, mark: 0.6, k: 0, t: 0, spin2: 0, ring: 3 }; g.banner('He comes apart. The dark that was inside him pours out.', 3000); },
   update(g, e, dt) {
-    const U = e.bx.unm, [ox, oy] = g.bxOrigin(e);
+    const U = e.bx.unm, [ox, oy] = g.bxOrigin(e), late = (U.t += dt) > 9;   // (the second half: darker)
     if ((U.spin -= dt) <= 0) {
       U.spin = 0.14; U.k++;
-      for (let a = 0; a < 4; a++) g.bxShot(e, ox, oy, U.k * 0.23 * (a % 2 ? -1 : 1) + (a / 4) * TAU, { shot: 'unmade', speed: 3.6, range: 15, dmg: 120 });
+      for (let a = 0; a < 5; a++) g.bxShot(e, ox, oy, U.k * 0.21 * (a % 2 ? -1 : 1) + (a / 5) * TAU, { shot: 'unmade', speed: 3.9, range: 15, dmg: 120 });
     }
-    if ((U.mark -= dt) <= 0) { U.mark = 1.3; for (const q of players(g)) mark(g, e, q.x, q.y, 1.5, 1.2, 140, ['#6a3aa8', '#ffffff'], 6, 'unmade'); }
+    if (late && (U.spin2 -= dt) <= 0) {                    // a slower spiral turning the other way through it
+      U.spin2 = 0.3;
+      for (let a = 0; a < 3; a++) g.bxShot(e, ox, oy, -U.t * 0.9 + (a / 3) * TAU, { shot: 'unmade', speed: 2.8, range: 15, dmg: 120 });
+    }
+    if (late && (U.ring -= dt) <= 0) {                     // and a ring with two gaps, now and then
+      U.ring = 2.6; e.bx.vol.push({ t: 0, V: { form: 'ring', shot: 'unmade', count: 30, gaps: 2, rot: R() * TAU, speed: 3.4, range: 15, dmg: 120 } });
+    }
+    if ((U.mark -= dt) <= 0) { U.mark = late ? 0.95 : 1.15; for (const q of players(g)) mark(g, e, q.x, q.y, 1.5, 1.2, 140, ['#6a3aa8', '#ffffff'], 6, 'unmade'); }
   },
   end(g, e) { e.bx.unm = null; },
 };
@@ -115,23 +129,25 @@ export default {
       { name: 'the halo of blades', windup: 0.8, recover: 0.7, special: 'halo', dmg: 115 },
       { name: 'spears', windup: 0.5, recover: 0.5, special: 'spears', dmg: 120 },
       { name: 'a decree', windup: 0.7, recover: 0.8, special: 'decree', dmg: 120 },
+      { name: 'the sentence', windup: 0.7, recover: 0.7, special: 'sentence', n: 3, dmg: 120 },
     ] },
     2: { move: 'pace', pressure: [{ every: 3.2, special: 'pincer', delay: 2.6, dmg: 105 }, { every: 1.5, special: 'bleed', delay: 1.5, dmg: 100 }], patterns: [
       { name: 'seams of gold', windup: 0.6, recover: 0.8, special: 'seams', n: 3, dmg: 140 },
-      { name: 'falling stars', windup: 0.8, recover: 0.6, special: 'stars', n: 3, dmg: 130 },
+      { name: 'falling stars', windup: 0.8, recover: 0.6, special: 'stars', n: 4, dmg: 130 },
       { name: 'wrath', windup: 0.6, recover: 0.6, special: 'wrath', dmg: 110 },
       { name: 'judgement', windup: 0.6, recover: 0.5, special: 'judgement', extra: 3, dmg: 125 },
       { name: 'the crossing seams', windup: 0.6, recover: 0.9, special: 'seams', n: 3, cross: true, dmg: 140 },
     ] },
     3: { move: 'center', pressure: [{ every: 2.8, special: 'pincer', delay: 2.2, dmg: 105 }, { every: 1.8, special: 'embers', dmg: 110 }, { every: 2.2, special: 'bleed', dmg: 105 }], patterns: [
       { name: 'the sun flares', windup: 1.6, recover: 0.9, tell: 'flareTell', special: 'flare', dmg: 150 },
-      { name: 'falling stars', windup: 0.6, recover: 0.5, special: 'stars', n: 4, dmg: 135 },
+      { name: 'falling stars', windup: 0.6, recover: 0.5, special: 'stars', n: 5, dmg: 135 },
+      { name: 'the last sentence', windup: 0.6, recover: 0.6, special: 'sentence', n: 4, dmg: 125 },
       { name: 'a double decree', windup: 0.6, recover: 0.6, special: 'decree', twice: true, dmg: 125 },
       { name: 'the sun flares', windup: 1.6, recover: 0.9, tell: 'flareTell', special: 'flare', dmg: 150 },
       { name: 'judgement', windup: 0.5, recover: 0.5, special: 'judgement', extra: 3, delay: 1.2, dmg: 130 },
     ] },
   },
-  specials: { judgement, halo, decree, spears, scorn, seams, stars, wrath, bleed, flareTell, flare, embers, pincer },
+  specials: { judgement, halo, decree, spears, sentence, scorn, seams, stars, wrath, bleed, flareTell, flare, embers, pincer },
   onWake(g) { g.banner('SOLKHAR, THE SUNTHIEF · never once struck, in ten thousand years', 3400); },
   onPhase(g, e, ph) {
     if (ph === 2) g.banner('HE BLEEDS · for the first time, the god bleeds', 3000);

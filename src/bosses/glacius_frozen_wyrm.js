@@ -94,7 +94,7 @@ function wingbeat(g, e, V) { for (let k = 0; k < 2; k++) e.bx.vol.push({ t: k * 
 function beat(g, e, V) {
   const p = g.player;
   for (const side of [-1, 1]) {
-    const wx = e.x + side * 2.3, wy = e.y - e.hitUp - 0.4, a = angleTo(wx, wy, p.x, p.y);
+    const [ox, oy] = g.bxOrigin(e), wx = ox + side * 2.3, wy = oy - 0.4, a = angleTo(wx, wy, p.x, p.y);
     for (let k = 0; k < 7; k++) g.bxShot(e, wx, wy, a + (k / 6 - 0.5) * 1.1, { shot: 'wing_shard', speed: 7, range: 16, dmg: V.dmg || 100 });
   }
   const a = angleTo(e.x, e.y, p.x, p.y);

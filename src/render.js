@@ -327,6 +327,8 @@ export class Renderer {
       else if (f.kind === 'scorch') this.scorchFx(f, g);
       else if (f.kind === 'hexzone') this.hexFx(f, g);
       else if (f.kind === 'skyfall') this.skyfallFx(f, g);
+      else if (f.kind === 'erupttint') { const k = Math.min(1, f.t / 6), a = Math.min(1, (f.life - f.t) * 3) * (0.12 + 0.22 * k + 0.06 * Math.sin(g.t * 9));   // the realm erupting: the sky reddens
+        this.b.fillStyle = `rgba(255,70,20,${Math.max(0, a).toFixed(3)})`; this.b.fillRect(0, 0, this.buf.width, this.buf.height); }
       else if (f.kind === 'lane') this.laneFx(f, g);
       else if (f.kind === 'wglyph' || f.kind === 'wphantom') this.mechFx(f, g);
       else if (f.kind === 'halo') this.haloFx(f, g);

@@ -61,13 +61,14 @@ function obeliskSand(g, e, V) {
 // moulting (P2 pressure): as it glides between obelisks it sheds feathers that drift down onto the floor below it
 function moult(g, e, V) {
   if (!e.bx.perch) return;
-  for (let k = 0; k < 3; k++) g.bxShot(e, e.x + (R() - 0.5) * 2.4, e.y - e.hitUp, Math.PI / 2 + (R() - 0.5) * 0.9, { shot: 'gilded_feather', speed: 2.6, range: 7, dmg: V.dmg || 65, mv: { wave: { amp: 0.6, freq: 3 } } });
+  const [ox, oy] = g.bxOrigin(e);
+  for (let k = 0; k < 3; k++) g.bxShot(e, ox + (R() - 0.5) * 2.4, oy, Math.PI / 2 + (R() - 0.5) * 0.9, { shot: 'gilded_feather', speed: 2.6, range: 7, dmg: V.dmg || 65, mv: { wave: { amp: 0.6, freq: 3 } } });
 }
 // the scales (P3): a fan from each side of it, swinging toward each other, crossing on you
 function scales(g, e, V) {
   const p = g.player;
   for (const side of [-1, 1]) {
-    const x = e.x + side * 3, y = e.y - e.hitUp, a = angleTo(x, y, p.x, p.y);
+    const [ox, oy] = g.bxOrigin(e), x = ox + side * 3, y = oy, a = angleTo(x, y, p.x, p.y);
     for (let k = 0; k < 6; k++) e.bx.vol.push({ t: k * 0.09, V: { form: 'fan', shot: 'sun_disk', count: 2, spread: 0.25, angle: a - side * (0.9 - k * 0.18), speed: 6.5, range: 16, dmg: V.dmg || 70, from: () => [x, y] } });
   }
 }
