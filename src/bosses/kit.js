@@ -19,6 +19,27 @@ export function ring(g, e, x, y, n, V, off = 0, ga = null, gap = 0) {
 }
 // a fan of shots at a point
 export function fan(g, e, x, y, aim, n, spread, V) { for (let k = 0; k < n; k++) g.bxShot(e, x, y, aim + (n > 1 ? (k / (n - 1) - 0.5) * spread : 0), V); }
+// a boss's own attack schedule (2026-11-01, the user's timing rules for the Hollow Jarls and Solkhar), in place of the
+// engine's plain cycle: each attack its own cooldown (cd), counted from when it ENDS (windup + dur); a new attack starts
+// every cadence[phase] seconds (a random time in that range); never the same attack twice running while another is
+// ready; an attack marked block (a chase, a signature) holds the next until it is done (and its 'after' rest). The
+// cooldowns carry over from phase to phase. A pattern: { name, special, windup, dur, cd, block?, after?, w? }
+export function scheduler(cadence) {
+  return (g, e, list) => {
+    const S = e.bx, now = g.t, C = S.sch || (S.sch = { ready: {}, next: 0, last: null });
+    if (now < C.next) return null;
+    const ok = list.filter((p) => (C.ready[p.name] || 0) <= now);
+    if (!ok.length) return null;
+    const fresh = ok.filter((p) => p.name !== C.last), pool = fresh.length ? fresh : ok;
+    let sum = pool.reduce((s, p) => s + (p.w || 1), 0), r = R() * sum, p = pool[0];
+    for (const q of pool) { r -= q.w || 1; if (r <= 0) { p = q; break; } }
+    const end = now + (p.windup || 0.2) + (p.dur || 1), [a, b] = cadence[(S.phase || 1) - 1] || cadence[cadence.length - 1];
+    C.ready[p.name] = end + (p.cd || 4);
+    C.next = Math.max(now + a + R() * (b - a), p.block ? end + (p.after || 0) : 0);
+    C.last = p.name;
+    return { recover: 0.05, ...p };
+  };
+}
 // a marked circle on the floor that bursts
 export function mark(g, e, x, y, r, delay, dmg, colors, shards = 0, proj) {
   g.fx.push({ kind: 'zone', src: e, x, y, r, t: 0, delay, life: delay + 0.15, dmg: g.bxDmg(e, dmg), by: e.D.name, done: false, colors, shards, proj });

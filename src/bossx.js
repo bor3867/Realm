@@ -90,7 +90,8 @@ export const BXF = {
   },
   bxStartPattern(e) {
     const S = e.bx, PH = this.bxPhaseData(e), list = PH.patterns;
-    const pat = list[S.patIdx++ % list.length];
+    const pat = S.B.choose ? S.B.choose(this, e, list) : list[S.patIdx++ % list.length];   // (a boss may keep its own schedule: kit.scheduler)
+    if (!pat) { S.wait = 0.12; return; }                                                  // (nothing due yet: it keeps moving)
     S.pat = pat; S.fired = false;
     if (pat.special && S.B.specials[pat.special] && pat.instant) { S.B.specials[pat.special](this, e, pat, null); S.state = 'recover'; S.wait = (pat.recover || 0.4) * (S.B.tempo || 1); return; }
     // the windup frame (frame 0 of the attack clip) is held: that's the telegraph
