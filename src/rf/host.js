@@ -498,8 +498,8 @@ const methods = {
       this.gainXp(Math.round((d.hp || 300) / (big ? 12 : 25)));
     }
     const R = Math.random();
-    if (big) this.addBag(e.x, e.y + 0.6, rollLoot(this.rfLoot(2), 1.5));
-    else if (R < 0.06) this.addBag(e.x, e.y + 0.4, rollLoot(this.rfLoot(1), 1));
+    if (big) this.addBagLater(1.4, e.x, e.y + 0.6, rollLoot(this.rfLoot(2), 1.5));            // (once it has faded away: game.deathDelay)
+    else if (R < 0.06) this.addBagLater(0.6, e.x, e.y + 0.4, rollLoot(this.rfLoot(1), 1));
   },
   rfDrop() {},                                                 // (no floor potions: our dungeons drop none, 2026-10-19)
   // a chest of theirs breaks to your shots, as ours do (2026-10-28: theirs only opened when walked up to, and stood
@@ -524,7 +524,7 @@ const methods = {
   // a chest: our loot, by how hard it was to reach
   rfChest(pr) {
     const L = { common: 1, puzzle: 1.6, rare: 2, challenge: 2.4, secret: 2.6 }[pr.loot] || 1;
-    this.addBag(pr.x + 0.5, pr.y + 1.3, rollLoot(this.rfLoot(L), L));
+    this.addBagLater(0.45, pr.x + 0.5, pr.y + 1.3, rollLoot(this.rfLoot(L), L));
     this.vx({ k: 'burst', ...this.rfLift(pr.x + 0.5, pr.y + 0.5), n: 10, colors: ['#ffe066', '#ffffff'] });
   },
   rfLift(x, y, h = 0.4) { const [lx, ly] = lift(x, y, h); return { x: lx, y: ly }; },

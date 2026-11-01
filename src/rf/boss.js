@@ -216,7 +216,7 @@ const methods = {
     this.dungeonDone(stars);                                 // (counted, by its stars: the fame bonuses)
     items.push(...rollLoot(bossLoot([], stars), 1, stars >= 5 ? 'top' : 'dboss'));
     const A = F.A, bx = A.b1.x / TP + 1, by = A.b1.y / TP + 2;
-    this.addBag(bx, by + 0.5, items);
+    this.addBagLater(1.4, bx, by + 0.5, items);
     m.portals.push({ kind: 'realm', x: bx, y: by + 2, label: this.exitLabel(), to: 'realm' });
     this.banner(`${B.name} is defeated!`, 3000);
   },

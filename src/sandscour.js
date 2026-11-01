@@ -53,7 +53,7 @@ const methods = {
     if (Math.random() < SAND.urnScarabs) {                     // trapped: a swarm pours out
       for (let k = 0; k < 4; k++) { const e = this.addEnemy('tomb_scarab', o.x + (Math.random() - 0.5), o.y + (Math.random() - 0.5)); e.hp = e.maxHp = Math.round(e.hp * (m.def.mobHp || 1)); e.seen = true; }
       this.float(o.x, o.y - 1, 'SCARABS!', '#ffd650');
-    } else if (Math.random() < 0.3) this.addBag(o.x, o.y, ['pot_hp']);
+    } else if (Math.random() < 0.3) this.addBagLater(0.45, o.x, o.y, ['pot_hp']);
     else { const g0 = 5 + Math.floor(Math.random() * 11); this.save.gold = (this.save.gold || 0) + g0; this.float(o.x, o.y - 1, `+${g0}g`, '#f2c14e'); this.sfx('coin'); }
   },
 };

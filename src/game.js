@@ -1079,6 +1079,7 @@ export class Game {
   update(dt) {
     if (this.mode !== 'play') return;
     this.t += dt;
+    if (this.bagQ && this.bagQ.length) this.bagQueue();
     this.netTick(dt);                                   // the other players (src/net.js)
     this.frameN = (this.frameN || 0) + 1;
     const p = this.player;
@@ -2688,7 +2689,7 @@ export class Game {
       const key = this.keyDrop(e);
       if (key) items.push(key);
       if (e.net) items = items.filter((id) => this.bagKind([id]) !== 'brown');   // a shared kill: brown loot lies in the public bag (the server's); the rest is yours
-      if (items.length) this.addBag(e.x, e.y, items);
+      if (items.length) this.addBagLater(this.deathDelay(e), e.x, e.y, items);
       if (this.map.kind === 'realm') {
         const pd = portalDrop(e.D, e.id);
         if (pd && R() < pd[1]) this.openPortal(pd[0], e.x + (e.rb ? 1.5 : 0), e.y);
@@ -2822,6 +2823,23 @@ export class Game {
     if (e.burn && e.burn.t > 0) {
       e.burn.t -= dt; e.burn.acc += dt;
       if (e.burn.acc >= 0.5) { e.burn.acc -= 0.5; this.damageEnemy(e, Math.round(e.burn.dps * 0.5), ...lift(e.x, e.y, 0.8), true); }
+    }
+  }
+  // loot waits for what dropped it to be gone (2026-11-01, the user: "have the bag spawn the moment after the sprite fully
+  // goes away. Wait for any death animation to finish"): a monster fades out in 0.6 s, an old-style boss in 1.4 s; a
+  // boss on the newer engine has played its whole death before it is dead, and is gone 0.2 s after
+  deathDelay(e) { return e.bx ? 0.25 : e.rb ? 1.4 : 0.6; }
+  addBagLater(delay, x, y, items, one = false, then = null) {
+    (this.bagQ || (this.bagQ = [])).push({ at: this.t + delay, map: this.map, x, y, items, one, then });
+  }
+  bagQueue() {
+    const now = this.bagQ.filter((q) => q.at <= this.t);
+    if (!now.length) return;
+    this.bagQ = this.bagQ.filter((q) => q.at > this.t);
+    for (const q of now) {
+      if (q.map !== this.map) { if (!q.map.bags) continue; const B = this.bags; this.bags = q.map.bags; try { const b = this.addBag(q.x, q.y, q.items, q.one); if (q.then) q.then(b); } finally { this.bags = B; } continue; }   // (you left before it fell: it waits there)
+      const b = this.addBag(q.x, q.y, q.items, q.one);
+      if (q.then) q.then(b);
     }
   }
   addBag(x, y, items, one = false) {
@@ -3733,8 +3751,8 @@ export class Game {
     o.opened = true; o.sprite = 'chest_open'; o.hp = 0; this.eraseChest(o);
     if (this.map && this.map.kind === 'realm' && o.loot && !o.starLoot && !o.admin) o.openedAt = this.t;   // (the realm's chests come back: maintainRealm)
     if (o.loot) this.questEvent('camp', o);
-    const bag = this.addBag(o.x, o.y + 0.8, o.admin ? this.adminLoot() : rollLoot(o.starLoot || (o.loot ? CAMP_LOOT[o.loot] : (this.map.def.chestLoot || [])), o.secret ? 2.5 : 1), !o.admin);   // (one bag, coloured by its best: it used to drop two, one hiding the other)
-    if (bag) bag.soulbound = true;
+    this.addBagLater(0.45, o.x, o.y + 0.8, o.admin ? this.adminLoot() : rollLoot(o.starLoot || (o.loot ? CAMP_LOOT[o.loot] : (this.map.def.chestLoot || [])), o.secret ? 2.5 : 1), !o.admin,   // (one bag, coloured by its best: it used to drop two, one hiding the other)
+      (bag) => { if (bag) bag.soulbound = true; });                 // (as its splinters settle)
     this.banner('The chest breaks open! Soulbound loot.', 1800);
     this.vx({ k: 'burst', ...liftO(o.x, o.y, 0.4), n: 36, colors: ['#ffd650', '#fff6c8', '#8a5a30'] });
     this.vx({ k: 'shake', amt: 3 });
