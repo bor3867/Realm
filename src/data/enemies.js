@@ -1351,7 +1351,7 @@ Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden', 'warden'], p
   // the island's own monsters (below), the shore's weakest, the hall's worst
   mobs: ['ash_wretch', 'cinder_hound', 'magma_slinger', 'obsidian_sentinel', 'brimstone_acolyte', 'caldera_serpent'],
   guardian: 'ashkar_gatekeeper',
-  courtBosses: ['jarl_warrior'],                                                         // (the courts' own bosses, one a court: src/bosses/jarl_*.js)
+  courtBosses: ['jarl_warrior', 'jarl_wizard'],                                                         // (the courts' own bosses, one a court: src/bosses/jarl_*.js)
   compose(rm, r) {
     const P = (n, ids) => Array.from({ length: n }, () => r.pick(ids));
     switch (rm.kind) {
