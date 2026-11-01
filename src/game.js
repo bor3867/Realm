@@ -892,12 +892,44 @@ export class Game {
       else spawn(list);
     });
     if (def.extraSpawns) spawn(def.extraSpawns(m));                   // things a dungeon places itself (Mirerot's lashers)
+    this.hallBands(def, r, spawn);
     this.spawnPending = spawn; this.dungeonFill = fill;
     const br = m.rooms[m.rooms.length - 1];
     {                                                   // its boss (three-phase engine) waits at the far side of its arena
       const b = this.spawnRealmBoss(def.boss, { x: br.cx + 0.5, y: BX[def.boss].spawnCentre ? br.cy + 0.5 : br.y + 11 }, bxEnemyDef(def.boss));
       b.state = 'sleep'; b.room = br;
     }
+  }
+  // the way to the boss is never a long empty walk (2026-10-31, the polish audit, tools/measure_dungeons.mjs: the Crypt's
+  // and the Keep's straightest road ran 100-170 tiles through bare halls, their bands all in rooms off to the side):
+  // along the shortest road from the entrance to the boss's door, wherever 40 tiles pass with no monster within 5, a
+  // small band of the dungeon's own stands in the hall
+  hallBands(def, r, spawn) {
+    const m = this.map, W = m.w, br = m.rooms[m.rooms.length - 1], mobs = def.mobs || [];
+    if (!mobs.length || !m.spawn || !br) return;
+    const open = (i) => !m.solid[i] && !(m.hasVoid && m.tiles[i] === TID.asvoid) && m.tiles[i] !== TID.lava && m.tiles[i] !== TID.emberlava;
+    const start = Math.floor(m.spawn.y) * W + Math.floor(m.spawn.x), inBoss = (x, y) => x >= br.x - 1 && y >= br.y - 1 && x <= br.x + br.w && y <= br.y + br.h;
+    const prev = new Int32Array(W * m.h).fill(-2), q = [start];
+    prev[start] = -1;
+    let end = -1;
+    for (let h = 0; h < q.length && end < 0; h++) {
+      const i = q[h];
+      if (inBoss(i % W, (i / W) | 0)) { end = i; break; }
+      for (const j of [i + 1, i - 1, i + W, i - W]) if (j >= 0 && j < prev.length && prev[j] === -2 && open(j)) { prev[j] = i; q.push(j); }
+    }
+    if (end < 0) return;                                 // (no road on foot: the Observatory's planks)
+    const road = [];
+    for (let i = prev[end]; i >= 0; i = prev[i]) road.unshift(i);
+    const near = [...this.enemies.filter((e) => !e.dead && !e.rb).map((e) => [e.x, e.y]), ...m.rooms.flatMap((rm) => (rm.pending || []).map(([, x, y]) => [x, y]))];
+    let run = 0;
+    road.forEach((i, k) => {
+      const x = (i % W) + 0.5, y = ((i / W) | 0) + 0.5;
+      if (near.some(([ex, ey]) => (ex - x) ** 2 + (ey - y) ** 2 < 25)) { run = 0; return; }
+      if (++run < 40 || k < 14 || road.length - k < 10) return;   // (never on the doorstep, nor the boss's)
+      const list = [];
+      for (let n = r.int(2, 3); n > 0; n--) { const a = r() * TAU; const bx = x + Math.cos(a) * 0.8, by = y + Math.sin(a) * 0.8; list.push([r.pick(mobs), ...(isSolid(m, bx, by) ? [x, y] : [bx, by])]); }
+      spawn(list); near.push([x, y]); run = 0;
+    });
   }
   maintainRealm(dt) {
     this.respawnT = (this.respawnT || 0) - dt;
