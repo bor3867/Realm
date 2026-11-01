@@ -2067,6 +2067,8 @@ export function dungeon(seed, def) {
       } else if (n.kind === 'guardroom') {
         for (let x = n.x + 2; x < n.x + n.w - 2; x += 3) put2(null, x, n.y + 1, 'weapon_rack');
         put2(null, n.cx, n.y + n.h - 2, 'brazier');
+      } else if (n.kind === 'guardhall') {                            // the Gatekeeper's gate: an arch between banner-hung pillars over the way on to Solkhar (tools/build_gate_arch.py)
+        put(m, 'throne_gate/arch', n.cx, n.y, false, { gateArch: true });
       } else if (n.kind === 'gatehouse') {
         put2(null, n.x + 1, n.y + 1, 'brazier'); put2(null, n.x + n.w - 2, n.y + 1, 'brazier'); put2(null, n.cx, n.y + 1, 'banner');
       }
@@ -2393,6 +2395,10 @@ export function dungeon(seed, def) {
     'd2_decor/crimson_keep_candelabra': [3.4, '#ffb060', 1], 'd2_decor/hollowmoon_lamp_post': [4.5, '#ffe090', 1], 'd2_decor/hollowmoon_popcorn_cart': [2.4, '#fff0a0', 0],
     'ex_decor/astral_floating_crystal': [3.6, '#c8a0ff', 0], 'ex_decor/astral_star_globe': [4, '#fff6c8', 0], 'ex_decor/astral_rune_circle': [2.6, '#8af6ff', 0], 'ex_decor/astral_brass_pillar': [2.4, '#ffd690', 0] };
   m.lights = m.objects.filter((o) => LIGHT[o.sprite] && !o.unlit).map((o) => { const L = LIGHT[o.sprite]; return (o.light = { x: o.x, y: o.y, h: 0.4, r: L[0] * 16, col: L[1], fire: !!L[2] }); });
+  for (const o of m.objects) if (o.gateArch) {                           // the gate's fire-bowls, and the furnace in its arch
+    for (const s of [-5, 5]) m.lights.push({ x: o.x + s, y: o.y, h: 3.6, r: 72, col: '#ff8a2a', fire: true });
+    m.lights.push({ x: o.x, y: o.y - 2, h: 1.2, r: 90, col: '#ff5a1a', fire: true });
+  }
   if (def.style === 'frostveil') {                                    // the ice: snow in slow patches, ice, frigid water, the wall tops
     const pv = noise2(seed ^ 0x51f15e);
     for (let i = 0; i < m.tiles.length; i++) {

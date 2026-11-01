@@ -3207,6 +3207,7 @@ export class Game {
     if (m.sealsLeft > 0) { this.banner(`${msg} A seal breaks (${k}/${m.seals}).`, 3000); this.sfx('rare'); this.narrate(S[Math.min(k, S.length - 2)]); return; }   // (the story, a line a seal)
     this.banner(`${msg} The last seal breaks. The way to the boss is open!`, 3600);
     this.narrate(`The gate grinds open. ${this.dungeonBossName() || 'Its master'} waits beyond it.`);
+    for (const o of m.objects) if (o.gateArch) { o.clip = 'open'; o.clipT = this.t; }   // (the Throne: the molten bars in the Gatekeeper's arch are gone)
     for (const g of m.gates) {
       g.sprite = 'gate_open'; g.solid = false; m.solid[Math.floor(g.y) * m.w + Math.floor(g.x)] = 0;
       this.vx({ k: 'burst', ...liftO(g.x, g.y, 0.5), n: 20, colors: ['#ff4a5a', '#ffd650', '#ffffff'] });

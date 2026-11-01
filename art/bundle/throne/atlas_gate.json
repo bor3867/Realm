@@ -1,0 +1,90 @@
+{
+ "rf": true,
+ "meta": {
+  "name": "The Gatekeeper's gate (the Throne of Solkhar)",
+  "version": 1
+ },
+ "sheets": {
+  "throne_gate": {
+   "image": "throne_gate.png",
+   "kind": "decor",
+   "sprites": {
+    "arch": {
+     "frames": {
+      "s0": [
+       0,
+       0,
+       104,
+       64
+      ],
+      "s1": [
+       104,
+       0,
+       104,
+       64
+      ],
+      "s2": [
+       208,
+       0,
+       104,
+       64
+      ],
+      "s3": [
+       312,
+       0,
+       104,
+       64
+      ],
+      "o0": [
+       0,
+       64,
+       104,
+       64
+      ],
+      "o1": [
+       104,
+       64,
+       104,
+       64
+      ],
+      "o2": [
+       208,
+       64,
+       104,
+       64
+      ],
+      "o3": [
+       312,
+       64,
+       104,
+       64
+      ]
+     },
+     "anims": {
+      "sealed": {
+       "frames": [
+        "s0",
+        "s1",
+        "s2",
+        "s3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "open": {
+       "frames": [
+        "o0",
+        "o1",
+        "o2",
+        "o3"
+       ],
+       "fps": 6,
+       "loop": true
+      }
+     },
+     "meta": {}
+    }
+   }
+  }
+ }
+}
