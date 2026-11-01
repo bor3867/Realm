@@ -1,6 +1,6 @@
-# The Hollow Jarl, Warrior (src/bosses/jarl_warrior.js), to the user's boss concept sheet (2026-11-01): an ancient
-# hollowed warlord in heavy steel, a worn crown on his helm, glowing orange cracks in the plate, a tattered purple cloak
-# and tabard, an enormous executioner's axe. Sculpted (tools/sculpt.py). Three looks:
+# The Hollow Jarl, Warrior (src/bosses/jarl_warrior.js): the user's own sprite (art/hollow_jarl_warrior.jpg, brought to
+# native pixels by tools/import_boss_art.py), animated: heavy steel, a worn crown, glowing orange cracks, a tattered purple
+# cloak and tabard, an enormous executioner's axe. Three looks:
 #   I   The Fallen King   - the crown whole, the plate dark, its cracks dull
 #   II  The Oathbreaker   - the crown cracked, ash leaking from the plate, the cracks brighter
 #   III The Last Oath     - the cloak in tatters, the plate split, the eyes and every crack blazing
@@ -30,111 +30,114 @@ N = 48
 CX = 24
 
 
-def hot(c, x, y, k, f):
-    k = k + (1 if (x + y * 2 + f * 3) % 7 < 2 else 0)
-    c.p(x, y, FIRE[max(0, min(3, int(k)))])
+# ---- the Jarl himself: the user's sprite (art/source/bosses/hollow_jarl_warrior.png, from art/hollow_jarl_warrior.jpg
+# by tools/import_boss_art.py), animated here. Its pixels sorted by what they are (the fire in his cracks, his cloak, the
+# crown's gold, his steel), and each frame a change of them: he breathes (all above his belt sinks a pixel), the fire in
+# his cracks flickers, his cloak's tatters sway; II the cracks brighter, the crown cracked, ash drifting off him; III the
+# cloak torn through, his eyes white-hot, the cracks blazing, embers; the strike, the great axe heaved up; the death, a
+# fall to ash.
+from reduce import read_png  # noqa: E402
+SRC = read_png(os.path.join(root, 'art', 'source', 'bosses', 'hollow_jarl_warrior.png'))
+SH, SW = len(SRC), len(SRC[0])
+INK = (16, 10, 22, 255)
 
 
-def crack(c, pts, k, f):
-    for (x0, y0), (x1, y1) in zip(pts, pts[1:]):
-        n = int(max(abs(x1 - x0), abs(y1 - y0))) + 1
-        for i in range(n + 1):
-            t = i / n; hot(c, round(x0 + (x1 - x0) * t), round(y0 + (y1 - y0) * t), k, f)
+def kind(c):
+    r, g, b, a = c
+    if not a: return '.'
+    if r > 190 and 50 < g < 170 and b < 90: return 'fire'
+    if r > 140 and g > 100 and b < 100 and r - b > 60: return 'gold'
+    if b > 60 and r > 50 and g < 0.75 * min(r, b): return 'cloth'
+    return 'steel'
+
+
+KIND = [[kind(c) for c in row] for row in SRC]
+BELT = next(y for y in range(SH) if sum(1 for x in range(SW) if KIND[y][x] == 'gold') > 8 and y > SH // 2)   # (the belt's row: his waist)
+CROWN = [(x, y) for y in range(SH // 3) for x in range(SW // 2 + 4) if KIND[y][x] == 'gold']               # (the crown: the gold up top, left of the axe)
+CROWN_X = sum(x for x, _ in CROWN) / len(CROWN); CROWN_Y = max(y for _, y in CROWN)
+AXE_X = 36                                                                                                   # (the axe and its haft: right of this)
+HEAD_Y = (CROWN_Y + 1, CROWN_Y + 4)                                                                          # (his eyes' rows)
+
+
+def mix(c, t, k):
+    return (int(c[0] + (t[0] - c[0]) * k), int(c[1] + (t[1] - c[1]) * k), int(c[2] + (t[2] - c[2]) * k), 255)
 
 
 def jarl(act=1, f=0, attack=False):
-    c = Sculpt(N, N, {'steel': STEEL, 'pale': PALE, 'cloth': CLOTH, 'gold': GOLD}, amb=0.3)
-    by = 0 if attack else (0, 0, 1, 1)[f % 4]
-    heat = {1: 0, 2: 1, 3: 2}[act]
-    # ---- the cloak, behind him; its hem in tatters (III: torn through)
-    c.poly([(CX - 10, 13 + by), (CX + 10, 13 + by), (CX + 15, 45), (CX - 15, 45)], 'cloth')
-    rnd = random.Random(5)
-    for x in range(CX - 15, CX + 16):                                                    # the ragged hem
-        cut = rnd.randint(0, 3 if act < 3 else 6)
-        for y in range(46 - cut, 47): c.p(x, y, '.')
-    if act == 3:
-        for (hx, hy, r) in ((CX - 11, 36, 2), (CX + 10, 31, 1.6), (CX + 12, 40, 2.2)):
-            for y in range(int(hy - r), int(hy + r) + 1):
-                for x in range(int(hx - r), int(hx + r) + 1):
-                    if math.hypot(x - hx, y - hy) <= r: c.p(x, y, '.')
-    # ---- the axe at rest: its haft in his right hand (the left of the picture), the great blade low by his side
-    if not attack:
-        c.line(CX - 15, 7, CX - 14, 44, 'steel', 2.2)                                   # the haft
-        c.poly([(CX - 15, 26), (CX - 19, 21.5), (CX - 23, 23.5), (CX - 25, 30), (CX - 24.6, 36), (CX - 21.5, 42), (CX - 16.5, 42.5), (CX - 15, 38), (CX - 18, 35.5), (CX - 18.8, 31.5), (CX - 18, 28)], 'steel')   # the blade: a great crescent, horned top and bottom
-        for t in range(16):                                                             # its edge, catching fire
-            a = math.pi * (0.62 + 0.76 * t / 15); x = CX - 17 + math.cos(a) * 7.4; y = 32.5 + math.sin(a) * 9.6
-            c.p(x, y, 'L' if (t + f) % 4 else 'Y')
-        c.p(CX - 14.5, 5, 'H'); c.p(CX - 14.5, 6, 'h')                                  # the haft's spike
-    # ---- the legs
-    for s in (-1, 1):
-        c.line(CX + s * 4.5, 31 + by, CX + s * 5.5, 43, 'steel', 5.2)
-        c.ell(CX + s * 5.2, 37 + by * 0.5, 2.8, 2.2, 'pale')                            # knee-plates
-        c.ell(CX + s * 6.4, 44.6, 3.8, 2.0, 'steel')
-    # ---- the body: the breastplate, the tabard, the belt
-    c.poly([(CX - 9, 14 + by), (CX + 9, 14 + by), (CX + 8, 31 + by), (CX - 8, 31 + by)], 'steel')
-    c.poly([(CX - 4, 21 + by), (CX + 4, 21 + by), (CX + 4, 40 + by), (CX, 42.4 + by), (CX - 4, 40 + by)], 'cloth')   # the tabard
-    for y in range(24 + by, 39 + by, 3):                                                # its embroidery: a column of runes
-        c.p(CX, y, 'u'); c.p(CX - 1, y + 1, 'V'); c.p(CX + 1, y + 1, 'V')
-    for x in range(CX - 8, CX + 9): c.p(x, 30 + by, 'G' if x % 3 else 'y')              # the belt
-    # the cracks in the plate, glowing
-    C = [[(CX - 7, 16), (CX - 5, 19), (CX - 6, 23)], [(CX + 6, 16), (CX + 4, 20)], [(CX - 8, 25), (CX - 6, 28)]]
-    if act >= 2: C += [[(CX + 7, 22), (CX + 5, 26), (CX + 6, 29)], [(CX - 3, 15), (CX - 2, 19)], [(CX - 5, 33), (CX - 6, 38)]]
-    if act == 3: C += [[(CX + 3, 15), (CX + 2, 20), (CX + 3, 21)], [(CX + 5, 34), (CX + 6, 40)], [(CX - 9, 17), (CX - 8, 20)]]
-    for pts in C: crack(c, [(x, y + by) for x, y in pts], heat, f)
-    # ---- the arms
-    if attack:                                                                          # the axe raised overhead in both hands
-        for s in (-1, 1):
-            c.line(CX + s * 10, 16, CX + s * 7, 7, 'steel', 4.8); c.ell(CX + s * 4, 5.5, 2.8, 2.4, 'steel')
-        c.line(CX, 9, CX, -2, 'steel', 2.2)
-        c.poly([(CX - 2, 0), (CX - 6, -1), (CX - 13, -1.5), (CX - 16, 3), (CX - 13, 8.5), (CX - 6, 8), (CX - 2, 6), (CX - 7, 5), (CX - 8, 3), (CX - 7, 1.5)], 'steel')   # the blade, high
-        for t in range(12): a = math.pi * (0.75 + 0.6 * t / 11); c.p(CX - 7 + math.cos(a) * 7, 3 + math.sin(a) * 6, 'Y' if t % 3 else 'w')
-    else:
-        c.line(CX - 11, 17 + by, CX - 14, 26 + by, 'steel', 5); c.ell(CX - 14.5, 27.5 + by, 2.8, 2.6, 'steel')   # gripping the haft
-        c.line(CX + 11, 17 + by, CX + 13, 27 + by, 'steel', 5); c.ell(CX + 13.2, 29 + by, 2.8, 2.6, 'steel')    # the other, a fist
-    # ---- the pauldrons: great plates edged with grey fur
-    for s in (-1, 1):
-        c.ell(CX + s * 11, 14 + by, 7.2, 5.2, 'steel')
-        for k in range(-6, 7, 2): c.p(CX + s * 11 + k, 9 + by + (k % 4 == 0), 'W' if k % 4 else 'H')   # the fur's ragged top
-        c.ell(CX + s * 11, 15.5 + by, 5, 2.4, 'steel', seam=False)
-        if act == 3 and s > 0: c.poly([(CX + 14, 9 + by), (CX + 18, 11 + by), (CX + 16, 13 + by)], 'steel')   # III: a plate split off
-    # ---- the head: a helm, a slit with eyes of fire, the crown
-    hy = 9 + by
-    c.ell(CX, hy + 1, 5, 5.4, 'steel')
-    for x in range(CX - 3, CX + 4): c.p(x, hy + 1, 'd')
-    eye = 'w' if act == 3 else 'Y' if act == 2 else 'L'
-    c.p(CX - 2, hy + 1, eye); c.p(CX + 2, hy + 1, eye)
-    for y in range(hy + 2, hy + 5): c.p(CX, y, 'd')
-    for x in range(CX - 5, CX + 6): c.p(x, hy - 3, 'G' if x % 2 else 'y')                  # the crown's band
-    pts = [CX - 4, CX - 2, CX, CX + 2, CX + 4]
-    for i, x in enumerate(pts):
-        if act >= 2 and i == 3: continue                                                 # II: a point broken off
-        ht = 3 if i == 2 else 2
-        for j in range(ht): c.p(x, hy - 4 - j, 'y' if j == ht - 1 else 'G')
-    if act >= 2: c.p(CX + 1, hy - 3, 'd'); c.p(CX + 1, hy - 4, 'd')                     # its crack
-    # ---- II, III: ash leaking from the plate, drifting up; III: embers off him
+    g = [list(row) for row in SRC]
+    # the fire in his cracks: brighter each look, flickering frame to frame; his eyes (fire in the helm) white-hot in III
+    for y in range(SH):
+        for x in range(SW):
+            if KIND[y][x] != 'fire': continue
+            k = {1: 0.0, 2: 0.3, 3: 0.55}[act] + (0.25 if (x + y * 2 + f * 3) % 7 < 2 else 0)
+            eye = HEAD_Y[0] <= y <= HEAD_Y[1] and x < AXE_X
+            g[y][x] = mix(g[y][x], (255, 250, 220) if (eye and act == 3) else (255, 214, 96), min(1, k + (0.5 if eye and act == 3 else 0)))
+    if act >= 2:                                                                             # II: the crown cracked, a point dark
+        cx = int(CROWN_X) + 3
+        for y in range(CROWN_Y - 4, CROWN_Y + 1):
+            if 0 <= y < SH and KIND[y][cx] == 'gold': g[y][cx] = INK
+    if act == 3:                                                                             # III: the cloak torn through
+        for y in range(SH * 2 // 3, SH):
+            for x in range(SW):
+                if KIND[y][x] == 'cloth' and ((x * 7 + y * 13) % 9 == 0 or (y > SH - 5 and (x * 3 + y) % 4 == 0)): g[y][x] = (0, 0, 0, 0)
+    # the cloak's tatters sway: its lowest rows shift a pixel, turn about
+    if f % 2:
+        for y in range(SH - 6, SH):
+            row = g[y][:]
+            for x in range(SW):
+                if KIND[y][x] == 'cloth' and x < AXE_X - 2:
+                    nx = x + (1 if y % 2 else -1)
+                    if 0 <= nx < SW and KIND[y][nx] in ('cloth', '.'): row[nx] = g[y][x]
+            g[y] = row
+    # he breathes: all above his belt sinks a pixel (not the axe: he holds it still)
+    if f in (2, 3):
+        for y in range(BELT, 0, -1):
+            for x in range(AXE_X):
+                g[y][x] = g[y - 1][x]
+        for x in range(AXE_X): g[0][x] = (0, 0, 0, 0)
+    # the strike: the great axe heaved up, three pixels, the haft drawn up with it
+    if attack:
+        for y in range(SH):
+            for x in range(AXE_X, SW):
+                g[y][x] = g[y + 3][x] if y + 3 < SH else (0, 0, 0, 0)
+    # II, III: ash drifting off him; III: embers
     if act >= 2:
-        for k in range(7 if act == 2 else 11):
-            a = k * 2.399; x = CX + math.cos(a) * (6 + (k % 4) * 3); y = 20 + math.sin(a) * 9 - ((f * 3 + k * 2) % 10)
-            c.p(x, y, 'A' if k % 2 else 'a')
+        for k in range(8 if act == 2 else 12):
+            a = k * 2.399; x = int(SW / 2 - 6 + math.cos(a) * (8 + (k % 4) * 3)); y = int(SH * 0.4 + math.sin(a) * 10 - ((f * 3 + k * 2) % 10))
+            if 0 <= x < SW and 0 <= y < SH and not g[y][x][3]: g[y][x] = (90, 85, 96, 255) if k % 2 else (138, 132, 144, 255)
     if act == 3:
-        for k in range(6):
-            a = k * 1.7 + f; x = CX + math.cos(a) * 14; y = 18 + math.sin(a) * 12 - (f * 2 % 6)
-            hot(c, x, y, 2, f)
-    return c.outline('o').rows()
+        for k in range(7):
+            a = k * 1.7 + f; x = int(SW / 2 - 6 + math.cos(a) * 15); y = int(SH * 0.4 + math.sin(a) * 13 - (f * 2 % 6))
+            if 0 <= x < SW and 0 <= y < SH and not g[y][x][3]: g[y][x] = (255, 160, 40, 255) if k % 2 else (255, 220, 110, 255)
+    return g
 
 
 def fall(k):
-    rnd = random.Random(30 + k); g = [list(r) for r in jarl(3, 0)]
-    for y in range(N):
-        for x in range(N):
-            if g[y][x] not in ('.', 'o') and rnd.random() < 0.25 + 0.3 * k: g[y][x] = 'z' if (x + y) % 2 else 'Z'
+    """three death frames: the plate cracks to ash, crumbles, slumps to a heap"""
+    rnd = random.Random(30 + k); g = jarl(3, 0)
+    for y in range(SH):
+        for x in range(SW):
+            if g[y][x][3] and rnd.random() < 0.25 + 0.3 * k: g[y][x] = (46, 40, 48, 255) if (x + y) % 2 else (74, 64, 72, 255)
     if k == 2:
-        sh = [['.'] * N for _ in range(N)]
-        for y in range(N):
-            for x in range(N):
-                if y + 14 < N and g[y][x] != '.' and rnd.random() < 0.65: sh[y + 14][x] = g[y][x]
-        return [''.join(r) for r in sh]
-    return [''.join(r) for r in g]
+        sh = [[(0, 0, 0, 0)] * SW for _ in range(SH)]
+        for y in range(SH):
+            for x in range(SW):
+                if y + 14 < SH and g[y][x][3] and rnd.random() < 0.65: sh[y + 14][x] = g[y][x]
+        return sh
+    return g
+
+
+def pack_rgba(name, entries, W, H, cols=6):
+    rows = (len(entries) + cols - 1) // cols
+    px = [[(0, 0, 0, 0)] * (cols * W) for _ in range(rows * H)]; fr = {}
+    for i, (key, grid) in enumerate(entries):
+        ox, oy = (i % cols) * W, (i // cols) * H
+        for y, row in enumerate(grid):
+            for x, c in enumerate(row):
+                if c[3]: px[oy + y][ox + x] = c
+        fr[key] = [ox, oy, W, H]
+    write_png(os.path.join(out, name + '.png'), px)
+    return fr, px
 
 
 # ---- his shots (pointing right) and his vassals
@@ -168,7 +171,7 @@ if __name__ == '__main__':
     for act in (1, 2, 3):
         frames += [(f'i{act}_{k}', jarl(act, k)) for k in range(4)] + [(f'a{act}', jarl(act, 0, True)), (f'a{act}b', jarl(act, 2, True))]
     frames += [(f'd{k}', fall(k)) for k in range(3)]
-    fr, px = pack(BID, frames, 48)
+    fr, px = pack_rgba(BID, frames, SW, SH)
     anims = {}
     for act in (1, 2, 3):
         anims[f'idle{act}'] = {'frames': [f'i{act}_{k}' for k in range(4)], 'fps': 6, 'loop': True}
@@ -187,13 +190,12 @@ if __name__ == '__main__':
     ip = os.path.join(root, 'art', 'bundle', 'index.json'); idx = json.load(open(ip, encoding='utf8'))
     if 'throne/atlas_jarl_warrior.json' not in idx['atlases']:
         idx['atlases'].append('throne/atlas_jarl_warrior.json'); json.dump(idx, open(ip, 'w', encoding='utf8', newline='\n'), indent=1)
-    S = 6; G = [jarl(1, 0), jarl(2, 1), jarl(3, 2), jarl(1, 0, True)]
-    P = [[(36, 26, 40, 255)] * (len(G) * (N + 2) * S) for _ in range((N + 2) * S)]
+    S = 6; G = [jarl(1, 0), jarl(1, 2), jarl(2, 1), jarl(3, 3), jarl(1, 0, True), fall(1)]
+    P = [[(36, 26, 40, 255)] * (len(G) * (SW + 2) * S) for _ in range((SH + 2) * S)]
     for gi, g in enumerate(G):
         for y, row in enumerate(g):
-            for x, ch in enumerate(row):
-                if ch in PAL:
-                    h = PAL[ch]; col = (int(h[1:3], 16), int(h[3:5], 16), int(h[5:7], 16), 255)
-                    for dy in range(S): P[(y + 1) * S + dy][(gi * (N + 2) + x + 1) * S:(gi * (N + 2) + x + 2) * S] = [col] * S
+            for x, col in enumerate(row):
+                if col[3]:
+                    for dy in range(S): P[(y + 1) * S + dy][(gi * (SW + 2) + x + 1) * S:(gi * (SW + 2) + x + 2) * S] = [col] * S
     write_png(os.path.join(root, 'art', '_proto', 'jarl_warrior_preview.png'), P)
     print('the Warrior Jarl:', len(frames), 'frames')
