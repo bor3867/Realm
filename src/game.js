@@ -897,6 +897,12 @@ export class Game {
     this.hallBands(def, r, spawn);
     this.spawnPending = spawn; this.dungeonFill = fill;
     const br = m.rooms[m.rooms.length - 1];
+    const gr = def.guardian && m.rooms.find((q) => q.kind === 'guardhall');
+    if (gr) {                                           // a guardian on the way (the Throne's Gatekeeper): asleep in its hall till you come in; its death is the gate's last seal
+      const b = this.spawnRealmBoss(def.guardian, { x: gr.cx + 0.5, y: gr.y + 6 }, bxEnemyDef(def.guardian));
+      b.state = 'sleep'; b.room = gr; b.midBoss = true; b.warden = true;
+      (m.wardens = m.wardens || []).push(b); m.seals = (m.seals || 0) + 1; m.sealsLeft = (m.sealsLeft || 0) + 1;
+    }
     {                                                   // its boss (three-phase engine) waits at the far side of its arena
       const b = this.spawnRealmBoss(def.boss, { x: br.cx + 0.5, y: BX[def.boss].spawnCentre ? br.cy + 0.5 : br.y + 11 }, bxEnemyDef(def.boss));
       b.state = 'sleep'; b.room = br;
@@ -1203,7 +1209,7 @@ export class Game {
     p.mp = Math.min(this.stat('mp'), p.mp + mpRegen(this.stat('wis')) * dt);
     // lava
     const ti = this.map.tiles[Math.floor(p.y) * this.map.w + Math.floor(p.x)];
-    if (ti === TID.lava || ti === TID.emberlava) { p.lavaT -= dt; if (p.lavaT <= 0) { p.lavaT = 0.25; this.hurtPlayer(14, 'molten floor', true); } }
+    if (ti === TID.lava || ti === TID.emberlava) { p.lavaT -= dt; if (p.lavaT <= 0) { p.lavaT = 0.25; this.hurtPlayer(14 + (this.map.citadel ? Math.round(30 * this.heatAt(p.y)) : 0), 'molten floor', true); } }   // (the Throne's lava burns hotter the further in: 56 a second on the shore, 176 by the Gatekeeper)
     else if (ti === TID.rift) { p.lavaT -= dt; if (p.lavaT <= 0) { p.lavaT = 0.5; this.hurtPlayer(6, 'a godland rift', true); } }   // the godlands' ground itself bites
     // shooting
     p.fireCd -= dt;
@@ -2680,8 +2686,10 @@ export class Game {
         this.fx.push({ kind: 'hexzone', x: e.x, y: e.y, r: 3.5, t: 0, life: 0.9 });
       }
       if (e.warden) this.breakSeal(`${e.D.name.split(',')[0]} falls.`);
-      if (e.rb && this.map.kind === 'dungeon' && this.map.def) { const dk = Object.keys(DUNGEONS).find((k) => DUNGEONS[k] === this.map.def); if (dk) this.achFlag('dg', dk); }   // (a dungeon cleared: src/achievements.js)
-      if (e.rb) { this.questEvent(this.map.kind === 'dungeon' ? 'dungeon' : 'rboss', e); this.trophy(e.id); if (this.map.kind === 'dungeon') this.dungeonDone(); else this.player.bossKills = (this.player.bossKills || 0) + 1; }
+      const last = e.rb && !e.midBoss;                    // (a guardian on the way is no dungeon's end: no clear, no way out, no epilogue)
+      if (last && this.map.kind === 'dungeon' && this.map.def) { const dk = Object.keys(DUNGEONS).find((k) => DUNGEONS[k] === this.map.def); if (dk) this.achFlag('dg', dk); }   // (a dungeon cleared: src/achievements.js)
+      if (e.rb) { this.trophy(e.id); if (!last) this.player.bossKills = (this.player.bossKills || 0) + 1; }
+      if (last) { this.questEvent(this.map.kind === 'dungeon' ? 'dungeon' : 'rboss', e); if (this.map.kind === 'dungeon') this.dungeonDone(); else this.player.bossKills = (this.player.bossKills || 0) + 1; }
       let items = e.noLoot ? [] : rollLoot(e.D.loot, e.D.lootLuck || 1, this.lootRank(e));   // (how high it may drop: LOOT_GATE)   // (an overworld boss's adds carry nothing)
       if (this.map.kind === 'realm' && !e.rb) items = items.filter((id) => !String(id).startsWith('stat_') || R() < STAT_DROP_REALM);   // stat potions are scarcer out in the realm (2026-10-19)
       const egg = this.eggDrop(e);
@@ -2693,7 +2701,7 @@ export class Game {
       if (this.map.kind === 'realm') {
         const pd = portalDrop(e.D, e.id);
         if (pd && R() < pd[1]) this.openPortal(pd[0], e.x + (e.rb ? 1.5 : 0), e.y);
-      } else if (e.rb && this.map.kind === 'dungeon') {
+      } else if (last && this.map.kind === 'dungeon') {
         this.map.portals.push({ kind: 'realm', x: e.x + 1.5, y: e.y + 1, label: this.exitLabel(), to: 'realm', life: 90 });
         this.dungeonBeat('fallen');                          // its epilogue
       }

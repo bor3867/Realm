@@ -1350,6 +1350,7 @@ Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden', 'warden'], p
   // (2026-11-01: the volcano island, src/world/maps.js LAYOUT.throne) who holds each part of it, harder the further in:
   // the island's own monsters (below), the shore's weakest, the hall's worst
   mobs: ['ash_wretch', 'cinder_hound', 'magma_slinger', 'obsidian_sentinel', 'brimstone_acolyte', 'caldera_serpent'],
+  guardian: 'ashkar_gatekeeper',
   compose(rm, r) {
     const P = (n, ids) => Array.from({ length: n }, () => r.pick(ids));
     switch (rm.kind) {
@@ -1360,7 +1361,7 @@ Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden', 'warden'], p
       case 'rampart': return P(r.int(2, 3), ['obsidian_sentinel', 'brimstone_acolyte', 'caldera_serpent']);
       case 'courtyard': return [...P(5, ['brimstone_acolyte', 'caldera_serpent', 'obsidian_sentinel', 'stolen_ray']), 'furnace_brute', 'furnace_brute'];
       case 'causeway': return P(2, ['stolen_ray']);
-      case 'guardhall': return ['furnace_brute', ...P(4, ['stolen_ray', 'brimstone_acolyte'])];
+      case 'guardhall': return P(2, ['stolen_ray']);                                        // (Ashkar, the Gatekeeper, holds it: src/bosses/ashkar_gatekeeper.js)
       default: return [];
     }
   } });
