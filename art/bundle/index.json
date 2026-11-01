@@ -28,7 +28,8 @@
   "nexus/atlas_nexus.json",
   "throne/atlas_throne.json",
   "throne/atlas_gatekeeper.json",
-  "throne/atlas_gate.json"
+  "throne/atlas_gate.json",
+  "throne/atlas_jarl_warrior.json"
  ],
  "hover": "HOVER.json",
  "manifest": "MANIFEST.json"

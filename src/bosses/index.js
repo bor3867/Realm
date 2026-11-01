@@ -28,11 +28,12 @@ import penitent_colossus from './penitent_colossus.js';
 import emily_the_yapper from './emily_the_yapper.js';
 import the_fallen_star from './the_fallen_star.js';
 import ashkar_gatekeeper from './ashkar_gatekeeper.js';
+import jarl_warrior from './jarl_warrior.js';
 import { applyBossLoot } from './boss_loot.js';
 
 export const BX = { framework_test, abyssal_kraken, thornheart_treant, glacius_frozen_wyrm, mother_mycelia, grand_orrery, gilded_sphinx, count_vesper, grinning_ringmaster,
   tidebound_lich, forgeheart_colossus, unstruck_god, unstruck_smith, drowned_abbot, fallen_heart, the_archivist,
-  honey_queen, the_puppeteer, prism_wyrm, the_sleeper, brine_cathedral, wick_mother, orrery_of_winter, penitent_colossus, emily_the_yapper, the_fallen_star, ashkar_gatekeeper };
+  honey_queen, the_puppeteer, prism_wyrm, the_sleeper, brine_cathedral, wick_mother, orrery_of_winter, penitent_colossus, emily_the_yapper, the_fallen_star, ashkar_gatekeeper, jarl_warrior };
 applyBossLoot(BX);                                        // every boss: a bag every kill, every class's gear in its band, its relics rare (src/bosses/boss_loot.js)
 
 // the enemy definition the rest of the game sees (spawnRealmBoss, loot, the boss bar)

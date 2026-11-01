@@ -881,6 +881,11 @@ export class Game {
     m.rooms.slice(1, -1).forEach((rm) => {
       const big = Math.floor(rm.w * rm.h / 110);
       if (rm.role === 'puzzle' || rm.role === 'altar' || rm.role === 'rest') return;          // quiet rooms: the danger here is of another kind
+      if (rm.role === 'warden' && def.courtBosses && (m.courtK = m.courtK || 0) < def.courtBosses.length) {   // a court held by a boss of its own (the Throne's Jarls): it alone, its death the seal
+        const id = def.courtBosses[m.courtK++], b = this.spawnRealmBoss(id, { x: rm.cx + 0.5, y: rm.cy + 0.5 }, bxEnemyDef(id));
+        b.state = 'sleep'; b.room = rm; b.midBoss = true; b.warden = true; (m.wardens = m.wardens || []).push(b);
+        return;
+      }
       if (rm.role === 'warden') { spawn(def.compose ? def.compose(rm, r, (rm.dep || 0) / maxDep).map((id) => [id, ...spot(rm)]) : fill(rm, r.int(2, 4), false)); warden(rm); return; }
       if (def.compose) {                                                // a dungeon that says who stands where
         const list = def.compose(rm, r, (rm.dep || 0) / maxDep).map((id) => [id, ...spot(rm)]);
@@ -2970,6 +2975,11 @@ export class Game {
         f.hitT -= dt;
         const dx = p.x - f.x, dy = p.y - f.y, along = dx * Math.cos(f.a) + dy * Math.sin(f.a), across = Math.abs(-dx * Math.sin(f.a) + dy * Math.cos(f.a));
         if (f.dmg && f.hitT <= 0 && along > 0 && along < f.len && across < f.w) { f.hitT = 0.3; this.hurtPlayer(f.dmg, f.by); }   // (a lane with no damage is only a mark)
+      }
+      if (f.kind === 'cleave' && !f.done && f.t >= f.delay && !p.dead) {   // a blow over a wedge of floor (a Jarl's axe): marked, then struck once
+        f.done = true;
+        const dx = p.x - f.x, dy = p.y - f.y, da = Math.atan2(dy, dx) - f.a;
+        if (Math.hypot(dx, dy) < f.r + HITBOX.r && Math.abs(Math.atan2(Math.sin(da), Math.cos(da))) < f.spread / 2) this.hurtPlayer(f.dmg, f.by);
       }
       if (f.kind !== 'sweep' || f.t < f.tele || p.dead) continue;
       if (f.e.dead || f.e.state === 'dead') { f.life = 0; continue; }

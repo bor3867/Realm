@@ -1351,6 +1351,7 @@ Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden', 'warden'], p
   // the island's own monsters (below), the shore's weakest, the hall's worst
   mobs: ['ash_wretch', 'cinder_hound', 'magma_slinger', 'obsidian_sentinel', 'brimstone_acolyte', 'caldera_serpent'],
   guardian: 'ashkar_gatekeeper',
+  courtBosses: ['jarl_warrior'],                                                         // (the courts' own bosses, one a court: src/bosses/jarl_*.js)
   compose(rm, r) {
     const P = (n, ids) => Array.from({ length: n }, () => r.pick(ids));
     switch (rm.kind) {
@@ -1365,6 +1366,9 @@ Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden', 'warden'], p
       default: return [];
     }
   } });
+// ---- the Hollow Jarl's vassals: spectral warriors he calls to his court (src/bosses/jarl_warrior.js; art tools/build_jarl_warrior.py)
+ENEMIES.jarl_vassal = { name: 'Vassal of the Dead', biome: 'throne', reg: 'jarl_kin/vassal', hp: 8000, def: 10, speed: 1.6, xp: 0, r: 0.5, ai: 'kite', keep: 6, aggro: 30, fly: true,
+  attacks: [{ pattern: 'aimed', proj: 'jarl_shots/sword', count: 2, arc: 0.14, dmg: 59, speed: 5, range: 9, cd: 2.0, tell: 350 }], loot: [] };
 // ---- the volcano island's own monsters (art: tools/build_throne_kin.py, 'throne_kin/<id>')
 {
   const TL = DL([9, 10], [9, 11], [4, 5], [4, 5], 0.12), K = (id) => 'throne_kin/' + id;

@@ -2460,7 +2460,7 @@ export function dungeon(seed, def) {
   if (m.citadel) {                                                    // THE THRONE: hotter the further in
     const C = m.citadel, inR = (n, x, y) => x >= n.x && y >= n.y && x < n.x + n.w && y < n.y + n.h, pv = noise2(seed ^ 0x7a1a);
     const taken = new Set(m.objects.map((o) => Math.floor(o.y) * S + Math.floor(o.x)));
-    const POOL = { champion: 0.76, rampart: 0.8, courtyard: 0.7 };          // (lava where the noise runs over this; none in the Gatekeeper's hall: his arena is clear)
+    const POOL = { rampart: 0.8, courtyard: 0.7 };          // (lava where the noise runs over this; none in the boss halls, the courts and the Gatekeeper's: their arenas are clear)
     for (let y = 2; y < S - 2; y++) for (let x = 2; x < S - 2; x++) {
       if (tile(x, y) !== FLOOR || inR(boss, x, y)) continue;
       const n = rooms.find((q) => inR(q, x, y)), th = n && POOL[n.kind];

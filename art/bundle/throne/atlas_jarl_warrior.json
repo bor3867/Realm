@@ -1,0 +1,322 @@
+{
+ "rf": true,
+ "meta": {
+  "name": "The Hollow Jarl, Warrior (the Throne of Solkhar)",
+  "version": 1
+ },
+ "sheets": {
+  "bx_jarl_warrior": {
+   "image": "jarl_warrior.png",
+   "kind": "boss",
+   "sprites": {
+    "jarl_warrior": {
+     "frames": {
+      "i1_0": [
+       0,
+       0,
+       48,
+       48
+      ],
+      "i1_1": [
+       48,
+       0,
+       48,
+       48
+      ],
+      "i1_2": [
+       96,
+       0,
+       48,
+       48
+      ],
+      "i1_3": [
+       144,
+       0,
+       48,
+       48
+      ],
+      "a1": [
+       192,
+       0,
+       48,
+       48
+      ],
+      "a1b": [
+       240,
+       0,
+       48,
+       48
+      ],
+      "i2_0": [
+       288,
+       0,
+       48,
+       48
+      ],
+      "i2_1": [
+       336,
+       0,
+       48,
+       48
+      ],
+      "i2_2": [
+       0,
+       48,
+       48,
+       48
+      ],
+      "i2_3": [
+       48,
+       48,
+       48,
+       48
+      ],
+      "a2": [
+       96,
+       48,
+       48,
+       48
+      ],
+      "a2b": [
+       144,
+       48,
+       48,
+       48
+      ],
+      "i3_0": [
+       192,
+       48,
+       48,
+       48
+      ],
+      "i3_1": [
+       240,
+       48,
+       48,
+       48
+      ],
+      "i3_2": [
+       288,
+       48,
+       48,
+       48
+      ],
+      "i3_3": [
+       336,
+       48,
+       48,
+       48
+      ],
+      "a3": [
+       0,
+       96,
+       48,
+       48
+      ],
+      "a3b": [
+       48,
+       96,
+       48,
+       48
+      ],
+      "d0": [
+       96,
+       96,
+       48,
+       48
+      ],
+      "d1": [
+       144,
+       96,
+       48,
+       48
+      ],
+      "d2": [
+       192,
+       96,
+       48,
+       48
+      ]
+     },
+     "anims": {
+      "idle1": {
+       "frames": [
+        "i1_0",
+        "i1_1",
+        "i1_2",
+        "i1_3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack1": {
+       "frames": [
+        "a1",
+        "a1b",
+        "a1"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle2": {
+       "frames": [
+        "i2_0",
+        "i2_1",
+        "i2_2",
+        "i2_3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack2": {
+       "frames": [
+        "a2",
+        "a2b",
+        "a2"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle3": {
+       "frames": [
+        "i3_0",
+        "i3_1",
+        "i3_2",
+        "i3_3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack3": {
+       "frames": [
+        "a3",
+        "a3b",
+        "a3"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "d0",
+        "d1",
+        "d2"
+       ],
+       "fps": 3,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "The Fallen King",
+       "idle": "idle1",
+       "attack": "attack1"
+      },
+      "2": {
+       "name": "The Oathbreaker",
+       "idle": "idle2",
+       "attack": "attack2"
+      },
+      "3": {
+       "name": "The Last Oath",
+       "idle": "idle3",
+       "attack": "attack3"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "jarl_shots": {
+   "image": "jarl_shots.png",
+   "kind": "shot",
+   "sprites": {
+    "crescent": {
+     "frames": {
+      "0": [
+       0,
+       0,
+       5,
+       6
+      ]
+     },
+     "meta": {}
+    },
+    "shard": {
+     "frames": {
+      "0": [
+       8,
+       0,
+       7,
+       3
+      ]
+     },
+     "meta": {}
+    },
+    "stone": {
+     "frames": {
+      "0": [
+       16,
+       0,
+       5,
+       5
+      ]
+     },
+     "meta": {}
+    },
+    "sword": {
+     "frames": {
+      "0": [
+       24,
+       0,
+       8,
+       3
+      ]
+     },
+     "meta": {}
+    }
+   }
+  },
+  "jarl_kin": {
+   "image": "jarl_kin.png",
+   "kind": "enemy",
+   "sprites": {
+    "vassal": {
+     "frames": {
+      "a": [
+       0,
+       0,
+       8,
+       8
+      ],
+      "b": [
+       8,
+       0,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "a",
+        "b"
+       ],
+       "fps": 5,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "b"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "meta": {}
+    }
+   }
+  }
+ }
+}

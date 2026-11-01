@@ -334,6 +334,7 @@ export class Renderer {
       else if (f.kind === 'erupttint') { const k = Math.min(1, f.t / 6), a = Math.min(1, (f.life - f.t) * 3) * (0.12 + 0.22 * k + 0.06 * Math.sin(g.t * 9));   // the realm erupting: the sky reddens
         this.b.fillStyle = `rgba(255,70,20,${Math.max(0, a).toFixed(3)})`; this.b.fillRect(0, 0, this.buf.width, this.buf.height); }
       else if (f.kind === 'lane') this.laneFx(f, g);
+      else if (f.kind === 'cleave') this.cleaveFx(f, g);
       else if (f.kind === 'wglyph' || f.kind === 'wphantom') this.mechFx(f, g);
       else if (f.kind === 'halo') this.haloFx(f, g);
       else if (f.kind === 'sigil' || f.kind === 'sigilq') this.sigilFx(f, g);
@@ -1986,6 +1987,21 @@ export class Renderer {
     }
   }
   // the Forgeheart Colossus's eruption lanes: a warning glow, then a road of fire
+  // a wedge of floor about to be struck (a Jarl's axe): its edges dotted and its floor tinted while it is marked (deeper
+  // as the blow comes), then the blow itself, a bright sweep across it
+  cleaveFx(f, g) {
+    const b = this.b, live = f.t >= f.delay, C = f.cols || ['#ff8c1e', '#ffd84a', '#fff6c8'];
+    const k = live ? 1 - Math.min(1, (f.t - f.delay) / 0.3) : Math.min(1, f.t / f.delay), n = Math.max(6, Math.ceil(f.spread * f.r * 2.4));
+    const pt = (a, d) => { const [sx, sy] = this.proj(f.x + Math.cos(a) * d, f.y + Math.sin(a) * d); return [Math.round(sx), Math.round(sy)]; };
+    b.save(); b.globalAlpha = live ? 0.55 * k : 0.12 + 0.2 * k; b.fillStyle = live ? C[1] : C[0];
+    b.beginPath(); b.moveTo(...pt(0, 0));
+    for (let i = 0; i <= n; i++) b.lineTo(...pt(f.a - f.spread / 2 + (i / n) * f.spread, f.r));
+    b.closePath(); b.fill(); b.restore();
+    if (live) return;
+    b.fillStyle = (Math.floor(g.t * 12) % 2) ? C[0] : C[1];
+    for (let i = 0; i <= n; i++) { const [x, y] = pt(f.a - f.spread / 2 + (i / n) * f.spread, f.r); b.fillRect(x - 1, y - 1, 2, 2); }   // its rim
+    for (const s of [-1, 1]) for (let d = 0.5; d < f.r; d += 0.5) { const [x, y] = pt(f.a + s * f.spread / 2, d); b.fillRect(x - 1, y - 1, 2, 2); }   // its sides
+  }
   laneFx(f, g) {
     const b = this.b, live = f.t >= f.delay, L = f.len, n = Math.ceil(L * 2);
     for (let j = 0; j < n; j++) {
