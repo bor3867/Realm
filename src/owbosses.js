@@ -21,7 +21,7 @@ export const HP_BUFF = 1.25, PARTY_HP = 0.5;
 export const OW_BOSSES = {
   brine_cathedral: { life: 65000, hp: 2.2, dmg: 0.75,   // (dmg was 3.0: see below)
   adds: { id: 'brine_pilgrim', n: 3, every: 13, near: 'boss', life: 25 } },
-  abyssal_kraken: { life: 140000, hp: 2.0, dmg: 0.4, adds: { id: 'kraken_tentacle', n: 2, every: 14, near: 'you', life: 11 } },
+  abyssal_kraken: { life: 110000, hp: 2.0, dmg: 0.4, adds: { id: 'kraken_tentacle', n: 2, every: 14, near: 'you', life: 11 } },
   wick_mother: { life: 150000, hp: 1.7, dmg: 0.9, adds: { id: 'candle_mite', n: 4, every: 11, near: 'boss', life: 25 } },
   thornheart_treant: { life: 260000, hp: 3.0, dmg: 1.6, adds: { id: 'thorn_sprite', n: 3, every: 11, near: 'boss', life: 25 } },
   orrery_of_winter: { life: 260000, hp: 1.6, dmg: 2.3,   // (its blows were a median 189, over the 100-150 a large boss's should be)
