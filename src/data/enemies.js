@@ -736,7 +736,7 @@ for (const [id, D] of Object.entries(ENEMIES)) {
 // On the boss framework (src/bosses/unstruck_god.js). The old five-phase fight below stays for /boss unstruck_god. (Admins: /portal throne, /tp throne, /bx unstruck_god)
 DUNGEONS.throne = { name: 'The Throne of Solkhar', floor: 'marble', wall: 'ribwall', hazard: 'lava', rooms: 3, portal: 'throne', style: 'heart',
   bossW: 43, bossH: 35,
-  hazardFx: { kind: 'zones', name: 'falling gold', every: 4.5, n: 4, r: 1.6, delay: 1.1, dmg: 110, spread: 5, stagger: 0.08, shards: 6, proj: 'goldshard', colors: ['#ffd650', '#ffffff'] },
+  hazardFx: { kind: 'zones', name: 'lava bombs', every: 4.5, n: 4, r: 1.6, delay: 1.1, dmg: 110, spread: 5, stagger: 0.08, shards: 6, proj: 'goldshard', colors: ['#ff8a3a', '#ffd650', '#ff3a1a'] },
   chestLoot: [{ slot: 'weapon', tiers: [9, 10], p: 1 }, { slot: 'armor', tiers: [10, 11], p: 1 }, { slot: 'ability', tiers: [5, 5], p: 0.8 },
     { slot: 'ring', tiers: [5, 5], p: 0.8 }, { stat: true, p: 1 }, { stat: true, p: 1 }],
   mobs: ['hollow_thane', 'gilded_cardinal', 'blood_seraph', 'cherub_husk', 'gilded_lancer'],
@@ -1346,7 +1346,22 @@ Object.assign(DUNGEONS.forge, { seals: [], puzzle: null, altar: false, layout: {
 // the upper ones each guard the boss their own way
 Object.assign(DUNGEONS.scriptorium, { seals: ['puzzle', 'lever', 'warden'], puzzle: 'runes', altar: true, layout: { secrets: 3 } });
 Object.assign(DUNGEONS.heart, { seals: ['warden', 'warden', 'warden'], puzzle: null, altar: true, layout: { secrets: 2 } });
-Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden', 'warden'], puzzle: null, altar: false, layout: { secrets: 1 } });
+Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden', 'warden'], puzzle: null, altar: false, layout: { secrets: 0 },
+  // (2026-11-01: the volcano island, src/world/maps.js LAYOUT.throne) who holds each part of it, harder the further in
+  compose(rm, r) {
+    const P = (n, ids) => Array.from({ length: n }, () => r.pick(ids));
+    switch (rm.kind) {
+      case 'gatehouse': return P(r.int(3, 4), ['cherub_husk', 'hollow_thane']);
+      case 'wing': return P(r.int(2, 3), ['hollow_thane', 'gilded_lancer', 'cherub_husk']);
+      case 'champion': return P(3, ['hollow_thane', 'gilded_lancer']);
+      case 'treasury': return P(2, ['gilded_lancer', 'hollow_thane']);
+      case 'rampart': return P(r.int(2, 3), ['gilded_lancer', 'gilded_cardinal', 'blood_seraph']);
+      case 'courtyard': return [...P(6, ['blood_seraph', 'gilded_cardinal', 'gilded_lancer']), 'seraph_husk'];
+      case 'causeway': return P(2, ['blood_seraph', 'gilded_cardinal']);
+      case 'guardhall': return ['cathedral_engine', 'hollow_jarl', ...P(3, ['blood_seraph', 'gilded_cardinal'])];
+      default: return [];
+    }
+  } });
 
 // ---- each dungeon's darkness has its own colour (the light pools are carved out of it)
 Object.assign(DUNGEONS.chapel, { ambient: 'rgba(6,24,34,0.5)' });

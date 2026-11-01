@@ -142,7 +142,7 @@ const methods = {
     if (m.ruinBlocks) return m.ruinBlocks;
     const B = new Map(), at = new Map();
     for (const o of m.objects) {
-      if (!RUINS.has(o.sprite)) continue;
+      if (!RUINS.has(o.sprite) || o.hidden) continue;
       const tx = Math.floor(o.x), ty = Math.floor(o.y);
       const blk = { tx, ty, o, h: 6 + Math.round(hash(tx, ty) * 8), name: o.sprite };
       at.set(ty * m.w + tx, blk); o.block = true;            // (its flat sprite is not drawn: obj() skips it)
@@ -192,7 +192,7 @@ const methods = {
     const p = g.player, x0 = Math.floor((p.x - VR) / C), x1 = Math.floor((p.x + VR) / C), y0 = Math.floor((p.y - VR) / C), y1 = Math.floor((p.y + VR) / C);
     const BW = this.buf.width, BH = this.buf.height, front = (TS / 2) * (Math.abs(this.cs) + Math.abs(this.sn));   // a block's nearest corner, below its centre
     const [psx, psy] = this.proj(p.x, p.y);
-    const R = m.kind === 'realm' ? this.ruinBlocks(m) : null;
+    const R = m.kind === 'realm' || m.citadel ? this.ruinBlocks(m) : null;   // (the Throne's barricades are ruin blocks too)
     const push = (w, draw) => {
       const [sx, sy] = this.proj(w.tx + 0.5, w.ty + 0.5);
       if (sx < -40 || sy < -60 || sx > BW + 40 || sy > BH + 40) return;

@@ -937,7 +937,7 @@ export function randomTileInBiome(m, b, r, avoid, minD = 14) {
 // Upper dungeons seal their boss behind a gate (def.seals: wardens, levers, a puzzle); the lower ones don't.
 export function dungeon(seed, def) {
   const r = rng(seed);
-  const S = { chapel: 200, crypt: 180, forge: 180, scriptorium: 214, heart: 196, throne: 196, hive: 200, theatre: 190, spire: 220, islands: 230, frostveil: 300, mirerot: 280, astral: 470, sandscour: 320, keep: 280, hollowmoon: 300 }[def.style] || 230;
+  const S = { chapel: 200, crypt: 180, forge: 180, scriptorium: 214, heart: 196, throne: 250, hive: 200, theatre: 190, spire: 220, islands: 230, frostveil: 300, mirerot: 280, astral: 470, sandscour: 320, keep: 280, hollowmoon: 300 }[def.style] || 230;
   const FLOOR = TID[def.floor], WALL = TID[def.wall], HAZ = def.hazard ? TID[def.hazard] : null;
   const WET = def.style === 'crypt' ? TID.cryptwater : TID.water, HOT = def.style === 'ember' ? TID.emberlava : TID.lava;
   const m = makeMap('dungeon', def.name, S, S, TID.void);
@@ -1446,36 +1446,52 @@ export function dungeon(seed, def) {
       vein(far, boss);
       return { start, boss };
     },
-    // ---- THE THRONE: a royal road through two champions' halls to the throne
+    // ---- THE THRONE OF SOLKHAR (2026-11-01, the user: "players storm the final boss keep... from four different paths
+    // all grouping eventually together... the keep is inside a volcano"): an island in a lava sea. Four landings on the
+    // south shore; from each a bridge over the lava to a gatehouse, and a wing that winds in, barred by a barricade to
+    // break down. The two wings of a side meet in a champion's court (its warden holds a seal); ramparts run in from both
+    // courts to the scorched courtyard; the causeway climbs over the lava to the Guardian's hall, and the throne. The
+    // further in, the hotter: the floor, the lava, the lava bombs (the heat pass after the walls, and src/citadel.js)
     throne() {
-      const CX = S >> 1, start = room(CX - 7, S - 26, 15, 13, { kind: 'gatehouse' });
-      let y = start.y;
-      const road = (y0, y1) => {                                      // seven wide, with a colonnade down both sides
-        carve(CX - 3, y1, CX + 3, y0); roads.push([CX, y1, y0]);
-        for (let yy = y1 + 1; yy < y0; yy += 4) { set(CX - 3, yy, WALL); set(CX + 3, yy, WALL); }
-      };
-      const halls = [];
-      let prev = start;
-      const guard = (yy, side) => {                                   // a guardroom off the road, behind the colonnade
-        const g = room(side < 0 ? CX - 16 : CX + 6, yy - 4, 11, 9, { kind: 'guardroom', leaf: true });
-        carve(side < 0 ? g.x + g.w : CX + 3, yy - 1, side < 0 ? CX - 3 : g.x - 1, yy + 1); return g;
-      };
-      for (let k = 0; k < 2; k++) {
-        const len = r.int(10, 19), hw = r.int(21, 29) | 1, hh = r.int(19, 27);
-        const h = room(CX - (hw >> 1), y - len - hh, hw, hh, { kind: 'champion', prefer: 'warden' });
-        road(y - 1, h.y + h.h);
-        if (len > 13 && r.chance(0.7)) link(prev, guard(y - (len >> 1), r.chance(0.5) ? -1 : 1));
-        link(prev, h); prev = h; halls.push(h); y = h.y;
-        const sides = r.pick([[-1, 1], [-1, 1], [-1], [1]]);
-        for (const side of sides) {
-          const tw = r.int(9, 13), th = r.int(7, 11), ty = h.y + r.int(2, h.h - th - 2);
-          const t = room(side < 0 ? h.x - tw - 6 : h.x + h.w + 6, ty, tw, th, { kind: 'treasury', leaf: true });
-          const cyy = Math.max(ty + 1, Math.min(ty + th - 2, h.cy));
-          carve(side < 0 ? t.x + t.w : h.x + h.w, cyy - 1, side < 0 ? h.x - 1 : t.x - 1, cyy + 1); link(h, t);
+      const CX = S >> 1, OY = 8;
+      const M = (s, x) => (s < 0 ? x : 2 * CX - x);                        // a side's own x (the right side mirrors the left)
+      const hall = (s, x0, y0, x1, y1, o = {}) => { const a = M(s, x0), b = M(s, x1); return room(Math.min(a, b), y0 + OY, Math.abs(b - a) + 1, y1 - y0 + 1, { kind: 'wing', few: true, ...o }); };
+      const box = (s, x, y, w, h, o) => room(s < 0 ? x : 2 * CX - (x + w - 1), y + OY, w, h, o);
+      const lava = (x0, y0, x1, y1) => { for (let y = y0 + OY; y <= y1 + OY; y++) for (let x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) if (tile(x, y) === TID.void) set(x, y, TID.lava); };
+      m.citadel = { starts: [], bars: [], top: 44 + OY, bottom: 200 + OY };
+      const boss = room(CX - (bossW >> 1), 4 + OY, bossW, bossH, { kind: 'throneroom', dep: 9 });
+      const guard = room(CX - 17, 45 + OY, 35, 21, { kind: 'guardhall', dep: 8 });
+      carve(CX - 3, boss.y + boss.h, CX + 3, guard.y - 1); link(guard, boss);
+      lava(CX - 9, 66, CX + 9, 83);                                        // the causeway: a road over the lava, its sentinels either side
+      const cause = room(CX - 3, 66 + OY, 7, 18, { kind: 'causeway', dep: 7, few: true });
+      roads.push([CX, cause.y, cause.y + cause.h - 1]); link(cause, guard);
+      const yard = room(CX - 28, 84 + OY, 57, 27, { kind: 'courtyard', dep: 6 });
+      link(yard, cause);
+      let start = null;
+      for (const s of [-1, 1]) {
+        const court = box(s, 44, 120, 29, 23, { kind: 'champion', prefer: 'warden', dep: 4 });
+        const rampV = hall(s, 55, 103, 61, 119, { kind: 'rampart', dep: 5 }), rampH = hall(s, 55, 96, CX - 29, 102, { kind: 'rampart', dep: 5.5 });
+        link(court, rampV); link(rampV, rampH); link(rampH, yard);
+        m.citadel.bars.push({ x0: M(s, 74), x1: M(s, 74), y0: 96 + OY, y1: 102 + OY });           // a barricade across each rampart
+        const tre = box(s, 30, 117, 11, 9, { kind: 'treasury', leaf: true, role: 'treasure', dep: 4 });
+        carve(Math.min(M(s, 41), M(s, 43)), 121 + OY, Math.max(M(s, 41), M(s, 43)), 123 + OY); link(court, tre);
+        // the two wings of this side: the outer from the far landing up the coast, the inner from the near one
+        for (const [lx, ly, gy, wing] of [[36, 212, 186, 'outer'], [78, 224, 196, 'inner']]) {
+          const land = box(s, lx - 7, ly - 7, 15, 15, { kind: 'landing', shape: 'round', dep: 0, role: 'rest' });
+          const gate = box(s, lx - 8, gy - 6, 17, 13, { kind: 'gatehouse', dep: 1 });
+          lava(M(s, lx - 6), gy + 7, M(s, lx + 6), ly - 8);                  // the bridge over the lava
+          carve(M(s, lx) - 1, gy + 7 + OY, M(s, lx) + 1, ly - 7 + OY);
+          link(land, gate);
+          m.citadel.starts.push({ x: land.cx + 0.5, y: land.cy + 0.5 });
+          if (!start) start = land;
+          let a, b;
+          if (wing === 'outer') { a = hall(s, lx - 3, 135, lx + 3, gy - 7, { dep: 2 }); b = hall(s, lx - 3, 128, 43, 134, { dep: 3 }); }
+          else { a = hall(s, lx - 3, 139, lx + 3, gy - 7, { dep: 2 }); b = hall(s, 73, 132, lx + 3, 138, { dep: 3 }); }
+          link(gate, a); link(a, b); link(b, court);
+          const my = Math.round((a.y + a.y + a.h) / 2);
+          m.citadel.bars.push({ x0: a.x, x1: a.x + a.w - 1, y0: my, y1: my });                     // and one across each wing
         }
       }
-      const len = r.int(10, 16), boss = room(CX - (bossW >> 1), y - len - bossH, bossW, bossH, { kind: 'throneroom' });
-      carve(CX - 3, boss.y + boss.h, CX + 3, y - 1); link(prev, boss); roads.push([CX, boss.y + boss.h, y - 1, true]);
       return { start, boss };
     },
 
@@ -2184,6 +2200,14 @@ export function dungeon(seed, def) {
     }
   }
   for (const s of secrets) { m.tiles[idx(m, s.plug.x, s.plug.y)] = WALL; put(m, 'weak_wall', s.plug.x, s.plug.y, true, { interact: 'weak', hp: 4 }); }
+  // the Throne's barricades: wall to wall across a hall, one life between them (game.hitWeak), so it falls all at once
+  // (each stands on a cobble tile of its own: when it falls that tile turns to the floor round it, and so it falls for
+  // everyone in a shared Throne too, the server's tiles going out with whether they are solid)
+  const heatFloor = (y) => (y > m.citadel.bottom - 16 ? TID.ash : y > 128 + 8 ? TID.obsidian : TID.emberfloor);
+  if (m.citadel) for (const B of m.citadel.bars) {
+    B.hp = 30; B.floor = heatFloor(B.y0);
+    for (let y = B.y0; y <= B.y1; y++) for (let x = B.x0; x <= B.x1; x++) if (isF(x, y)) { set(x, y, TID.cobble); put(m, (x + y) % 2 ? 'ruin_wall' : 'ruin_wall2', x, y, true, { interact: 'weak', bar: B }); }
+  }
   // a secret room stays unseen (on the screen and the minimap) until its cracked wall breaks: the fog never lifts over
   // it, its tunnel or their walls (m.veil; the cracked wall itself is the one clue). game.unveil lifts it
   m.veil = new Uint8Array(m.w * m.h);
@@ -2427,16 +2451,34 @@ export function dungeon(seed, def) {
       else if (t === TID.mrwall) m.skin[i] = SK.mirerot_wall_top;
     }
   }
+  if (m.citadel) {                                                    // THE THRONE: hotter the further in
+    const C = m.citadel, inR = (n, x, y) => x >= n.x && y >= n.y && x < n.x + n.w && y < n.y + n.h, pv = noise2(seed ^ 0x7a1a);
+    const taken = new Set(m.objects.map((o) => Math.floor(o.y) * S + Math.floor(o.x)));
+    const POOL = { champion: 0.76, rampart: 0.8, courtyard: 0.7, guardhall: 0.72 };          // (lava where the noise runs over this)
+    for (let y = 2; y < S - 2; y++) for (let x = 2; x < S - 2; x++) {
+      if (tile(x, y) !== FLOOR || inR(boss, x, y)) continue;
+      const n = rooms.find((q) => inR(q, x, y)), th = n && POOL[n.kind];
+      const inner = n && x > n.x + 1 && y > n.y + 1 && x < n.x + n.w - 2 && y < n.y + n.h - 2;
+      if (th && inner && !taken.has(y * S + x) && Math.abs(x - n.cx) > 1 && Math.abs(y - n.cy) > 1 && pv(x / 4, y / 4) > th) set(x, y, TID.lava);
+      else set(x, y, heatFloor(y));
+    }
+  }
   for (let y = 2; y < S - 2; y += 4) for (let x = (y >> 2) % 2 * 2 + 2; x < S - 2; x += 4) {    // lava glows (sampled, so a lake is a few soft pools)
     const t = tile(x, y);
     if (t === TID.lava || t === TID.emberlava) m.lights.push({ x: x + 0.5, y: y + 0.5, r: 40, col: '#ff7a1a', fire: true });
   }
   m.ambient = def.ambient || 'rgba(10,8,20,0.5)';
+  if (m.citadel) {                                                    // and the island stands in a sea of it (beyond the walls: no glow of its own, no way across)
+    const wallNear = (x, y) => { for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) if (tile(x + dx, y + dy) === WALL) return true; return false; };
+    for (let y = 2; y < S - 2; y++) for (let x = 2; x < S - 2; x++) if (tile(x, y) === TID.void && wallNear(x, y)) m.tiles[idx(m, x, y)] = TID.lava;
+    m.starts = m.citadel.starts;
+  }
   // a bridge keeps only the tiles still bridge: an island carved later lays its floor over a bridge laid before it, and
   // those tiles stayed on the bridge's list, so they faded in and out (and a nightmare trial locked them away, solid)
   // in the middle of an island, cutting the room in two and stopping shots across it (2026-10-30)
   if (m.spans) m.spans = m.spans.map((sp) => ({ ...sp, tiles: sp.tiles.filter((i) => m.tiles[i] === TID.fadebridge || m.tiles[i] === TID.dreambridge) })).filter((sp) => sp.tiles.length);
   finalize(m);
+  for (const o of m.objects) if (o.bar) { o.solid = true; m.solid[idx(m, Math.floor(o.x), Math.floor(o.y))] = 1; }   // (a ruin piece is no block in the realm; a barricade is)
   // m.rooms: entrance first, boss last (other code relies on that); secret rooms ride along in m.secrets
   const order = [start, ...rooms.filter((n) => n !== start && n !== boss), boss];
   for (const o of m.objects) if (o.room !== undefined) o.room = order.indexOf(rooms[o.room]);

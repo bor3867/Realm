@@ -354,6 +354,7 @@ export class Game {
     if (p) { p.hook = null; p.pull = null; p.dash = null; }
     this.bags = this.map.bags = (this.map.bags || []).filter((b) => b.until === undefined || b.until > this.t);   // (bags that ran out while you were away are gone)
     this.enemies = this.map.enemies || (this.map.enemies = []);
+    if (this.map.starts) this.map.spawn = this.map.starts[Math.floor(R() * this.map.starts.length)];   // (the Throne: one of its four landings)
     p.x = this.map.spawn.x; p.y = this.map.spawn.y;
     this.unstick(p);
     this.realmReturn = null;                              // dungeons let out onto the beach
@@ -370,7 +371,7 @@ export class Game {
       this.populateDungeon(DUNGEONS[where]);
       if (opt && opt.iid) { this.map.netIid = opt.iid; this.map.netTo = where; this.map.netSeed = opt.seed; this.netWorldCheck(); }   // a shared dungeon (src/net.js)
       // a way back out, right where you arrive
-      this.map.portals.push({ kind: 'realm', x: this.map.spawn.x, y: this.map.spawn.y - 3, label: this.exitLabel(), to: 'realm' });
+      for (const at of this.map.starts || [this.map.spawn]) this.map.portals.push({ kind: 'realm', x: at.x, y: at.y - 3, label: this.exitLabel(), to: 'realm' });
     }
     // fog of war: realms and dungeons start dark and stay uncovered where you have been (the town has none)
     if ((this.map.kind === 'realm' || this.map.kind === 'dungeon') && !this.map.seen) { this.map.seen = new Uint8Array(this.map.w * this.map.h); this.map.fogNew = []; }
@@ -880,6 +881,7 @@ export class Game {
     m.rooms.slice(1, -1).forEach((rm) => {
       const big = Math.floor(rm.w * rm.h / 110);
       if (rm.role === 'puzzle' || rm.role === 'altar' || rm.role === 'rest') return;          // quiet rooms: the danger here is of another kind
+      if (rm.role === 'warden') { spawn(def.compose ? def.compose(rm, r, (rm.dep || 0) / maxDep).map((id) => [id, ...spot(rm)]) : fill(rm, r.int(2, 4), false)); warden(rm); return; }
       if (def.compose) {                                                // a dungeon that says who stands where
         const list = def.compose(rm, r, (rm.dep || 0) / maxDep).map((id) => [id, ...spot(rm)]);
         if (rm.ambush) rm.pending = list; else spawn(list);
@@ -3059,6 +3061,7 @@ export class Game {
   updateDungeon(dt) {
     const m = this.map, def = m.def, p = this.player;
     { const br = m.rooms && m.rooms[m.rooms.length - 1]; if (def && br && !(m.beats && m.beats.boss) && p.x > br.x && p.x < br.x + br.w && p.y > br.y && p.y < br.y + br.h) this.dungeonBeat('boss'); }   // into the boss's hall: the story's last line
+    if (m.citadel) this.citadelHeat(dt);
     if (!def || m.netWorld) return;                       // (a shared dungeon's hazards and ambushes are the server's)
     const room = m.rooms.find((rm) => p.x > rm.x && p.x < rm.x + rm.w && p.y > rm.y && p.y < rm.y + rm.h);
     for (const rm of m.rooms) {                         // rooms can overlap, so check every one you're standing in
@@ -3070,8 +3073,8 @@ export class Game {
     if (!def.hazardFx || !room || room.boss || room === m.rooms[0]) return;
     this.hazT = (this.hazT === undefined ? 3 : this.hazT) - dt;
     if (this.hazT > 0) return;
-    const H = def.hazardFx;
-    this.hazT = H.every * (0.8 + R() * 0.4);
+    const H = def.hazardFx, heat = m.citadel ? this.heatAt(p.y) : 0.5;
+    this.hazT = H.every * (0.8 + R() * 0.4) * (m.citadel ? 1.9 - 1.5 * heat : 1);      // (the Throne: twice as often by the top as at the shore)
     const fake = { D: { name: H.name }, x: p.x, y: p.y };
     if (H.kind === 'zones') this.bossZones(fake, H);
     else if (H.kind === 'tide') {                      // a wall of bubbles rolls across the room, with gaps
@@ -3082,6 +3085,18 @@ export class Game {
         this.shoot('e', x0, y, fromLeft ? 0 : Math.PI, H.speed, room.w, H.dmg, H.proj, 0.4, false, H.name);
       }
     }
+  }
+  // ---- the Throne's heat (2026-11-01): 0 on the landings, 1 at the Guardian's door. The light reddens as it rises and
+  // embers drift up off the floor, more of them the hotter it gets
+  heatAt(y) { const C = this.map.citadel; return Math.max(0, Math.min(1, (C.bottom - y) / (C.bottom - C.top))); }
+  citadelHeat(dt) {
+    const m = this.map, p = this.player, k = this.heatAt(p.y);
+    m.ambient = `rgba(${Math.round(20 + 40 * k)},${Math.round(12 - 6 * k)},${Math.round(30 - 26 * k)},${(0.36 + 0.1 * k).toFixed(2)})`;
+    this.emberT = (this.emberT || 0) - dt;
+    if (this.emberT > 0) return;
+    this.emberT = 0.5 - 0.4 * k;
+    const a = R() * TAU, d = 2 + R() * 8;
+    this.vx({ k: 'burst', x: p.x + Math.cos(a) * d, y: p.y + Math.sin(a) * d, n: 2 + Math.round(3 * k), colors: ['#ff8a3a', '#ffd650', '#ff3a1a'] });
   }
   // ---- each dungeon's own trap. The crypt's dead wake, the forge's belts carry you, the ember vents erupt,
   // and the statues of the royal road fire across it in rhythm.
@@ -3539,6 +3554,7 @@ export class Game {
   // a cracked wall in a dungeon: shoot it enough and it gives way to a secret room
   hitWeak(o) {
     const m = this.map, xi = Math.floor(o.x), yi = Math.floor(o.y);
+    if (o.bar) return this.hitBar(o);
     this.vx({ k: 'burst', ...liftO(o.x, o.y, 0.5), n: 4, colors: ['#9a96b0', '#5e5a72'] });   // dust: the only clue the wall is hollow
     if (--o.hp > 0) return;
     m.objects.splice(m.objects.indexOf(o), 1); m.ogridDirty = true;
@@ -3550,6 +3566,21 @@ export class Game {
     if ((m.secrets || []).some((s) => s.plug && s.plug.x === xi && s.plug.y === yi)) this.player.secrets = (this.player.secrets || 0) + 1;   // (its record)
     this.sfx('rare');
     this.unveil(xi, yi);
+  }
+  // a barricade across one of the Throne's halls: one life for the whole of it; it falls all at once
+  hitBar(o) {
+    const m = this.map, B = o.bar;
+    if (o.hidden) return;
+    this.vx({ k: 'burst', ...liftO(o.x, o.y, 0.5), n: 4, colors: ['#5a4a42', '#ff8a3a'] });
+    if (--B.hp > 0) { if (B.hp % 10 === 0) this.vx({ k: 'shake', amt: 2 }); return; }
+    for (const q of m.objects.filter((q) => q.bar === B)) {          // (hidden, not taken out: a shared dungeon's things are kept in step by their place in the list)
+      const i = Math.floor(q.y) * m.w + Math.floor(q.x);
+      q.hidden = true; q.solid = false; m.solid[i] = 0; m.tiles[i] = B.floor;
+      this.vx({ k: 'burst', ...liftO(q.x, q.y, 0.5), n: 14, colors: ['#5a4a42', '#ff8a3a', '#ffd650'] });
+    }
+    m.ogridDirty = true; m.ruinBlocks = null;
+    this.vx({ k: 'shake', amt: 5 }); this.sfx('rare');
+    this.banner('The barricade gives way!', 2200);
   }
   // a secret room's cracked wall at (x, y) is gone: the room behind it can be seen (the fog lifts as you go in)
   unveil(x, y) {
