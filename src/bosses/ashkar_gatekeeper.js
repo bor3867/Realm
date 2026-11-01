@@ -93,4 +93,5 @@ export default {
   },
   onDeath(g, e) { const S = e.bx; S.stones = []; S.flood = null; paint(g, e); },    // (the hall back as it was)
   lights(g, e) { return [{ x: e.x, y: e.y, h: 1.4, r: 80, col: '#ff8a1f' }]; },
+  loot: [], lootLuck: 1.2,                             // (filled with every class's gear in its band: src/bosses/boss_loot.js)
 };
