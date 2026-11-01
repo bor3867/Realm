@@ -147,6 +147,9 @@ SHOTS = {
     'stone': ['.ooo.', 'oiIio', 'oILio', 'oiIio', '.ooo.'],                              # a fragment of stone, an ember at its core
     'sword': ['......o.', 'oovVVuWo', '......o.'],                                       # a spectral blade, narrow and purple
 }
+# his war banners (the Oathbreaker's): a pole, a tattered purple banner, a burning sigil; it stirs
+BANNER = {'A': ['..hH....', '.oHHooo.', '.ohPVVPo', '.ohPLYPo', '.ohPVLPo', '.ohPVVPo', '.ohPPPPo', '.oho.P.o', '.oho....', '.oho....', '.oho....', '.oho....', 'oiiio...'],
+          'B': ['..hH....', '.oHHooo.', '.ohPVVPo', '.ohPYLPo', '.ohPLVPo', '.ohPVVPo', '.ohPPPo.', '.ohoP...', '.oho....', '.oho....', '.oho....', '.oho....', 'oiiio...']}
 VASSAL = {'A': ['..vVv...', '.vuWuv..', '..vVv...', '.PvVvP..', 'PvVuVvP.', '.vPVPv..', '.v...v..', 'v.....v.'],
           'B': ['..vVv...', '.vuWuv..', '..vVv...', 'WPvVvP..', 'WvVuVvP.', '.vPVPv..', '..v.v...', '.v...v..']}
 
@@ -178,12 +181,13 @@ if __name__ == '__main__':
         anims[f'attack{act}'] = {'frames': [f'a{act}', f'a{act}b', f'a{act}'], 'fps': 6, 'loop': False}
     anims['death'] = {'frames': ['d0', 'd1', 'd2'], 'fps': 3, 'loop': False}
     sfr, _ = pack('jarl_shots', [(k, g) for k, g in SHOTS.items()], 8)
-    vfr, _ = pack('jarl_kin', [('a', [r[::-1] for r in VASSAL['A']]), ('b', [r[::-1] for r in VASSAL['B']])], 8)   # (mirrored: the bundle's art faces right)
+    vfr, _ = pack('jarl_kin', [('a', [r[::-1] for r in VASSAL['A']]), ('b', [r[::-1] for r in VASSAL['B']]), ('ba', BANNER['A']), ('bb', BANNER['B'])])   # (mirrored: the bundle's art faces right)
     sheets = {
         f'bx_{BID}': {'image': f'{BID}.png', 'kind': 'boss', 'sprites': {BID: {'frames': fr, 'anims': anims,
                       'phases': {str(a): {'name': NAMES[a], 'idle': f'idle{a}', 'attack': f'attack{a}'} for a in (1, 2, 3)}, 'death': 'death', 'meta': {}}}},
         'jarl_shots': {'image': 'jarl_shots.png', 'kind': 'shot', 'sprites': {k: {'frames': {'0': v}, 'meta': {}} for k, v in sfr.items()}},
-        'jarl_kin': {'image': 'jarl_kin.png', 'kind': 'enemy', 'sprites': {'vassal': {'frames': vfr, 'anims': {'move': {'frames': ['a', 'b'], 'fps': 5, 'loop': True}, 'attack': {'frames': ['b'], 'fps': 4, 'loop': False}}, 'meta': {}}}},
+        'jarl_kin': {'image': 'jarl_kin.png', 'kind': 'enemy', 'sprites': {'vassal': {'frames': {'a': vfr['a'], 'b': vfr['b']}, 'anims': {'move': {'frames': ['a', 'b'], 'fps': 5, 'loop': True}, 'attack': {'frames': ['b'], 'fps': 4, 'loop': False}}, 'meta': {}},
+                                                                          'banner': {'frames': {'ba': vfr['ba'], 'bb': vfr['bb']}, 'anims': {'move': {'frames': ['ba', 'bb'], 'fps': 3, 'loop': True}, 'attack': {'frames': ['bb'], 'fps': 4, 'loop': False}}, 'meta': {}}}},
     }
     json.dump({'rf': True, 'meta': {'name': 'The Hollow Jarl, Warrior (the Throne of Solkhar)', 'version': 1}, 'sheets': sheets},
               open(os.path.join(out, 'atlas_jarl_warrior.json'), 'w', encoding='utf8', newline='\n'), indent=1)

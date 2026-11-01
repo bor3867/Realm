@@ -291,7 +291,7 @@
        8
       ],
       "b": [
-       8,
+       13,
        0,
        8,
        8
@@ -309,6 +309,40 @@
       "attack": {
        "frames": [
         "b"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "banner": {
+     "frames": {
+      "ba": [
+       26,
+       0,
+       8,
+       13
+      ],
+      "bb": [
+       39,
+       0,
+       8,
+       13
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "ba",
+        "bb"
+       ],
+       "fps": 3,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "bb"
        ],
        "fps": 4,
        "loop": false
