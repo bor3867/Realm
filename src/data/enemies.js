@@ -1377,7 +1377,7 @@ Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden', 'warden'], p
     // the wings and the courts: an imp lobbing pots of magma that burst where they land; a slab of black glass that throws shards in a cross and a bolt that splits
     magma_slinger: { name: 'Magma Slinger', biome: 'throne', reg: K('magma_slinger'), hp: 1500, def: 12, speed: 1.6, xp: 200, r: 0.5, ai: 'kite', keep: 8, aggro: 12,
       attacks: [{ pattern: 'aimed', proj: 'fireball', count: 1, dmg: 90, speed: 5, range: 8, cd: 2.4, tell: 500, mv: { lob: { n: 8, h: 34 } } }], loot: TL },
-    obsidian_sentinel: { name: 'Obsidian Sentinel', biome: 'throne', reg: K('obsidian_sentinel'), hp: 3200, def: 32, speed: 1.0, xp: 260, r: 0.55, ai: 'kite', keep: 5, aggro: 11,
+    obsidian_sentinel: { name: 'Obsidian Sentinel', biome: 'throne', reg: K('obsidian_sentinel'), hp: 3200, def: 32, speed: 1.0, xp: 260, r: 0.7, ai: 'kite', keep: 5, aggro: 11,
       attacks: [{ pattern: 'cross', proj: 'slag_shard', count: 8, dmg: 70, speed: 5, range: 7, cd: 2.2, tell: 400 },
         { pattern: 'aimed', proj: 'slag', count: 1, dmg: 110, speed: 8, range: 8, cd: 3, tell: 600, mv: { split: { at: 0.6, n: 5 } } }], loot: TL },
     // the ramparts and the courtyard: a priest of the stolen sun who blinks about; a serpent that swims the floor and rises in a ring of embers; a brute with a furnace for a belly
@@ -1386,7 +1386,7 @@ Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden', 'warden'], p
         { pattern: 'aimed', proj: 'rift_flame', count: 3, arc: 0.5, dmg: 75, speed: 8, range: 8, cd: 1.7, tell: 300 }], loot: TL },
     caldera_serpent: { name: 'Caldera Serpent', biome: 'throne', reg: K('caldera_serpent'), hp: 2000, def: 16, speed: 2.2, xp: 260, r: 0.5, ai: 'burrow', aggro: 10, contact: 90,
       attacks: [{ pattern: 'radial', proj: 'ember', count: 12, dmg: 70, speed: 3, range: 7, cd: 2.2, tell: 350, mv: { accel: 12 } }], loot: TL },
-    furnace_brute: { name: 'Furnace Brute', biome: 'throne', reg: K('furnace_brute'), scale: 1.35, hp: 4200, def: 26, speed: 1.8, xp: 380, r: 0.65, ai: 'charge', aggro: 11, contact: 110,
+    furnace_brute: { name: 'Furnace Brute', biome: 'throne', reg: K('furnace_brute'), hp: 4200, def: 26, speed: 1.8, xp: 380, r: 0.75, ai: 'charge', aggro: 11, contact: 110,
       attacks: [{ pattern: 'slam', proj: 'slag_shard', r: 2.2, count: 10, dmg: 120, wind: 0.6, freeze: true, cd: 3.4, tell: 400, range: 6, speed: 6, colors: ['#ff8a1f', '#ffd650'] },
         { pattern: 'shotgun', proj: 'slag_shard', count: 7, arc: 0.7, dmg: 70, speed: 8, range: 6, cd: 1.8, tell: 300 }], loot: TL },
     // the causeway and the Guardian's hall: a splinter of the sun Solkhar stole, circling you and burning a line through the air
