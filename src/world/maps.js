@@ -2294,8 +2294,17 @@ export function dungeon(seed, def) {
     scriptorium: ['icecrystal', 'runepebble', 'snowtuft', 'brokenshield'], crypt: ['bonepile', 'skullmoss', 'shell', 'kelp'],
     ember: ['embervent', 'goldrubble', 'bonepile'], throne: ['goldrubble', 'pillarstub', 'brokenshield'],
     hive: ['goldrubble', 'shell', 'kelp'], theatre: ['brokenshield', 'goldrubble', 'runepebble'], spire: ['icecrystal', 'runepebble', 'icecrystal'], islands: ['snowtuft', 'runepebble', 'icecrystal'], frostveil: ['snowtuft', 'icecrystal', 'snowtuft', 'runepebble'], mirerot: ['shrooms', 'reeds', 'skullmoss', 'lily'], astral: ['runepebble', 'icecrystal'], sandscour: ['bonepile', 'goldrubble', 'shell'], keep: ['bonepile', 'brokenshield', 'goldrubble'], hollowmoon: ['goldrubble', 'shell', 'runepebble'] }[def.style] || ['bonepile', 'goldrubble'];
+  // (the Sandscour's rooms are drifted with sand by now: bones and gold lie on it too)
   for (const n of [...rooms.filter((n) => n !== boss), ...secrets]) {
-    for (let j = 0; j < Math.round(n.w * n.h * 0.04); j++) { const x = n.x + r.int(1, n.w - 2), y = n.y + r.int(1, n.h - 2); if (isF(x, y)) m.decor.push({ name: r.pick(DEC), x, y }); }
+    for (let j = 0; j < Math.round(n.w * n.h * 0.04); j++) { const x = n.x + r.int(1, n.w - 2), y = n.y + r.int(1, n.h - 2); if (isF(x, y) || tile(x, y) === TID.sdsand) m.decor.push({ name: r.pick(DEC), x, y }); }
+  }
+  // and the halls between them, more thinly (2026-11-01: a maze like the Crypt is mostly hall, and its halls were bare).
+  // A hash of the tile, not r(): what comes after stays as it was for every seed
+  const inRoom = (x, y) => rooms.some((n) => x >= n.x && y >= n.y && x < n.x + n.w && y < n.y + n.h);
+  for (let y = 2; y < S - 2; y++) for (let x = 2; x < S - 2; x++) {
+    const h = Math.imul(x * 73856093 ^ y * 19349663 ^ seed, 2654435761) >>> 0;
+    if (h % 1000 >= 22 || !isF(x, y) || inRoom(x, y)) continue;
+    m.decor.push({ name: DEC[(h >>> 12) % DEC.length], x, y });
   }
   for (const n of [...rooms.filter((n) => n.role === 'treasure' && !n.noChest), ...secrets]) {
     let x = n.cx, y = n.cy - 1;
