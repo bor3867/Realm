@@ -50,8 +50,10 @@ function look(id, seed) {
       // the longest run of the path with nothing within 5 tiles (the boss's own room excepted)
       const foes = [...g.enemies.filter((e) => e !== boss && !e.dead), ...(m.rooms || []).flatMap((rm) => (rm.pending || []).map(([, x, y]) => ({ x, y })))];   // (an ambush room's band counts: it waits for you there)
       let run = 0; gap = 0;
+      const br = (m.rooms || [])[m.rooms.length - 1], inBoss = (x, y) => br && x >= br.x - 1 && y >= br.y - 1 && x <= br.x + br.w && y <= br.y + br.h;
       for (let i = prev[bi]; i >= 0; i = prev[i]) {
         const x = i % W, y = (i / W) | 0;
+        if (inBoss(x, y)) continue;
         if (foes.some((e) => (e.x - x) ** 2 + (e.y - y) ** 2 < 25)) run = 0; else gap = Math.max(gap, ++run);
       }
     }
