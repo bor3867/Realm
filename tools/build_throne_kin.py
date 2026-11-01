@@ -2,8 +2,8 @@
 # Solkhar, the keep in the volcano, harder the further in). 8x8 RotMG-style bodies in the bestiary8 format (pal, A, A2,
 # B; faces LEFT, mirrored here, as the bundle's art faces right), at their own size (a bundle's art pixel is drawn as two,
 # like the sheet's doubled 8x8s: 2026-11-01, they were doubled twice over and stood twice the size of everything else),
-# with bestiary8's three death frames. Two are bigger, 16x16 with the detail to match: the Obsidian Sentinel, the
-# Furnace Brute.
+# with bestiary8's three death frames. Two are bigger, 16x16 with the detail to match, drawn to the user's concept
+# sheet: the Obsidian Sentinel, the Furnace Brute.
 #   The shore and the gatehouses: the Ash Wretch, the Cinder Hound
 #   The wings and the courts:     the Magma Slinger, the Obsidian Sentinel
 #   The ramparts and the yard:    the Brimstone Acolyte, the Caldera Serpent, the Furnace Brute
@@ -59,75 +59,88 @@ E8 = {
         B=['y..y..y.', '.yyYyy..', 'yYwwwYy.', 'YwwwwwY.', 'yYwwwYy.', '.yyYyy..', 'y..y..y.', '........']),
 }
 
-# ---- the two big ones, sculpted (tools/sculpt.py: shapes lit from the upper left, seams where one lies on another),
-# 16x16 with four walking frames each so the lava in them pulses as they come (2026-11-01, the user: "a few of the big
-# enemies look too blocky ... I want them to have the rotmg feel")
-from sculpt import Sculpt  # noqa: E402
-
-BRUTE_PAL = {'k': '#24202c', 'i': '#3e3c4a', 'I': '#5e5c6c', 'h': '#8a8898', 'H': '#bcbac8',
-             'r': '#6a200c', 'R': '#b23e14', 'f': '#ff6a12', 'F': '#ffb43a', 'y': '#ffe27a', 'w': '#fff6d8',
-             'b': '#5a4a3a', 'B': '#9a8466', 'e': '#ff3a1a', 's': '#4c4652', 'S': '#7a7486', 'o': '#0c0a10'}
+# ---- the two big ones, 16x16, drawn to the user's concept sheet (2026-11-01, "Volcanic Depths"): front-on, iron and
+# obsidian plate over volcanic stone, the molten core showing through; drawn as left halves and mirrored. Four walking
+# frames each: the step, and the lava in them pulsing (bright and dull swap from one pair of frames to the next)
+VOLC = {'o': '#110d15', 'd': '#26222c', 'i': '#3a3542', 'I': '#565062', 'h': '#7a7388', 'H': '#a29bb0',
+        'r': '#3e1416', 'R': '#6a2222', 'Q': '#8e3228',
+        'l': '#d8461a', 'L': '#ff7a1e', 'y': '#ffb032', 'Y': '#ffe07a'}
 
 
-def brute(f=0, strike=False):
-    """the Furnace Brute: a hunched iron ogre, a furnace for a belly, a smoke-stack on its back, fists like anvils"""
-    c = Sculpt(16, 16, {'iron': ['k', 'i', 'I', 'h', 'H'], 'horn': ['b', 'B', 'H']}, amb=0.35)
-    c.line(12.6, 5.0, 12.8, 1.4, 'iron', 2.4)                                  # the smoke-stack on its back
-    if strike: c.line(13.2, 6.5, 12.4, 2.6, 'iron', 2.6)                       # the far arm, up or down
-    else: c.line(13.4, 7.5, 13.8, 11.0, 'iron', 2.6)
-    c.ell(9.4, 8.8, 5.4, 4.8, 'iron')                                          # the barrel of its body
-    c.line(11.3, 12.0, 11.8, 14.4 - (f % 2) * 0.7, 'iron', 2.8)               # legs, stepping
-    c.line(7.0, 12.0, 6.6, 14.4 - ((f + 1) % 2) * 0.7, 'iron', 2.8)
-    c.ell(4.4, 5.2, 3.4, 3.0, 'iron')                                          # the head, low and thrust forward
-    c.line(2.6, 3.0, 0.9, 0.8, 'horn', 1.5); c.line(5.6, 2.6, 6.6, 0.6, 'horn', 1.4)
-    if strike: c.line(6.6, 6.4, 4.8, 2.6, 'iron', 3.0); c.ell(4.4, 1.8, 2.5, 1.8, 'iron')   # the near fist raised
-    else: c.ell(2.8, 11.6, 2.7, 2.4, 'iron'); c.line(6.0, 7.4, 3.6, 10.4, 'iron', 3.0)       # the near fist, an anvil of a fist
-    c.p(2.0, 5.4, 'e'); c.p(4.0, 5.4, 'e'); c.p(3.0, 5.0, 'i'); c.p(1.6, 7.2, 'H'); c.p(4.2, 7.4, 'H')   # burning eyes under the brow, tusks
-    fire = [['r', 'R', 'f', 'R'], ['R', 'f', 'F', 'f'], ['f', 'F', 'y', 'F'], ['R', 'f', 'F', 'f']]
-    for j in range(4):                                                          # the furnace in its belly, shifting frame to frame
-        for i in range(5):
-            if (i, j) in ((0, 0), (4, 0), (0, 3), (4, 3)): continue
-            k = fire[(j + f) % 4][(i + f * 2) % 4]
-            c.p(8 + i, 8 + j, ('w' if k in ('y', 'F') else 'y') if strike else k)
-    for i in (1, 3): c.p(8 + i, 8, 'k'); c.p(8 + i, 11, 'k')                    # the grate's bars
-    sm = ('F', 'f') if strike else ('S', 's')
-    c.p(12 + (f % 2), 0, sm[0]); c.p(13, 0 if f % 2 else 1, sm[1])            # smoke (flame when it strikes)
-    return c.outline('o').rows()
+def mirror(half):
+    return [h + h[::-1] for h in half]
 
 
-SENT_PAL = {'k': '#1c1826', 'b': '#2e2840', 'B': '#4a4062', 's': '#72668e', 'S': '#a89cd0', 'W': '#e6deff',
-            'r': '#8e2a0c', 'f': '#ff6a12', 'F': '#ffc040', 'y': '#fff0a0', 'g': '#3e3a46', 'G': '#6e6a78', 'o': '#0c0a10'}
+def pulse(g):
+    """the lava's other beat: bright and dull swap"""
+    return [r.translate(str.maketrans({'y': 'L', 'L': 'y', 'Y': 'y', 'l': 'L'})) for r in g]
 
 
-def sentinel(f=0, strike=False):
-    """the Obsidian Sentinel: a knight of volcanic glass, shard pauldrons, a burning visor slit, a glaive with a molten blade"""
-    c = Sculpt(16, 16, {'glass': ['k', 'b', 'B', 's', 'S'], 'pole': ['k', 'g', 'G']}, amb=0.32)
-    if not strike: c.line(2.4, 1.6, 2.8, 15.2, 'pole', 1.2)                 # the glaive, upright beside it
-    c.line(10.2, 11.0, 10.8, 15.0 - (f % 2) * 0.6, 'glass', 2.6)            # legs
-    c.line(7.0, 11.0, 6.4, 15.0 - ((f + 1) % 2) * 0.6, 'glass', 2.6)
-    c.poly([(5.0, 6.0), (12.6, 6.0), (11.4, 12.4), (6.0, 12.4)], 'glass')    # the breastplate
-    c.poly([(10.2, 5.0), (14.6, 4.2), (15.4, 2.2), (14.0, 8.4), (11.0, 8.6)], 'glass')    # the far pauldron, a shard
-    c.ell(8.8, 3.6, 2.7, 3.0, 'glass')                                       # the helm
-    c.line(8.8, 1.2, 9.6, -0.6, 'glass', 1.2)                                # its crest-spike
-    c.poly([(2.4, 3.6), (4.2, 5.4), (7.6, 5.0), (6.8, 8.8), (3.8, 8.4)], 'glass')    # the near pauldron, a shard
-    if strike:                                                               # the glaive swung down and forward
-        c.line(4.4, 8.0, 0.6, 8.4, 'pole', 1.2); c.line(5.6, 7.6, 3.4, 8.4, 'glass', 2.2)
-        for (x, y, ch) in ((0, 6, 'F'), (0, 7, 'y'), (1, 7, 'F'), (0, 8, 'y'), (0, 9, 'F'), (1, 9, 'f'), (0, 10, 'f')): c.p(x, y, ch)
-    else:
-        c.line(5.4, 7.8, 3.4, 9.6, 'glass', 2.2)                             # the near arm, gripping the glaive
-        for (x, y, ch) in ((1, 0, 'f'), (2, 0, 'F'), (3, 0, 'f'), (1, 1, 'F'), (2, 1, 'y'), (3, 1, 'r'), (1, 2, 'f'), (2, 2, 'F')): c.p(x, y, ch)   # its molten blade
-    vis = ('y', 'y', 'F') if strike else (('F', 'f', 'F') if f % 2 else ('f', 'F', 'f'))
-    for i, ch in enumerate(vis): c.p(7.6 + i, 3.5, ch)                       # the visor slit, flickering
-    crack = [(9, 7), (8, 8), (8, 9), (9, 10), (10, 11)]                       # a crack of magma down the glass, the glow running along it
-    for k, (x, y) in enumerate(crack): c.p(x, y, 'F' if (k + f) % 4 == 0 else 'f')
-    for (x, y) in ((7, 9), (10, 9), (11, 8)): c.p(x, y, 'r')                  # (its branches, dull)
-    c.p(4.0, 5.6, 'W'); c.p(13.6, 4.6, 'W'); c.p(7.8, 2.0, 'W')               # glints on the glass
-    return c.outline('o').rows()
-
+# THE FURNACE BRUTE: a wide hulk, a small helmed head sunk between huge shoulders capped with glowing plates, a chest of
+# volcanic stone with a three-barred furnace grille, arms hanging to fists of molten knuckles, short heavy legs
+BRUTE = mirror([
+    '.....ooo',
+    '....oIhh',
+    '..oooiyd',   # the eyes, burning in the helm
+    '.oLyLoii',   # shoulder caps glowing
+    'oLyLIoRR',
+    'oIhIhoRQ',
+    'oIhIoyry',   # the furnace grille: three bars
+    'oIIioLrL',
+    'oiIioLrL',
+    '.oIioRRR',
+    'oIhioiIh',   # the belt
+    'oLyLooIh',   # the fists, molten knuckles
+    'oyYLoiIi',
+    '.ooo.oIo',   # the legs
+    '....oIho',
+    '....ooo.',
+])
+BRUTE2 = BRUTE[:13] + mirror(['.ooooIo.', '...oIho.', '...ooo..'])
+BRUTE_HIT = mirror([
+    'oLyLo.oo',   # the fists raised overhead, the furnace roaring
+    'oyYLooIh',
+    '.oIhoiyd',
+    '.oIhoLyL',
+    '..oIoyIo',
+    '..oIhoRQ',
+    '..oiIoYR',
+    '...oioYR',
+    '...ooiYR',
+    '....oRRR',
+    '....oiIh',
+    '....oiIh',
+    '....oiIi',
+    '.....oIo',
+    '....oIho',
+    '....ooo.',
+])
+# THE OBSIDIAN SENTINEL: a tall horned knight of obsidian, a molten V for a visor, spiked pauldrons, lava running down
+# the cracks of its plate and its arms, a tabard of volcanic stone with a burning point
+SENT = mirror([
+    '...o....',
+    '..oIo...',   # the horns, curving up
+    '..oIo.oo',
+    '...oIoIh',
+    '....oIhh',
+    '..o.oLdd',   # the visor: a molten V; a spike on each pauldron
+    '.oIooiLd',
+    'oIhIooiy',   # the pauldrons
+    'oIhIoIhI',
+    '.oLioLIi',   # lava down the cracks, in the arms too
+    '.oIooIRR',   # the tabard
+    '.oLo.oRQ',
+    '...oiIRQ',
+    '...oiiRL',
+    '...oIooL',
+    '...ooo.o',
+])
+SENT2 = SENT[:13] + mirror(['..oiioRL', '..oIo.oL', '..ooo...'])
+SENT_HIT = SENT[:5] + mirror(['..o.oYdd', '.oIooiYd', 'oIhIooiY']) + SENT[8:]
 
 E16 = {
-    'obsidian_sentinel': dict(pal=SENT_PAL, walk=[sentinel(f) for f in range(4)], B=sentinel(0, True)),
-    'furnace_brute': dict(pal=BRUTE_PAL, walk=[brute(f) for f in range(4)], B=brute(0, True)),
+    'obsidian_sentinel': dict(pal=VOLC, walk=[SENT, SENT2, pulse(SENT), pulse(SENT2)], B=SENT_HIT),
+    'furnace_brute': dict(pal=VOLC, walk=[BRUTE, BRUTE2, pulse(BRUTE), pulse(BRUTE2)], B=BRUTE_HIT),
 }
 
 E8.update(E16)

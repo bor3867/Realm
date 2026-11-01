@@ -3,13 +3,13 @@
 //   What Hurts You Saves You - he hurls boulders of black glass: each lands on a marked spot, and where it lands it leaves
 //     an island of cool stone for a while. When the caldera rises the hall floods with lava, and his stones are the only
 //     ground that doesn't burn. Dodge the boulder; then go and stand on it.
-//   I   The Gate Holds    - chained in place: the hammer (a marked ring round him, slag thrown out), chains of slag
+//   I   Chained           - chained in place: the hammer (a marked ring round him, slag thrown out), chains of slag
 //                           flung at you, boulders. No flood yet: learn where the stones fall
-//   II  The Caldera Wakes - the hall floods every 14 s for 3.5 s (boulders first, the floor glowing as it comes)
-//   III Unchained         - he breaks his chains and walks; floods every 10 s for 4.5 s, more boulders
+//   II  Fracturing        - his armour cracking: the hall floods every 14 s for 3.5 s (boulders first, the floor glowing as it comes)
+//   III Enraged           - he breaks his chains and walks; floods every 10 s for 4.5 s, more boulders
 // His death breaks the gate's last seal (with the two court wardens'). The flood and the stones come and go on the
 // hall's own tiles (the stones are obsidian, the flood is lava), so a shared Throne's players see the same floor.
-// Art: tools/build_gatekeeper.py ('bx_ashkar_gatekeeper'); his shots are the island's own (slag, slag shards, cinders).
+// Art: tools/build_gatekeeper.py ('bx_ashkar_gatekeeper', to the user's concept sheet: the Chained Forge-Giant); his shots are the island's own (slag, slag shards, cinders).
 import { TID } from '../world/maps.js';
 import { R, angleTo, players, target, ring, fan, mark } from './kit.js';
 

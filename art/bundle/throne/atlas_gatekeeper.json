@@ -2,7 +2,7 @@
  "rf": true,
  "meta": {
   "name": "Ashkar, the Gatekeeper (the Throne of Solkhar)",
-  "version": 2
+  "version": 3
  },
  "sheets": {
   "bx_ashkar_gatekeeper": {
@@ -208,17 +208,17 @@
      },
      "phases": {
       "1": {
-       "name": "The Gate Holds",
+       "name": "Chained",
        "idle": "idle1",
        "attack": "attack1"
       },
       "2": {
-       "name": "The Caldera Wakes",
+       "name": "Fracturing",
        "idle": "idle2",
        "attack": "attack2"
       },
       "3": {
-       "name": "Unchained",
+       "name": "Enraged",
        "idle": "idle3",
        "attack": "attack3"
       }
