@@ -19,6 +19,10 @@
 //   witch      every third volley is an eye that marks; the next two hits on the mark burst it into a curse
 //   echo       a hit stores a beat: the next volley also repeats that shot from where it ended (once)
 //   page       a slow page flies out and back, splitting in two on the way home; both halves on one enemy expose it
+//   cinder     the bolt sheds burning cinders along its path; whatever walks through them burns
+//   heart      every Nth swing is a heartbeat: a heavier blow whose hits pulse out around the enemy and mend you
+//   flock      an arrow that flies its full length without striking breaks into three bats that scatter on
+//   loop       the arrow flies out, goes round once in a small circle, then on (round and round, then in)
 // A Legendary adds charge: accurate volleys fill it, and when full your next swing is its signature strike.
 import { R, lift, liftO, liftA, liftB } from './util.js';
 const TAU = Math.PI * 2;
@@ -103,6 +107,18 @@ const methods = {
         fire(ox, oy, a, roll(), { size: (W.size || 0.45) * 1.3, b: { page: { a, back: false } } });
         return true;
       }
+      case 'cinder': { for (let k = 0; k < cnt; k++) fire(ox, oy, a + spread(k), roll(), { b: { cinder: { d: 0 } } }); return true; }
+      case 'heart': {                                           // the beat: every Nth swing lands harder and pulses
+        const beat = n % (M.every || 4) === 0;
+        for (let k = 0; k < cnt; k++) fire(ox, oy, a + spread(k), Math.round(roll() * (beat ? M.f : 1)), beat ? { pierce: true, b: { beat: true } } : {});
+        if (beat) { this.vx({ k: 'burst', x: ox, y: oy, n: 6, colors: THEME.blood.col }); this.vx({ k: 'shake', amt: 1 }); }
+        return true;
+      }
+      case 'flock': { for (let k = 0; k < cnt; k++) fire(ox, oy, a + spread(k), roll(), { b: { flock: true } }); return true; }
+      case 'loop': {                                            // each arrow of the volley loops the other way from its neighbour
+        for (let k = 0; k < cnt; k++) fire(ox, oy, a + spread(k), roll(), { b: { loop: { at: M.at, w: W.speed / M.r * (k % 2 ? -1 : 1), turned: 0 } } });
+        return true;
+      }
       case 'dart': { for (let k = 0; k < cnt; k++) fire(ox, oy, a + spread(k), roll(), { b: { dart: { at: M.at, hold: M.hold, s: M.s, f: M.f, t: 0 } } }); return true; }
       case 'sight': {                                           // the Astrolabe: hold your aim and the stars line up (2026-10-31)
         const da = Math.abs((((a - (p.mechSightA ?? a + 9)) % TAU) + TAU * 1.5) % TAU - Math.PI);
@@ -167,6 +183,16 @@ const methods = {
         c.sp = b.sp; c.vol = b.vol; c.half = s; c.speed = b.speed;
       }
       return;
+    }
+    if (b.cinder) {                                             // cinders shed along the way, one every M.gap tiles
+      const C = b.cinder, M = b.sp.mech;
+      C.d += Math.hypot(b.vx, b.vy) * dt;
+      if (C.d >= M.gap) { C.d -= M.gap; this.fx.push({ kind: 'wcinder', x: b.x, y: b.y + 0.5, r: M.r, t: 0, life: M.t, dmg: Math.round(b.dmg * M.f), tick: 0 }); }
+    }
+    if (b.loop && b.loop.turned < TAU && 1 - b.life / b.max >= b.loop.at) {   // round once, then on as it was
+      const L = b.loop, da = Math.min(Math.abs(L.w) * dt, TAU - L.turned) * Math.sign(L.w), na = Math.atan2(b.vy, b.vx) + da, s = Math.hypot(b.vx, b.vy);
+      L.turned += Math.abs(da); b.life += dt;                    // (the loop costs it no range)
+      b.vx = Math.cos(na) * s; b.vy = Math.sin(na) * s; b.a = na;
     }
     if (b.curve) {                                              // a fixed bend
       const na = Math.atan2(b.vy, b.vx) + b.curve * dt, s = Math.hypot(b.vx, b.vy);
@@ -256,6 +282,17 @@ const methods = {
           this.fx.push({ kind: 'ring', ...liftO(e.x, e.y, 0.3), t: 0, max: M.r, color: T.col[0] });
         }
         break;
+      case 'cinder':                                            // and a cinder where it strikes, at the enemy's feet
+        if (b.hitN === 1) this.fx.push({ kind: 'wcinder', x: e.x, y: e.y, r: M.r, t: 0, life: M.t, dmg: Math.round(b.dmg * M.f), tick: 0 });
+        break;
+      case 'heart':
+        if (b.beat && !b.pulsed) {                               // the pulse: once per heartbeat shot, out from the first it strikes
+          b.pulsed = true;
+          for (const o of this.enemiesIn(e.x, e.y, M.r)) if (o !== e) this.damageEnemy(o, Math.round(b.dmg * M.pf), ...lift(o.x, o.y, 0.5), true);
+          this.fx.push({ kind: 'ring', ...liftO(e.x, e.y, 0.4), t: 0, max: M.r, color: T.col[0] });
+          if (p.heartVol !== b.vol) { p.heartVol = b.vol; const h = Math.round(this.stat('hp') * M.heal); p.hp = Math.min(this.stat('hp'), p.hp + h); this.float(...lift(p.x, p.y, 1.3), `+${h}`, '#5ae07a'); }
+        }
+        break;
       case 'echo': p.mechEcho = { x: b.x, y: b.y, a: Math.atan2(b.vy, b.vx), until: this.t + 2.5 }; break;
       case 'page':
         if (b.half) {                                           // both halves on one enemy: exposed
@@ -329,14 +366,23 @@ const methods = {
   mechEnd(b) {
     const M = b.sp.mech;
     if (M.kind === 'phantom' && !b.phantomDone && !b.child) this.mechPhantom(b.x, b.y, b.dmg, M);
+    if (M.kind === 'flock' && !b.child && !b.hitN) {           // a clean miss: the arrow breaks into bats, scattering on
+      const a = Math.atan2(b.vy, b.vx);
+      for (const o of [-0.5, 0, 0.5]) { const c = this.shoot('p', b.x, b.y, a + o, 9, M.len, Math.round(b.dmg * M.f), b.sprite, 0.4, true); c.child = true; }
+      this.vx({ k: 'burst', x: b.x, y: b.y, n: 4, colors: THEME.blood.col });
+    }
     if (M.kind === 'whale' && !b.child && b.hitN) this.mechPhantom(b.x, b.y, b.dmg, { ...M, f: M.underF });   // the undertow, where a harpoon that struck comes to rest
   },
   // ------------------------------------------------------------ every frame: phantom blows land, marks run out
-  mechTick() {
+  mechTick(dt = 0.016) {
     for (const f of this.fx) {
       if (f.kind === 'wecho' && !f.done && f.t >= f.delay) {
         f.done = true;
         const c = this.shoot('p', f.x, f.y, f.a, 16, 4, f.dmg, f.proj, 0.45, true); c.child = true;
+      }
+      if (f.kind === 'wcinder' && (f.tick -= dt) <= 0) {   // the cinders burn what stands in them
+        f.tick = 0.3;
+        for (const e of this.enemiesIn(f.x, f.y, f.r)) if (!(e.cinderT > this.t)) { e.cinderT = this.t + 0.3; this.damageEnemy(e, f.dmg, ...lift(e.x, e.y, 0.5), true); }
       }
       if (f.kind === 'wphantom' && !f.done && f.t >= f.delay) {
         f.done = true;
