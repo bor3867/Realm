@@ -2339,6 +2339,22 @@ export function dungeon(seed, def) {
     }
   }
   if (belts.length) m.belts = belts;
+  // ---- the halls' own lights (2026-11-01, the user: "all dungeons"): each dungeon's lamp of its own against a hall wall
+  // about every 9 tiles, never in a doorway; nothing to walk round or shoot past. A hash again, not r(). Only where
+  // someone would have lit a hall, or it glows of itself: not the Hive, the Dream, the Observatory's void, the god's Heart
+  const HALL = { chapel: ['brazier'], crypt: ['crypt_candle'], forge: ['brazier'], scriptorium: ['rune_pillar'], throne: ['brazier', 'banner'],
+    ember: ['brazier'], theatre: ['footlight'], spire: ['crystal_cluster'], frostveil: [FV('ice_crystal')], mirerot: [MR('glowshroom_cluster')],
+    sandscour: ['brazier'], keep: [CK('candelabra')], hollowmoon: [HM('lamp_post')] }[def.style];
+  if (HALL) {
+    const lit = [], nearRoom = (x, y) => inRoom(x, y) || inRoom(x + 1, y) || inRoom(x - 1, y) || inRoom(x, y + 1) || inRoom(x, y - 1);
+    const wallBy = (x, y) => [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dy]) => { const t = tile(x + dx, y + dy); return t === WALL || t === TID.void; });
+    for (let y = 2; y < S - 2; y++) for (let x = 2; x < S - 2; x++) {
+      if (!isF(x, y) || !wallBy(x, y) || nearRoom(x, y) || lit.some(([lx, ly]) => Math.max(Math.abs(lx - x), Math.abs(ly - y)) < 9)) continue;
+      if (m.objects.some((o) => Math.abs(o.x - 0.5 - x) < 2 && Math.abs(o.y - 0.5 - y) < 2)) continue;
+      const h = Math.imul(x * 2246822519 ^ y * 3266489917 ^ seed, 668265263) >>> 0;
+      put(m, HALL[h % HALL.length], x, y, false, { hall: true }); lit.push([x, y]);
+    }
+  }
   // ---- light: the dungeon is dark, and things that burn or glow light it (radius in tiles, colour, flickers)
   const LIGHT = { brazier: [5, '#ff9a3a', 1], crypt_candle: [3.5, '#9cff6a', 1], crucible: [4.5, '#ff8c1e', 1], furnace: [5.5, '#ff7a1a', 1], ember_vent: [3, '#ff6a1a', 1],
     fountain: [4.5, '#6ad8ff', 0], rune_pillar: [3.5, '#3befff', 0], throne: [6, '#ffd650', 0], statue_sun: [4.5, '#ffe89a', 0], mystery_altar: [3.5, '#b888ff', 0],
