@@ -724,8 +724,11 @@ export class Game {
       // (a crowd of numbers over one target, from a fast weapon: past six, a new hit adds into the newest number of its
       // kind instead, which pops again; the screen stays readable. 2026-10-31)
       if (mine.length >= 6 && /^\d+!?$/.test(String(text))) {
-        const crit = String(text).endsWith('!'), last = mine.filter((f) => f.color === color && /^\d+!?$/.test(f.text) && f.text.endsWith('!') === crit).sort((a, b) => a.t - b.t)[0];
-        if (last && last.t < 0.45) { last.text = `${parseInt(last.text, 10) + parseInt(text, 10)}${crit ? '!' : ''}`; last.t = Math.min(last.t, 0.05); return; }
+        // (and says how many hits it holds: "1840 x5". 2026-10-31)
+        const crit = String(text).endsWith('!'), last = mine.filter((f) => f.color === color && /^\d+!?( x\d+)?$/.test(f.text) && f.text.includes('!') === crit).sort((a, b) => a.t - b.t)[0];
+        if (last && last.t < 0.45) {
+          if (!last.n) last.dy = Math.max(...mine.filter((f) => f !== last).map((f) => f.dy)) + 0.48;   // (a row of its own, over the rest: it grows wider)
+          last.n = (last.n || 1) + 1; last.text = `${parseInt(last.text, 10) + parseInt(text, 10)}${crit ? '!' : ''} x${last.n}`; last.t = Math.min(last.t, 0.05); return; }
       }
       const live = mine.map((f) => ({ x: f.dx, y: f.dy + rise(f.t), w: W(f.text) }));
       const w = W(text), hit = (cx, cy) => live.reduce((n, o) => n + (Math.abs(cx - o.x) < (w + o.w) / 2 + 0.06 && Math.abs(cy - o.y) < H ? 1 : 0), 0);
