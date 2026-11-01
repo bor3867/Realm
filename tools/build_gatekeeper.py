@@ -71,9 +71,7 @@ def ashkar(act=1, f=0, attack=False):
     c = Sculpt(N, N, {'iron': ['o', 'd', 'i', 'I', 'h'] if act == 3 else IRON, 'stone': HOTSTONE if act == 3 else STONE}, amb=0.3)   # (III: what iron is left, charred)
     by = 0 if attack else (0, 0, 1, 1)[f % 4]                                           # he breathes
     heat = {1: 2, 2: 3, 3: 4}[act]
-    # ---- behind him: the chains to the walls (I)
-    if act == 1 and not attack:
-        for s in (-1, 1): chain(c, CX + s * 15, 31 + by, CX + s * 23.5, 18, sag=2)
+    # (his chains to the anchors are drawn in the game, from his wrists: src/bosses/ashkar_gatekeeper.js drawGround)
     # ---- the hammer at rest, by his side (his right hand: the left of the picture)
     if not attack:
         c.line(CX - 13, 31 + by, CX - 15, 38, 'stone', 2.4)                             # the haft, volcanic stone

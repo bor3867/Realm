@@ -2396,8 +2396,8 @@ export function dungeon(seed, def) {
     'ex_decor/astral_floating_crystal': [3.6, '#c8a0ff', 0], 'ex_decor/astral_star_globe': [4, '#fff6c8', 0], 'ex_decor/astral_rune_circle': [2.6, '#8af6ff', 0], 'ex_decor/astral_brass_pillar': [2.4, '#ffd690', 0] };
   m.lights = m.objects.filter((o) => LIGHT[o.sprite] && !o.unlit).map((o) => { const L = LIGHT[o.sprite]; return (o.light = { x: o.x, y: o.y, h: 0.4, r: L[0] * 16, col: L[1], fire: !!L[2] }); });
   for (const o of m.objects) if (o.gateArch) {                           // the gate's fire-bowls, and the furnace in its arch
-    for (const s of [-5, 5]) m.lights.push({ x: o.x + s, y: o.y, h: 3.6, r: 72, col: '#ff8a2a', fire: true });
-    m.lights.push({ x: o.x, y: o.y - 2, h: 1.2, r: 90, col: '#ff5a1a', fire: true });
+    for (const s of [-5, 5]) m.lights.push({ x: o.x + s, y: o.y, h: 3.6, r: 72, col: '#ff8a2a', fire: true, gate: true });
+    m.lights.push({ x: o.x, y: o.y - 2, h: 1.2, r: 90, col: '#ff5a1a', fire: true, gate: true });   // (gate: Ashkar's fall puts them out)
   }
   if (def.style === 'frostveil') {                                    // the ice: snow in slow patches, ice, frigid water, the wall tops
     const pv = noise2(seed ^ 0x51f15e);
@@ -2460,7 +2460,7 @@ export function dungeon(seed, def) {
   if (m.citadel) {                                                    // THE THRONE: hotter the further in
     const C = m.citadel, inR = (n, x, y) => x >= n.x && y >= n.y && x < n.x + n.w && y < n.y + n.h, pv = noise2(seed ^ 0x7a1a);
     const taken = new Set(m.objects.map((o) => Math.floor(o.y) * S + Math.floor(o.x)));
-    const POOL = { champion: 0.76, rampart: 0.8, courtyard: 0.7, guardhall: 0.72 };          // (lava where the noise runs over this)
+    const POOL = { champion: 0.76, rampart: 0.8, courtyard: 0.7 };          // (lava where the noise runs over this; none in the Gatekeeper's hall: his arena is clear)
     for (let y = 2; y < S - 2; y++) for (let x = 2; x < S - 2; x++) {
       if (tile(x, y) !== FLOOR || inR(boss, x, y)) continue;
       const n = rooms.find((q) => inR(q, x, y)), th = n && POOL[n.kind];

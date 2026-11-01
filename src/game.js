@@ -2969,7 +2969,7 @@ export class Game {
       if (f.kind === 'lane' && f.t >= f.delay && !p.dead) {                // standing on a lane of fire burns
         f.hitT -= dt;
         const dx = p.x - f.x, dy = p.y - f.y, along = dx * Math.cos(f.a) + dy * Math.sin(f.a), across = Math.abs(-dx * Math.sin(f.a) + dy * Math.cos(f.a));
-        if (f.hitT <= 0 && along > 0 && along < f.len && across < f.w) { f.hitT = 0.3; this.hurtPlayer(f.dmg, f.by); }
+        if (f.dmg && f.hitT <= 0 && along > 0 && along < f.len && across < f.w) { f.hitT = 0.3; this.hurtPlayer(f.dmg, f.by); }   // (a lane with no damage is only a mark)
       }
       if (f.kind !== 'sweep' || f.t < f.tele || p.dead) continue;
       if (f.e.dead || f.e.state === 'dead') { f.life = 0; continue; }
@@ -3097,6 +3097,7 @@ export class Game {
       }
     }
     if (!def.hazardFx || !room || room.boss || room === m.rooms[0]) return;
+    if (this.enemies.some((e) => e.midBoss && !e.dead && e.bx && e.bx.state !== 'sleep')) return;   // (nothing falls from the roof while the Throne's Gatekeeper fights: the user, 2026-11-01)
     this.hazT = (this.hazT === undefined ? 3 : this.hazT) - dt;
     if (this.hazT > 0) return;
     const H = def.hazardFx, heat = m.citadel ? this.heatAt(p.y) : 0.5;

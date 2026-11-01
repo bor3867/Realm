@@ -81,6 +81,12 @@ export class Sfx {
       case 'glass': [2600, 3300, 2100].forEach((f, k) => this.tone('triangle', f, f * 0.7, 0.18, 0.05, k * 0.03)); this.noise(0.2, 0.08, 6000, 2); break;
       case 'drink': this.tone('sine', 300, 700, 0.15, 0.12); this.tone('sine', 500, 900, 0.12, 0.08, 0.08); break;
       case 'death': this.tone('sawtooth', 220, 40, 1.4, 0.2); this.noise(1.0, 0.15, 250); break;
+      // Ashkar, the Chained Forge-Giant: his hammer on the forge floor, his chains, his furnace, his plates, his roar
+      case 'hammer': this.tone('sine', 70, 34, 0.5, 0.26); this.noise(0.35, 0.22, 260, 0.7); this.tone('square', 140, 60, 0.18, 0.08, 0.02); break;
+      case 'chain': [1, 2, 3].forEach((k) => { this.tone('square', 1500 + k * 260, 900, 0.05, 0.05, k * 0.06); this.noise(0.04, 0.06, 5200, 3, k * 0.06); }); break;
+      case 'bellows': this.noise(0.6, 0.16, 500, 0.5); this.tone('sawtooth', 90, 140, 0.5, 0.06); break;
+      case 'shatter': this.noise(0.3, 0.2, 3600, 1.2); [2200, 1700, 2900].forEach((f, k) => this.tone('triangle', f, f * 0.6, 0.14, 0.05, k * 0.04)); break;
+      case 'roar': this.tone('sawtooth', 110, 55, 1.1, 0.2); this.tone('sawtooth', 82, 41, 1.2, 0.14, 0.05); this.noise(1.0, 0.16, 400, 0.6); break;
       default: break;
     }
   }
