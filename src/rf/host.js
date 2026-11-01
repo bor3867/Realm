@@ -65,6 +65,14 @@ export async function loadRF() {
 // their creatures as our monster definitions (rf_<dungeon>_<id>), and which of them our engine runs
 function rfCreatures() {
   const T = translateAll(DATA);
+  // (a land's portal dropper with a dungeon creature's name: the Paper Crane of the steppe is rf_paper_crane, and so is
+  // the Paper dungeon's crane. That one took its place: the steppe's never dropped its portal, and since it no longer
+  // counted as one, the realm added a pack of them every 3 s for as long as you played (150 in a few minutes). The
+  // land's keeps its own name, with _land after it. 2026-10-31)
+  for (const ids of Object.values(RF_FOE_LANDS)) ids.forEach((id, k) => {
+    if (!T.defs[id] || !ENEMIES[id] || !ENEMIES[id].rfPortal) return;
+    ENEMIES[`${id}_land`] = ENEMIES[id]; ids[k] = `${id}_land`;
+  });
   for (const [id, D] of Object.entries(T.defs)) ENEMIES[id] = { ...D, id };
   OURS = new Set(T.report.filter((r) => r.notes.every((n) => n.includes('left out (monsters never'))).map((r) => r.id));   // (a protection left out by our rule is ours as it should be)
   LINK_DG = new Set(DATA.dungeons.map((d) => d.id).filter((id) => !CREATURE_HOOKS.some((k) => X.MODS[id] && X.MODS[id][k] && !(HOOKS_OURS[id] || []).includes(k))));

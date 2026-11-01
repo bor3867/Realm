@@ -1182,7 +1182,7 @@ export class Game {
       const a = angleTo(ox, oy, I.aimX, I.aimY);
       const mult = dmgMult(this.stat('att')) * (p.status.berserk ? 1.25 : 1);
       this.vx({ k: 'muzzle', x: ox + Math.cos(a) * 0.5, y: oy + Math.sin(a) * 0.5, proj: W.proj });
-      this.sfx('shoot', p.cls);
+      { const it = ITEMS[p.equip[0]]; this.sfx('shoot', p.cls + (it && (it.ut || it.legendary || it.mythic || it.arm) ? '+' : '')); }   // (a great weapon sounds it: src/sfx.js)
       const sp = W.special || null;
       const cnt = (sp && sp.mech && this.mechVolley(W, sp, ox, oy, a, mult)) || (sp && sp.armory && this.armoryVolley(W, sp, ox, oy, a, mult)) ? 0 : W.count || 1;   // (a Mad God Armory weapon: src/armory.js)   // a reworked weapon fires its own volley (src/weaponmech.js); one that names no count fires one shot
       const vol = [];

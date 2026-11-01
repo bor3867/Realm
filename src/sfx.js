@@ -41,17 +41,24 @@ export class Sfx {
   play(name, arg) {
     if (!this.ctx || this.muted) return;
     const now = performance.now();
-    const gap = { shoot: 40, hit: 30, ehit: 25, step: 120, zap: 60 }[name] || 0;      // don't machine-gun the mixer
+    // don't machine-gun the mixer (and a crowd dying at once, or a volley landing on you, is one sound, not ten stacked:
+    // 2026-10-31)
+    const gap = { shoot: 40, hit: 30, ehit: 25, step: 120, zap: 60, kill: 45, hurt: 70, loot: 80, rare: 250, glass: 80 }[name] || 0;
     if (gap && now - (this.last[name] || 0) < gap) return;
     this.last[name] = now;
     switch (name) {
       case 'shoot': {
+        const top = typeof arg === 'string' && arg.endsWith('+');      // a great weapon (Untiered and up): a weight under its sound
+        if (top) { arg = arg.slice(0, -1); this.tone('sine', 110, 55, 0.12, 0.09); }
         const f = { brawler: 180, forge_knight: 130, priest: 620 }[arg] || 300;
         if (arg === 'priest') { this.tone('triangle', f, f * 1.6, 0.09, 0.12); }
         else if (arg === 'summoner') { this.tone('sine', 520, 780, 0.14, 0.1); this.tone('triangle', 1040, 690, 0.12, 0.05, 0.03); }
         else if (arg === 'harpooner') { this.tone('square', 95, 55, 0.12, 0.12); this.noise(0.14, 0.14, 700, 0.8); }
         else if (arg === 'duelist') { this.noise(0.05, 0.1, 5200, 2); this.tone('triangle', 1400, 2400, 0.05, 0.06); }
         else if (arg === 'stormwright') { this.noise(0.08, 0.12, 2600, 0.6); this.tone('sawtooth', 880, 220, 0.07, 0.05); }
+        else if (arg === 'ranger') { this.tone('triangle', 260, 150, 0.08, 0.1); this.noise(0.06, 0.06, 3800, 1.5); }   // a bowstring's twang
+        else if (arg === 'runeblade') { this.noise(0.06, 0.1, 4200, 1.2); this.tone('triangle', 700, 1100, 0.06, 0.06); }
+        else if (arg === 'hexweaver') { this.tone('sine', 300, 180, 0.13, 0.1); this.tone('triangle', 900, 600, 0.1, 0.04, 0.02); }
         else if (arg === 'clockmaker') { this.tone('square', 1800, 0, 0.02, 0.07); this.tone('sine', 140, 90, 0.16, 0.12, 0.02); }
         else { this.tone('square', f, f * 0.5, 0.07, 0.08); this.noise(0.05, 0.08, 900); }
         break;
