@@ -1,0 +1,607 @@
+{
+ "rf": true,
+ "meta": {
+  "name": "The volcano island's monsters (the Throne of Solkhar)",
+  "version": 1
+ },
+ "sheets": {
+  "throne_kin": {
+   "image": "throne_kin.png",
+   "kind": "enemy",
+   "sprites": {
+    "ash_wretch": {
+     "frames": {
+      "a": [
+       0,
+       0,
+       16,
+       16
+      ],
+      "b": [
+       16,
+       0,
+       16,
+       16
+      ],
+      "atk": [
+       32,
+       0,
+       16,
+       16
+      ],
+      "d1": [
+       48,
+       0,
+       16,
+       16
+      ],
+      "d2": [
+       64,
+       0,
+       16,
+       16
+      ],
+      "d3": [
+       80,
+       0,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "a",
+        "b"
+       ],
+       "fps": 5,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 4,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "a"
+       ],
+       "fps": 4,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "d1",
+        "d2",
+        "d3"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "cinder_hound": {
+     "frames": {
+      "a": [
+       0,
+       16,
+       16,
+       16
+      ],
+      "b": [
+       16,
+       16,
+       16,
+       16
+      ],
+      "atk": [
+       32,
+       16,
+       16,
+       16
+      ],
+      "d1": [
+       48,
+       16,
+       16,
+       16
+      ],
+      "d2": [
+       64,
+       16,
+       16,
+       16
+      ],
+      "d3": [
+       80,
+       16,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "a",
+        "b"
+       ],
+       "fps": 5,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 4,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "a"
+       ],
+       "fps": 4,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "d1",
+        "d2",
+        "d3"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "magma_slinger": {
+     "frames": {
+      "a": [
+       0,
+       32,
+       16,
+       16
+      ],
+      "b": [
+       16,
+       32,
+       16,
+       16
+      ],
+      "atk": [
+       32,
+       32,
+       16,
+       16
+      ],
+      "d1": [
+       48,
+       32,
+       16,
+       16
+      ],
+      "d2": [
+       64,
+       32,
+       16,
+       16
+      ],
+      "d3": [
+       80,
+       32,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "a",
+        "b"
+       ],
+       "fps": 5,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 4,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "a"
+       ],
+       "fps": 4,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "d1",
+        "d2",
+        "d3"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "obsidian_sentinel": {
+     "frames": {
+      "a": [
+       0,
+       48,
+       16,
+       16
+      ],
+      "b": [
+       16,
+       48,
+       16,
+       16
+      ],
+      "atk": [
+       32,
+       48,
+       16,
+       16
+      ],
+      "d1": [
+       48,
+       48,
+       16,
+       16
+      ],
+      "d2": [
+       64,
+       48,
+       16,
+       16
+      ],
+      "d3": [
+       80,
+       48,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "a",
+        "b"
+       ],
+       "fps": 5,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 4,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "a"
+       ],
+       "fps": 4,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "d1",
+        "d2",
+        "d3"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "brimstone_acolyte": {
+     "frames": {
+      "a": [
+       0,
+       64,
+       16,
+       16
+      ],
+      "b": [
+       16,
+       64,
+       16,
+       16
+      ],
+      "atk": [
+       32,
+       64,
+       16,
+       16
+      ],
+      "d1": [
+       48,
+       64,
+       16,
+       16
+      ],
+      "d2": [
+       64,
+       64,
+       16,
+       16
+      ],
+      "d3": [
+       80,
+       64,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "a",
+        "b"
+       ],
+       "fps": 5,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 4,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "a"
+       ],
+       "fps": 4,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "d1",
+        "d2",
+        "d3"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "caldera_serpent": {
+     "frames": {
+      "a": [
+       0,
+       80,
+       16,
+       16
+      ],
+      "b": [
+       16,
+       80,
+       16,
+       16
+      ],
+      "atk": [
+       32,
+       80,
+       16,
+       16
+      ],
+      "d1": [
+       48,
+       80,
+       16,
+       16
+      ],
+      "d2": [
+       64,
+       80,
+       16,
+       16
+      ],
+      "d3": [
+       80,
+       80,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "a",
+        "b"
+       ],
+       "fps": 5,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 4,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "a"
+       ],
+       "fps": 4,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "d1",
+        "d2",
+        "d3"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "furnace_brute": {
+     "frames": {
+      "a": [
+       0,
+       96,
+       16,
+       16
+      ],
+      "b": [
+       16,
+       96,
+       16,
+       16
+      ],
+      "atk": [
+       32,
+       96,
+       16,
+       16
+      ],
+      "d1": [
+       48,
+       96,
+       16,
+       16
+      ],
+      "d2": [
+       64,
+       96,
+       16,
+       16
+      ],
+      "d3": [
+       80,
+       96,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "a",
+        "b"
+       ],
+       "fps": 5,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 4,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "a"
+       ],
+       "fps": 4,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "d1",
+        "d2",
+        "d3"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "stolen_ray": {
+     "frames": {
+      "a": [
+       0,
+       112,
+       16,
+       16
+      ],
+      "b": [
+       16,
+       112,
+       16,
+       16
+      ],
+      "atk": [
+       32,
+       112,
+       16,
+       16
+      ],
+      "d1": [
+       48,
+       112,
+       16,
+       16
+      ],
+      "d2": [
+       64,
+       112,
+       16,
+       16
+      ],
+      "d3": [
+       80,
+       112,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "a",
+        "b"
+       ],
+       "fps": 5,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "atk"
+       ],
+       "fps": 4,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "a"
+       ],
+       "fps": 4,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "d1",
+        "d2",
+        "d3"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     },
+     "meta": {}
+    }
+   }
+  }
+ }
+}

@@ -1347,21 +1347,54 @@ Object.assign(DUNGEONS.forge, { seals: [], puzzle: null, altar: false, layout: {
 Object.assign(DUNGEONS.scriptorium, { seals: ['puzzle', 'lever', 'warden'], puzzle: 'runes', altar: true, layout: { secrets: 3 } });
 Object.assign(DUNGEONS.heart, { seals: ['warden', 'warden', 'warden'], puzzle: null, altar: true, layout: { secrets: 2 } });
 Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden', 'warden'], puzzle: null, altar: false, layout: { secrets: 0 },
-  // (2026-11-01: the volcano island, src/world/maps.js LAYOUT.throne) who holds each part of it, harder the further in
+  // (2026-11-01: the volcano island, src/world/maps.js LAYOUT.throne) who holds each part of it, harder the further in:
+  // the island's own monsters (below), the shore's weakest, the hall's worst
+  mobs: ['ash_wretch', 'cinder_hound', 'magma_slinger', 'obsidian_sentinel', 'brimstone_acolyte', 'caldera_serpent'],
   compose(rm, r) {
     const P = (n, ids) => Array.from({ length: n }, () => r.pick(ids));
     switch (rm.kind) {
-      case 'gatehouse': return P(r.int(3, 4), ['cherub_husk', 'hollow_thane']);
-      case 'wing': return P(r.int(2, 3), ['hollow_thane', 'gilded_lancer', 'cherub_husk']);
-      case 'champion': return P(3, ['hollow_thane', 'gilded_lancer']);
-      case 'treasury': return P(2, ['gilded_lancer', 'hollow_thane']);
-      case 'rampart': return P(r.int(2, 3), ['gilded_lancer', 'gilded_cardinal', 'blood_seraph']);
-      case 'courtyard': return [...P(6, ['blood_seraph', 'gilded_cardinal', 'gilded_lancer']), 'seraph_husk'];
-      case 'causeway': return P(2, ['blood_seraph', 'gilded_cardinal']);
-      case 'guardhall': return ['cathedral_engine', 'hollow_jarl', ...P(3, ['blood_seraph', 'gilded_cardinal'])];
+      case 'gatehouse': return P(r.int(3, 4), ['ash_wretch', 'ash_wretch', 'cinder_hound']);
+      case 'wing': return P(r.int(2, 3), ['ash_wretch', 'cinder_hound', 'magma_slinger']);
+      case 'champion': return P(3, ['obsidian_sentinel', 'magma_slinger', 'cinder_hound']);
+      case 'treasury': return P(2, ['obsidian_sentinel', 'magma_slinger']);
+      case 'rampart': return P(r.int(2, 3), ['obsidian_sentinel', 'brimstone_acolyte', 'caldera_serpent']);
+      case 'courtyard': return [...P(5, ['brimstone_acolyte', 'caldera_serpent', 'obsidian_sentinel', 'stolen_ray']), 'furnace_brute', 'furnace_brute'];
+      case 'causeway': return P(2, ['stolen_ray']);
+      case 'guardhall': return ['furnace_brute', ...P(4, ['stolen_ray', 'brimstone_acolyte'])];
       default: return [];
     }
   } });
+// ---- the volcano island's own monsters (art: tools/build_throne_kin.py, 'throne_kin/<id>')
+{
+  const TL = DL([9, 10], [9, 11], [4, 5], [4, 5], 0.12), K = (id) => 'throne_kin/' + id;
+  Object.assign(ENEMIES, {
+    // the shore: a charred wretch that rushes you and coughs cinders; a hound of cooling lava that runs at your flank and burns the ground behind it
+    ash_wretch: { name: 'Ash Wretch', biome: 'throne', reg: K('ash_wretch'), hp: 1600, def: 12, speed: 2.8, xp: 180, r: 0.5, ai: 'charge', aggro: 11, contact: 80,
+      attacks: [{ pattern: 'shotgun', proj: 'cinder', count: 5, arc: 0.8, dmg: 50, speed: 7, range: 4, cd: 1.6, tell: 300 }], loot: TL },
+    cinder_hound: { name: 'Cinder Hound', biome: 'throne', reg: K('cinder_hound'), hp: 1300, def: 10, speed: 3.4, xp: 170, r: 0.5, ai: 'flank', keep: 3, aggro: 12, contact: 70,
+      attacks: [{ pattern: 'aimed', proj: 'ember', count: 2, arc: 0.25, dmg: 50, speed: 11, range: 6, cd: 1.2, tell: 250 },
+        { pattern: 'trail', kind: 'fire', count: 0, r: 0.6, life: 3, dmg: 40, range: 0, cd: 0.7, tell: 0 }], loot: TL },
+    // the wings and the courts: an imp lobbing pots of magma that burst where they land; a slab of black glass that throws shards in a cross and a bolt that splits
+    magma_slinger: { name: 'Magma Slinger', biome: 'throne', reg: K('magma_slinger'), hp: 1500, def: 12, speed: 1.6, xp: 200, r: 0.5, ai: 'kite', keep: 8, aggro: 12,
+      attacks: [{ pattern: 'aimed', proj: 'fireball', count: 1, dmg: 90, speed: 5, range: 8, cd: 2.4, tell: 500, mv: { lob: { n: 8, h: 34 } } }], loot: TL },
+    obsidian_sentinel: { name: 'Obsidian Sentinel', biome: 'throne', reg: K('obsidian_sentinel'), hp: 3200, def: 32, speed: 1.0, xp: 260, r: 0.55, ai: 'kite', keep: 5, aggro: 11,
+      attacks: [{ pattern: 'cross', proj: 'slag_shard', count: 8, dmg: 70, speed: 5, range: 7, cd: 2.2, tell: 400 },
+        { pattern: 'aimed', proj: 'slag', count: 1, dmg: 110, speed: 8, range: 8, cd: 3, tell: 600, mv: { split: { at: 0.6, n: 5 } } }], loot: TL },
+    // the ramparts and the courtyard: a priest of the stolen sun who blinks about; a serpent that swims the floor and rises in a ring of embers; a brute with a furnace for a belly
+    brimstone_acolyte: { name: 'Brimstone Acolyte', biome: 'throne', reg: K('brimstone_acolyte'), hp: 2400, def: 18, speed: 1.6, xp: 300, r: 0.5, ai: 'blink', keep: 5, aggro: 12,
+      attacks: [{ pattern: 'radial', proj: 'fireball', count: 10, dmg: 70, speed: 4, range: 7, cd: 2.8, tell: 500, mv: { curve: 0.8 } },
+        { pattern: 'aimed', proj: 'rift_flame', count: 3, arc: 0.5, dmg: 75, speed: 8, range: 8, cd: 1.7, tell: 300 }], loot: TL },
+    caldera_serpent: { name: 'Caldera Serpent', biome: 'throne', reg: K('caldera_serpent'), hp: 2000, def: 16, speed: 2.2, xp: 260, r: 0.5, ai: 'burrow', aggro: 10, contact: 90,
+      attacks: [{ pattern: 'radial', proj: 'ember', count: 12, dmg: 70, speed: 3, range: 7, cd: 2.2, tell: 350, mv: { accel: 12 } }], loot: TL },
+    furnace_brute: { name: 'Furnace Brute', biome: 'throne', reg: K('furnace_brute'), scale: 1.35, hp: 4200, def: 26, speed: 1.8, xp: 380, r: 0.65, ai: 'charge', aggro: 11, contact: 110,
+      attacks: [{ pattern: 'slam', proj: 'slag_shard', r: 2.2, count: 10, dmg: 120, wind: 0.6, freeze: true, cd: 3.4, tell: 400, range: 6, speed: 6, colors: ['#ff8a1f', '#ffd650'] },
+        { pattern: 'shotgun', proj: 'slag_shard', count: 7, arc: 0.7, dmg: 70, speed: 8, range: 6, cd: 1.8, tell: 300 }], loot: TL },
+    // the causeway and the Guardian's hall: a splinter of the sun Solkhar stole, circling you and burning a line through the air
+    stolen_ray: { name: 'Stolen Ray', biome: 'throne', reg: K('stolen_ray'), hp: 1800, def: 14, speed: 2.4, xp: 260, r: 0.5, ai: 'orbit', keep: 4.5, aggro: 12, fly: true,
+      attacks: [{ pattern: 'beam', proj: 'gaze', dmg: 130, range: 9, cd: 3, tell: 650, col: '#ffd650' },
+        { pattern: 'radial', proj: 'emberfeather', count: 6, dmg: 55, speed: 6, range: 6, cd: 2, tell: 250 }], loot: TL },
+  });
+}
 
 // ---- each dungeon's darkness has its own colour (the light pools are carved out of it)
 Object.assign(DUNGEONS.chapel, { ambient: 'rgba(6,24,34,0.5)' });
