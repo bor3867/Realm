@@ -13,11 +13,12 @@ const { buildRegistry } = await import('../src/registry.js');
 const { Game } = await import('../src/game.js');
 const { REALM_BOSSES, ENEMIES } = await import('../src/data/enemies.js');
 const { CLASSES, STATS } = await import('../src/data/classes.js');
+const { BX, bxEnemyDef } = await import('../src/bosses/index.js');   // (a dungeon's boss too: node tools/sim_realm_fights.mjs jarl_warrior)
 const B0 = new URL('../art/bundle/', import.meta.url), J = (q) => JSON.parse(readFileSync(new URL(q, B0), 'utf8')), idx = J('index.json');
 const reg = buildRegistry(idx.atlases.map((a) => ({ pack: a.split('/')[0], json: J(a) })), J(idx.hover), (q) => q);
 // the gear a player has by the time they face what lives in each land: [weapon/armour tier, ability, ring, stat share]
 const GEAR = { shore: [4, 2, 1, 0.35], lowlands: [5, 2, 1, 0.45], fen: [7, 3, 2, 0.55], dunes: [7, 3, 2, 0.55], thornwood: [8, 3, 2, 0.6],
-  runeholt: [10, 4, 3, 0.75], steppe: [10, 4, 3, 0.75], godfall: [12, 5, 4, 0.9] };
+  runeholt: [10, 4, 3, 0.75], steppe: [10, 4, 3, 0.75], godfall: [12, 5, 4, 0.9], throne: [11, 5, 4, 0.85] };
 const only = process.argv.slice(2).filter((a) => !a.startsWith('--'));
 const heralds = Object.keys(ENEMIES).filter((k) => ENEMIES[k].herald);
 const ids = only.length ? only : [...heralds, ...Object.keys(REALM_BOSSES), 'abyssal_kraken', 'thornheart_treant'];
@@ -29,6 +30,7 @@ for (const id of ids) {
   let e;
   if (ENEMIES[id] && ENEMIES[id].herald) { const D = ENEMIES[id]; e = g.addEnemy(id, p.x, p.y); e.herald = true; }
   else if (/kraken|treant/.test(id)) e = g.spawnEventBoss(id, false);
+  else if (BX[id] && !REALM_BOSSES[id]) { e = g.spawnRealmBoss(id, { x: p.x, y: p.y - 6 }, bxEnemyDef(id)); e.D = { ...e.D, biome: 'throne' }; }
   else e = g.spawnRealmBoss(id);
   if (!e) { console.log(id, 'did not spawn'); continue; }
   const biome = e.D.biome && GEAR[e.D.biome] ? e.D.biome : /kraken/.test(id) ? 'shore' : /treant/.test(id) ? 'thornwood' : id === 'the_fallen_star' ? 'godfall' : 'fen';

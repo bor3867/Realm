@@ -21,7 +21,7 @@
 import { TAU, angleTo, target, mark } from './kit.js';
 
 const FIRE = ['#ff8a1f', '#ffd650', '#ff3a1a'], ASH = ['#5a5560', '#8a8490', '#b884cc'];
-const D = (n) => n + 9;                                    // (an effective number, set above Defense)
+const D = (n) => n + 4;                                    // (an effective number, set above Defense: a Throne-geared character's, measured)
 const later = (e, t, name, V) => e.bx.vol.push({ t, V: { form: 'special', name, ...V } });
 const shot = (g, e, x, y, a, V) => g.bxShot(e, x, y, a, V);
 const CRESCENT = { sprite: 'jarl_shots/crescent', size: 0.4 }, SHARD = { sprite: 'jarl_shots/shard', size: 0.35 }, STONE = { sprite: 'jarl_shots/stone', size: 0.4 };
@@ -127,7 +127,8 @@ function walls(g, e, V) {                                  // walls of shot out 
 }
 
 export default {
-  id: 'jarl_warrior', art: 'jarl_warrior', name: 'The Hollow Jarl, Warrior', biome: 'dungeon', hp: 230000, def: 26, xp: 9000,
+  id: 'jarl_warrior', art: 'jarl_warrior', name: 'The Hollow Jarl, Warrior', biome: 'dungeon', hp: 260000,   // (asked 230,000: a Throne-geared Priest killed him in 2:17, tools/sim_realm_fights.mjs; 260,000 ~ 2:35)
+  def: 26, xp: 9000,
   r: 1.5, speed: 1.4, keep: 2.4, faces: false, tempo: 1, dmgScale: 1, spawnCentre: true, thresholds: [0.65, 0.30],
   phases: {
     1: { move: 'hunt', patterns: [
