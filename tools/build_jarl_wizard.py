@@ -125,6 +125,11 @@ SHOTS = {
 }
 
 
+# his portals: a ring of spectral fire turning about a dark heart (two frames: it turns)
+PORTAL = {'a': ['...oooo...', '..oVuVVo..', '.oVo..oVo.', 'oVo.oo.uVo', 'ouo.ov.oVo', 'oVo.vo.ouo', 'oVu.oo.oVo', '.oVo..oVo.', '..oVVuVo..', '...oooo...'],
+          'b': ['...oooo...', '..oVVuVo..', '.oVo..oVo.', 'oVu.oo.oVo', 'oVo.vo.ouo', 'ouo.ov.oVo', 'oVo.oo.uVo', '.oVo..oVo.', '..oVuVVo..', '...oooo...']}
+
+
 def pack(name, entries, W, H, cols=6):
     rows = (len(entries) + cols - 1) // cols
     px = [[BLANK] * (cols * W) for _ in range(rows * H)]; fr = {}
@@ -153,10 +158,12 @@ if __name__ == '__main__':
         anims[f'attack{act}'] = {'frames': [f'a{act}', f'a{act}b', f'a{act}'], 'fps': 6, 'loop': False}
     anims['death'] = {'frames': ['d0', 'd1', 'd2'], 'fps': 3, 'loop': False}
     sfr, _ = pack('wiz_shots', [(k, [list(r) for r in g]) for k, g in SHOTS.items()], 9, 5)
+    pfr, _ = pack('wiz_kin', [(k, [list(r) for r in g]) for k, g in PORTAL.items()], 10, 10)
     sheets = {
         f'bx_{BID}': {'image': f'{BID}.png', 'kind': 'boss', 'sprites': {BID: {'frames': fr, 'anims': anims,
                       'phases': {str(a): {'name': NAMES[a], 'idle': f'idle{a}', 'attack': f'attack{a}'} for a in (1, 2, 3)}, 'death': 'death', 'meta': {}}}},
         'wiz_shots': {'image': 'wiz_shots.png', 'kind': 'shot', 'sprites': {k: {'frames': {'0': v}, 'meta': {}} for k, v in sfr.items()}},
+        'wiz_kin': {'image': 'wiz_kin.png', 'kind': 'enemy', 'sprites': {'portal': {'frames': pfr, 'anims': {'move': {'frames': ['a', 'b'], 'fps': 6, 'loop': True}, 'attack': {'frames': ['b'], 'fps': 4, 'loop': False}}, 'meta': {}}}},
     }
     json.dump({'rf': True, 'meta': {'name': 'The Hollow Jarl, Wizard (the Throne of Solkhar)', 'version': 1}, 'sheets': sheets},
               open(os.path.join(out, 'atlas_jarl_wizard.json'), 'w', encoding='utf8', newline='\n'), indent=1)

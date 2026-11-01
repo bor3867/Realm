@@ -288,6 +288,46 @@
      "meta": {}
     }
    }
+  },
+  "wiz_kin": {
+   "image": "wiz_kin.png",
+   "kind": "enemy",
+   "sprites": {
+    "portal": {
+     "frames": {
+      "a": [
+       0,
+       0,
+       10,
+       10
+      ],
+      "b": [
+       10,
+       0,
+       10,
+       10
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "a",
+        "b"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "b"
+       ],
+       "fps": 4,
+       "loop": false
+      }
+     },
+     "meta": {}
+    }
+   }
   }
  }
 }
