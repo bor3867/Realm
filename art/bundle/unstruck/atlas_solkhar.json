@@ -1,0 +1,293 @@
+{
+ "rf": true,
+ "meta": {
+  "name": "Solkhar, the Sunthief (the user's sprite)",
+  "version": 1
+ },
+ "sheets": {
+  "bx_solkhar": {
+   "image": "solkhar.png",
+   "kind": "boss",
+   "sprites": {
+    "solkhar": {
+     "frames": {
+      "i1_0": [
+       0,
+       0,
+       55,
+       58
+      ],
+      "i1_1": [
+       55,
+       0,
+       55,
+       58
+      ],
+      "i1_2": [
+       110,
+       0,
+       55,
+       58
+      ],
+      "i1_3": [
+       165,
+       0,
+       55,
+       58
+      ],
+      "a1": [
+       220,
+       0,
+       55,
+       58
+      ],
+      "a1b": [
+       275,
+       0,
+       55,
+       58
+      ],
+      "i2_0": [
+       0,
+       58,
+       55,
+       58
+      ],
+      "i2_1": [
+       55,
+       58,
+       55,
+       58
+      ],
+      "i2_2": [
+       110,
+       58,
+       55,
+       58
+      ],
+      "i2_3": [
+       165,
+       58,
+       55,
+       58
+      ],
+      "a2": [
+       220,
+       58,
+       55,
+       58
+      ],
+      "a2b": [
+       275,
+       58,
+       55,
+       58
+      ],
+      "i3_0": [
+       0,
+       116,
+       55,
+       58
+      ],
+      "i3_1": [
+       55,
+       116,
+       55,
+       58
+      ],
+      "i3_2": [
+       110,
+       116,
+       55,
+       58
+      ],
+      "i3_3": [
+       165,
+       116,
+       55,
+       58
+      ],
+      "a3": [
+       220,
+       116,
+       55,
+       58
+      ],
+      "a3b": [
+       275,
+       116,
+       55,
+       58
+      ],
+      "d0": [
+       0,
+       174,
+       55,
+       58
+      ],
+      "d1": [
+       55,
+       174,
+       55,
+       58
+      ],
+      "d2": [
+       110,
+       174,
+       55,
+       58
+      ]
+     },
+     "anims": {
+      "idle1": {
+       "frames": [
+        "i1_0",
+        "i1_1",
+        "i1_2",
+        "i1_3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack1": {
+       "frames": [
+        "a1",
+        "a1b",
+        "a1"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle2": {
+       "frames": [
+        "i2_0",
+        "i2_1",
+        "i2_2",
+        "i2_3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack2": {
+       "frames": [
+        "a2",
+        "a2b",
+        "a2"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "idle3": {
+       "frames": [
+        "i3_0",
+        "i3_1",
+        "i3_2",
+        "i3_3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack3": {
+       "frames": [
+        "a3",
+        "a3b",
+        "a3"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "d0",
+        "d1",
+        "d2"
+       ],
+       "fps": 3,
+       "loop": false
+      }
+     },
+     "phases": {
+      "1": {
+       "name": "The Golden Tyrant",
+       "idle": "idle1",
+       "attack": "attack1"
+      },
+      "2": {
+       "name": "The Broken Sun",
+       "idle": "idle2",
+       "attack": "attack2"
+      },
+      "3": {
+       "name": "The Sunthief Unbound",
+       "idle": "idle3",
+       "attack": "attack3"
+      }
+     },
+     "death": "death",
+     "meta": {}
+    }
+   }
+  },
+  "sol_shots": {
+   "image": "sol_shots.png",
+   "kind": "shot",
+   "sprites": {
+    "orb": {
+     "frames": {
+      "0": [
+       0,
+       0,
+       5,
+       5
+      ]
+     },
+     "meta": {}
+    },
+    "crescent": {
+     "frames": {
+      "0": [
+       9,
+       0,
+       5,
+       6
+      ]
+     },
+     "meta": {}
+    },
+    "fragment": {
+     "frames": {
+      "0": [
+       18,
+       0,
+       7,
+       7
+      ]
+     },
+     "meta": {}
+    },
+    "sun": {
+     "frames": {
+      "0": [
+       27,
+       0,
+       9,
+       9
+      ]
+     },
+     "meta": {}
+    },
+    "blacksun": {
+     "frames": {
+      "0": [
+       36,
+       0,
+       9,
+       9
+      ]
+     },
+     "meta": {}
+    }
+   }
+  }
+ }
+}

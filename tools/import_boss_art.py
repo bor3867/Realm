@@ -11,7 +11,8 @@ sys.path.insert(0, here)
 from reduce import read_png  # noqa: E402
 from pixlib import write_png  # noqa: E402
 
-GRID = {'hollow_jarl_warrior': 64, 'hollow_jarl_wizard': 64, 'solkhar_the_sunthief': 72}   # (blocks across the whole picture)
+GRID = {'hollow_jarl_warrior': 64, 'hollow_jarl_wizard': 64, 'solkhar_the_sunthief': 60}   # (blocks across the whole picture: Solkhar's own grid is 10.35 px, ~121 across, so two of his pixels a block)
+DESPECKLE = {60}                                                    # (the grids that get the speck pass: Solkhar's)
 out = os.path.join(root, 'art', 'source', 'bosses')
 os.makedirs(out, exist_ok=True)
 
@@ -63,6 +64,21 @@ def tidy(cells, G):
         add = [(x, y) for y in range(1, G - 1) for x in range(1, G - 1) if img[y][x] is None and
                ((img[y][x - 1] is not None and img[y][x + 1] is not None) or (img[y - 1][x] is not None and img[y + 1][x] is not None))]
         for x, y in add: img[y][x] = ink
+    # a speck: a pixel like none of its four neighbours, where three of them agree, takes their colour (Solkhar's picture
+    # is fine work, two of its pixels to each of ours, and the halving leaves a scatter of lone pixels)
+    if G in DESPECKLE:
+        for _ in range(2):
+            out = [row[:] for row in img]
+            for y in range(1, G - 1):
+                for x in range(1, G - 1):
+                    c = img[y][x]
+                    if c is None: continue
+                    nb = [img[y + dy][x + dx] for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1))]
+                    if any(n is not None and dist(n, c) < 34 for n in nb): continue
+                    nn = [n for n in nb if n is not None]
+                    for n in nn:
+                        if sum(1 for m in nn if dist(m, n) < 34) >= 3: out[y][x] = n; break
+            img = out
     ys = [y for y in range(G) if any(img[y])]; xs = [x for x in range(G) if any(img[y][x] for y in range(G))]
     return [row[min(xs):max(xs) + 1] for row in img[min(ys):max(ys) + 1]], len(pal)
 
