@@ -740,7 +740,7 @@ export class Renderer {
       if (o.gateArch) { this.flatDef(def, fr, o); return; }   // (the great arch: set in the world along its wall, not turned to face you)
       if (o.lie !== undefined || o.sprite === 'castle_decor/log') {   // a fallen log lies along the ground its own way, and turns as the camera does (2026-11-02, the user: logs "look stupid" upright)
         const L = o.lie || 0, [ax, ay] = this.proj(o.x, o.y), [bx, by] = this.proj(o.x + Math.cos(L), o.y + Math.sin(L));
-        let rot = Math.atan2(by - ay, bx - ax); if (rot > Math.PI / 2) rot -= Math.PI; else if (rot < -Math.PI / 2) rot += Math.PI;
+        const rot = Math.atan2(by - ay, bx - ax);   // (one rigid log turning with the world: never flipped end for end as it passes upright, the user, 2026-11-02)
         const b = this.b; b.fillStyle = 'rgba(0,0,0,0.3)'; b.save(); b.translate(Math.round(sx), Math.round(sy + 3)); b.rotate(rot); b.fillRect(-14, -2, 28, 5); b.restore();
         this.drawDef(def, fr, sx, sy + 1, { rot });
         return;

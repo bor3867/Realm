@@ -47,44 +47,56 @@
        57,
        46
       ],
-      "infernal_hound_s0": [
+      "infernal_hound_m6": [
        342,
        0,
        57,
        46
       ],
-      "infernal_hound_s1": [
+      "infernal_hound_m7": [
        399,
        0,
        57,
        46
       ],
-      "infernal_hound_s2": [
+      "infernal_hound_s0": [
        456,
        0,
        57,
        46
       ],
-      "infernal_hound_s3": [
+      "infernal_hound_s1": [
        513,
        0,
        57,
        46
       ],
-      "infernal_hound_s4": [
+      "infernal_hound_s2": [
        570,
        0,
        57,
        46
       ],
-      "infernal_hound_s5": [
+      "infernal_hound_s3": [
        627,
        0,
        57,
        46
       ],
-      "infernal_hound_h": [
+      "infernal_hound_s4": [
        684,
+       0,
+       57,
+       46
+      ],
+      "infernal_hound_s5": [
+       741,
+       0,
+       57,
+       46
+      ],
+      "infernal_hound_h": [
+       798,
        0,
        57,
        46
@@ -98,9 +110,11 @@
         "infernal_hound_m2",
         "infernal_hound_m3",
         "infernal_hound_m4",
-        "infernal_hound_m5"
+        "infernal_hound_m5",
+        "infernal_hound_m6",
+        "infernal_hound_m7"
        ],
-       "fps": 9,
+       "fps": 10,
        "loop": true
       },
       "shoot": {
@@ -170,44 +184,56 @@
        50,
        50
       ],
-      "cinder_archer_s0": [
+      "cinder_archer_m6": [
        300,
        46,
        50,
        50
       ],
-      "cinder_archer_s1": [
+      "cinder_archer_m7": [
        350,
        46,
        50,
        50
       ],
-      "cinder_archer_s2": [
+      "cinder_archer_s0": [
        400,
        46,
        50,
        50
       ],
-      "cinder_archer_s3": [
+      "cinder_archer_s1": [
        450,
        46,
        50,
        50
       ],
-      "cinder_archer_s4": [
+      "cinder_archer_s2": [
        500,
        46,
        50,
        50
       ],
-      "cinder_archer_s5": [
+      "cinder_archer_s3": [
        550,
        46,
        50,
        50
       ],
-      "cinder_archer_h": [
+      "cinder_archer_s4": [
        600,
+       46,
+       50,
+       50
+      ],
+      "cinder_archer_s5": [
+       650,
+       46,
+       50,
+       50
+      ],
+      "cinder_archer_h": [
+       700,
        46,
        50,
        50
@@ -221,9 +247,11 @@
         "cinder_archer_m2",
         "cinder_archer_m3",
         "cinder_archer_m4",
-        "cinder_archer_m5"
+        "cinder_archer_m5",
+        "cinder_archer_m6",
+        "cinder_archer_m7"
        ],
-       "fps": 9,
+       "fps": 10,
        "loop": true
       },
       "shoot": {
@@ -293,44 +321,56 @@
        55,
        56
       ],
-      "sunbound_knight_s0": [
+      "sunbound_knight_m6": [
        330,
        96,
        55,
        56
       ],
-      "sunbound_knight_s1": [
+      "sunbound_knight_m7": [
        385,
        96,
        55,
        56
       ],
-      "sunbound_knight_s2": [
+      "sunbound_knight_s0": [
        440,
        96,
        55,
        56
       ],
-      "sunbound_knight_s3": [
+      "sunbound_knight_s1": [
        495,
        96,
        55,
        56
       ],
-      "sunbound_knight_s4": [
+      "sunbound_knight_s2": [
        550,
        96,
        55,
        56
       ],
-      "sunbound_knight_s5": [
+      "sunbound_knight_s3": [
        605,
        96,
        55,
        56
       ],
-      "sunbound_knight_h": [
+      "sunbound_knight_s4": [
        660,
+       96,
+       55,
+       56
+      ],
+      "sunbound_knight_s5": [
+       715,
+       96,
+       55,
+       56
+      ],
+      "sunbound_knight_h": [
+       770,
        96,
        55,
        56
@@ -344,9 +384,11 @@
         "sunbound_knight_m2",
         "sunbound_knight_m3",
         "sunbound_knight_m4",
-        "sunbound_knight_m5"
+        "sunbound_knight_m5",
+        "sunbound_knight_m6",
+        "sunbound_knight_m7"
        ],
-       "fps": 9,
+       "fps": 10,
        "loop": true
       },
       "shoot": {
@@ -416,44 +458,56 @@
        52,
        54
       ],
-      "solar_acolyte_s0": [
+      "solar_acolyte_m6": [
        312,
        152,
        52,
        54
       ],
-      "solar_acolyte_s1": [
+      "solar_acolyte_m7": [
        364,
        152,
        52,
        54
       ],
-      "solar_acolyte_s2": [
+      "solar_acolyte_s0": [
        416,
        152,
        52,
        54
       ],
-      "solar_acolyte_s3": [
+      "solar_acolyte_s1": [
        468,
        152,
        52,
        54
       ],
-      "solar_acolyte_s4": [
+      "solar_acolyte_s2": [
        520,
        152,
        52,
        54
       ],
-      "solar_acolyte_s5": [
+      "solar_acolyte_s3": [
        572,
        152,
        52,
        54
       ],
-      "solar_acolyte_h": [
+      "solar_acolyte_s4": [
        624,
+       152,
+       52,
+       54
+      ],
+      "solar_acolyte_s5": [
+       676,
+       152,
+       52,
+       54
+      ],
+      "solar_acolyte_h": [
+       728,
        152,
        52,
        54
@@ -467,9 +521,11 @@
         "solar_acolyte_m2",
         "solar_acolyte_m3",
         "solar_acolyte_m4",
-        "solar_acolyte_m5"
+        "solar_acolyte_m5",
+        "solar_acolyte_m6",
+        "solar_acolyte_m7"
        ],
-       "fps": 9,
+       "fps": 10,
        "loop": true
       },
       "shoot": {
@@ -539,44 +595,56 @@
        54,
        60
       ],
-      "cinder_elemental_s0": [
+      "cinder_elemental_m6": [
        324,
        206,
        54,
        60
       ],
-      "cinder_elemental_s1": [
+      "cinder_elemental_m7": [
        378,
        206,
        54,
        60
       ],
-      "cinder_elemental_s2": [
+      "cinder_elemental_s0": [
        432,
        206,
        54,
        60
       ],
-      "cinder_elemental_s3": [
+      "cinder_elemental_s1": [
        486,
        206,
        54,
        60
       ],
-      "cinder_elemental_s4": [
+      "cinder_elemental_s2": [
        540,
        206,
        54,
        60
       ],
-      "cinder_elemental_s5": [
+      "cinder_elemental_s3": [
        594,
        206,
        54,
        60
       ],
-      "cinder_elemental_h": [
+      "cinder_elemental_s4": [
        648,
+       206,
+       54,
+       60
+      ],
+      "cinder_elemental_s5": [
+       702,
+       206,
+       54,
+       60
+      ],
+      "cinder_elemental_h": [
+       756,
        206,
        54,
        60
@@ -590,9 +658,11 @@
         "cinder_elemental_m2",
         "cinder_elemental_m3",
         "cinder_elemental_m4",
-        "cinder_elemental_m5"
+        "cinder_elemental_m5",
+        "cinder_elemental_m6",
+        "cinder_elemental_m7"
        ],
-       "fps": 9,
+       "fps": 10,
        "loop": true
       },
       "shoot": {
@@ -662,44 +732,56 @@
        29,
        34
       ],
-      "lava_slime_s0": [
+      "lava_slime_m6": [
        174,
        266,
        29,
        34
       ],
-      "lava_slime_s1": [
+      "lava_slime_m7": [
        203,
        266,
        29,
        34
       ],
-      "lava_slime_s2": [
+      "lava_slime_s0": [
        232,
        266,
        29,
        34
       ],
-      "lava_slime_s3": [
+      "lava_slime_s1": [
        261,
        266,
        29,
        34
       ],
-      "lava_slime_s4": [
+      "lava_slime_s2": [
        290,
        266,
        29,
        34
       ],
-      "lava_slime_s5": [
+      "lava_slime_s3": [
        319,
        266,
        29,
        34
       ],
-      "lava_slime_h": [
+      "lava_slime_s4": [
        348,
+       266,
+       29,
+       34
+      ],
+      "lava_slime_s5": [
+       377,
+       266,
+       29,
+       34
+      ],
+      "lava_slime_h": [
+       406,
        266,
        29,
        34
@@ -713,9 +795,11 @@
         "lava_slime_m2",
         "lava_slime_m3",
         "lava_slime_m4",
-        "lava_slime_m5"
+        "lava_slime_m5",
+        "lava_slime_m6",
+        "lava_slime_m7"
        ],
-       "fps": 9,
+       "fps": 10,
        "loop": true
       },
       "shoot": {
@@ -785,44 +869,56 @@
        59,
        56
       ],
-      "lava_guard_s0": [
+      "lava_guard_m6": [
        354,
        300,
        59,
        56
       ],
-      "lava_guard_s1": [
+      "lava_guard_m7": [
        413,
        300,
        59,
        56
       ],
-      "lava_guard_s2": [
+      "lava_guard_s0": [
        472,
        300,
        59,
        56
       ],
-      "lava_guard_s3": [
+      "lava_guard_s1": [
        531,
        300,
        59,
        56
       ],
-      "lava_guard_s4": [
+      "lava_guard_s2": [
        590,
        300,
        59,
        56
       ],
-      "lava_guard_s5": [
+      "lava_guard_s3": [
        649,
        300,
        59,
        56
       ],
-      "lava_guard_h": [
+      "lava_guard_s4": [
        708,
+       300,
+       59,
+       56
+      ],
+      "lava_guard_s5": [
+       767,
+       300,
+       59,
+       56
+      ],
+      "lava_guard_h": [
+       826,
        300,
        59,
        56
@@ -836,9 +932,11 @@
         "lava_guard_m2",
         "lava_guard_m3",
         "lava_guard_m4",
-        "lava_guard_m5"
+        "lava_guard_m5",
+        "lava_guard_m6",
+        "lava_guard_m7"
        ],
-       "fps": 9,
+       "fps": 10,
        "loop": true
       },
       "shoot": {
@@ -908,44 +1006,56 @@
        62,
        62
       ],
-      "sun_cultist_s0": [
+      "sun_cultist_m6": [
        372,
        356,
        62,
        62
       ],
-      "sun_cultist_s1": [
+      "sun_cultist_m7": [
        434,
        356,
        62,
        62
       ],
-      "sun_cultist_s2": [
+      "sun_cultist_s0": [
        496,
        356,
        62,
        62
       ],
-      "sun_cultist_s3": [
+      "sun_cultist_s1": [
        558,
        356,
        62,
        62
       ],
-      "sun_cultist_s4": [
+      "sun_cultist_s2": [
        620,
        356,
        62,
        62
       ],
-      "sun_cultist_s5": [
+      "sun_cultist_s3": [
        682,
        356,
        62,
        62
       ],
-      "sun_cultist_h": [
+      "sun_cultist_s4": [
        744,
+       356,
+       62,
+       62
+      ],
+      "sun_cultist_s5": [
+       806,
+       356,
+       62,
+       62
+      ],
+      "sun_cultist_h": [
+       868,
        356,
        62,
        62
@@ -959,9 +1069,11 @@
         "sun_cultist_m2",
         "sun_cultist_m3",
         "sun_cultist_m4",
-        "sun_cultist_m5"
+        "sun_cultist_m5",
+        "sun_cultist_m6",
+        "sun_cultist_m7"
        ],
-       "fps": 9,
+       "fps": 10,
        "loop": true
       },
       "shoot": {
@@ -1031,44 +1143,56 @@
        45,
        31
       ],
-      "cinder_bat_s0": [
+      "cinder_bat_m6": [
        270,
        418,
        45,
        31
       ],
-      "cinder_bat_s1": [
+      "cinder_bat_m7": [
        315,
        418,
        45,
        31
       ],
-      "cinder_bat_s2": [
+      "cinder_bat_s0": [
        360,
        418,
        45,
        31
       ],
-      "cinder_bat_s3": [
+      "cinder_bat_s1": [
        405,
        418,
        45,
        31
       ],
-      "cinder_bat_s4": [
+      "cinder_bat_s2": [
        450,
        418,
        45,
        31
       ],
-      "cinder_bat_s5": [
+      "cinder_bat_s3": [
        495,
        418,
        45,
        31
       ],
-      "cinder_bat_h": [
+      "cinder_bat_s4": [
        540,
+       418,
+       45,
+       31
+      ],
+      "cinder_bat_s5": [
+       585,
+       418,
+       45,
+       31
+      ],
+      "cinder_bat_h": [
+       630,
        418,
        45,
        31
@@ -1082,9 +1206,11 @@
         "cinder_bat_m2",
         "cinder_bat_m3",
         "cinder_bat_m4",
-        "cinder_bat_m5"
+        "cinder_bat_m5",
+        "cinder_bat_m6",
+        "cinder_bat_m7"
        ],
-       "fps": 9,
+       "fps": 10,
        "loop": true
       },
       "shoot": {
