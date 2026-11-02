@@ -4,6 +4,7 @@
 // GROUND layer (tiles, biome edges, foam, decor) rotates as one image, while
 // every sprite stays upright at its rotated position, like classic tiny-MMO cameras.
 import { lift } from './util.js';
+import { ACTS } from './bosses/jarl_court.js';
 import { installWalls } from './walls.js';
 import { installRFRender } from './rf/draw.js';
 import { installRFBossRender } from './rf/boss.js';
@@ -2549,12 +2550,15 @@ export class Renderer {
         if (d < best) { best = d; bar = { e, name: e.D.name + surv, f: surv ? (e.surviveUntil > g.t ? (e.surviveUntil - g.t) / 22 : (e.frenzyUntil - g.t) / (e.frenzyLen || 10)) : e.hp / e.maxHp, hot: e.phaseIdx > 0 || !!surv, immune: e.invulnT > 0 && !surv }; }
       }
     }
-    if (bar) this.bossWidget(g, bar);
+    if (bar && bar.e && bar.e.jcCourt) {                   // the Hollow Court: both Jarls' bars, the court's act under them
+      const C = bar.e.jcCourt, L = Object.values(C.m).filter((q) => q && !q.dead), A = ACTS[C.act] || '';
+      L.forEach((q, k) => this.bossWidget(g, { e: q, name: q.D.name, sub: k === L.length - 1 ? (C.surv ? 'ONE CROWN REMAINS' : 'THE HOLLOW COURT · ' + A) : '', f: q.hp / q.maxHp, hot: (q.bx && q.bx.phase) > 1, pips: [0.66, 0.30] }, k * 52));
+    } else if (bar) this.bossWidget(g, bar);
   }
   // the boss's health, RotMG's way (2026-10-21): a compact pill at the top right of the view, its Life in numbers on the
   // bar, phase ticks, the boss's own likeness in a diamond badge at its end, its name and phase in small type under it
-  bossWidget(g, bar) {
-    const ctx = this.ctx, C = this.c, W = Math.round(Math.min(340, Math.max(230, C.width * 0.27))), H = 22, x = C.width - W - 22, y = 14, e = bar.e;
+  bossWidget(g, bar, dy = 0) {
+    const ctx = this.ctx, C = this.c, W = Math.round(Math.min(340, Math.max(230, C.width * 0.27))), H = 22, x = C.width - W - 22, y = 14 + dy, e = bar.e;
     const hp = e && e.hp !== undefined ? Math.max(0, Math.ceil(e.hp)) : null, max = e && e.maxHp;
     // the pill: a dark frame with a bright edge, the Life inside
     ctx.fillStyle = '#05040a'; ctx.fillRect(x - 4, y - 4, W + 8, H + 8);

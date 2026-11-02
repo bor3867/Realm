@@ -376,7 +376,11 @@ export const BXF = {
       if (p.x > A.x - 1 && p.x < A.x + A.w + 1 && p.y > A.y - 1 && p.y < A.y + A.h + 1) {
         p.x = Math.max(A.x + 1, Math.min(A.x + A.w - 1, p.x)); p.y = Math.max(A.y + 1.2, Math.min(A.y + A.h - 1, p.y));
       }
-    } else for (const o of e.bx.locks || []) {
+    } else {
+      const heir = this.enemies.find((q) => q !== e && q.room === A && q.bx && !q.bx.finished && !q.dead);   // (another boss still fights in here: the doors are its now)
+      if (heir) { heir.bx.locks = [...(heir.bx.locks || []), ...(e.bx.locks || [])]; e.bx.locks = []; return; }
+    }
+    if (!lock) for (const o of e.bx.locks || []) {
       o.sprite = 'gate_open'; o.solid = false; m.solid[Math.floor(o.y) * m.w + Math.floor(o.x)] = 0;
     }
   },

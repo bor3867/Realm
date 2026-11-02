@@ -1,310 +1,196 @@
-// The Hollow Jarl, Wizard (2026-11-01, the user's design; its overhaul; then the user's attack timings and cooldowns).
-// He holds the Throne's second champion court and its seal. Formations, many firing points, portals, precise dodging:
-// he never stands still (he slides to a new place every couple of seconds, keeping his distance), a leading volley of
-// bolts runs under everything, and his attacks keep their own schedule (kit.scheduler): each its own cooldown from when
-// it ends, a new one every 2.2-3 s (I), 1.8-2.5 s (II), 1.6-2.3 s (III), never the same twice running; his signatures
-// (the Pursuit, the Testament) never overlap. Every volley locks its aim before it flies; every blast is marked first.
-//   I   The Runecaller (100-70%):
-//       Runic Dial        0.9 s to form; eight runes turn about him six seconds, the alternate four firing every
-//                         0.75 s (75, 4.5 t/s). cd 9
-//       Spectral Constellation  shown 0.55 s; three volleys of five lances 0.5 s apart, each shown and locked (105, 6 t/s). cd 3
-//       Sigils of Ruin    three sigils 0.4 s apart where you've been (and where you're going), each 1.1 s to burst (145;
-//                         four shards, 55). cd 6.5
-//   II  The Unwoven Court (70-35%), and the lances and sigils still:
-//       Hollow Convergence  four portals (they can be broken) after 1.0 s; seven seconds of turning crosses of bolts, each
-//                         portal every 1.1 s, in turn (85). cd 16
-//       Arcane Crossfire  two portals either side of you (0.8 s); their fans cross; he fires a third volley 0.65 s on and
-//                         a last, offset, 0.65 s after (95). cd 8
-//       Runic Prison      eight runes form round you (1.0 s) and close in over 2.2 s; three go dark (the way out); the
-//                         rest fire inward near the end (95). cd 12
-//       Phantom Reflections  0.65 s; he steps to another corner (never onto you), two reflections with him; they fire
-//                         together 0.7 s on and 0.85 s after that, then fade (75). cd 11
-//   III The Unmaking (35-0%), and the sigils and lances:
-//       Spectral Pursuit  0.7 s; seven seconds blinking from place to place every 2.25 s (each place marked 0.5 s first),
-//                         a portal opening where he was, firing short bursts (85). cd 15
-//       The Returning Curse  0.7 s; daggers out 1.4 s, a stop and a flash 0.45 s, back along the same paths (90). cd 7.5
-//       Arcane Lattice    0.9 s; lines between four anchors, three patterns 1.6 s each, each change shown 0.65 s first,
-//                         bolts running along them (100). cd 12
-//       The Hollow Testament  0.9 s; two seconds of turning rune walls, 2.5 s of portal crossfire, 2.5 s of a ring
-//                         closing on you (its opening marked); 1.3 s while his staff mends: your opening (85-115). cd 18
-// Damage: the user's numbers are what a player takes; each set ~4 above (a Throne-geared character's Defense).
+// The Hollow Jarl, Wizard: to the user's castle spec (art/sunthiefs_castle_complete_encounter_spec.txt, 2). He fights in
+// the Hollow Court beside the Warrior, on the court's shared script (src/bosses/jarl_court.js), strafing between four
+// fixed magic steps at 3.6 tiles a second (no blinking about):
+//   Z1 Lance Inquisition  0.55 s; six waves of five lances in an 18-degree fan every 0.42 s, each aimed at where you were
+//                         0.23 s before it flies (105, 7.4 t/s)
+//   Z2 Four Hollow Windows  the four corner sockets glow 0.95 s; portals (12,000 Life, they can be broken) open in
+//                         diagonal pairs by turns every 0.65 s for 7 s, each firing three darts in a 22-degree fan (85)
+//   Z3 Arcane Loom        0.9 s, the lanes shown; five rows of twelve orbs from the two sides by turns every 0.7 s, two
+//                         openings in each, staggered row to row (95, 4.4 t/s)
+//   Z4 Sigil Punishment   where you stand at 0, 0.5, 1.0 and 1.5 s: a circle that bursts 1.15 s later (175) and throws
+//                         four darts out (70)
+//   Z5 Returning Royalty  0.75 s; a ring of twelve lances, two slots empty (115, 4.6 t/s); 1.55 s on they stop and flash
+//                         0.45 s, then fly back the way they came to where they began (5.4 t/s)
+//   Z6 Hollow Cage (II+)  'THE CAGE CLOSES.': eight runes 5 tiles round where you stood close to 2.5 over 2.3 s; three go
+//                         dark at 1.1 s (the way out); the rest fire two darts inward at 2.0 and 2.55 s (95)
+//   Z7 Excommunication (alone)  1.05 s: he steps to a marked corner; the sockets' portals fire seven-shot fans two and
+//                         two (90); then nine lances over 120 degrees at where you were 0.4 s before (125)
+// Damage numbers are effective ones (D(n): set above a Throne-geared character's Defense).
 // Art: tools/build_jarl_wizard.py ('bx_jarl_wizard', 'wiz_shots/<name>', 'wiz_kin/portal').
-import { TAU, angleTo, target, mark, ahead, running, scheduler } from './kit.js';
+import { TAU, angleTo, target } from './kit.js';
+import { courtChoose, courtTick, partner, mirrored } from './jarl_court.js';
 
 const D = (n) => n + 4;
-const later = (e, t, name, V) => e.bx.vol.push({ t, V: { form: 'special', ...V, name } });   // (its own name last: a V passed on whole keeps the step it's for)
-const shot = (g, e, x, y, a, V) => g.bxShot(e, x, y, a, V);
-const BOLT = { sprite: 'wiz_shots/bolt', size: 0.35 }, LANCE = { sprite: 'wiz_shots/lance', size: 0.4 }, DAGGER = { sprite: 'wiz_shots/dagger', size: 0.35 };
-const SPIRIT = ['#b884cc', '#e6c8ff', '#8e4ca8'];
-const show = (g, e, x, y, a, len, delay) => g.fx.push({ kind: 'lane', x, y, a, len, w: 0.6, delay, t: 0, life: delay, dmg: 0, by: e.D.name, hitT: 0, cols: ['#b884cc', '#b884cc', '#b884cc', '#ffffff'] });
-const spot = (g, e, x, y, t) => mark(g, e, x, y, 0.9, t, 0, SPIRIT, 0);                        // (a place marked: something comes here)
-const court = (e) => e.room || { x: Math.floor(e.x) - 14, y: Math.floor(e.y) - 10, w: 29, h: 23 };
-const clampC = (e, x, y, m = 1.8) => { const C = court(e); return [Math.max(C.x + m, Math.min(C.x + C.w - m, x)), Math.max(C.y + m, Math.min(C.y + C.h - m, y))]; };
+const deg = (d) => (d * Math.PI) / 180;
+const later = (e, t, name, V = {}) => e.bx.vol.push({ t, V: { form: 'special', ...V, name } });   // (its own name last)
+const shot = (g, e, x, y, a, V) => g.bxShot(e, x, y, a, e.jcSurv ? { ...V, speed: V.speed * 1.1 } : V);   // (one crown left: a tenth quicker)
+const BOLT = { sprite: 'wiz_shots/bolt', size: 0.35 }, LANCE = { sprite: 'wiz_shots/lance', size: 0.4 }, DART = { sprite: 'wiz_shots/dagger', size: 0.35 }, ORB = { sprite: 'wiz_shots/bolt', size: 0.45 };
+const SPIRIT = ['#b884cc', '#e6c8ff', '#8e4ca8'], VIOLET = ['#b884cc', '#b884cc', '#b884cc', '#ffffff'];
+const show = (g, e, x, y, a, len, delay, w = 0.6) => g.fx.push({ kind: 'lane', x, y, a, len, w, delay, t: 0, life: delay, dmg: 0, by: e.D.name, hitT: 0, cols: VIOLET });
+const circle = (g, e, x, y, r, delay, dmg) => g.fx.push({ kind: 'zone', src: e, x, y, r, t: 0, delay, life: delay + 0.15, dmg: dmg ? g.bxDmg(e, dmg) : 0, by: e.D.name, done: !dmg, colors: SPIRIT });
+// the court, in the spec's own 40x34 tiles, fitted to the room
+const court = (e) => e.room || { x: Math.floor(e.x) - 27, y: Math.floor(e.y) - 16, w: 40, h: 34 };
+const at40 = (e, sx, sy) => { const C = court(e); return { x: C.x + (sx / 40) * C.w, y: C.y + (sy / 34) * C.h }; };
+const SOCKETS = (e) => [[4, 4], [36, 4], [36, 30], [4, 30]].map(([x, y]) => at40(e, x, y));   // NW, NE, SE, SW
+const STEPS = (e) => [[10, 9], [30, 9], [30, 25], [10, 25]].map(([x, y]) => at40(e, x, y));    // his four magic steps
 function at(g, e, dx, h) { const a = g.camAngle || 0; return g.up(e.x + dx * Math.cos(a), e.y - dx * Math.sin(a), h); }
 const STAFF = (g, e) => at(g, e, -2.5, 5.6);
-const aimAt = (g, e, ox, oy, T) => { const q = target(g, e); const [x, y] = running(e) ? ahead(g, e, T) : [q.x, q.y]; return angleTo(ox, oy, x, y); };
 function portal(g, e, x, y, life, hp) {                    // a portal: it hangs in the air; it can be broken; it closes by itself
-  const [px, py] = clampC(e, x, y, 1.5), q = g.addEnemy('wiz_portal', px, py);
+  const q = g.addEnemy('wiz_portal', x, y);
   q.noLoot = true; q.seen = true; q.jzUntil = g.t + life; if (hp) q.hp = q.maxHp = hp;
-  g.vx({ k: 'burst', x: px, y: py, n: 14, colors: SPIRIT });
+  g.vx({ k: 'burst', x, y, n: 14, colors: SPIRIT });
   (e.bx.jzPortals = e.bx.jzPortals || []).push(q);
   return q;
 }
-function corners(e) { const C = court(e); return [[0.18, 0.2], [0.82, 0.2], [0.82, 0.8], [0.18, 0.8]].map(([u, v]) => ({ x: C.x + C.w * u, y: C.y + C.h * v })); }
+const closePortals = (e) => { for (const q of e.bx.jzPortals || []) if (!q.dead) { q.noLoot = true; q.dead = true; q.deadT = 0; } e.bx.jzPortals = []; };
 
-// ================================================================ under it all: a leading volley
-function spark(g, e, V) {
-  const [ox, oy] = STAFF(g, e), d = Math.hypot(target(g, e).x - e.x, target(g, e).y - e.y), a = aimAt(g, e, ox, oy, d / 6.5);
-  for (const o of running(e) ? [-0.3, -0.15, 0, 0.15, 0.3] : [-0.16, 0, 0.16]) shot(g, e, ox, oy, a + o, { ...BOLT, speed: 6.5, range: 13, dmg: D(70) });
+// ================================================================ Z1 Lance Inquisition
+function inquisition(g, e) { for (let w = 0; w < 6; w++) later(e, 0.6 + w * 0.42 - 0.23, 'lanceAim'); }
+function lanceAim(g, e) {                                  // where you are now; 0.23 s on, five lances there
+  const [ox, oy] = STAFF(g, e), q = target(g, e), a = angleTo(ox, oy, q.x, q.y);
+  show(g, e, ox, oy, a, 9, 0.23, 0.4);
+  later(e, 0.23, 'lanceFire', { a });
 }
+function lanceFire(g, e, V) { const [ox, oy] = STAFF(g, e); for (let k = 0; k < 5; k++) shot(g, e, ox, oy, V.a + (k / 4 - 0.5) * deg(18), { ...LANCE, speed: 7.4, range: 14, dmg: D(105) }); }
 
-// ================================================================ I
-function dial(g, e, V) {                                   // 0.9 s to form; six seconds of the alternate four firing every 0.75 s
-  const S = e.bx; S.jzDial = { t0: g.t, dur: 6.9, r: 2.6, w: 0.7 * (Math.random() < 0.5 ? 1 : -1), a0: Math.random() * TAU };
-  for (let k = 0; k < 8; k++) later(e, 0.9 + k * 0.75, 'dialFire', { set: k % 2, dmg: D(75) });
+// ================================================================ Z2 Four Hollow Windows
+function windows(g, e) {
+  for (const s of SOCKETS(e)) circle(g, e, s.x, s.y, 1.2, 0.95, 0);
+  later(e, 0.95, 'openWindows');
+  g.sfx('portal');
 }
-function dialFire(g, e, V) {
-  const Q = e.bx.jzDial; if (!Q) return;
-  for (let i = V.set; i < 8; i += 2) {
-    const a = Q.a0 + Q.w * (g.t - Q.t0) + (i / 8) * TAU, x = e.x + Math.cos(a) * Q.r, y = e.y + Math.sin(a) * Q.r;
-    for (const o of [-0.12, 0.12]) shot(g, e, x, y, a + o, { ...BOLT, speed: 4.5, range: 11, dmg: V.dmg });
+function openWindows(g, e) { e.bx.jzWin = { ps: SOCKETS(e).map((s) => portal(g, e, s.x, s.y, 7, 12000)), k: 0, t: 0, until: g.t + 7 }; }
+function windowVolley(g, e, W) {                           // a diagonal pair (NW+SE, then NE+SW): three darts each, toward the middle lane and you
+  const pair = W.k++ % 2 ? [1, 3] : [0, 2], C = court(e), q = target(g, e);
+  for (const i of pair) {
+    const p = W.ps[i]; if (!p || p.dead) continue;
+    const tx = (C.x + C.w / 2 + q.x) / 2, ty = (C.y + C.h / 2 + q.y) / 2, a = angleTo(p.x, p.y, tx, ty);
+    for (let k = 0; k < 3; k++) shot(g, e, p.x, p.y, a + (k - 1) * deg(11), { ...DART, speed: 5.3, range: 18, dmg: D(85) });
   }
 }
-function constellation(g, e, V) {                          // shown 0.55 s; three volleys 0.5 s apart, each shown and locked
-  [[0, 0.55, false], [0.75, 0.3, true], [1.25, 0.3, true]].forEach(([t, delay, lead]) => later(e, t, 'lanceShow', { delay, lead, dmg: D(105) }));
+
+// ================================================================ Z3 Arcane Loom
+function loom(g, e) {
+  const C = court(e), flip = mirrored(e);
+  for (let r = 0; r < 5; r++) {                            // the lanes, shown along the side the rows start from
+    const fromLeft = (r % 2 === 0) !== flip, x = fromLeft ? C.x + 1 : C.x + C.w - 1;
+    if (r < 2) show(g, e, x, C.y + 1, Math.PI / 2, C.h - 2, 0.9, 0.5);
+    later(e, 0.9 + r * 0.7, 'loomRow', { r, fromLeft });
+  }
 }
-function lanceShow(g, e, V) {
-  const [ox, oy] = STAFF(g, e), q = target(g, e), a = V.lead ? aimAt(g, e, ox, oy, Math.hypot(q.x - ox, q.y - oy) / 6) : angleTo(ox, oy, q.x, q.y);
-  for (let i = 0; i < 5; i++) show(g, e, ox, oy, a + (i / 4 - 0.5) * 0.46, 9, V.delay);
-  later(e, V.delay, 'lances', { ox, oy, a, dmg: V.dmg });
-}
-function lances(g, e, V) { for (let i = 0; i < 5; i++) shot(g, e, V.ox, V.oy, V.a + (i / 4 - 0.5) * 0.46, { ...LANCE, speed: 6, range: 13, dmg: V.dmg }); g.sfx('zap'); }
-function sigils(g, e, V) {                                 // three sigils 0.4 s apart: where you've been, and where you're going
-  for (let k = 0; k < 3; k++) later(e, k * 0.4, 'sigil', { k, dmg: D(145) });
-}
-function sigil(g, e, V) {
-  const S = e.bx, q = target(g, e), H = S.jzTrail || [], placed = S.jzSigils = (V.k === 0 ? [] : S.jzSigils || []);
-  let p = V.k >= 1 && running(e) ? (([x, y]) => ({ x, y }))(ahead(g, e, 0.9 + V.k * 0.3)) : (H[Math.max(0, H.length - 1 - V.k * 3)] || q), x = p.x, y = p.y;
-  for (let k = 0; k < 6 && placed.some((s) => Math.hypot(s[0] - x, s[1] - y) < 3); k++) { const a = Math.random() * TAU; x = p.x + Math.cos(a) * 3; y = p.y + Math.sin(a) * 3; }
-  placed.push([x, y]);
-  mark(g, e, x, y, 1.8, 1.1, V.dmg, SPIRIT, 4, 'wiz_shots/shard');
+function loomRow(g, e, V) {
+  const C = court(e), x = V.fromLeft ? C.x + 1 : C.x + C.w - 1, a = V.fromLeft ? 0 : Math.PI, step = (C.h - 2) / 11;
+  const gaps = [[2, 3], [8, 9]].map(([i, j]) => [(i + V.r * 2) % 12, (j + V.r * 2) % 12]).flat();   // two two-orb openings, staggered row to row
+  for (let i = 0; i < 12; i++) if (!gaps.includes(i)) shot(g, e, x, C.y + 1 + i * step, a, { ...ORB, speed: 4.4, range: C.w - 1.5, dmg: D(95) });
 }
 
-// ================================================================ II
-function convergence(g, e, V) {                            // 1.0 s marked; four portals; seven seconds of turning crosses, in turn
-  const P = corners(e); for (const p of P) spot(g, e, p.x, p.y, 1.0);
-  later(e, 1.0, 'openConvergence', { P });
+// ================================================================ Z4 Sigil Punishment
+function sigils(g, e) { for (let k = 0; k < 4; k++) later(e, k * 0.5, 'sigilMark'); }
+function sigilMark(g, e) { const q = target(g, e); circle(g, e, q.x, q.y, 1.6, 1.15, D(175)); later(e, 1.15, 'sigilDarts', { x: q.x, y: q.y }); }
+function sigilDarts(g, e, V) { for (let k = 0; k < 4; k++) shot(g, e, V.x, V.y, (k * TAU) / 4, { ...DART, speed: 4.8, range: 9, dmg: D(70) }); g.sfx('zap'); }
+
+// ================================================================ Z5 Returning Royalty
+function royalty(g, e) { circle(g, e, e.x, e.y, 2.2, 0.8, 0); later(e, 0.8, 'royalOut'); }
+function royalOut(g, e) {
+  const q = target(g, e), a0 = angleTo(e.x, e.y, q.x, q.y), s = TAU / 12, gap = Math.floor(Math.random() * 12), x = e.x, y = e.y;
+  e.bx.jzRoyal = [];
+  for (let i = 0; i < 12; i++) { if (i === gap || i === (gap + 1) % 12) continue; const b = shot(g, e, x, y, a0 + i * s + s / 2, { ...LANCE, speed: 4.6, range: 16, dmg: D(115) }); b.jzFrom = [x, y]; b.life = 5; e.bx.jzRoyal.push(b); }
+  later(e, 1.55, 'royalHold'); later(e, 2.0, 'royalBack');
 }
-function openConvergence(g, e, V) {
-  const S = e.bx;
-  S.jzConv = V.P.map((p, i) => ({ p: portal(g, e, p.x, p.y, 7, 6000), a: (i * TAU) / 8, w: i % 2 ? 0.35 : -0.35, t: 0.3 + i * 0.275 }));
-  g.sfx('portal');
+function royalHold(g, e) { for (const b of e.bx.jzRoyal || []) if (b.life > 0) { b.vx = 0; b.vy = 0; b.life = Math.max(b.life, 1); g.vx({ k: 'burst', x: b.x, y: b.y, n: 2, colors: ['#ffffff'] }); } }
+function royalBack(g, e) {
+  for (const b of e.bx.jzRoyal || []) {
+    if (!(b.life > 0)) continue;
+    const [fx, fy] = b.jzFrom, d = Math.hypot(fx - b.x, fy - b.y), a = Math.atan2(fy - b.y, fx - b.x);
+    b.vx = Math.cos(a) * 5.4; b.vy = Math.sin(a) * 5.4; b.a = a; b.life = Math.max(0.05, d / 5.4);
+  }
+  e.bx.jzRoyal = null;
 }
-function crossfire(g, e, V) {                              // two portals either side of you; crossing fans; his volley; a last offset one
-  const q = target(g, e), a = angleTo(e.x, e.y, q.x, q.y), nx = -Math.sin(a), ny = Math.cos(a);
-  const at2 = [-1, 1].map((s) => clampC(e, q.x + nx * s * 6, q.y + ny * s * 6, 1.5));
-  for (const [x, y] of at2) spot(g, e, x, y, 0.8);
-  later(e, 0.8, 'openCross', { at2, dmg: D(95) });
-  later(e, 1.45, 'gapVolley', { off: 0, dmg: D(95) });
-  later(e, 2.1, 'gapVolley', { off: 0.22, dmg: D(95) });
+
+// ================================================================ Z6 Hollow Cage
+function cage(g, e) {
+  if (g.banner) g.banner('THE CAGE CLOSES.', 1600);
+  const q = target(g, e), a0 = Math.random() * TAU, d0 = Math.floor(Math.random() * 8);
+  e.bx.jzPrison = { x: q.x, y: q.y, a0, r0: 5, r1: 2.5, t0: g.t + 1.0, dur: 2.3, dark: [d0, (d0 + 1) % 8, (d0 + 2) % 8], darkAt: g.t + 1.1 };
+  for (const t of [2.0, 2.55]) later(e, t, 'cageFire');
 }
-function openCross(g, e, V) {
-  const q = target(g, e), P = V.at2.map(([x, y]) => portal(g, e, x, y, 2.4, 3000));
-  for (const p of P) { const a = angleTo(p.x, p.y, q.x, q.y); for (let i = 0; i < 5; i++) shot(g, e, p.x, p.y, a + (i / 4 - 0.5) * 0.9, { ...BOLT, speed: 5.2, range: 12, dmg: V.dmg }); }
-  g.sfx('portal');
-}
-function gapVolley(g, e, V) { const [ox, oy] = STAFF(g, e), a = aimAt(g, e, ox, oy, 0.7) + V.off; for (const o of [-0.18, 0, 0.18]) shot(g, e, ox, oy, a + o, { ...LANCE, speed: 6.5, range: 13, dmg: V.dmg }); }
-function prison(g, e, V) {                                 // eight runes form round you (1.0 s), close in over 2.2 s; three dark; the rest fire inward
-  const q = target(g, e), dark = Math.floor(Math.random() * 8), S = e.bx;
-  S.jzPrison = { x: q.x, y: q.y, t0: g.t + 1.0, form: g.t, dur: 2.2, r0: 5.4, r1: 2.2, a0: Math.random() * TAU, dark: [dark, (dark + 1) % 8, (dark + 2) % 8] };
-  for (let k = 0; k < 3; k++) later(e, 2.4 + k * 0.3, 'prisonFire', { dmg: D(95) });
-}
-function prisonFire(g, e, V) {
+function cageFire(g, e) {
   const P = e.bx.jzPrison; if (!P) return;
-  const k = Math.max(0, Math.min(1, (g.t - P.t0) / P.dur)), r = P.r0 + (P.r1 - P.r0) * k;
+  const k = Math.max(0, Math.min(1, (g.t - P.t0) / P.dur)), rr = P.r0 + (P.r1 - P.r0) * k;
   for (let i = 0; i < 8; i++) {
     if (P.dark.includes(i)) continue;
-    const a = P.a0 + (i / 8) * TAU; shot(g, e, P.x + Math.cos(a) * r, P.y + Math.sin(a) * r, a + Math.PI, { ...BOLT, speed: 4.4, range: r * 2, dmg: V.dmg });
-  }
-}
-function reflections(g, e, V) {                            // 0.65 s; to another corner (never onto you), two reflections; two volleys; then gone
-  const C = court(e), q = target(g, e);
-  const spots = [[0.22, 0.25], [0.78, 0.25], [0.22, 0.75], [0.78, 0.75], [0.5, 0.2], [0.5, 0.8]].map(([u, v]) => ({ x: C.x + C.w * u, y: C.y + C.h * v }))
-    .filter((s) => Math.hypot(s.x - q.x, s.y - q.y) > 5).sort(() => Math.random() - 0.5);
-  if (spots.length < 3) return;
-  for (const s of spots.slice(0, 3)) spot(g, e, s.x, s.y, 0.65);
-  later(e, 0.65, 'reflect', { spots: spots.slice(0, 3) });
-}
-function reflect(g, e, V) {
-  g.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 20, colors: SPIRIT });
-  e.x = V.spots[0].x; e.y = V.spots[0].y;
-  g.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 20, colors: SPIRIT }); g.sfx('portal');
-  e.bx.jzEchoes = { at: [V.spots[1], V.spots[2]], until: g.t + 3.5 };
-  later(e, 0.7, 'echoFans', { lead: true, dmg: D(75) }); later(e, 1.55, 'echoFans', { lead: true, dmg: D(75) });
-}
-function echoFans(g, e, V) {
-  const q = target(g, e), from = [{ x: e.x, y: e.y }, ...((e.bx.jzEchoes && e.bx.jzEchoes.at) || [])];
-  for (const s of from) { const a = V.lead ? aimAt(g, e, s.x, s.y, Math.hypot(q.x - s.x, q.y - s.y) / 5.5) : angleTo(s.x, s.y, q.x, q.y); for (let i = 0; i < 5; i++) shot(g, e, s.x, s.y, a + (i / 4 - 0.5) * 0.8, { ...BOLT, speed: 5.5, range: 12, dmg: V.dmg }); }
-}
-
-// ================================================================ III
-function pursuit(g, e, V) {                                // 0.7 s; seven seconds blinking every 2.25 s (each place marked 0.5 s), portals where he was
-  for (let k = 0; k < 3; k++) later(e, 0.7 + k * 2.25, 'blinkMark', { dmg: D(85) });
-}
-function blinkMark(g, e, V) {
-  const C = court(e), q = target(g, e);
-  const spots = [[0.2, 0.22], [0.8, 0.22], [0.2, 0.78], [0.8, 0.78], [0.5, 0.18], [0.5, 0.82], [0.15, 0.5], [0.85, 0.5]].map(([u, v]) => ({ x: C.x + C.w * u, y: C.y + C.h * v }))
-    .filter((s) => Math.hypot(s.x - q.x, s.y - q.y) > 5 && Math.hypot(s.x - e.x, s.y - e.y) > 3);
-  if (!spots.length) return;
-  const s = spots[Math.floor(Math.random() * spots.length)];
-  spot(g, e, s.x, s.y, 0.5); later(e, 0.5, 'blink', { s, dmg: V.dmg });
-}
-function blink(g, e, V) {
-  portal(g, e, e.x, e.y, 4.5, 2500).jzFire = { every: 0.9, t: 0.3, n: 0, dmg: V.dmg };
-  g.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 16, colors: SPIRIT });
-  e.x = V.s.x; e.y = V.s.y;
-  g.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 16, colors: SPIRIT }); g.sfx('portal');
-}
-function curse(g, e, V) {                                  // 0.7 s; out 1.4 s; a stop and a flash 0.45 s; back along the same paths
-  g.vx({ k: 'burst', x: e.x, y: e.y - 2, n: 18, colors: ['#ffffff', '#e6c8ff'] });
-  later(e, 0.7, 'curseOut', { off: Math.random() * TAU, L: 7, dmg: D(90) });
-}
-function curseOut(g, e, V) {
-  const ox = e.x, oy = e.y;
-  for (let i = 0; i < 12; i++) { const a = V.off + (i / 12) * TAU; shot(g, e, ox, oy, a, { ...DAGGER, speed: 5, range: V.L, dmg: V.dmg }); }
-  later(e, 1.4, 'curseFlash', { ...V, ox, oy });
-  later(e, 1.85, 'curseBack', { ...V, ox, oy });
-}
-function curseFlash(g, e, V) { for (let i = 0; i < 12; i++) { const a = V.off + (i / 12) * TAU; g.vx({ k: 'burst', x: V.ox + Math.cos(a) * V.L, y: V.oy + Math.sin(a) * V.L, n: 5, colors: ['#ffffff', '#e6c8ff'] }); } }
-function curseBack(g, e, V) { for (let i = 0; i < 12; i++) { const a = V.off + (i / 12) * TAU; shot(g, e, V.ox + Math.cos(a) * V.L, V.oy + Math.sin(a) * V.L, a + Math.PI, { ...DAGGER, speed: 5, range: V.L, dmg: V.dmg }); } }
-const LATTICE = [[[0, 2], [1, 3]], [[0, 1], [2, 3]], [[0, 3], [1, 2]]];   // the pairs of anchors joined: across; round one way; round the other
-function lattice(g, e, V) {                                // 0.9 s; three patterns 1.6 s each, each change shown 0.65 s first
-  const C = court(e), A = [{ x: C.x + C.w / 2, y: C.y + 1.6 }, { x: C.x + C.w - 1.6, y: C.y + C.h / 2 }, { x: C.x + C.w / 2, y: C.y + C.h - 1.6 }, { x: C.x + 1.6, y: C.y + C.h / 2 }];
-  e.bx.jzAnchors = { at: A, until: g.t + 5.8 };
-  LATTICE.forEach((pairs, k) => {
-    const live = 0.9 + k * 1.6;                            // (each pattern shown 0.9 / 0.65 s before it runs)
-    later(e, live - (k ? 0.65 : 0.9), 'latticeShow', { pairs, A, delay: k ? 0.65 : 0.9 });
-    for (let j = 0; j < 5; j++) later(e, live + j * 0.3, 'latticeRun', { pairs, A, dmg: D(100) });
-  });
-}
-function latticeShow(g, e, V) { for (const [i, j] of V.pairs) { const a = V.A[i], b = V.A[j]; show(g, e, a.x, a.y, angleTo(a.x, a.y, b.x, b.y), Math.hypot(b.x - a.x, b.y - a.y), V.delay); } }
-function latticeRun(g, e, V) { for (const [i, j] of V.pairs) { const a = V.A[i], b = V.A[j]; shot(g, e, a.x, a.y, angleTo(a.x, a.y, b.x, b.y), { ...BOLT, speed: 5, range: Math.hypot(b.x - a.x, b.y - a.y), dmg: V.dmg }); } }
-function testament(g, e, V) {                              // 0.9 s; 2 s of turning rune walls; 2.5 s of portal crossfire; 2.5 s of a closing ring
-  g.vx({ k: 'burst', x: e.x, y: e.y - 2, n: 24, colors: SPIRIT }); if (g.banner) g.banner('The Hollow Testament!', 1400);
-  for (let k = 0; k < 4; k++) later(e, 0.9 + k * 0.5, 'runeWall', { k, dmg: D(85) });
-  later(e, 2.9, 'crossfire', {});
-  later(e, 5.4, 'closingRing', { dmg: D(100) });
-}
-function runeWall(g, e, V) {                               // three groups of runes, three openings, each wall turned on from the last
-  const off = (V.k * TAU) / 9;
-  for (let grp = 0; grp < 3; grp++) for (let i = 0; i < 4; i++) { const a = off + (grp / 3) * TAU + (i - 1.5) * 0.22; shot(g, e, e.x, e.y, a, { ...BOLT, speed: 4.2, range: 12, dmg: V.dmg, mv: { curve: 0.35 } }); }
-}
-function closingRing(g, e, V) {                            // a ring of runes closing in on you; its opening marked
-  const q = target(g, e), R = 7.5, n = 22, gap = Math.random() * TAU;
-  show(g, e, q.x + Math.cos(gap) * R, q.y + Math.sin(gap) * R, gap + Math.PI, R, 0.85);
-  later(e, 0.85, 'ringIn', { x: q.x, y: q.y, R, n, gap, dmg: V.dmg });
-}
-function ringIn(g, e, V) {
-  for (let i = 0; i < V.n; i++) {
-    const a = V.gap + ((i + 0.5) / V.n) * TAU;
-    if (i === 0 || i === V.n - 1 || i === 1 || i === V.n - 2) continue;   // (the four nearest the marked line: the way out)
-    shot(g, e, V.x + Math.cos(a) * V.R, V.y + Math.sin(a) * V.R, a + Math.PI, { ...BOLT, speed: 3.4, range: V.R - 0.6, dmg: V.dmg });
+    const a = P.a0 + (i / 8) * TAU, x = P.x + Math.cos(a) * rr, y = P.y + Math.sin(a) * rr;
+    for (const o of [-0.12, 0.12]) shot(g, e, x, y, a + Math.PI + o, { ...DART, speed: 4.6, range: rr * 2, dmg: D(95) });
   }
 }
 
-const P = {
-  dial: { name: 'Runic Dial', special: 'dial', windup: 0.2, dur: 6.9, cd: 9 },
-  lances: { name: 'Spectral Constellation', special: 'constellation', windup: 0.2, dur: 1.6, cd: 3 },
-  sigils: { name: 'Sigils of Ruin', special: 'sigils', windup: 0.2, dur: 1.9, cd: 6.5 },
-  conv: { name: 'Hollow Convergence', special: 'convergence', windup: 0.2, dur: 8.0, cd: 16, w: 2 },
-  cross: { name: 'Arcane Crossfire', special: 'crossfire', windup: 0.2, dur: 2.3, cd: 8 },
-  prison: { name: 'Runic Prison', special: 'prison', windup: 0.2, dur: 3.4, cd: 12, w: 1.5 },
-  refl: { name: 'Phantom Reflections', special: 'reflections', windup: 0.2, dur: 4.2, cd: 11 },
-  pursuit: { name: 'Spectral Pursuit', special: 'pursuit', windup: 0.2, dur: 7.7, cd: 15, block: true, w: 2 },
-  curse: { name: 'The Returning Curse', special: 'curse', windup: 0.2, dur: 4.0, cd: 7.5 },
-  lattice: { name: 'Arcane Lattice', special: 'lattice', windup: 0.2, dur: 5.7, cd: 12 },
-  testament: { name: 'The Hollow Testament', special: 'testament', windup: 0.2, dur: 7.9, cd: 18, block: true, after: 1.3, w: 2 },
+// ================================================================ Z7 Excommunication (the last crown)
+function excommunication(g, e) {
+  const q = target(g, e), st = STEPS(e).sort((a, b) => Math.hypot(b.x - q.x, b.y - q.y) - Math.hypot(a.x - q.x, a.y - q.y))[0];
+  circle(g, e, st.x, st.y, 1.2, 1.05, 0);
+  later(e, 1.05, 'excomStep', { x: st.x, y: st.y });
+  later(e, 0.2, 'excomPortals');
+  later(e, 1.10, 'excomFans', { ids: [0, 2] }); later(e, 2.0, 'excomFans', { ids: [1, 3] });
+  later(e, 2.5, 'excomAim');
+}
+function excomStep(g, e, V) { g.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 16, colors: SPIRIT }); e.x = V.x; e.y = V.y; e.bx.jzTo = null; g.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 16, colors: SPIRIT }); g.sfx('portal'); }
+function excomPortals(g, e) { closePortals(e); e.bx.jzExc = SOCKETS(e).map((s) => portal(g, e, s.x, s.y, 3.3, 8000)); }   // (two of them firing at once at most)
+function excomFans(g, e, V) {
+  const q = target(g, e);
+  for (const i of V.ids) { const p = (e.bx.jzExc || [])[i]; if (!p || p.dead) continue; const a = angleTo(p.x, p.y, q.x, q.y); for (let k = 0; k < 7; k++) shot(g, e, p.x, p.y, a + (k / 6 - 0.5) * deg(70), { ...BOLT, speed: 5.2, range: 18, dmg: D(90) }); }
+}
+function excomAim(g, e) { const [ox, oy] = STAFF(g, e), q = target(g, e), a = angleTo(ox, oy, q.x, q.y); show(g, e, ox, oy, a, 10, 0.4, 1.4); later(e, 0.4, 'excomLances', { a }); }
+function excomLances(g, e, V) { const [ox, oy] = STAFF(g, e); for (let k = 0; k < 9; k++) shot(g, e, ox, oy, V.a + (k / 8 - 0.5) * deg(120), { ...LANCE, speed: 7, range: 15, dmg: D(125) }); }
+
+const P = (name, special, recover, o = {}) => ({ name, special, windup: 0.45, recover, ...o });
+const AT = {
+  Z1: P('Lance Inquisition', 'inquisition', 2.8), Z2: P('Four Hollow Windows', 'windows', 1.2), Z3: P('Arcane Loom', 'loom', 4.0),
+  Z4: P('Sigil Punishment', 'sigils', 2.7), Z5: P('Returning Royalty', 'royalty', 4.2), Z6: P('Hollow Cage', 'cage', 3.4),
+  Z7: P('Excommunication', 'excommunication', 3.5, { move: 'hold' }),
 };
 
 export default {
-  id: 'jarl_wizard', art: 'jarl_wizard', name: 'The Hollow Jarl, Wizard', biome: 'dungeon', hp: 240000, def: 22, xp: 9500,   // (asked 270,000: a Throne-geared Priest took 3:15; the danger is his patterns, not his Life)
-  r: 1.5, speed: 2.4, keep: 7, faces: false, tempo: 1, dmgScale: 1, spawnCentre: true, thresholds: [0.70, 0.35],
-  choose: scheduler([[2.2, 3.0], [1.8, 2.5], [1.6, 2.3]]),
-  phases: {
-    1: { move: 'drift', pressure: [{ every: 1.5, special: 'spark' }], patterns: [P.dial, P.lances, P.sigils] },
-    2: { move: 'drift', pressure: [{ every: 1.4, special: 'spark' }], patterns: [P.conv, P.cross, P.prison, P.refl, P.lances, P.sigils] },
-    3: { move: 'drift', pressure: [{ every: 1.25, special: 'spark' }], patterns: [P.pursuit, P.curse, P.lattice, P.testament, P.sigils, P.lances] },
-  },
-  specials: { spark, dial, dialFire, constellation, lanceShow, lances, sigils, sigil, convergence, openConvergence, crossfire, openCross, gapVolley, prison, prisonFire,
-    reflections, reflect, echoFans, pursuit, blinkMark, blink, curse, curseOut, curseFlash, curseBack, lattice, latticeShow, latticeRun, testament, runeWall, closingRing, ringIn },
+  id: 'jarl_wizard', art: 'jarl_wizard', name: 'The Hollow Jarl, Wizard', biome: 'dungeon', hp: 265000, def: 22, xp: 9500,
+  r: 1.5, speed: 3.6, keep: 7, faces: false, tempo: 1, dmgScale: 1, spawnCentre: true, thresholds: [0.66, 0.30],
+  choose: (g, e) => courtChoose(g, e, AT),
+  phases: { 1: { move: 'steps', patterns: Object.values(AT) }, 2: { move: 'steps', patterns: Object.values(AT) }, 3: { move: 'steps', patterns: Object.values(AT) } },
+  specials: { inquisition, lanceAim, lanceFire, windows, openWindows, loom, loomRow, sigils, sigilMark, sigilDarts, royalty, royalOut, royalHold, royalBack,
+    cage, cageFire, excommunication, excomStep, excomPortals, excomFans, excomAim, excomLances },
   moves: {
-    drift(g, e, dt) {                                       // he slides to a new place every couple of seconds, keeping his distance
-      const S = e.bx, q = target(g, e);
+    steps(g, e, dt) {                                       // between his four magic steps, 3.6 t/s, every few seconds a new one away from you
+      const S = e.bx, q = target(g, e), L = STEPS(e);
       if (!S.jzTo || g.t > S.jzToT) {
-        const a = angleTo(q.x, q.y, e.x, e.y) + (Math.random() - 0.5) * 2.2, r = 6 + Math.random() * 2;
-        S.jzTo = clampC(e, q.x + Math.cos(a) * r, q.y + Math.sin(a) * r, 2.2); S.jzToT = g.t + 1.8 + Math.random();
+        const far = L.filter((s) => Math.hypot(s.x - q.x, s.y - q.y) > 5 && (!S.jzTo || Math.hypot(s.x - S.jzTo.x, s.y - S.jzTo.y) > 1));
+        S.jzTo = (far.length ? far : L)[Math.floor(Math.random() * (far.length || L.length))]; S.jzToT = g.t + 3 + Math.random();
       }
-      const [tx, ty] = S.jzTo, d = Math.hypot(tx - e.x, ty - e.y), sp = (e.D.speed || 2.4) * dt;
-      if (d > 0.2) g.moveCircle(e, ((tx - e.x) / d) * Math.min(d, sp), ((ty - e.y) / d) * Math.min(d, sp), 0.8);
+      const d = Math.hypot(S.jzTo.x - e.x, S.jzTo.y - e.y), sp = 3.6 * (e.jcSurv ? 1.12 : 1) * dt;
+      if (d > 0.2) g.moveCircle(e, ((S.jzTo.x - e.x) / d) * Math.min(d, sp), ((S.jzTo.y - e.y) / d) * Math.min(d, sp), 0.8);
     },
   },
-  onWake(g) { if (g.banner) g.banner('The Hollow Jarl raises his staff.', 2600); },
-  onPhase(g, e, ph) {
-    const S = e.bx; S.jzDial = S.jzEchoes = S.jzAnchors = S.jzPrison = S.jzConv = null;
-    for (const q of S.jzPortals || []) if (!q.dead) { q.noLoot = true; q.dead = true; q.deadT = 0; }
-    if (ph === 2) { if (g.banner) g.banner('The Unwoven Court: his magic burns brighter.', 2400); g.vx({ k: 'burst', x: e.x, y: e.y - 2, n: 30, colors: SPIRIT }); g.sfx('portal'); }
-    if (ph === 3) { if (g.banner) g.banner('The Unmaking: his staff shatters!', 2600); g.vx({ k: 'shake', amt: 6 }); g.vx({ k: 'burst', x: e.x, y: e.y - 2, n: 40, colors: [...SPIRIT, '#ffffff'] }); g.sfx('shatter'); }
+  onWake(g, e) { if (g.banner) g.banner(partner(e) ? 'THE HOLLOW COURT · "THEN BURN THE SOUL."' : '"THEN BURN THE SOUL."', 2600); },
+  onPhase(g, e) {
+    const S = e.bx; S.jzPrison = S.jzWin = null; closePortals(e); S.wait = Math.min(S.wait || 0, 1.5);
+    g.vx({ k: 'burst', x: e.x, y: e.y - 2, n: 30, colors: SPIRIT }); g.sfx('portal');
   },
   update(g, e, dt) {
     const S = e.bx;
+    courtTick(g, e);
     if (S.state === 'sleep' || S.state === 'intro') return;
-    S.jzTrailT = (S.jzTrailT || 0) - 1;                    // where you have been, for his sigils
-    if (S.jzTrailT <= 0) { S.jzTrailT = 6; const q = target(g, e); (S.jzTrail = S.jzTrail || []).push({ x: q.x, y: q.y }); if (S.jzTrail.length > 12) S.jzTrail.shift(); }
-    if (S.jzDial && g.t > S.jzDial.t0 + S.jzDial.dur) S.jzDial = null;
-    if (S.jzEchoes && g.t > S.jzEchoes.until) S.jzEchoes = null;
-    if (S.jzAnchors && g.t > S.jzAnchors.until) S.jzAnchors = null;
-    if (S.jzPrison && g.t > S.jzPrison.t0 + S.jzPrison.dur + 0.4) S.jzPrison = null;
-    const live = S.state !== 'morph';
-    for (const q of S.jzPortals || []) {                   // portals close by themselves; the pursuit's portals fire short bursts
-      if (q.dead) continue;
-      if (g.t > q.jzUntil) { q.noLoot = true; q.dead = true; q.deadT = 0; continue; }
-      if (q.jzFire && live && (q.jzFire.t -= dt) <= 0) {
-        q.jzFire.t = q.jzFire.every; const a = aimAt(g, e, q.x, q.y, 0.5);
-        for (let i = 0; i < 3; i++) shot(g, e, q.x, q.y, a + (i - 1) * 0.3, { ...BOLT, speed: 5.4, range: 12, dmg: q.jzFire.dmg });
-      }
-    }
+    for (const q of S.jzPortals || []) if (!q.dead && g.t > q.jzUntil) { q.noLoot = true; q.dead = true; q.deadT = 0; }
     S.jzPortals = (S.jzPortals || []).filter((q) => !q.dead);
-    if (S.jzConv && live) {                                 // the convergence: each living portal, in turn, every 1.1 s, a turning cross of bolts
-      let any = false;
-      for (const c of S.jzConv) {
-        if (c.p.dead) continue; any = true;
-        if ((c.t -= dt) > 0) continue;
-        c.t = 1.1; c.a += c.w;
-        for (let k = 0; k < 4; k++) shot(g, e, c.p.x, c.p.y, c.a + (k * TAU) / 4, { ...BOLT, speed: 4.4, range: 13, dmg: D(85) });
-      }
-      if (!any) S.jzConv = null;
-    }
+    const W = S.jzWin;                                      // the windows: a diagonal pair every 0.65 s
+    if (W && S.state !== 'morph') { if (g.t > W.until) S.jzWin = null; else if ((W.t -= dt) <= 0) { W.t = 0.65; windowVolley(g, e, W); } }
+    if (S.jzPrison && g.t > S.jzPrison.t0 + S.jzPrison.dur + 0.4) S.jzPrison = null;
   },
-  onDeath(g, e) { const S = e.bx; S.jzDial = S.jzEchoes = S.jzAnchors = S.jzPrison = S.jzConv = null; for (const q of S.jzPortals || []) if (!q.dead) { q.noLoot = true; q.dead = true; q.deadT = 0; } g.vx({ k: 'burst', x: e.x, y: e.y - 2, n: 40, colors: SPIRIT }); },
-  // drawn on the floor: his dial's runes turning, the lattice's anchors, the prison's runes forming and closing in (the dark ones dim)
+  onDeath(g, e) { const S = e.bx; S.jzPrison = S.jzWin = null; closePortals(e); g.vx({ k: 'burst', x: e.x, y: e.y - 2, n: 40, colors: SPIRIT }); },
+  // drawn on the floor: the cage's runes forming and closing in (the dark ones dim once they go dark)
   drawGround(r, g, e) {
-    const S = e.bx, D0 = (r.objDefs || (r.objDefs = new Map()));
+    const P = e.bx.jzPrison; if (!P) return;
+    const D0 = (r.objDefs || (r.objDefs = new Map()));
     let rune = D0.get('wiz_shots/rune'); if (rune === undefined) D0.set('wiz_shots/rune', (rune = (r.R && r.R.resolve('wiz_shots/rune')) || null));
     if (!rune) return;
-    const fr = Object.keys(rune.frames)[0], Q = S.jzDial;
-    if (Q) for (let i = 0; i < 8; i++) { const a = Q.a0 + Q.w * (g.t - Q.t0) + (i / 8) * TAU, [x, y] = r.proj(e.x + Math.cos(a) * Q.r, e.y + Math.sin(a) * Q.r); r.drawDef(rune, fr, Math.round(x), Math.round(y), { center: true, alpha: g.t - Q.t0 < 0.9 ? 0.4 : 1 }); }
-    if (S.jzAnchors) for (const A of S.jzAnchors.at) { const [x, y] = r.proj(A.x, A.y); r.drawDef(rune, fr, Math.round(x), Math.round(y), { center: true, scale: 1.6 }); }
-    const P = S.jzPrison;
-    if (P) {
-      const k = Math.max(0, Math.min(1, (g.t - P.t0) / P.dur)), rr = P.r0 + (P.r1 - P.r0) * k, forming = g.t < P.t0;
-      for (let i = 0; i < 8; i++) { const a = P.a0 + (i / 8) * TAU, [x, y] = r.proj(P.x + Math.cos(a) * rr, P.y + Math.sin(a) * rr); r.drawDef(rune, fr, Math.round(x), Math.round(y), { center: true, scale: 1.3, alpha: P.dark.includes(i) && !forming ? 0.2 : forming ? 0.5 : 1 }); }
-    }
-  },
-  // his reflections: himself again, fainter (the real one is the bright one)
-  draw(r, g, e) {
-    const E = e.bx.jzEchoes; if (!E || !r.R) return;
-    const def = r.R.resolve('bx_jarl_wizard/jarl_wizard'); if (!def) return;
-    for (const s of E.at) { const [x, y] = r.proj(s.x, s.y); r.drawDef(def, 'i2_' + (Math.floor(g.t * 6) % 4), Math.round(x), Math.round(y), { alpha: 0.45 }); }
+    const fr = Object.keys(rune.frames)[0], k = Math.max(0, Math.min(1, (g.t - P.t0) / P.dur)), rr = P.r0 + (P.r1 - P.r0) * k, forming = g.t < P.t0;
+    for (let i = 0; i < 8; i++) { const a = P.a0 + (i / 8) * TAU, [x, y] = r.proj(P.x + Math.cos(a) * rr, P.y + Math.sin(a) * rr); r.drawDef(rune, fr, Math.round(x), Math.round(y), { center: true, scale: 1.3, alpha: P.dark.includes(i) && g.t >= P.darkAt ? 0.15 : forming ? 0.5 : 1 }); }
   },
   lights(g, e) { return [{ x: e.x, y: e.y, h: 4.5, r: 70, col: '#c88aff' }]; },
   loot: [], lootLuck: 1.2,                                  // (every class's gear in its band: src/bosses/boss_loot.js)

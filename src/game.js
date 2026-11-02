@@ -31,6 +31,7 @@ import { installMythics } from './mythics.js';
 import { installArmory } from './armory.js';
 import { installGearMech } from './gearmech.js';
 import { BX, bxEnemyDef } from './bosses/index.js';
+import { joinCourt } from './bosses/jarl_court.js';
 import { installRF } from './rf/host.js';
 import { installRFBoss } from './rf/boss.js';
 import { installUniqMech } from './rf/uniqmech.js';
@@ -881,9 +882,13 @@ export class Game {
     m.rooms.slice(1, -1).forEach((rm) => {
       const big = Math.floor(rm.w * rm.h / 110);
       if (rm.role === 'puzzle' || rm.role === 'altar' || rm.role === 'rest') return;          // quiet rooms: the danger here is of another kind
-      if (rm.role === 'warden' && def.courtBosses && (m.courtK = m.courtK || 0) < def.courtBosses.length) {   // a court held by a boss of its own (the Throne's Jarls): it alone, its death the seal
-        const id = def.courtBosses[m.courtK++], b = this.spawnRealmBoss(id, { x: rm.cx + 0.5, y: rm.cy + 0.5 }, bxEnemyDef(id));
-        b.state = 'sleep'; b.room = rm; b.midBoss = true; b.warden = true; (m.wardens = m.wardens || []).push(b);
+      if (rm.role === 'warden' && def.courtBosses && !m.courtDone) {   // the Hollow Court: the Throne's two Jarls in one court at once, each death a seal (src/bosses/jarl_court.js)
+        m.courtDone = true;
+        const spots = [[13, 16], [27, 16]], L = def.courtBosses.map((id, k) => {
+          const b = this.spawnRealmBoss(id, { x: rm.x + (spots[k][0] / 40) * rm.w, y: rm.y + (spots[k][1] / 34) * rm.h }, bxEnemyDef(id));
+          b.state = 'sleep'; b.room = rm; b.midBoss = true; b.warden = true; (m.wardens = m.wardens || []).push(b); return b;
+        });
+        if (L.length === 2) joinCourt(L[0], L[1]);
         return;
       }
       if (rm.role === 'warden') { spawn(def.compose ? def.compose(rm, r, (rm.dep || 0) / maxDep).map((id) => [id, ...spot(rm)]) : fill(rm, r.int(2, 4), false)); warden(rm); return; }

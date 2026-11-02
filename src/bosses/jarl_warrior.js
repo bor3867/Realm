@@ -1,228 +1,167 @@
-// The Hollow Jarl, Warrior (2026-11-01, the user's design; its overhaul; then the user's attack timings and cooldowns).
-// He holds one of the Throne's champion courts and its seal. Relentless pursuit, crushing axe strikes, crossfire: he is
-// always coming (quicker each phase), a layer of thrown ash runs under his attacks (crescents at you if you hang back,
-// shards where you're running if you don't), and his attacks keep their own schedule (kit.scheduler): each its own
-// cooldown from when it ends, a new one every 2.5-3.5 s (I), 2-3 s (II), 1.8-2.5 s (III), never the same twice running
-// while another is ready, the chases and combinations holding the next until they're done and rested.
-//   I   The Fallen King (100-65%):
-//       Royal Cleave      marked 0.65 s, the swing (160); nine crescents across 100 degrees, a second volley between
-//                         them 0.45 s on (85, 5.5 t/s). cd 3.5
-//       Gravebound Lunge  its line shown 0.8 s, locked; a 0.45 s charge up to five tiles (150), where you're running if
-//                         you are; eight ash on arrival, one at you (75). cd 5.5
-//       Crownquake        marked 1.0 s: three rings of fourteen, 0.55 s apart, each opening turned on from the last, the
-//                         first behind a runner (85, 4.2 t/s). cd 7.5
-//   II  The Oathbreaker (65-30%), and I's attacks still:
-//       Berserker Hunt    warned 0.8 s; nine seconds of chase a quarter quicker, a sweep of crescents every 1.8 s (85), a
-//                         marked lunge every 3 s (155); a shockwave to end it; 1.2 s to breathe. cd 18
-//       Gravebound War Banners  their places marked 0.9 s; two banners at the court's two sides (they can be cut down);
-//                         0.8 s on they throw fans of ash at you in turn every 1.25 s, for eight seconds (75). cd 15
-//       Executioner's Crossing  a lane marked 0.85 s right across the court through you; he charges it in 0.55 s
-//                         (165); three walls of spectral axes sweep across it from the sides, 0.45 s apart (90). cd 8
-//   III The Last Oath (30-0%), and the banners, the crossing and the cleave:
-//       Crownfall         warned 0.75 s; a 0.5 s charge (155); crescents 0.45 s after (90); a shockwave 0.65 s after
-//                         those (110); 1.1 s spent: your opening. cd 9
-//       Death March       warned 0.8 s; six seconds walking you down, a wall of crescents every 0.85 s, its gap swapping
-//                         sides (90); a heavy slam to end it (175); 1.2 s to breathe. cd 15
-// Damage: the user's numbers are what a player takes; each set ~4 above (a Throne-geared character's Defense).
-// Art: tools/build_jarl_warrior.py ('bx_jarl_warrior', 'jarl_shots/<name>', 'jarl_kin/banner').
-import { TAU, angleTo, target, mark, ahead, running, scheduler } from './kit.js';
+// The Hollow Jarl, Warrior: to the user's castle spec (art/sunthiefs_castle_complete_encounter_spec.txt, 2). He fights in
+// the Hollow Court beside the Wizard, on the court's shared script (src/bosses/jarl_court.js), walking you down at 4.4
+// tiles a second between his attacks:
+//   W1 Ninefold Cleave   a red 100-degree wedge 0.75 s, its aim locked at 0.55 s; the axe (185, 2.1 tiles, only as it
+//                        swings); nine crescents across 100 degrees (105, 6.5 t/s), nine more offset 5 degrees 0.4 s on
+//   W2 Huntsman Charge   a 1.2-tile red line 1.05 s, locked at 0.75 s; a lunge up to 6 tiles in 0.55 s (195); seven
+//                        crescents over 140 degrees on the way he went (100); then a second, marked 0.8 s
+//   W3 King's Anvil      1.0 s; three rings of 18 slag 0.55 s apart, turned 10 degrees each, three slots out of each (a
+//                        gap that moves), 95, 4.1 t/s
+//   W4 Execution Cross   'EXECUTION!': a 3-tile lane from him to the wall, locked at 0.8 s, the axe down it at 1.2 s
+//                        (220); spectral blades from the walls across it at 1.45 and 2.0 s, seven each with two missing (110)
+//   W5 Death Hunt (II+)  'YOU CANNOT RUN.': 1.05 s, then eight seconds after you at 5.5 t/s (he turns, not snaps);
+//                        every 1.2 s five crescents over 60 degrees (105); two short dashes, each marked 0.8 s (195)
+//   W6 Thronebreaker (alone)  0.95 s; three swings, fans of eleven left, at you, right (105, 6.2 t/s); a slam (215)
+// Damage numbers are effective ones (D(n): set above a Throne-geared character's Defense).
+// Art: tools/build_jarl_warrior.py ('bx_jarl_warrior', 'jarl_shots/<name>').
+import { TAU, angleTo, target } from './kit.js';
+import { courtChoose, courtTick, partner, mirrored } from './jarl_court.js';
 
 const FIRE = ['#ff8a1f', '#ffd650', '#ff3a1a'], ASH = ['#5a5560', '#8a8490', '#b884cc'];
-const D = (n) => n + 4;                                    // (an effective number, set above Defense: a Throne-geared character's, measured)
-const later = (e, t, name, V) => e.bx.vol.push({ t, V: { form: 'special', ...V, name } });   // (its own name last: a V passed on whole keeps the step it's for)
-const shot = (g, e, x, y, a, V) => g.bxShot(e, x, y, a, V);
-const CRESCENT = { sprite: 'jarl_shots/crescent', size: 0.4 }, SHARD = { sprite: 'jarl_shots/shard', size: 0.35 }, STONE = { sprite: 'jarl_shots/stone', size: 0.4 };
-const cleave = (g, e, a, r, spread, delay, dmg) => g.fx.push({ kind: 'cleave', x: e.x, y: e.y, a, r, spread, delay, t: 0, life: delay + 0.3, dmg: g.bxDmg(e, dmg), by: e.D.name, done: false });
-const lane = (g, e, x, y, a, len, delay, dmg, w = 1.3, live = 0.35) => g.fx.push({ kind: 'lane', x, y, a, len, w, delay, t: 0, life: delay + (dmg ? live : 0), dmg: dmg ? g.bxDmg(e, dmg) : 0, by: e.D.name, hitT: 0 });
-const court = (e) => e.room || { x: Math.floor(e.x) - 14, y: Math.floor(e.y) - 10, w: 29, h: 23 };
-function reach(e, a, want) {                               // how far he can go that way and stay in his court
-  const H = e.room; let L = want;
-  if (H) while (L > 0.5) { const x = e.x + Math.cos(a) * L, y = e.y + Math.sin(a) * L; if (x > H.x + 1.6 && x < H.x + H.w - 1.6 && y > H.y + 1.6 && y < H.y + H.h - 1.6) break; L -= 0.5; }
+const RED = ['#ff6a1c', '#ff6a1c', '#ff3a1a', '#ffffff'];
+const D = (n) => n + 4;
+const deg = (d) => (d * Math.PI) / 180;
+const later = (e, t, name, V = {}) => e.bx.vol.push({ t, V: { form: 'special', ...V, name } });   // (its own name last)
+const shot = (g, e, x, y, a, V) => g.bxShot(e, x, y, a, e.jcSurv ? { ...V, speed: V.speed * 1.1 } : V);   // (one crown left: its shots a tenth quicker)
+const CRESCENT = { sprite: 'jarl_shots/crescent', size: 0.4 }, STONE = { sprite: 'jarl_shots/stone', size: 0.45 };
+const cleave = (g, e, a, r, spread, delay, dmg) => g.fx.push({ kind: 'cleave', x: e.x, y: e.y, a, r, spread, delay, t: 0, life: delay + 0.3, dmg: dmg ? g.bxDmg(e, dmg) : 0, by: e.D.name, done: !dmg });
+const lane = (g, e, x, y, a, len, delay, dmg, w = 1.2, live = 0.35) => g.fx.push({ kind: 'lane', x, y, a, len, w, delay, t: 0, life: delay + (dmg ? live : 0.02), dmg: dmg ? g.bxDmg(e, dmg) : 0, by: e.D.name, hitT: 0, cols: RED });
+// the court, in the spec's own 40x34 tiles, fitted to the room
+const court = (e) => e.room || { x: Math.floor(e.x) - 13, y: Math.floor(e.y) - 16, w: 40, h: 34 };
+function reach(e, a, want) {                               // how far he can go that way and stay in the court
+  const H = court(e); let L = want;
+  while (L > 0.5) { const x = e.x + Math.cos(a) * L, y = e.y + Math.sin(a) * L; if (x > H.x + 1.6 && x < H.x + H.w - 1.6 && y > H.y + 1.6 && y < H.y + H.h - 1.6) break; L -= 0.5; }
   return L;
 }
-const toward = (g, e, T) => { const q = target(g, e); return running(e) ? ahead(g, e, T) : [q.x, q.y]; };
+const bearing = (g, e) => { const q = target(g, e); return angleTo(e.x, e.y, q.x, q.y); };
 
-// ================================================================ under it all: the ash he throws (independent of his attacks)
-function reachAsh(g, e, V) {                               // far off: crescents flung where you'll be; near: shards where you're going
-  const q = target(g, e), d = Math.hypot(q.x - e.x, q.y - e.y);
-  if (d > 6.5) { const [lx, ly] = toward(g, e, d / 7.5), a = angleTo(e.x, e.y, lx, ly); for (let k = 0; k < 5; k++) shot(g, e, e.x, e.y, a + (k / 4 - 0.5) * 0.5, { ...CRESCENT, speed: 7.5, range: 14, dmg: D(80) }); return; }
-  const [x, y] = toward(g, e, d / 6.5), a = angleTo(e.x, e.y, x, y);
-  for (const o of [-0.22, 0, 0.22]) shot(g, e, e.x, e.y, a + o, { ...SHARD, speed: 6.5, range: 10, dmg: D(70) });
+// ================================================================ W1 Ninefold Cleave
+function cleave1(g, e) {
+  cleave(g, e, bearing(g, e), 2.1, deg(100), 0.55, 0);        // the wedge, following you...
+  later(e, 0.55, 'cleaveLock');
 }
-
-// ================================================================ I
-function royalCleave(g, e, V) {                            // marked 0.65 s; the swing; nine crescents; nine more between them 0.45 s on
-  const q = target(g, e), a = angleTo(e.x, e.y, q.x, q.y), d = V.delay || 0.65, n = V.n || 9;
-  cleave(g, e, a, 3.2, TAU / 3, d, D(160));
-  later(e, d, 'crescents', { a, n, off: 0, dmg: D(85) });
-  if (!V.single) later(e, d + 0.45, 'crescents', { a, n: n - 1, off: 0.5, dmg: D(85) });
-  later(e, d, 'swish', {});
+function cleaveLock(g, e) {                                    // ...locked: 0.2 s to the swing
+  const a = bearing(g, e) + (mirrored(e) ? deg(4) : 0);
+  cleave(g, e, a, 2.1, deg(100), 0.2, D(185));
+  later(e, 0.2, 'crescents', { a, off: 0 }); later(e, 0.6, 'crescents', { a, off: deg(5) });
+  later(e, 0.2, 'swish');
 }
-function crescents(g, e, V) {                              // across 100 degrees, from past the swing's rim (one swing never strikes twice)
-  const spread = (100 * Math.PI) / 180, m = V.n - 1 + V.off * 2;
-  for (let k = 0; k < V.n; k++) { const b = V.a + ((k + V.off) / m - 0.5) * spread; shot(g, e, e.x + Math.cos(b) * 3.4, e.y + Math.sin(b) * 3.4, b, { ...CRESCENT, speed: 5.5, range: 9, dmg: V.dmg }); }
+function crescents(g, e, V) {
+  for (let k = 0; k < 9; k++) { const b = V.a + V.off + (k / 8 - 0.5) * deg(100); shot(g, e, e.x + Math.cos(b) * 2.2, e.y + Math.sin(b) * 2.2, b, { ...CRESCENT, speed: 6.5, range: 10, dmg: D(105) }); }
 }
 function swish(g) { g.sfx('shatter'); g.vx({ k: 'shake', amt: 3 }); }
-function lunge(g, e, V) {                                  // the line shown, locked; the charge; ash on arrival
-  const [tx, ty] = toward(g, e, (V.delay || 0.8) + 0.2), a = angleTo(e.x, e.y, tx, ty), d = V.delay || 0.8, dur = V.dur || 0.45;
-  const L = reach(e, a, Math.min(V.len || 5, Math.hypot(tx - e.x, ty - e.y) + 1));
-  lane(g, e, e.x, e.y, a, L, d, V.dmg || D(150), 1.3, dur);
-  e.jwDash = { x0: e.x, y0: e.y, x1: e.x + Math.cos(a) * L, y1: e.y + Math.sin(a) * L, at: g.t + d, until: g.t + d + dur };
-  if (!V.quiet) later(e, d + dur, 'ashBurst', { dmg: D(75) });
+
+// ================================================================ W2 Huntsman Charge
+function charge(g, e) { later(e, 0, 'lungeMark', { warn: 1.05, lock: 0.75 }); later(e, 1.6, 'lungeMark', { warn: 0.8, lock: 0.55 }); }
+function lungeMark(g, e, V) {
+  const a = bearing(g, e), len = V.short ? 3 : 6;
+  lane(g, e, e.x, e.y, a, reach(e, a, len), V.lock, 0, 1.2);  // the line, following...
+  later(e, V.lock, 'lungeLock', { rest: V.warn - V.lock, len, fan: !V.short });
 }
-function ashBurst(g, e, V) {                               // eight ash, one of them at you
-  const q = target(g, e), a = angleTo(e.x, e.y, q.x, q.y);
-  for (let i = 0; i < 8; i++) shot(g, e, e.x, e.y, a + (i / 8) * TAU, { ...SHARD, speed: 5, range: 8, dmg: V.dmg });
-  g.vx({ k: 'burst', x: e.x, y: e.y, n: 14, colors: ASH });
+function lungeLock(g, e, V) {                                  // ...locked; then the lunge
+  const a = bearing(g, e), L = reach(e, a, V.len || 6);
+  lane(g, e, e.x, e.y, a, L, V.rest, 0, 1.2);
+  e.jwDash = { x0: e.x, y0: e.y, x1: e.x + Math.cos(a) * L, y1: e.y + Math.sin(a) * L, at: g.t + V.rest, until: g.t + V.rest + (V.len === 3 ? 0.3 : 0.55), a, dmg: D(195), hit: false, fan: V.fan };
 }
-function crownquake(g, e, V) {                             // marked 1.0 s; three rings of fourteen, 0.55 s apart, the openings turning
-  const [bx, by] = running(e) ? ahead(g, e, -0.9) : [target(g, e).x, target(g, e).y], a = angleTo(e.x, e.y, bx, by);   // (the first opening behind a runner: he must turn back)
-  mark(g, e, e.x, e.y, 2.4, 1.0, D(110), FIRE, 0);
-  for (let k = 0; k < 3; k++) later(e, 1.0 + k * 0.55, 'quakeRing', { gap: a + k * (TAU / 3), n: 14, speed: 4.2, dmg: D(85) });
+function arrivalFan(g, e, a) { for (let k = 0; k < 7; k++) shot(g, e, e.x, e.y, a + (k / 6 - 0.5) * deg(140), { ...CRESCENT, speed: 5.8, range: 10, dmg: D(100) }); g.vx({ k: 'burst', x: e.x, y: e.y, n: 14, colors: ASH }); }
+
+// ================================================================ W3 King's Anvil
+function anvil(g, e) {
+  g.fx.push({ kind: 'zone', src: e, x: e.x, y: e.y, r: 1.6, t: 0, delay: 1.0, life: 1.0, dmg: 0, by: e.D.name, done: true, colors: FIRE });
+  const a = bearing(g, e) + (mirrored(e) ? Math.PI : 0);
+  for (let k = 0; k < 3; k++) later(e, 1.0 + k * 0.55, 'anvilRing', { k, gap: a + k * deg(40) });
 }
-function quakeRing(g, e, V) {                              // (the two slots either side of the opening's line left out)
-  const n = V.n, s = TAU / n;
-  for (let i = 0; i < n; i++) { if (i === 0 || i === n - 1) continue; shot(g, e, e.x, e.y, V.gap + (i + 0.5) * s, { ...STONE, speed: V.speed, range: 11, dmg: V.dmg }); }
+function anvilRing(g, e, V) {
+  const s = TAU / 18, off = V.k * deg(10), g0 = Math.round((V.gap - off) / s);
+  for (let i = 0; i < 18; i++) { if ([g0 - 1, g0, g0 + 1].some((j) => ((j % 18) + 18) % 18 === i)) continue; shot(g, e, e.x, e.y, off + i * s, { ...STONE, speed: 4.1, range: 12, dmg: D(95) }); }
   g.vx({ k: 'shake', amt: 5 }); g.sfx('hammer');
 }
 
-// ================================================================ II
-function hunt(g, e, V) {                                   // warned 0.8 s; nine seconds of chase; sweeps every 1.8 s, a lunge every 3 s; a shockwave
-  const S = e.bx;
-  if (g.banner) g.banner('The Jarl hunts you!', 1400); g.sfx('roar'); g.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 20, colors: [...ASH, ...FIRE] });
-  S.jwHuntAt = g.t + 0.8; S.jwHuntUntil = g.t + 9.8;
-  for (let t = 0.8 + 1.0; t < 9.6; t += 1.8) later(e, t, 'huntSweep', {});
-  for (const t of [0.8 + 2.4, 0.8 + 5.4, 0.8 + 8.0]) later(e, t, 'lunge', { len: 5, delay: 0.6, quiet: true, dmg: D(155) });
-  later(e, 9.8, 'shockwave', { dmg: D(110), wave: D(85) });
+// ================================================================ W4 Execution Cross
+function execution(g, e) {
+  if (g.banner) g.banner('EXECUTION!', 1400);
+  const a = bearing(g, e);
+  lane(g, e, e.x, e.y, a, reach(e, a, 40), 0.8, 0, 3);
+  later(e, 0.8, 'execLock');
 }
-function huntSweep(g, e) { if (!e.jwDash) royalCleave(g, e, { delay: 0.5, single: true, n: 8 }); }
-function shockwave(g, e, V) {                              // the hunt's end: the axe to the ground, a ring of stone with an opening behind you
-  mark(g, e, e.x, e.y, 2.4, 0.6, V.dmg, FIRE, 0);
-  const [bx, by] = running(e) ? ahead(g, e, -0.8) : [target(g, e).x, target(g, e).y];
-  later(e, 0.6, 'quakeRing', { gap: angleTo(e.x, e.y, bx, by), n: 18, speed: 4.6, dmg: V.wave });
+function execLock(g, e) {
+  const a = bearing(g, e), L = reach(e, a, 40);
+  lane(g, e, e.x, e.y, a, L, 0.4, D(220), 3, 0.35);
+  for (const [t, s] of [[0.65, 1], [1.2, -1]]) later(e, t, 'blades', { a, L, s, x: e.x, y: e.y });
+  later(e, 0.4, 'swish');
 }
-function banners(g, e, V) {                                // their places marked 0.9 s; two banners; fans of ash in turn for eight seconds
-  const C = court(e), spots = [-1, 1].map((s) => ({ x: s < 0 ? C.x + 2.5 : C.x + C.w - 2.5, y: C.y + C.h / 2 }));
-  for (const p of spots) mark(g, e, p.x, p.y, 1.2, 0.9, 0, ['#8e4ca8', '#b884cc'], 0);
-  later(e, 0.9, 'raiseBanners', { spots });
-}
-function raiseBanners(g, e, V) {
-  const S = e.bx; S.jwBanners = (S.jwBanners || []).filter((q) => !q.dead);
-  for (const p of V.spots) {
-    if (S.jwBanners.length >= 2 || S.jwBanners.some((q) => Math.abs(q.x - p.x) < 4)) continue;
-    const q = g.addEnemy('jarl_banner', p.x, p.y); q.noLoot = true; q.seen = true; q.jwUntil = g.t + 8; g.unstick(q, 0.6);
-    g.vx({ k: 'burst', x: p.x, y: p.y, n: 18, colors: ['#8e4ca8', '#b884cc', '#ff8a1f'] });
-    S.jwBanners.push(q);
-  }
-  S.jwBannerT = 0.8; g.sfx('roar');
-}
-function crossing(g, e, V) {                               // a lane marked 0.85 s through you; a 0.55 s charge; three walls of axes across it
-  const q = target(g, e), a = angleTo(e.x, e.y, q.x, q.y), L = reach(e, a, 30), d = 0.85;
-  lane(g, e, e.x, e.y, a, L, d, D(165), 1.4, 0.55);
-  e.jwDash = { x0: e.x, y0: e.y, x1: e.x + Math.cos(a) * L, y1: e.y + Math.sin(a) * L, at: g.t + d, until: g.t + d + 0.55 };
-  const nx = -Math.sin(a), ny = Math.cos(a);
-  for (let k = 0; k < 3; k++) {                            // from alternate sides, each gap somewhere new
-    const s = k % 2 ? 1 : -1, along = (k - 1) * 3, cx = q.x + Math.cos(a) * along, cy = q.y + Math.sin(a) * along;
-    later(e, 0.55 + k * 0.45, 'axeWall', { ox: cx + nx * s * 9, oy: cy + ny * s * 9, b: Math.atan2(-ny * s, -nx * s), gap: [1.6, -1.2, 0.4][k], dmg: D(90) });
-  }
-}
-function axeWall(g, e, V) {
-  const tx = -Math.sin(V.b), ty = Math.cos(V.b);
-  for (let k = -6; k <= 6; k++) { const o = k * 0.75; if (Math.abs(o - V.gap) < 1.0) continue; shot(g, e, V.ox + tx * o, V.oy + ty * o, V.b, { ...CRESCENT, speed: 4.6, range: 17, dmg: V.dmg }); }
+function blades(g, e, V) {                                     // from the wall, across the line: seven, two missing
+  const C = court(e), nx = -Math.sin(V.a) * V.s, ny = Math.cos(V.a) * V.s, mx = V.x + Math.cos(V.a) * V.L * 0.5, my = V.y + Math.sin(V.a) * V.L * 0.5;
+  let d = 0; while (d < 30) { const x = mx + nx * d, y = my + ny * d; if (x < C.x + 1 || x > C.x + C.w - 1 || y < C.y + 1 || y > C.y + C.h - 1) break; d += 0.5; }
+  const ox = mx + nx * (d - 0.5), oy = my + ny * (d - 0.5), miss = 1 + Math.floor(Math.random() * 4);
+  for (let k = 0; k < 7; k++) { if (k === miss || k === miss + 1) continue; const o = (k - 3) * 1.6; shot(g, e, ox + Math.cos(V.a) * o, oy + Math.sin(V.a) * o, Math.atan2(-ny, -nx), { ...CRESCENT, speed: 5.4, range: 30, dmg: D(110) }); }
 }
 
-// ================================================================ III
-function crownfall(g, e, V) {                              // warned 0.75; a 0.5 s charge; crescents 0.45 after; a shockwave 0.65 after those
-  lunge(g, e, { len: 6, delay: 0.75, dur: 0.5, dmg: D(155), quiet: true });
-  later(e, 1.7, 'fallSweep', { dmg: D(90) });
-  later(e, 2.35, 'fallSlam', { dmg: D(110) });
-}
-function fallSweep(g, e, V) {                              // two fans from either end of the swing, crossing in front of him
-  const q = target(g, e), a = angleTo(e.x, e.y, q.x, q.y);
-  for (const s of [-1, 1]) {
-    const o = a + s * 1.0, x = e.x + Math.cos(o) * 3.3, y = e.y + Math.sin(o) * 3.3;
-    for (let k = 0; k < 6; k++) shot(g, e, x, y, a - s * 0.35 + (k / 5 - 0.5) * 0.8, { ...CRESCENT, speed: 6, range: 9, dmg: V.dmg });
-  }
-  swish(g);
-}
-function fallSlam(g, e, V) {                               // the slam: walls of stone four ways, then four more between them
-  mark(g, e, e.x, e.y, 2.6, 0.01, V.dmg, FIRE, 0);
-  const a = angleTo(e.x, e.y, target(g, e).x, target(g, e).y);
-  walls(g, e, { a, dmg: V.dmg }); later(e, 0.4, 'walls', { a: a + Math.PI / 4, dmg: V.dmg });
-}
-function walls(g, e, V) {                                  // walls out four ways, their ends open
-  for (let w = 0; w < 4; w++) {
-    const b = V.a + (w * TAU) / 4, nx = -Math.sin(b), ny = Math.cos(b);
-    for (let k = -2; k <= 2; k++) shot(g, e, e.x + Math.cos(b) * 1.2 + nx * k * 0.65, e.y + Math.sin(b) * 1.2 + ny * k * 0.65, b, { ...STONE, speed: 5, range: 10, dmg: V.dmg });
-  }
-  g.vx({ k: 'shake', amt: 8 }); g.sfx('hammer');
-}
-function march(g, e, V) {                                  // warned 0.8 s; six seconds walking you down behind walls of crescents; a slam to end it
+// ================================================================ W5 Death Hunt
+function deathHunt(g, e) {
   const S = e.bx;
-  if (g.banner) g.banner('The Death March!', 1400); g.sfx('roar');
-  S.jwMarchAt = g.t + 0.8; S.jwMarchUntil = g.t + 6.8;
-  for (let k = 0; k < 7; k++) later(e, 0.8 + 0.3 + k * 0.85, 'marchWall', { side: k % 2 ? 1 : -1, dmg: D(90) });
-  later(e, 6.9, 'marchSlam', { dmg: D(175) });
+  if (g.banner) g.banner('YOU CANNOT RUN.', 1600); g.sfx('roar');
+  S.jwHunt = { at: g.t + 1.05, until: g.t + 9.05, a: bearing(g, e) };
+  for (let t = 1.05 + 1.2; t < 9.05; t += 1.2) later(e, t - 0.35, 'huntAim');
+  for (const t of [2.6, 5.3]) later(e, 1.05 + t - 0.8, 'lungeMark', { warn: 0.8, lock: 0.5, short: true });
 }
-function marchWall(g, e, V) {                              // a wall of crescents square to you, its gap one side then the other
-  const [lx, ly] = toward(g, e, 0.5), a = angleTo(e.x, e.y, lx, ly), nx = -Math.sin(a), ny = Math.cos(a);
-  for (let k = -5; k <= 5; k++) { if (k === V.side * 2 || k === V.side * 3) continue; shot(g, e, e.x + nx * k * 0.6, e.y + ny * k * 0.6, a, { ...CRESCENT, speed: 5.2, range: 11, dmg: V.dmg }); }
-}
-function marchSlam(g, e, V) { mark(g, e, e.x, e.y, 3.0, 0.7, V.dmg, FIRE, 10, 'jarl_shots/stone'); }
+function huntAim(g, e) { const a = bearing(g, e); later(e, 0.35, 'huntFan', { a }); }
+function huntFan(g, e, V) { for (let k = 0; k < 5; k++) shot(g, e, e.x, e.y, V.a + (k / 4 - 0.5) * deg(60), { ...CRESCENT, speed: 6, range: 10, dmg: D(105) }); }
 
-const P = {
-  cleave: { name: 'Royal Cleave', special: 'royalCleave', windup: 0.15, dur: 1.3, cd: 3.5 },
-  lunge: { name: 'Gravebound Lunge', special: 'lunge', windup: 0.15, dur: 1.4, cd: 5.5 },
-  quake: { name: 'Crownquake', special: 'crownquake', windup: 0.15, dur: 2.2, cd: 7.5 },
-  hunt: { name: 'Berserker Hunt', special: 'hunt', windup: 0.2, dur: 10.4, cd: 18, block: true, after: 1.2, w: 2 },
-  banners: { name: 'Gravebound War Banners', special: 'banners', windup: 0.2, dur: 8.9, cd: 15, w: 3 },
-  crossing: { name: "Executioner's Crossing", special: 'crossing', windup: 0.15, dur: 2.0, cd: 8 },
-  crownfall: { name: 'Crownfall', special: 'crownfall', windup: 0.2, dur: 2.9, cd: 9, block: true, after: 1.1, w: 2 },
-  march: { name: 'Death March', special: 'march', windup: 0.2, dur: 7.6, cd: 15, block: true, after: 1.2, w: 2 },
+// ================================================================ W6 Thronebreaker (the last crown)
+function thronebreaker(g, e) {
+  g.sfx('roar');
+  [[0.95, -35], [1.7, 0], [2.45, 35]].forEach(([t, s]) => later(e, t, 'breakSwing', { s }));
+  later(e, 2.45, 'breakSlamMark');
+}
+function breakSwing(g, e, V) { const a = bearing(g, e) + deg(V.s); for (let k = 0; k < 11; k++) shot(g, e, e.x, e.y, a + (k / 10 - 0.5) * deg(110), { ...CRESCENT, speed: 6.2, range: 11, dmg: D(105) }); swish(g); }
+function breakSlamMark(g, e) { g.fx.push({ kind: 'zone', src: e, x: e.x, y: e.y, r: 2, t: 0, delay: 0.8, life: 0.95, dmg: g.bxDmg(e, D(215)), by: e.D.name, done: false, colors: FIRE }); later(e, 0.8, 'slamThud'); }
+function slamThud(g, e) { g.vx({ k: 'shake', amt: 8 }); g.sfx('hammer'); }
+
+const P = (name, special, recover) => ({ name, special, windup: 0.45, recover });
+const AT = {
+  W1: P('Ninefold Cleave', 'cleave1', 1.4), W2: P('Huntsman Charge', 'charge', 3.2), W3: P("King's Anvil", 'anvil', 2.35),
+  W4: P('Execution Cross', 'execution', 2.7), W5: { ...P('Death Hunt', 'deathHunt', 10.25), move: 'chase' }, W6: P('Thronebreaker', 'thronebreaker', 4.5),
 };
 
 export default {
-  id: 'jarl_warrior', art: 'jarl_warrior', name: 'The Hollow Jarl, Warrior', biome: 'dungeon', hp: 230000, def: 26, xp: 9000,
-  r: 1.5, speed: 2.0, keep: 1.8, faces: false, tempo: 1, dmgScale: 1, spawnCentre: true, thresholds: [0.65, 0.30],
-  choose: scheduler([[2.5, 3.5], [2.0, 3.0], [1.8, 2.5]]),
-  phases: {
-    1: { move: 'hunt', pressure: [{ every: 2.2, special: 'reachAsh' }], patterns: [P.cleave, P.lunge, P.quake] },
-    2: { move: 'hunt', pressure: [{ every: 2.0, special: 'reachAsh' }], patterns: [P.hunt, P.banners, P.crossing, P.cleave, P.lunge, P.quake] },
-    3: { move: 'hunt', pressure: [{ every: 1.8, special: 'reachAsh' }], patterns: [P.crownfall, P.march, P.banners, P.crossing, P.cleave, P.lunge] },
-  },
-  specials: { reachAsh, royalCleave, crescents, swish, lunge, ashBurst, crownquake, quakeRing, hunt, huntSweep, shockwave, banners, raiseBanners, crossing, axeWall,
-    crownfall, fallSweep, fallSlam, walls, march, marchWall, marchSlam },
+  id: 'jarl_warrior', art: 'jarl_warrior', name: 'The Hollow Jarl, Warrior', biome: 'dungeon', hp: 245000, def: 26, xp: 9000,
+  r: 1.5, speed: 4.4, keep: 2, faces: false, tempo: 1, dmgScale: 1, spawnCentre: true, thresholds: [0.66, 0.30],
+  choose: (g, e) => courtChoose(g, e, AT),
+  phases: { 1: { move: 'walk', patterns: Object.values(AT) }, 2: { move: 'walk', patterns: Object.values(AT) }, 3: { move: 'walk', patterns: Object.values(AT) } },
+  specials: { cleave1, cleaveLock, crescents, swish, charge, lungeMark, lungeLock, anvil, anvilRing, execution, execLock, blades, deathHunt, huntAim, huntFan,
+    thronebreaker, breakSwing, breakSlamMark, slamThud },
   moves: {
-    hunt(g, e, dt) {                                        // he walks you down, quicker as he breaks (a quarter quicker in a hunt)
+    walk(g, e, dt) {                                        // after you, 4.4 tiles a second (a tenth more with one crown left)
       if (e.jwDash) return;
-      const S = e.bx, q = target(g, e), d = Math.hypot(q.x - e.x, q.y - e.y);
-      let sp = [2.0, 2.4, 2.8][(S.phase || 1) - 1];
-      if (S.jwHuntUntil > g.t && g.t > S.jwHuntAt) sp *= 1.25; else if (S.jwMarchUntil > g.t && g.t > S.jwMarchAt) sp = 2.3;
-      if (d > (e.D.keep || 1.8)) g.moveCircle(e, ((q.x - e.x) / d) * sp * dt, ((q.y - e.y) / d) * sp * dt, 0.8);
+      const q = target(g, e), d = Math.hypot(q.x - e.x, q.y - e.y), sp = 4.4 * (e.jcSurv ? 1.12 : 1);
+      if (d > (e.D.keep || 2)) g.moveCircle(e, ((q.x - e.x) / d) * sp * dt, ((q.y - e.y) / d) * sp * dt, 0.8);
+    },
+    chase(g, e, dt) {                                       // the Death Hunt: 5.5 t/s, turning at most 2.4 radians a second
+      const H = e.bx.jwHunt;
+      if (e.jwDash || !H || g.t < H.at || g.t > H.until) return;
+      const q = target(g, e), want = angleTo(e.x, e.y, q.x, q.y), da = Math.atan2(Math.sin(want - H.a), Math.cos(want - H.a));
+      H.a += Math.max(-2.4 * dt, Math.min(2.4 * dt, da));
+      if (Math.hypot(q.x - e.x, q.y - e.y) > 1.6) g.moveCircle(e, Math.cos(H.a) * 5.5 * (e.jcSurv ? 1.12 : 1) * dt, Math.sin(H.a) * 5.5 * (e.jcSurv ? 1.12 : 1) * dt, 0.8);
     },
   },
-  onWake(g) { if (g.banner) g.banner('The Hollow Jarl rises from his throne.', 2600); },
-  onPhase(g, e, ph) {
-    e.jwDash = null; e.bx.jwHuntUntil = 0; e.bx.jwMarchUntil = 0;
-    if (ph === 2) { if (g.banner) g.banner('His crown cracks. The Oathbreaker!', 2400); g.vx({ k: 'shake', amt: 6 }); g.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 30, colors: ASH }); g.sfx('roar'); }
-    if (ph === 3) { if (g.banner) g.banner('The Last Oath: the Jarl goes berserk!', 2600); g.vx({ k: 'shake', amt: 9 }); g.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 40, colors: [...ASH, ...FIRE] }); g.sfx('roar'); }
-  },
-  update(g, e, dt) {
+  onWake(g, e) { if (g.banner) g.banner(partner(e) ? 'THE HOLLOW COURT · "BEND THE KNEE."' : '"BEND THE KNEE."', 2600); },
+  onPhase(g, e) { e.jwDash = null; e.bx.jwHunt = null; e.bx.wait = Math.min(e.bx.wait || 0, 1.5); g.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 30, colors: ASH }); g.sfx('roar'); },
+  update(g, e) {
     const S = e.bx;
+    courtTick(g, e);
     if (S.state === 'sleep' || S.state === 'intro') return;
-    const C = e.jwDash;                                     // a charge in flight
-    if (C && g.t >= C.at) { if (g.t >= C.until) e.jwDash = null; else { const k = (g.t - C.at) / (C.until - C.at); e.x = C.x0 + (C.x1 - C.x0) * k; e.y = C.y0 + (C.y1 - C.y0) * k; } }
-    // the banners: eight seconds each; in turn, a fan of ash at you (where you're running, if you are)
-    for (const q of S.jwBanners || []) if (!q.dead && g.t > q.jwUntil) { q.noLoot = true; q.dead = true; q.deadT = 0; g.vx({ k: 'burst', x: q.x, y: q.y, n: 12, colors: ['#8e4ca8', '#b884cc'] }); }
-    const B = (S.jwBanners || []).filter((q) => !q.dead);
-    if (B.length && S.state !== 'morph' && (S.jwBannerT = (S.jwBannerT ?? 0.8) - dt) <= 0) {
-      S.jwBannerT = 1.25 / 2; S.jwBannerK = (S.jwBannerK || 0) + 1;            // (each banner every 1.25 s, the two in turn)
-      const b = B[S.jwBannerK % B.length], q = target(g, e), [lx, ly] = toward(g, e, Math.hypot(q.x - b.x, q.y - b.y) / 5.5), a = angleTo(b.x, b.y, lx, ly);
-      for (let k = 0; k < 4; k++) shot(g, e, b.x, b.y - 0.6, a + (k / 3 - 0.5) * 0.6, { ...SHARD, speed: 5.5, range: 13, dmg: D(75) });
+    const C = e.jwDash;                                     // a lunge: it strikes you once if it runs into you; the fan on arrival
+    if (C && g.t >= C.at) {
+      if (g.t >= C.until) { e.jwDash = null; if (C.fan) arrivalFan(g, e, C.a); }
+      else {
+        const k = (g.t - C.at) / (C.until - C.at); e.x = C.x0 + (C.x1 - C.x0) * k; e.y = C.y0 + (C.y1 - C.y0) * k;
+        const p = g.player; if (!C.hit && p && !p.dead && Math.hypot(p.x - e.x, p.y - e.y) < e.D.r + 0.4) { C.hit = true; g.hurtPlayer(g.bxDmg(e, C.dmg), e.D.name); }
+      }
     }
-    if (S.phase >= 2 && Math.random() < 0.2) g.vx({ k: 'burst', x: e.x + (Math.random() - 0.5) * 2, y: e.y - 1 - Math.random(), n: 1, colors: ASH });   // the ash leaking out of him
+    if (S.phase >= 2 && Math.random() < 0.2) g.vx({ k: 'burst', x: e.x + (Math.random() - 0.5) * 2, y: e.y - 1 - Math.random(), n: 1, colors: ASH });
   },
-  onDeath(g, e) { for (const q of e.bx.jwBanners || []) if (!q.dead) { q.noLoot = true; q.dead = true; q.deadT = 0; } e.jwDash = null; g.vx({ k: 'shake', amt: 8 }); },
+  onDeath(g, e) { e.jwDash = null; g.vx({ k: 'shake', amt: 8 }); },
   lights(g, e) { return [{ x: e.x, y: e.y, h: 2.4, r: (e.bx.phase || 1) === 3 ? 70 : 45, col: '#ff8a3a', fire: true }]; },
   loot: [], lootLuck: 1.2,                                  // (every class's gear in its band: src/bosses/boss_loot.js)
 };
