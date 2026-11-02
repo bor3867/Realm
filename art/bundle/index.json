@@ -36,7 +36,8 @@
   "throne/atlas_ash_kin.json",
   "throne/atlas_castle_kin.json",
   "throne/atlas_castle_decor.json",
-  "throne/atlas_technician.json"
+  "throne/atlas_technician.json",
+  "throne/atlas_castle_elite.json"
  ],
  "hover": "HOVER.json",
  "manifest": "MANIFEST.json"

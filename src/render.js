@@ -1351,6 +1351,14 @@ export class Renderer {
     else if (e.abil && def.anims.ability) { const A = def.anims.ability; fr = A.frames[Math.min(A.frames.length - 1, Math.floor(e.abil.t * A.fps))]; }   // an elite's ability: the clip is the telegraph
     else if (e.dead && def.anims.death) { const A = def.anims.death; fr = A.frames[Math.min(A.frames.length - 1, Math.floor(e.deadT * A.fps))]; }
     else if (e.dead) fr = fHurt;
+    else if (def.anims.shoot && (e.state === 'tell' || e.state === 'charge' || e.state === 'attack' || (e.shootSeen && g.t - e.shootSeen.t < 0.32 && e.shootSeen.s === 'attack'))) {
+      // a full shot (the castle's redrawn defenders): the wind-up and the draw through its telegraph, the release and the
+      // recovery as it fires. Timed by this copy's clock from when it saw the state change (online the state is the server's)
+      const st = e.state === 'charge' ? 'tell' : e.state, Q = e.shootSeen;
+      if (!Q || (Q.s !== st && (st === 'tell' || st === 'attack'))) e.shootSeen = { s: st, t: g.t };
+      const A = def.anims.shoot.frames, T = g.t - e.shootSeen.t;
+      fr = e.shootSeen.s === 'tell' ? A[T < 0.18 ? 0 : 1] : A[T < 0.12 ? 2 : 3];
+    }
     else if (e.state === 'tell' || e.state === 'charge' || e.state === 'attack') fr = fAtk;
     else fr = mv[Math.floor(g.t * (e.hop || e.sk || e.dive ? 9 : 5) + e.phase) % mv.length];
     const L = this.alive(g, e, sx, sy, 16), K = e.D.scale || 1;

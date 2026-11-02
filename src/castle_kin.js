@@ -405,7 +405,12 @@ export function installCastleKin(Game) { Object.assign(Game.prototype, methods);
   const SIZE = { cinder_bat: 0.5, lava_slime: 0.5, cinder_archer: 1, hollow_wraith: 1, infernal_hound: 1, solar_acolyte: 1, lava_guard: 1, sun_cultist: 1,
     sunbound_knight: 1.5, cinder_elemental: 1.5, eclipse_shade: 1.5, sunbound_construct: 1.5, forge_golem: 2 };
   const BODY = { 0.5: [0.42, 0.4], 1: [0.65, 0.85], 1.5: [0.95, 1.25], 2: [1.25, 1.6] };
-  const def = (id, name, hp, contact, speed, r, df, xp, extra = {}) => { const el = ELITE.has(id), sc = SIZE[id] || 1, [rr, up] = BODY[sc]; ENEMIES[id] = { name, biome: 'throne', reg: 'castle_kin/' + id, hp, def: df, speed, xp, r: rr, ai: 'kite', keep: 5, aggro: 12, contact, touchCd: 0.8, kin: id, attacks: [], loot: el ? E : T, scale: sc, hitUp: up, ...extra }; };
+  // (2026-11-02, the user: "The big archer ... the knight with the crown ... the mace guy ... the infernal hounds ... the fire
+  // elemental ... the small mage ... can all look better and be stronger. I want full shooting animations": these seven
+  // redrawn at their full size, so drawn at scale 1, with a four-frame shot (tools/build_castle_elite.py), and a third more
+  // Life and touch; the rest of the big ones a quarter more)
+  const REDRAWN = new Set(['cinder_archer', 'infernal_hound', 'solar_acolyte', 'sun_cultist', 'lava_guard', 'sunbound_knight', 'cinder_elemental']), BIGGER = new Set(['eclipse_shade', 'forge_golem', 'sunbound_construct']);
+  const def = (id, name, hp, contact, speed, r, df, xp, extra = {}) => { const el = ELITE.has(id), sc = SIZE[id] || 1, [rr, up] = BODY[sc], re = REDRAWN.has(id), k = re ? 1.3 : BIGGER.has(id) ? 1.25 : 1; ENEMIES[id] = { name, biome: 'throne', reg: (re ? 'castle_elite/' : 'castle_kin/') + id, hp: Math.round(hp * k), def: df, speed, xp, r: rr, ai: 'kite', keep: 5, aggro: 12, contact: Math.round(contact * (re ? 1.2 : 1)), touchCd: 0.8, kin: id, attacks: [], loot: el ? E : T, scale: re ? 1 : sc, hitUp: up, ...extra }; };
   def('cinder_bat', 'Cinder Bat', 7000, 55, 5.2, 0.45, 8, 300, { fly: true });
   def('lava_slime', 'Lava Slime', 11000, 65, 2.2, 0.5, 10, 350);
   def('cinder_archer', 'Cinder Archer', 17000, 45, 3.4, 0.5, 12, 450);
@@ -419,7 +424,7 @@ export function installCastleKin(Game) { Object.assign(Game.prototype, methods);
   def('eclipse_shade', 'Eclipse Shade', 50000, 80, 4.5, 0.55, 18, 1000, { fly: true });
   def('forge_golem', 'Forge Golem', 62000, 130, 2.0, 0.7, 30, 1100);
   def('sunbound_construct', 'Sunbound Construct', 70000, 115, 3.5, 0.7, 28, 1400, { fly: true });
-  ENEMIES.infernal_alpha = { ...ENEMIES.infernal_hound, name: 'Infernal Alpha', hp: Math.round(ENEMIES.infernal_hound.hp * 2.5), scale: 1.5, r: 0.95, hitUp: 1.25, elite: true };   // (the Wolf's Den's leader: more Life, the same pack's charge)
+  ENEMIES.infernal_alpha = { ...ENEMIES.infernal_hound, name: 'Infernal Alpha', hp: Math.round(ENEMIES.infernal_hound.hp * 2.5), scale: 1.5, r: 0.95, hitUp: 1.25, elite: true };   // (its redrawn art at half again)   // (the Wolf's Den's leader: more Life, the same pack's charge)
   ENEMIES.sun_portal = { name: 'Solar Portal', biome: 'throne', reg: 'wiz_kin/portal', hp: 5000, def: 8, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 30, fly: true, kin: 'sun_portal', attacks: [], loot: [] };
   ENEMIES.solar_node = { name: 'Solar Node', biome: 'throne', reg: 'wiz_kin/portal', hp: 7500, def: 10, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 30, fly: true, kin: 'solar_node', attacks: [], loot: [] };
 }
