@@ -1430,7 +1430,14 @@ Object.assign(DUNGEONS.throne, { style: 'throne',
   hazardFx: null,                                                       // (the castle's rooms have their own hazards: src/castle.js)
   compose(rm, r) {
     const P = (n, ids) => Array.from({ length: n }, () => r.pick(ids));
-    if (rm.key && FORMATION[rm.key]) { rm.ambush = true; rm.quiet = true; return FORMATION[rm.key]; }   // (the 52 areas: each its own formation, waking as you enter)
+    if (rm.key && FORMATION[rm.key]) {                                  // (the 52 areas: each its own formation, waking as you enter)
+      rm.ambush = true; rm.quiet = true;
+      // and the small fry about it (2026-11-02, the user: "we need more smaller enemies throughout ... more population"): two
+      // to five of the area's own small kind scattered round it, more in a bigger area
+      const SMALL = { forest: ['cinder_bat', 'cinder_bat', 'lava_slime'], mountain: ['lava_slime', 'lava_slime', 'cinder_bat'], outer: ['cinder_bat', 'lava_slime', 'solar_acolyte'], inner: ['solar_acolyte', 'cinder_bat', 'lava_slime'], ashkar: ['lava_slime', 'cinder_bat'], eclipse: ['hollow_wraith'] }[rm.region] || ['cinder_bat', 'lava_slime'];
+      const n = Math.min(5, 2 + Math.floor((rm.w * rm.h) / 450));
+      return [...FORMATION[rm.key], ...Array.from({ length: n }, () => [r.pick(SMALL), 0.15 + r() * 0.7, 0.15 + r() * 0.7])];
+    }
     if (rm.form) return [];
     switch (rm.kind) {                                                  // the castle (the user's map): who holds each room (for now the island's monsters, by role)
       // the user's encounters (2026-11-02), each a formation whose attacks work together (src/castle_kin.js):
