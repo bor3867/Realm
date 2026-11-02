@@ -22,8 +22,9 @@ const D = (n) => n + 4;
 // for the stolen sun. [r, g, b, alpha] of the dark laid over the floor (under every shot: they always read).
 const AMBIENT = { gate: [42, 18, 10, 0.4], siege: [38, 16, 10, 0.42], court: [16, 10, 32, 0.46], forge: [22, 12, 10, 0.48], ashkar: [36, 8, 6, 0.48],
   eclipse: [10, 4, 24, 0.54], sanctum: [8, 3, 10, 0.6] };
-const DEEPER = { walk: 0, eclipseshrine: 0.05, walk2: 0.1 };        // (along the eclipse: each part a little darker)
-const roomAmb = (n) => { const A = AMBIENT[n.sect]; if (!A) return null; const d = DEEPER[n.key] ?? DEEPER[n.kind] ?? 0; return d ? [A[0], A[1], A[2], A[3] + d] : A; };
+const DEEPER = { walk: 0, eclipseshrine: 0.05, walk2: 0.1, a49: 0.03, a50: 0.06 };
+const GOLDEN = { a51: [34, 22, 26, 0.5] };                          // (the Sanctum Ascent: the stolen sun's gold coming into the violet dark)        // (along the eclipse: each part a little darker)
+const roomAmb = (n) => { if (GOLDEN[n.key]) return GOLDEN[n.key]; const A = AMBIENT[n.sect]; if (!A) return null; const d = DEEPER[n.key] ?? DEEPER[n.kind] ?? 0; return d ? [A[0], A[1], A[2], A[3] + d] : A; };
 const distR = (n, x, y) => Math.hypot(Math.max(n.x - x, 0, x - (n.x + n.w)), Math.max(n.y - y, 0, y - (n.y + n.h)));
 // what falls about you, by room: [every, damage, what]; the Long Siege's (2026-11-02): burning branches in the forest,
 // rockfall on the ascent, the gorge erupting under the span, siege fire on the barbican, his sigils flaring in the chapel,
@@ -156,6 +157,20 @@ const methods = {
     const ROCK = ['#8a7a6a', '#c8b8a0'], FIRE = ['#ff6a1c', '#ffd650'], RED = ['#ff6a1c', '#ff6a1c', '#ff3a1a', '#ffffff'];
     const alive = (id) => this.enemies.some((e) => !e.dead && e.D === ENEMIES[id] && inR(n, e.x, e.y));
     switch (k) {
+      case 'a50': {                                                   // the Broken Orrery: its planets turning on two rings; while its anchors stand, all four fire together
+        const O = m.castle.orbs || [], live = this.enemies.some((e) => !e.dead && e.D.target && inR(n, e.x, e.y)), sp = live ? 1 : 0.25;
+        H.oa = (H.oa || 0) + dt * 0.5 * sp;
+        O.forEach((o, i) => { const r = i < 2 ? n.w * 0.2 : n.w * 0.36, a = H.oa * (i < 2 ? 1.4 : -0.8) + (i % 2) * Math.PI; o.x = n.cx + 0.5 + Math.cos(a) * r; o.y = n.cy + 0.5 + Math.sin(a) * r * (n.h / n.w); });
+        if (live && !n.pending && T(k, 1.7)) {
+          const ring = (H.of = !H.of);
+          for (const o of O) { const b = Math.atan2(p.y - o.y, p.x - o.x); if (ring) for (let j = 0; j < 8; j++) this.shoot('e', o.x, o.y, (j / 8) * Math.PI * 2 + H.oa, 4.2, 14, D(100), 'sol_shots/voidbolt', 0.36, false, 'the orrery'); else for (let j = -1; j <= 1; j++) this.shoot('e', o.x, o.y, b + j * 0.18, 5.6, 16, D(105), 'sol_shots/voidbolt', 0.36, false, 'the orrery'); }
+        }
+        break;
+      }
+      case 'a51': if (T(k, 1.1)) {                                    // the Sanctum Ascent: its last gauntlet, rows of void across the stair from the dark, a gap in each
+        const gap = Math.floor(R() * 5) - 2;
+        for (let j = -3; j <= 3; j++) { if (j === gap || j === gap + 1) continue; this.shoot('e', n.x + 1, p.y + j * 1.1, 0, 5, n.w, D(105), 'sol_shots/voidbolt', 0.36, false, 'the void'); }
+      } break;
       case 'a34': if (T(k, 1.6)) { const [x] = near(10); zone(x, p.y + (R() - 0.5) * 6, 1.2, 1.0, 110, 'a valve erupting', FIRE); } break;   // the Western Aqueduct: its valves erupting along the channels
       case 'a39': if (T(k, 3.0)) {                                    // the Ember Crucible: its four vents by pairs, lanes of fire across the chamber, the pair turning each time
         const pr = (H.cp = ((H.cp || 0) + 1) % 2);

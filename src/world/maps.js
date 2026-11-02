@@ -1834,12 +1834,17 @@ export function dungeon(seed, def) {
       case 'a07': for (let a = 0; a < 6.28; a += 0.45) if (Math.sin(a * 3) > -0.3) P('ruin_wall', 0.5 + Math.cos(a) * 0.16, 0.5 + Math.sin(a) * 0.18); P('brazier', 0.5, 0.5); P('castle_decor/rubble', 0.3, 0.7, false); P('castle_decor/tent', 0.2, 0.25); P('castle_decor/tent', 0.8, 0.75); break;   // (the broken tower, its beacon; the watch's camp)
       case 'a09': P('castle_decor/wagon', 0.35, 0.4); P('castle_decor/tent', 0.75, 0.3); P('castle_decor/barricade', 0.5, 0.2); P('castle_decor/fallen_soldier', 0.45, 0.55, false); P('castle_decor/fallen_soldier', 0.6, 0.35, false); P('castle_decor/lava_crack', 0.7, 0.6, false); P('castle_decor/lava_crack', 0.25, 0.7, false); break;
       case 'a10': P('ruin_wall', 0.5, 0.08); P('ruin_wall2', 0.6, 0.08); break;   // (the lookout above the last turn)
-      case 'a11': case 'a36': case 'a44': case 'a49': row('castle_decor/chain_post', 0.15, 0.1, 0.9, 9, false); break;
+      case 'a11': case 'a36': case 'a49': row('castle_decor/chain_post', 0.15, 0.1, 0.9, 9, false); break;
+      case 'a44': for (let k = 0; k < 5; k++) for (const side of [-1, 1]) {   // the Chained Causeway: anchors rising from the lava either side, pyres burning between
+        const y = Math.round(n.y + 4 + k * (n.h - 8) / 4), x = n.cx + side * Math.round(n.w * 0.38);
+        if (tile(x, y) === TID.lava) put(m, k % 2 ? 'castle_decor/pyre' : 'castle_decor/chain_anchor', x, y, true);
+      } break;
       case 'a12': for (const fy of [0.3, 0.62]) for (const fx of [0.4, 0.6]) P('castle_decor/barricade', fx, fy); break;   // (the barricades)
       case 'a13': P('castle_decor/siege_engine', 0.25, 0.35); P('castle_decor/siege_engine', 0.75, 0.35); P('castle_decor/barricade', 0.35, 0.8); for (const fx of [0.4, 0.55, 0.65]) P('crate', fx, 0.75); P('castle_decor/burning_debris', 0.5, 0.6, false); break;
       case 'a14': P('castle_decor/log', 0.4, 0.5); P('castle_decor/log', 0.6, 0.3); P('crate', 0.5, 0.12); P('barrel', 0.6, 0.12); P('crate', 0.4, 0.15); break;   // (the smugglers' cache)
       case 'a43': for (let k = 0; k < 4; k++) { P('brazier', 0.12, 0.15 + k * 0.22); P('castle_decor/chain_post', 0.88, 0.15 + k * 0.22, false); } break;   // (huge braziers, the chains in the walls)
-      case 'a15': case 'a51': for (let k = 0; k < 4; k++) P(n.region === 'eclipse' ? 'castle_decor/eclipse_obelisk' : 'brazier', 0.2, 0.15 + k * 0.22); break;
+      case 'a15': for (let k = 0; k < 4; k++) P('brazier', 0.2, 0.15 + k * 0.22); break;
+      case 'a51': for (let k = 0; k < 5; k++) P(k < 3 ? 'castle_decor/eclipse_obelisk' : 'castle_decor/celestial_pillar', 0.15, 0.85 - k * 0.18); break;   // the Sanctum Ascent: the eclipse's stones giving way to the sanctum's starred pillars
       case 'a17': case 'a39': for (let a = 0; a < 6.28; a += 1.57) P('ember_vent', 0.5 + Math.cos(a) * 0.36, 0.5 + Math.sin(a) * 0.36, false); break;   // (the vents round the reservoir)
       case 'a18': P('banner', 0.5, 0.1); P('castle_decor/barricade', 0.3, 0.7); P('castle_decor/barricade', 0.7, 0.7); P('castle_decor/tent', 0.15, 0.2); break;   // (its layered barricades; the two pyres stand as monsters: src/data/enemies.js)
       case 'a19': case 'a20': row('banner', 0.1, 0.15, 0.85, 8); P('castle_decor/barricade', 0.3, 0.55); P('castle_decor/barricade', 0.7, 0.55); P('castle_decor/siege_engine', 0.12, 0.8); P('brazier', 0.15, 0.5); P('brazier', 0.85, 0.5); break;
@@ -1864,9 +1869,27 @@ export function dungeon(seed, def) {
       case 'a37': for (const fy of [0.25, 0.5, 0.75]) { row('bookshelf', fy, 0.1, 0.4, 1); row('bookshelf', fy, 0.6, 0.9, 1); } P('castle_decor/mural', 0.4, 0.05, false); P('castle_decor/mural', 0.6, 0.05, false); P('castle_decor/book_pile', 0.5, 0.4, false); P('castle_decor/book_pile', 0.45, 0.62, false); P('castle_decor/collapsed_pillar', 0.52, 0.85); break;   // (its aisles of shelves, the murals of the theft and of Ashkar chained, manuscripts burning, the fallen middle)
       case 'a38': case 'a41': P('anvil_block', 0.3, 0.3); P('ingot_pile', 0.7, 0.3); P('castle_decor/forge_press', 0.5, 0.12); P('castle_decor/gear', 0.15, 0.15); P('castle_decor/lava_tank', 0.85, 0.15); P('castle_decor/chain_post', 0.2, 0.8, false); P('castle_decor/chain_post', 0.8, 0.8, false); if (n.key === 'a41') for (const [fx, fy] of [[0.25, 0.5], [0.75, 0.5], [0.5, 0.3], [0.5, 0.75]]) P('ember_vent', fx, fy, false); break;   // (the foundry's anvils, ingots, presses, gears, tanks; the Overseer's four vents)
       case 'a40': P('castle_decor/gear', 0.15, 0.2); P('castle_decor/gear', 0.85, 0.2); P('castle_decor/gear', 0.15, 0.5); P('castle_decor/gear', 0.85, 0.5); P('castle_decor/pipe', 0.3, 0.85); P('castle_decor/pipe', 0.7, 0.85); break;   // (the chain control's gears, its conduits)
-      case 'a45': for (const [fx, fy] of [[0.2, 0.25], [0.8, 0.25], [0.2, 0.75], [0.8, 0.75]]) P('castle_decor/chain_post', fx, fy); break;   // (the four great chain anchors)
-      case 'a47': P('castle_decor/sun_statue', 0.5, 0.75); P('castle_decor/chain_post', 0.2, 0.3, false); P('castle_decor/chain_post', 0.8, 0.3, false); break;
-      case 'a50': P('great_lens', 0.5, 0.5); for (let a = 0; a < 6.28; a += 0.785) P('rune_pillar', 0.5 + Math.cos(a) * 0.38, 0.5 + Math.sin(a) * 0.38); break;   // (the broken orrery: its lens, its ring of pylons)
+      case 'a45': for (const [fx, fy] of [[0.2, 0.25], [0.8, 0.25], [0.2, 0.75], [0.8, 0.75]]) { P('castle_decor/chain_anchor', fx, fy); P('castle_decor/chain_post', fx + (fx < 0.5 ? 0.06 : -0.06), fy, false); }   // (the four great chain anchors)
+        for (const fx of [0.06, 0.94]) { wall(fx, 0.35, fx, 0.65); P('castle_decor/rubble', fx < 0.5 ? 0.12 : 0.88, 0.5, false); } P('castle_decor/gear', 0.5, 0.2); break;   // (its broken side platforms; the seal's mechanism)
+      case 'a46': {                                                    // Ashkar's arena: molten channels along its four cut sides, four chain towers
+        const k = Math.min(n.w, n.h) * 0.28;
+        for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) { const e = Math.min(x - n.x, n.x + n.w - 1 - x) + Math.min(y - n.y, n.y + n.h - 1 - y); if (isF(x, y) && e >= k && e < k + 2 && (x + y) % 11 > 2) set(x, y, TID.lava); }
+        for (const [fx, fy] of [[0.22, 0.22], [0.78, 0.22], [0.22, 0.78], [0.78, 0.78]]) { P('castle_decor/chain_anchor', fx, fy); P('castle_decor/chain_post', fx, fy + 0.05, false); }
+        break;
+      }
+      case 'a47': {                                                    // the Great Sun Gate: a great sun in its floor, his broken chains hanging, his hammer broken by the way in
+        const [sx, sy] = at(0.5, 0.58);
+        for (let y = sy - 7; y <= sy + 7; y++) for (let x = sx - 7; x <= sx + 7; x++) { const d = Math.hypot(x - sx, y - sy), a = Math.atan2(y - sy, x - sx); if (isF(x, y) && (d < 2.6 || (d > 3.5 && d < 4.6) || (d > 4.6 && d < 7 && Math.abs(Math.sin(a * 4)) > 0.92))) set(x, y, TID.goldvein); }
+        P('castle_decor/broken_hammer', 0.3, 0.88, false); for (const fx of [0.12, 0.88]) for (const fy of [0.25, 0.5]) P('castle_decor/chain_post', fx, fy, false); P('castle_decor/rubble', 0.7, 0.85, false);
+        break;
+      }
+      case 'a50': {                                                    // the Broken Orrery: its lens, its ring of pylons, and four planets turning on their rings (src/castle.js moves them; they fire)
+        P('great_lens', 0.5, 0.5); for (let a = 0; a < 6.28; a += 0.785) P('rune_pillar', 0.5 + Math.cos(a) * 0.42, 0.5 + Math.sin(a) * 0.42);
+        m.castle.orbs = [0, 1, 2, 3].map((i) => { put(m, 'castle_decor/orb', n.cx, n.cy, false, { orb: i }); return m.objects[m.objects.length - 1]; });
+        break;
+      }
+      case 'a52': for (let a = 0; a < 6.28; a += 0.785) P('castle_decor/celestial_pillar', 0.5 + Math.cos(a) * 0.46, 0.5 + Math.sin(a) * 0.46); break;   // Solkhar's sanctum: its celestial pillars round the rim
+
     }
   };
   const DRESS = {
