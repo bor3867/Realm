@@ -166,6 +166,7 @@ export default {
   id: 'jarl_wizard', art: 'jarl_wizard', name: 'The Hollow Jarl, Wizard', biome: 'dungeon', hp: 265000, def: 22, xp: 9500,
   r: 1.5, speed: 3.6, keep: 7, faces: false, tempo: 1, dmgScale: 1, spawnCentre: true, thresholds: [0.66, 0.30],
   choose: (g, e) => courtChoose(g, e, AT),
+  walkPace: 3.6,                                            // (his glide clip at the pace he moves)
   phases: { 1: { move: 'steps', patterns: Object.values(AT) }, 2: { move: 'steps', patterns: Object.values(AT) }, 3: { move: 'steps', patterns: Object.values(AT) } },
   specials: { inquisition, lanceAim, lanceFire, windows, openWindows, loom, loomRow, sigils, sigilMark, sigilDarts, royalty, royalOut, royalHold, royalBack,
     cage, cageFire, excommunication, excomStep, excomPortals, excomFans, excomAim, excomLances },

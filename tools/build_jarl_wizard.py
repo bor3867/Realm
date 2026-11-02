@@ -114,6 +114,82 @@ def fall(k):
     return g
 
 
+# ---- his motion (2026-11-02, the user: "the Wizard should have expressive casting animations involving his staff, robes,
+# and magical energy... floating bosses should hover naturally rather than sliding rigidly"): frames from his own art a
+# part at a time (tools/boss_motion.py), with room above and beside him:
+#   walk     he glides: rising and settling a pixel or two, his hem trailing one way then the other, the staff swaying
+#   attack   the gathering (staff and rune-hand raised, him lifting), the casting (the staff's flame flaring, the hand
+#            thrown out, sparks streaming from it), the settling
+#   hurt     a flinch: he sinks a pixel, his runes and flame flare violet (no white, no knockback)
+#   enter    (II, III) he rises, his robes billowing out, his magic surging through every rune, then settles in his new form
+#   death    the staff slips from his hand and falls; he sinks; he comes apart into purple dust
+from boss_motion import pad, shift, arc, tint  # noqa: E402
+PT, PS = 4, 4
+W2, H2 = SW + 2 * PS, FH + PT
+O = lambda x, y: (x - PS, y - PT - PAD)        # (a canvas pixel's place on his own art)
+
+
+def _k(x, y):
+    X, Y = O(x, y)
+    return KIND[Y][X] if 0 <= X < SW and 0 <= Y < SH else '.'
+
+
+ALL = lambda x, y, c: True
+STAFF = lambda x, y, c: O(x, y)[0] < STAFF_X
+HAND = lambda x, y, c: O(x, y)[0] >= ORB[0] and O(x, y)[1] < ORB[2]
+HEM_L = lambda x, y, c: O(x, y)[1] >= SH - 8 and STAFF_X <= O(x, y)[0] < SW // 2
+HEM_R = lambda x, y, c: O(x, y)[1] >= SH - 8 and O(x, y)[0] >= SW // 2
+HEM = lambda x, y, c: O(x, y)[1] >= SH - 8 and O(x, y)[0] >= STAFF_X
+MAGIC = lambda x, y, c: _k(x, y) in ('spirit', 'fire')
+SPARK = [(240, 170, 255, 255), (200, 90, 240, 255), (255, 220, 255, 255)]
+
+
+def base(act, f=0, cast=False): return pad(wizard(act, f, cast), PT, PS)
+
+
+def walk(act, k):
+    g = base(act, k)
+    g = shift(g, ALL, 0, [-1, -2, -1, 0][k], fill=False)             # (he rises and settles as he glides)
+    if k in (0, 1): g = shift(g, HEM, -1, 0, fill=False)             # (his hem trails behind, one way, then the other)
+    else: g = shift(g, HEM, 1, 0, fill=False)
+    if k in (1, 3): g = shift(g, STAFF, 1 if k == 1 else -1, 0, fill=False)
+    return g
+
+
+def cast(act, k):
+    if k == 0:
+        g = shift(base(act), STAFF, 0, -2, fill=False); g = shift(g, HAND, 0, -2, fill=False)
+        return shift(g, ALL, 0, -1, fill=False)
+    if k == 1:
+        g = shift(base(act, 0, True), STAFF, 0, -3, fill=False); g = shift(g, HAND, 2, 1, fill=False)
+        g = tint(g, MAGIC, (240, 180, 255), 0.6)
+        return arc(g, [(W2 - 6 + i * 0.4, PT + PAD + 10 + (i % 3) - i * 0.6) for i in range(9)] + [(W2 - 3, PT + PAD + 6 + i * 3) for i in range(4)], SPARK)
+    g = shift(base(act, 1), STAFF, 0, -1, fill=False)
+    return shift(g, HAND, 1, 1, fill=False)
+
+
+def flinch(act):
+    return tint(shift(base(act, 1), ALL, 0, 1, fill=False), MAGIC, (230, 150, 255), 0.8)
+
+
+def enter(act, k):
+    if k == 3: return base(act)
+    g = base(act - 1 if k < 2 else act, k)
+    g = shift(g, ALL, 0, -2 - k, fill=False)
+    if k >= 1: g = shift(g, HEM_L, -1, 0, fill=False); g = shift(g, HEM_R, 1, 0, fill=False)   # (his robes billowing out)
+    if k == 2:
+        g = tint(g, MAGIC, (245, 205, 255), 0.95)
+        g = arc(g, [(W2 / 2 + math.cos(i * 0.52) * 24, H2 / 2 + math.sin(i * 0.52) * 26) for i in range(12)], SPARK)
+    return g
+
+
+def die(k):
+    if k == 4: return pad(fall(2), PT, PS)                           # (purple dust, settling)
+    g = pad(fall(k - 2), PT, PS) if k >= 2 else base(3)                # (he comes apart where he sank, the staff still down)
+    g = shift(g, STAFF, -1 - min(k, 1) * 2, 3 + min(k, 1) * 6, fill=False)   # (the staff slips from his hand, and falls)
+    return shift(g, lambda x, y, c: not STAFF(x, y, c), 0, 1 + min(k, 1), fill=False)
+
+
 # his shots (pointing right)
 SPAL = {'o': (12, 8, 18), 'v': (110, 40, 150), 'V': (170, 80, 220), 'u': (220, 150, 255), 'W': (240, 236, 250), 'L': (255, 140, 40), 'Y': (255, 210, 110)}
 SHOTS = {
@@ -149,19 +225,24 @@ if __name__ == '__main__':
     BID, NAMES = 'jarl_wizard', {1: 'The Runecaller', 2: 'The Unwoven Court', 3: 'The Unmaking'}
     frames = []
     for act in (1, 2, 3):
-        frames += [(f'i{act}_{k}', wizard(act, k)) for k in range(4)] + [(f'a{act}', wizard(act, 0, True)), (f'a{act}b', wizard(act, 1, True))]
-    frames += [(f'd{k}', fall(k)) for k in range(3)]
-    fr, px = pack(BID, frames, SW, FH)
+        frames += [(f'i{act}_{k}', base(act, k)) for k in range(4)] + [(f'a{act}_{k}', cast(act, k)) for k in range(3)]
+        frames += [(f'w{act}_{k}', walk(act, k)) for k in range(4)] + [(f'h{act}', flinch(act))]
+        if act > 1: frames += [(f'e{act}_{k}', enter(act, k)) for k in range(4)]
+    frames += [(f'd{k}', die(k)) for k in range(5)]
+    fr, px = pack(BID, frames, W2, H2)
     anims = {}
     for act in (1, 2, 3):
         anims[f'idle{act}'] = {'frames': [f'i{act}_{k}' for k in range(4)], 'fps': 6, 'loop': True}
-        anims[f'attack{act}'] = {'frames': [f'a{act}', f'a{act}b', f'a{act}'], 'fps': 6, 'loop': False}
-    anims['death'] = {'frames': ['d0', 'd1', 'd2'], 'fps': 3, 'loop': False}
+        anims[f'attack{act}'] = {'frames': [f'a{act}_0', f'a{act}_1', f'a{act}_2', f'a{act}_2'], 'fps': 8, 'loop': False}
+        anims[f'walk{act}'] = {'frames': [f'w{act}_{k}' for k in range(4)], 'fps': 5, 'loop': True}
+        anims[f'hurt{act}'] = {'frames': [f'h{act}'], 'fps': 5, 'loop': False}
+        if act > 1: anims[f'enter{act}'] = {'frames': [f'e{act}_{k}' for k in range(4)], 'fps': 4, 'loop': False}
+    anims['death'] = {'frames': [f'd{k}' for k in range(5)], 'fps': 3, 'loop': False}
     sfr, _ = pack('wiz_shots', [(k, [list(r) for r in g]) for k, g in SHOTS.items()], 9, 5)
     pfr, _ = pack('wiz_kin', [(k, [list(r) for r in g]) for k, g in PORTAL.items()], 10, 10)
     sheets = {
         f'bx_{BID}': {'image': f'{BID}.png', 'kind': 'boss', 'sprites': {BID: {'frames': fr, 'anims': anims,
-                      'phases': {str(a): {'name': NAMES[a], 'idle': f'idle{a}', 'attack': f'attack{a}'} for a in (1, 2, 3)}, 'death': 'death', 'meta': {}}}},
+                      'phases': {str(a): {'name': NAMES[a], 'idle': f'idle{a}', 'attack': f'attack{a}', 'walk': f'walk{a}', 'hurt': f'hurt{a}', **({'enter': f'enter{a}'} if a > 1 else {})} for a in (1, 2, 3)}, 'death': 'death', 'meta': {}}}},
         'wiz_shots': {'image': 'wiz_shots.png', 'kind': 'shot', 'sprites': {k: {'frames': {'0': v}, 'meta': {}} for k, v in sfr.items()}},
         'wiz_kin': {'image': 'wiz_kin.png', 'kind': 'enemy', 'sprites': {'portal': {'frames': pfr, 'anims': {'move': {'frames': ['a', 'b'], 'fps': 6, 'loop': True}, 'attack': {'frames': ['b'], 'fps': 4, 'loop': False}}, 'meta': {}}}},
     }
