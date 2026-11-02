@@ -128,6 +128,8 @@ export default {
   id: 'jarl_warrior', art: 'jarl_warrior', name: 'The Hollow Jarl, Warrior', biome: 'dungeon', hp: 245000, def: 26, xp: 9000,
   r: 1.5, speed: 4.4, keep: 2, faces: false, tempo: 1, dmgScale: 1, spawnCentre: true, thresholds: [0.66, 0.30],
   choose: (g, e) => courtChoose(g, e, AT),
+  walkPace: 4.4,                                            // (his walk clip at the pace he walks)
+  charging: (g, e) => !!(e.jwDash && g.t >= e.jwDash.at) || !!(e.bx.jwHunt && g.t > e.bx.jwHunt.at && g.t < e.bx.jwHunt.until),   // (his charge clip: a lunge, the Death Hunt)
   phases: { 1: { move: 'walk', patterns: Object.values(AT) }, 2: { move: 'walk', patterns: Object.values(AT) }, 3: { move: 'walk', patterns: Object.values(AT) } },
   specials: { cleave1, cleaveLock, crescents, swish, charge, lungeMark, lungeLock, anvil, anvilRing, execution, execLock, blades, deathHunt, huntAim, huntFan,
     thronebreaker, breakSwing, breakSlamMark, slamThud },

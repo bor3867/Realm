@@ -66,10 +66,11 @@ export const BXF = {
     if (S.state === 'intro') { if ((S.wait -= dt) <= 0) { S.state = 'fight'; S.wait = 0.6; } return; }
     if (S.state === 'morph' || S.state === 'death') return;     // the clip's 'ended' event moves things on
     if (S.state !== 'grace' && !p.dead) this.bxPressure(e, dt);
-    if (S.state === 'grace') { this.bxMove(e, dt, 'hold'); if ((S.wait -= dt) <= 0) { S.state = 'fight'; S.wait = 0.2; } return; }
+    if (S.state === 'grace') { this.bxMove(e, dt, 'hold'); this.bxPose(e, dt); if ((S.wait -= dt) <= 0) { S.state = 'fight'; S.wait = 0.2; } return; }
     // fight: move, then start the next pattern when the last one has recovered
     const PH = this.bxPhaseData(e);
     this.bxMove(e, dt, (S.pat && S.pat.move) || PH.move || 'pace');
+    this.bxPose(e, dt);
     if (S.state === 'windup') {
       if ((S.wait -= dt) <= 0) { S.state = 'release'; if (S.anim) S.anim.speed = 1; }
       return;
@@ -81,6 +82,20 @@ export const BXF = {
     }
     if ((S.wait -= dt) > 0 || p.dead) return;
     this.bxStartPattern(e);
+  },
+  // how it holds itself between attacks (2026-11-02, the user: "bosses should feel alive"): a phase's walk clip while it
+  // moves (at the pace it really moves), its charge clip while it charges (B.charging), a short flinch when struck (its
+  // hurt clip, at most every 0.6 s), its idle when it stands. Its attack, change of form and death clips are their own
+  bxPose(e, dt) {
+    const S = e.bx, A = S.anim, P = S.def && S.def.phases[S.phase];
+    if (!A || !P || S.state === 'windup' || S.state === 'release') return;
+    const sp = Math.hypot(e.x - (S.px ?? e.x), e.y - (S.py ?? e.y)) / Math.max(dt, 1e-3); S.px = e.x; S.py = e.y;
+    S.spd = (S.spd || 0) + (Math.min(sp, 20) - (S.spd || 0)) * Math.min(1, dt * 8);
+    const charging = S.B.charging && S.B.charging(this, e);
+    const want = S.flinch > this.t && P.hurt ? P.hurt : charging && P.charge ? P.charge : S.spd > 0.6 && P.walk ? P.walk : P.idle;
+    const mine = [P.idle, P.walk, P.charge, P.hurt];
+    if (A.clip === want) { if (want === P.walk) A.speed = Math.max(0.6, Math.min(1.8, S.spd / (S.B.walkPace || 2.5))); return; }
+    if (mine.includes(A.clip) || A.done) A.play(want, { speed: want === P.walk ? Math.max(0.6, Math.min(1.8, S.spd / (S.B.walkPace || 2.5))) : 1 });
   },
   bxWake(e) {
     const S = e.bx;
@@ -333,6 +348,7 @@ export const BXF = {
     if (next !== undefined && e.hp - d <= e.maxHp * next) { const keep = e.hp - e.maxHp * next; this.bxMorph(e); return Math.max(0, keep); }
     if (e.hp - d <= 0 && S.state !== 'death' && S.state !== 'deathhold') { this.bxDie(e); return 0; }   // bxDie leaves it at 1 life while the death clip plays
     if (S.hurtT <= 0) S.hurtT = 0.12;
+    if (!(S.flinchNext > this.t)) { S.flinch = this.t + 0.2; S.flinchNext = this.t + 0.6; }   // (a flinch, its own fire flaring: no white, no knockback)
     return d;
   },
   bxMorph(e) {

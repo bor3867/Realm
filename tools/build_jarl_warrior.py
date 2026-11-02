@@ -127,6 +127,84 @@ def fall(k):
     return g
 
 
+# ---- his motion (2026-11-02, the user: "the Warrior should swing and reposition his axe... proper leg movement... charges
+# that feel powerful... a meaningful phase change... a death of his own"): frames made from his own art a part at a time
+# (tools/boss_motion.py), on a canvas with room above and beside him (his feet where they were):
+#   walk     four steps: his left foot lifts, he rises over the passing step, his right lifts, he rises; the axe sways
+#   attack   the wind-up (the axe hauled up and back, him straightening), the swing (the axe brought down across him, its
+#            trail), the follow-through (the axe low, him bent into it)
+#   charge   leaning in, the axe held out before him, his feet driving by turns, dust off his heels
+#   hurt     a flinch: he sinks a pixel, the fire in his cracks flares (no white, no knockback)
+#   enter    (II, III) he staggers, drops to a knee, the fire bursts through every crack, he rises in his new form
+#   death    to a knee; the axe topples from his hand; he crumbles; ash
+from boss_motion import pad, shift, arc, tint  # noqa: E402
+PT, PS = 6, 4                                   # (the headroom above him, and the room either side)
+LEG_Y, MIDX = 39, 24                            # (his legs: below this row; his left leg left of this column)
+W2, H2 = SW + 2 * PS, SH + PT
+O = lambda x, y: (x - PS, y - PT)               # (a canvas pixel's place on his own art)
+
+
+def _in(x, y):
+    X, Y = O(x, y); return 0 <= X < SW and 0 <= Y < SH
+
+
+LEFT = lambda x, y, c: O(x, y)[1] >= LEG_Y and O(x, y)[0] < MIDX
+RIGHT = lambda x, y, c: O(x, y)[1] >= LEG_Y and MIDX <= O(x, y)[0] < AXE_X
+UPPER = lambda x, y, c: O(x, y)[1] < LEG_Y and O(x, y)[0] < AXE_X
+ABOVE = lambda x, y, c: O(x, y)[1] < LEG_Y
+AXE = lambda x, y, c: O(x, y)[0] >= AXE_X or (O(x, y)[0] >= AXE_X - 3 and O(x, y)[1] < 12)   # (the haft's top leans left of the rest)
+FIRE = lambda x, y, c: _in(x, y) and KIND[O(x, y)[1]][O(x, y)[0]] == 'fire'
+EMBER = [(255, 214, 120, 255), (255, 170, 60, 255), (255, 240, 200, 255)]
+
+
+def walk(act, k):
+    g = pad(jarl(act, k), PT, PS)
+    if k == 0: g = shift(g, LEFT, 0, -2, fill=False); g = shift(g, AXE, 0, 1, fill=False)
+    if k == 2: g = shift(g, RIGHT, 0, -2, fill=False); g = shift(g, AXE, 0, 1, fill=False)
+    if k in (1, 3): g = shift(g, ABOVE, 0, -1, keep=True)
+    return g
+
+
+def strike(act, k):
+    g = pad(jarl(act, 0), PT, PS)
+    if k == 0: g = shift(g, AXE, -1, -5, fill=False); g = shift(g, UPPER, 0, -1, keep=True)
+    if k == 1:
+        g = shift(g, AXE, -7, 2, fill=False)
+        g = arc(g, [(W2 - 4 - 22 * (1 - math.cos(t / 10 * 1.4)), PT + 2 + 26 * math.sin(t / 10 * 1.4)) for t in range(11)], EMBER)
+        g = tint(g, FIRE, (255, 240, 180), 0.6)
+    if k == 2: g = shift(g, AXE, -9, 5, fill=False); g = shift(g, UPPER, 0, 1)
+    return g
+
+
+def rush(act, k):
+    g = pad(jarl(act, k * 2), PT, PS)
+    g = shift(g, UPPER, 0, 1); g = shift(g, AXE, -4, 3, fill=False)
+    g = shift(g, LEFT if k == 0 else RIGHT, 0, -2, fill=False)
+    return arc(g, [(PS + 6 + i * 9 + k * 3, H2 - 1) for i in range(5)], [(120, 112, 124, 255)])   # (dust off his heels)
+
+
+def flinch(act):
+    g = pad(jarl(act, 1), PT, PS)
+    return tint(shift(g, ABOVE, 0, 1), FIRE, (255, 236, 160), 0.8)
+
+
+def enter(act, k):
+    if k == 3: return pad(jarl(act, 0), PT, PS)
+    g = pad(jarl(act - 1 if k < 2 else act, 1), PT, PS)
+    if k == 0: g = shift(g, UPPER, 0, 2); g = shift(g, AXE, 0, 1, fill=False)
+    if k >= 1: g = shift(g, UPPER, 0, 3); g = shift(g, AXE, 1, 3, fill=False)
+    if k == 2: g = tint(g, FIRE, (255, 250, 220), 0.95); g = arc(g, [(PS + 6 + (i * 7) % 44, PT + (i * 11) % 30) for i in range(14)], EMBER)
+    return g
+
+
+def die(k):
+    if k == 4: return pad(fall(2), PT, PS)                           # (a heap of ash)
+    g = pad(jarl(3, 0) if k < 2 else fall(k - 2), PT, PS)          # (he crumbles where he knelt)
+    g = shift(g, UPPER, 0, 3); g = shift(g, AXE, 1, 3, fill=False)
+    if k >= 1: g = shift(g, AXE, 5, 7, fill=False)                  # (the axe slips from his hand)
+    return g
+
+
 def pack_rgba(name, entries, W, H, cols=6):
     rows = (len(entries) + cols - 1) // cols
     px = [[(0, 0, 0, 0)] * (cols * W) for _ in range(rows * H)]; fr = {}
@@ -172,19 +250,25 @@ if __name__ == '__main__':
     BID, NAMES = 'jarl_warrior', {1: 'The Fallen King', 2: 'The Oathbreaker', 3: 'The Last Oath'}
     frames = []
     for act in (1, 2, 3):
-        frames += [(f'i{act}_{k}', jarl(act, k)) for k in range(4)] + [(f'a{act}', jarl(act, 0, True)), (f'a{act}b', jarl(act, 2, True))]
-    frames += [(f'd{k}', fall(k)) for k in range(3)]
-    fr, px = pack_rgba(BID, frames, SW, SH)
+        frames += [(f'i{act}_{k}', pad(jarl(act, k), PT, PS)) for k in range(4)] + [(f'a{act}_{k}', strike(act, k)) for k in range(3)]
+        frames += [(f'w{act}_{k}', walk(act, k)) for k in range(4)] + [(f'c{act}_{k}', rush(act, k)) for k in range(2)] + [(f'h{act}', flinch(act))]
+        if act > 1: frames += [(f'e{act}_{k}', enter(act, k)) for k in range(4)]
+    frames += [(f'd{k}', die(k)) for k in range(5)]
+    fr, px = pack_rgba(BID, frames, W2, H2)
     anims = {}
     for act in (1, 2, 3):
         anims[f'idle{act}'] = {'frames': [f'i{act}_{k}' for k in range(4)], 'fps': 6, 'loop': True}
-        anims[f'attack{act}'] = {'frames': [f'a{act}', f'a{act}b', f'a{act}'], 'fps': 6, 'loop': False}
-    anims['death'] = {'frames': ['d0', 'd1', 'd2'], 'fps': 3, 'loop': False}
+        anims[f'attack{act}'] = {'frames': [f'a{act}_0', f'a{act}_1', f'a{act}_2', f'a{act}_2'], 'fps': 8, 'loop': False}
+        anims[f'walk{act}'] = {'frames': [f'w{act}_{k}' for k in range(4)], 'fps': 7, 'loop': True}
+        anims[f'charge{act}'] = {'frames': [f'c{act}_0', f'c{act}_1'], 'fps': 10, 'loop': True}
+        anims[f'hurt{act}'] = {'frames': [f'h{act}'], 'fps': 5, 'loop': False}
+        if act > 1: anims[f'enter{act}'] = {'frames': [f'e{act}_{k}' for k in range(4)], 'fps': 4, 'loop': False}
+    anims['death'] = {'frames': [f'd{k}' for k in range(5)], 'fps': 3, 'loop': False}
     sfr, _ = pack('jarl_shots', [(k, g) for k, g in SHOTS.items()], 8)
     vfr, _ = pack('jarl_kin', [('a', [r[::-1] for r in VASSAL['A']]), ('b', [r[::-1] for r in VASSAL['B']]), ('ba', BANNER['A']), ('bb', BANNER['B'])])   # (mirrored: the bundle's art faces right)
     sheets = {
         f'bx_{BID}': {'image': f'{BID}.png', 'kind': 'boss', 'sprites': {BID: {'frames': fr, 'anims': anims,
-                      'phases': {str(a): {'name': NAMES[a], 'idle': f'idle{a}', 'attack': f'attack{a}'} for a in (1, 2, 3)}, 'death': 'death', 'meta': {}}}},
+                      'phases': {str(a): {'name': NAMES[a], 'idle': f'idle{a}', 'attack': f'attack{a}', 'walk': f'walk{a}', 'charge': f'charge{a}', 'hurt': f'hurt{a}', **({'enter': f'enter{a}'} if a > 1 else {})} for a in (1, 2, 3)}, 'death': 'death', 'meta': {}}}},
         'jarl_shots': {'image': 'jarl_shots.png', 'kind': 'shot', 'sprites': {k: {'frames': {'0': v}, 'meta': {}} for k, v in sfr.items()}},
         'jarl_kin': {'image': 'jarl_kin.png', 'kind': 'enemy', 'sprites': {'vassal': {'frames': {'a': vfr['a'], 'b': vfr['b']}, 'anims': {'move': {'frames': ['a', 'b'], 'fps': 5, 'loop': True}, 'attack': {'frames': ['b'], 'fps': 4, 'loop': False}}, 'meta': {}},
                                                                           'banner': {'frames': {'ba': vfr['ba'], 'bb': vfr['bb']}, 'anims': {'move': {'frames': ['ba', 'bb'], 'fps': 3, 'loop': True}, 'attack': {'frames': ['bb'], 'fps': 4, 'loop': False}}, 'meta': {}}}},
@@ -194,12 +278,14 @@ if __name__ == '__main__':
     ip = os.path.join(root, 'art', 'bundle', 'index.json'); idx = json.load(open(ip, encoding='utf8'))
     if 'throne/atlas_jarl_warrior.json' not in idx['atlases']:
         idx['atlases'].append('throne/atlas_jarl_warrior.json'); json.dump(idx, open(ip, 'w', encoding='utf8', newline='\n'), indent=1)
-    S = 6; G = [jarl(1, 0), jarl(1, 2), jarl(2, 1), jarl(3, 3), jarl(1, 0, True), fall(1)]
-    P = [[(36, 26, 40, 255)] * (len(G) * (SW + 2) * S) for _ in range((SH + 2) * S)]
+    S = 4; G = [walk(1, k) for k in range(4)] + [strike(1, k) for k in range(3)] + [rush(1, 0), flinch(1)] + [enter(3, k) for k in range(4)] + [die(k) for k in range(5)]
+    cols = 7; rowsN = (len(G) + cols - 1) // cols
+    P = [[(36, 26, 40, 255)] * (cols * (W2 + 2) * S) for _ in range(rowsN * (H2 + 2) * S)]
     for gi, g in enumerate(G):
+        ox, oy = (gi % cols) * (W2 + 2), (gi // cols) * (H2 + 2)
         for y, row in enumerate(g):
             for x, col in enumerate(row):
                 if col[3]:
-                    for dy in range(S): P[(y + 1) * S + dy][(gi * (SW + 2) + x + 1) * S:(gi * (SW + 2) + x + 2) * S] = [col] * S
+                    for dy in range(S): P[(oy + y + 1) * S + dy][(ox + x + 1) * S:(ox + x + 2) * S] = [col] * S
     write_png(os.path.join(root, 'art', '_proto', 'jarl_warrior_preview.png'), P)
     print('the Warrior Jarl:', len(frames), 'frames')
