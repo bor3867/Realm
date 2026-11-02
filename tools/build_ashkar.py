@@ -3,8 +3,9 @@
 # too fine to halve without losing him, so the boss draws it at half scale, one of its pixels to one of the screen's).
 # Animated, three looks to the user's spec ("Sunthief's Castle", 3):
 #   I   The Bound Giant          - every chain on him; the lava in his armour and hammer flowing; the core pulsing
-#   II  The Furnace Fractures    - his armour cracked open from the core, two chains broken off (the right shoulder's and
-#                                  the one under his left fist), ash
+#   II  The Furnace Fractures    - his armour cracked open from the core, every chain broken off him (2026-11-02, the user:
+#                                  "portions of the broken chains remain attached or continue moving strangely": none
+#                                  stays on him once he is loose of his anchors; what fell lies on the floor, src/bosses), ash
 #   III The Unchained            - every chain gone, the core blazing, the hammer white-hot, embers off him
 # Four idle frames a look, the strike (the hammer raised, white-hot; the core flaring), a death (the hammer falls, the
 # core implodes, he goes to ash).
@@ -28,7 +29,7 @@ HAMMER = (0, 0, 31, 33)                                             # the hammer
 # the chains, by where they hang (x0, y0, x1, y1); II breaks the first two, III all of them
 CHAINS = {'r_shoulder': (73, 29, 83, 50), 'l_dangle': (11, 59, 21, 81), 'l_shoulder': (41, 28, 51, 49), 'l_forearm': (27, 41, 37, 63),
           'r_wrist': (86, 54, 107, 61), 'r_dangle': (101, 58, 109, 92), 'belt_l': (45, 55, 53, 69), 'belt_r': (69, 55, 78, 69)}
-BROKEN = {1: (), 2: ('r_shoulder', 'l_dangle'), 3: tuple(CHAINS)}
+BROKEN = {1: (), 2: tuple(CHAINS), 3: tuple(CHAINS)}
 BARE = {'l_dangle': (11, 59, 19, 82), 'r_dangle': (104, 58, 109, 92)}     # (where only the chain is: everything in it goes)
 
 
@@ -207,7 +208,7 @@ def slam(act, k):
 
 
 def rush(act, k):
-    g = shift(base(act, k * 2), UPPER, 0, 3); g = shift(g, HAM, -5, 2, fill=False)
+    g = shift(base(act, k * 2), UPPER, 0, 3); g = shift(g, HAM, 0, 3, fill=False)   # (the hammer drawn down and back: straight down, so the rectangle round it never tears his fist)
     g = shift(g, LEFT if k == 0 else RIGHT, 0, -3, fill=False)
     return arc(g, [(PS + 30 + i * 9 + k * 4, H2 - 1) for i in range(6)], [(120, 104, 112, 255)])
 
@@ -221,8 +222,8 @@ def enter(act, k):
     g = shift(g, ABOVE, 0, 3 if k == 0 else 1, keep=True)
     if k == 1: g = tint(g, LAVA, (255, 240, 190), 0.8)                                        # (the roar: the core flaring)
     if k == 2:                                                                                 # (the chains snapping: sparks where they were)
-        names = BROKEN[act] if act == 3 else ('r_shoulder', 'l_dangle')
-        pts = [(PS + (CHAINS[n][0] + CHAINS[n][2]) / 2 + math.cos(i * 1.7) * 5, PT + (CHAINS[n][1] + CHAINS[n][3]) / 2 + math.sin(i * 1.7) * 6) for n in names for i in range(4)]
+        if act == 2: pts = [(PS + (CHAINS[n][0] + CHAINS[n][2]) / 2 + math.cos(i * 1.7) * 5, PT + (CHAINS[n][1] + CHAINS[n][3]) / 2 + math.sin(i * 1.7) * 6) for n in CHAINS for i in range(3)]
+        else: pts = [(PS + CORE[0] + math.cos(i * 0.52) * (9 + i % 3 * 4), PT + CORE[1] + math.sin(i * 0.52) * (9 + i % 3 * 4)) for i in range(24)]   # (III: the core bursting)
         g = arc(tint(g, LAVA, (255, 240, 190), 0.9), pts, EMB)
     return g
 

@@ -33,6 +33,7 @@ function at(g, e, dx, h) { const a = g.camAngle || 0; return g.up(e.x + dx * Mat
 const CORE = (g, e) => at(g, e, 0, 4.4);                    // (his core: where its light and embers are drawn)
 // every shot leaves from the centre of its feet (the user: the bottom-centre of the boss, always; its staff or chest may glow, but never sets where a shot begins)
 const FEET = (g, e) => [e.x, e.y];
+const LINK_LIE = 6;                                         // (how long a fallen link lies before it crumbles)
 const later = (e, t, name, V = {}) => e.bx.vol.push({ t, V: { form: 'special', ...V, name } });   // (its own name last: a spread V may carry the caller's)
 const shot = (g, e, x, y, a, V) => g.bxShot(e, x, y, a, V);
 const lane = (g, e, x, y, a, len, delay, dmg = 0, w = 1, cols) => g.fx.push({ kind: 'lane', x, y, a, len, w, delay, t: 0, life: delay + (dmg ? 0.35 : 0.02), dmg: dmg ? g.bxDmg(e, dmg) : 0, by: e.D.name, hitT: 0, ...(cols ? { cols } : {}) });
@@ -335,12 +336,24 @@ export default {
   onPhase(g, e, ph) {
     const S = e.bx, [cx, cy] = CORE(g, e);
     S.akScythe = null; S.akChains = null; e.akDash = null;
-    if (ph === 2) {                                        // the armour cracks; two chains break; ash, but no harm
+    if (ph === 2) {                                        // the armour cracks; every chain snaps off him; ash, but no harm
       if (g.banner) g.banner('THE FURNACE FRACTURES', 2400);
-      g.vx({ k: 'shake', amt: 8 }); g.vx({ k: 'burst', x: cx, y: cy, n: 40, colors: [...GLASS, ...FIRE] }); g.sfx('shatter');
+      g.vx({ k: 'shake', amt: 8 }); g.vx({ k: 'burst', x: cx, y: cy, n: 40, colors: [...GLASS, ...FIRE] }); g.sfx('shatter'); g.sfx('chain');
+      // (2026-11-02, the user: broken chains stayed on him and moved with him.) Each chain parts where it met him: its
+      // links drop where they hung, in the world, and lie on the floor, then crumble; none is his any more. The anchors
+      // keep a short loose length, lying still (it is what glows in his Red-Hot Chains).
+      S.akLinks = [];
+      for (let i = 0; i < 4; i++) {
+        const A = anchor(e, i), side = A.x < e.x ? -1 : 1, Wx = e.x + side * 1.6, Wy = e.y;
+        for (let k = 0; k < 11; k++) {
+          const t = 0.32 + (k / 10) * 0.68;
+          S.akLinks.push({ x: A.x + (Wx - A.x) * t, y: A.y + (Wy - A.y) * t, h: 0.3 + t * 2.3, vx: (Math.random() - 0.5) * 0.8, vy: (Math.random() - 0.5) * 0.8, t0: g.t + Math.random() * 0.2, k });
+        }
+        g.vx({ k: 'burst', x: Wx, y: Wy, n: 10, colors: ['#a39bb2', '#766e84', ...FIRE] });
+      }
     }
-    if (ph === 3) {                                        // he breaks free: the anchors scatter
-      if (g.banner) g.banner('THE CHAINS BREAK', 3000);
+    if (ph === 3) {                                        // the forge in him breaks loose: the anchors scatter
+      if (g.banner) g.banner('THE FORGE UNBOUND', 3000);
       S.akUnchained = g.t; g.vx({ k: 'shake', amt: 12 }); g.sfx('roar');
       g.fx.push({ kind: 'ring', x: e.x, y: e.y, t: 0, max: 9, color: '#ffd650' });
       for (let i = 0; i < 4; i++) { const A = anchor(e, i); g.vx({ k: 'burst', x: A.x, y: A.y, n: 18, colors: ['#a39bb2', '#766e84', ...FIRE] }); }
@@ -376,6 +389,7 @@ export default {
     for (const q of S.akVents || []) if (q && q.dead && !(S.akVentDown || [])[q.akVent]) { (S.akVentDown = S.akVentDown || [])[q.akVent] = g.t + 6; }
     if (S.akVentDown) S.akVentDown = S.akVentDown.map((t) => (t > g.t ? t : 0));
     if (S.akHot && g.t > S.akHot.until) S.akHot = null;
+    if (S.akLinks && S.akLinks.every((L) => g.t - L.t0 > LINK_LIE + 1.6)) S.akLinks = null;   // (the fallen links, crumbled away)
     if (S.phase === 3 && Math.random() < 0.3) { const [cx, cy] = CORE(g, e); g.vx({ k: 'burst', x: cx + (Math.random() - 0.5), y: cy + (Math.random() - 0.5), n: 2, colors: FIRE }); }
   },
   onDeath(g, e) {                                          // the hammer falls, the core implodes, the chains fall silent
@@ -386,8 +400,9 @@ export default {
     if (g.banner) g.banner('THE GREAT SUN DOOR IS UNSEALED.', 3200);
     const m = g.map; if (m.lights) m.lights = m.lights.filter((L) => !L.gate);
   },
-  // under him: the four anchors and their chains to his wrists (I all four; II the south two broken; III all snapped, the
-  // anchors' stubs left; red-hot when he works them; dark on the floor once he falls), and the scything links' path ahead
+  // under him: the four anchors; in I their chains taut to his wrists; from II (every chain snapped off him) a loose length
+  // lying still by each anchor, red-hot when he works it, and the links that fell off him; in III only the blocks; and the
+  // scything links' path ahead
   drawGround(r, g, e) {
     const S = e.bx, b = r.b, ph = S.phase || 1, [sx, sy] = r.proj(e.x, e.y), hot = S.akHot && g.t < S.akHot.until ? S.akHot.ids : [];
     for (let i = 0; i < 4; i++) {
@@ -396,17 +411,36 @@ export default {
       b.fillStyle = '#433d4e'; b.fillRect(Math.round(ax) - 5, Math.round(ay) - 5, 10, 10);
       b.fillStyle = '#615a70'; b.fillRect(Math.round(ax) - 5, Math.round(ay) - 5, 10, 2);
       b.fillStyle = hot.includes(i) ? '#ff6a1c' : '#1c1822'; b.fillRect(Math.round(ax) - 2, Math.round(ay) - 2, 4, 4);
-      if (ph === 3 && !S.akDead) continue;                 // (III: scattered: only the anchor blocks remain)
-      const broken = ph === 2 && i >= 2, L = Math.hypot(wx - ax, wy - ay), n = Math.max(2, Math.floor(L / 5));
-      const red = hot.includes(i), sag = S.akDead ? 18 : ph === 2 ? 10 : 2;
-      for (let k = 0; k <= n; k++) {
-        const t = k / n;
-        if (broken && !S.akDead && t > 0.3) continue;      // broken: a stub at the anchor
-        const x = ax + (wx - ax) * t, y = ay + (wy - ay) * t + Math.sin(t * Math.PI) * sag;
+      const red = hot.includes(i);
+      if (ph === 1 && !S.akDead) {                         // I: bound, the chain taut to his wrist (he stands still in I)
+        const L = Math.hypot(wx - ax, wy - ay), n = Math.max(2, Math.floor(L / 5));
+        for (let k = 0; k <= n; k++) {
+          const t = k / n, x = ax + (wx - ax) * t, y = ay + (wy - ay) * t + Math.sin(t * Math.PI) * 2;
+          b.fillStyle = '#0e0a12'; b.fillRect(Math.round(x) - 2, Math.round(y) - 2, 4, 4);
+          b.fillStyle = red ? ((k + Math.floor(g.t * 14)) % 2 ? '#ffd650' : '#ff6a1c') : k % 2 ? '#8c84a2' : '#615a70';
+          b.fillRect(Math.round(x) - 1, Math.round(y) - 1, 3, 2);
+        }
+        continue;
+      }
+      if (ph === 3 && !red) continue;                      // (III: the anchors' loose lengths scattered: only the blocks)
+      const M = mid(e), d = Math.hypot(M.x - A.x, M.y - A.y) || 1;   // II: a loose length, lying still on the floor toward the hall's middle
+      for (let k = 1; k <= 5; k++) {
+        const [x, y] = r.proj(A.x + ((M.x - A.x) / d) * k * 0.4 + Math.sin(k * 1.9 + i) * 0.08, A.y + ((M.y - A.y) / d) * k * 0.4);
         b.fillStyle = '#0e0a12'; b.fillRect(Math.round(x) - 2, Math.round(y) - 2, 4, 4);
         b.fillStyle = S.akDead ? '#2c2834' : red ? ((k + Math.floor(g.t * 14)) % 2 ? '#ffd650' : '#ff6a1c') : k % 2 ? '#8c84a2' : '#615a70';
         b.fillRect(Math.round(x) - 1, Math.round(y) - 1, 3, 2);
       }
+    }
+    for (const L of S.akLinks || []) {                     // the links that fell off him: dropping where they hung, lying, crumbling
+      const T = g.t - L.t0; if (T < 0) continue;
+      const fall = Math.min(T, Math.sqrt(L.h / 4.9)), h = Math.max(0, L.h - 4.9 * fall * fall), bounce = T > fall && T < fall + 0.25 ? Math.sin(((T - fall) / 0.25) * Math.PI) * 0.12 : 0;
+      const [x, y] = r.proj(...g.up(L.x + L.vx * fall * 0.5, L.y + L.vy * fall * 0.5, h + bounce)), al = T < LINK_LIE ? 1 : Math.max(0, 1 - (T - LINK_LIE) / 1.6);
+      if (al <= 0) continue;
+      b.globalAlpha = al;
+      b.fillStyle = '#0e0a12'; b.fillRect(Math.round(x) - 2, Math.round(y) - 2, 4, 4);
+      b.fillStyle = T < fall + 0.6 ? (L.k % 2 ? '#ff8a3a' : '#8c84a2') : L.k % 2 ? '#766e84' : '#4a4456';   // (hot where it snapped, cooling)
+      b.fillRect(Math.round(x) - 1, Math.round(y) - 1, 3, 2);
+      b.globalAlpha = 1;
     }
     const Q = S.akScythe;                                  // the scything links' path, 0.6 s ahead of them
     if (Q && g.t < Q.until) {

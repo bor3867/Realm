@@ -150,7 +150,8 @@ export const POT_STACK = 10, VAULT_MAX = 80;
 export const STAT_DROP_REALM = 0.4;
 // where numbers that land together appear above a target (tiles: right, up): staggered, never two at one height side
 // by side closer than a number's width, and kept close over the head (rounds three and four, 2026-10-19: tighter)
-const FLOAT_SLOTS = [[0, 0], [-0.3, 0.16], [0.3, 0.32], [0, 0.48], [-0.3, 0.64], [0.3, 0.8], [0, 0.96], [-0.22, 1.12], [0.22, 1.28]];   // (each at its own height)
+const FLOAT_SLOTS = [[0, 0], [-0.36, 0.14], [0.36, 0.28], [-0.18, 0.42], [0.18, 0.56]];   // (the band over a target: side to side, a little higher each; never higher than this)
+const FLOAT_MAX = 5;
 const ACTIVE_R = 24;            // enemies farther than this sleep
 const SLOT_ORDER = ['weapon', 'ability', 'armor', 'ring'];
 const PET_BEHIND = 1.2;
@@ -719,26 +720,22 @@ export class Game {
     // over you: only red (a hit taken), green (Life back: a potion, your pet) and blue (Mana back: a potion, your pet)
     // (the user's calls, 2026-10-19 and 2026-10-28)
     if (who && who === this.player && !this.pFloatOk) return;
-    // every hit shows its own number (2026-10-19): numbers that land together each take a different spot above the
-    // target, staggered so none sits beside another at the same height ("100,100"), with a little jitter
+    // numbers over a target (2026-11-02, the user: "damage numbers accumulate vertically and climb far above its
+    // sprite"): a bounded band just over its head. At most FLOAT_MAX at once, each in one of a few fixed spots (side to
+    // side, a little higher each), so nothing stacks past the band; a fast weapon's hits add into the newest number of
+    // their kind ("1840 x5"), which keeps its spot and is let go after a second, so no number lives on forever; past
+    // the cap the oldest number gives way. (A crit stays its own number, a size up.)
     if (who) {
-      // the live numbers over it, where they are now (risen part-way), as boxes in tiles; the first spot that touches none
-      const W = (t) => (String(t).length * 4 + 1) * 0.0625, H = 0.44 + 0.04, rise = (t) => 0.32 * (1 - (1 - Math.min(1, t / 0.9)) ** 3);   // (the font: 1/16 tile a pixel, 7 tall with its rim)
+      const str = String(text), num = /^d+!?$/.test(str), crit = str.endsWith('!');
       const mine = this.floaters.filter((f) => f.who === who && f.t < 0.9);
-      // (a crowd of numbers over one target, from a fast weapon: past six, a new hit adds into the newest number of its
-      // kind instead, which pops again; the screen stays readable. 2026-10-31)
-      if (mine.length >= 6 && /^\d+!?$/.test(String(text))) {
-        // (and says how many hits it holds: "1840 x5". 2026-10-31)
-        const crit = String(text).endsWith('!'), last = mine.filter((f) => f.color === color && /^\d+!?( x\d+)?$/.test(f.text) && f.text.includes('!') === crit).sort((a, b) => a.t - b.t)[0];
-        if (last && last.t < 0.45) {
-          if (!last.n) last.dy = Math.max(...mine.filter((f) => f !== last).map((f) => f.dy)) + 0.48;   // (a row of its own, over the rest: it grows wider)
-          last.n = (last.n || 1) + 1; last.text = `${parseInt(last.text, 10) + parseInt(text, 10)}${crit ? '!' : ''} x${last.n}`; last.t = Math.min(last.t, 0.05); return; }
+      if (num && mine.length >= 2) {
+        const last = mine.filter((f) => f.color === color && f.num && f.crit === crit && f.t < 0.35 && this.t - f.born < 1).sort((p, q) => p.t - q.t)[0];
+        if (last) { last.n = (last.n || 1) + 1; last.sum += parseInt(str, 10); last.text = `${last.sum}${crit ? '!' : ''} x${last.n}`; last.t = Math.min(last.t, 0.08); return; }
       }
-      const live = mine.map((f) => ({ x: f.dx, y: f.dy + rise(f.t), w: W(f.text) }));
-      const w = W(text), hit = (cx, cy) => live.reduce((n, o) => n + (Math.abs(cx - o.x) < (w + o.w) / 2 + 0.06 && Math.abs(cy - o.y) < H ? 1 : 0), 0);
-      let best = FLOAT_SLOTS[0], bn = Infinity;
-      for (const S of FLOAT_SLOTS) { const n = hit(S[0], S[1]); if (n < bn) { bn = n; best = S; if (!n) break; } }
-      this.floaters.push({ x, y, text, color, t: 0, who, dx: best[0] + (R() - 0.5) * 0.04, dy: best[1] });
+      if (mine.length >= FLOAT_MAX) { const old = mine.sort((p, q) => q.t - p.t)[0]; this.floaters.splice(this.floaters.indexOf(old), 1); mine.splice(mine.indexOf(old), 1); }
+      const used = FLOAT_SLOTS.map((_, i) => mine.filter((f) => f.slot === i).length);
+      const slot = used.indexOf(Math.min(...used)), S = FLOAT_SLOTS[slot];
+      this.floaters.push({ x, y, text: str, color, t: 0, who, slot, born: this.t, num, crit, sum: num ? parseInt(str, 10) : 0, dx: S[0] + (R() - 0.5) * 0.12, dy: S[1] });
       return;
     }
     this.floaters.push({ x, y, text, color, t: 0, who, dx: 0, dy: 0 });
