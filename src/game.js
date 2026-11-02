@@ -3582,7 +3582,9 @@ export class Game {
       const a0 = R() * Math.PI, x0 = p.x + (R() - 0.5) * 3, y0 = p.y + 1.5 + R() * 1.5, half = 70;
       const main = [...walk(x0, y0, a0 + Math.PI, half, 0.3).reverse(), ...walk(x0, y0, a0, half, 0.3).slice(1)];
       const br = []; for (let k = 0; k < 6; k++) { const i = Math.floor(R() * main.length), [bx, by] = main[i]; br.push({ at: 3 + k * 1.2, pts: walk(bx, by, a0 + (R() < 0.5 ? 1 : -1) * (0.8 + R() * 0.8), 20 + Math.floor(R() * 16), 0.28) }); }
-      this.fx.push({ kind: 'lavacrack', pts: main, br, t: 0, life: 12.6 }); }
+      // (2026-11-02, the user's reference sheet "REALM ERUPTION · LAVA CRACK / FISSURE": cracked stone plates round it, a web
+      // of cracks lighting outward from it, stable → rumble → surge → erupt; src/render.js fissureFx)
+      this.fx.push({ kind: 'fissure', cx: x0, cy: y0, pts: main, br, t: 0, life: 12.6, seed: Math.floor(R() * 1e6) + 1 }); }
     this.fx.push({ kind: 'eclipse', t: 0, life: 12.4 }, { kind: 'erupttint', t: 0, life: 12.4 });
   }
   // the minute before the eruption the sun is taken (2026-11-02, the user: "The minute before the eruption, take the
@@ -3615,7 +3617,7 @@ export class Game {
     if (E.stage === 0 && el >= 3) {                          // the castle rises: the ground cracks round you (no harm)
       E.stage = 1; this.banner('THE CASTLE RISES.', 2600);
     }
-    if (E.stage === 1 && el >= 6) { E.stage = 2; this.fx.push({ kind: 'rift', x: p.x, y: p.y - 4, t: 0, life: 6.4 }); this.sfx('portal'); }
+    if (E.stage === 1 && el >= 6) { E.stage = 2; this.sfx('portal'); }   // (the rift's black hole gone: the user, 2026-11-02; the fissure is the breach)
     const sec = Math.ceil(E.dur - el);
     if (E.stage === 2 && sec < E.sec && sec > 0 && sec <= 6) { E.sec = sec; this.banner(`THE BREACH OPENS IN ${sec}`, 900); }
     if (E.stage === 2 && el >= E.dur - 0.5 && !E.faded) { E.faded = true; this.fx.push({ kind: 'fade', t: 0, life: 1.0 }); }

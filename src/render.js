@@ -297,6 +297,7 @@ export class Renderer {
     for (const e of g.active || []) if (!e.dead && (e.pulseUntil > g.t || e.chainTo)) this.pulseChain(g, e);
     if (g.activeMap === m) for (const e of g.notable) if (e.bx && e.bx.B.drawGround && !e.dead) { try { e.bx.B.drawGround(this, g, e); } catch (err) { if (!e.net) throw err; } }   // (a shared boss draws from the server's word: a gap there must not stop the game)   // a boss's hazards on the ground
     if (m.castle && m.castle.rooms) this.castleBridges(g, m);
+    for (const f of g.fx) if (f.kind === 'fissure') this.fissureFx(f, g);   // (the eruption's: on the ground, under everything)
     if (m.graves) this.drawGraves(g, m);                        // the fallen: a gravestone each, where they fell
     this.spGround(g);                                       // set-piece telegraphs (src/setpieces.js)
     if (m.mrClouds || m.mrPuddles) this.mireFx(g, m);
@@ -341,7 +342,6 @@ export class Renderer {
         this.b.fillStyle = `rgba(255,190,90,${a.toFixed(3)})`; this.b.fillRect(0, 0, this.buf.width, this.buf.height); }
       else if (f.kind === 'eclipse') { const a = Math.min(1, f.t / 3) * Math.min(1, (f.life - f.t) * 2) * 0.42;   // the sun stolen: the light drains to violet-black
         this.b.fillStyle = `rgba(14,6,26,${a.toFixed(3)})`; this.b.fillRect(0, 0, this.buf.width, this.buf.height); }
-      else if (f.kind === 'lavacrack') this.lavaCrackFx(f, g);
       else if (f.kind === 'crack') {                       // a crack in the ground, glowing (the eruption: no harm in it)
         const a = Math.min(1, f.t * 3) * Math.min(1, (f.life - f.t) * 2), b = this.b; b.globalAlpha = a;
         for (let k = 0; k < f.pts.length; k++) { const [x, y] = this.proj(f.pts[k][0], f.pts[k][1]); b.fillStyle = '#1a0806'; b.fillRect(Math.round(x) - 2, Math.round(y) - 1, 4, 3); b.fillStyle = (k + Math.floor(g.t * 8)) % 3 ? '#ff6a1c' : '#ffd650'; b.fillRect(Math.round(x) - 1, Math.round(y), 2, 1); }
@@ -1196,9 +1196,9 @@ export class Renderer {
     const flick = 0.92 + Math.sin(g.t * 13) * 0.04 + Math.sin(g.t * 7.3) * 0.04;
     const src = (g.map.kind === 'dungeon' || g.map.sunless) && !g.player.dead ? [...g.map.lights, { x: g.player.x, y: g.player.y, h: 0.5, r: 92, col: '#fff0d0' }] : [...g.map.lights];
     if (g.activeMap === g.map) for (const e of g.notable || []) if (e.bx && !e.dead && e.bx.B.lights) src.push(...e.bx.B.lights(g, e));
-    for (const f of g.fx) if (f.kind === 'lavacrack') { const n = f.pts.length, mid = n >> 1, reach = Math.ceil(mid * Math.min(1, f.t / 8)); for (let k = mid - reach; k <= mid + reach; k += 10) if (f.pts[k]) src.push({ x: f.pts[k][0], y: f.pts[k][1], h: 0, r: 26 + 14 * Math.min(1, f.t / 11), col: '#ff7a2a', fire: true }); }   // (the eruption's crack lights the dark it's in)   // a boss's own lights (the Unstruck's furnace, its anvil)   // in a dungeon you carry a light
+    for (const f of g.fx) if (f.kind === 'fissure' && f.t > 1.5) for (let k = 0; k < f.pts.length; k += 4) { const q = f.pts[k]; if (Math.abs(q[0] - f.cx) < 18 && Math.abs(q[1] - f.cy) < 14) src.push({ x: q[0], y: q[1], h: 0, r: 30 + 60 * Math.min(1, f.t / 10), clear: true }); }   // (the eruption's fissure lights the dark it's in)
     const lights = [];                                     // (a lamp's light sits up the screen, at its height: projUp)
-    for (const L of src) { if (!g.seen(L.x, L.y)) continue; const [lx, ly] = this.projUp(L.x, L.y, L.h || 0); if (lx < -L.r || ly < -L.r || lx > BW + L.r || ly > BH + L.r) continue; lights.push({ lx, ly, R: L.r * (L.fire ? flick + Math.sin(g.t * 9 + L.x) * 0.03 : 1), fire: L.fire, col: L.col }); }
+    for (const L of src) { if (!g.seen(L.x, L.y)) continue; const [lx, ly] = this.projUp(L.x, L.y, L.h || 0); if (lx < -L.r || ly < -L.r || lx > BW + L.r || ly > BH + L.r) continue; lights.push({ lx, ly, R: L.r * (L.fire ? flick + Math.sin(g.t * 9 + L.x) * 0.03 : 1), fire: L.fire, col: L.col, clear: L.clear }); }
     for (const L of lights) {
       if (L.lx < -L.R || L.ly < -L.R || L.lx > BW + L.R || L.ly > BH + L.R) continue;
       const gr = x.createRadialGradient(L.lx, L.ly, 0, L.lx, L.ly, L.R);
@@ -1209,7 +1209,7 @@ export class Renderer {
     const b = this.b;
     b.save(); b.globalCompositeOperation = 'lighter';
     for (const L of lights) {
-      if (L.lx < -L.R || L.ly < -L.R || L.lx > BW + L.R || L.ly > BH + L.R) continue;
+      if (L.clear || L.lx < -L.R || L.ly < -L.R || L.lx > BW + L.R || L.ly > BH + L.R) continue;   // (a light that only lifts the dark: the fissure's own glow is drawn)
       const gr = b.createRadialGradient(L.lx, L.ly, 0, L.lx, L.ly, L.R * 0.8);
       const c = L.col ? [parseInt(L.col.slice(1, 3), 16), parseInt(L.col.slice(3, 5), 16), parseInt(L.col.slice(5, 7), 16)] : (L.fire ? [255, 140, 40] : [255, 200, 90]);
       gr.addColorStop(0, `rgba(${c[0]},${c[1]},${c[2]},${L.fire ? 0.3 : 0.22})`); gr.addColorStop(1, `rgba(${c[0]},${c[1]},${c[2]},0)`);
@@ -2056,62 +2056,71 @@ export class Renderer {
     for (let i = 0; i <= n; i++) { const [x, y] = pt(f.a - f.spread / 2 + (i / n) * f.spread, f.r); b.fillRect(x - 1, y - 1, 2, 2); }   // its rim
     for (const s of [-1, 1]) for (let d = 0.5; d < f.r; d += 0.5) { const [x, y] = pt(f.a + s * f.spread / 2, d); b.fillRect(x - 1, y - 1, 2, 2); }   // its sides
   }
-  // the eruption's crack: opening outward from its middle over 8 s, widening over 11, lava running along it (bright bands
-  // flowing outward), a glow either side; its branches split off later (src/game.js realmErupt). No harm in it
-  lavaCrackFx(f, g) {
-    const b = this.b, fadeOut = Math.min(1, (f.life - f.t) * 2);
-    const draw = (pts, t, wMax, mid0) => {                 // (mid0: where it opens from; a branch from its root)
-      if (t <= 0) return;
-      const n = pts.length, mid = mid0 ?? Math.floor(n / 2), reach = Math.ceil(Math.max(mid, n - 1 - mid) * Math.min(1, t / 8)), w = 1 + (wMax - 1) * Math.min(1, t / 11);
-      const lo = Math.max(0, mid - reach), hi = Math.min(n - 1, mid + reach), P = []; for (let k = lo; k <= hi; k++) { const [x, y] = this.proj(pts[k][0], pts[k][1]); P.push([Math.round(x), Math.round(y), k]); }
-      if (P.length < 2) return;
-      b.save(); b.lineCap = 'round'; b.lineJoin = 'round';
-      const pass = (lw, col, a, flow) => { b.globalAlpha = a * fadeOut; for (let i = 1; i < P.length; i++) { const k = P[i][2], tip = 1 - Math.abs(k - mid) / Math.max(1, reach), ww = Math.max(1, w * (0.3 + 0.7 * Math.sqrt(Math.max(0, tip))));
-        if (flow) { const f = Math.sin(Math.abs(k - mid) * 0.45 - g.t * 6); b.strokeStyle = f > 0.55 ? '#fff0a8' : f > -0.1 ? '#ffb43a' : '#ff6a1c'; } else b.strokeStyle = col;
-        b.lineWidth = Math.max(1, ww * lw + (flow ? 0 : lw > 2 ? 4 : 2)); b.beginPath(); b.moveTo(P[i - 1][0], P[i - 1][1]); b.lineTo(P[i][0], P[i][1]); b.stroke(); } };
-      pass(3, '#ff5a14', 0.16, false);                     // its glow
-      pass(1.6, '#140604', 1, false);                      // the broken earth either side
-      pass(1, null, 1, true);                              // the lava, running out along it
-      b.restore();
-    };
-    draw(f.pts, f.t, 4);
-    for (const B of f.br) draw(B.pts, f.t - B.at, 2.2, 0);
-  }
-  // the castle's rope bridges (the Deadwater Ravine's; 2026-11-02, the user: "The wooden bridge can look a lot better"):
-  // the chasm showing between its planks, each plank its own worn shade and a little askew, rope rails along both sides
-  // sagging between posts, and in its two broken sections only a plank or two left hanging on. Laid in the world, so it
-  // turns as the camera does
-  castleBridges(g, m) {
-    const L = m.castle.bridgeList || (m.castle.bridgeList = Object.values(m.castle.rooms).filter((n) => n.bridge).map((n) => n.bridge));
-    const b = this.b, P = (x, y) => this.proj(x, y), WOOD = ['#4a2e18', '#5e3a1e', '#6e4626', '#7e5430'], hash = (i) => ((Math.sin(i * 12.9898) * 43758.5453) % 1 + 1) % 1;
-    const quad = (pts, col) => { b.fillStyle = col; b.beginPath(); pts.forEach(([x, y], i) => { const [X, Y] = P(x, y); if (i) b.lineTo(Math.round(X), Math.round(Y)); else b.moveTo(Math.round(X), Math.round(Y)); }); b.closePath(); b.fill(); };
-    for (const B of L) {
-      const [cx0, cy0] = P(B.x0, B.y); if (cx0 < -400 || cy0 < -400 || cx0 > this.buf.width + 400 || cy0 > this.buf.height + 400) continue;
-      const gap = (x) => B.gaps.some((q) => Math.abs(x - q) <= 1);
-      const seen = (x, y) => g.seen(x + 0.5, y + 0.5);       // (under the fog of war where you haven't been: the user, 2026-11-02)
-      for (let x = B.x0; x <= B.x1; x++) if (seen(x, B.y)) quad(gap(x) ? [[x, B.y + 0.1], [x + 1, B.y + 0.1], [x + 1, B.y + 0.9], [x, B.y + 0.9]] : [[x, B.y - 1], [x + 1, B.y - 1], [x + 1, B.y + 2], [x, B.y + 2]], '#0c070a');   // the drop between the boards
-      for (let x = B.x0; x <= B.x1; x++) for (const h of [0.06, 0.54]) {                        // two planks a tile
-        if (!seen(x, B.y)) continue;
-        const i = x * 2 + (h > 0.5 ? 1 : 0), r = hash(i), sk = (r - 0.5) * 0.12, broke = gap(x);
-        const y0 = broke ? B.y + 0.05 + r * 0.2 : B.y - 0.95, y1 = broke ? B.y + 0.95 - hash(i + 7) * 0.2 : B.y + 1.95;
-        if (broke && r < 0.35) continue;                                                    // (some gone altogether)
-        quad([[x + h + sk, y0], [x + h + 0.4 + sk, y0], [x + h + 0.4 - sk, y1], [x + h - sk, y1]], WOOD[Math.floor(r * 4)]);
-        quad([[x + h + sk, y0], [x + h + 0.4 + sk, y0], [x + h + 0.4 + sk, y0 + 0.12], [x + h + sk, y0 + 0.12]], '#9a6c40');   // its worn top edge
-        if (!broke && r > 0.6) { const [nx, ny] = P(x + h + 0.2, B.y + 0.5); b.fillStyle = '#2a1a10'; b.fillRect(Math.round(nx), Math.round(ny), 1, 1); }   // a nail
+  // the eruption's fissure (2026-11-02, the user's reference: "REALM ERUPTION · LAVA CRACK / FISSURE"): the ground round it
+  // broken into dark purple stone plates, bevelled (lit up and left, shaded down and right), a web of cracks between them;
+  // a great lava channel through the middle, a yellow-white core, orange, then red at its lips. Over the shaking it goes
+  // the sheet's way: stable (the plates rise out of the ground, their cracks dark), rumble (the cracks by the channel glow
+  // red), surge (the web runs orange outward), erupt (bright, the channel at its widest, flames licking up along it).
+  // Built once as fields at eight texels a tile (each texel two of the screen's, the tiles' own grain), coloured again ten
+  // times a second, and laid in the world (it turns with the camera)
+  fissureFx(f, g) {
+    const TX = 8, FW = 36, FH = 28, W = FW * TX, H = FH * TX, x0 = f.cx - FW / 2, y0 = f.cy - FH / 2;
+    if (!f.geo) {
+      let s = f.seed || 1; const rnd = () => ((s = (s * 1103515245 + 12345) % 2147483648) / 2147483648);
+      const SP = 13, GX = Math.ceil(W / SP) + 2, GY = Math.ceil(H / SP) + 2, seeds = [];
+      for (let j = 0; j < GY; j++) for (let i = 0; i < GX; i++) seeds.push([(i - 1 + 0.15 + rnd() * 0.7) * SP, (j - 1 + 0.15 + rnd() * 0.7) * SP, rnd()]);
+      const cell = new Int32Array(W * H), gap = new Float32Array(W * H), dm = new Float32Array(W * H), along = new Float32Array(W * H), fade = new Uint8Array(W * H);
+      const segs = [], add = (pts, wk) => { for (let i = 1; i < pts.length; i++) segs.push([(pts[i - 1][0] - x0) * TX, (pts[i - 1][1] - y0) * TX, (pts[i][0] - x0) * TX, (pts[i][1] - y0) * TX, wk, i / pts.length]); };
+      add(f.pts, 1); for (const B of f.br) add(B.pts, 0.45);
+      const near = segs.filter((q) => Math.min(q[0], q[2]) > -40 && Math.max(q[0], q[2]) < W + 40 && Math.min(q[1], q[3]) > -40 && Math.max(q[1], q[3]) < H + 40);
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        const gi = Math.floor(x / SP) + 1, gj = Math.floor(y / SP) + 1; let d1 = 1e9, d2 = 1e9, c1 = 0;
+        for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) { const k = (gj + dj) * GX + gi + di, q = seeds[k]; if (!q) continue; const d = Math.hypot(q[0] - x, q[1] - y); if (d < d1) { d2 = d1; d1 = d; c1 = k; } else if (d < d2) d2 = d; }
+        const i = y * W + x; cell[i] = c1; gap[i] = d2 - d1;
+        let best = 1e9, al = 0;
+        for (const [ax, ay, bx, by, wk, t] of near) { const vx = bx - ax, vy = by - ay, L2 = vx * vx + vy * vy || 1, u = Math.max(0, Math.min(1, ((x - ax) * vx + (y - ay) * vy) / L2)), d = Math.hypot(ax + vx * u - x, ay + vy * u - y) / wk; if (d < best) { best = d; al = t; } }
+        dm[i] = best; along[i] = al;
+        const q = seeds[c1], rr = Math.hypot((q[0] - W / 2) / (W / 2), (q[1] - H / 2) / (H / 2));
+        fade[i] = rr < 0.72 + q[2] * 0.22 ? 1 : 0;   // (its edge whole plates, some further out than others: broken stone, never a ring)
       }
-      for (const side of [-1.05, 2.05]) {                                                  // the rope rails, sagging between posts
-        let last = null;
-        for (let x = B.x0; x <= B.x1 + 1; x += 0.25) {
-          if (B.gaps.some((q) => x > q - 0.6 && x < q + 1.6) || !seen(Math.floor(x), B.y)) { last = null; continue; }   // (snapped at the broken sections)
-          const ph = ((x - B.x0) % 3) / 3, sag = Math.sin(ph * Math.PI) * 2, [X, Y] = P(x, B.y + side), y = Math.round(Y - 7 + sag);
-          if (last) { b.strokeStyle = '#a07a4a'; b.lineWidth = 1; b.beginPath(); b.moveTo(last[0], last[1]); b.lineTo(Math.round(X), y); b.stroke(); }
-          last = [Math.round(X), y];
+      f.geo = { cell, gap, dm, along, fade, seeds };
+      f.cv = document.createElement('canvas'); f.cv.width = W; f.cv.height = H; f.img = f.cv.getContext('2d').createImageData(W, H); f.lastPaint = -1;
+    }
+    const G = f.geo, el = f.t, s = Math.min(1, el / 11);                    // (its progress over the shaking)
+    if (el - f.lastPaint >= 0.1) {
+      f.lastPaint = el;
+      const Dt = f.img.data, rise = Math.min(1, el / 1.4), reach = 6 + s * s * 120, wm = 0.6 + Math.max(0, s - 0.15) * 9, hot = Math.max(0, (s - 0.12) / 0.88), out = Math.min(1, (f.life - el) * 2);
+      const PL = [[44, 30, 58], [64, 46, 82], [82, 62, 104], [112, 90, 136]];   // (dark, mid, light, the bevel's lit edge: bright enough to read in the stolen sun's dark)
+      for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+        const i = y * W + x, o = i * 4;
+        if (!G.fade[i]) { Dt[o + 3] = 0; continue; }
+        const c = G.cell[i], d = G.dm[i]; let col;
+        const flick = 0.85 + 0.15 * Math.sin(el * 9 + G.along[i] * 40 + x * 0.2);
+        if (d < wm) {                                                          // the channel
+          const k = d / wm; col = k < 0.15 ? [255, 248, 196] : k < 0.42 ? [255, 210, 52] : k < 0.72 ? [255, 124, 20] : [196, 44, 18];
+          if (k < 0.42 && Math.sin(G.along[i] * 90 - el * 7) > 0.7) col = [255, 236, 140];   // (its flow, pulsing along it)
+        } else {
+          const nr = Math.max(0, 1 - d / reach), crack = G.gap[i] < 1.0 + nr * hot * 1.4;
+          if (crack) {
+            const v = nr * hot * flick;
+            col = hot <= 0 || d >= reach ? [18, 10, 22] : v > 0.55 ? [255, 200, 64] : v > 0.3 ? [255, 120, 28] : nr * hot > 0.08 ? [196, 44, 26] : [70, 18, 22];
+          } else {
+            const up = G.cell[Math.max(0, i - W - 1)] !== c, dn = G.cell[Math.min(W * H - 1, i + W + 1)] !== c, v = G.seeds[c][2];
+            col = PL[up ? 3 : dn ? 0 : v < 0.4 ? 1 : 2].slice();
+            if (d < wm + 1.6) col = [120, 40, 30];                              // (the channel's scorched lips)
+            const glow = Math.max(0, 1 - d / (8 + 30 * hot)) * hot;               // (the plates lit red by the lava beside them)
+            if (glow > 0) { col[0] = Math.min(255, col[0] + 150 * glow); col[1] = Math.min(255, col[1] + 40 * glow); }
+          }
         }
-        for (let x = B.x0; x <= B.x1 + 1; x += 3) {                                         // posts
-          if (!seen(Math.min(x, B.x1), B.y)) continue;
-          const [X, Y] = P(x, B.y + side); b.fillStyle = '#2e1c10'; b.fillRect(Math.round(X) - 1, Math.round(Y) - 9, 3, 10); b.fillStyle = '#6e4626'; b.fillRect(Math.round(X) - 1, Math.round(Y) - 9, 2, 9);
-        }
+        Dt[o] = col[0]; Dt[o + 1] = col[1]; Dt[o + 2] = col[2]; Dt[o + 3] = Math.round(255 * rise * out);
       }
+      f.cv.getContext('2d').putImageData(f.img, 0, 0);
+    }
+    const b = this.b, [ox, oy] = this.proj(x0, y0), [ax, ay] = this.proj(x0 + 1, y0), [bx, by] = this.proj(x0, y0 + 1);
+    b.save(); b.imageSmoothingEnabled = false; b.transform((ax - ox) / TX, (ay - oy) / TX, (bx - ox) / TX, (by - oy) / TX, ox, oy); b.drawImage(f.cv, 0, 0); b.restore();
+    if (s > 0.35 && Math.random() < 0.2 + s * 0.8) {                        // flames licking up along the channel
+      const q = f.pts[Math.floor(Math.random() * f.pts.length)];
+      if (q && Math.abs(q[0] - f.cx) < FW / 2 - 3 && Math.abs(q[1] - f.cy) < FH / 2 - 3) this.parts.push({ x: q[0] + (Math.random() - 0.5) * 0.6, y: q[1], z: 2, vx: 0, vy: 0, vz: 10 + Math.random() * 16, g: -4, life: 0.45, max: 0.45, color: ['#ffd650', '#ff8a1f', '#ff4a1a', '#fff6c8'][Math.floor(Math.random() * 4)] });
     }
   }
   laneFx(f, g) {
