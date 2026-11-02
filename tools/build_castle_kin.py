@@ -36,6 +36,28 @@ def frames(px, hover):
     return {'move1': m1, 'move2': m2, 'attack': [[flare(c) for c in row] for row in px], 'hurt': [[hurt(c) for c in row] for row in px]}
 
 
+# their shots, drawn here at their native size, pointing right ('castle_shots/<name>', 8x8 cells): the spec's shapes
+SPAL = {'k': (14, 8, 12), 'o': (255, 140, 40), 'O': (255, 200, 90), 'y': (255, 230, 120), 'w': (255, 250, 220), 'r': (190, 50, 30), 'p': (150, 70, 210), 'P': (210, 150, 255),
+        'v': (90, 40, 140), 'g': (230, 180, 60), 'G': (255, 225, 120), 'd': (40, 30, 48), 'D': (80, 64, 90), 's': (120, 110, 130)}
+SHOTS = {
+    'ember': ['.o.', 'oyo', '.o.'],                                   # a 2x2 fire diamond (with its rim)
+    'pember': ['.p.', 'pPp', '.p.'],                                  # a purple ember
+    'blob': ['.rr.', 'royr', 'royr', '.rr.'],                         # a 3x3 molten blob
+    'arrow': ['....kk', 'ssssOw', '....kk'],                          # a thin 2x4 arrow
+    'darrow': ['.....k.', 'ddddoOw', '.....k.'],                      # the marked arrow, black and orange
+    'ghost': ['.v.', 'vPp', 'pPv', '.v.'],                            # a 2x3 ghostly diamond
+    'flame': ['..o.', '.oyo', 'oyww', '.oyo', '..o.'],               # a flame
+    'tear': ['.g..', 'gGGw', '.g..'],                                 # a 2x3 golden tear-drop
+    'lance': ['......g.', 'gGGGGGGw', '......g.'],                    # a narrow solar lance
+    'gear': ['.s.s.', 'sDDDs', '.DoD.', 'sDDDs', '.s.s.'],             # a gear of the forge
+    'crescent': ['.vv.', 'vd..', 'vd..', '.vv.'],                     # a dark crescent
+    'gorb': ['.gg.', 'gGwg', 'gGGg', '.gg.'],                         # a golden orb
+    'porb': ['.vv.', 'vPpv', 'vppv', '.vv.'],                         # a purple orb
+    'stone': ['.rr.', 'rDor', 'rooD', '.rr.'],                        # molten stone
+    'spear': ['......G', 'gggGGGw', '......G'],                       # a golden spear
+}
+
+
 if __name__ == '__main__':
     keys = ['move1', 'move2', 'attack', 'hurt']
     sheet = [[BLANK] * (16 * len(keys)) for _ in range(16 * len(IDS))]; sprites = {}
@@ -48,7 +70,15 @@ if __name__ == '__main__':
         sprites[i] = {'frames': fr, 'anims': {'move': {'frames': ['move1', 'move2'], 'fps': 4, 'loop': True}, 'attack': {'frames': ['move1', 'attack'], 'fps': 6, 'loop': False},
                       'hurt': {'frames': ['hurt', 'move1'], 'fps': 8, 'loop': False}}}
     write_png(os.path.join(out, 'castle_kin.png'), sheet)
-    json.dump({'rf': True, 'meta': {'name': "Sunthief's Castle's defenders (the user's sprites)", 'version': 1}, 'sheets': {'castle_kin': {'image': 'castle_kin.png', 'kind': 'enemy', 'outline': True, 'sprites': sprites}}},
+    shots = [[BLANK] * (8 * len(SHOTS)) for _ in range(8)]; sfr = {}
+    for k, (name, grid) in enumerate(SHOTS.items()):
+        oy, ox = (8 - len(grid)) // 2, (8 - len(grid[0])) // 2
+        for y, row in enumerate(grid):
+            for x, c in enumerate(row):
+                if c != '.': shots[oy + y][k * 8 + ox + x] = (*SPAL[c], 255)
+        sfr[name] = {'frames': {'0': [k * 8, 0, 8, 8]}, 'meta': {}}
+    write_png(os.path.join(out, 'castle_shots.png'), shots)
+    json.dump({'rf': True, 'meta': {'name': "Sunthief's Castle's defenders (the user's sprites)", 'version': 1}, 'sheets': {'castle_kin': {'image': 'castle_kin.png', 'kind': 'enemy', 'outline': True, 'sprites': sprites}, 'castle_shots': {'image': 'castle_shots.png', 'kind': 'shot', 'sprites': sfr}}},
               open(os.path.join(out, 'atlas_castle_kin.json'), 'w', encoding='utf8', newline='\n'), indent=1)
     ip = os.path.join(root, 'art', 'bundle', 'index.json'); idx = json.load(open(ip, encoding='utf8'))
     if 'throne/atlas_castle_kin.json' not in idx['atlases']:

@@ -31,6 +31,7 @@ import { installMythics } from './mythics.js';
 import { installArmory } from './armory.js';
 import { installGearMech } from './gearmech.js';
 import { installCastle } from './castle.js';
+import { installCastleKin } from './castle_kin.js';
 import { BX, bxEnemyDef } from './bosses/index.js';
 import { joinCourt } from './bosses/jarl_court.js';
 import { installRF } from './rf/host.js';
@@ -2138,6 +2139,7 @@ export class Game {
     // in as "the player" while that monster thinks. In a browser, monsters the server runs are puppets (src/net.js).
     let p = this.player;
     const T = this.netTargets, anchor = p;
+    this.kinGlobal(dt);                                        // (the castle defenders' timers that outlive them: src/castle_kin.js)
     const act = (this.active = []), nb = (this.notable = []); this.activeMap = this.map;
     // the server thinks only about the monsters near some player: a short list, rebuilt each second (and the new ones)
     let L = this.enemies, fresh = true;
@@ -2204,6 +2206,7 @@ export class Game {
       // wall can take it further from you than where it started, and it must not lose interest halfway round)
       if (d < D.aggro) e.engagedUntil = this.t + 4;
       const aggro = (d < D.aggro || (e.engagedUntil > this.t && d < D.aggro * 1.6)) && !p.dead && this.map.kind !== 'nexus';
+      if (D.kin) { if (aggro) { e.seen = true; this.kinTick(e, dt, p, d); } continue; }   // a castle defender: its own brain (src/castle_kin.js)
       e.st -= dt;
       if (aggro && D.trail && (e.trailT = (e.trailT === undefined ? D.trail.every : e.trailT) - dt) <= 0) {   // a trail: what it leaves on the ground as it goes
         e.trailT = D.trail.every;
@@ -2619,6 +2622,7 @@ export class Game {
     // shield-bearer's front, a boss's guard all let blows through; a camp's chest is still guarded)
     if (e.asDormant) this.asWake(e);                              // the Vault Keeper wakes when struck
     if (e.rallyUntil > this.t) dmg = Math.round(dmg * 0.7);       // an orc under the war banner
+    if (e.kinShieldUntil > this.t) dmg = this.kinShield(e, dmg);  // a Lava Guard's shield, from in front
     if (e.surviveUntil > this.t) { if (!quiet) this.float(x, y - 0.8, 'SURVIVE!', '#ff8c1e'); return 0; }
     if (e.frenzyUntil > this.t) { if (!quiet) this.float(x, y - 0.8, e.D.bloodlust ? 'BLOODLUST' : 'INVULNERABLE', '#ff4a5a'); return 0; }
     if (e.invulnT > 0) { if (!quiet) this.float(x, y - 0.8, 'IMMUNE', '#8d88a0'); return 0; }
@@ -2664,6 +2668,7 @@ export class Game {
     if (e.net && !e.netKill && e.hp <= 0) e.hp = 1;             // a shared monster dies when the server says so (src/net.js)
     if (e.hp <= 0 && !e.dead) {
       e.dead = true; e.deadT = 0;
+      if (e.D.kin) this.kinDeath(e);                            // (a Lava Slime's boiling remains)
       if (e.soulT) this.sigilOnKill(e);                         // a soul-marked kill gives Mana back (src/sigils.js)
       if (e.page13 === 1) this.mythPageDeath(e);                // the Thirteenth Page passes its hex on (src/mythics.js)
       this.gearOnKill(e);                                       // rings and armour that answer a kill (src/gearmech.js)
@@ -4819,6 +4824,7 @@ installMythics(Game);
 installArmory(Game);
 installGearMech(Game);
 installCastle(Game);
+installCastleKin(Game);
 installMelon(Game);
 installAchievements(Game);
 installRealmEvents(Game);
