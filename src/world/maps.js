@@ -1487,6 +1487,7 @@ export function dungeon(seed, def) {
             for (const side of [-1, 1]) { const bx = cx + side * w * 0.3, f = (a) => 0.85 + 0.1 * Math.sin(a * 3 + s + side) + 0.05 * Math.sin(a * 7 + s); for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) { const dx = (xx - bx) / (w * 0.26), dy = (yy - cy) / (h / 2), a = Math.atan2(dy, dx); if (Math.hypot(dx, dy) <= f(a)) set(xx, yy, FLOOR); } }   // (the two banks, ragged)
             for (let yy = y; yy < y + h; yy++) for (let xx = cx - 6; xx <= cx + 6; xx++) set(xx + Math.round(2 * Math.sin(yy / 5)), yy, TID.void);
             for (let xx = cx - 9; xx <= cx + 9; xx++) for (let dy = -1; dy <= 1; dy++) { const gapp = Math.abs(xx - cx + 3) <= 1 || Math.abs(xx - cx - 4) <= 1; if (!gapp || dy === 0) set(xx, cy + dy, BR); }   // (two missing sections: one board wide)
+            n.bridge = { x0: cx - 9, x1: cx + 9, y: cy, gaps: [cx - 3, cx + 4] };   // (drawn as a rope bridge over the tiles: src/render.js castleBridges)
             break;
           }
           case 'zigzag': {                                            // a mountain trail turning back and forth up the slope
@@ -2778,7 +2779,9 @@ export function dungeon(seed, def) {
       let r0 = 0, d0 = 9; for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) { const rr = regionOf[(y + dy) * S + x + dx]; if (rr && Math.max(Math.abs(dx), Math.abs(dy)) < d0) { d0 = Math.max(Math.abs(dx), Math.abs(dy)); r0 = rr; } }
       const R = REG[r0 - 1];
       if (R === 'forest') {                                   // the woods' edge: its first row trees on grass you can walk among (the user, as above); thorn beyond
-        if (d0 === 1 && regionOf[y * S + x] === 0) { set(x, y, TID.grass); const hh = ((Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1 + 1) % 1; if (hh < 0.55) put(m, 'castle_decor/' + ['pine_black', 'oak', 'deadwood', 'pine_black'][Math.floor(hh * 7.27) % 4], x, y, false); }
+        const inA = rooms.find((q) => q.region && bd(q, x, y) === 0);
+        if (inA && inA.form === 'ravine') { set(x, y, TID.nxchasm); continue; }   // (the ravine's chasm: a drop, under its rope bridge)
+        if (d0 === 1 && !inA) { set(x, y, TID.grass); const hh = ((Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1 + 1) % 1; if (hh < 0.55) put(m, 'castle_decor/' + ['pine_black', 'oak', 'deadwood', 'pine_black'][Math.floor(hh * 7.27) % 4], x, y, false); }
         else set(x, y, TID.bramble);
       } else if (R === 'mountain') set(x, y, TID.cliff); else if (R === 'eclipse' || R === 'sanctum') set(x, y, TID.starvoid);
     }

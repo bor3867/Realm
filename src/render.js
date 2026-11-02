@@ -296,6 +296,7 @@ export class Renderer {
     for (const f of g.fx) if (f.kind === 'cloud' || f.kind === 'zone' || f.kind === 'pool') this.groundFx(f, g);
     for (const e of g.active || []) if (!e.dead && (e.pulseUntil > g.t || e.chainTo)) this.pulseChain(g, e);
     if (g.activeMap === m) for (const e of g.notable) if (e.bx && e.bx.B.drawGround && !e.dead) { try { e.bx.B.drawGround(this, g, e); } catch (err) { if (!e.net) throw err; } }   // (a shared boss draws from the server's word: a gap there must not stop the game)   // a boss's hazards on the ground
+    if (m.castle && m.castle.rooms) this.castleBridges(g, m);
     if (m.graves) this.drawGraves(g, m);                        // the fallen: a gravestone each, where they fell
     this.spGround(g);                                       // set-piece telegraphs (src/setpieces.js)
     if (m.mrClouds || m.mrPuddles) this.mireFx(g, m);
@@ -2074,6 +2075,40 @@ export class Renderer {
     };
     draw(f.pts, f.t, 4);
     for (const B of f.br) draw(B.pts, f.t - B.at, 2.2, 0);
+  }
+  // the castle's rope bridges (the Deadwater Ravine's; 2026-11-02, the user: "The wooden bridge can look a lot better"):
+  // the chasm showing between its planks, each plank its own worn shade and a little askew, rope rails along both sides
+  // sagging between posts, and in its two broken sections only a plank or two left hanging on. Laid in the world, so it
+  // turns as the camera does
+  castleBridges(g, m) {
+    const L = m.castle.bridgeList || (m.castle.bridgeList = Object.values(m.castle.rooms).filter((n) => n.bridge).map((n) => n.bridge));
+    const b = this.b, P = (x, y) => this.proj(x, y), WOOD = ['#4a2e18', '#5e3a1e', '#6e4626', '#7e5430'], hash = (i) => ((Math.sin(i * 12.9898) * 43758.5453) % 1 + 1) % 1;
+    const quad = (pts, col) => { b.fillStyle = col; b.beginPath(); pts.forEach(([x, y], i) => { const [X, Y] = P(x, y); if (i) b.lineTo(Math.round(X), Math.round(Y)); else b.moveTo(Math.round(X), Math.round(Y)); }); b.closePath(); b.fill(); };
+    for (const B of L) {
+      const [cx0, cy0] = P(B.x0, B.y); if (cx0 < -400 || cy0 < -400 || cx0 > this.buf.width + 400 || cy0 > this.buf.height + 400) continue;
+      const gap = (x) => B.gaps.some((q) => Math.abs(x - q) <= 1);
+      for (let x = B.x0; x <= B.x1; x++) quad(gap(x) ? [[x, B.y + 0.1], [x + 1, B.y + 0.1], [x + 1, B.y + 0.9], [x, B.y + 0.9]] : [[x, B.y - 1], [x + 1, B.y - 1], [x + 1, B.y + 2], [x, B.y + 2]], '#0c070a');   // the drop between the boards
+      for (let x = B.x0; x <= B.x1; x++) for (const h of [0.06, 0.54]) {                        // two planks a tile
+        const i = x * 2 + (h > 0.5 ? 1 : 0), r = hash(i), sk = (r - 0.5) * 0.12, broke = gap(x);
+        const y0 = broke ? B.y + 0.05 + r * 0.2 : B.y - 0.95, y1 = broke ? B.y + 0.95 - hash(i + 7) * 0.2 : B.y + 1.95;
+        if (broke && r < 0.35) continue;                                                    // (some gone altogether)
+        quad([[x + h + sk, y0], [x + h + 0.4 + sk, y0], [x + h + 0.4 - sk, y1], [x + h - sk, y1]], WOOD[Math.floor(r * 4)]);
+        quad([[x + h + sk, y0], [x + h + 0.4 + sk, y0], [x + h + 0.4 + sk, y0 + 0.12], [x + h + sk, y0 + 0.12]], '#9a6c40');   // its worn top edge
+        if (!broke && r > 0.6) { const [nx, ny] = P(x + h + 0.2, B.y + 0.5); b.fillStyle = '#2a1a10'; b.fillRect(Math.round(nx), Math.round(ny), 1, 1); }   // a nail
+      }
+      for (const side of [-1.05, 2.05]) {                                                  // the rope rails, sagging between posts
+        let last = null;
+        for (let x = B.x0; x <= B.x1 + 1; x += 0.25) {
+          if (B.gaps.some((q) => x > q - 0.6 && x < q + 1.6)) { last = null; continue; }   // (snapped at the broken sections)
+          const ph = ((x - B.x0) % 3) / 3, sag = Math.sin(ph * Math.PI) * 2, [X, Y] = P(x, B.y + side), y = Math.round(Y - 7 + sag);
+          if (last) { b.strokeStyle = '#a07a4a'; b.lineWidth = 1; b.beginPath(); b.moveTo(last[0], last[1]); b.lineTo(Math.round(X), y); b.stroke(); }
+          last = [Math.round(X), y];
+        }
+        for (let x = B.x0; x <= B.x1 + 1; x += 3) {                                         // posts
+          const [X, Y] = P(x, B.y + side); b.fillStyle = '#2e1c10'; b.fillRect(Math.round(X) - 1, Math.round(Y) - 9, 3, 10); b.fillStyle = '#6e4626'; b.fillRect(Math.round(X) - 1, Math.round(Y) - 9, 2, 9);
+        }
+      }
+    }
   }
   laneFx(f, g) {
     const b = this.b, live = f.t >= f.delay, L = f.len, n = Math.ceil(L * 2);
