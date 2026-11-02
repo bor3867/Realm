@@ -397,8 +397,11 @@ export const BXF = {
         if (x >= A.x && x < A.x + A.w && y >= A.y && y < A.y + A.h) continue;
         const i = y * m.w + x;
         if (m.solid[i] || m.tiles[i] === TID.asvoid) continue;      // the doors are where a way comes in: not the open void
-        const o = { sprite: 'seal_gate', x: x + 0.5, y: y + 0.5, solid: true, arenaLock: true };
+        const o = { sprite: 'seal_gate', x: x + 0.5, y: y + 0.5, solid: true, arenaLock: true, hidden: !!m.castle };
         m.objects.push(o); m.solid[i] = 1; e.bx.locks.push(o);
+        // (in the castle a lowered portcullis, one to two tiles, instead of the red door tiles; gone when the fight ends.
+        // 2026-11-02, the user: "the stupid 'door' tiles blocking the way")
+        if (m.castle && (x + y) % 2 === 0) { const L = { sprite: 'castle_decor/portcullis', x: x + 0.5, y: y + 0.5, solid: false, arenaLook: true }; m.objects.push(L); e.bx.locks.push(L); }
       }
       const p = this.player;                                     // just through the doorway: step clear of the gates (a body touching one can't move)
       if (p.x > A.x - 1 && p.x < A.x + A.w + 1 && p.y > A.y - 1 && p.y < A.y + A.h + 1) {
@@ -409,7 +412,8 @@ export const BXF = {
       if (heir) { heir.bx.locks = [...(heir.bx.locks || []), ...(e.bx.locks || [])]; e.bx.locks = []; return; }
     }
     if (!lock) for (const o of e.bx.locks || []) {
-      o.sprite = 'gate_open'; o.solid = false; m.solid[Math.floor(o.y) * m.w + Math.floor(o.x)] = 0;
+      if (o.arenaLook) { o.hidden = true; this.vx({ k: 'burst', x: o.x, y: o.y - 0.5, n: 6, colors: ['#8a8490', '#c8c0d8', '#5a5560'] }); continue; }   // (the portcullis rises away: nothing left in the way)
+      o.sprite = 'gate_open'; o.solid = false; o.hidden = !!m.castle || o.hidden; m.solid[Math.floor(o.y) * m.w + Math.floor(o.x)] = 0;
     }
   },
   // the boss bar's extras: phase pips and the current phase's name

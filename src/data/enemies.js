@@ -1384,7 +1384,7 @@ const FORMATION = {
   a20: F(['sunbound_knight', 0.4, 0.45], ['sunbound_knight', 0.6, 0.45], ['cinder_archer', 0.15, 0.2], ['cinder_archer', 0.5, 0.12], ['cinder_archer', 0.85, 0.2]),
   a21: F(['lava_guard', 0.3, 0.4], ['lava_guard', 0.7, 0.6], ['infernal_hound', 0.5, 0.5], ['infernal_hound', 0.55, 0.55], ['sun_cultist', 0.85, 0.2]),
   a22: F(['sunbound_knight', 0.2, 0.7], ['cinder_archer', 0.12, 0.25], ['cinder_archer', 0.28, 0.25], ['solar_acolyte', 0.8, 0.7], ['sun_cultist', 0.8, 0.25]),
-  a23: F(['lava_guard', 0.25, 0.8], ['lava_guard', 0.75, 0.8]),   // (the Technician's two guards; he and his reinforcements: src/bosses/drawbridge_technician.js)
+  a23: F(['lava_guard', 0.25, 0.8], ['lava_guard', 0.75, 0.8]),   // (the Technician's two guards; he: src/bosses/drawbridge_technician.js)
   a24: F(['sunbound_knight', 0.4, 0.6], ['sunbound_knight', 0.6, 0.6], ['sun_cultist', 0.3, 0.25], ['sun_cultist', 0.7, 0.25]),
   a25: F(['hollow_wraith', 0.3, 0.5], ['hollow_wraith', 0.7, 0.5], ['cursed_banner', 0.2, 0.12], ['cursed_banner', 0.5, 0.12], ['cursed_banner', 0.8, 0.12]),   // (the banners and the wraiths; the knights and the cultist come second)
   a27: F(['hollow_wraith', 0.15, 0.5], ['hollow_wraith', 0.85, 0.5]),

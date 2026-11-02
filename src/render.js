@@ -2034,6 +2034,7 @@ export class Renderer {
   }
   laneFx(f, g) {
     const b = this.b, live = f.t >= f.delay, L = f.len, n = Math.ceil(L * 2);
+    if (f.spin) f.a = f.a0 + f.spin * Math.max(0, f.t - f.delay);   // (a turning lane)
     for (let j = 0; j < n; j++) {
       const d = (j / n) * L, x = f.x + Math.cos(f.a) * d, y = f.y + Math.sin(f.a) * d, [sx, sy] = this.proj(x, y);
       const C = f.cols || ['#ff8c1e', '#ffd84a', '#ff8c1e', '#fff6c8'];   // (warning, two flickers, core: a lane may bring its own, the sea's blue)

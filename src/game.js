@@ -3007,6 +3007,7 @@ export class Game {
       }
       if (f.kind === 'lane' && f.t >= f.delay && !p.dead) {                // standing on a lane of fire burns
         f.hitT -= dt;
+        if (f.spin) f.a = f.a0 + f.spin * (f.t - f.delay);   // (a turning lane, the Technician's winch chain: its angle from its own clock, the same in every copy)
         const dx = p.x - f.x, dy = p.y - f.y, along = dx * Math.cos(f.a) + dy * Math.sin(f.a), across = Math.abs(-dx * Math.sin(f.a) + dy * Math.cos(f.a));
         if (f.dmg && f.hitT <= 0 && along > 0 && along < f.len && across < f.w) { f.hitT = f.every || 0.3; this.hurtPlayer(f.dmg, f.by); }   // (a lane with no damage is only a mark)
       }
