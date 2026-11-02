@@ -842,6 +842,15 @@ export class Game {
     const m = this.map;
     const r = rng(m.w * 7 + 1);
     const buff = (e) => { if (!e.D.kin) e.hp = e.maxHp = Math.round(e.hp * def.mobHp); return e; };   // (a castle defender keeps the user's own Life: src/castle_kin.js)
+    const spotAt = (rm, fx, fy) => {                     // the free floor nearest a place in a room (a formation's)
+      const tx = rm.x + fx * rm.w, ty = rm.y + fy * rm.h;
+      for (let rad = 0; rad < 12; rad++) for (let dy = -rad; dy <= rad; dy++) for (let dx = -rad; dx <= rad; dx++) {
+        if (Math.max(Math.abs(dx), Math.abs(dy)) !== rad) continue;
+        const x = Math.floor(tx) + dx, y = Math.floor(ty) + dy;
+        if (x >= rm.x && y >= rm.y && x < rm.x + rm.w && y < rm.y + rm.h && !isSolid(m, x + 0.5, y + 0.5) && m.tiles[y * m.w + x] !== TID.lava) return [x + 0.5, y + 0.5];
+      }
+      return spot(rm);
+    };
     const spot = (rm) => {                                // a free floor tile inside a room
       for (let j = 0; j < 30; j++) {
         const x = rm.x + 1.5 + r() * (rm.w - 3), y = rm.y + 1.5 + r() * (rm.h - 3);
@@ -892,7 +901,7 @@ export class Game {
       }
       if (rm.role === 'warden') { spawn(def.compose ? def.compose(rm, r, (rm.dep || 0) / maxDep).map((id) => [id, ...spot(rm)]) : fill(rm, r.int(2, 4), false)); warden(rm); return; }
       if (def.compose) {                                                // a dungeon that says who stands where
-        const list = def.compose(rm, r, (rm.dep || 0) / maxDep).map((id) => [id, ...spot(rm)]);
+        const list = def.compose(rm, r, (rm.dep || 0) / maxDep).map((q) => (Array.isArray(q) ? [q[0], ...spotAt(rm, q[1], q[2])] : [q, ...spot(rm)]));   // (a formation: each at its place in the area)
         if (rm.ambush) rm.pending = list; else spawn(list);
         return;
       }
@@ -3124,7 +3133,7 @@ export class Game {
     for (const rm of m.rooms) {                         // rooms can overlap, so check every one you're standing in
       if (rm.pending && p.x > rm.x + 1 && p.x < rm.x + rm.w - 1 && p.y > rm.y + 1 && p.y < rm.y + rm.h - 1) {
         this.spawnPending(rm.pending); rm.pending = null;              // AMBUSH: they climb out of the floor
-        this.banner('Ambush!', 1400); this.vx({ k: 'shake', amt: 4 }); this.sfx('boss');
+        if (!rm.quiet) { this.banner('Ambush!', 1400); this.vx({ k: 'shake', amt: 4 }); this.sfx('boss'); }   // (the castle's areas wake without the cry: their own titles say where you are)
       }
     }
     if (!def.hazardFx || !room || room.boss || room === m.rooms[0]) return;

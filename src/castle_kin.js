@@ -306,6 +306,7 @@ export function installCastleKin(Game) { Object.assign(Game.prototype, methods);
   def('eclipse_shade', 'Eclipse Shade', 28000, 80, 4.5, 0.55, 18, 1000, { fly: true });
   def('forge_golem', 'Forge Golem', 32000, 130, 2.0, 0.7, 30, 1100);
   def('sunbound_construct', 'Sunbound Construct', 42000, 115, 3.5, 0.7, 28, 1400, { fly: true });
+  ENEMIES.infernal_alpha = { ...ENEMIES.infernal_hound, name: 'Infernal Alpha', hp: Math.round(ENEMIES.infernal_hound.hp * 2.5), scale: (ENEMIES.infernal_hound.scale || 0.5) * 1.3, elite: true };   // (the Wolf's Den's leader: more Life, the same pack's charge)
   ENEMIES.sun_portal = { name: 'Solar Portal', biome: 'throne', reg: 'wiz_kin/portal', hp: 5000, def: 8, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 30, fly: true, kin: 'sun_portal', attacks: [], loot: [] };
   ENEMIES.solar_node = { name: 'Solar Node', biome: 'throne', reg: 'wiz_kin/portal', hp: 7500, def: 10, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 30, fly: true, kin: 'solar_node', attacks: [], loot: [] };
 }

@@ -1346,6 +1346,59 @@ Object.assign(DUNGEONS.forge, { seals: [], puzzle: null, altar: false, layout: {
 // the upper ones each guard the boss their own way
 Object.assign(DUNGEONS.scriptorium, { seals: ['puzzle', 'lever', 'warden'], puzzle: 'runes', altar: true, layout: { secrets: 3 } });
 Object.assign(DUNGEONS.heart, { seals: ['warden', 'warden', 'warden'], puzzle: null, altar: true, layout: { secrets: 2 } });
+// the 52 areas' formations (the user's blueprint, 2026-11-02): [id, x, y] across the area (0..1, north at 0): ranged
+// on far ledges and platforms, melee where you come in or at the choke, support among them. They wake as you enter
+// (no attack through walls from rooms you have not reached). The cursed things that hold a way shut: cursed_banner,
+// cursed_altar, celestial_anchor (src/castle.js breaks the lock when the last of an area's falls)
+const F = (...L) => L;
+const FORMATION = {
+  a02: F(['cinder_bat', 0.25, 0.3], ['cinder_bat', 0.3, 0.7], ['infernal_hound', 0.7, 0.4], ['infernal_hound', 0.75, 0.6]),
+  a03: F(['hollow_wraith', 0.45, 0.4], ['hollow_wraith', 0.55, 0.4], ['cinder_archer', 0.15, 0.2], ['cinder_archer', 0.85, 0.25]),
+  a04: F(['infernal_hound', 0.3, 0.4], ['infernal_hound', 0.5, 0.3], ['infernal_hound', 0.7, 0.4], ['infernal_alpha', 0.5, 0.55]),
+  a05: F(['cinder_archer', 0.15, 0.15], ['cinder_archer', 0.85, 0.15], ['hollow_wraith', 0.45, 0.55], ['hollow_wraith', 0.55, 0.45]),
+  a06: F(['hollow_wraith', 0.3, 0.5], ['hollow_wraith', 0.7, 0.5], ['solar_acolyte', 0.5, 0.35], ['cursed_altar', 0.5, 0.3]),
+  a07: F(['cinder_archer', 0.2, 0.2], ['cinder_archer', 0.8, 0.2], ['sunbound_knight', 0.5, 0.35], ['cinder_bat', 0.15, 0.6], ['cinder_bat', 0.85, 0.6]),
+  a08: F(['cinder_archer', 0.1, 0.35], ['cinder_archer', 0.1, 0.65], ['cinder_bat', 0.45, 0.25], ['cinder_bat', 0.55, 0.75], ['hollow_wraith', 0.9, 0.5]),
+  a09: F(['sunbound_knight', 0.5, 0.3], ['infernal_hound', 0.4, 0.5], ['infernal_hound', 0.6, 0.5], ['cinder_archer', 0.2, 0.15], ['cinder_archer', 0.8, 0.15]),
+  a10: F(['cinder_archer', 0.8, 0.15], ['cinder_archer', 0.2, 0.35], ['infernal_hound', 0.3, 0.8], ['infernal_hound', 0.7, 0.7]),
+  a11: F(['lava_guard', 0.5, 0.5], ['cinder_archer', 0.1, 0.5], ['cinder_archer', 0.9, 0.5], ['cinder_bat', 0.35, 0.2], ['cinder_bat', 0.65, 0.8]),
+  a12: F(['lava_guard', 0.5, 0.75], ['lava_guard', 0.5, 0.45], ['cinder_archer', 0.15, 0.15], ['cinder_archer', 0.85, 0.15], ['infernal_hound', 0.2, 0.5], ['infernal_hound', 0.25, 0.48], ['infernal_hound', 0.3, 0.5]),
+  a13: F(['sunbound_knight', 0.5, 0.5], ['lava_guard', 0.35, 0.6], ['lava_guard', 0.65, 0.6], ['cinder_archer', 0.2, 0.2], ['cinder_archer', 0.8, 0.2]),
+  a14: F(['eclipse_shade', 0.5, 0.15]),
+  a15: F(['cinder_elemental', 0.4, 0.4], ['cinder_elemental', 0.4, 0.65], ['lava_guard', 0.45, 0.1]),
+  a16: F(['lava_guard', 0.85, 0.5], ['lava_guard', 0.5, 0.25], ['cinder_archer', 0.5, 0.78], ['cinder_archer', 0.65, 0.8]),
+  a17: F(['cinder_elemental', 0.2, 0.5], ['cinder_elemental', 0.8, 0.5], ['forge_golem', 0.5, 0.12]),
+  a18: F(['sun_cultist', 0.3, 0.35], ['sun_cultist', 0.7, 0.35], ['sunbound_knight', 0.4, 0.6], ['sunbound_knight', 0.6, 0.6], ['solar_acolyte', 0.5, 0.25]),
+  a19: F(['sunbound_knight', 0.4, 0.4], ['sunbound_knight', 0.6, 0.4], ['lava_guard', 0.3, 0.6], ['lava_guard', 0.7, 0.6], ['cinder_archer', 0.2, 0.15], ['cinder_archer', 0.8, 0.15]),
+  a20: F(['sunbound_knight', 0.4, 0.45], ['sunbound_knight', 0.6, 0.45], ['cinder_archer', 0.15, 0.2], ['cinder_archer', 0.5, 0.12], ['cinder_archer', 0.85, 0.2]),
+  a21: F(['lava_guard', 0.3, 0.4], ['lava_guard', 0.7, 0.6], ['infernal_hound', 0.5, 0.5], ['infernal_hound', 0.55, 0.55], ['sun_cultist', 0.85, 0.2]),
+  a22: F(['sunbound_knight', 0.2, 0.7], ['cinder_archer', 0.12, 0.25], ['cinder_archer', 0.28, 0.25], ['solar_acolyte', 0.8, 0.7], ['sun_cultist', 0.8, 0.25]),
+  a23: F(['forge_golem', 0.5, 0.45], ['lava_guard', 0.3, 0.7], ['lava_guard', 0.7, 0.7]),
+  a24: F(['sunbound_knight', 0.4, 0.6], ['sunbound_knight', 0.6, 0.6], ['sun_cultist', 0.3, 0.25], ['sun_cultist', 0.7, 0.25], ['cinder_archer', 0.15, 0.15], ['cinder_archer', 0.85, 0.15]),
+  a25: F(['hollow_wraith', 0.3, 0.5], ['hollow_wraith', 0.7, 0.5], ['sunbound_knight', 0.4, 0.4], ['sunbound_knight', 0.6, 0.4], ['cursed_banner', 0.2, 0.12], ['cursed_banner', 0.5, 0.12], ['cursed_banner', 0.8, 0.12]),
+  a27: F(['hollow_wraith', 0.15, 0.5], ['hollow_wraith', 0.85, 0.5]),
+  a28: F(['sunbound_knight', 0.3, 0.5], ['sunbound_knight', 0.7, 0.5], ['solar_acolyte', 0.2, 0.2], ['solar_acolyte', 0.8, 0.2], ['sun_cultist', 0.5, 0.15]),
+  a29: F(['sunbound_knight', 0.4, 0.5], ['sunbound_knight', 0.6, 0.5], ['lava_guard', 0.3, 0.3], ['lava_guard', 0.7, 0.3], ['infernal_hound', 0.2, 0.85], ['infernal_hound', 0.8, 0.85]),
+  a30: F(['hollow_wraith', 0.3, 0.5], ['hollow_wraith', 0.7, 0.5], ['cinder_bat', 0.5, 0.3], ['cinder_bat', 0.5, 0.7]),
+  a31: F(['solar_acolyte', 0.3, 0.3], ['solar_acolyte', 0.7, 0.3], ['hollow_wraith', 0.2, 0.55], ['hollow_wraith', 0.8, 0.55], ['sun_cultist', 0.5, 0.25], ['cursed_altar', 0.5, 0.12], ['cursed_altar', 0.15, 0.5], ['cursed_altar', 0.85, 0.5]),
+  a32: F(['eclipse_shade', 0.5, 0.35], ['sun_cultist', 0.3, 0.6], ['sun_cultist', 0.7, 0.6]),
+  a33: F(['sunbound_knight', 0.3, 0.5], ['sunbound_knight', 0.7, 0.5], ['hollow_wraith', 0.4, 0.3], ['hollow_wraith', 0.6, 0.7]),
+  a34: F(['lava_guard', 0.5, 0.3], ['lava_guard', 0.5, 0.7], ['cinder_elemental', 0.15, 0.5], ['cinder_elemental', 0.85, 0.5]),
+  a35: F(['forge_golem', 0.5, 0.3], ['lava_guard', 0.25, 0.6], ['lava_guard', 0.75, 0.6]),
+  a36: F(['cinder_archer', 0.85, 0.45], ['cinder_archer', 0.9, 0.55], ['cinder_elemental', 0.5, 0.5]),
+  a37: F(['eclipse_shade', 0.3, 0.4], ['eclipse_shade', 0.7, 0.6], ['solar_acolyte', 0.5, 0.2], ['solar_acolyte', 0.5, 0.85]),
+  a38: F(['forge_golem', 0.5, 0.5], ['lava_guard', 0.3, 0.35], ['lava_guard', 0.7, 0.35], ['cinder_elemental', 0.5, 0.2]),
+  a39: F(['forge_golem', 0.3, 0.15], ['forge_golem', 0.7, 0.85], ['cinder_elemental', 0.1, 0.5], ['cinder_elemental', 0.9, 0.5]),
+  a40: F(['sunbound_construct', 0.5, 0.75], ['lava_guard', 0.2, 0.5], ['lava_guard', 0.8, 0.5]),
+  a42: F(['sunbound_construct', 0.3, 0.75], ['cinder_elemental', 0.6, 0.8], ['sunbound_construct', 0.6, 0.2], ['cinder_elemental', 0.3, 0.25]),
+  a43: F(['forge_golem', 0.4, 0.6], ['forge_golem', 0.6, 0.4], ['sunbound_construct', 0.5, 0.15], ['lava_guard', 0.35, 0.3], ['lava_guard', 0.65, 0.75]),
+  a44: F(['forge_golem', 0.5, 0.35], ['forge_golem', 0.5, 0.65], ['cinder_elemental', 0.5, 0.15]),
+  a45: F(['sunbound_construct', 0.2, 0.4], ['sunbound_construct', 0.8, 0.4], ['lava_guard', 0.45, 0.55], ['lava_guard', 0.55, 0.55]),
+  a48: F(['eclipse_shade', 0.3, 0.3], ['eclipse_shade', 0.7, 0.3]),
+  a49: F(['eclipse_shade', 0.5, 0.3], ['eclipse_shade', 0.5, 0.6], ['sunbound_construct', 0.5, 0.15]),
+  a50: F(['sunbound_construct', 0.3, 0.3], ['sunbound_construct', 0.7, 0.7], ['eclipse_shade', 0.7, 0.3], ['eclipse_shade', 0.3, 0.7], ['celestial_anchor', 0.12, 0.5], ['celestial_anchor', 0.88, 0.5]),
+  a51: F(['eclipse_shade', 0.5, 0.25]),
+};
 Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden'], puzzle: null, altar: false, layout: { secrets: 3 },   // (three cracked walls, secret rooms behind)
   // (2026-11-01: the volcano island, src/world/maps.js LAYOUT.throne) who holds each part of it, harder the further in:
   // the island's own monsters (below), the shore's weakest, the hall's worst
@@ -1356,6 +1409,8 @@ Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden'], puzzle: nul
   hazardFx: null,                                                       // (the castle's rooms have their own hazards: src/castle.js)
   compose(rm, r) {
     const P = (n, ids) => Array.from({ length: n }, () => r.pick(ids));
+    if (rm.key && FORMATION[rm.key]) { rm.ambush = true; rm.quiet = true; return FORMATION[rm.key]; }   // (the 52 areas: each its own formation, waking as you enter)
+    if (rm.form) return [];
     switch (rm.kind) {                                                  // the castle (the user's map): who holds each room (for now the island's monsters, by role)
       // the user's encounters (2026-11-02), each a formation whose attacks work together (src/castle_kin.js):
       // the burning entrance
@@ -1411,6 +1466,12 @@ ENEMIES.jarl_vassal = { name: 'Vassal of the Dead', biome: 'throne', reg: 'jarl_
 // Solkhar's own (src/bosses/unstruck_god.js draws them; they can be broken): his heralds, black suns and lenses
 ENEMIES.sol_herald = { name: 'Solar Herald', biome: 'throne', hp: 24000, def: 12, speed: 0, xp: 0, r: 0.7, ai: 'rooted', aggro: 40, fly: true, attacks: [], loot: [] };
 ENEMIES.sol_blacksun = { name: 'Black Sun', biome: 'throne', hp: 30000, def: 12, speed: 0, xp: 0, r: 0.7, ai: 'rooted', aggro: 40, fly: true, attacks: [], loot: [] };
+ENEMIES.cursed_banner = { name: 'Cursed Banner', biome: 'throne', reg: 'castle_decor/banner_torn', hp: 9000, def: 10, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 14, target: true,
+  attacks: [{ pattern: 'aimed', proj: 'wiz_shots/bolt', count: 3, arc: 0.35, dmg: 79, speed: 5, range: 12, cd: 2.4, tell: 450 }], loot: [] };   // (the Hall of Hollow Banners': spectral bolts)
+ENEMIES.cursed_altar = { name: 'Cursed Altar', biome: 'throne', reg: 'castle_decor/eclipse_obelisk', hp: 8000, def: 10, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 14, target: true,
+  attacks: [{ pattern: 'aimed', proj: 'wiz_shots/bolt', count: 5, arc: 1.1, dmg: 79, speed: 4.5, range: 12, cd: 3, tell: 500 }], loot: [] };   // (the chapel's ritual, the shrine's)
+ENEMIES.celestial_anchor = { name: 'Celestial Anchor', biome: 'throne', reg: 'wiz_kin/portal', hp: 14000, def: 12, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 18, target: true, fly: true,
+  attacks: [{ pattern: 'aimed', proj: 'wiz_shots/bolt', count: 7, arc: 1.4, dmg: 99, speed: 5, range: 16, cd: 2.2, tell: 450 }], loot: [] };   // (the orrery's: they fire its formations)
 ENEMIES.sol_minisun = { name: 'Lesser Sun', biome: 'throne', hp: 14000, def: 10, speed: 0, xp: 0, r: 0.7, ai: 'rooted', aggro: 40, fly: true, attacks: [], loot: [] };
 ENEMIES.sol_lens = { name: 'Lens of Starvation', biome: 'throne', hp: 22000, def: 10, speed: 0, xp: 0, r: 0.7, ai: 'rooted', aggro: 40, fly: true, attacks: [], loot: [] };
 ENEMIES.forge_heart = { name: 'Forge Heart', biome: 'throne', reg: 'ash_kin/vent', hp: 18000, def: 14, speed: 0, xp: 600, r: 0.7, ai: 'rooted', aggro: 16, scale: 1.4,   // (the Embersmith Gallery's three: src/castle.js)

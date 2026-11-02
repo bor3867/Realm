@@ -1,6 +1,7 @@
 // Map generation: the Nexus (hub), the Realm (procedural island), the Drowned Forge (dungeon).
 import { keyParen } from '../settings.js';
 import { rng, noise2, dist } from '../util.js';
+import { AREAS, WAYS, LOCKS, MECHS } from './castle_plan.js';
 
 export const TILE_NAMES = ['water', 'deep', 'sand', 'fen', 'mud', 'snow', 'runefloor', 'runeglyph',
   'ash', 'obsidian', 'marble', 'forge', 'forgewall', 'lava', 'void', 'chapelfloor', 'chapelwall', 'goldvein', 'ribwall',
@@ -937,7 +938,7 @@ export function randomTileInBiome(m, b, r, avoid, minD = 14) {
 // Upper dungeons seal their boss behind a gate (def.seals: wardens, levers, a puzzle); the lower ones don't.
 export function dungeon(seed, def) {
   const r = rng(seed);
-  const S = { chapel: 200, crypt: 180, forge: 180, scriptorium: 214, heart: 196, throne: 460, hive: 200, theatre: 190, spire: 220, islands: 230, frostveil: 300, mirerot: 280, astral: 470, sandscour: 320, keep: 280, hollowmoon: 300 }[def.style] || 230;
+  const S = { chapel: 200, crypt: 180, forge: 180, scriptorium: 214, heart: 196, throne: 800, hive: 200, theatre: 190, spire: 220, islands: 230, frostveil: 300, mirerot: 280, astral: 470, sandscour: 320, keep: 280, hollowmoon: 300 }[def.style] || 230;
   const FLOOR = TID[def.floor], WALL = TID[def.wall], HAZ = def.hazard ? TID[def.hazard] : null;
   const WET = def.style === 'crypt' ? TID.cryptwater : TID.water, HOT = def.style === 'ember' ? TID.emberlava : TID.lava;
   const m = makeMap('dungeon', def.name, S, S, TID.void);
@@ -1448,77 +1449,115 @@ export function dungeon(seed, def) {
       vein(far, boss);
       return { start, boss };
     },
-    // ---- SUNTHIEF'S CASTLE: THE LONG SIEGE (2026-11-02, the user's blueprint, "the authoritative level-design reference":
-    // "stop designing the dungeon as rectangular rooms connected by corridors"). One way up through the keep, the same
-    // every time, north from the eruption:
-    //   ACT I  the exterior   the Eruption Arrival at the forest's edge; the Ashen Forest (its trees, the dead, an ambush;
-    //                         a hostile outpost off it); the Mountain Ascent, a road in switchbacks up the cliffs past two
-    //                         watchers' landings; the Shattered Span, a broken bridge across a lava gorge; the Siege
-    //                         Barbican, the keep's outer defence (and its siege workshop off it)
-    //   ACT II the Hollow Court: the Jarls; the keep gate at its north end opens only when both have fallen
-    //   ACT III the keep      the Hall of Oaths (its fallen royal statues); off it the Ossuary and the Fallen Chapel (both
-    //                         optional, both rewarded); the Furnace Cloister (lava channels bridged, its presses); the
-    //                         Chain Winch (the Forge Overseer's) and the Solar Valves either side: each a mechanism to turn
-    //                         once its room is cleared; both turned, the forge gate opens on Ashkar's hall; past him the
-    //                         Great Sun Gate
-    //   ACT IV through the gate's portal only: the Eclipse Walk, its shrine, the last span, Solkhar's sanctum
-    // Rooms are drawn in lobes (shape 'lobes': ellipses together), rounds, octagons and a cross; the ways between them are
-    // roads that wind. Its rooms (m.castle.rooms, by key) and their hazards and mechanisms: src/castle.js
+    // ---- SUNTHIEF'S CASTLE: the user's 52-area blueprint (2026-11-02; src/world/castle_plan.js has every area, way and
+    // lock). Each area is carved to its shape here: woodland clearings with ragged edges, a trail winding through trees,
+    // a ravine with a broken bridge, mountain trails turning back on themselves, switchback terraces with cliffs between,
+    // bridges over gorges of lava, a path round a lava reservoir, stairs beside lava, aqueducts, and the keep's halls,
+    // octagons, crosses and courts. Its regions' floors, edges and furnishings are laid after (castleDress, below).
     throne() {
-      const R0 = {}, add = (kind, title, x, y, w, h, o = {}) => { const n = room(x, y, w, h, { kind, title, dep: Object.keys(R0).length, ...o }); R0[o.key || kind] = n; return n; };
-      const road = (pts, w = 2) => { for (let i = 1; i < pts.length; i++) tube(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1], w); };
-      const join = (a, b, pts, w) => { road(pts, w); link(a, b); };
-      // ACT I: the exterior
-      const arrival = add('arrival', 'ERUPTION ARRIVAL', 190, 430, 20, 16, { shape: 'round', role: 'rest', sect: 'gate' });
-      const forest = add('ashforest', 'THE ASHEN FOREST', 150, 382, 100, 40, { shape: 'lobes', lobes: [[176, 404, 26, 13], [212, 396, 24, 12], [236, 408, 12, 9]], ambush: true, sect: 'gate' });
-      const outpost = add('outpost', 'A HOSTILE OUTPOST', 104, 392, 30, 20, { shape: 'lobes', lobes: [[118, 402, 13, 9]], role: 'treasure', leaf: true, sect: 'gate' });
-      const asc1 = add('ascent', 'THE MOUNTAIN ASCENT', 110, 352, 22, 14, { key: 'asc1', shape: 'round', sect: 'gate' });
-      const asc2 = add('ascent', "THE WATCHERS' LEDGE", 150, 326, 24, 14, { key: 'asc2', shape: 'round', sect: 'gate' });
-      const span = add('span', 'THE SHATTERED SPAN', 88, 286, 130, 24, { sect: 'gate' });
-      const barb = add('barbican', 'THE SIEGE BARBICAN', 176, 236, 48, 30, { shape: 'octa', ambush: true, sect: 'siege' });
-      const shop = add('workshop', 'THE SIEGE WORKSHOP', 238, 242, 22, 16, { role: 'treasure', leaf: true, sect: 'siege' });
-      join(arrival, forest, [[200, 431], [200, 410]]);
-      join(forest, outpost, [[154, 403], [128, 402]], 1);
-      join(forest, asc1, [[166, 393], [140, 381], [122, 366]]);                       // (up into the cliffs)
-      join(asc1, asc2, [[120, 353], [100, 345], [140, 339], [154, 334]]);              // (the switchbacks)
-      join(asc2, span, [[160, 327], [122, 318], [100, 309]]);
-      join(span, barb, [[205, 287], [204, 276], [200, 265]]);
-      join(barb, shop, [[223, 250], [239, 250]], 1);
-      // ACT II: the Hollow Court
-      const court = add('court', 'THE HOLLOW COURT', 180, 190, 40, 34, { prefer: 'warden', sect: 'court' });
-      join(barb, court, [[200, 237], [200, 223]]);
-      // ACT III: the keep
-      const oaths = add('oaths', 'THE HALL OF OATHS', 182, 146, 36, 26, { shape: 'octa', sect: 'court' });
-      const ossuary = add('ossuary', 'THE OSSUARY', 128, 140, 34, 26, { shape: 'lobes', lobes: [[142, 150, 12, 8], [150, 160, 11, 7]], role: 'treasure', leaf: true, sect: 'court' });
-      const chapel = add('chapel', 'THE FALLEN CHAPEL', 238, 140, 30, 26, { shape: 'cross', role: 'treasure', leaf: true, sect: 'court' });
-      const cloister = add('cloister', 'THE FURNACE CLOISTER', 174, 100, 52, 30, { sect: 'forge' });
-      const winch = add('chainforge', 'THE CHAIN WINCH', 112, 92, 36, 30, { key: 'winch', shape: 'round', sect: 'forge' });
-      const valves = add('valves', 'THE SOLAR VALVES', 252, 92, 36, 30, { shape: 'round', sect: 'forge' });
-      join(court, oaths, [[200, 190], [200, 171]], 1);
-      join(oaths, ossuary, [[183, 158], [158, 158]], 1);
-      join(oaths, chapel, [[217, 154], [240, 154]], 1);
-      join(oaths, cloister, [[200, 146], [200, 129]], 1);
-      join(cloister, winch, [[175, 112], [146, 107]], 1);
-      join(cloister, valves, [[224, 112], [254, 107]], 1);
-      const ashkar = add('guardhall', "ASHKAR'S HALL", 181, 46, 38, 34, { key: 'ashkar', sect: 'ashkar' });
-      const gate = add('sundoor', 'THE GREAT SUN GATE', 191, 24, 18, 14, { key: 'gate', role: 'rest', sect: 'ashkar' });
-      join(cloister, ashkar, [[200, 100], [200, 79]], 1);
-      join(ashkar, gate, [[200, 46], [200, 37]], 1);
-      // ACT IV: the eclipse (apart: the gate's portal takes you to the walk's west end)
-      const walk = add('eclipsewalk', 'ECLIPSE WALK', 270, 300, 56, 14, { key: 'walk', sect: 'eclipse' });
-      const shrine = add('eclipseshrine', 'THE ECLIPSE SHRINE', 340, 290, 28, 30, { sect: 'eclipse' });
-      const walk2 = add('eclipsewalk', 'THE LAST SPAN', 344, 340, 18, 40, { key: 'walk2', sect: 'eclipse' });
-      const boss = add('throneroom', "SOLKHAR'S SANCTUM", 330, 396, 46, 46, { key: 'I', shape: 'round', sect: 'sanctum' });
-      const way = (a, b) => { const ax = a.cx, ay = a.cy, bx = b.cx, by = b.cy; carve(Math.min(ax, bx), ay - 1, Math.max(ax, bx), ay + 1); carve(bx - 1, Math.min(ay, by), bx + 1, Math.max(ay, by)); link(a, b); };
-      way(walk, shrine); way(shrine, walk2); way(walk2, boss);
-      m.castle = { rooms: R0, door: { x0: gate.cx - 2, x1: gate.cx + 1, y0: gate.y, y1: gate.y + 2 },
-        // its gates: the arrival's door (3 s), the keep gate (the Jarls), the forge gate (the two mechanisms)
-        ways: { breach: { x0: 198, x1: 202, y0: 428, y1: 428 }, keep: { x0: 199, x1: 201, y0: 182, y1: 182 }, forge: { x0: 199, x1: 201, y0: 90, y1: 90 } },
-        mechs: [{ key: 'winch', x: winch.cx, y: winch.y + 5, name: 'THE CHAIN WINCH', verb: 'TURNING THE CHAIN WINCH', sprite: 'castle_decor/winch' },
-          { key: 'valves', x: valves.cx, y: valves.y + 5, name: 'THE SOLAR VALVES', verb: 'OPENING THE SOLAR VALVES', sprite: 'castle_decor/valve' }],
-        arrive: { x: walk.x + 3.5, y: walk.cy + 0.5 } };
-      m.citadel = { starts: [{ x: arrival.cx + 0.5, y: arrival.cy + 0.5 }], bars: [], top: ashkar.y, bottom: arrival.y + arrival.h };
-      return { start: arrival, boss };
+      const R0 = {}, A = {}, U = (n) => A[n], roadSet = new Set();
+      const markPath = (pts) => { for (let i = 1; i < pts.length; i++) { const [q0, q1] = [pts[i - 1], pts[i]], L2 = Math.max(1, Math.hypot(q1[0] - q0[0], q1[1] - q0[1])); for (let j = 0; j <= L2; j++) roadSet.add(Math.round(q0[1] + (q1[1] - q0[1]) * j / L2) * S + Math.round(q0[0] + (q1[0] - q0[0]) * j / L2)); } };   // (the ways kept clear of trees)
+      const KIND = { a26: 'court', a41: 'chainforge', a46: 'guardhall', a47: 'sundoor', a52: 'throneroom' };
+      const SECT = { forest: 'gate', mountain: 'gate', outer: 'siege', inner: 'court', ashkar: 'ashkar', eclipse: 'eclipse', sanctum: 'sanctum' };
+      const hash = (k) => ((Math.sin(k * 127.1) * 43758.5453) % 1 + 1) % 1;
+      for (const [num, key, title, region, cx, cy, w, h, shape, ex = {}] of AREAS) {
+        const n = room(Math.round(cx - w / 2), Math.round(cy - h / 2), w, h, { kind: KIND[key] || 'area', key, title, num, region, form: shape, sect: SECT[region], shape: 'maze', dep: num, ...ex });
+        if (ex.opt) n.leaf = true;
+        A[num] = n; R0[key] = n;
+      }
+      const ell = (cx, cy, rx, ry, t = FLOOR) => { for (let y = Math.floor(cy - ry); y <= cy + ry; y++) for (let x = Math.floor(cx - rx); x <= cx + rx; x++) if (((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1) set(x, y, t); };
+      const box = (n, t = FLOOR, i = 0) => carve(n.x + i, n.y + i, n.x + n.w - 1 - i, n.y + n.h - 1 - i, t);
+      const poly = (pts, w, t = FLOOR) => { for (let i = 1; i < pts.length; i++) tube(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1], w, t); };
+      const BR = TID.stageboards;                                       // (wooden bridges and boards)
+      for (const n of rooms) {
+        const { x, y, w, h, cx, cy, num } = n, s = num * 7.3;
+        switch (n.form) {
+          case 'clearing': {                                          // a ragged round of woodland floor, a pocket or two off it
+            const f = (a) => 0.84 + 0.1 * Math.sin(a * 3 + s) + 0.06 * Math.sin(a * 5 + s * 2);
+            for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) { const dx = (xx - cx) / (w / 2), dy = (yy - cy) / (h / 2), a = Math.atan2(dy, dx); if (Math.hypot(dx, dy) <= f(a)) set(xx, yy, FLOOR); }
+            for (let k = 0; k < 2; k++) { const a = s + k * 2.6; ell(cx + Math.cos(a) * w * 0.3, cy + Math.sin(a) * h * 0.3, w * 0.2, h * 0.2); }
+            break;
+          }
+          case 'trail': {                                             // a trail winding the length of it, bends sharp, a wider stretch or two
+            const pts = []; for (let k = 0; k <= 6; k++) pts.push([x + 2 + (k / 6) * (w - 4), cy + (k % 2 ? -1 : 1) * (h / 2 - 5) * (k === 0 || k === 6 ? 0 : 1)]);
+            poly(pts, 2); markPath(pts); ell(pts[2][0], pts[2][1], 5, 4); ell(pts[4][0], pts[4][1], 4, 4);
+            break;
+          }
+          case 'ravine': {                                            // two banks, a chasm north to south between them, a broken bridge across
+            for (const side of [-1, 1]) { const bx = cx + side * w * 0.3, f = (a) => 0.85 + 0.1 * Math.sin(a * 3 + s + side) + 0.05 * Math.sin(a * 7 + s); for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) { const dx = (xx - bx) / (w * 0.26), dy = (yy - cy) / (h / 2), a = Math.atan2(dy, dx); if (Math.hypot(dx, dy) <= f(a)) set(xx, yy, FLOOR); } }   // (the two banks, ragged)
+            for (let yy = y; yy < y + h; yy++) for (let xx = cx - 6; xx <= cx + 6; xx++) set(xx + Math.round(2 * Math.sin(yy / 5)), yy, TID.void);
+            for (let xx = cx - 9; xx <= cx + 9; xx++) for (let dy = -1; dy <= 1; dy++) { const gapp = Math.abs(xx - cx + 3) <= 1 || Math.abs(xx - cx - 4) <= 1; if (!gapp || dy === 0) set(xx, cy + dy, BR); }   // (two missing sections: one board wide)
+            break;
+          }
+          case 'zigzag': {                                            // a mountain trail turning back and forth up the slope
+            const k = Math.max(3, Math.round(h / 12)), pts = []; for (let i = 0; i <= k; i++) pts.push([i % 2 ? x + w - 4 : x + 3, y + h - 3 - (i / k) * (h - 6)]);
+            poly(pts, 2); break;
+          }
+          case 'switch': {                                            // three terraces, cliffs between, each joined to the next at one end
+            const T = 3, th = Math.floor((h - 4) / T);
+            for (let i = 0; i < T; i++) carve(x + 1, y + h - 2 - (i + 1) * th + 3, x + w - 2, y + h - 2 - i * th - 1);
+            for (let i = 0; i < T - 1; i++) { const ex = i % 2 ? x + 2 : x + w - 7; carve(ex, y + h - 2 - (i + 1) * th - 1, ex + 4, y + h - 2 - (i + 1) * th + 4); }
+            break;
+          }
+          case 'viaduct': case 'span': {                              // a broken bridge over a gorge of lava (the eclipse's over the void)
+            const lava = n.region === 'eclipse' ? TID.void : TID.lava, vert = h > w;
+            box(n, lava);
+            const L = vert ? h : w, W0 = vert ? cx : cy;
+            for (let i = 0; i < L; i++) {
+              const narrow = (i > L * 0.3 && i < L * 0.36) || (i > L * 0.62 && i < L * 0.68), plat = Math.abs(i - L / 2) < 4, half = narrow ? 1 : plat ? 4 : 2, wob = Math.round(2 * Math.sin(i / 7 + s));
+              for (let d = -half; d <= half; d++) { if (vert) set(W0 + wob + d, y + i, FLOOR); else set(x + i, W0 + wob + d, FLOOR); }
+            }
+            break;
+          }
+          case 'twin': {                                              // two bridges over one chasm, a landing at either end
+            box(n, TID.lava); carve(x, y, x + 5, y + h - 1); carve(x + w - 6, y, x + w - 1, y + h - 1);
+            poly([[x + 5, cy - 7], [x + w * 0.35, cy - 11], [x + w * 0.65, cy - 6], [x + w - 6, cy - 9]], 1);
+            poly([[x + 5, cy + 7], [x + w * 0.4, cy + 11], [x + w * 0.7, cy + 6], [x + w - 6, cy + 9]], 1);
+            break;
+          }
+          case 'ring': {                                              // a path round a reservoir of lava
+            ell(cx, cy, w / 2, h / 2); ell(cx, cy, w / 2 - 8, h / 2 - 8, TID.lava); break;
+          }
+          case 'stair': {                                             // a broad stair up, lava running beside it
+            carve(cx - 6, y, cx + 4, y + h - 1); carve(cx + 5, y + 2, cx + 7, y + h - 3, n.region === 'eclipse' ? TID.void : TID.lava);
+            for (let yy = y + 4; yy < y + h - 3; yy += 9) carve(cx - 10, yy, cx - 7, yy + 4);   // (landings)
+            break;
+          }
+          case 'aqueduct': {                                          // channels of lava through it, walkways across
+            box(n); const vert = h > w;
+            for (const off of [-0.22, 0.22]) {
+              if (vert) for (let yy = y; yy < y + h; yy++) for (let d = -1; d <= 1; d++) set(Math.round(cx + off * w) + d, yy, TID.lava);
+              else for (let xx = x; xx < x + w; xx++) for (let d = -1; d <= 1; d++) set(xx, Math.round(cy + off * h) + d, TID.lava);
+            }
+            for (const f of [0.18, 0.5, 0.82]) { if (vert) carve(x, Math.round(y + f * h) - 1, x + w - 1, Math.round(y + f * h) + 1, BR); else carve(Math.round(x + f * w) - 1, y, Math.round(x + f * w) + 1, y + h - 1, BR); }
+            break;
+          }
+          case 'hall': box(n); for (let xx = x + 4; xx < x + w - 4; xx += 6) { set(xx, y + 3, TID.void); set(xx, y + h - 4, TID.void); } break;   // (its two rows of pillars)
+          case 'octa': { const k = Math.min(w, h) * 0.28; for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) if (Math.min(xx - x, x + w - 1 - xx) + Math.min(yy - y, y + h - 1 - yy) >= k) set(xx, yy, FLOOR); break; }
+          case 'cross': { const cw = Math.floor(w / 4), ch = Math.floor(h / 4); carve(x + cw, y, x + w - 1 - cw, y + h - 1); carve(x, y + ch, x + w - 1, y + h - 1 - ch); break; }
+          case 'u': box(n); carve(cx - 6, y, cx + 6, y + Math.floor(h * 0.55), TID.void); break;   // (the chain mechanism's housing in the middle)
+          case 'round': ell(cx, cy, w / 2, h / 2); break;
+          case 'court': box(n); for (const [u, v] of [[0.12, 0.14], [0.88, 0.14], [0.12, 0.86], [0.88, 0.86]]) carve(Math.round(x + u * w), Math.round(y + v * h), Math.round(x + u * w) + 1, Math.round(y + v * h) + 1, TID.void); break;
+        }
+      }
+      // the ways: a road between the two areas' nearest floor, winding; a lock's gate across its middle
+      const floorNear = (n, tx, ty) => { let best = null, bd = 1e9; for (let yy = n.y; yy < n.y + n.h; yy++) for (let xx = n.x; xx < n.x + n.w; xx++) { const t = tile(xx, yy); if (t === FLOOR || t === BR) { const d = Math.hypot(xx - tx, yy - ty); if (d < bd) { bd = d; best = [xx, yy]; } } } return best || [n.cx, n.cy]; };
+      const ways = {};
+      for (const [a, b, opt] of WAYS) {
+        const P = U(a), Q = U(b), pa = floorNear(P, Q.cx, Q.cy), pb = floorNear(Q, ...pa), pa2 = floorNear(P, ...pb);
+        const mx = (pa2[0] + pb[0]) / 2, my = (pa2[1] + pb[1]) / 2, L = Math.hypot(pb[0] - pa2[0], pb[1] - pa2[1]) || 1, jog = Math.min(4, L / 4) * (hash(a * 31 + b) < 0.5 ? -1 : 1);
+        const mid = [Math.round(mx - ((pb[1] - pa2[1]) / L) * jog), Math.round(my + ((pb[0] - pa2[0]) / L) * jog)];
+        const w = P.region === 'forest' || P.region === 'mountain' ? 2 : 1;
+        poly([pa2, mid, pb], w, (P.region === 'eclipse' ? BR : FLOOR));
+        markPath([pa2, mid, pb]);
+        { const [ex, ey] = [P.cx, P.cy], [fx, fy] = [Q.cx, Q.cy]; if (P.region === 'forest') markPath([pa2, [ex, ey]]); if (Q.region === 'forest') markPath([pb, [fx, fy]]); }   // (and in the woods, on from the edge to the clearing's middle)
+        ways[a + '-' + b] = { a, b, mid, w, dir: Math.atan2(pb[1] - pa2[1], pb[0] - pa2[0]), opt: !!opt };
+        link(P, Q);
+      }
+      const gate = U(47), arrive = U(48);
+      m.castle = { rooms: R0, plan: { ways }, roadTiles: roadSet, door: { x0: gate.cx - 2, x1: gate.cx + 1, y0: gate.y + 2, y1: gate.y + 4 }, arrive: { x: arrive.cx + 0.5, y: arrive.cy + 0.5 } };
+      m.starts = [{ x: U(1).cx + 0.5, y: U(1).cy + 0.5 }];
+      return { start: U(1), boss: U(52) };
     },
 
     // ---- THE HONEYED HOLLOW: a hive in a hollow tree. Hexagonal comb cells, wax tunnels, a royal cell at the heart
@@ -1749,6 +1788,73 @@ export function dungeon(seed, def) {
   const HM = (k) => 'd2_decor/hollowmoon_' + k;
   const hmPut = (x, y, k, solid = true, extra = {}) => { if (isF(x, y) && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) put(m, k.includes('/') || k === 'crate' ? k : HM(k), x, y, solid, extra); };
   const crate = (x, y, jack) => hmPut(x, y, 'crate', true, { hmCrate: true, jack });
+  // ---- SUNTHIEF'S CASTLE (the 52 areas): each area furnished as what it is, from its blueprint line (2026-11-02, the
+  // user: "if an area is called the Royal Barracks, it needs beds, weapon racks, guard posts..."). Woodland: a dense line
+  // of trees inside every edge and clumps through the clearings (never on a road); the rest by area, with the pieces the
+  // game has (their own new art to come: beds, tables, gears, siege engines, the orrery)
+  const castleDress = (n) => {
+    const at = (fx, fy) => [Math.round(n.x + fx * n.w), Math.round(n.y + fy * n.h)];
+    const P = (sprite, fx, fy, solid = true) => { const [x, y] = at(fx, fy); put2(null, x, y, sprite, solid); };
+    const row = (sprite, fy, fx0, fx1, step, solid = true) => { for (let x = Math.round(n.x + fx0 * n.w); x <= n.x + fx1 * n.w; x += step) put2(null, x, Math.round(n.y + fy * n.h), sprite, solid); };
+    const road = m.castle.roadTiles, nearRoad = (x, y, r0 = 2) => { for (let dy = -r0; dy <= r0; dy++) for (let dx = -r0; dx <= r0; dx++) if (road.has((y + dy) * S + x + dx)) return true; return false; };
+    if (n.region === 'forest') {                                    // the woods: trees thick along every edge, clumps between
+      for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) {
+        if (!isF(x, y) || nearRoad(x, y, 1)) continue;
+        let edge = 9; for (let dy = -3; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) if (!isF(x + dx, y + dy) && tile(x + dx, y + dy) !== TID.stageboards) edge = Math.min(edge, Math.max(Math.abs(dx), Math.abs(dy)));
+        const hh = ((Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1 + 1) % 1;
+        if ((edge <= 2 && hh < 0.62) || (edge <= 4 && hh < 0.26) || hh < 0.035) put2(null, x, y, hh < 0.06 ? 'pine' : 'dead_tree', true);   // (a thick tree line; thinner further in; the odd lone tree)
+      }
+      for (let k = 0; k < Math.floor(n.w * n.h / 120); k++) {        // clumps of three or four
+        const [x0, y0] = at(0.2 + 0.6 * (((k * 0.618 + n.num * 0.31) % 1)), 0.2 + 0.6 * (((k * 0.381 + n.num * 0.17) % 1)));
+        if (Math.hypot(x0 - n.cx, y0 - n.cy) < 4 || nearRoad(x0, y0, 2)) continue;
+        for (const [dx, dy] of [[0, 0], [1, 0], [0, 1], [-1, 1]]) if (!nearRoad(x0 + dx, y0 + dy)) put2(null, x0 + dx, y0 + dy, 'dead_tree', true);
+      }
+    }
+    if (n.region === 'mountain') for (let k = 0; k < 6; k++) P('castle_decor/' + ['rubble', 'bones', 'collapsed_pillar'][k % 3], 0.15 + ((k * 0.37) % 0.7), 0.15 + ((k * 0.61) % 0.7), k % 3 === 2);
+    if (n.region === 'eclipse') for (let k = 0; k < 4; k++) P('castle_decor/eclipse_obelisk', k % 2 ? 0.15 : 0.85, 0.2 + k * 0.2);
+    switch (n.key) {
+      case 'a01':                                                    // Realmfall Hollow: the stream, the crater, fallen trees, the broken arch north
+        for (let y = n.y; y < n.y + n.h; y++) for (let d = 0; d < 2; d++) { const x = Math.round(n.x + n.w * 0.72 + Math.sin(y / 4) * 2) + d; if (isF(x, y)) set(x, y, TID.shallows); }
+        for (let a = 0; a < 6.28; a += 0.3) P('castle_decor/rubble', 0.45 + Math.cos(a) * 0.14, 0.55 + Math.sin(a) * 0.12, false);
+        P('castle_decor/collapsed_pillar', 0.42, 0.08); P('castle_decor/collapsed_pillar', 0.58, 0.08); P('dead_tree', 0.2, 0.3); P('fallen_head', 0.3, 0.75, false);
+        break;
+      case 'a02': P('castle_decor/broken_catapult', 0.5, 0.3); P('crate', 0.53, 0.3); P('barrel', 0.47, 0.32); for (const fx of [0.25, 0.7]) { const [x, y] = at(fx, 0.8); if (!nearRoad(x, y)) carve(x, y, x + 1, y + 1, TID.water); } break;   // (the abandoned wagon, dark pools)
+      case 'a03': P('rune_pillar', 0.5, 0.45); P('castle_decor/shattered_statue', 0.42, 0.4); P('castle_decor/shattered_statue', 0.58, 0.4); break;   // (the abandoned shrine)
+      case 'a04': for (let k = 0; k < 6; k++) P('castle_decor/' + (k % 2 ? 'bones' : 'shield_broken'), 0.2 + k * 0.12, k % 2 ? 0.3 : 0.7, false); break;   // (bones, shattered armour)
+      case 'a05': for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) put2(null, n.cx + dx, n.cy + dy, 'dead_tree', true); break;   // (the great corrupted tree the trail wraps round)
+      case 'a06': for (const [fx, fy] of [[0.3, 0.3], [0.7, 0.3], [0.25, 0.6], [0.75, 0.6]]) P('castle_decor/shattered_statue', fx, fy); P('castle_decor/sun_statue', 0.5, 0.2); break;   // (statues facing the altar; the sun he stole, on its stone)
+      case 'a07': for (let a = 0; a < 6.28; a += 0.45) if (Math.sin(a * 3) > -0.3) P('ruin_wall', 0.5 + Math.cos(a) * 0.16, 0.5 + Math.sin(a) * 0.18); P('brazier', 0.5, 0.5); P('castle_decor/rubble', 0.3, 0.7, false); break;   // (the broken tower, its beacon)
+      case 'a09': P('castle_decor/broken_catapult', 0.35, 0.4); P('castle_decor/fallen_soldier', 0.45, 0.55, false); P('castle_decor/fallen_soldier', 0.6, 0.35, false); P('castle_decor/lava_crack', 0.7, 0.6, false); P('castle_decor/lava_crack', 0.25, 0.7, false); break;
+      case 'a10': P('ruin_wall', 0.5, 0.08); P('ruin_wall2', 0.6, 0.08); break;   // (the lookout above the last turn)
+      case 'a11': case 'a36': case 'a44': case 'a49': row('castle_decor/chain_post', 0.15, 0.1, 0.9, 9, false); break;
+      case 'a12': for (const fy of [0.25, 0.6]) row('sandbag', fy, 0.4, 0.6, 2); break;   // (the barricades)
+      case 'a13': P('castle_decor/broken_catapult', 0.3, 0.35); P('castle_decor/broken_catapult', 0.7, 0.35); for (const fx of [0.4, 0.55, 0.65]) P('crate', fx, 0.75); P('castle_decor/burning_debris', 0.5, 0.6, false); break;
+      case 'a14': P('crate', 0.5, 0.12); P('barrel', 0.6, 0.12); P('crate', 0.4, 0.15); break;   // (the smugglers' cache)
+      case 'a15': case 'a43': case 'a51': for (let k = 0; k < 4; k++) P(n.region === 'eclipse' ? 'castle_decor/eclipse_obelisk' : 'brazier', 0.2, 0.15 + k * 0.22); break;
+      case 'a17': case 'a39': for (let a = 0; a < 6.28; a += 1.57) P('ember_vent', 0.5 + Math.cos(a) * 0.36, 0.5 + Math.sin(a) * 0.36, false); break;   // (the vents round the reservoir)
+      case 'a18': P('brazier', 0.3, 0.4); P('brazier', 0.7, 0.4); P('banner', 0.5, 0.15); break;   // (the two pyres)
+      case 'a19': case 'a20': row('banner', 0.1, 0.15, 0.85, 8); row('sandbag', 0.55, 0.3, 0.7, 2); P('brazier', 0.15, 0.5); P('brazier', 0.85, 0.5); break;
+      case 'a21': row('sandbag', 0.35, 0.15, 0.45, 2); row('sandbag', 0.65, 0.55, 0.85, 2); P('castle_decor/broken_catapult', 0.75, 0.25); break;
+      case 'a22': for (const fx of [0.2, 0.8]) { const [x, y] = at(fx, 0.45); carve(x - 2, y - 2, x + 2, y + 2, TID.void); put2(null, x, y + 4, 'brazier'); } break;   // (the two towers, a brazier at each)
+      case 'a23': P('castle_decor/forge_press', 0.25, 0.2); P('castle_decor/chain_post', 0.75, 0.2); P('anvil_block', 0.25, 0.7); break;   // (gears and chains of the drawbridge)
+      case 'a24': row('rune_pillar', 0.3, 0.2, 0.8, 10); row('brazier', 0.75, 0.15, 0.85, 12); break;   // (its arches; the murder-holes' braziers)
+      case 'a25': row('banner', 0.08, 0.1, 0.9, 6); row('bust_statue', 0.85, 0.15, 0.85, 9); break;   // (banners, the Jarls' statues)
+      case 'a27': P('bust_statue', 0.2, 0.3); P('bust_statue', 0.8, 0.3); P('castle_decor/statue_head', 0.5, 0.6, false); P('banner', 0.5, 0.08); break;
+      case 'a28': row('bench_h', 0.35, 0.2, 0.8, 3, true); row('bench_h', 0.65, 0.2, 0.45, 3, true); for (let k = 0; k < n.w * 0.5; k++) { const x = Math.round(n.x + n.w * 0.55 + k * 0.6), y = Math.round(n.y + n.h * 0.2 + k); if (isF(x, y) && k % 7 !== 3) { set(x, y, TID.lava); set(x + 1, y, TID.lava); } } break;   // (the tables; the fissure across it, crossed where it narrows)
+      case 'a29': row('weapon_rack', 0.1, 0.15, 0.85, 4); row('haybale', 0.85, 0.15, 0.85, 4); row('crate', 0.5, 0.2, 0.35, 2); break;   // (racks; the bunks' straw; barricades)
+      case 'a30': for (let k = 0; k < 8; k++) P(k % 2 ? 'barrel' : 'crate', 0.1 + k * 0.11, k % 3 ? 0.2 : 0.8); break;
+      case 'a31': for (const fy of [0.45, 0.55, 0.65, 0.75]) { row('bench_h', fy, 0.35, 0.45, 2); row('bench_h', fy, 0.55, 0.65, 2); } P('statue_sun', 0.5, 0.15); P('curtain_drape', 0.4, 0.05, false); P('curtain_drape', 0.6, 0.05, false); break;   // (pews, the corrupted altar, the window's drapes)
+      case 'a32': for (let a = 0; a < 6.28; a += 0.9) P('sarcophagus', 0.5 + Math.cos(a) * 0.35, 0.5 + Math.sin(a) * 0.32); for (const fx of [0.3, 0.7]) P('crypt_candle', fx, 0.5, false); break;
+      case 'a33': row('castle_decor/mural', 0.06, 0.1, 0.9, 7, false); P('throne', 0.5, 0.2); row('castle_decor/shattered_statue', 0.8, 0.15, 0.85, 10); break;
+      case 'a34': case 'a35': case 'a42': for (let k = 0; k < 4; k++) P('ember_vent', 0.2 + k * 0.2, 0.9, false); break;
+      case 'a37': for (const fy of [0.25, 0.5, 0.75]) { row('bookshelf', fy, 0.1, 0.4, 1); row('bookshelf', fy, 0.6, 0.9, 1); } P('castle_decor/mural', 0.5, 0.05, false); P('castle_decor/burning_debris', 0.5, 0.5, false); break;   // (its aisles of shelves, the mural)
+      case 'a38': case 'a41': P('anvil_block', 0.3, 0.3); P('ingot_pile', 0.7, 0.3); P('castle_decor/forge_press', 0.5, 0.12); P('castle_decor/chain_post', 0.2, 0.8, false); P('castle_decor/chain_post', 0.8, 0.8, false); break;
+      case 'a40': P('castle_decor/forge_press', 0.2, 0.2); P('castle_decor/forge_press', 0.8, 0.2); break;
+      case 'a45': for (const [fx, fy] of [[0.2, 0.25], [0.8, 0.25], [0.2, 0.75], [0.8, 0.75]]) P('castle_decor/chain_post', fx, fy); break;   // (the four great chain anchors)
+      case 'a47': P('castle_decor/sun_statue', 0.5, 0.75); P('castle_decor/chain_post', 0.2, 0.3, false); P('castle_decor/chain_post', 0.8, 0.3, false); break;
+      case 'a50': P('great_lens', 0.5, 0.5); for (let a = 0; a < 6.28; a += 0.785) P('rune_pillar', 0.5 + Math.cos(a) * 0.38, 0.5 + Math.sin(a) * 0.38); break;   // (the broken orrery: its lens, its ring of pylons)
+    }
+  };
   const DRESS = {
     hollowmoon(n) {
       const inRoom = (x, y) => isF(x, y) && x >= n.x && y >= n.y && x < n.x + n.w && y < n.y + n.h;
@@ -2078,6 +2184,7 @@ export function dungeon(seed, def) {
       }
     },
     throne(n) {
+      if (n.form) { castleDress(n); if (!['court', 'sundoor', 'throneroom', 'guardhall'].includes(n.kind)) return; }
       if (n.kind === 'champion') {                                      // a champion's hall: a throne on a dais, banners, braziers in rows
         carve(n.cx - 3, n.y + 1, n.cx + 3, n.y + 3, TID.marble);
         put2(null, n.cx, n.y + 2, 'throne');
@@ -2589,6 +2696,34 @@ export function dungeon(seed, def) {
       else set(x, y, n && n.sect === 'eclipse' ? TID.obsidian : heatFloor(y));
     }
   }
+  if (m.castle && m.castle.plan) {                                    // THE CASTLE: each region its floor and its edge (src/world/castle_plan.js)
+    const bd = (n, x, y) => Math.max(n.x - x, 0, x - (n.x + n.w - 1)) + Math.max(n.y - y, 0, y - (n.y + n.h - 1));
+    const areaAt = (x, y) => { let best = null, bdist = 1e9; for (const n of rooms) { if (!n.region) continue; const d = bd(n, x, y); if (d < bdist) { bdist = d; best = n; } } return best; };
+    const nz = (x, y) => ((Math.sin(x * 0.37 + y * 0.21) + Math.sin(x * 0.13 - y * 0.29)) / 4 + 0.5);
+    const FL = { forest: (x, y) => { const v = nz(x, y); return v > 0.66 ? TID.dirt : v < 0.28 ? TID.ash : TID.grass; }, mountain: (x, y) => (nz(x, y) > 0.6 ? TID.obsidian : TID.ash),
+      outer: () => TID.cryptfloor, inner: () => TID.marble, ashkar: () => TID.emberfloor, eclipse: () => TID.obsidian, sanctum: () => FLOOR };
+    const AREA_FL = { a28: TID.carpet, a31: TID.chapelfloor, a32: TID.cryptfloor, a37: TID.runefloor, a34: TID.forge, a35: TID.forge, a38: TID.forge, a39: TID.forge, a40: TID.forge, a41: TID.forge, a42: TID.forge, a43: TID.forge, a46: TID.forge };
+    const regionOf = new Uint8Array(S * S), REG = ['forest', 'mountain', 'outer', 'inner', 'ashkar', 'eclipse', 'sanctum'];
+    for (let y = 2; y < S - 2; y++) for (let x = 2; x < S - 2; x++) {
+      const t = tile(x, y); if (t === TID.void) continue;
+      const n = areaAt(x, y); if (!n) continue; regionOf[y * S + x] = REG.indexOf(n.region) + 1;
+      if (t === FLOOR) set(x, y, AREA_FL[n.key] && bd(n, x, y) === 0 ? AREA_FL[n.key] : FL[n.region](x, y));
+    }
+    for (let y = 3; y < S - 3; y++) for (let x = 3; x < S - 3; x++) {          // the edges: woods (thorn), cliffs, or the star-void; the keep's stay its walls
+      if (tile(x, y) !== TID.void && tile(x, y) !== WALL) continue;   // (the castle's wall ring too: in the woods it is the woods, on the mountain the cliff)
+      let r0 = 0, d0 = 9; for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) { const rr = regionOf[(y + dy) * S + x + dx]; if (rr && Math.max(Math.abs(dx), Math.abs(dy)) < d0) { d0 = Math.max(Math.abs(dx), Math.abs(dy)); r0 = rr; } }
+      const R = REG[r0 - 1];
+      if (R === 'forest') set(x, y, TID.bramble); else if (R === 'mountain') set(x, y, TID.cliff); else if (R === 'eclipse' || R === 'sanctum') set(x, y, TID.starvoid);
+    }
+    for (let y = 2; y < 330; y++) for (let x = 640; x < S - 2; x++) if (tile(x, y) === TID.void) set(x, y, TID.starvoid);   // (the eclipse floats in the stars)
+    // the mechanisms: on the floor nearest the area's middle (below the Furnace Control's housing)
+    m.castle.mechs = MECHS.map(([key, num, name, verb, sprite]) => {
+      const n = rooms.find((q) => q.num === num), ty = n.form === 'u' ? n.y + Math.floor(n.h * 0.55) + 2 : n.cy;
+      let best = [n.cx, ty], bdist = 1e9;
+      for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) { if (m.tiles[idx(m, x, y)] === TID.void || SOLID_TILES.has(m.tiles[idx(m, x, y)]) || m.tiles[idx(m, x, y)] === TID.lava || m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) continue; const d = Math.hypot(x - n.cx, y - ty); if (d < bdist) { bdist = d; best = [x, y]; } }
+      return { key, num, name, verb, sprite: sprite.replace('castle_decor/', 'castle_decor/'), x: best[0], y: best[1] };
+    });
+  }
   for (let y = 2; y < S - 2; y += 4) for (let x = (y >> 2) % 2 * 2 + 2; x < S - 2; x += 4) {    // lava glows (sampled, so a lake is a few soft pools)
     const t = tile(x, y);
     if (t === TID.lava || t === TID.emberlava) m.lights.push({ x: x + 0.5, y: y + 0.5, r: 40, col: '#ff7a1a', fire: true });
@@ -2610,7 +2745,13 @@ export function dungeon(seed, def) {
     // (on a cobble tile of its own: opening it turns that tile back to the floor, so a shared castle's server sends the
     // change and the gate opens for everyone)
     const gate = (x, y, which) => { put(m, 'seal_gate', x, y, true, { castleGate: which, floor: tile(x, y) }); const o = m.objects[m.objects.length - 1]; set(x, y, TID.cobble); m.solid[idx(m, x, y)] = 1; m.castle.gates[which].push(o); };
-    for (const [which, W0] of Object.entries(m.castle.ways)) { m.castle.gates[which] = []; for (let y = W0.y0; y <= W0.y1; y++) for (let x = W0.x0; x <= W0.x1; x++) gate(x, y, which); }
+    if (m.castle.plan) m.castle.ways = {};
+    if (m.castle.plan) for (const [la, lb, cond, say] of LOCKS) {                 // (each lock's gate: every floor tile round the middle of its way)
+      const W = m.castle.plan.ways[la + '-' + lb], name = la + '-' + lb; m.castle.gates[name] = []; (m.castle.locks = m.castle.locks || []).push({ name, cond, say, a: la, b: lb });
+      const R = W.w * 1.5 + 1.5;
+      for (let y = Math.floor(W.mid[1] - R); y <= W.mid[1] + R; y++) for (let x = Math.floor(W.mid[0] - R); x <= W.mid[0] + R; x++) { const t = tile(x, y); if (Math.hypot(x - W.mid[0], y - W.mid[1]) <= R && t !== TID.void && !SOLID_TILES.has(t)) gate(x, y, name); }
+    }
+    for (const [which, W0] of Object.entries(m.castle.ways || {})) { m.castle.gates[which] = []; for (let y = W0.y0; y <= W0.y1; y++) for (let x = W0.x0; x <= W0.x1; x++) gate(x, y, which); }
     for (const M of m.castle.mechs || []) { put(m, M.sprite, M.x, M.y, true, { castleMech: M.key }); M.o = m.objects[m.objects.length - 1]; }   // (the winch, the valves: src/castle.js turns them)
   }
 

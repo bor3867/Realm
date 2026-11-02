@@ -60,13 +60,10 @@ const methods = {
     const key = Object.keys(Rm).find((k) => inR(Rm[k], p.x, p.y)), n = key && Rm[key];
     if (key && !S.said[key]) { S.said[key] = true; this.castleEnter(key, n); }
     this.castleLight(dt, Rm, n);
-    // the arrival's door
-    if (!S.breachOpen && this.t - S.t0 > 3) { S.breachOpen = true; this.castleOpen('breach'); }
-    // the keep gate, at the Hollow Court's north end: open once both Jarls have fallen
-    if (!S.keepOpen && C.gates && C.gates.keep) {
-      const J = (m.wardens || []).filter((w) => w.room === Rm.court);
-      if (J.length && J.every((w) => w.dead)) { S.keepOpen = true; this.castleOpen('keep'); this.banner('THE KEEP GATE GRINDS OPEN', 2600); }
-    }
+    // Realmfall Hollow: no attack while you arrive; four seconds on, three Cinder Bats out of the trees to the north
+    if (!S.bats && this.t - S.t0 > 4 && Rm.a01 && this.spawnPending) { S.bats = true; const A = Rm.a01; this.spawnPending([0.3, 0.5, 0.7].map((f) => ['cinder_bat', A.x + f * A.w, A.y + 3])); }
+    // the locks (src/world/castle_plan.js LOCKS): each way's gate opens when what holds it is done
+    for (const L of C.locks || []) if (!L.open && this.castleCond(L.cond, Rm)) { L.open = true; this.castleOpen(L.name); this.banner(L.say, 3000); }
     this.castleMechs(dt, Rm, S);
     // a gate the server opened (its tile back to the floor): open in this copy too
     for (const w of Object.keys(C.gates || {})) for (const o of C.gates[w]) if (o.solid && !m.solid[Math.floor(o.y) * m.w + Math.floor(o.x)] && m.tiles[Math.floor(o.y) * m.w + Math.floor(o.x)] !== TID.cobble) { o.solid = false; o.sprite = 'gate_open'; }
@@ -115,14 +112,26 @@ const methods = {
       const f = e.hp / e.maxHp; e.maxHp = Math.round((e.maxHp / k0) * k); e.hp = Math.max(1, Math.round(f * e.maxHp)); e.partyK = k;
     }
   },
-  // the keep's two mechanisms (the Chain Winch, the Solar Valves): stand at one with its room cleared and it turns (3 s;
-  // stepping off, it slips back); both turned, the forge gate opens on Ashkar's hall. Anyone of the party can turn them
+  // what holds a lock: clear:<n> (that area's defenders, once woken, all dead), break:<n> (its cursed things broken),
+  // mech:<key> (a mechanism turned), jarls / ashkar (the bosses dead), seal+chain (the Broken Crown Seal and the Great
+  // Chain Release both done)
+  castleCond(c, Rm) {
+    const C = this.map.castle, area = (n) => Object.values(Rm).find((q) => q.num === n), mech = (k) => (C.mechs || []).some((M) => M.key === k && M.done);
+    const [k, v] = c.split(':'), inA = (n, e) => e.x >= n.x - 2 && e.y >= n.y - 2 && e.x < n.x + n.w + 2 && e.y < n.y + n.h + 2;
+    if (k === 'clear' || k === 'break') { const n = area(+v); if (n.pending) return false; return !this.enemies.some((e) => !e.dead && !e.rb && (k === 'break' ? e.D.target : true) && inA(n, e)); }
+    if (k === 'mech') return mech(v);
+    if (k === 'seal+chain') return mech('seal') && mech('chain');
+    if (k === 'jarls' || k === 'ashkar') { const n = area(k === 'jarls' ? 26 : 46), W = (this.map.wardens || []).filter((w) => w.room === n); return W.length > 0 && W.every((w) => w.dead); }
+    return false;
+  },
+  // the mechanisms (src/world/castle_plan.js MECHS): stand at one with its area cleared and it turns (3 s; stepping off,
+  // it slips back). Anyone of the party can turn them
   castleMechs(dt, Rm, S) {
     const C = this.map.castle; if (!C.mechs) return;
     const who = [this.player, ...(this.netTargets || [])].filter((q) => q && !q.dead);
     for (const M of C.mechs) {
       if (M.done) continue;
-      const rm = Rm[M.key], near = who.some((q) => Math.hypot(q.x - M.x - 0.5, q.y - M.y - 0.5) < 2.4);
+      const rm = Object.values(Rm).find((q) => q.num === M.num), near = who.some((q) => Math.hypot(q.x - M.x - 0.5, q.y - M.y - 0.5) < 2.4);
       const look = (k) => { if (M.o) M.o.sprite = M.sprite + k; };   // (its art: still, turning, turned: castle_decor/winch, _turn, _done)
       if (!near) { M.prog = Math.max(0, (M.prog || 0) - dt * 0.5); look(''); continue; }
       if (rm && this.enemies.some((e) => !e.dead && (e.D.kin || e.rb) && inR(rm, e.x, e.y))) { if (!(M.toldT > this.t)) { M.toldT = this.t + 4; this.banner(`${M.name}: ITS DEFENDERS STILL HOLD IT`, 2200); } look(''); continue; }
@@ -131,8 +140,7 @@ const methods = {
       if (Math.random() < 0.3) this.vx({ k: 'burst', x: M.x + 0.5, y: M.y, n: 2, colors: M.key === 'winch' ? ['#a39bb2', '#ff8a1f'] : ['#ffd650', '#fff6c8'] });
       if (M.prog >= 1) {
         M.done = true; look('_done'); this.sfx('chain'); this.vx({ k: 'shake', amt: 5 }); this.vx({ k: 'burst', x: M.x + 0.5, y: M.y, n: 24, colors: ['#ffd650', '#ff8a1f', '#ffffff'] });
-        if (C.mechs.every((q) => q.done)) { this.castleOpen('forge'); this.banner('THE FORGE GATE OPENS · ASHKAR WAITS', 3000); }
-        else this.banner(`${M.name} TURNED · ONE MORE HOLDS THE FORGE GATE`, 2600);
+        this.banner(`${M.name} · DONE`, 2400);
       }
     }
   },
