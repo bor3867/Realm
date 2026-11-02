@@ -31,6 +31,14 @@ function spot(g, x0, y0, rMin, rMax) {                      // a clear place rMi
   for (let k = 0; k < 16; k++) { const a = R() * TAU, r = rMin + R() * (rMax - rMin), x = x0 + Math.cos(a) * r, y = y0 + Math.sin(a) * r; if (!g.blockedAt(x, y, 0.5)) return [x, y]; }
   return null;
 }
+// where it aims a volley: at you, or (when its formation's conductor says so) where you'll be as the shots arrive
+function vel(S) { const L = S.trail, a = L[L.length - 1]; if (!a) return [0, 0]; const b = L.find((q) => a[2] - q[2] <= 0.35) || a, dt = a[2] - b[2]; return dt > 0.05 ? [(a[0] - b[0]) / dt, (a[1] - b[1]) / dt] : [0, 0]; }
+function aim(g, e, p, S, sp, x = e.x, y = e.y) { if (!S.lead) return ang(x, y, p.x, p.y); const [vx, vy] = vel(S), T = Math.min(1.2, Math.hypot(p.x - x, p.y - y) / sp); return ang(x, y, p.x + vx * T, p.y + vy * T); }
+// the heavy ones: what pins you or lays the floor down (a formation takes them in turn); the rest are its volleys
+const HEAVY = new Set(['Ember Swoop', 'Molten Leap', 'Marked Prey', 'Wraithstep', 'Hellbound Pounce', 'Burning Pursuit', 'Radiant Spear', 'Molten Bash', 'Furnace Wall', 'Sun Siphon',
+  "King's Charge", 'Shattered Sun', 'Eruption Columns', 'Eclipse Blink', 'Shadow Pursuit', 'Piston Slam', 'Crushing Advance', 'Radiant Execution']);
+// the field: what turns or stands a while and narrows where you can go (one at a time in a formation, alongside a heavy one)
+const FIELD = new Set(['Thermal Spiral', 'Orbital Lances', 'Ritual Portals', 'Sundial Crossing', 'Furnace Vents', 'Sunspot', 'Phantom Spiral']);
 function dash(S, e, a, len, speed, dmg, then) { S.dash = { vx: Math.cos(a) * speed, vy: Math.sin(a) * speed, t: len / speed, dmg, hit: false, then, a }; }
 
 // ---------------------------------------------------------------- how they move
@@ -58,7 +66,7 @@ const KIN = {
       mark: (g, e, p, S) => { S.lock = [p.x, p.y]; lane(g, e, e.x, e.y, ang(e.x, e.y, p.x, p.y), 5, 0.45, 0, 0.45); },
       run: (g, e, p, S) => { const a = ang(e.x, e.y, S.lock[0], S.lock[1]), L = Math.min(5, reach(g, e, a, Math.hypot(S.lock[0] - e.x, S.lock[1] - e.y) + 1)); dash(S, e, a, L, 8, 0, () => fan(g, e, a + Math.PI, 5, deg(70), 4, 55, 'ember', 8)); } },
     { n: 'Screech Burst', tele: 0.55, dur: 0.4, cd: 5.5, range: 9,
-      run: (g, e, p, S) => { const a = ang(e.x, e.y, p.x, p.y); fan(g, e, a, 5, deg(48), 5, 45, 'pember'); later(S, 0.35, () => fan(g, e, a + deg(6), 5, deg(48), 5, 45, 'pember')); } },
+      run: (g, e, p, S) => { const a = aim(g, e, p, S, 5); fan(g, e, a, 5, deg(48), 5, 45, 'pember'); later(S, 0.35, () => fan(g, e, a + deg(6), 5, deg(48), 5, 45, 'pember')); } },
   ] },
   lava_slime: { move: keep(0.8, 2, 2.2), atk: [
     { n: 'Molten Leap', tele: 0.8, dur: 0.1, cd: 5, range: 7,
@@ -72,10 +80,10 @@ const KIN = {
   } },
   cinder_archer: { move: keep(6, 9, 3.4), atk: [
     { n: 'Piercing Volley', tele: 0.6, dur: 1.0, cd: 4, range: 12,
-      run: (g, e, p, S) => { for (let k = 0; k < 3; k++) later(S, k * 0.45, () => fan(g, e, ang(e.x, e.y, p.x, p.y), 3, deg(10), 8, 85, 'arrow', 11)); } },
+      run: (g, e, p, S) => { for (let k = 0; k < 3; k++) later(S, k * 0.45, () => fan(g, e, aim(g, e, p, S, 8), 3, deg(10), 8, 85, 'arrow', 11)); } },
     { n: 'Scissor Shot', tele: 0.8, dur: 0.7, cd: 7, range: 11,
       run: (g, e, p, S) => {                                // from either side of it, the two fans crossing where you are
-        const a = ang(e.x, e.y, p.x, p.y), side = (s) => [e.x - Math.sin(a) * s * 1.5, e.y + Math.cos(a) * s * 1.5], shoot = (s) => { const [x, y] = side(s), b = ang(x, y, p.x, p.y); fan(g, e, b, 5, deg(36), 6, 75, 'arrow', 12, g.up(x, y, 0.6)); };
+        const a = ang(e.x, e.y, p.x, p.y), side = (s) => [e.x - Math.sin(a) * s * 1.5, e.y + Math.cos(a) * s * 1.5], shoot = (s) => { const [x, y] = side(s), b = aim(g, e, p, S, 6, x, y); fan(g, e, b, 5, deg(36), 6, 75, 'arrow', 12, g.up(x, y, 0.6)); };
         shoot(1); later(S, 0.55, () => shoot(-1));
       } },
     { n: 'Marked Prey', tele: 0.85, dur: 0.2, cd: 8, range: 13,
@@ -101,11 +109,11 @@ const KIN = {
     { n: 'Burning Pursuit', tele: 0.55, dur: 4, cd: 9, range: 10,
       run: (g, e, p, S) => { for (let t = 0.35; t < 4; t += 0.7) later(S, t, () => { const x = e.x, y = e.y; zone(g, e, x, y, 0.5, 0.5, 0); g.kinLater(0.5, () => pool(g, e, x, y, 0.55, 1.5, 55)); }); } },
     { n: 'Hellfire Howl', tele: 0.9, dur: 1.1, cd: 7, range: 9,
-      run: (g, e, p, S) => { for (let k = 0; k < 3; k++) later(S, k * 0.5, () => fan(g, e, ang(e.x, e.y, p.x, p.y) + (k % 2 ? deg(12) : 0), 7, Math.PI, 5, 85, 'flame', 9)); } },
+      run: (g, e, p, S) => { for (let k = 0; k < 3; k++) later(S, k * 0.5, () => fan(g, e, aim(g, e, p, S, 5) + (k % 2 ? deg(12) : 0), 7, Math.PI, 5, 85, 'flame', 9)); } },
   ] },
   solar_acolyte: { move: keep(5, 8, 3.2), atk: [
     { n: 'Solar Chant', tele: 0.65, dur: 1.2, cd: 5, range: 11,
-      run: (g, e, p, S) => { for (let k = 0; k < 3; k++) later(S, k * 0.55, () => fan(g, e, ang(e.x, e.y, p.x, p.y), 5, deg(44), 5.5, 75, 'tear')); } },
+      run: (g, e, p, S) => { for (let k = 0; k < 3; k++) later(S, k * 0.55, () => fan(g, e, aim(g, e, p, S, 5.5), 5, deg(44), 5.5, 75, 'tear')); } },
     { n: 'Sunspot', tele: 0.9, dur: 0.1, cd: 8, range: 11,
       mark: (g, e, p, S) => { S.lock = [p.x, p.y]; zone(g, e, p.x, p.y, 1.4, 0.9, 0, GOLD); },
       run: (g, e, p, S) => pool(g, e, S.lock[0], S.lock[1], 1.4, 2.5, 40, '#ffd650') },
@@ -138,7 +146,7 @@ const KIN = {
     { n: 'Portal Bolts', tele: 0.3, dur: 0.1, cd: 1.0, range: 14, run: (g, e, p) => { const a = ang(e.x, e.y, p.x, p.y); for (let k = 0; k < 4; k++) fire(g, e, a + (k - 1) * deg(12), 5, 75, 'gorb', 13); } },   // (four, one of them at you)
   ], tick(g, e) { if (g.t > e.kinUntil) { e.noLoot = true; e.dead = true; e.deadT = 0; } } },
   sunbound_knight: { move: keep(2, 3, 3.8), atk: [
-    { n: 'Solar Cleave', tele: 0.7, dur: 0.2, cd: 4, range: 9, run: (g, e, p) => fan(g, e, ang(e.x, e.y, p.x, p.y), 9, deg(110), 6, 95, 'spear', 10) },
+    { n: 'Solar Cleave', tele: 0.7, dur: 0.2, cd: 4, range: 9, run: (g, e, p, S) => fan(g, e, aim(g, e, p, S, 6), 9, deg(110), 6, 95, 'spear', 10) },
     { n: "King's Charge", tele: 0.8, dur: 0.6, cd: 7, range: 9, still: true,
       mark: (g, e, p, S) => { S.aim = ang(e.x, e.y, p.x, p.y); lane(g, e, e.x, e.y, S.aim, 5, 0.8, 0, 0.7); },
       run: (g, e, p, S) => dash(S, e, S.aim, Math.min(5, reach(g, e, S.aim, 5)), 10, 155, () => { const away = ang(p.x, p.y, e.x, e.y); for (let k = 0; k < 8; k++) { const a = away + Math.PI + ((k + 0.5) / 8 - 0.5) * deg(250); fire(g, e, a, 5, 90, 'spear', 8); } }) },   // (its shards spread wide, a sector clear behind it)
@@ -154,7 +162,7 @@ const KIN = {
         for (let k = 0; k < 5; k++) { const o = (k - 2) * 2.4, cx = p.x + nx * o, cy = p.y + ny * o; lane(g, e, cx - Math.cos(a) * 8, cy - Math.sin(a) * 8, a, 16, 1.0 + k * 0.45, 120, 0.4, RED, 0.4); }
       } },
     { n: 'Cinder Scatter', tele: 0.6, dur: 0.6, cd: 6, range: 10,
-      run: (g, e, p, S) => { const a = ang(e.x, e.y, p.x, p.y); fan(g, e, a, 12, deg(150), 5.5, 85, 'ember'); later(S, 0.55, () => fan(g, e, a + deg(150) / 22, 12, deg(150), 5.5, 85, 'ember')); } },
+      run: (g, e, p, S) => { const a = aim(g, e, p, S, 5.5); fan(g, e, a, 12, deg(150), 5.5, 85, 'ember'); later(S, 0.55, () => fan(g, e, a + deg(150) / 22, 12, deg(150), 5.5, 85, 'ember')); } },
   ] },
   eclipse_shade: { move: orbit(3.5, 5, 4.5), atk: [
     { n: 'Eclipse Blink', tele: 0.8, dur: 0.6, cd: 6, range: 11, still: true,
@@ -201,7 +209,7 @@ const methods = {
   kinTick(e, dt, p, d) {
     const K = KIN[e.D.kin]; if (!K) return;
     const S = e.kn || (e.kn = { cd: Object.fromEntries(K.atk.map((A, k) => [A.n, 0.6 + k * 0.9 + R() * 1.2])), q: [], busy: 0, dir: 1, flip: 0, trail: [] });
-    S.trail.push([p.x, p.y]); if (S.trail.length > 18) S.trail.shift();   // (where you have been, about 0.3 s back: the Wraith's needles)
+    S.trail.push([p.x, p.y, this.t]); while (S.trail.length > 2 && this.t - S.trail[0][2] > 0.35) S.trail.shift();   // (where you have been, 0.35 s back: the Wraith's needles, and your heading)
     for (const s of S.q) s.t -= dt;
     while (S.q.length && S.q[0].t <= 0) S.q.shift().fn();
     S.q.sort((a, b) => a.t - b.t);
@@ -227,11 +235,40 @@ const methods = {
     for (const A of K.atk) {
       if (S.cd[A.n] > 0 || d > (A.range || 10) || (A.when && !A.when(this, e, S))) continue;
       if (!this.seesFoe || !this.seesFoe(e, p)) continue;  // (not through walls)
+      const C = this.kinCond(e);
+      if (C && !C.may(this, e, A)) continue;
+      S.lead = C ? C.start(this, e, A) : false;
       S.cur = A; S.busy = A.tele + A.dur; e.state = 'tell';
       if (A.mark) A.mark(this, e, p, S);
       later(S, A.tele, () => { e.state = 'attack'; if (A.run && !e.dead) A.run(this, e, p, S); later(S, 0.2, () => { if (e.state === 'attack') e.state = 'move'; }); });
       break;
     }
+  },
+  // a formation's conductor (the user's encounters, 2026-11-02: "three intelligently designed enemies creating a dangerous
+  // situation together"): the castle defenders of one room share one. One heavy attack at a time, the next 1.2-2 s after the
+  // last, and one field (a spiral, vents, portals) alongside it (so a slam lands while a spiral still turns, not all at once); volleys at least 0.6 s apart, every other one
+  // aimed where you'll be (a steady circle is no way through); after every third heavy attack, a breath: 1 s with nothing
+  // new, to reposition and strike back
+  kinCond(e) {
+    const m = this.map, C0 = m.castle; if (!C0 || !C0.rooms) return null;
+    if (e.kinRoom === undefined) e.kinRoom = Object.keys(C0.rooms).find((k) => { const n = C0.rooms[k]; return e.x >= n.x && e.y >= n.y && e.x < n.x + n.w && e.y < n.y + n.h; }) || null;
+    if (!e.kinRoom) return null;
+    const all = C0.cond || (C0.cond = {});
+    return all[e.kinRoom] || (all[e.kinRoom] = {
+      nextHeavy: 0, nextLight: 0, rest: 0, n: 0, lead: false, room: e.kinRoom,
+      busy: (g, me, SET) => g.enemies.some((q) => q !== me && !q.dead && q.kinRoom === e.kinRoom && q.kn && q.kn.cur && SET.has(q.kn.cur.n)),
+      may(g, me, A) {
+        if (g.t < this.rest) return false;
+        if (HEAVY.has(A.n)) return g.t >= this.nextHeavy && !this.busy(g, me, HEAVY);
+        if (FIELD.has(A.n)) return !this.busy(g, me, FIELD);
+        return g.t >= this.nextLight;
+      },
+      start(g, me, A) {
+        if (FIELD.has(A.n)) return false;
+        if (HEAVY.has(A.n)) { this.nextHeavy = g.t + A.tele + 1.2 + R() * 0.8; if (++this.n >= 3) { this.n = 0; this.rest = g.t + A.tele + A.dur + 1.0; } return false; }
+        this.nextLight = g.t + 0.6; return (this.lead = !this.lead);
+      },
+    });
   },
   // the game's own short timers (a slime's remains, a hound's embers): they outlive whoever set them
   kinLater(t, fn) { (this.kinQ || (this.kinQ = [])).push({ t, fn }); },
