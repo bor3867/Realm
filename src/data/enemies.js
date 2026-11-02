@@ -1400,6 +1400,7 @@ ENEMIES.jarl_vassal = { name: 'Vassal of the Dead', biome: 'throne', reg: 'jarl_
 // Solkhar's own (src/bosses/unstruck_god.js draws them; they can be broken): his heralds, black suns and lenses
 ENEMIES.sol_herald = { name: 'Solar Herald', biome: 'throne', hp: 24000, def: 12, speed: 0, xp: 0, r: 0.7, ai: 'rooted', aggro: 40, fly: true, attacks: [], loot: [] };
 ENEMIES.sol_blacksun = { name: 'Black Sun', biome: 'throne', hp: 30000, def: 12, speed: 0, xp: 0, r: 0.7, ai: 'rooted', aggro: 40, fly: true, attacks: [], loot: [] };
+ENEMIES.sol_minisun = { name: 'Lesser Sun', biome: 'throne', hp: 14000, def: 10, speed: 0, xp: 0, r: 0.7, ai: 'rooted', aggro: 40, fly: true, attacks: [], loot: [] };
 ENEMIES.sol_lens = { name: 'Lens of Starvation', biome: 'throne', hp: 22000, def: 10, speed: 0, xp: 0, r: 0.7, ai: 'rooted', aggro: 40, fly: true, attacks: [], loot: [] };
 ENEMIES.forge_heart = { name: 'Forge Heart', biome: 'throne', reg: 'ash_kin/vent', hp: 18000, def: 14, speed: 0, xp: 600, r: 0.7, ai: 'rooted', aggro: 16, scale: 1.4,   // (the Embersmith Gallery's three: src/castle.js)
   attacks: [{ pattern: 'aimed', proj: 'slag_shard', count: 5, arc: 0.7, dmg: 74, speed: 4.5, range: 12, cd: 1.4, tell: 300 }], loot: [] };

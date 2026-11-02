@@ -209,7 +209,7 @@ export const BXF = {
       const H = def ? (def.size[1] * 2 * K) / 16 : 3, W2 = def ? (def.size[0] * K) / 16 : 1.5;   // (in tiles: a sprite pixel is 2 screen pixels, 16 a tile)
       const [ux, uy] = this.up(e.x, e.y, 1), upx = ux - e.x, upy = uy - e.y, dx = x - e.x, dy = y - e.y;
       const h = dx * upx + dy * upy, w = dx * -upy + dy * upx;                             // (up its body, and across it)
-      if (h > -0.6 && h < H + 0.6 && Math.abs(w) < W2 + 0.6) { x = e.x; y = e.y; } }
+      if (!V.free && h > -0.6 && h < H + 0.6 && Math.abs(w) < W2 + 0.6) { x = e.x; y = e.y; } }   // (V.free: a source of its own in front of it, a summoned sun: its shots leave from there)
     const b = this.shoot('e', x, y, a, V.speed || 5, V.range || 14, this.bxDmg(e, V.dmg || 60), V.sprite || `${e.bx.B.shotSheet || 'bx_shots'}/${e.bx.B.art || e.D.bx}.${V.shot}`, V.size || 0.45, false, e.D.name);
     if (V.mv) b.mv = { ...V.mv };
     if (V.life) b.life = V.life;

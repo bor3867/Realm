@@ -109,13 +109,22 @@ def fall(k):
     return g
 
 
-SPAL = {'o': (14, 8, 10), 'y': (255, 214, 80), 'Y': (255, 246, 200), 'L': (255, 150, 40), 'r': (140, 20, 30), 'R': (200, 40, 50), 'k': (20, 10, 24), 'K': (60, 30, 70), 'w': (255, 255, 255)}
+SPAL = {'o': (14, 8, 10), 'y': (255, 214, 80), 'Y': (255, 246, 200), 'L': (255, 150, 40), 'r': (140, 20, 30), 'R': (200, 40, 50), 'k': (20, 10, 24), 'K': (60, 30, 70), 'w': (255, 255, 255),
+        'd': (122, 62, 18), 'v': (44, 16, 64), 'p': (130, 70, 200), 'P': (196, 150, 255), 'g': (190, 130, 30)}   # (rims in their own darker shades, not black: 2026-11-02)
 SHOTS = {
     'orb': ['.ooo.', 'oyYyo', 'oYwYo', 'oyYyo', '.ooo.'],                                   # a solar orb
     'crescent': ['..oo.', '.oRro', 'oRro.', 'oRro.', '.oRro', '..oo.'],                     # a dark-red crescent
     'fragment': ['..o....', '.oyo...', 'oyYYoo.', 'oYwwYYo', 'oyYYoo.', '.oyo...', '..o....'],   # a great jagged solar shard
     'sun': ['..ooooo..', '.oLyyyLo.', 'oLyYYYyLo', 'oyYwwwYyo', 'oyYwwwYyo', 'oyYwwwYyo', 'oLyYYYyLo', '.oLyyyLo.', '..ooooo..'],   # a miniature sun
     'blacksun': ['..ooooo..', '.oLkkkLo.', 'oLkKKKkLo', 'okKkkkKko', 'okKkokKko', 'okKkkkKko', 'oLkKKKkLo', '.oLkkkLo.', '..ooooo..'],   # a black sun, a rim of fire
+    # his solar shots (2026-11-02, the user: "some projectiles currently look like sideways swords... create visually
+    # coherent solar projectile types"), each pointing right, each rimmed in a darker shade of itself
+    'fireball': ['..dLd..', '.dLyYd.', 'dLyYwYy', '.dLyYd.', '..dLd..'],                   # a small golden fireball, its tail behind
+    'shard': ['.d.....', 'dLy....', '.dyYYYw', 'dLy....', '.d.....'],                         # a sharp solar shard
+    'sunlance': ['.dgLyyYY.', 'dLyYYYYww', '.dgLyyYY.'],                                      # a thin solar lance
+    'voidbolt': ['.vpv.', 'vpPpv', 'pPwPp', 'vpPpv', '.vpv.'],                                # a dark-purple void bolt
+    'eclipse': ['gy...', '.kgy.', '..kky', '..kKy', '..kky', '.kgy.', 'gy...'],               # a black-and-gold eclipse crescent
+    'halo': ['.LyyyL.', 'LyYwYyL', 'yL...Ly', 'r.....r'],                                     # a burning piece of his broken halo
 }
 
 
