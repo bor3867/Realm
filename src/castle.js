@@ -24,7 +24,13 @@ const AMBIENT = { gate: [42, 18, 10, 0.4], siege: [38, 16, 10, 0.42], court: [16
 const DEEPER = { walk: 0, eclipseshrine: 0.05, walk2: 0.1 };        // (along the eclipse: each part a little darker)
 const roomAmb = (n) => { const A = AMBIENT[n.sect]; if (!A) return null; const d = DEEPER[n.key] ?? DEEPER[n.kind] ?? 0; return d ? [A[0], A[1], A[2], A[3] + d] : A; };
 const distR = (n, x, y) => Math.hypot(Math.max(n.x - x, 0, x - (n.x + n.w)), Math.max(n.y - y, 0, y - (n.y + n.h)));
-const FALLING = { battlements: [1.8, 90, 'falling stones'], towerfall: [1.5, 90, 'falling masonry'], chainbridge: [1.3, 110, 'an eruption'] };
+// what falls about you, by room: [every, damage, what]; the Long Siege's (2026-11-02): burning branches in the forest,
+// rockfall on the ascent, the gorge erupting under the span, siege fire on the barbican, his sigils flaring in the chapel,
+// the solar vents in the valves' floor
+const FALLING = { battlements: [1.8, 90, 'falling stones'], towerfall: [1.5, 90, 'falling masonry'], chainbridge: [1.3, 110, 'an eruption'],
+  ashforest: [1.7, 90, 'a burning branch'], ascent: [1.6, 95, 'falling rocks'], span: [1.3, 110, 'an eruption'], barbican: [1.4, 100, 'siege fire'],
+  chapel: [1.9, 105, 'a sigil of his'], valves: [1.5, 110, 'a solar vent'] };
+const FALL_COL = { chainbridge: ['#ff6a1c', '#ffd650'], span: ['#ff6a1c', '#ffd650'], chapel: ['#b884cc', '#e6c8ff'], valves: ['#ffd650', '#fff6c8'] };
 
 const methods = {
   // the light where you stand: every room near you by how near (inside one, it is all its own; in a hallway between two,
@@ -56,11 +62,17 @@ const methods = {
     this.castleLight(dt, Rm, n);
     // the arrival's door
     if (!S.breachOpen && this.t - S.t0 > 3) { S.breachOpen = true; this.castleOpen('breach'); }
+    // the keep gate, at the Hollow Court's north end: open once both Jarls have fallen
+    if (!S.keepOpen && C.gates && C.gates.keep) {
+      const J = (m.wardens || []).filter((w) => w.room === Rm.court);
+      if (J.length && J.every((w) => w.dead)) { S.keepOpen = true; this.castleOpen('keep'); this.banner('THE KEEP GATE GRINDS OPEN', 2600); }
+    }
+    this.castleMechs(dt, Rm, S);
     // a gate the server opened (its tile back to the floor): open in this copy too
     for (const w of Object.keys(C.gates || {})) for (const o of C.gates[w]) if (o.solid && !m.solid[Math.floor(o.y) * m.w + Math.floor(o.x)] && m.tiles[Math.floor(o.y) * m.w + Math.floor(o.x)] !== TID.cobble) { o.solid = false; o.sprite = 'gate_open'; }
     if (!n) return;
     // the causeway: geysers on the lanes near you
-    if (n.kind === 'causeway' && (S.geyser -= dt) <= 0) {
+    if ((n.kind === 'causeway' || n.kind === 'span') && (S.geyser -= dt) <= 0) {
       S.geyser = 4;
       for (let k = 0; k < 2; k++) {
         const x = p.x + (R() - 0.5) * 8, y = p.y + (R() - 0.5) * 6, tx = Math.floor(x), ty = Math.floor(y);
@@ -73,12 +85,12 @@ const methods = {
     if (F && (S.fall -= dt) <= 0) {
       S.fall = F[0];
       const x = p.x + (R() - 0.5) * 7, y = p.y + (R() - 0.5) * 6;
-      if (inR(n, x, y) && !m.solid[Math.floor(y) * m.w + Math.floor(x)] && Math.hypot(x - p.x, y - p.y) > 0.8) this.fx.push({ kind: 'zone', x, y, r: 1.0, t: 0, delay: 1.1, life: 1.25, dmg: D(F[1]), by: F[2], done: false, colors: n.kind === 'chainbridge' ? ['#ff6a1c', '#ffd650'] : ['#8a7a6a', '#ff8a1f'], shards: n.kind === 'chainbridge' ? 4 : 0, proj: 'castle_shots/blob' });
+      if (inR(n, x, y) && !m.solid[Math.floor(y) * m.w + Math.floor(x)] && Math.hypot(x - p.x, y - p.y) > 0.8) this.fx.push({ kind: 'zone', x, y, r: 1.0, t: 0, delay: 1.1, life: 1.25, dmg: D(F[1]), by: F[2], done: false, colors: FALL_COL[n.kind] || ['#8a7a6a', '#ff8a1f'], shards: n.kind === 'chainbridge' || n.kind === 'span' ? 4 : 0, proj: 'castle_shots/blob' });
     }
     // the hammer hall: its presses, by turns, down across the hall
-    if (n.kind === 'hammers' && (S.press -= dt) <= 0) {
+    if ((n.kind === 'hammers' || n.kind === 'cloister') && (S.press -= dt) <= 0) {
       S.press = 2.4; const k0 = S.pressK++ % 2;
-      for (let x = n.x + 4 + k0 * 7; x < n.x + n.w - 3; x += 14) this.fx.push({ kind: 'lane', x: x + 0.5, y: n.y, a: Math.PI / 2, len: n.h, w: 1.1, delay: 0.9, t: 0, life: 1.25, every: 0.5, dmg: D(110), by: 'a forge press', hitT: 0, cols: ['#ff6a1c', '#ff6a1c', '#ff3a1a', '#ffffff'] });
+      for (let x = n.x + 4 + k0 * (n.kind === 'cloister' ? 8 : 7); x < n.x + n.w - 3; x += n.kind === 'cloister' ? 16 : 14) this.fx.push({ kind: 'lane', x: x + 0.5, y: n.y, a: Math.PI / 2, len: n.h, w: 1.1, delay: 0.9, t: 0, life: 1.25, every: 0.5, dmg: D(110), by: 'a forge press', hitT: 0, cols: ['#ff6a1c', '#ff6a1c', '#ff3a1a', '#ffffff'] });
     }
     // the Sunthief Gate: through its portal to the Eclipse Walk
     const Dd = C.door;
@@ -101,6 +113,26 @@ const methods = {
       if (e.dead || !(e.D.kin || e.rb)) continue;
       const k = e.rb ? boss : kin, k0 = e.partyK || 1; if (k === k0) continue;
       const f = e.hp / e.maxHp; e.maxHp = Math.round((e.maxHp / k0) * k); e.hp = Math.max(1, Math.round(f * e.maxHp)); e.partyK = k;
+    }
+  },
+  // the keep's two mechanisms (the Chain Winch, the Solar Valves): stand at one with its room cleared and it turns (3 s;
+  // stepping off, it slips back); both turned, the forge gate opens on Ashkar's hall. Anyone of the party can turn them
+  castleMechs(dt, Rm, S) {
+    const C = this.map.castle; if (!C.mechs) return;
+    const who = [this.player, ...(this.netTargets || [])].filter((q) => q && !q.dead);
+    for (const M of C.mechs) {
+      if (M.done) continue;
+      const rm = Rm[M.key], near = who.some((q) => Math.hypot(q.x - M.x - 0.5, q.y - M.y - 0.5) < 2.4);
+      if (!near) { M.prog = Math.max(0, (M.prog || 0) - dt * 0.5); continue; }
+      if (rm && this.enemies.some((e) => !e.dead && (e.D.kin || e.rb) && inR(rm, e.x, e.y))) { if (!(M.toldT > this.t)) { M.toldT = this.t + 4; this.banner(`${M.name}: ITS DEFENDERS STILL HOLD IT`, 2200); } continue; }
+      M.prog = (M.prog || 0) + dt / 3;
+      if (!(M.sayT > this.t)) { M.sayT = this.t + 0.5; this.banner(`${M.verb} · ${Math.min(100, Math.round(M.prog * 100))}%`, 700); }
+      if (Math.random() < 0.3) this.vx({ k: 'burst', x: M.x + 0.5, y: M.y, n: 2, colors: M.key === 'winch' ? ['#a39bb2', '#ff8a1f'] : ['#ffd650', '#fff6c8'] });
+      if (M.prog >= 1) {
+        M.done = true; this.sfx('chain'); this.vx({ k: 'shake', amt: 5 }); this.vx({ k: 'burst', x: M.x + 0.5, y: M.y, n: 24, colors: ['#ffd650', '#ff8a1f', '#ffffff'] });
+        if (C.mechs.every((q) => q.done)) { this.castleOpen('forge'); this.banner('THE FORGE GATE OPENS · ASHKAR WAITS', 3000); }
+        else this.banner(`${M.name} TURNED · ONE MORE HOLDS THE FORGE GATE`, 2600);
+      }
     }
   },
   castleEnter(key, n) {

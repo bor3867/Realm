@@ -978,6 +978,8 @@ export function dungeon(seed, def) {
         const d = Math.hypot(x - n.cx, y - n.cy), a = Math.atan2(y - n.cy, x - n.cx);
         if (d <= n.rad * (n.calm ? 0.97 : f(a))) set(x, y, FLOOR);
       }
+    } else if (n.shape === 'lobes') {                                 // ellipses together, an irregular hall (the castle's: n.lobes, [cx, cy, rx, ry] each)
+      for (const [cx, cy, rx, ry] of n.lobes) for (let y = Math.floor(cy - ry); y <= cy + ry; y++) for (let x = Math.floor(cx - rx); x <= cx + rx; x++) if (((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1) set(x, y, FLOOR);
     } else if (n.shape === 'round') {
       for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) if (((x - n.cx) / (n.w / 2)) ** 2 + ((y - n.cy) / (n.h / 2)) ** 2 <= 1) set(x, y, FLOOR);
     } else if (n.shape === 'cross') {
@@ -1446,57 +1448,74 @@ export function dungeon(seed, def) {
       vein(far, boss);
       return { start, boss };
     },
-    // ---- SUNTHIEF'S CASTLE, after the eruption (the user's map; then, 2026-11-02, "far too short... an enormous ancient
-    // collapsing castle"): the same every time, a long way up through six parts of it, each its own: the burning entrance,
-    // the siege grounds, the Hollow Court, the forge galleries, Ashkar's gate, and, through the Sunthief Gate's portal,
-    // the eclipse. Rooms off the way (barracks, a workshop, an old throne room, an ingot vault) hold treasure and harder
-    // guards; three cracked walls hide secret rooms. Its rooms (m.castle.rooms, by kind) and their hazards: src/castle.js
+    // ---- SUNTHIEF'S CASTLE: THE LONG SIEGE (2026-11-02, the user's blueprint, "the authoritative level-design reference":
+    // "stop designing the dungeon as rectangular rooms connected by corridors"). One way up through the keep, the same
+    // every time, north from the eruption:
+    //   ACT I  the exterior   the Eruption Arrival at the forest's edge; the Ashen Forest (its trees, the dead, an ambush;
+    //                         a hostile outpost off it); the Mountain Ascent, a road in switchbacks up the cliffs past two
+    //                         watchers' landings; the Shattered Span, a broken bridge across a lava gorge; the Siege
+    //                         Barbican, the keep's outer defence (and its siege workshop off it)
+    //   ACT II the Hollow Court: the Jarls; the keep gate at its north end opens only when both have fallen
+    //   ACT III the keep      the Hall of Oaths (its fallen royal statues); off it the Ossuary and the Fallen Chapel (both
+    //                         optional, both rewarded); the Furnace Cloister (lava channels bridged, its presses); the
+    //                         Chain Winch (the Forge Overseer's) and the Solar Valves either side: each a mechanism to turn
+    //                         once its room is cleared; both turned, the forge gate opens on Ashkar's hall; past him the
+    //                         Great Sun Gate
+    //   ACT IV through the gate's portal only: the Eclipse Walk, its shrine, the last span, Solkhar's sanctum
+    // Rooms are drawn in lobes (shape 'lobes': ellipses together), rounds, octagons and a cross; the ways between them are
+    // roads that wind. Its rooms (m.castle.rooms, by key) and their hazards and mechanisms: src/castle.js
     throne() {
-      const way = (a, b) => {                                                 // a corridor three wide: across, then up or down
-        const ax = a.cx, ay = a.cy, bx = b.cx, by = b.cy;
-        carve(Math.min(ax, bx), ay - 1, Math.max(ax, bx), ay + 1); carve(bx - 1, Math.min(ay, by), bx + 1, Math.max(ay, by));
-        link(a, b);
-      };
       const R0 = {}, add = (kind, title, x, y, w, h, o = {}) => { const n = room(x, y, w, h, { kind, title, dep: Object.keys(R0).length, ...o }); R0[o.key || kind] = n; return n; };
-      // the entrance: destruction, ash, burning battlements
-      const arrival = add('arrival', 'ERUPTION ARRIVAL', 40, 422, 20, 18, { shape: 'round', role: 'rest', sect: 'gate' });
-      const batt = add('battlements', 'THE BURNING BATTLEMENTS', 78, 418, 46, 10, { sect: 'gate' });
-      const gateh = add('gatehouse', 'THE RUINED GATEHOUSE', 132, 404, 30, 22, { sect: 'gate' });
-      const barracks = add('barracks', 'THE COLLAPSED BARRACKS', 172, 424, 22, 16, { role: 'treasure', leaf: true, sect: 'gate' });
-      const ashfall = add('ashfall', 'ASHFALL DESCENT', 136, 360, 24, 32, { sect: 'gate' });
-      const cause = add('causeway', 'THE BROKEN CAUSEWAY', 104, 320, 56, 22, { key: 'cause', sect: 'gate' });
-      way(arrival, batt); way(batt, gateh); way(gateh, barracks); way(gateh, ashfall); way(ashfall, cause);
-      // the siege grounds
-      const siege = add('siege', 'OUTER SIEGE COURT', 150, 276, 40, 28, { sect: 'siege' });
-      const shop = add('workshop', 'THE SIEGE WORKSHOP', 204, 282, 26, 18, { role: 'treasure', leaf: true, sect: 'siege' });
-      const tower = add('towerfall', 'THE FALLEN TOWER', 100, 240, 32, 24, { ambush: true, sect: 'siege' });
-      way(cause, siege); way(siege, shop); way(siege, tower);
-      // the Hollow Court
-      const banners = add('banners', 'HALL OF HOLLOW BANNERS', 96, 196, 40, 24, { sect: 'court' });
-      const gallery = add('royalgallery', 'THE ROYAL GALLERY', 150, 196, 46, 14, { ambush: true, sect: 'court' });
-      const oldthrone = add('oldthrone', 'THE ABANDONED THRONE', 208, 168, 28, 20, { role: 'treasure', leaf: true, sect: 'court' });
-      const court = add('court', 'TWIN JARL ARENA', 154, 140, 40, 34, { prefer: 'warden', sect: 'court' });
-      way(tower, banners); way(banners, gallery); way(gallery, oldthrone); way(gallery, court);
-      // the forge galleries
-      const galleries = add('galleries', 'THE CINDER GALLERIES', 92, 132, 44, 26, { sect: 'forge' });
-      const river = add('lavariver', 'THE LAVA RIVER', 88, 96, 52, 22, { sect: 'forge' });
-      const vault = add('ingotvault', 'THE INGOT VAULT', 50, 100, 18, 14, { role: 'treasure', leaf: true, sect: 'forge' });
-      const hammers = add('hammers', 'THE HAMMER HALL', 150, 100, 46, 14, { sect: 'forge' });
-      const forge = add('chainforge', 'CHAINFORGE THRESHOLD', 160, 56, 40, 32, { key: 'forge', sect: 'forge' });
-      way(court, galleries); way(galleries, river); way(river, vault); way(river, hammers); way(hammers, forge);
-      // Ashkar's gate
-      const cbridge = add('chainbridge', 'THE CHAIN BRIDGE', 214, 30, 40, 12, { sect: 'ashkar' });
-      const ante = add('antechamber', 'THE GATE ANTECHAMBER', 266, 22, 30, 24, { sect: 'ashkar' });
-      const ashkar = add('guardhall', "ASHKAR'S FORGE GATE", 306, 50, 38, 34, { key: 'ashkar', sect: 'ashkar' });
-      const gate = add('sundoor', 'THE SUNTHIEF GATE', 352, 58, 18, 14, { key: 'gate', role: 'rest', sect: 'ashkar' });
-      way(forge, cbridge); way(cbridge, ante); way(ante, ashkar); way(ashkar, gate);
-      // the eclipse (apart: the gate's portal takes you to the walk's west end)
+      const road = (pts, w = 2) => { for (let i = 1; i < pts.length; i++) tube(pts[i - 1][0], pts[i - 1][1], pts[i][0], pts[i][1], w); };
+      const join = (a, b, pts, w) => { road(pts, w); link(a, b); };
+      // ACT I: the exterior
+      const arrival = add('arrival', 'ERUPTION ARRIVAL', 190, 430, 20, 16, { shape: 'round', role: 'rest', sect: 'gate' });
+      const forest = add('ashforest', 'THE ASHEN FOREST', 150, 382, 100, 40, { shape: 'lobes', lobes: [[176, 404, 26, 13], [212, 396, 24, 12], [236, 408, 12, 9]], ambush: true, sect: 'gate' });
+      const outpost = add('outpost', 'A HOSTILE OUTPOST', 104, 392, 30, 20, { shape: 'lobes', lobes: [[118, 402, 13, 9]], role: 'treasure', leaf: true, sect: 'gate' });
+      const asc1 = add('ascent', 'THE MOUNTAIN ASCENT', 110, 352, 22, 14, { key: 'asc1', shape: 'round', sect: 'gate' });
+      const asc2 = add('ascent', "THE WATCHERS' LEDGE", 150, 326, 24, 14, { key: 'asc2', shape: 'round', sect: 'gate' });
+      const span = add('span', 'THE SHATTERED SPAN', 88, 286, 130, 24, { sect: 'gate' });
+      const barb = add('barbican', 'THE SIEGE BARBICAN', 176, 236, 48, 30, { shape: 'octa', ambush: true, sect: 'siege' });
+      const shop = add('workshop', 'THE SIEGE WORKSHOP', 238, 242, 22, 16, { role: 'treasure', leaf: true, sect: 'siege' });
+      join(arrival, forest, [[200, 431], [200, 410]]);
+      join(forest, outpost, [[154, 403], [128, 402]], 1);
+      join(forest, asc1, [[166, 393], [140, 381], [122, 366]]);                       // (up into the cliffs)
+      join(asc1, asc2, [[120, 353], [100, 345], [140, 339], [154, 334]]);              // (the switchbacks)
+      join(asc2, span, [[160, 327], [122, 318], [100, 309]]);
+      join(span, barb, [[205, 287], [204, 276], [200, 265]]);
+      join(barb, shop, [[223, 250], [239, 250]], 1);
+      // ACT II: the Hollow Court
+      const court = add('court', 'THE HOLLOW COURT', 180, 190, 40, 34, { prefer: 'warden', sect: 'court' });
+      join(barb, court, [[200, 237], [200, 223]]);
+      // ACT III: the keep
+      const oaths = add('oaths', 'THE HALL OF OATHS', 182, 146, 36, 26, { shape: 'octa', sect: 'court' });
+      const ossuary = add('ossuary', 'THE OSSUARY', 128, 140, 34, 26, { shape: 'lobes', lobes: [[142, 150, 12, 8], [150, 160, 11, 7]], role: 'treasure', leaf: true, sect: 'court' });
+      const chapel = add('chapel', 'THE FALLEN CHAPEL', 238, 140, 30, 26, { shape: 'cross', role: 'treasure', leaf: true, sect: 'court' });
+      const cloister = add('cloister', 'THE FURNACE CLOISTER', 174, 100, 52, 30, { sect: 'forge' });
+      const winch = add('chainforge', 'THE CHAIN WINCH', 112, 92, 36, 30, { key: 'winch', shape: 'round', sect: 'forge' });
+      const valves = add('valves', 'THE SOLAR VALVES', 252, 92, 36, 30, { shape: 'round', sect: 'forge' });
+      join(court, oaths, [[200, 190], [200, 171]], 1);
+      join(oaths, ossuary, [[183, 158], [158, 158]], 1);
+      join(oaths, chapel, [[217, 154], [240, 154]], 1);
+      join(oaths, cloister, [[200, 146], [200, 129]], 1);
+      join(cloister, winch, [[175, 112], [146, 107]], 1);
+      join(cloister, valves, [[224, 112], [254, 107]], 1);
+      const ashkar = add('guardhall', "ASHKAR'S HALL", 181, 46, 38, 34, { key: 'ashkar', sect: 'ashkar' });
+      const gate = add('sundoor', 'THE GREAT SUN GATE', 191, 24, 18, 14, { key: 'gate', role: 'rest', sect: 'ashkar' });
+      join(cloister, ashkar, [[200, 100], [200, 79]], 1);
+      join(ashkar, gate, [[200, 46], [200, 37]], 1);
+      // ACT IV: the eclipse (apart: the gate's portal takes you to the walk's west end)
       const walk = add('eclipsewalk', 'ECLIPSE WALK', 270, 300, 56, 14, { key: 'walk', sect: 'eclipse' });
       const shrine = add('eclipseshrine', 'THE ECLIPSE SHRINE', 340, 290, 28, 30, { sect: 'eclipse' });
       const walk2 = add('eclipsewalk', 'THE LAST SPAN', 344, 340, 18, 40, { key: 'walk2', sect: 'eclipse' });
       const boss = add('throneroom', "SOLKHAR'S SANCTUM", 330, 396, 46, 46, { key: 'I', shape: 'round', sect: 'sanctum' });
+      const way = (a, b) => { const ax = a.cx, ay = a.cy, bx = b.cx, by = b.cy; carve(Math.min(ax, bx), ay - 1, Math.max(ax, bx), ay + 1); carve(bx - 1, Math.min(ay, by), bx + 1, Math.max(ay, by)); link(a, b); };
       way(walk, shrine); way(shrine, walk2); way(walk2, boss);
-      m.castle = { rooms: R0, door: { x0: gate.cx - 2, x1: gate.cx + 1, y0: gate.y, y1: gate.y + 2 }, breachWay: { x0: arrival.x + arrival.w + 1, x1: arrival.x + arrival.w + 1, y0: arrival.cy - 1, y1: arrival.cy + 1 },
+      m.castle = { rooms: R0, door: { x0: gate.cx - 2, x1: gate.cx + 1, y0: gate.y, y1: gate.y + 2 },
+        // its gates: the arrival's door (3 s), the keep gate (the Jarls), the forge gate (the two mechanisms)
+        ways: { breach: { x0: 198, x1: 202, y0: 428, y1: 428 }, keep: { x0: 199, x1: 201, y0: 182, y1: 182 }, forge: { x0: 199, x1: 201, y0: 90, y1: 90 } },
+        mechs: [{ key: 'winch', x: winch.cx, y: winch.y + 5, name: 'THE CHAIN WINCH', verb: 'TURNING THE CHAIN WINCH', sprite: 'castle_decor/chain_post' },
+          { key: 'valves', x: valves.cx, y: valves.y + 5, name: 'THE SOLAR VALVES', verb: 'OPENING THE SOLAR VALVES', sprite: 'castle_decor/forge_press' }],
         arrive: { x: walk.x + 3.5, y: walk.cy + 0.5 } };
       m.citadel = { starts: [{ x: arrival.cx + 0.5, y: arrival.cy + 0.5 }], bars: [], top: ashkar.y, bottom: arrival.y + arrival.h };
       return { start: arrival, boss };
@@ -2068,6 +2087,40 @@ export function dungeon(seed, def) {
         put2(null, n.x + 1, n.y + 1, 'brazier'); put2(null, n.x + n.w - 2, n.y + 1, 'brazier'); put2(null, n.x + 2, n.y + n.h - 2, 'ingot_pile');
       } else if (n.kind === 'throneroom') {                             // the Stolen Sun's dais: his throne at its north edge
         put2(null, n.cx, n.y + 3, 'throne');
+      } else if (n.kind === 'ashforest' || n.kind === 'outpost') {      // the Ashen Forest: dead trees standing in the ash, its dead, its fires; the outpost's camp
+        const R = (k) => ((k * 2654435761) >>> 0) % 1000 / 1000;
+        for (let k = 0; k < (n.kind === 'outpost' ? 6 : 46); k++) { const x = n.x + 2 + Math.floor(R(k * 3 + 1) * (n.w - 4)), y = n.y + 2 + Math.floor(R(k * 7 + 2) * (n.h - 4)); if (Math.abs(x - n.cx) + Math.abs(y - n.cy) > 5) put2(n, x, y, k % 5 === 4 ? 'castle_decor/burning_debris' : 'dead_tree', k % 5 !== 4); }
+        for (const [dx, dy, k] of [[8, 6, 'fallen_soldier'], [n.w - 10, n.h - 6, 'bones'], [n.w >> 1, 4, 'shield_broken']]) put2(n, n.x + dx, n.y + dy, 'castle_decor/' + k, false);
+        if (n.kind === 'outpost') { put2(null, n.x + 6, n.y + 5, 'castle_decor/banner_torn', false); put2(n, n.x + n.w - 8, n.y + 6, 'castle_decor/broken_catapult'); }
+      } else if (n.kind === 'ascent') {                                 // the cliffs: rockfall, the bones of those who climbed before
+        for (const [dx, dy, k] of [[3, 3, 'rubble'], [n.w - 5, 4, 'collapsed_pillar'], [4, n.h - 4, 'bones'], [n.w - 6, n.h - 3, 'rubble']]) put2(n, n.x + dx, n.y + dy, 'castle_decor/' + k, false);
+      } else if (n.kind === 'span') {                                   // the Shattered Span: a bridge winding across a lava gorge, broken twice to three wide
+        const ins = [];
+        for (let x = n.x; x < n.x + n.w; x++) { if (isF(x, n.y - 1)) ins.push([x, 'n']); if (isF(x, n.y + n.h)) ins.push([x, 's']); }
+        const mid = (x) => n.cy + Math.round(4 * Math.sin((x - n.x) / 9)), narrow = (x) => [n.x + 44, n.x + 86].some((c) => Math.abs(x - c) <= 3);
+        const keep = (x, y) => (x >= n.x + 2 && x < n.x + n.w - 2 && Math.abs(y - mid(x)) <= (narrow(x) ? 1 : 2)) || ins.some(([v, sd]) => Math.abs(x - v) <= 3 && (sd === 'n' ? y <= mid(x) : y >= mid(x)));
+        for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) if (!keep(x, y) && isF(x, y)) set(x, y, TID.lava);
+        for (const c of [n.x + 44, n.x + 86]) { put2(null, c - 4, mid(c - 4) - 3, 'castle_decor/collapsed_pillar', false); put2(null, c + 4, mid(c + 4) + 3, 'castle_decor/rubble', false); }
+        for (let x = n.x + 10; x < n.x + n.w - 8; x += 16) put2(null, x, mid(x) + (x % 32 ? 2 : -2), 'castle_decor/chain_post', false);
+      } else if (n.kind === 'barbican') {                               // the siege barbican: its engines wrecked, its defenders' dead, fires
+        for (const [dx, dy, k] of [[6, 6, 'broken_catapult'], [n.w - 9, 6, 'broken_catapult'], [8, n.h - 6, 'burning_debris'], [n.w - 10, n.h - 7, 'fallen_soldier'], [n.w >> 1, 4, 'shield_broken'], [12, n.cy, 'rubble'], [n.w - 13, n.cy, 'burning_debris']]) put2(n, n.x + dx, n.y + dy, 'castle_decor/' + k, false);
+        put2(null, n.x + 3, n.y + 4, 'weapon_rack'); put2(null, n.x + n.w - 4, n.y + 4, 'weapon_rack');
+      } else if (n.kind === 'oaths') {                                  // the Hall of Oaths: two rows of the old kings, every one thrown down; their banners
+        for (let y = n.y + 4; y < n.y + n.h - 3; y += 5) { put2(null, n.x + 3, y, 'castle_decor/shattered_statue'); put2(null, n.x + n.w - 4, y, 'castle_decor/shattered_statue'); }
+        for (let k = 0, x = n.x + 6; x < n.x + n.w - 5; x += 6, k++) put2(null, x, n.y + 1, k % 2 ? 'castle_decor/mural' : 'castle_decor/banner_torn', false);
+        put2(n, n.cx - 5, n.cy + 3, 'castle_decor/statue_head', false); put2(n, n.cx + 6, n.cy - 4, 'castle_decor/fallen_soldier', false);
+      } else if (n.kind === 'ossuary') {                                // the Ossuary: the keep's dead, stacked; columns fallen among them
+        for (let k = 0; k < 10; k++) put2(n, n.x + 4 + ((k * 7) % (n.w - 8)), n.y + 4 + ((k * 5) % (n.h - 8)), 'castle_decor/' + (k % 3 ? 'bones' : 'collapsed_pillar'), k % 3 === 0);
+      } else if (n.kind === 'chapel') {                                 // the Fallen Chapel: its saints broken; his eclipse stones raised in it (the corruption)
+        put2(null, n.cx, n.y + 1, 'castle_decor/mural', false);
+        for (const [dx, dy] of [[-5, -4], [5, -4], [-5, 5], [5, 5]]) put2(null, n.cx + dx, n.cy + dy, 'castle_decor/eclipse_obelisk');
+        put2(n, n.cx - 9, n.cy, 'castle_decor/shattered_statue'); put2(n, n.cx + 9, n.cy, 'castle_decor/shattered_statue');
+      } else if (n.kind === 'cloister') {                               // the Furnace Cloister: three lava channels north to south, bridged where you cross; its presses along the north wall
+        for (const c0 of [n.x + 10, n.x + 23, n.x + 37]) for (let y = n.y; y < n.y + n.h; y++) for (let x = c0; x < c0 + 4; x++) if (isF(x, y) && Math.abs(y - n.cy) > 2 && Math.abs(y - (n.y + 5)) > 1) set(x, y, TID.lava);
+        for (let x = n.x + 4; x < n.x + n.w - 3; x += 8) put2(null, x, n.y + 1, 'castle_decor/forge_press');
+        for (let k = 0; k < 4; k++) put2(n, n.x + 5 + k * 13, n.y + n.h - 3, k % 2 ? 'castle_decor/lava_crack' : 'castle_decor/chain_post', false);
+      } else if (n.kind === 'valves') {                                 // the Solar Valves: vents of the stolen light in the floor, the forge's pipes
+        for (let k = 0; k < 6; k++) { const a = (k / 6) * Math.PI * 2; put2(n, Math.round(n.cx + Math.cos(a) * 10), Math.round(n.cy + 2 + Math.sin(a) * 7), k % 2 ? 'castle_decor/lava_crack' : 'castle_decor/forge_press', k % 2 === 0); }
       } else if (n.kind === 'causeway') {                               // a broken bridge over lava: stone lanes six wide from each way in to a band across its middle
         const ins = [];
         for (let x = n.x; x < n.x + n.w; x++) { if (isF(x, n.y - 1)) ins.push([x, 'n']); if (isF(x, n.y + n.h)) ins.push([x, 's']); }
@@ -2101,6 +2154,8 @@ export function dungeon(seed, def) {
         for (let k = 0, x = n.x + 3; x < n.x + n.w - 2; x += 6, k++) put2(null, x, n.y + 1, k % 2 ? 'castle_decor/mural' : 'castle_decor/banner_torn', false);
         for (let x = n.x + 5; x < n.x + n.w - 4; x += 9) put2(n, x, n.y + n.h - 3, 'castle_decor/shattered_statue');
         if (n.kind === 'oldthrone') { put2(null, n.cx, n.y + 2, 'throne'); put2(n, n.cx - 3, n.cy, 'castle_decor/statue_head', false); }
+      } else if (n.kind === 'chainforge' && n.key === 'winch') {        // the Chain Winch: chains to its posts all round the Overseer's floor
+        for (let k = 0; k < 8; k++) { const a = (k / 8) * Math.PI * 2; put2(null, Math.round(n.cx + Math.cos(a) * 14), Math.round(n.cy + Math.sin(a) * 11), 'castle_decor/chain_post', false); }
       } else if (n.kind === 'galleries' || n.kind === 'hammers' || n.kind === 'ingotvault') {   // the forge: presses, chains, cracks of lava in the floor
         const step = n.kind === 'hammers' ? 7 : 9;
         for (let x = n.x + 4; x < n.x + n.w - 3; x += step) put2(null, x, n.y + 1, 'castle_decor/forge_press');
@@ -2551,12 +2606,12 @@ export function dungeon(seed, def) {
   finalize(m);
   for (const o of m.objects) if (o.bar) { o.solid = true; m.solid[idx(m, Math.floor(o.x), Math.floor(o.y))] = 1; }   // (a ruin piece is no block in the realm; a barricade is)
   if (m.castle) {                                                     // the castle's gate: the arrival's door onto the descent (3 s; src/castle.js opens it)
-    const W0 = m.castle.breachWay;
-    m.castle.gates = { breach: [] };
+    m.castle.gates = {};
     // (on a cobble tile of its own: opening it turns that tile back to the floor, so a shared castle's server sends the
     // change and the gate opens for everyone)
     const gate = (x, y, which) => { put(m, 'seal_gate', x, y, true, { castleGate: which, floor: tile(x, y) }); const o = m.objects[m.objects.length - 1]; set(x, y, TID.cobble); m.solid[idx(m, x, y)] = 1; m.castle.gates[which].push(o); };
-    for (let y = W0.y0; y <= W0.y1; y++) gate(W0.x0, y, 'breach');
+    for (const [which, W0] of Object.entries(m.castle.ways)) { m.castle.gates[which] = []; for (let y = W0.y0; y <= W0.y1; y++) for (let x = W0.x0; x <= W0.x1; x++) gate(x, y, which); }
+    for (const M of m.castle.mechs || []) { put(m, M.sprite, M.x, M.y, true, { castleMech: M.key }); M.o = m.objects[m.objects.length - 1]; }   // (the winch, the valves: src/castle.js turns them)
   }
 
   // m.rooms: entrance first, boss last (other code relies on that); secret rooms ride along in m.secrets

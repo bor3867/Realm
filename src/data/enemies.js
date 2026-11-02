@@ -1359,6 +1359,17 @@ Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden'], puzzle: nul
     switch (rm.kind) {                                                  // the castle (the user's map): who holds each room (for now the island's monsters, by role)
       // the user's encounters (2026-11-02), each a formation whose attacks work together (src/castle_kin.js):
       // the burning entrance
+      // THE LONG SIEGE (2026-11-02, the user's blueprint): more of them, in groups that work together, harder further in
+      case 'ashforest': return ['infernal_hound', 'infernal_hound', 'cinder_bat', 'cinder_bat', 'hollow_wraith', 'cinder_archer'];   // (the forest's ambush)
+      case 'outpost': return ['lava_guard', 'cinder_archer', 'cinder_archer', 'infernal_hound'];            // (off the way: a chest)
+      case 'ascent': return rm.key === 'asc1' ? ['cinder_archer', 'cinder_archer', 'lava_slime', 'cinder_bat'] : ['cinder_bat', 'cinder_bat', 'cinder_archer', 'lava_guard', 'hollow_wraith'];   // (the watchers on the switchbacks)
+      case 'span': return ['lava_slime', 'lava_slime', 'infernal_hound', 'infernal_hound', 'cinder_archer', 'cinder_elemental'];
+      case 'barbican': return ['sunbound_knight', 'lava_guard', 'lava_guard', 'cinder_archer', 'cinder_archer', 'cinder_archer', 'forge_golem'];   // (the relentless outer defenders)
+      case 'oaths': return ['sunbound_knight', 'sun_cultist', 'solar_acolyte', 'solar_acolyte', 'hollow_wraith', 'hollow_wraith'];
+      case 'ossuary': return ['hollow_wraith', 'hollow_wraith', 'eclipse_shade', 'sunbound_construct'];    // (optional: a chest)
+      case 'chapel': return ['sun_cultist', 'sun_cultist', 'solar_acolyte', 'eclipse_shade', 'eclipse_shade'];   // (optional: a chest)
+      case 'cloister': return ['forge_golem', 'cinder_elemental', 'infernal_hound', 'lava_slime', 'lava_slime', 'cinder_archer'];
+      case 'valves': return ['sunbound_construct', 'forge_golem', 'cinder_elemental', 'solar_acolyte', 'sunbound_knight'];
       case 'battlements': return ['cinder_bat', 'cinder_bat', 'cinder_archer'];                             // the walls' last defenders
       case 'gatehouse': return ['lava_guard', 'cinder_archer', 'lava_slime'];
       case 'barracks': return ['infernal_hound', 'infernal_hound'];                                         // (off the way: a chest)
