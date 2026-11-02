@@ -1,14 +1,14 @@
 // The Hollow Jarl, Wizard: to the user's castle spec (art/sunthiefs_castle_complete_encounter_spec.txt, 2). He fights in
 // the Hollow Court beside the Warrior, on the court's shared script (src/bosses/jarl_court.js), strafing between four
 // fixed magic steps at 3.6 tiles a second (no blinking about):
-//   Z1 Lance Inquisition  0.55 s; six waves of five lances in an 18-degree fan every 0.42 s, each aimed at where you were
-//                         0.23 s before it flies (105, 7.4 t/s)
+//   Z1 Lance Inquisition  0.55 s; six waves of five lances in an 18-degree fan every 0.42 s, each aimed 0.23 s before it
+//                         flies, at you, then where you will be, by turns (105, 7.4 t/s)
 //   Z2 Four Hollow Windows  the four corner sockets glow 0.95 s; portals (12,000 Life, they can be broken) open in
 //                         diagonal pairs by turns every 0.65 s for 7 s, each firing three darts in a 22-degree fan (85)
 //   Z3 Arcane Loom        0.9 s, the lanes shown; five rows of twelve orbs from the two sides by turns every 0.7 s, two
 //                         openings in each, staggered row to row (95, 4.4 t/s)
-//   Z4 Sigil Punishment   where you stand at 0, 0.5, 1.0 and 1.5 s: a circle that bursts 1.15 s later (175) and throws
-//                         four darts out (70)
+//   Z4 Sigil Punishment   at 0, 0.5, 1.0 and 1.5 s (where you stand, the last two where you are heading): a circle that
+//                         bursts 1.15 s later (175) and throws four darts out (70)
 //   Z5 Returning Royalty  0.75 s; a ring of twelve lances, two slots empty (115, 4.6 t/s); 1.55 s on they stop and flash
 //                         0.45 s, then fly back the way they came to where they began (5.4 t/s)
 //   Z6 Hollow Cage (II+)  'THE CAGE CLOSES.': eight runes 5 tiles round where you stood close to 2.5 over 2.3 s; three go
@@ -17,7 +17,7 @@
 //                         two (90); then nine lances over 120 degrees at where you were 0.4 s before (125)
 // Damage numbers are effective ones (D(n): set above a Throne-geared character's Defense).
 // Art: tools/build_jarl_wizard.py ('bx_jarl_wizard', 'wiz_shots/<name>', 'wiz_kin/portal').
-import { TAU, angleTo, target } from './kit.js';
+import { TAU, angleTo, target, ahead } from './kit.js';
 import { courtChoose, courtTick, partner, mirrored } from './jarl_court.js';
 
 const D = (n) => n + 4;
@@ -45,9 +45,9 @@ function portal(g, e, x, y, life, hp) {                    // a portal: it hangs
 const closePortals = (e) => { for (const q of e.bx.jzPortals || []) if (!q.dead) { q.noLoot = true; q.dead = true; q.deadT = 0; } e.bx.jzPortals = []; };
 
 // ================================================================ Z1 Lance Inquisition
-function inquisition(g, e) { for (let w = 0; w < 6; w++) later(e, 0.6 + w * 0.42 - 0.23, 'lanceAim'); }
-function lanceAim(g, e) {                                  // where you are now; 0.23 s on, five lances there
-  const [ox, oy] = STAFF(g, e), q = target(g, e), a = angleTo(ox, oy, q.x, q.y);
+function inquisition(g, e) { for (let w = 0; w < 6; w++) later(e, 0.6 + w * 0.42 - 0.23, 'lanceAim', { lead: w % 2 }); }
+function lanceAim(g, e, V) {                               // where you are now (every second wave: where you will be as they arrive); 0.23 s on, five lances there
+  const [ox, oy] = STAFF(g, e), q = target(g, e), [tx, ty] = V.lead ? ahead(g, e, 0.23 + Math.hypot(q.x - ox, q.y - oy) / 7.4) : [q.x, q.y], a = angleTo(ox, oy, tx, ty);
   show(g, e, ox, oy, a, 9, 0.23, 0.4);
   later(e, 0.23, 'lanceFire', { a });
 }
@@ -85,8 +85,8 @@ function loomRow(g, e, V) {
 }
 
 // ================================================================ Z4 Sigil Punishment
-function sigils(g, e) { for (let k = 0; k < 4; k++) later(e, k * 0.5, 'sigilMark'); }
-function sigilMark(g, e) { const q = target(g, e); circle(g, e, q.x, q.y, 1.6, 1.15, D(175)); later(e, 1.15, 'sigilDarts', { x: q.x, y: q.y }); }
+function sigils(g, e) { for (let k = 0; k < 4; k++) later(e, k * 0.5, 'sigilMark', { lead: k >= 2 }); }
+function sigilMark(g, e, V) { const q = target(g, e), [x, y] = V.lead ? ahead(g, e, 0.8) : [q.x, q.y]; circle(g, e, x, y, 1.6, 1.15, D(175)); later(e, 1.15, 'sigilDarts', { x, y }); }   // (the last two: where you are heading)
 function sigilDarts(g, e, V) { for (let k = 0; k < 4; k++) shot(g, e, V.x, V.y, (k * TAU) / 4, { ...DART, speed: 4.8, range: 9, dmg: D(70) }); g.sfx('zap'); }
 
 // ================================================================ Z5 Returning Royalty
@@ -134,7 +134,10 @@ function excommunication(g, e) {
   later(e, 2.5, 'excomAim');
 }
 function excomStep(g, e, V) { g.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 16, colors: SPIRIT }); e.x = V.x; e.y = V.y; e.bx.jzTo = null; g.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 16, colors: SPIRIT }); g.sfx('portal'); }
-function excomPortals(g, e) { closePortals(e); e.bx.jzExc = SOCKETS(e).map((s) => portal(g, e, s.x, s.y, 3.3, 8000)); }   // (two of them firing at once at most)
+function excomPortals(g, e) {                             // the four sockets' portals (his two kept ones among them, when he has them)
+  const G = e.bx.jzGuard;
+  e.bx.jzExc = SOCKETS(e).map((s, i) => { const k = G ? G.pair.indexOf(i) : -1; return k >= 0 && G.ps[k] && !G.ps[k].dead ? G.ps[k] : portal(g, e, s.x, s.y, 3.3, 8000); });
+}   // (two of them firing at once at most)
 function excomFans(g, e, V) {
   const q = target(g, e);
   for (const i of V.ids) { const p = (e.bx.jzExc || [])[i]; if (!p || p.dead) continue; const a = angleTo(p.x, p.y, q.x, q.y); for (let k = 0; k < 7; k++) shot(g, e, p.x, p.y, a + (k / 6 - 0.5) * deg(70), { ...BOLT, speed: 5.2, range: 18, dmg: D(90) }); }
@@ -142,6 +145,16 @@ function excomFans(g, e, V) {
 function excomAim(g, e) { const [ox, oy] = STAFF(g, e), q = target(g, e), a = angleTo(ox, oy, q.x, q.y); show(g, e, ox, oy, a, 10, 0.4, 1.4); later(e, 0.4, 'excomLances', { a }); }
 function excomLances(g, e, V) { const [ox, oy] = STAFF(g, e); for (let k = 0; k < 9; k++) shot(g, e, ox, oy, V.a + (k / 8 - 0.5) * deg(120), { ...LANCE, speed: 7, range: 15, dmg: D(125) }); }
 
+// alone: two portals of his kept at opposite corners (the spec's cap), three darts by turns every 1.3 s, at you and where
+// you are going; one broken comes back 6 s later
+function guards(g, e, dt) {
+  const S = e.bx, sk = SOCKETS(e), G = S.jzGuard || (S.jzGuard = { ps: [null, null], back: [0, 0], t: 1.3, k: 0, pair: Math.random() < 0.5 ? [0, 2] : [1, 3] });
+  G.ps.forEach((q, i) => { if ((!q || q.dead) && g.t > G.back[i]) { if (q && q.dead) { G.back[i] = g.t + 6; G.ps[i] = null; return; } const s = sk[G.pair[i]]; G.ps[i] = portal(g, e, s.x, s.y, 999, 9000); } });
+  if ((G.t -= dt) > 0) return;
+  G.t = 0.65; const q = G.ps[G.k++ % 2]; if (!q || q.dead) return;
+  const [tx, ty] = G.k % 4 < 2 ? ahead(g, e, 0.7) : [target(g, e).x, target(g, e).y], a = angleTo(q.x, q.y, tx, ty);
+  for (let k = 0; k < 3; k++) shot(g, e, q.x, q.y, a + (k - 1) * deg(10), { ...DART, speed: 5.3, range: 20, dmg: D(85) });
+}
 const P = (name, special, recover, o = {}) => ({ name, special, windup: 0.45, recover, ...o });
 const AT = {
   Z1: P('Lance Inquisition', 'inquisition', 2.8), Z2: P('Four Hollow Windows', 'windows', 1.2), Z3: P('Arcane Loom', 'loom', 4.0),
@@ -181,6 +194,7 @@ export default {
     const W = S.jzWin;                                      // the windows: a diagonal pair every 0.65 s
     if (W && S.state !== 'morph') { if (g.t > W.until) S.jzWin = null; else if ((W.t -= dt) <= 0) { W.t = 0.65; windowVolley(g, e, W); } }
     if (S.jzPrison && g.t > S.jzPrison.t0 + S.jzPrison.dur + 0.4) S.jzPrison = null;
+    if ((e.jcSurv || (e.jcCourt && Object.keys(e.jcCourt.m).length === 1)) && S.state !== 'morph' && S.state !== 'grace') guards(g, e, dt);
   },
   onDeath(g, e) { const S = e.bx; S.jzPrison = S.jzWin = null; closePortals(e); g.vx({ k: 'burst', x: e.x, y: e.y - 2, n: 40, colors: SPIRIT }); },
   // drawn on the floor: the cage's runes forming and closing in (the dark ones dim once they go dark)

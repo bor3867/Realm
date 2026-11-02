@@ -5,8 +5,8 @@
 //   Act II  'OATHS IN ASH'       either at 66% or below: a 23 s block
 //   Act III 'THE HOLLOWED OATH'  either at 30% or below, or one dead: a 20 s block while both live
 // When one dies the other, after 1.2 s ('ONE CROWN REMAINS.'), fights on its own sequence (its signature every 12-15 s),
-// a little quicker on its feet (+12%) and in its shots (+10%), no Life back. A Jarl alone (/bx) runs its own share of
-// the blocks.
+// a little quicker on its feet (+12%) and in its shots (+10%), no Life back. A Jarl on its own from the first (/bx)
+// fights that same sequence, at its own pace.
 const BLOCKS = {
   1: { len: 18, list: [[0, 'W', 'W1'], [0.7, 'Z', 'Z1'], [3.8, 'W', 'W2'], [4.1, 'Z', 'Z4'], [8.4, 'Z', 'Z2'], [9.15, 'W', 'W3'], [13.2, 'W', 'W1'], [13.85, 'Z', 'Z1']] },
   2: { len: 23, list: [[0, 'Z', 'Z2'], [1.3, 'W', 'W2'], [4.5, 'Z', 'Z3'], [5.0, 'W', 'W1'], [9.0, 'W', 'W5'], [9.7, 'Z', 'Z4'], [18.0, 'Z', 'Z5'], [18.5, 'W', 'W3']] },
@@ -49,7 +49,7 @@ export function courtTick(g, e) {
 // the next attack for this Jarl, or nothing yet
 export function courtChoose(g, e, AT) {
   const C = courtTick(g, e), me = who(e);
-  if (C.surv === e) return AT[ALONE[me][C.aloneK++ % ALONE[me].length]];
+  if (C.surv === e || Object.keys(C.m).length === 1) { C.aloneK = C.aloneK || 0; return AT[ALONE[me][C.aloneK++ % ALONE[me].length]]; }   // (one crown left, or a Jarl on its own from the first: its own sequence)
   if (C.t0 === null || g.t < C.t0) return null;
   const Y = BLOCKS[C.act], mine = Y.list.filter((r) => r[1] === me && C.m[me]);
   if (Y.list.every((r) => !alive(C.m[r[1]]) || C.done[r.join()])) {   // the block is through: the next, mirrored, once its time is up
