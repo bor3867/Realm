@@ -11,6 +11,7 @@
 //                     to the Eclipse Walk, 2.5 s of grace there
 import { R } from './util.js';
 import { TID } from './world/maps.js';
+import { ENEMIES, WAVES } from './data/enemies.js';
 
 const inR = (n, x, y) => n && x >= n.x && y >= n.y && x < n.x + n.w && y < n.y + n.h;
 const D = (n) => n + 4;
@@ -65,6 +66,8 @@ const methods = {
     // the locks (src/world/castle_plan.js LOCKS): each way's gate opens when what holds it is done
     for (const L of C.locks || []) if (!L.open && this.castleCond(L.cond, Rm)) { L.open = true; this.castleOpen(L.name); this.banner(L.say, 3000); }
     this.castleMechs(dt, Rm, S);
+    this.castleWaves(Rm, S);
+    if (n && n.form) this.castleHazard(dt, n, S);
     // a gate the server opened (its tile back to the floor): open in this copy too
     for (const w of Object.keys(C.gates || {})) for (const o of C.gates[w]) if (o.solid && !m.solid[Math.floor(o.y) * m.w + Math.floor(o.x)] && m.tiles[Math.floor(o.y) * m.w + Math.floor(o.x)] !== TID.cobble) { o.solid = false; o.sprite = 'gate_open'; }
     if (!n) return;
@@ -143,6 +146,49 @@ const methods = {
         this.banner(`${M.name} · DONE`, 2400);
       }
     }
+  },
+  // each area's own danger, where you are (the user's 52-area blueprint, 2026-11-02); every one marked before it lands
+  castleHazard(dt, n, S) {
+    const m = this.map, p = this.player, H = S.haz || (S.haz = {}), k = n.key, T = (key, every) => { H[key] = (H[key] ?? 1) - dt; if (H[key] > 0) return false; H[key] = every; return true; };
+    const zone = (x, y, r, delay, dmg, by, colors) => { const tx = Math.floor(x), ty = Math.floor(y); if (m.solid[ty * m.w + tx] || m.tiles[ty * m.w + tx] === TID.void) return; this.fx.push({ kind: 'zone', x, y, r, t: 0, delay, life: delay + 0.15, dmg: D(dmg), by, done: false, colors }); };
+    const lane = (x, y, a, len, delay, dmg, w, by, cols) => this.fx.push({ kind: 'lane', x, y, a, len, w, delay, t: 0, life: delay + 0.35, every: 0.5, dmg: D(dmg), by, hitT: 0, cols });
+    const near = (r) => [p.x + (R() - 0.5) * r, p.y + (R() - 0.5) * r];
+    const ROCK = ['#8a7a6a', '#c8b8a0'], FIRE = ['#ff6a1c', '#ffd650'], RED = ['#ff6a1c', '#ff6a1c', '#ff3a1a', '#ffffff'];
+    const alive = (id) => this.enemies.some((e) => !e.dead && e.D === ENEMIES[id] && inR(n, e.x, e.y));
+    switch (k) {
+      case 'a10': if (T(k, 1.8)) zone(...near(7), 1.1, 1.2, 95, 'falling rocks', ROCK); break;                        // the Scree Ascent: loose rock, marked where it falls
+      case 'a11': if (T(k, 1.5)) { const [x] = near(10); zone(x, n.cy + (R() - 0.5) * 4, 1.2, 1.1, 110, 'a fissure erupting', FIRE); } break;   // the Viaduct: the gorge's fissures erupting through the bridge
+      case 'a13': case 'a15': {                                       // the Broken Siege Battery: while its mechanism stands, its engine fires down a fixed lane (here and onto the Ember Stair)
+        const B = m.castle.rooms.a13; if (!B || B.pending || !alive('siege_battery') || !T('battery', 3.2)) break;
+        if (k === 'a13') lane(B.x, B.cy, 0, B.w, 1.0, 150, 2.2, 'the siege battery', RED);
+        else lane(n.cx - 2, n.y, Math.PI / 2, n.h, 1.0, 150, 2.2, 'the siege battery', RED);
+        break;
+      }
+      case 'a16': if (p.y < n.cy && T(k, 1.4)) { for (let i = 0; i < 3; i++) zone(p.x + (i - 1) * 2.4, p.y + (R() - 0.5), 1.0, 0.9 + i * 0.25, 105, 'a furnace vent', FIRE); } break;   // the Twin Bridges: the north one's furnace vents, in a running row (the south one is held by archers)
+      case 'a17': {                                                   // the Crucible: its reservoir erupts in rings; its four vents fire by turns
+        if (T(k, 4.2)) { this.vx({ k: 'burst', x: n.cx, y: n.cy, n: 20, colors: FIRE }); for (let i = 0; i < 14; i++) this.shoot('e', n.cx, n.cy, (i / 14) * Math.PI * 2 + R(), 4.2, 14, D(110), 'castle_shots/blob', 0.45, false, 'the reservoir erupting'); }
+        if (T('vent', 1.3)) { const a = ((H.vk = (H.vk || 0) + 1) % 4) * Math.PI / 2 + Math.PI / 4, vx = n.cx + Math.cos(a) * n.w * 0.36, vy = n.cy + Math.sin(a) * n.h * 0.36, b = Math.atan2(p.y - vy, p.x - vx); for (let i = -1; i <= 1; i++) this.shoot('e', vx, vy, b + i * 0.2, 5, 12, D(100), 'castle_shots/flame', 0.4, false, 'a lava vent'); }
+        break;
+      }
+    }
+    if (k === 'a15' && T('stair', 2.2)) { const y = p.y + (R() - 0.5) * 4; lane(n.cx + 7, y, Math.PI, 14, 0.9, 110, 1.2, 'a lava burst', RED); }   // the Ember Stair: lava bursting from the wall vents across it
+  },
+  // second waves (src/data/enemies.js WAVES): once an area's first defenders are down, the rest come in where they are
+  // shown (a mark on the floor 1.2 s first; never on you)
+  castleWaves(Rm, S) {
+    const m = this.map, W = S.waves || (S.waves = {});
+    for (const [key, list] of Object.entries(WAVES)) {
+      const n = Rm[key]; if (!n || n.pending || W[key]) continue;
+      if (!S.woken) S.woken = {};
+      if (!S.woken[key]) { if (this.enemies.some((e) => !e.dead && !e.rb && e.x >= n.x && e.y >= n.y && e.x < n.x + n.w && e.y < n.y + n.h)) S.woken[key] = true; continue; }
+      if (this.enemies.some((e) => !e.dead && !e.rb && !e.D.target && e.x >= n.x - 2 && e.y >= n.y - 2 && e.x < n.x + n.w + 2 && e.y < n.y + n.h + 2)) continue;
+      W[key] = true;
+      const at = list.map(([id, fx, fy]) => { let x = n.x + fx * n.w, y = n.y + fy * n.h; for (let r = 0; r < 10 && m.solid[Math.floor(y) * m.w + Math.floor(x)]; r++) { x += (n.cx - x) * 0.2; y += (n.cy - y) * 0.2; } return [id, x, y]; });
+      for (const [, x, y] of at) this.fx.push({ kind: 'zone', x, y, r: 1.2, t: 0, delay: 1.2, life: 1.2, dmg: 0, by: '', done: true, colors: ['#ff8a1f', '#ffd650'] });
+      this.banner('REINFORCEMENTS', 1600); this.sfx('boss');
+      S.waveAt = S.waveAt || []; S.waveAt.push({ t: this.t + 1.2, at });
+    }
+    if (S.waveAt) S.waveAt = S.waveAt.filter((q) => { if (this.t < q.t) return true; if (this.spawnPending) this.spawnPending(q.at); return false; });
   },
   castleEnter(key, n) {
     const m = this.map;

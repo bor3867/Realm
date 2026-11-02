@@ -1494,9 +1494,9 @@ export function dungeon(seed, def) {
             poly(pts, 2); break;
           }
           case 'switch': {                                            // three terraces, cliffs between, each joined to the next at one end
-            const T = 3, th = Math.floor((h - 4) / T);
-            for (let i = 0; i < T; i++) carve(x + 1, y + h - 2 - (i + 1) * th + 3, x + w - 2, y + h - 2 - i * th - 1);
-            for (let i = 0; i < T - 1; i++) { const ex = i % 2 ? x + 2 : x + w - 7; carve(ex, y + h - 2 - (i + 1) * th - 1, ex + 4, y + h - 2 - (i + 1) * th + 4); }
+            const T = 3, th = Math.floor(h / T), gapH = 6;                // (each terrace th tall less the cliff between: a wall of rock six deep, the paths plainly apart)
+            for (let i = 0; i < T; i++) carve(x + 1, y + h - (i + 1) * th + gapH, x + w - 2, y + h - 1 - i * th);
+            for (let i = 0; i < T - 1; i++) { const ex = i % 2 ? x + 2 : x + w - 8; carve(ex, y + h - (i + 1) * th - 1, ex + 5, y + h - (i + 1) * th + gapH); }   // (the turn: up at one end, the next at the other)
             break;
           }
           case 'viaduct': case 'span': {                              // a broken bridge over a gorge of lava (the eclipse's over the void)
@@ -1504,7 +1504,7 @@ export function dungeon(seed, def) {
             box(n, lava);
             const L = vert ? h : w, W0 = vert ? cx : cy;
             for (let i = 0; i < L; i++) {
-              const narrow = (i > L * 0.3 && i < L * 0.36) || (i > L * 0.62 && i < L * 0.68), plat = Math.abs(i - L / 2) < 4, half = narrow ? 1 : plat ? 4 : 2, wob = Math.round(2 * Math.sin(i / 7 + s));
+              const narrow = (i > L * 0.3 && i < L * 0.36) || (i > L * 0.62 && i < L * 0.68), plat = [0.2, 0.5, 0.82].some((f) => Math.abs(i - L * f) < (L > 40 ? 5 : 4)), half = narrow ? 1 : plat ? (L > 40 ? 6 : 4) : (n.region === 'eclipse' ? 3 : 2), wob = Math.round(2 * Math.sin(i / 7 + s));
               for (let d = -half; d <= half; d++) { if (vert) set(W0 + wob + d, y + i, FLOOR); else set(x + i, W0 + wob + d, FLOOR); }
             }
             break;
@@ -1810,30 +1810,37 @@ export function dungeon(seed, def) {
         for (const [dx, dy] of [[0, 0], [1, 0], [0, 1], [-1, 1]]) if (!nearRoad(x0 + dx, y0 + dy)) put2(null, x0 + dx, y0 + dy, 'dead_tree', true);
       }
     }
-    if (n.region === 'mountain') for (let k = 0; k < 6; k++) P('castle_decor/' + ['rubble', 'bones', 'collapsed_pillar'][k % 3], 0.15 + ((k * 0.37) % 0.7), 0.15 + ((k * 0.61) % 0.7), k % 3 === 2);
+    if (n.region === 'forest') for (let k = 0; k < Math.floor(n.w * n.h / 90); k++) {   // roots across the ground, stumps, fallen trunks
+      const [x, y] = at(0.1 + 0.8 * ((k * 0.754 + n.num * 0.13) % 1), 0.1 + 0.8 * ((k * 0.437 + n.num * 0.29) % 1)), K = k % 5;
+      if (K < 3) put2(null, x, y, 'castle_decor/roots', false); else if (!nearRoad(x, y, 2)) put2(null, x, y, K === 3 ? 'castle_decor/stump' : 'castle_decor/log', true);
+    }
+    if (n.region === 'mountain') for (let k = 0; k < Math.floor(n.w * n.h / 110); k++) {   // boulders, scree, the bones of climbers
+      const [x, y] = at(0.08 + 0.84 * ((k * 0.618 + n.num * 0.11) % 1), 0.08 + 0.84 * ((k * 0.382 + n.num * 0.23) % 1)), K = k % 4;
+      if (K === 0 && !nearRoad(x, y, 2)) put2(null, x, y, 'castle_decor/rock', true); else put2(null, x, y, 'castle_decor/' + ['rock', 'rubble', 'bones', 'rubble'][K], false);
+    }
     if (n.region === 'eclipse') for (let k = 0; k < 4; k++) P('castle_decor/eclipse_obelisk', k % 2 ? 0.15 : 0.85, 0.2 + k * 0.2);
     switch (n.key) {
       case 'a01':                                                    // Realmfall Hollow: the stream, the crater, fallen trees, the broken arch north
         for (let y = n.y; y < n.y + n.h; y++) for (let d = 0; d < 2; d++) { const x = Math.round(n.x + n.w * 0.72 + Math.sin(y / 4) * 2) + d; if (isF(x, y)) set(x, y, TID.shallows); }
         for (let a = 0; a < 6.28; a += 0.3) P('castle_decor/rubble', 0.45 + Math.cos(a) * 0.14, 0.55 + Math.sin(a) * 0.12, false);
-        P('castle_decor/collapsed_pillar', 0.42, 0.08); P('castle_decor/collapsed_pillar', 0.58, 0.08); P('dead_tree', 0.2, 0.3); P('fallen_head', 0.3, 0.75, false);
+        P('castle_decor/collapsed_pillar', 0.42, 0.08); P('castle_decor/collapsed_pillar', 0.58, 0.08); P('castle_decor/log', 0.22, 0.3); P('castle_decor/log', 0.75, 0.25); P('castle_decor/rock', 0.3, 0.75); P('castle_decor/rock', 0.62, 0.8);   // (the broken arch north; trees thrown down; stone)
         break;
-      case 'a02': P('castle_decor/broken_catapult', 0.5, 0.3); P('crate', 0.53, 0.3); P('barrel', 0.47, 0.32); for (const fx of [0.25, 0.7]) { const [x, y] = at(fx, 0.8); if (!nearRoad(x, y)) carve(x, y, x + 1, y + 1, TID.water); } break;   // (the abandoned wagon, dark pools)
-      case 'a03': P('rune_pillar', 0.5, 0.45); P('castle_decor/shattered_statue', 0.42, 0.4); P('castle_decor/shattered_statue', 0.58, 0.4); break;   // (the abandoned shrine)
+      case 'a02': P('castle_decor/wagon', 0.5, 0.25); P('crate', 0.56, 0.25); P('barrel', 0.44, 0.27); { const [lx, ly] = at(0.38, 0.5); for (let d = -3; d <= 3; d++) if (!road.has((ly + d) * S + lx) || Math.abs(d) > 1) put2(null, lx, ly + d, 'castle_decor/log', true); }   // (the abandoned wagon; the fallen tree, the first choke) for (const fx of [0.25, 0.7]) { const [x, y] = at(fx, 0.8); if (!nearRoad(x, y)) carve(x, y, x + 1, y + 1, TID.water); } break;   // (the abandoned wagon, dark pools)
+      case 'a03': P('castle_decor/shrine_altar', 0.5, 0.45); P('rune_pillar', 0.5, 0.35); P('castle_decor/shattered_statue', 0.42, 0.4); P('castle_decor/shattered_statue', 0.58, 0.4); break;   // (the abandoned shrine)
       case 'a04': for (let k = 0; k < 6; k++) P('castle_decor/' + (k % 2 ? 'bones' : 'shield_broken'), 0.2 + k * 0.12, k % 2 ? 0.3 : 0.7, false); break;   // (bones, shattered armour)
       case 'a05': for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) put2(null, n.cx + dx, n.cy + dy, 'dead_tree', true); break;   // (the great corrupted tree the trail wraps round)
-      case 'a06': for (const [fx, fy] of [[0.3, 0.3], [0.7, 0.3], [0.25, 0.6], [0.75, 0.6]]) P('castle_decor/shattered_statue', fx, fy); P('castle_decor/sun_statue', 0.5, 0.2); break;   // (statues facing the altar; the sun he stole, on its stone)
-      case 'a07': for (let a = 0; a < 6.28; a += 0.45) if (Math.sin(a * 3) > -0.3) P('ruin_wall', 0.5 + Math.cos(a) * 0.16, 0.5 + Math.sin(a) * 0.18); P('brazier', 0.5, 0.5); P('castle_decor/rubble', 0.3, 0.7, false); break;   // (the broken tower, its beacon)
-      case 'a09': P('castle_decor/broken_catapult', 0.35, 0.4); P('castle_decor/fallen_soldier', 0.45, 0.55, false); P('castle_decor/fallen_soldier', 0.6, 0.35, false); P('castle_decor/lava_crack', 0.7, 0.6, false); P('castle_decor/lava_crack', 0.25, 0.7, false); break;
+      case 'a06': P('castle_decor/shrine_altar', 0.5, 0.4); for (const [fx, fy] of [[0.3, 0.3], [0.7, 0.3], [0.25, 0.6], [0.75, 0.6]]) P('castle_decor/shattered_statue', fx, fy); P('castle_decor/sun_statue', 0.5, 0.2); break;   // (statues facing the altar; the sun he stole, on its stone)
+      case 'a07': for (let a = 0; a < 6.28; a += 0.45) if (Math.sin(a * 3) > -0.3) P('ruin_wall', 0.5 + Math.cos(a) * 0.16, 0.5 + Math.sin(a) * 0.18); P('brazier', 0.5, 0.5); P('castle_decor/rubble', 0.3, 0.7, false); P('castle_decor/tent', 0.2, 0.25); P('castle_decor/tent', 0.8, 0.75); break;   // (the broken tower, its beacon; the watch's camp)
+      case 'a09': P('castle_decor/wagon', 0.35, 0.4); P('castle_decor/tent', 0.75, 0.3); P('castle_decor/barricade', 0.5, 0.2); P('castle_decor/fallen_soldier', 0.45, 0.55, false); P('castle_decor/fallen_soldier', 0.6, 0.35, false); P('castle_decor/lava_crack', 0.7, 0.6, false); P('castle_decor/lava_crack', 0.25, 0.7, false); break;
       case 'a10': P('ruin_wall', 0.5, 0.08); P('ruin_wall2', 0.6, 0.08); break;   // (the lookout above the last turn)
       case 'a11': case 'a36': case 'a44': case 'a49': row('castle_decor/chain_post', 0.15, 0.1, 0.9, 9, false); break;
-      case 'a12': for (const fy of [0.25, 0.6]) row('sandbag', fy, 0.4, 0.6, 2); break;   // (the barricades)
-      case 'a13': P('castle_decor/broken_catapult', 0.3, 0.35); P('castle_decor/broken_catapult', 0.7, 0.35); for (const fx of [0.4, 0.55, 0.65]) P('crate', fx, 0.75); P('castle_decor/burning_debris', 0.5, 0.6, false); break;
-      case 'a14': P('crate', 0.5, 0.12); P('barrel', 0.6, 0.12); P('crate', 0.4, 0.15); break;   // (the smugglers' cache)
+      case 'a12': for (const fy of [0.3, 0.62]) for (const fx of [0.4, 0.6]) P('castle_decor/barricade', fx, fy); break;   // (the barricades)
+      case 'a13': P('castle_decor/siege_engine', 0.25, 0.35); P('castle_decor/siege_engine', 0.75, 0.35); P('castle_decor/barricade', 0.35, 0.8); for (const fx of [0.4, 0.55, 0.65]) P('crate', fx, 0.75); P('castle_decor/burning_debris', 0.5, 0.6, false); break;
+      case 'a14': P('castle_decor/log', 0.4, 0.5); P('castle_decor/log', 0.6, 0.3); P('crate', 0.5, 0.12); P('barrel', 0.6, 0.12); P('crate', 0.4, 0.15); break;   // (the smugglers' cache)
       case 'a15': case 'a43': case 'a51': for (let k = 0; k < 4; k++) P(n.region === 'eclipse' ? 'castle_decor/eclipse_obelisk' : 'brazier', 0.2, 0.15 + k * 0.22); break;
       case 'a17': case 'a39': for (let a = 0; a < 6.28; a += 1.57) P('ember_vent', 0.5 + Math.cos(a) * 0.36, 0.5 + Math.sin(a) * 0.36, false); break;   // (the vents round the reservoir)
-      case 'a18': P('brazier', 0.3, 0.4); P('brazier', 0.7, 0.4); P('banner', 0.5, 0.15); break;   // (the two pyres)
-      case 'a19': case 'a20': row('banner', 0.1, 0.15, 0.85, 8); row('sandbag', 0.55, 0.3, 0.7, 2); P('brazier', 0.15, 0.5); P('brazier', 0.85, 0.5); break;
+      case 'a18': P('banner', 0.5, 0.1); P('castle_decor/barricade', 0.3, 0.7); P('castle_decor/barricade', 0.7, 0.7); P('castle_decor/tent', 0.15, 0.2); break;   // (its layered barricades; the two pyres stand as monsters: src/data/enemies.js)
+      case 'a19': case 'a20': row('banner', 0.1, 0.15, 0.85, 8); P('castle_decor/barricade', 0.3, 0.55); P('castle_decor/barricade', 0.7, 0.55); P('castle_decor/siege_engine', 0.12, 0.8); P('brazier', 0.15, 0.5); P('brazier', 0.85, 0.5); break;
       case 'a21': row('sandbag', 0.35, 0.15, 0.45, 2); row('sandbag', 0.65, 0.55, 0.85, 2); P('castle_decor/broken_catapult', 0.75, 0.25); break;
       case 'a22': for (const fx of [0.2, 0.8]) { const [x, y] = at(fx, 0.45); carve(x - 2, y - 2, x + 2, y + 2, TID.void); put2(null, x, y + 4, 'brazier'); } break;   // (the two towers, a brazier at each)
       case 'a23': P('castle_decor/forge_press', 0.25, 0.2); P('castle_decor/chain_post', 0.75, 0.2); P('anvil_block', 0.25, 0.7); break;   // (gears and chains of the drawbridge)
