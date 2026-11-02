@@ -357,16 +357,22 @@ export default {
     const S = e.bx, b = r.b, C = MID(e), R0 = RAD(e), L = S.slLaw;
     if (L && S.phase >= 2 && !(S.slPause > g.t)) {
       const hot = L.state === 0 || L.state === 1 ? 0 : L.state === 2 || L.state === 3 ? 1 : -1, warn = L.state === 0 || L.state === 2;
-      if (hot >= 0) for (let q = 0; q < 4; q++) {
-        if (q % 2 !== hot) continue;
-        for (let rr = 2.5; rr < R0; rr += 1.5) for (let k = -6; k <= 6; k++) {
-          const a = q * Math.PI / 2 + (k / 6) * (Math.PI / 4), [x, y] = r.proj(C.x + Math.cos(a) * rr, C.y + Math.sin(a) * rr);   // (quarter q: 90q degrees, 45 either side)
-          b.globalAlpha = warn ? 0.25 + 0.2 * Math.sin(g.t * 10) : 0.5;
-          b.fillStyle = hot ? ((k + Math.round(rr)) % 2 ? '#8a5ad8' : '#2a1040') : ((k + Math.round(rr)) % 3 ? '#ffd650' : '#ff9a2a');
-          b.fillRect(Math.round(x) - 1, Math.round(y) - 1, hot ? 2 : 3, hot ? 2 : 3);
+      if (hot >= 0) {                                       // each burning quarter's tiles washed in its colour (solar gold, eclipse violet hatched), pulsing while it's only a warning
+        const [o0x, o0y] = r.proj(0, 0), [o1x] = r.proj(1, 0), ts = Math.max(4, Math.round(Math.abs(o1x - o0x)));
+        const base = warn ? 0.14 + 0.1 * Math.sin(g.t * 10) : 0.26;
+        for (let ty = Math.floor(C.y - R0); ty <= C.y + R0; ty++) for (let tx = Math.floor(C.x - R0); tx <= C.x + R0; tx++) {
+          const cx = tx + 0.5, cy = ty + 0.5, d = Math.hypot(cx - C.x, cy - C.y);
+          if (d < 2 || d > R0 || quarterOf(e, cx, cy) % 2 !== hot) continue;
+          const [x, y] = r.proj(cx, cy);
+          b.globalAlpha = base; b.fillStyle = hot ? '#6a2ab0' : '#ffb030';
+          b.fillRect(Math.round(x - ts / 2), Math.round(y - ts / 2), ts, ts);
+          b.globalAlpha = base + 0.25; b.fillStyle = hot ? '#2a1040' : '#fff0a0';   // (a mark in each: a sun's dot, or the eclipse's hatching, not colour alone)
+          if (hot) { for (let i = 0; i < ts; i += 4) b.fillRect(Math.round(x - ts / 2 + i), Math.round(y - ts / 2 + i), 2, 1); } else b.fillRect(Math.round(x) - 1, Math.round(y) - 1, 2, 2);
         }
+        b.globalAlpha = 0.85; b.fillStyle = hot ? '#b884ff' : '#ffd650';   // the quarters' edges, bright
+        for (let q = 0; q < 4; q++) { const a = q * Math.PI / 2 + Math.PI / 4; for (let rr = 2; rr < R0; rr += 0.5) { const [x, y] = r.proj(C.x + Math.cos(a) * rr, C.y + Math.sin(a) * rr); b.fillRect(Math.round(x) - 1, Math.round(y) - 1, 2, 2); } }
+        b.globalAlpha = 1;
       }
-      b.globalAlpha = 1;
     }
     const Co = S.slCorona;
     if (Co) { b.fillStyle = '#ffd650'; b.globalAlpha = 0.6; for (let i = 0; i < 20; i++) for (const Rr of [4, 10]) { const a = (i / 20) * TAU, [x, y] = r.proj(Co.cx + Math.cos(a) * Rr, Co.cy + Math.sin(a) * Rr); b.fillRect(Math.round(x) - 1, Math.round(y) - 1, 3, 3); } b.globalAlpha = 1; }
