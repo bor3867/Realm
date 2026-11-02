@@ -103,13 +103,29 @@ function deathHunt(g, e) {
 function huntFan(g, e) { if (e.jwDash) return; const a = bearing(g, e); for (let k = 0; k < 7; k++) shot(g, e, e.x, e.y, a + (k / 6 - 0.5) * deg(90), { ...CRESCENT, speed: 6.2, range: 10, dmg: D(100) }); swish(g); }   // (a sweeping axe fan)
 function huntSpent(g, e) { e.bx.jwHunt = null; stagger(g, e, 1.5, 'THE JARL STAGGERS'); }
 
+// under it all (2026-11-02, the user: "we need BULLET HELL"): a crescent fan every 1.6 s (1.3 in III), by turns at you
+// and where you are going, while he chases, charges and slams
+function pressureFan(g, e) {
+  const S = e.bx; if (S.jwStag > g.t || e.jwDash) return;
+  const q = target(g, e), lead = (S.jwPf = (S.jwPf || 0) + 1) % 2, [vx, vy] = [S.pvx || 0, S.pvy || 0], tx = lead ? q.x + vx * 0.6 : q.x, ty = lead ? q.y + vy * 0.6 : q.y, a = angleTo(e.x, e.y, tx, ty);
+  for (let k = 0; k < 5; k++) shot(g, e, e.x, e.y, a + (k / 4 - 0.5) * deg(48), { ...CRESCENT, speed: 6.4, range: 12, dmg: D(95) });
+}
+// Axe Storm: he plants himself and spins: three arms of crescents turning round him for 3 s (a crescent an arm every
+// 0.12 s; the way they turn changes each time), then a ring of eighteen as he stops (105)
+function axeStorm(g, e) {
+  const S = e.bx; S.jwStorm = { a0: Math.random() * TAU, dir: (S.jwSd = -(S.jwSd || 1)), t0: g.t + 0.6, until: g.t + 3.6, next: g.t + 0.6 };
+  g.fx.push({ kind: 'zone', src: e, x: e.x, y: e.y, r: 2.2, t: 0, delay: 0.6, life: 0.6, dmg: 0, by: e.D.name, done: true, colors: FIRE });
+  if (g.banner) g.banner('THE AXE STORM', 1000); g.sfx('roar');
+}
+function stormEnd(g, e) { for (let k = 0; k < 18; k++) shot(g, e, e.x, e.y, (k / 18) * TAU, { ...CRESCENT, speed: 5, range: 13, dmg: D(105) }); swish(g); }
+
 const P = (name, special, recover, o = {}) => ({ name, special, windup: 0.45, recover, ...o });
 const AT = {
   chain: P("Executioner's Charge", 'chain', 0.6, { move: 'hold' }), sweep: P('Crownfall', 'sweep', 2.75, { move: 'hold' }), shock: P("King's Ruin", 'shock', 2.0),
-  hunt: P('Relentless Pursuit', 'deathHunt', 1.0, { move: 'chase' }),
+  hunt: P('Relentless Pursuit', 'deathHunt', 1.0, { move: 'chase' }), storm: P('Axe Storm', 'axeStorm', 3.4, { move: 'hold' }),
 };
 // his order, by phase (the chain always first: a hunter opens with the hunt)
-const ORDER = { 1: ['chain', 'sweep', 'chain', 'shock', 'chain', 'hunt'], 2: ['chain', 'shock', 'chain', 'sweep', 'hunt'], 3: ['chain', 'sweep', 'chain', 'shock', 'chain', 'hunt'] };
+const ORDER = { 1: ['chain', 'shock', 'storm', 'sweep', 'hunt'], 2: ['storm', 'chain', 'sweep', 'shock', 'hunt'], 3: ['chain', 'storm', 'shock', 'sweep', 'hunt', 'storm'] };
 function choose(g, e) {
   courtTick(g, e);
   const S = e.bx, L = ORDER[S.phase] || ORDER[3];
@@ -126,8 +142,8 @@ export default {
   walkPace: 4.4,                                            // (his walk clip at the pace he walks)
   charging: (g, e) => !!(e.jwDash && g.t >= e.jwDash.at) || !!(e.bx.jwHunt && g.t > e.bx.jwHunt.at && g.t < e.bx.jwHunt.until),   // (his charge clip: a charge, the Death Hunt)
   dmgMult: (g, e) => (e.bx.jwStag > g.t ? 1.33 : 1),        // (staggered: open to you)
-  phases: { 1: { move: 'walk', patterns: Object.values(AT) }, 2: { move: 'walk', patterns: Object.values(AT) }, 3: { move: 'walk', patterns: Object.values(AT) } },
-  specials: { chain, chargeMark, chargeLock, spin, sweep, sweepMark, sweepCut, crownFans, slamThud2, shock, shockRing, deathHunt, huntFan, huntSpent },
+  phases: { 1: { move: 'walk', pressure: [{ every: 1.6, special: 'pressureFan', delay: 2 }], patterns: Object.values(AT) }, 2: { move: 'walk', pressure: [{ every: 1.45, special: 'pressureFan', delay: 1.5 }], patterns: Object.values(AT) }, 3: { move: 'walk', pressure: [{ every: 1.3, special: 'pressureFan', delay: 1.5 }], patterns: Object.values(AT) } },
+  specials: { pressureFan, axeStorm, stormEnd, chain, chargeMark, chargeLock, spin, sweep, sweepMark, sweepCut, crownFans, slamThud2, shock, shockRing, deathHunt, huntFan, huntSpent },
   moves: {
     walk(g, e, dt) {                                        // after you, 4.6 tiles a second
       if (e.jwDash || e.bx.jwStag > g.t) return;
@@ -158,6 +174,8 @@ export default {
         if (Math.random() < 0.6) g.vx({ k: 'burst', x: e.x - Math.cos(C.a), y: e.y - Math.sin(C.a), n: 2, colors: ASH });
       }
     }
+    const ST = S.jwStorm;                                   // the storm turning
+    if (ST && g.t >= ST.t0) { if (g.t > ST.until) { S.jwStorm = null; stormEnd(g, e); } else if (g.t >= ST.next) { ST.next += 0.12; const a = ST.a0 + ST.dir * deg(150) * (g.t - ST.t0); for (let i = 0; i < 3; i++) shot(g, e, e.x, e.y, a + (i / 3) * TAU, { ...CRESCENT, speed: 5.4, range: 13, dmg: D(100) }); } }
     if (S.jwStag > g.t && Math.random() < 0.25) g.vx({ k: 'burst', x: e.x + (Math.random() - 0.5) * 1.5, y: e.y - 2.5, n: 1, colors: ['#ffd650', '#fff4c4'] });   // (reeling: sparks over him)
     if (S.phase >= 2 && Math.random() < 0.2) g.vx({ k: 'burst', x: e.x + (Math.random() - 0.5) * 2, y: e.y - 1 - Math.random(), n: 1, colors: ASH });
   },
