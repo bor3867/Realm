@@ -84,7 +84,7 @@ export const WAYS = [
 // the locks: on the way a->b, and what opens it
 export const LOCKS = [
   [7, 8, 'clear:7', 'THE WATCH GATE OPENS'], [19, 20, 'clear:19', 'THE FINAL ASCENT OPENS'],
-  [23, 24, 'mech:draw', 'THE DRAWBRIDGE LOWERS'], [25, 26, 'break:25', 'THE CURSED BANNERS FALL · THE COURT IS OPEN'], [26, 27, 'jarls', 'THE KEEP GATE GRINDS OPEN'],
+  [23, 24, 'mechs:clampL,clampR', 'THE CHAINS RELEASE · THE DRAWBRIDGE LOWERS'], [25, 26, 'break:25', 'THE CURSED BANNERS FALL · THE COURT IS OPEN'], [26, 27, 'jarls', 'THE KEEP GATE GRINDS OPEN'],
   [31, 32, 'break:31', 'THE RITUAL ENDS · THE RELIQUARY OPENS'], [35, 36, 'mech:valve', 'THE COOLING VALVE TURNS · THE OVERFLOW SINKS'],
   [43, 44, 'seal+chain', 'THE BROKEN CROWN SEAL AND THE CHAIN RELEASE · THE GATE OPENS'], [45, 46, 'mech:seal45', 'THE ENTRANCE SEAL OPENS'],
   [46, 47, 'ashkar', 'ASHKAR IS FALLEN · THE GREAT SUN GATE IS OPEN'], [50, 51, 'break:50', 'THE CELESTIAL ANCHORS FAIL · THE WAY STEADIES'],
@@ -93,7 +93,8 @@ export const LOCKS = [
 export const MECHS = [
   ['brazL', 22, 'THE WEST SIGNAL BRAZIER', 'SMOTHERING THE SIGNAL FIRE', 'castle_decor/pyre', 0.2, 0.7],
   ['brazR', 22, 'THE EAST SIGNAL BRAZIER', 'SMOTHERING THE SIGNAL FIRE', 'castle_decor/pyre', 0.8, 0.7],
-  ['draw', 23, 'THE DRAWBRIDGE WINCH', 'LOWERING THE DRAWBRIDGE', 'castle_decor/winch'],
+  ['clampL', 23, 'THE WEST WINCH CLAMP', 'RELEASING THE WEST CLAMP', 'castle_decor/winch', 0.2, 0.25],
+  ['clampR', 23, 'THE EAST WINCH CLAMP', 'RELEASING THE EAST CLAMP', 'castle_decor/winch', 0.8, 0.25],
   ['seal', 32, 'THE BROKEN CROWN SEAL', 'TAKING THE BROKEN CROWN SEAL', 'castle_decor/valve'],
   ['valve', 35, 'THE COOLING VALVE', 'TURNING THE COOLING VALVE', 'castle_decor/valve'],
   ['chain', 40, 'THE GREAT CHAIN RELEASE', 'RELEASING THE GREAT CHAIN', 'castle_decor/winch'],

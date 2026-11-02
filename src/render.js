@@ -1549,6 +1549,7 @@ export class Renderer {
     if (!e.dead && !S.B.noShadow) this.shadow(sx, sy, Math.min(48 * K, W * 0.55));
     const hy = this.R ? hoverY(this.R, def, g.t, S.phase0, S.phase) : 0;
     if (e.dead) this.b.globalAlpha = Math.max(0, 1 - e.deadT / 1.4);
+    else if (S.B.alpha) this.b.globalAlpha = S.B.alpha(g, e);   // (a boss between places: the Hollow Jarl, Wizard's step)
     if (S.alt && S.alt.def) {                               // another body for a while (the Orrery reborn as a supernova): centred on its middle
       const A = S.alt, cy = sy + hy - (e.bxLift ? 0 : (def.foot[1] - def.size[1] / 2) * 2 * K);
       A.anim.update(Math.max(0, Math.min(0.1, g.t - (A.lastT === undefined ? g.t : A.lastT)))); A.lastT = g.t;   // its clip runs with the game's clock

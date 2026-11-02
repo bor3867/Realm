@@ -21,7 +21,7 @@ const BAND = {
   4: [[10, 12], [4, 5], [3, 4]],
   5: [[11, 13], [5, 6], [4, 5]],
 };
-const LAND = { brine_cathedral: 1, abyssal_kraken: 1, wick_mother: 2, thornheart_treant: 2.5, orrery_of_winter: 3, emily_the_yapper: 3, penitent_colossus: 4, the_fallen_star: 4, ashkar_gatekeeper: 4, jarl_warrior: 3, jarl_wizard: 3, forge_overseer: 4 };   // (the Throne's Gatekeeper: a step under Solkhar's five)
+const LAND = { brine_cathedral: 1, abyssal_kraken: 1, wick_mother: 2, thornheart_treant: 2.5, orrery_of_winter: 3, emily_the_yapper: 3, penitent_colossus: 4, the_fallen_star: 4, ashkar_gatekeeper: 4, jarl_warrior: 3, jarl_wizard: 3, forge_overseer: 4, drawbridge_technician: 3 };   // (the Throne's Gatekeeper: a step under Solkhar's five)
 const PER_KILL = { ut: 0.08, legendary: 0.03, mythic: 0.01 };
 const rarity = (it) => (!it ? null : it.mythic ? 'mythic' : it.legendary || it.rfRarity === 'legendary' ? 'legendary' : it.ut ? 'ut' : null);
 

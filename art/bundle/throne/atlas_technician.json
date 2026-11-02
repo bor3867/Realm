@@ -1,0 +1,261 @@
+{
+ "rf": true,
+ "meta": {
+  "name": "The Drawbridge Technician",
+  "version": 1
+ },
+ "sheets": {
+  "bx_drawbridge_technician": {
+   "image": "technician.png",
+   "kind": "boss",
+   "sprites": {
+    "drawbridge_technician": {
+     "frames": {
+      "i_0": [
+       0,
+       0,
+       20,
+       19
+      ],
+      "i_1": [
+       20,
+       0,
+       20,
+       19
+      ],
+      "i_2": [
+       40,
+       0,
+       20,
+       19
+      ],
+      "i_3": [
+       60,
+       0,
+       20,
+       19
+      ],
+      "w_0": [
+       80,
+       0,
+       20,
+       19
+      ],
+      "w_1": [
+       100,
+       0,
+       20,
+       19
+      ],
+      "w_2": [
+       0,
+       19,
+       20,
+       19
+      ],
+      "w_3": [
+       20,
+       19,
+       20,
+       19
+      ],
+      "a_0": [
+       40,
+       19,
+       20,
+       19
+      ],
+      "a_1": [
+       60,
+       19,
+       20,
+       19
+      ],
+      "a_2": [
+       80,
+       19,
+       20,
+       19
+      ],
+      "h": [
+       100,
+       19,
+       20,
+       19
+      ],
+      "e_0": [
+       0,
+       38,
+       20,
+       19
+      ],
+      "e_1": [
+       20,
+       38,
+       20,
+       19
+      ],
+      "e_2": [
+       40,
+       38,
+       20,
+       19
+      ],
+      "e_3": [
+       60,
+       38,
+       20,
+       19
+      ],
+      "d_0": [
+       80,
+       38,
+       20,
+       19
+      ],
+      "d_1": [
+       100,
+       38,
+       20,
+       19
+      ],
+      "d_2": [
+       0,
+       57,
+       20,
+       19
+      ],
+      "d_3": [
+       20,
+       57,
+       20,
+       19
+      ],
+      "d_4": [
+       40,
+       57,
+       20,
+       19
+      ]
+     },
+     "anims": {
+      "idle1": {
+       "frames": [
+        "i_0",
+        "i_1",
+        "i_2",
+        "i_3"
+       ],
+       "fps": 4,
+       "loop": true
+      },
+      "walk1": {
+       "frames": [
+        "w_0",
+        "w_1",
+        "w_2",
+        "w_3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack1": {
+       "frames": [
+        "a_0",
+        "a_1",
+        "a_2",
+        "a_2"
+       ],
+       "fps": 7,
+       "loop": false
+      },
+      "hurt1": {
+       "frames": [
+        "h"
+       ],
+       "fps": 5,
+       "loop": false
+      },
+      "idle2": {
+       "frames": [
+        "i_0",
+        "i_1",
+        "i_2",
+        "i_3"
+       ],
+       "fps": 4,
+       "loop": true
+      },
+      "walk2": {
+       "frames": [
+        "w_0",
+        "w_1",
+        "w_2",
+        "w_3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack2": {
+       "frames": [
+        "a_0",
+        "a_1",
+        "a_2",
+        "a_2"
+       ],
+       "fps": 9,
+       "loop": false
+      },
+      "hurt2": {
+       "frames": [
+        "h"
+       ],
+       "fps": 5,
+       "loop": false
+      },
+      "enter2": {
+       "frames": [
+        "e_0",
+        "e_1",
+        "e_2",
+        "e_3"
+       ],
+       "fps": 3.5,
+       "loop": false
+      },
+      "death": {
+       "frames": [
+        "d_0",
+        "d_1",
+        "d_2",
+        "d_3",
+        "d_4"
+       ],
+       "fps": 2.2,
+       "loop": false
+      }
+     },
+     "death": "death",
+     "meta": {},
+     "phases": {
+      "1": {
+       "name": "The Engineer",
+       "idle": "idle1",
+       "attack": "attack1",
+       "walk": "walk1",
+       "hurt": "hurt1"
+      },
+      "2": {
+       "name": "The Mechanism Unstable",
+       "idle": "idle2",
+       "attack": "attack2",
+       "walk": "walk2",
+       "hurt": "hurt2",
+       "enter": "enter2"
+      }
+     }
+    }
+   }
+  }
+ }
+}

@@ -126,6 +126,7 @@ const methods = {
     const [k, v] = c.split(':'), inA = (n, e) => e.x >= n.x - 2 && e.y >= n.y - 2 && e.x < n.x + n.w + 2 && e.y < n.y + n.h + 2;
     if (k === 'clear' || k === 'break') { const n = area(+v); if (n.pending) return false; return !this.enemies.some((e) => !e.dead && !e.rb && (k === 'break' ? e.D.target : true) && inA(n, e)); }
     if (k === 'mech') return mech(v);
+    if (k === 'mechs') return v.split(',').every(mech);
     if (k === 'seal+chain') return mech('seal') && mech('chain');
     if (k === 'jarls' || k === 'ashkar') { const n = area(k === 'jarls' ? 26 : 46), W = (this.map.wardens || []).filter((w) => w.room === n); return W.length > 0 && W.every((w) => w.dead); }
     return false;
@@ -276,6 +277,15 @@ const methods = {
   },
   castleOpen(which) {
     const m = this.map;
+    if (which === '23-24' && !this.dbLowering && m.castle.rooms && m.castle.rooms.a23) {   // the drawbridge: it comes down a plank at a time from the engine's side, its chains running out
+      this.dbLowering = true; const A = m.castle.rooms.a23, G = (m.castle.gates[which] || []).slice().sort((p, q) => Math.hypot(p.x - A.cx, p.y - A.cy) - Math.hypot(q.x - A.cx, q.y - A.cy));
+      this.sfx('chain'); this.vx({ k: 'shake', amt: 5 });
+      G.forEach((o, k) => (this.castleLater = this.castleLater || []).push({ t: this.t + 0.3 + k * 0.06, f: () => {
+        const i = Math.floor(o.y) * m.w + Math.floor(o.x); o.sprite = 'gate_open'; o.solid = false; m.solid[i] = 0; if (o.floor !== undefined) m.tiles[i] = o.floor;
+        this.vx({ k: 'burst', x: o.x, y: o.y - 0.3, n: 3, colors: ['#8a6a3a', '#5a3a1a', '#c8b8a0'] }); if (k % 6 === 0) this.sfx('chain');
+      } }));
+      return;
+    }
     for (const o of ((m.castle.gateLooks || {})[which]) || []) {   // its look: opening (dust or sparks where each piece stood), then open
       const L = o.look; o.sprite = 'castle_decor/' + (L === 'portcullis' ? 'gate_portcullis_open' : L + '_open');
       this.vx({ k: 'burst', x: o.x, y: o.y - 0.6, n: 10, colors: L === 'gate_seal' ? ['#b884cc', '#e6c8ff', '#ffffff'] : L === 'gate_roots' ? ['#5a3a1a', '#8a6a3a', '#2a1a10'] : ['#8a8490', '#c8c0d8', '#5a5560'] });

@@ -921,6 +921,11 @@ export class Game {
       b.state = 'sleep'; b.room = gr; b.midBoss = true; b.warden = true;
       (m.wardens = m.wardens || []).push(b); m.seals = (m.seals || 0) + 1; m.sealsLeft = (m.sealsLeft || 0) + 1;
     }
+    const eng = def.engineer && m.rooms.find((q) => q.key === 'a23');
+    if (eng) {                                          // the Drawbridge Technician in his engine (asleep till you come in; its doors lock till he falls)
+      const b = this.spawnRealmBoss(def.engineer, { x: eng.cx + 0.5, y: eng.y + eng.h * 0.4 }, bxEnemyDef(def.engineer));
+      b.state = 'sleep'; b.room = eng; b.midBoss = true;
+    }
     const fr = def.foundry && m.rooms.find((q) => q.kind === 'chainforge');
     if (fr) {                                           // a miniboss in its own hall (the castle's Forge Overseer): asleep till you come in; its doors lock till it falls
       const b = this.spawnRealmBoss(def.foundry, { x: fr.cx + 0.5, y: fr.cy + 0.5 }, bxEnemyDef(def.foundry));

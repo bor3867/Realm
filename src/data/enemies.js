@@ -1353,6 +1353,7 @@ Object.assign(DUNGEONS.heart, { seals: ['warden', 'warden', 'warden'], puzzle: n
 const F = (...L) => L;
 // the second waves (src/castle.js): when an area's first are all down, these come in where it says, shown first
 export const WAVES = {
+  a25: [['sunbound_knight', 0.35, 0.9], ['sunbound_knight', 0.65, 0.9], ['sun_cultist', 0.5, 0.95]],   // (the Hall of Hollow Banners' second: in from its door behind you)
   a19: [['cinder_archer', 0.15, 0.1], ['cinder_archer', 0.85, 0.1], ['lava_guard', 0.5, 0.08]],     // (the Final Rampart's second line)
   a12: [['infernal_hound', 0.85, 0.15], ['infernal_hound', 0.15, 0.15]],                              // (hounds down the switchbacks after you)
   a18: [['sunbound_knight', 0.2, 0.1], ['sunbound_knight', 0.8, 0.1]],
@@ -1383,9 +1384,9 @@ const FORMATION = {
   a20: F(['sunbound_knight', 0.4, 0.45], ['sunbound_knight', 0.6, 0.45], ['cinder_archer', 0.15, 0.2], ['cinder_archer', 0.5, 0.12], ['cinder_archer', 0.85, 0.2]),
   a21: F(['lava_guard', 0.3, 0.4], ['lava_guard', 0.7, 0.6], ['infernal_hound', 0.5, 0.5], ['infernal_hound', 0.55, 0.55], ['sun_cultist', 0.85, 0.2]),
   a22: F(['sunbound_knight', 0.2, 0.7], ['cinder_archer', 0.12, 0.25], ['cinder_archer', 0.28, 0.25], ['solar_acolyte', 0.8, 0.7], ['sun_cultist', 0.8, 0.25]),
-  a23: F(['forge_golem', 0.5, 0.45], ['lava_guard', 0.3, 0.7], ['lava_guard', 0.7, 0.7]),
+  a23: F(['lava_guard', 0.25, 0.8], ['lava_guard', 0.75, 0.8]),   // (the Technician's two guards; he and his reinforcements: src/bosses/drawbridge_technician.js)
   a24: F(['sunbound_knight', 0.4, 0.6], ['sunbound_knight', 0.6, 0.6], ['sun_cultist', 0.3, 0.25], ['sun_cultist', 0.7, 0.25]),
-  a25: F(['hollow_wraith', 0.3, 0.5], ['hollow_wraith', 0.7, 0.5], ['sunbound_knight', 0.4, 0.4], ['sunbound_knight', 0.6, 0.4], ['cursed_banner', 0.2, 0.12], ['cursed_banner', 0.5, 0.12], ['cursed_banner', 0.8, 0.12]),
+  a25: F(['hollow_wraith', 0.3, 0.5], ['hollow_wraith', 0.7, 0.5], ['cursed_banner', 0.2, 0.12], ['cursed_banner', 0.5, 0.12], ['cursed_banner', 0.8, 0.12]),   // (the banners and the wraiths; the knights and the cultist come second)
   a27: F(['hollow_wraith', 0.15, 0.5], ['hollow_wraith', 0.85, 0.5]),
   a28: F(['sunbound_knight', 0.3, 0.5], ['sunbound_knight', 0.7, 0.5], ['solar_acolyte', 0.2, 0.2], ['solar_acolyte', 0.8, 0.2], ['sun_cultist', 0.5, 0.15]),
   a29: F(['sunbound_knight', 0.4, 0.5], ['sunbound_knight', 0.6, 0.5], ['lava_guard', 0.3, 0.3], ['lava_guard', 0.7, 0.3]),
@@ -1423,6 +1424,7 @@ Object.assign(DUNGEONS.throne, { style: 'throne',
   // the island's own monsters (below), the shore's weakest, the hall's worst
   mobs: ['ash_wretch', 'cinder_hound', 'magma_slinger', 'obsidian_sentinel', 'brimstone_acolyte', 'caldera_serpent'],
   guardian: 'ashkar_gatekeeper',
+  engineer: 'drawbridge_technician',                                                                    // (the Drawbridge Engine's miniboss, area 23: src/bosses/drawbridge_technician.js)
   foundry: 'forge_overseer',                                                                            // (the Chainforge Threshold's miniboss: src/bosses/forge_overseer.js)
   courtBosses: ['jarl_warrior', 'jarl_wizard'],                                                         // (the courts' own bosses, one a court: src/bosses/jarl_*.js)
   hazardFx: null,                                                       // (the castle's rooms have their own hazards: src/castle.js)
@@ -1488,8 +1490,8 @@ ENEMIES.sol_blacksun = { name: 'Black Sun', biome: 'throne', hp: 30000, def: 12,
 ENEMIES.siege_battery = { name: 'Battery Mechanism', biome: 'throne', reg: 'castle_decor/siege_engine', hp: 16000, def: 14, speed: 0, xp: 0, r: 0.7, ai: 'rooted', aggro: 0, target: true, attacks: [], loot: [] };   // (the Broken Siege Battery's working engine: src/castle.js fires its lane while it stands)
 ENEMIES.burning_pyre = { name: 'Ritual Pyre', biome: 'throne', reg: 'castle_decor/pyre', hp: 12000, def: 12, speed: 0, xp: 0, r: 0.7, ai: 'rooted', aggro: 16, target: true,
   attacks: [{ pattern: 'aimed', proj: 'castle_shots/flame', count: 5, arc: 0.9, dmg: 89, speed: 5, range: 13, cd: 2.0, tell: 400 }], loot: [] };   // (the Pyre Redoubt's: the cultists' fire; break them and it stops)
-ENEMIES.cursed_banner = { name: 'Cursed Banner', biome: 'throne', reg: 'castle_decor/banner_torn', hp: 9000, def: 10, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 14, target: true,
-  attacks: [{ pattern: 'aimed', proj: 'wiz_shots/bolt', count: 3, arc: 0.35, dmg: 79, speed: 5, range: 12, cd: 2.4, tell: 450 }], loot: [] };   // (the Hall of Hollow Banners': spectral bolts)
+ENEMIES.cursed_banner = { name: 'Cursed Banner', biome: 'throne', reg: 'castle_decor/banner_torn', hp: 15000, def: 10, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 28, target: true, kin: 'cursed_banner', scale: 1.5, hitUp: 1.2,
+  attacks: [], loot: [] };   // (the Hall of Hollow Banners': src/castle_kin.js, their crossing fire)
 ENEMIES.cursed_altar = { name: 'Cursed Altar', biome: 'throne', reg: 'castle_decor/eclipse_obelisk', hp: 8000, def: 10, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 14, target: true,
   attacks: [{ pattern: 'aimed', proj: 'wiz_shots/bolt', count: 5, arc: 1.1, dmg: 79, speed: 4.5, range: 12, cd: 3, tell: 500 }], loot: [] };   // (the chapel's ritual, the shrine's)
 ENEMIES.celestial_anchor = { name: 'Celestial Anchor', biome: 'throne', reg: 'wiz_kin/portal', hp: 14000, def: 12, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 18, target: true, fly: true,

@@ -1,6 +1,7 @@
 // The Hollow Jarl, Warrior: stage 1 of the Hollow Court, 'THE WARRIOR'S HUNT' (2026-11-02 redesign, the user: "the
 // Warrior should feel terrifying rather than sluggish"; src/bosses/jarl_court.js). He hunts you at 4.6 tiles a second
-// through the Wizard's portal fire, and between his attacks never lets up:
+// through the Wizard's portal fire, and between his attacks never lets up. (2026-11-02, the user's polish spec, 10: "the Warrior should feel
+// like an unstoppable executioner": his four, below, to its numbers; he walks you down at 5.2.) Superseded lines below:
 //   W1 Chain of Charges   three charges in a row (four in III): each a lane that follows you 0.4 s, locks, 0.3 s on him
 //                         at 10.5 tiles a second, past where you stood (185 if it runs you down); a stone ring where the
 //                         last one ends (90). Then his recovery: a spin (0.45 s marked, 195 close) and fourteen crescents
@@ -21,7 +22,7 @@ const FIRE = ['#ff8a1f', '#ffd650', '#ff3a1a'], ASH = ['#5a5560', '#8a8490', '#b
 const RED = ['#ff6a1c', '#ff6a1c', '#ff3a1a', '#ffffff'];
 const D = (n) => n + 4;
 const deg = (d) => (d * Math.PI) / 180;
-const CHARGE_V = 10.5;                                     // (tiles a second: a sprinting player is 7 to 9)
+const CHARGE_V = 10;                                     // (tiles a second: a sprinting player is 7 to 9)
 const later = (e, t, name, V = {}) => e.bx.vol.push({ t, V: { form: 'special', ...V, name } });   // (its own name last)
 const shot = (g, e, x, y, a, V) => g.bxShot(e, x, y, a, V);
 const CRESCENT = { sprite: 'jarl_shots/crescent', size: 0.4 }, STONE = { sprite: 'jarl_shots/stone', size: 0.4 };
@@ -39,23 +40,25 @@ const bearing = (g, e) => { const q = target(g, e); return angleTo(e.x, e.y, q.x
 const swish = (g) => { g.sfx('shatter'); g.vx({ k: 'shake', amt: 3 }); };
 
 // ================================================================ W1 Chain of Charges
-function chain(g, e) { e.bx.jwBusy = true; const n = (e.bx.phase || 1) >= 3 ? 4 : 3; later(e, 0, 'chargeMark', { left: n - 1, recover: true }); }
+// Executioner's Charge (the user's: 0.7 s, its line locked for the last 0.3; up to 8 tiles at 10 t/s, 175; where it stops
+// twelve ash crescents over 260 degrees, gaps between, 95). In III, two in a row
+function chain(g, e) { e.bx.jwBusy = true; const n = (e.bx.phase || 1) >= 3 ? 2 : 1; later(e, 0, 'chargeMark', { left: n - 1, recover: false }); }
 function chargeMark(g, e, V) {                             // the lane follows you 0.4 s...
   const a = bearing(g, e);
   lane(g, e, e.x, e.y, a, reach(e, a, 9), 0.4, 0, 1.4);
   later(e, 0.4, 'chargeLock', V);
 }
 function chargeLock(g, e, V) {                             // ...locks; 0.3 s on, he goes, past where you stood
-  const q = target(g, e), a = bearing(g, e), want = Math.min(9, Math.hypot(q.x - e.x, q.y - e.y) + 3), L = reach(e, a, want);
+  const q = target(g, e), a = bearing(g, e), want = V.short ? 3.5 : Math.min(8, Math.hypot(q.x - e.x, q.y - e.y) + 3), L = reach(e, a, want);
   lane(g, e, e.x, e.y, a, L, 0.3, 0, 1.4);
-  e.jwDash = { x0: e.x, y0: e.y, x1: e.x + Math.cos(a) * L, y1: e.y + Math.sin(a) * L, at: g.t + 0.3, until: g.t + 0.3 + L / CHARGE_V, a, dmg: D(185), hit: false,
+  e.jwDash = { x0: e.x, y0: e.y, x1: e.x + Math.cos(a) * L, y1: e.y + Math.sin(a) * L, at: g.t + 0.3, until: g.t + 0.3 + L / CHARGE_V, a, dmg: D(175), hit: false,
     crash: L < want - 0.6, left: V.left, recover: V.recover };
   g.sfx('roar');
 }
 function chargeEnd(g, e, C) {
   if (C.crash) { stagger(g, e, 2.2, 'THE JARL STAGGERS'); g.vx({ k: 'shake', amt: 9 }); g.vx({ k: 'burst', x: e.x, y: e.y, n: 30, colors: ASH }); g.sfx('hammer'); return; }
   if (C.left > 0) { later(e, 0.15, 'chargeMark', { left: C.left - 1, recover: C.recover }); return; }
-  for (let k = 0; k < 12; k++) shot(g, e, e.x, e.y, (k / 12) * TAU + C.a, { ...STONE, speed: 4.4, range: 9, dmg: D(90) });   // (the last: stone thrown up where he stops)
+  for (let k = 0; k < 14; k++) { if (k === 4 || k === 9) continue; shot(g, e, e.x, e.y, C.a + (k / 13 - 0.5) * deg(260), { ...CRESCENT, speed: 5.6, range: 11, dmg: D(95) }); }   // (twelve ash crescents, two gaps)
   g.vx({ k: 'shake', amt: 5 }); g.sfx('hammer');
   if (C.recover) { zone(g, e, 2.8, 0.45, D(195)); later(e, 0.45, 'spin'); } else e.bx.jwBusy = false;
 }
@@ -72,40 +75,47 @@ function stagger(g, e, t, say) {
 }
 
 // ================================================================ W2 Reaping Sweep
-function sweep(g, e) { [[0, -55], [0.75, 55], [1.5, 0]].forEach(([t, s]) => later(e, t, 'sweepMark', { s })); }
+// Crownfall (the user's: 0.85 s; two crossing fans of crescents, 105; a heavy slam 0.7 s on, 190; 1.2 s to recover)
+function sweep(g, e) { const a = bearing(g, e); cleave(g, e, a, 2.5, deg(150), 0.85, 0); later(e, 0.85, 'crownFans', { a }); zone(g, e, 2.6, 1.55, D(190)); later(e, 1.55, 'slamThud2'); }
+function crownFans(g, e, V) { for (const o of [-1, 1]) for (let k = 0; k < 7; k++) shot(g, e, e.x + Math.cos(V.a + o * 1.4) * 1.2, e.y + Math.sin(V.a + o * 1.4) * 1.2, V.a - o * deg(18) + (k / 6 - 0.5) * deg(70), { ...CRESCENT, speed: 6, range: 12, dmg: D(105), free: true }); swish(g); }
+function slamThud2(g) { g.vx({ k: 'shake', amt: 8 }); g.sfx('hammer'); }
 function sweepMark(g, e, V) { const a = bearing(g, e) + deg(V.s); cleave(g, e, a, 2.5, deg(150), 0.55, D(170)); later(e, 0.55, 'sweepCut', { a }); }
 function sweepCut(g, e, V) { for (let k = 0; k < 7; k++) shot(g, e, e.x, e.y, V.a + (k / 6 - 0.5) * deg(120), { ...CRESCENT, speed: 6.4, range: 11, dmg: D(95) }); swish(g); }
 
 // ================================================================ W3 Groundbreaker
-function shock(g, e) { zone(g, e, 2.2, 0.8, D(190)); const a = bearing(g, e); for (let k = 0; k < 3; k++) later(e, 0.8 + k * 0.35, 'shockRing', { k, gap: a + k * deg(35) }); }
+// King's Ruin (the user's: 0.9 s; the slam 200 where it's marked; three rings of eighteen 0.45 s apart, the openings turning, 105)
+function shock(g, e) { zone(g, e, 2.4, 0.9, D(200)); const a = bearing(g, e); for (let k = 0; k < 3; k++) later(e, 0.9 + k * 0.45, 'shockRing', { k, gap: a + k * deg(40) }); }
 function shockRing(g, e, V) {
-  const s = TAU / 22, g0 = Math.round(V.gap / s);
-  for (let i = 0; i < 22; i++) { if ([g0 - 1, g0, g0 + 1].some((j) => ((j % 22) + 22) % 22 === i)) continue; shot(g, e, e.x, e.y, i * s, { ...STONE, speed: 4.6, range: 13, dmg: D(100) }); }
+  const s = TAU / 18, g0 = Math.round(V.gap / s);
+  for (let i = 0; i < 18; i++) { if ([g0 - 1, g0, g0 + 1].some((j) => ((j % 18) + 18) % 18 === i)) continue; shot(g, e, e.x, e.y, i * s, { ...STONE, speed: 4.6, range: 14, dmg: D(105) }); }
   g.vx({ k: 'shake', amt: 5 }); g.sfx('hammer');
 }
 
 // ================================================================ W4 Death Hunt
 function deathHunt(g, e) {
   const S = e.bx;
-  if (g.banner) g.banner('YOU CANNOT RUN.', 1400); g.sfx('roar');
-  S.jwHunt = { at: g.t + 0.8, until: g.t + 7.3, a: bearing(g, e) };
-  for (let t = 0.8 + 1.1; t < 7.3; t += 1.1) later(e, t, 'huntFan');
-  for (const t of [2.4, 4.9]) later(e, t, 'chargeMark', { left: 0, recover: false });
+  if (g.banner) g.banner('YOU CANNOT RUN.', 1400); g.sfx('roar');   // (Relentless Pursuit, the user's: 0.7 s, 8 s after you; an axe fan every 1.4 s, 100; a short charge every 3 s, 175; then spent 1.5 s)
+  S.jwHunt = { at: g.t + 0.7, until: g.t + 8.7, a: bearing(g, e) }; S.jwBusy = true;
+  for (let t = 0.7 + 1.4; t < 8.7; t += 1.4) later(e, t, 'huntFan');
+  for (const t of [3.0, 6.0]) later(e, t, 'chargeMark', { left: 0, recover: false, short: true });
+  later(e, 8.8, 'huntSpent');
 }
-function huntFan(g, e) { if (e.jwDash) return; const a = bearing(g, e); for (let k = 0; k < 5; k++) shot(g, e, e.x, e.y, a + (k / 4 - 0.5) * deg(60), { ...CRESCENT, speed: 6.2, range: 10, dmg: D(100) }); }
+function huntFan(g, e) { if (e.jwDash) return; const a = bearing(g, e); for (let k = 0; k < 7; k++) shot(g, e, e.x, e.y, a + (k / 6 - 0.5) * deg(90), { ...CRESCENT, speed: 6.2, range: 10, dmg: D(100) }); swish(g); }   // (a sweeping axe fan)
+function huntSpent(g, e) { e.bx.jwHunt = null; stagger(g, e, 1.5, 'THE JARL STAGGERS'); }
 
 const P = (name, special, recover, o = {}) => ({ name, special, windup: 0.45, recover, ...o });
 const AT = {
-  chain: P('Chain of Charges', 'chain', 0.6, { move: 'hold' }), sweep: P('Reaping Sweep', 'sweep', 2.3), shock: P('Groundbreaker', 'shock', 1.9),
-  hunt: P('Death Hunt', 'deathHunt', 7.6, { move: 'chase' }),
+  chain: P("Executioner's Charge", 'chain', 0.6, { move: 'hold' }), sweep: P('Crownfall', 'sweep', 2.75, { move: 'hold' }), shock: P("King's Ruin", 'shock', 2.0),
+  hunt: P('Relentless Pursuit', 'deathHunt', 1.0, { move: 'chase' }),
 };
 // his order, by phase (the chain always first: a hunter opens with the hunt)
-const ORDER = { 1: ['chain', 'sweep', 'shock', 'chain', 'sweep'], 2: ['chain', 'shock', 'sweep', 'hunt'], 3: ['chain', 'sweep', 'chain', 'shock', 'hunt'] };
+const ORDER = { 1: ['chain', 'sweep', 'chain', 'shock', 'chain', 'hunt'], 2: ['chain', 'shock', 'chain', 'sweep', 'hunt'], 3: ['chain', 'sweep', 'chain', 'shock', 'chain', 'hunt'] };
 function choose(g, e) {
   courtTick(g, e);
   const S = e.bx, L = ORDER[S.phase] || ORDER[3];
   if (S.jwPh !== S.phase) { S.jwPh = S.phase; S.jwK = 0; }
   if (e.jwDash || S.jwBusy) return null;                   // (a chain still running)
+  if (S.jwCall) { S.jwCall = false; return AT.chain; }     // (the Mage's Spectral Crossfire: a charge with it)
   return AT[L[S.jwK++ % L.length]];
 }
 
@@ -117,12 +127,12 @@ export default {
   charging: (g, e) => !!(e.jwDash && g.t >= e.jwDash.at) || !!(e.bx.jwHunt && g.t > e.bx.jwHunt.at && g.t < e.bx.jwHunt.until),   // (his charge clip: a charge, the Death Hunt)
   dmgMult: (g, e) => (e.bx.jwStag > g.t ? 1.33 : 1),        // (staggered: open to you)
   phases: { 1: { move: 'walk', patterns: Object.values(AT) }, 2: { move: 'walk', patterns: Object.values(AT) }, 3: { move: 'walk', patterns: Object.values(AT) } },
-  specials: { chain, chargeMark, chargeLock, spin, sweep, sweepMark, sweepCut, shock, shockRing, deathHunt, huntFan },
+  specials: { chain, chargeMark, chargeLock, spin, sweep, sweepMark, sweepCut, crownFans, slamThud2, shock, shockRing, deathHunt, huntFan, huntSpent },
   moves: {
     walk(g, e, dt) {                                        // after you, 4.6 tiles a second
       if (e.jwDash || e.bx.jwStag > g.t) return;
       const q = target(g, e), d = Math.hypot(q.x - e.x, q.y - e.y);
-      if (d > (e.D.keep || 1.6)) g.moveCircle(e, ((q.x - e.x) / d) * 4.6 * dt, ((q.y - e.y) / d) * 4.6 * dt, 0.8);
+      if (d > (e.D.keep || 1.6)) g.moveCircle(e, ((q.x - e.x) / d) * 5.2 * dt, ((q.y - e.y) / d) * 5.2 * dt, 0.8);
     },
     hold() {},
     chase(g, e, dt) {                                       // the Death Hunt: 6 t/s, turning at most 2.6 radians a second

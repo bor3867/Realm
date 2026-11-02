@@ -287,6 +287,22 @@ const KIN = {
     { n: 'Radiant Execution', tele: 1.15, dur: 1.4, cd: 11, range: 12,
       mark: (g, e, p, S) => { const a = R() * Math.PI, nx = -Math.sin(a), ny = Math.cos(a); for (let k = 0; k < 3; k++) { const o = (k - 1) * 1.6, cx = p.x + nx * o, cy = p.y + ny * o; lane(g, e, cx - Math.cos(a) * 7, cy - Math.sin(a) * 7, a, 14, 1.15 + k * 0.55, 170, 0.3, GOLD, 0.3); } } },
   ] },
+  // the Hall of Hollow Banners' three (2026-11-02, the user: "the banners currently pose almost no threat"): they take
+  // turns in a 1.4 s round, each a third of it after the last, so their fans cross; each glows 0.4 s before it fires;
+  // every fourth of a banner's volleys is a lance down a marked line (0.8 s) that breaks your armour (2.5 s). Break one
+  // and its share of the hall's fire is gone
+  cursed_banner: { move: () => {}, atk: [], tick(g, e, dt, S) {
+    const p = g.player; if (!p || p.dead || Math.hypot(p.x - e.x, p.y - e.y) > 28) return;   // (the whole hall: there is no standing back out of their reach)
+    if (!S.bn) { const L = g.enemies.filter((q) => !q.dead && q.D === e.D && Math.hypot(q.x - e.x, q.y - e.y) < 40).sort((a, b) => a.x - b.x), i = Math.max(0, L.indexOf(e)); S.bn = { i, t: 1.0 + i * 0.47, k: 0 }; }
+    const B = S.bn;
+    if ((B.t -= dt) > 0) { if (B.t < 0.4 && !B.glow) { B.glow = true; g.fx.push({ kind: 'ring', x: e.x, y: e.y - 0.8, t: 0, max: 1.4, color: '#c88aff' }); } return; }
+    B.t = 1.4; B.glow = false; B.k++;
+    const a = ang(e.x, e.y, p.x, p.y);
+    if (B.k % 4 === 0) {                                     // the armour-breaking lance: its line first
+      lane(g, e, e.x, e.y, a, 26, 0.8, 0, 0.3, ['#a8a0b0', '#a8a0b0', '#5a5560', '#ffffff']);
+      g.kinLater(0.8, () => { if (e.dead) return; const b = fire(g, e, a, 11, 105, 'darrow', 28, 0.35); if (b) { b.sig = 'armor'; b.sigV = 2.5; } });
+    } else fan(g, e, a + (B.i - 1) * deg(14), 5, deg(40), 5, 85 + (B.k % 2) * 15, 'ghost', 26);   // (each a little to its side of you: the three cross)
+  } },
   solar_node: { move: () => {}, atk: [], tick(g, e, dt, S) {   // a node of the Sundial Crossing: a wall toward the other node every 1.4 s, the two by turns
     if (g.t > e.kinUntil) { e.noLoot = true; e.dead = true; e.deadT = 0; return; }
     if ((S.wallT = (S.wallT ?? 0.4 + (e.kinFirst || 0)) - dt) > 0) return;

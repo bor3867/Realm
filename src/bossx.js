@@ -42,6 +42,7 @@ export const BXF = {
     S.t += dt; S.hurtT = Math.max(0, S.hurtT - dt); S.flashT = Math.max(0, S.flashT - dt);
     if (e.invulnT > 0 && e.invulnT < 50) e.invulnT = Math.max(0, e.invulnT - dt);   // a timed immunity (after a finale) wears off; a morph's (99) is cleared by its clip
     if (S.anim) S.anim.update(dt);
+    if (S.state === 'gone') return;                             // (its death clip just ended and it is finished: nothing more this frame, or it started a new attack, dead)
     if (dt > 0) {                                           // how you are moving (from where you are, frame to frame: for the shots that lead you)
       const vx = S.plx === undefined ? 0 : (p.x - S.plx) / dt, vy = S.ply === undefined ? 0 : (p.y - S.ply) / dt, k = Math.min(1, dt * 6), jump = Math.hypot(vx, vy) > 30;
       S.pvx = jump ? 0 : (S.pvx || 0) + (vx - (S.pvx || 0)) * k; S.pvy = jump ? 0 : (S.pvy || 0) + (vy - (S.pvy || 0)) * k; S.plx = p.x; S.ply = p.y;
