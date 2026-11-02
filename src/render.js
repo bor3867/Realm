@@ -669,7 +669,7 @@ export class Renderer {
     const ax = o.center || o.rot !== undefined ? f.w / 2 : def.foot[0], ay = o.center || o.rot !== undefined ? f.h / 2 : def.foot[1];
     let I, pad = 0;
     if (o.flash) I = this.white(def.img, f.x, f.y, f.w, f.h);
-    else if (def.outline) { I = def.rim === 'soft' ? outlinedFrame(def.img, f.x, f.y, f.w, f.h, U * K, 'self', 1, false) : outlinedFrame(def.img, f.x, f.y, f.w, f.h, U * K, undefined, U >= 2 ? 2 : 1); pad = I.pad / U; }
+    else if (def.outline) { I = def.rim === 'soft' || o.soft ? outlinedFrame(def.img, f.x, f.y, f.w, f.h, U * K, 'self', 1, false) : outlinedFrame(def.img, f.x, f.y, f.w, f.h, U * K, undefined, U >= 2 ? 2 : 1); pad = I.pad / U; }
     else I = null;
     const W = f.w * K, H = f.h * K, ga = b.globalAlpha;
     if (o.alpha !== undefined) b.globalAlpha = ga * o.alpha;
@@ -2301,7 +2301,7 @@ export class Renderer {
             for (let a = 0; a < 16; a += 2) { const t = (a / 16) * Math.PI * 2; b.fillRect(Math.round(mx + Math.cos(t) * rr), Math.round(my + Math.sin(t) * rr * 0.7), 1, 1); }
             qy -= Math.sin(Math.PI * kk) * L.h;
           }
-          if (qx > -20 && qy > -20 && qx < BW + 20 && qy < BH + 20) this.drawDef(def, fr, Math.round(qx), Math.round(qy), { rot: pr.lob ? g.t * 6 : pr.a + this.th, alpha: pr.frozen ? 0.55 : pr.ghost ? 0.25 : 1, scale: pr.k || 1 });
+          if (qx > -20 && qy > -20 && qx < BW + 20 && qy < BH + 20) this.drawDef(def, fr, Math.round(qx), Math.round(qy), { rot: pr.lob ? g.t * 6 : pr.a + this.th, alpha: pr.frozen ? 0.55 : pr.ghost ? 0.25 : 1, scale: pr.k || 1, soft: pr.from === 'p' });   // (your own shots: a thin rim in their own colours, never the black one: the user's outline rules, 2026-11-02)
           continue;
         }
       }
