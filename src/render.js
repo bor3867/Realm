@@ -1377,6 +1377,7 @@ export class Renderer {
     else if (e.state === 'tell' || e.state === 'charge' || e.state === 'attack') fr = fAtk;
     else fr = mv[Math.floor(g.t * (e.hop || e.sk || e.dive ? 9 : 5) + e.phase) % mv.length];
     const L = this.alive(g, e, sx, sy, 16), K = e.D.scale || 1;
+    if (def.anims.shoot) { L.glow = false; if (e.digT === undefined && e.diveWarn === undefined) { L.dx = 0; L.dy = 0; } }   // (its own wind-up and release are drawn: no tremble, no blink, no lunge on top)
     L.flip = !L.flip;                                       // the bundle's art faces right; the old sheets face left
     if (e.flipArt) L.flip = !L.flip;                        // (a mirror image: the other way round)
     if (e.fetch && g.t >= e.fetch.land) {                  // the crag dwarf's pick, lying where it fell

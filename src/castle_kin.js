@@ -92,8 +92,9 @@ const MOVE = {
   // the Hound: fast, and never straight at you: it runs for your side or your back, then cuts in
   flank: (g, e, dt, p, d, S) => {
     if ((S.flT = (S.flT ?? 0) - dt) <= 0) { S.flT = 1.6 + R(); S.side = R() < 0.5 ? 1 : -1; }
-    const [vx, vy] = vel(S), head = Math.hypot(vx, vy) > 0.5 ? Math.atan2(vy, vx) : ang(e.x, e.y, p.x, p.y), a = head + Math.PI / 2 * S.side + (d < 3 ? Math.PI / 2 * S.side : 0);
-    toward(g, e, p.x + Math.cos(a) * 2, p.y + Math.sin(a) * 2, 6, dt);
+    const [vx, vy] = vel(S), head = Math.hypot(vx, vy) > 0.5 ? Math.atan2(vy, vx) : ang(e.x, e.y, p.x, p.y), want = head + Math.PI / 2 * S.side + (d < 3 ? Math.PI / 2 * S.side : 0);
+    S.flA = S.flA === undefined ? want : S.flA + Math.atan2(Math.sin(want - S.flA), Math.cos(want - S.flA)) * Math.min(1, dt * 3);   // (its line of attack turns, it doesn't jump)
+    toward(g, e, p.x + Math.cos(S.flA) * 2.2, p.y + Math.sin(S.flA) * 2.2, 6, dt);
   },
   // the Acolyte: still while it casts; between cycles it walks to a new place 5-8 off, then plants itself
   plant: (g, e, dt, p, d, S) => {
@@ -101,13 +102,13 @@ const MOVE = {
     if (Math.hypot(S.plTo[0] - e.x, S.plTo[1] - e.y) > 0.3) toward(g, e, S.plTo[0], S.plTo[1], 3.2, dt);
   },
   // the Lava Guard: a slow, deliberate advance, straight at you, holding at two tiles; it stands while its shield is up
-  advance: (g, e, dt, p, d, S) => { if (e.kinShieldUntil > g.t || d < 2) return; toward(g, e, p.x, p.y, 2.2, dt); },
+  advance: (g, e, dt, p, d, S) => { if (e.kinShieldUntil > g.t) return; S.held = d < 2 || (S.held && d < 2.6); if (!S.held) toward(g, e, p.x, p.y, 2.2, dt); },
   // the Cultist: behind its friends, from you, 7-9 off; closer than 5 and it runs
   skulk: (g, e, dt, p, d, S) => {
     const pals = g.enemies.filter((q) => q !== e && !q.dead && q.D.kin && q.D.kin !== 'sun_portal' && Math.hypot(q.x - e.x, q.y - e.y) < 10);
     let tx, ty;
     if (d < 5) { const a = ang(p.x, p.y, e.x, e.y); tx = e.x + Math.cos(a) * 3; ty = e.y + Math.sin(a) * 3; }
-    else if (pals.length) { const q = pals.reduce((b, o) => (Math.hypot(o.x - p.x, o.y - p.y) < Math.hypot(b.x - p.x, b.y - p.y) ? o : b)), a = ang(p.x, p.y, q.x, q.y); tx = p.x + Math.cos(a) * 8; ty = p.y + Math.sin(a) * 8; }
+    else if (pals.length) { const q = S.pal && !S.pal.dead && pals.includes(S.pal) && (S.palT -= dt) > 0 ? S.pal : (S.palT = 2, S.pal = pals.reduce((b, o) => (Math.hypot(o.x - p.x, o.y - p.y) < Math.hypot(b.x - p.x, b.y - p.y) ? o : b))), a = ang(p.x, p.y, q.x, q.y); tx = p.x + Math.cos(a) * 8; ty = p.y + Math.sin(a) * 8; }
     else { const a = ang(p.x, p.y, e.x, e.y); tx = p.x + Math.cos(a) * 8; ty = p.y + Math.sin(a) * 8; }
     toward(g, e, tx, ty, d < 5 ? 3.8 : 3, dt);
   },
@@ -313,6 +314,18 @@ const KIN = {
 
 const methods = {
   // a castle defender's turn: its own timers, a dash in flight, its attack under way, or its next
+  // momentum (2026-11-02, the user: "the AI movement of the enemies seems like it got wonky. Smooth it out"): a brain says
+  // where it wants to go each frame; the body turns its way over about a seventh of a second instead of snapping (the
+  // hounds and cultists had been reversing seven or eight times a second, chasing targets that moved with you). A blink
+  // or a hop's bound stays as it is
+  kinSmooth(e, x0, y0, dt) {
+    if (!(dt > 0)) return;
+    const dx = e.x - x0, dy = e.y - y0;
+    if (Math.hypot(dx, dy) > 1 || e.D.kin === 'lava_slime') { e.kvx = dx / dt; e.kvy = dy / dt; return; }
+    e.x = x0; e.y = y0;
+    const a = 1 - Math.exp(-dt * 7); e.kvx = (e.kvx || 0) + (dx / dt - (e.kvx || 0)) * a; e.kvy = (e.kvy || 0) + (dy / dt - (e.kvy || 0)) * a;
+    this.moveCircle(e, e.kvx * dt, e.kvy * dt, 0.45);
+  },
   kinTick(e, dt, p, d) {
     const K = KIN[e.D.kin]; if (!K) return;
     const S = e.kn || (e.kn = { cd: Object.fromEntries(K.atk.map((A, k) => [A.n, 0.6 + k * 0.9 + R() * 1.2])), q: [], busy: 0, dir: 1, flip: 0, trail: [] });
@@ -332,11 +345,11 @@ const methods = {
     if (S.cur) {                                            // under way: it moves on as it attacks (unless the attack holds it)
       S.busy -= dt;
       if (S.cur.chase && S.busy < S.cur.dur) { const a = ang(e.x, e.y, p.x, p.y); if (d > 1.4) step(this, e, Math.cos(a) * S.cur.chase * dt, Math.sin(a) * S.cur.chase * dt); }
-      else if (!S.cur.still) K.move(this, e, dt * 0.6, p, d, S);
+      else if (!S.cur.still) { const x0 = e.x, y0 = e.y; K.move(this, e, dt * 0.6, p, d, S); this.kinSmooth(e, x0, y0, dt); }
       if (S.busy <= 0) { S.cd[S.cur.n] = S.cur.cd; S.cur = null; e.state = 'move'; }
       return;
     }
-    K.move(this, e, dt, p, d, S);
+    { const x0 = e.x, y0 = e.y; K.move(this, e, dt, p, d, S); this.kinSmooth(e, x0, y0, dt); }
     e.state = 'move';
     for (const n in S.cd) S.cd[n] -= dt;
     for (const A of K.atk) {
