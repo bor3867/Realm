@@ -101,7 +101,7 @@ export function isSolid(m, x, y) {
 // (low ruin walls and whale ribs you step over: their rows walled players and realm bosses in)
 // only the big things stop you: trees, rocks, spires, pillars and walls, statues, the great furniture, gates. Chests,
 // crates, barrels, braziers, candles, fences, seats, signs, lamps, shrines and people you walk through, as in RotMG
-const BIG = /tree|palm|pine|oak|saguaro|giant_mushroom|rotting_log|boulder|rock|cairn|spire|crystal_cluster|ice_crystal|pillar|column|obelisk|(?<!ruin_)wall|statue|fallen_head|bookshelf|furnace|well$|fountain|throne|sarcophag|coffin|gate|telescope|star_globe|high_striker|circus_cannon|rowboat|ticket_booth|stage_moon|great_lens|golem_husk|anvil_block|crucible|stump|gargoyle/;
+const BIG = /tree|palm|pine|oak|deadwood|castle_decor\/(?:log|barricade|wagon|siege_engine|tent|pipe|lava_tank|bed|table|winch|valve)$|saguaro|giant_mushroom|rotting_log|boulder|rock|cairn|spire|crystal_cluster|ice_crystal|pillar|column|obelisk|(?<!ruin_)wall|statue|fallen_head|bookshelf|furnace|well$|fountain|throne|sarcophag|coffin|gate|telescope|star_globe|high_striker|circus_cannon|rowboat|ticket_booth|stage_moon|great_lens|golem_husk|anvil_block|crucible|stump|gargoyle/;
 export const blocks = (sprite) => BIG.test(sprite || '');
 function finalize(m) {
   for (let i = 0; i < m.tiles.length; i++) if (SOLID_TILES.has(m.tiles[i])) m.solid[i] = 1;
@@ -1493,10 +1493,13 @@ export function dungeon(seed, def) {
             const k = Math.max(3, Math.round(h / 12)), pts = []; for (let i = 0; i <= k; i++) pts.push([i % 2 ? x + w - 4 : x + 3, y + h - 3 - (i / k) * (h - 6)]);
             poly(pts, 2); break;
           }
-          case 'switch': {                                            // three terraces, cliffs between, each joined to the next at one end
-            const T = 3, th = Math.floor(h / T), gapH = 6;                // (each terrace th tall less the cliff between: a wall of rock six deep, the paths plainly apart)
-            for (let i = 0; i < T; i++) carve(x + 1, y + h - (i + 1) * th + gapH, x + w - 2, y + h - 1 - i * th);
-            for (let i = 0; i < T - 1; i++) { const ex = i % 2 ? x + 2 : x + w - 8; carve(ex, y + h - (i + 1) * th - 1, ex + 5, y + h - (i + 1) * th + gapH); }   // (the turn: up at one end, the next at the other)
+          case 'switch': {                                            // three winding terraces up the cliff (2026-11-02, the user: "replace their boxy geometry with natural, winding cliffside switchbacks"): each its own width as it goes, its edge ragged; a rounded turn at alternate ends; lava running in the cliffs between; a platform or two carved out of the slope
+            const T = 3, th = (h - 2) / T, mid = (i, xx) => y + h - 1 - (i + 0.5) * th + 2.2 * Math.sin(xx / 4.5 + s + i * 1.7);
+            const half = (i, xx) => 1.6 + 1.2 * (0.5 + 0.5 * Math.sin(xx / 3.1 + i * 2.3 + s)) + (Math.sin(xx * 1.7 + i) > 0.85 ? 0.8 : 0);
+            for (let i = 0; i < T; i++) for (let xx = x + 3; xx < x + w - 3; xx++) { const c = mid(i, xx), hw = half(i, xx); for (let yy = Math.floor(c - hw); yy <= c + hw; yy++) set(xx, yy, FLOOR); }
+            for (let i = 0; i < T - 1; i++) { const ex = i % 2 ? x + 5 : x + w - 6, y0 = mid(i, ex), y1 = mid(i + 1, ex); ell(ex, (y0 + y1) / 2, 4.2, Math.abs(y0 - y1) / 2 + 2.2); }   // (the turns, rounded)
+            for (let i = 0; i < T; i++) { const px = x + w * (0.3 + 0.35 * ((i + 1) % 2)); ell(px, mid(i, px) + (i % 2 ? -2 : 2), 3.2, 2.2); }   // (a defensive platform cut into each terrace)
+            for (let i = 0; i < T - 1; i++) for (let xx = x + 8; xx < x + w - 8; xx++) { const yy = Math.round((mid(i, xx) + mid(i + 1, xx)) / 2), ok = (Y) => tile(xx, Y) === TID.void && tile(xx, Y - 2) === TID.void && tile(xx, Y + 2) === TID.void; if (ok(yy)) set(xx, yy, TID.lava); }   // (lava in the cliffs)
             break;
           }
           case 'viaduct': case 'span': {                              // a broken bridge over a gorge of lava (the eclipse's over the void)
@@ -1509,10 +1512,14 @@ export function dungeon(seed, def) {
             }
             break;
           }
-          case 'twin': {                                              // two bridges over one chasm, a landing at either end
+          case 'twin': {                                              // two bridges over one chasm, a landing at either end (2026-11-02, the user: "neither should be universally superior")
             box(n, TID.lava); carve(x, y, x + 5, y + h - 1); carve(x + w - 6, y, x + w - 1, y + h - 1);
-            poly([[x + 5, cy - 7], [x + w * 0.35, cy - 11], [x + w * 0.65, cy - 6], [x + w - 6, cy - 9]], 1);
-            poly([[x + 5, cy + 7], [x + w * 0.4, cy + 11], [x + w * 0.7, cy + 6], [x + w - 6, cy + 9]], 1);
+            // the Broken Span (north): straight across and short, three wide, collapsed to one in two places; its lava fissures erupt (castle_plan GEYSERS)
+            for (let xx = x + 5; xx <= x + w - 6; xx++) { const k = (xx - x) / w, broke = (k > 0.3 && k < 0.37) || (k > 0.6 && k < 0.67), yy = cy - 4 + Math.round(Math.sin(xx / 6)), y0 = cy - 4 + Math.round(Math.sin((xx - 1) / 6)); for (let d = broke ? 0 : -1; d <= (broke ? 0 : 1); d++) set(xx, yy + d, FLOOR); if (broke && y0 !== yy) set(xx, y0, FLOOR); }   // (one wide where it broke, but never a step only on the diagonal)
+            // the Defended Causeway (south): longer, dipping round in a curve, five wide, two fortified platforms where its defenders stand
+            poly([[x + 5, cy + 6], [x + w * 0.22, cy + 14], [x + w * 0.5, cy + 15], [x + w * 0.78, cy + 14], [x + w - 6, cy + 6]], 2);
+            for (const f of [0.3, 0.7]) ell(x + w * f, cy + 13, 3.5, 2.4);
+            n.spanY = cy - 4; n.causewayY = cy + 13;
             break;
           }
           case 'ring': {                                              // a path round a reservoir of lava
@@ -1798,17 +1805,26 @@ export function dungeon(seed, def) {
     const wall = (fx0, fy0, fx1, fy1) => { const [x0, y0] = at(fx0, fy0), [x1, y1] = at(fx1, fy1); for (let y = Math.min(y0, y1); y <= Math.max(y0, y1); y++) for (let x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) if (isF(x, y)) set(x, y, TID.void); };   // (a wall inside an area: its rooms, its passages)
     const row = (sprite, fy, fx0, fx1, step, solid = true) => { for (let x = Math.round(n.x + fx0 * n.w); x <= n.x + fx1 * n.w; x += step) put2(null, x, Math.round(n.y + fy * n.h), sprite, solid); };
     const road = m.castle.roadTiles, nearRoad = (x, y, r0 = 2) => { for (let dy = -r0; dy <= r0; dy++) for (let dx = -r0; dx <= r0; dx++) if (road.has((y + dy) * S + x + dx)) return true; return false; };
+    // the Ashen Forest's four families (2026-11-02, the user): Blackroot Pines and Corrupted Oaks at the foot, deadwood
+    // coming in as you climb, and at the last treeline burned pines and deadwood among volcanic growth; each in patches
+    const FAM = { pine: ['pine_black', 'pine_black', 'pine_burnt'], oak: ['oak', 'oak', 'oak_hollow'], dead: ['deadwood', 'deadwood', 'deadwood_broken'], burnt: ['pine_burnt', 'deadwood', 'deadwood_broken'] };
+    const MIX = { 1: ['pine', 'oak'], 2: ['pine', 'oak'], 3: ['oak', 'pine'], 4: ['oak', 'dead'], 5: ['oak', 'dead'], 6: ['dead', 'oak'], 7: ['dead', 'pine'], 8: ['dead', 'burnt'], 9: ['burnt', 'dead'] };
+    const treeAt = (x, y, hh) => { const M = MIX[n.num] || ['pine', 'oak'], patch = Math.sin(x * 0.21 + y * 0.17 + n.num) + Math.sin(x * 0.11 - y * 0.23) > 0 ? 0 : 1, F = FAM[M[patch]]; return 'castle_decor/' + F[Math.floor(hh * 997) % F.length]; };
+    if (n.region === 'forest') for (let k = 0; k < Math.floor(n.w * n.h / (n.num >= 7 ? 60 : 160)); k++) {   // volcanic growth: ember shrubs and glowing mushrooms, more of it further up
+      const [x, y] = at(0.08 + 0.84 * ((k * 0.7548 + n.num * 0.21) % 1), 0.08 + 0.84 * ((k * 0.5698 + n.num * 0.37) % 1));
+      put2(null, x, y, 'castle_decor/' + (k % 3 ? 'ember_shrub' : 'mushrooms'), false);
+    }
     if (n.region === 'forest') {                                    // the woods: trees thick along every edge, clumps between
       for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) {
         if (!isF(x, y) || nearRoad(x, y, 1)) continue;
         let edge = 9; for (let dy = -3; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) if (!isF(x + dx, y + dy) && tile(x + dx, y + dy) !== TID.stageboards) edge = Math.min(edge, Math.max(Math.abs(dx), Math.abs(dy)));
         const hh = ((Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1 + 1) % 1;
-        if ((edge <= 2 && hh < 0.62) || (edge <= 4 && hh < 0.26) || hh < 0.035) put2(null, x, y, hh < 0.06 ? 'pine' : 'dead_tree', true);   // (a thick tree line; thinner further in; the odd lone tree)
+        if ((edge <= 2 && hh < 0.4) || (edge <= 4 && hh < 0.14) || hh < 0.02) put2(null, x, y, treeAt(x, y, hh), true);   // (a thick tree line; thinner further in; the odd lone tree)
       }
       for (let k = 0; k < Math.floor(n.w * n.h / 120); k++) {        // clumps of three or four
         const [x0, y0] = at(0.2 + 0.6 * (((k * 0.618 + n.num * 0.31) % 1)), 0.2 + 0.6 * (((k * 0.381 + n.num * 0.17) % 1)));
         if (Math.hypot(x0 - n.cx, y0 - n.cy) < 4 || nearRoad(x0, y0, 2)) continue;
-        for (const [dx, dy] of [[0, 0], [1, 0], [0, 1], [-1, 1]]) if (!nearRoad(x0 + dx, y0 + dy)) put2(null, x0 + dx, y0 + dy, 'dead_tree', true);
+        for (const [dx, dy] of [[0, 0], [2, 0], [1, 2]]) if (!nearRoad(x0 + dx, y0 + dy)) put2(null, x0 + dx, y0 + dy, treeAt(x0, y0, 0.5), true);   // (a clump: one family)
       }
     }
     if (n.region === 'forest') for (let k = 0; k < Math.floor(n.w * n.h / 90); k++) {   // roots across the ground, stumps, fallen trunks
@@ -2758,7 +2774,8 @@ export function dungeon(seed, def) {
     for (const [num, nf, nl] of GEYSERS) {
       const n = rooms.find((q) => q.num === num); if (!n) continue;
       const cand = [];
-      for (let y = n.y + 2; y < n.y + n.h - 2; y++) for (let x = n.x + 2; x < n.x + n.w - 2; x++) { const t = tile(x, y); if (t !== TID.void && t !== TID.lava && !SOLID_TILES.has(t) && t !== TID.goldvein && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) cand.push([x, y]); }
+      // (the Twin Bridges' geysers on the Broken Span alone)
+      for (let y = n.y + 2; y < n.y + n.h - 2; y++) for (let x = n.x + 2; x < n.x + n.w - 2; x++) { if (n.form === 'twin' && (y > n.spanY + 2 || x < n.x + 7 || x > n.x + n.w - 8)) continue; const t = tile(x, y); if (t !== TID.void && t !== TID.lava && !SOLID_TILES.has(t) && t !== TID.goldvein && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) cand.push([x, y]); }
       const hsh = (x, y) => ((Math.sin(x * 91.7 + y * 37.3 + num) * 43758.5) % 1 + 1) % 1;
       cand.sort((a, b) => hsh(...a) - hsh(...b));
       const put1 = (kind) => { const c = cand.find(([x, y]) => m.castle.geysers.every((G) => Math.hypot(G.x - x, G.y - y) >= 4)); if (!c) return; put(m, 'castle_decor/' + (kind === 'lava' ? 'fissure' : 'vent'), c[0], c[1], false); m.castle.geysers.push({ kind, x: c[0], y: c[1], o: m.objects[m.objects.length - 1], area: num, t: 1 + hsh(c[1], c[0]) * 5 }); };
@@ -2793,12 +2810,19 @@ export function dungeon(seed, def) {
     m.castle.gates = {};
     // (on a cobble tile of its own: opening it turns that tile back to the floor, so a shared castle's server sends the
     // change and the gate opens for everyone)
-    const gate = (x, y, which) => { put(m, 'seal_gate', x, y, true, { castleGate: which, floor: tile(x, y) }); const o = m.objects[m.objects.length - 1]; set(x, y, TID.cobble); m.solid[idx(m, x, y)] = 1; m.castle.gates[which].push(o); };
+    const gate = (x, y, which) => { put(m, 'seal_gate', x, y, true, { castleGate: which, floor: tile(x, y), hidden: !!m.castle.plan }); const o = m.objects[m.objects.length - 1]; set(x, y, TID.cobble); m.solid[idx(m, x, y)] = 1; m.castle.gates[which].push(o); };
     if (m.castle.plan) m.castle.ways = {};
     if (m.castle.plan) for (const [la, lb, cond, say] of LOCKS) {                 // (each lock's gate: every floor tile round the middle of its way)
       const W = m.castle.plan.ways[la + '-' + lb], name = la + '-' + lb; m.castle.gates[name] = []; (m.castle.locks = m.castle.locks || []).push({ name, cond, say, a: la, b: lb });
       const R = W.w * 1.5 + 1.5;
       for (let y = Math.floor(W.mid[1] - R); y <= W.mid[1] + R; y++) for (let x = Math.floor(W.mid[0] - R); x <= W.mid[0] + R; x++) { const t = tile(x, y); if (Math.hypot(x - W.mid[0], y - W.mid[1]) <= R && t !== TID.void && !SOLID_TILES.has(t)) gate(x, y, name); }
+      {                                                             // its look across the way: a piece every two tiles, square to the road
+        const look = { '7-8': 'gate_roots', '19-20': 'gate_rock', '26-27': 'portcullis', '43-44': 'portcullis', '46-47': 'portcullis' }[name] || (name === '23-24' ? null : 'gate_seal');
+        if (look) {
+          const nx = -Math.sin(W.dir), ny = Math.cos(W.dir), half = W.w + 1.5; (m.castle.gateLooks = m.castle.gateLooks || {})[name] = [];
+          for (let o = -half; o <= half + 0.01; o += 2) { const x = Math.round(W.mid[0] + nx * o), y = Math.round(W.mid[1] + ny * o); put(m, 'castle_decor/' + look, x, y, false, { gateLook: name, look }); m.castle.gateLooks[name].push(m.objects[m.objects.length - 1]); }
+        }
+      }
       if (name === '23-24') {                                       // the drawbridge: a moat of lava either side; its gate comes down as planks
         for (const o of m.castle.gates[name]) o.floor = TID.stageboards;
         for (let y = Math.floor(W.mid[1] - R - 1); y <= W.mid[1] + R + 1; y++) for (let x = Math.floor(W.mid[0] - R - 4); x <= W.mid[0] + R + 4; x++) if (tile(x, y) === TID.void || tile(x, y) === WALL) set(x, y, TID.lava);

@@ -17,7 +17,7 @@ const KIND = {
 // unoutlined by design: tiles, the floor rune decal, the ground shadow
 const NO_OUTLINE = (def) => def.kind === 'tile' || /rune_circle|ground_shadow/.test(def.name);
 // the Sunthief's Castle's monsters, bosses and shots: a thin rim in their own colours darkened, not the black one
-const SOFT_RIM = (def) => (def.pack === 'throne' || /^(bx_solkhar|sol_shots)$/.test(def.sheet)) && !['item', 'tile', 'decor', 'object'].includes(def.kind);
+const SOFT_RIM = (def) => (def.pack === 'throne' || /^(bx_solkhar|sol_shots)$/.test(def.sheet)) && !['item', 'tile'].includes(def.kind);   // (its scenery too, 2026-11-02)
 
 // ---- supersession (BRIEF §1), applied when a key is resolved
 const KEEP_OLD_ITEMS = new Set(['health_potion', 'mana_potion', 'potion_of_might', 'loot_bag_brown', 'loot_bag_purple', 'loot_bag_white']);

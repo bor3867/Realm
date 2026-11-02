@@ -1353,6 +1353,8 @@ Object.assign(DUNGEONS.heart, { seals: ['warden', 'warden', 'warden'], puzzle: n
 const F = (...L) => L;
 // the second waves (src/castle.js): when an area's first are all down, these come in where it says, shown first
 export const WAVES = {
+  a19: [['cinder_archer', 0.15, 0.1], ['cinder_archer', 0.85, 0.1], ['lava_guard', 0.5, 0.08]],     // (the Final Rampart's second line)
+  a12: [['infernal_hound', 0.85, 0.15], ['infernal_hound', 0.15, 0.15]],                              // (hounds down the switchbacks after you)
   a18: [['sunbound_knight', 0.2, 0.1], ['sunbound_knight', 0.8, 0.1]],
   a21: [['infernal_hound', 0.9, 0.2], ['infernal_hound', 0.9, 0.8], ['lava_guard', 0.85, 0.5]],
   a24: [['cinder_archer', 0.15, 0.15], ['cinder_archer', 0.85, 0.15], ['cinder_archer', 0.5, 0.1]],
@@ -1360,22 +1362,22 @@ export const WAVES = {
   a43: [['sunbound_construct', 0.5, 0.15], ['lava_guard', 0.35, 0.3], ['lava_guard', 0.65, 0.3]],
 };
 const FORMATION = {
-  a02: F(['cinder_bat', 0.25, 0.3], ['cinder_bat', 0.3, 0.7], ['infernal_hound', 0.7, 0.4], ['infernal_hound', 0.75, 0.6]),
-  a03: F(['hollow_wraith', 0.45, 0.4], ['hollow_wraith', 0.55, 0.4], ['cinder_archer', 0.15, 0.2], ['cinder_archer', 0.85, 0.25]),
+  a02: F(['cinder_bat', 0.25, 0.3], ['cinder_bat', 0.3, 0.7], ['infernal_hound', 0.7, 0.4], ['infernal_hound', 0.75, 0.6], ['hollow_wraith', 0.5, 0.5]),
+  a03: F(['hollow_wraith', 0.45, 0.4], ['hollow_wraith', 0.55, 0.4], ['cinder_archer', 0.15, 0.2], ['cinder_archer', 0.85, 0.25], ['cinder_bat', 0.5, 0.7]),
   a04: F(['infernal_hound', 0.3, 0.4], ['infernal_hound', 0.5, 0.3], ['infernal_hound', 0.7, 0.4], ['infernal_alpha', 0.5, 0.55]),
-  a05: F(['cinder_archer', 0.15, 0.15], ['cinder_archer', 0.85, 0.15], ['hollow_wraith', 0.45, 0.55], ['hollow_wraith', 0.55, 0.45]),
+  a05: F(['cinder_archer', 0.15, 0.15], ['cinder_archer', 0.85, 0.15], ['hollow_wraith', 0.45, 0.55], ['hollow_wraith', 0.55, 0.45], ['infernal_hound', 0.3, 0.75], ['infernal_hound', 0.7, 0.75]),
   a06: F(['hollow_wraith', 0.3, 0.5], ['hollow_wraith', 0.7, 0.5], ['solar_acolyte', 0.5, 0.35], ['cursed_altar', 0.5, 0.3]),
   a07: F(['cinder_archer', 0.2, 0.2], ['cinder_archer', 0.8, 0.2], ['sunbound_knight', 0.5, 0.35], ['cinder_bat', 0.15, 0.6], ['cinder_bat', 0.85, 0.6]),
   a08: F(['cinder_archer', 0.1, 0.35], ['cinder_archer', 0.1, 0.65], ['cinder_bat', 0.45, 0.25], ['cinder_bat', 0.55, 0.75], ['hollow_wraith', 0.9, 0.5]),
   a09: F(['sunbound_knight', 0.5, 0.3], ['infernal_hound', 0.4, 0.5], ['infernal_hound', 0.6, 0.5], ['cinder_archer', 0.2, 0.15], ['cinder_archer', 0.8, 0.15]),
-  a10: F(['cinder_archer', 0.8, 0.15], ['cinder_archer', 0.2, 0.35], ['infernal_hound', 0.3, 0.8], ['infernal_hound', 0.7, 0.7]),
+  a10: F(['cinder_archer', 0.8, 0.15], ['cinder_archer', 0.2, 0.35], ['infernal_hound', 0.3, 0.8], ['infernal_hound', 0.7, 0.7], ['cinder_bat', 0.5, 0.5]),
   a11: F(['lava_guard', 0.5, 0.5], ['cinder_archer', 0.1, 0.5], ['cinder_archer', 0.9, 0.5], ['cinder_bat', 0.35, 0.2], ['cinder_bat', 0.65, 0.8]),
   a12: F(['lava_guard', 0.5, 0.75], ['lava_guard', 0.5, 0.45], ['cinder_archer', 0.15, 0.15], ['cinder_archer', 0.85, 0.15], ['infernal_hound', 0.2, 0.5], ['infernal_hound', 0.25, 0.48], ['infernal_hound', 0.3, 0.5]),
   a13: F(['siege_battery', 0.75, 0.35], ['sunbound_knight', 0.5, 0.5], ['lava_guard', 0.35, 0.6], ['lava_guard', 0.65, 0.6], ['cinder_archer', 0.2, 0.2], ['cinder_archer', 0.8, 0.2]),
   a14: F(['eclipse_shade', 0.5, 0.15]),
-  a15: F(['cinder_elemental', 0.4, 0.4], ['cinder_elemental', 0.4, 0.65], ['lava_guard', 0.45, 0.1]),
-  a16: F(['lava_guard', 0.85, 0.5], ['lava_guard', 0.5, 0.25], ['cinder_archer', 0.5, 0.78], ['cinder_archer', 0.65, 0.8]),
-  a17: F(['cinder_elemental', 0.2, 0.5], ['cinder_elemental', 0.8, 0.5], ['forge_golem', 0.5, 0.12]),
+  a15: F(['cinder_elemental', 0.4, 0.4], ['cinder_elemental', 0.4, 0.65], ['lava_guard', 0.45, 0.1], ['cinder_archer', 0.3, 0.2], ['cinder_bat', 0.3, 0.8]),
+  a16: F(['lava_guard', 0.3, 0.86], ['lava_guard', 0.7, 0.86], ['cinder_archer', 0.42, 0.92], ['cinder_archer', 0.58, 0.92], ['sun_cultist', 0.5, 0.95]),   // (the Defended Causeway's: guards on its platforms, archers and a cultist behind; the Broken Span has only its fissures)
+  a17: F(['cinder_elemental', 0.2, 0.5], ['cinder_elemental', 0.8, 0.5], ['forge_golem', 0.5, 0.12], ['cinder_archer', 0.5, 0.9], ['lava_slime', 0.3, 0.85]),
   a18: F(['sun_cultist', 0.3, 0.35], ['sun_cultist', 0.7, 0.35], ['solar_acolyte', 0.5, 0.25], ['burning_pyre', 0.3, 0.45], ['burning_pyre', 0.7, 0.45]),
   a19: F(['sunbound_knight', 0.4, 0.4], ['sunbound_knight', 0.6, 0.4], ['lava_guard', 0.3, 0.6], ['lava_guard', 0.7, 0.6], ['cinder_archer', 0.2, 0.15], ['cinder_archer', 0.8, 0.15]),
   a20: F(['sunbound_knight', 0.4, 0.45], ['sunbound_knight', 0.6, 0.45], ['cinder_archer', 0.15, 0.2], ['cinder_archer', 0.5, 0.12], ['cinder_archer', 0.85, 0.2]),
@@ -1407,7 +1409,16 @@ const FORMATION = {
   a50: F(['sunbound_construct', 0.3, 0.3], ['sunbound_construct', 0.7, 0.7], ['eclipse_shade', 0.7, 0.3], ['eclipse_shade', 0.3, 0.7], ['celestial_anchor', 0.12, 0.5], ['celestial_anchor', 0.88, 0.5]),
   a51: F(['eclipse_shade', 0.5, 0.25]),
 };
-Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden'], puzzle: null, altar: false, layout: { secrets: 3 },   // (three cracked walls, secret rooms behind)
+// the castle's watch on its roads (2026-11-02, the user: "make some enemies already visible in the world as guards or
+// patrols"): small groups standing on the way between areas, seen before they see you
+const WATCH = [['2-3', ['infernal_hound', 'cinder_bat']], ['5-7', ['hollow_wraith', 'cinder_bat']], ['8-9', ['cinder_archer', 'infernal_hound']], ['9-10', ['lava_guard', 'cinder_archer']],
+  ['11-12', ['cinder_archer', 'cinder_archer']], ['13-15', ['infernal_hound', 'infernal_hound', 'cinder_archer']], ['17-18', ['lava_guard', 'sun_cultist']], ['20-21', ['sunbound_knight', 'cinder_archer']],
+  ['21-22', ['lava_guard', 'cinder_archer', 'cinder_archer']], ['24-25', ['hollow_wraith', 'sun_cultist']]];
+Object.assign(DUNGEONS.throne, { style: 'throne',
+  extraSpawns(m) {
+    const W = m.castle && m.castle.plan && m.castle.plan.ways; if (!W) return [];
+    return WATCH.flatMap(([k, ids]) => { const w = W[k]; if (!w) return []; const ux = Math.cos(w.dir), uy = Math.sin(w.dir); return ids.map((id, i) => [id, w.mid[0] + 0.5 + ux * (i - (ids.length - 1) / 2) * 1.8, w.mid[1] + 0.5 + uy * (i - (ids.length - 1) / 2) * 1.8]); });   // (in file along the road)
+  }, seals: ['warden'], puzzle: null, altar: false, layout: { secrets: 3 },   // (three cracked walls, secret rooms behind)
   // (2026-11-01: the volcano island, src/world/maps.js LAYOUT.throne) who holds each part of it, harder the further in:
   // the island's own monsters (below), the shore's weakest, the hall's worst
   mobs: ['ash_wretch', 'cinder_hound', 'magma_slinger', 'obsidian_sentinel', 'brimstone_acolyte', 'caldera_serpent'],
