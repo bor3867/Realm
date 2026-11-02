@@ -18,6 +18,7 @@ const methods = {
     const m = this.map, C = m.castle, p = this.player;
     if (!C || !C.rooms || p.dead) return;
     const Rm = C.rooms, S = C.st || (C.st = { t0: this.t, geyser: 2, said: {} });
+    this.castleParty();
     const here = Object.keys(Rm).find((k) => inR(Rm[k], p.x, p.y));
     if (here && !S.said[here]) { S.said[here] = true; this.castleEnter(here); }
     // the arrival's door
@@ -43,6 +44,18 @@ const methods = {
       S.arrived = true; p.x = C.arrive.x; p.y = C.arrive.y; p.status.invuln = Math.max(p.status.invuln || 0, 2.5);
     }
     if (S.through && here !== 'gate' && here !== 'walk' && here !== 'I') { S.through = 0; S.arrived = false; }   // (back another way: the gate works again)
+  },
+  // more players, more Life (the user's formulas): a castle defender 1 + 0.55 a player past the first (at most 2.65), a
+  // castle boss 1 + 0.60 (up to six); no more damage. Only the server counts its players (a browser alone is one); a
+  // monster keeps the share of its Life it had, so its phases stay where they were
+  castleParty() {
+    const n = Math.max(1, (this.netTargets || []).filter((q) => q && !q.dead).length);
+    const kin = Math.min(2.65, 1 + 0.55 * (n - 1)), boss = 1 + 0.6 * (Math.min(6, n) - 1);
+    for (const e of this.enemies) {
+      if (e.dead || !(e.D.kin || e.rb)) continue;
+      const k = e.rb ? boss : kin, k0 = e.partyK || 1; if (k === k0) continue;
+      const f = e.hp / e.maxHp; e.maxHp = Math.round((e.maxHp / k0) * k); e.hp = Math.max(1, Math.round(f * e.maxHp)); e.partyK = k;
+    }
   },
   castleEnter(k) {
     const m = this.map;

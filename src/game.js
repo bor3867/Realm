@@ -844,7 +844,7 @@ export class Game {
   populateDungeon(def) {
     const m = this.map;
     const r = rng(m.w * 7 + 1);
-    const buff = (e) => { e.hp = e.maxHp = Math.round(e.hp * def.mobHp); return e; };
+    const buff = (e) => { if (!e.D.kin) e.hp = e.maxHp = Math.round(e.hp * def.mobHp); return e; };   // (a castle defender keeps the user's own Life: src/castle_kin.js)
     const spot = (rm) => {                                // a free floor tile inside a room
       for (let j = 0; j < 30; j++) {
         const x = rm.x + 1.5 + r() * (rm.w - 3), y = rm.y + 1.5 + r() * (rm.h - 3);
