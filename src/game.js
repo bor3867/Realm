@@ -1143,6 +1143,7 @@ export class Game {
     this.achTick(dt);                                            // achievements (src/achievements.js)
     this.realmClock();                                           // the realm's 15 minutes (offline; online the server's)
     this.eruptTick();                                            // (the eruption shaking the world before it throws you)
+    this.realmDim();                                             // (and the minute before it, the sun going)
     if (this.map.melonDrops) this.melonDropTick();               // (a burst melon's loot: on any map, online too)
     this.updateEliteAuras(dt);
     if (this.map.rf) this.rfUpdate(dt);
@@ -3575,7 +3576,25 @@ export class Game {
     // the world shakes for a while first (2026-10-31, the user: "should shake the world and last a bit longer"): the
     // ground heaves harder and harder, the sky reddens and embers rain down; nothing hurts you while it lasts
     this.eruptFx = { t0: this.t, dur: 12, next: 0, sec: 13, stage: 0 };
+    { const p = this.player, walk = (x, y, a, n, st, a0w = a) => { const pts = []; for (let i = 0; i < n; i++) { pts.push([x, y]); a += (R() - 0.5) * 0.5; a += (a0w - a) * 0.08; x += Math.cos(a) * st; y += Math.sin(a) * st * 0.8; } return pts; };
+      // (2026-11-02, the user: "Almost like a crack in the ground with lava flowing in it growing as the realm shakes"): it
+      // splits open from beside you both ways, widening, lava flowing along it; branches break off it as it grows
+      const a0 = R() * Math.PI, x0 = p.x + (R() - 0.5) * 3, y0 = p.y + 1.5 + R() * 1.5, half = 70;
+      const main = [...walk(x0, y0, a0 + Math.PI, half, 0.3).reverse(), ...walk(x0, y0, a0, half, 0.3).slice(1)];
+      const br = []; for (let k = 0; k < 6; k++) { const i = Math.floor(R() * main.length), [bx, by] = main[i]; br.push({ at: 3 + k * 1.2, pts: walk(bx, by, a0 + (R() < 0.5 ? 1 : -1) * (0.8 + R() * 0.8), 20 + Math.floor(R() * 16), 0.28) }); }
+      this.fx.push({ kind: 'lavacrack', pts: main, br, t: 0, life: 12.6 }); }
     this.fx.push({ kind: 'eclipse', t: 0, life: 12.4 }, { kind: 'erupttint', t: 0, life: 12.4 });
+  }
+  // the minute before the eruption the sun is taken (2026-11-02, the user: "The minute before the eruption, take the
+  // sunlight away as it makes sense since solkhar is the sunstealer"): the realm darkens to violet-black over that minute, a
+  // light only round each of you (src/render.js dusk), and stays dark through the shaking
+  realmDim() {
+    const m = this.map; if (m.kind !== 'realm') return;
+    const left = this.erupting ? 0 : this.realmLeft();
+    if (left === null || left > 60) { if (m.sunless) { m.sunless = false; m.lights = m.sunLights0 || null; m.ambient = undefined; } return; }
+    if (!m.sunless) { m.sunless = true; m.sunLights0 = m.lights; m.lights = m.lights || []; if (!this.erupting) this.banner('SOLKHAR REACHES FOR THE SUN.', 3000); }
+    const k = Math.min(1, 1 - left / 60);
+    m.ambient = `rgba(14,6,26,${(0.1 + 0.58 * k).toFixed(3)})`;
   }
   eruptTick() {
     const E = this.eruptFx;
@@ -3595,7 +3614,6 @@ export class Game {
     const el = this.t - E.t0;
     if (E.stage === 0 && el >= 3) {                          // the castle rises: the ground cracks round you (no harm)
       E.stage = 1; this.banner('THE CASTLE RISES.', 2600);
-      for (let c = 0; c < 7; c++) { let x = p.x + (R() - 0.5) * 16, y = p.y + (R() - 0.5) * 12, a = R() * TAU; const pts = []; for (let i = 0; i < 14; i++) { pts.push([x, y]); a += (R() - 0.5) * 0.9; x += Math.cos(a) * 0.45; y += Math.sin(a) * 0.45; } this.fx.push({ kind: 'crack', pts, t: 0, life: 9.4 - c * 0.2 }); }
     }
     if (E.stage === 1 && el >= 6) { E.stage = 2; this.fx.push({ kind: 'rift', x: p.x, y: p.y - 4, t: 0, life: 6.4 }); this.sfx('portal'); }
     const sec = Math.ceil(E.dur - el);

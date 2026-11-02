@@ -340,6 +340,7 @@ export class Renderer {
         this.b.fillStyle = `rgba(255,190,90,${a.toFixed(3)})`; this.b.fillRect(0, 0, this.buf.width, this.buf.height); }
       else if (f.kind === 'eclipse') { const a = Math.min(1, f.t / 3) * Math.min(1, (f.life - f.t) * 2) * 0.42;   // the sun stolen: the light drains to violet-black
         this.b.fillStyle = `rgba(14,6,26,${a.toFixed(3)})`; this.b.fillRect(0, 0, this.buf.width, this.buf.height); }
+      else if (f.kind === 'lavacrack') this.lavaCrackFx(f, g);
       else if (f.kind === 'crack') {                       // a crack in the ground, glowing (the eruption: no harm in it)
         const a = Math.min(1, f.t * 3) * Math.min(1, (f.life - f.t) * 2), b = this.b; b.globalAlpha = a;
         for (let k = 0; k < f.pts.length; k++) { const [x, y] = this.proj(f.pts[k][0], f.pts[k][1]); b.fillStyle = '#1a0806'; b.fillRect(Math.round(x) - 2, Math.round(y) - 1, 4, 3); b.fillStyle = (k + Math.floor(g.t * 8)) % 3 ? '#ff6a1c' : '#ffd650'; b.fillRect(Math.round(x) - 1, Math.round(y), 2, 1); }
@@ -1180,8 +1181,9 @@ export class Renderer {
     x.fillStyle = g.map.ambient || 'rgba(16,10,44,0.42)'; x.fillRect(0, 0, BW, BH);
     x.globalCompositeOperation = 'destination-out';
     const flick = 0.92 + Math.sin(g.t * 13) * 0.04 + Math.sin(g.t * 7.3) * 0.04;
-    const src = g.map.kind === 'dungeon' && !g.player.dead ? [...g.map.lights, { x: g.player.x, y: g.player.y, h: 0.5, r: 92, col: '#fff0d0' }] : [...g.map.lights];
-    if (g.activeMap === g.map) for (const e of g.notable || []) if (e.bx && !e.dead && e.bx.B.lights) src.push(...e.bx.B.lights(g, e));   // a boss's own lights (the Unstruck's furnace, its anvil)   // in a dungeon you carry a light
+    const src = (g.map.kind === 'dungeon' || g.map.sunless) && !g.player.dead ? [...g.map.lights, { x: g.player.x, y: g.player.y, h: 0.5, r: 92, col: '#fff0d0' }] : [...g.map.lights];
+    if (g.activeMap === g.map) for (const e of g.notable || []) if (e.bx && !e.dead && e.bx.B.lights) src.push(...e.bx.B.lights(g, e));
+    for (const f of g.fx) if (f.kind === 'lavacrack') { const n = f.pts.length, mid = n >> 1, reach = Math.ceil(mid * Math.min(1, f.t / 8)); for (let k = mid - reach; k <= mid + reach; k += 10) if (f.pts[k]) src.push({ x: f.pts[k][0], y: f.pts[k][1], h: 0, r: 26 + 14 * Math.min(1, f.t / 11), col: '#ff7a2a', fire: true }); }   // (the eruption's crack lights the dark it's in)   // a boss's own lights (the Unstruck's furnace, its anvil)   // in a dungeon you carry a light
     const lights = [];                                     // (a lamp's light sits up the screen, at its height: projUp)
     for (const L of src) { if (!g.seen(L.x, L.y)) continue; const [lx, ly] = this.projUp(L.x, L.y, L.h || 0); if (lx < -L.r || ly < -L.r || lx > BW + L.r || ly > BH + L.r) continue; lights.push({ lx, ly, R: L.r * (L.fire ? flick + Math.sin(g.t * 9 + L.x) * 0.03 : 1), fire: L.fire, col: L.col }); }
     for (const L of lights) {
@@ -2039,6 +2041,27 @@ export class Renderer {
     b.fillStyle = (Math.floor(g.t * 12) % 2) ? C[0] : C[1];
     for (let i = 0; i <= n; i++) { const [x, y] = pt(f.a - f.spread / 2 + (i / n) * f.spread, f.r); b.fillRect(x - 1, y - 1, 2, 2); }   // its rim
     for (const s of [-1, 1]) for (let d = 0.5; d < f.r; d += 0.5) { const [x, y] = pt(f.a + s * f.spread / 2, d); b.fillRect(x - 1, y - 1, 2, 2); }   // its sides
+  }
+  // the eruption's crack: opening outward from its middle over 8 s, widening over 11, lava running along it (bright bands
+  // flowing outward), a glow either side; its branches split off later (src/game.js realmErupt). No harm in it
+  lavaCrackFx(f, g) {
+    const b = this.b, fadeOut = Math.min(1, (f.life - f.t) * 2);
+    const draw = (pts, t, wMax, mid0) => {                 // (mid0: where it opens from; a branch from its root)
+      if (t <= 0) return;
+      const n = pts.length, mid = mid0 ?? Math.floor(n / 2), reach = Math.ceil(Math.max(mid, n - 1 - mid) * Math.min(1, t / 8)), w = 1 + (wMax - 1) * Math.min(1, t / 11);
+      const lo = Math.max(0, mid - reach), hi = Math.min(n - 1, mid + reach), P = []; for (let k = lo; k <= hi; k++) { const [x, y] = this.proj(pts[k][0], pts[k][1]); P.push([Math.round(x), Math.round(y), k]); }
+      if (P.length < 2) return;
+      b.save(); b.lineCap = 'round'; b.lineJoin = 'round';
+      const pass = (lw, col, a, flow) => { b.globalAlpha = a * fadeOut; for (let i = 1; i < P.length; i++) { const k = P[i][2], tip = 1 - Math.abs(k - mid) / Math.max(1, reach), ww = Math.max(1, w * (0.3 + 0.7 * Math.sqrt(Math.max(0, tip))));
+        if (flow) { const f = Math.sin(Math.abs(k - mid) * 0.45 - g.t * 6); b.strokeStyle = f > 0.55 ? '#fff0a8' : f > -0.1 ? '#ffb43a' : '#ff6a1c'; } else b.strokeStyle = col;
+        b.lineWidth = Math.max(1, ww * lw + (flow ? 0 : lw > 2 ? 4 : 2)); b.beginPath(); b.moveTo(P[i - 1][0], P[i - 1][1]); b.lineTo(P[i][0], P[i][1]); b.stroke(); } };
+      pass(3, '#ff5a14', 0.16, false);                     // its glow
+      pass(1.6, '#140604', 1, false);                      // the broken earth either side
+      pass(1, null, 1, true);                              // the lava, running out along it
+      b.restore();
+    };
+    draw(f.pts, f.t, 4);
+    for (const B of f.br) draw(B.pts, f.t - B.at, 2.2, 0);
   }
   laneFx(f, g) {
     const b = this.b, live = f.t >= f.delay, L = f.len, n = Math.ceil(L * 2);
