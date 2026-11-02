@@ -278,7 +278,8 @@ function choose(g, e) {
 export default {
   id: 'unstruck_god', art: 'solkhar', shotSheet: 'ug_shots', name: 'Solkhar, the Sunthief', biome: 'dungeon', hp: 850000, def: 34, xp: 30000,
   r: 2.2, speed: 2, keep: 5, faces: false, spawnCentre: true, tempo: 1, dmgScale: 1, thresholds: [0.70, 0.35], choose,
-  death: { hold: 3 },                                      // (4 s in all: the clip, then held while the sun goes out)
+  walkPace: 2.5, charging: (g, e) => !!(e.slDash && g.t >= e.slDash.at),   // (his glide at his pace; his dashes)
+  death: { hold: 1 },                                      // (4 s in all, the spec's: the 3 s clip, then held while the sun goes out)
   phases: {
     1: { move: 'center', pressure: [{ every: 1.7, special: 'solarVolley', delay: 1.5 }], patterns: Object.values(AT) },
     2: { move: 'roam', pressure: [{ every: 1.55, special: 'solarVolley', delay: 1.5 }], patterns: Object.values(AT) },

@@ -119,6 +119,84 @@ SHOTS = {
 }
 
 
+# ---- his motion (2026-11-02, the user: "Solkhar should manipulate his arms, halo, and solar energy during attacks... his
+# halo and armour should gradually shatter as his stolen solar power becomes unstable"): frames from his own art a part at
+# a time (tools/boss_motion.py), with room above and beside him:
+#   walk     he glides: hovering up and down, his robe trailing, the loose shards bobbing against him
+#   attack   his arms raised, the halo and the sun brightening; thrust out, a ring of light bursting from the sun; settling
+#   charge   leaning into a dash, a stream of sparks behind him
+#   hurt     a flinch: he sinks a pixel, the sun and his gold flare (no white, no knockback)
+#   enter    II: the sun pulses, the halo shatters in sparks, light cracks through his armour; III: the sun erupts from
+#            his chest, a burst of light, and he is unbound
+#   death    (the spec's four seconds) the core lifts out of him and flickers, implodes, his crown and halo burn to embers; ash
+from boss_motion import pad, shift, arc, tint  # noqa: E402
+PT, PS = 6, 6
+W2, H2 = SW + 2 * PS, SH + PT
+O = lambda x, y: (x - PS, y - PT)
+
+
+def _k(x, y):
+    X, Y = O(x, y)
+    return KIND[Y][X] if 0 <= X < SW and 0 <= Y < SH else '.'
+
+
+ALL = lambda x, y, c: True
+ARM_L = lambda x, y, c: O(x, y)[0] < 16 and 15 <= O(x, y)[1] < 37
+ARM_R = lambda x, y, c: O(x, y)[0] >= SW - 16 and 15 <= O(x, y)[1] < 37
+HEM = lambda x, y, c: O(x, y)[1] >= SH - 9
+SHARDS = lambda x, y, c: SIDE(O(x, y)[0]) and O(x, y)[1] < 15
+SUN = lambda x, y, c: math.hypot(O(x, y)[0] - CX, O(x, y)[1] - CY) < 6
+LIGHT = lambda x, y, c: _k(x, y) in ('sun', 'gold')
+HALO = lambda x, y, c: O(x, y)[1] < HALO_Y and _k(x, y) == 'gold'
+SOL = [(255, 230, 120, 255), (255, 170, 60, 255), (255, 246, 200, 255)]
+ring = lambda r, n, ph=0: [(PS + CX + math.cos(ph + i * 2 * math.pi / n) * r, PT + CY + math.sin(ph + i * 2 * math.pi / n) * r) for i in range(n)]
+
+
+def base(act, f=0, s=False): return pad(solkhar(act, f, s), PT, PS)
+
+
+def walk(act, k):
+    g = shift(base(act, k), ALL, 0, [-1, -2, -1, 0][k], fill=False)
+    g = shift(g, HEM, -1 if k < 2 else 1, 0, fill=False)
+    return shift(g, SHARDS, 0, 1 if k in (1, 2) else 0, fill=False)
+
+
+def strike(act, k):
+    if k == 0:
+        g = shift(shift(base(act, 0, True), ARM_L, -1, -2, fill=False), ARM_R, 1, -2, fill=False)
+        return tint(g, HALO, (255, 246, 200), 0.5)
+    if k == 1:
+        g = shift(shift(base(act, 0, True), ARM_L, -3, -1, fill=False), ARM_R, 3, -1, fill=False)
+        return arc(tint(g, LIGHT, (255, 236, 170), 0.5), ring(9, 14) + ring(12, 10, 0.3), SOL)
+    return shift(shift(base(act, 2), ARM_L, -1, 0, fill=False), ARM_R, 1, 0, fill=False)
+
+
+def rush(act, k):
+    g = shift(base(act, k * 2), ALL, 0, 1, fill=False)
+    g = shift(g, HEM, 2 if k else -2, -1, fill=False)
+    return arc(g, [(PS + CX + (i % 5 - 2) * 3, H2 - 2 - i) for i in range(8)], SOL)
+
+
+def flinch(act): return tint(shift(base(act, 1), ALL, 0, 1, fill=False), LIGHT, (255, 220, 120), 0.7)
+
+
+def enter(act, k):
+    if k == 3: return base(act)
+    g = base(act - 1 if k < 2 else act, 1)
+    if k == 0: return tint(g, SUN, (255, 246, 200), 0.9)
+    if k == 1: return arc(tint(g, HALO, (255, 236, 170), 0.8), ring(16, 16), SOL)          # (the halo shattering)
+    return arc(tint(g, LIGHT, (255, 240, 190), 0.8), ring(7, 12) + ring(13, 16, 0.2) + ring(19, 20), SOL)   # (the sun bursting out)
+
+
+def die(k):
+    if k >= 3: return pad(fall(k - 2), PT, PS)
+    g = base(3)
+    if k == 0: return shift(g, SUN, 0, -3, fill=True)                                        # (the core lifts out of him)
+    if k == 1: return tint(shift(g, SUN, 0, -3, fill=True), SUN, (90, 50, 30), 0.6)           # (and flickers)
+    g = tint(g, SUN, (20, 10, 24), 0.9)                                                         # (it implodes)
+    return arc(g, ring(5, 10) + [(PS + CX + math.cos(i) * 18, PT + 4 + (i * 3) % 10) for i in range(10)], SOL)   # (crown and halo to embers)
+
+
 def pack(name, entries, W, H, cols=6):
     rows = (len(entries) + cols - 1) // cols
     px = [[BLANK] * (cols * W) for _ in range(rows * H)]; fr = {}
@@ -138,18 +216,24 @@ if __name__ == '__main__':
     BID, NAMES = 'solkhar', {1: 'The Golden Tyrant', 2: 'The Broken Sun', 3: 'The Sunthief Unbound'}
     frames = []
     for act in (1, 2, 3):
-        frames += [(f'i{act}_{k}', solkhar(act, k)) for k in range(4)] + [(f'a{act}', solkhar(act, 0, True)), (f'a{act}b', solkhar(act, 2, True))]
-    frames += [(f'd{k}', fall(k)) for k in range(3)]
-    fr, px = pack(BID, frames, SW, SH)
+        frames += [(f'i{act}_{k}', base(act, k)) for k in range(4)] + [(f'a{act}_{k}', strike(act, k)) for k in range(3)]
+        frames += [(f'w{act}_{k}', walk(act, k)) for k in range(4)] + [(f'c{act}_{k}', rush(act, k)) for k in range(2)] + [(f'h{act}', flinch(act))]
+        if act > 1: frames += [(f'e{act}_{k}', enter(act, k)) for k in range(4)]
+    frames += [(f'd{k}', die(k)) for k in range(5)]
+    fr, px = pack(BID, frames, W2, H2)
     anims = {}
     for act in (1, 2, 3):
         anims[f'idle{act}'] = {'frames': [f'i{act}_{k}' for k in range(4)], 'fps': 6, 'loop': True}
-        anims[f'attack{act}'] = {'frames': [f'a{act}', f'a{act}b', f'a{act}'], 'fps': 6, 'loop': False}
-    anims['death'] = {'frames': ['d0', 'd1', 'd2'], 'fps': 3, 'loop': False}
+        anims[f'attack{act}'] = {'frames': [f'a{act}_0', f'a{act}_1', f'a{act}_2', f'a{act}_2'], 'fps': 8, 'loop': False}
+        anims[f'walk{act}'] = {'frames': [f'w{act}_{k}' for k in range(4)], 'fps': 5, 'loop': True}
+        anims[f'charge{act}'] = {'frames': [f'c{act}_0', f'c{act}_1'], 'fps': 10, 'loop': True}
+        anims[f'hurt{act}'] = {'frames': [f'h{act}'], 'fps': 5, 'loop': False}
+        if act > 1: anims[f'enter{act}'] = {'frames': [f'e{act}_{k}' for k in range(4)], 'fps': 3, 'loop': False}
+    anims['death'] = {'frames': [f'd{k}' for k in range(5)], 'fps': 1.6, 'loop': False}
     sfr, _ = pack('sol_shots', [(k, [list(r) for r in g]) for k, g in SHOTS.items()], 9, 9)
     sheets = {
         f'bx_{BID}': {'image': f'{BID}.png', 'kind': 'boss', 'sprites': {BID: {'frames': fr, 'anims': anims,
-                      'phases': {str(a): {'name': NAMES[a], 'idle': f'idle{a}', 'attack': f'attack{a}'} for a in (1, 2, 3)}, 'death': 'death', 'meta': {}}}},
+                      'phases': {str(a): {'name': NAMES[a], 'idle': f'idle{a}', 'attack': f'attack{a}', 'walk': f'walk{a}', 'charge': f'charge{a}', 'hurt': f'hurt{a}', **({'enter': f'enter{a}'} if a > 1 else {})} for a in (1, 2, 3)}, 'death': 'death', 'meta': {}}}},
         'sol_shots': {'image': 'sol_shots.png', 'kind': 'shot', 'sprites': {k: {'frames': {'0': v}, 'meta': {}} for k, v in sfr.items()}},
     }
     json.dump({'rf': True, 'meta': {'name': 'Solkhar, the Sunthief (the user\'s sprite)', 'version': 1}, 'sheets': sheets},
