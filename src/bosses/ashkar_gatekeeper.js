@@ -193,7 +193,7 @@ function forge(g, e, V) {
 }
 
 export default {
-  id: 'ashkar_gatekeeper', art: 'ashkar_gatekeeper', name: 'Ashkar, the Chained Forge-Giant', biome: 'dungeon', hp: 420000, def: 30, xp: 14000,
+  id: 'ashkar_gatekeeper', art: 'ashkar_gatekeeper', drawScale: 0.5, name: 'Ashkar, the Chained Forge-Giant', biome: 'dungeon', hp: 420000, def: 30, xp: 14000,
   r: 1.8, speed: 1.0, keep: 4.5, faces: false, tempo: 0.85, dmgScale: 0.9, spawnCentre: true, thresholds: [0.70, 0.35], finale,
   phases: {
     1: { move: 'hold', patterns: [
@@ -269,7 +269,7 @@ export default {
   drawGround(r, g, e) {
     const S = e.bx, b = r.b, ph = S.phase || 1, [sx, sy] = r.proj(e.x, e.y), hot = S.akHot && g.t < S.akHot.until ? S.akHot.ids : [];
     for (let i = 0; i < 4; i++) {
-      const A = anchor(e, i), [ax, ay] = r.proj(A.x, A.y), side = A.x < e.x ? -1 : 1, wx = sx + side * 28, wy = sy - 32;
+      const A = anchor(e, i), [ax, ay] = r.proj(A.x, A.y), side = A.x < e.x ? -1 : 1, wx = sx + (side < 0 ? -26 : 40), wy = sy - (side < 0 ? 57 : 40);   // (his wrists, on the user's sprite)
       b.fillStyle = '#0e0a12'; b.fillRect(Math.round(ax) - 6, Math.round(ay) - 6, 12, 12);   // the anchor: an iron block, a ring
       b.fillStyle = '#433d4e'; b.fillRect(Math.round(ax) - 5, Math.round(ay) - 5, 10, 10);
       b.fillStyle = '#615a70'; b.fillRect(Math.round(ax) - 5, Math.round(ay) - 5, 10, 2);

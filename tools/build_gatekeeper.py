@@ -1,3 +1,4 @@
+# SUPERSEDED (2026-11-01): Ashkar is now the user's own sprite, tools/build_ashkar.py. Running this would put the old one back.
 # Ashkar, the Gatekeeper: the guardian of Solkhar's gate, in the Guardian's hall of the volcano island
 # (src/bosses/ashkar_gatekeeper.js). 2026-11-01, drawn to the user's concept sheet ("Ashkar, the Chained Forge-Giant"):
 # a hulking giant in layered plates of iron and obsidian over a body of volcanic stone, a horned helm with a molten V for

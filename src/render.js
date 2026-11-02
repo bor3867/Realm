@@ -1515,7 +1515,8 @@ export class Renderer {
     const S = e.bx;
     if (!S || !S.def || !S.anim) return;
     const def = S.def, fr = e.dead ? def.anims[def.death].frames.slice(-1)[0] : S.anim.frame;
-    S.drawK = (S.drawK || 1) + ((S.B.scaleFor ? S.B.scaleFor(g, e) : 1) - (S.drawK || 1)) * 0.04;   // a boss may grow (the Orrery in its Collapse), eased
+    const K0 = S.B.drawScale || 1;                         // (its art's own scale: Ashkar's is drawn at half)
+    S.drawK = (S.drawK || K0) + ((S.B.scaleFor ? S.B.scaleFor(g, e) : 1) * K0 - (S.drawK || K0)) * 0.04;   // a boss may grow (the Orrery in its Collapse), eased
     const K = S.drawK, W = def.size[0] * 2 * K;
     if (!e.dead && !S.B.noShadow) this.shadow(sx, sy, Math.min(48 * K, W * 0.55));
     const hy = this.R ? hoverY(this.R, def, g.t, S.phase0, S.phase) : 0;

@@ -1,0 +1,224 @@
+SUNTHIEF'S CASTLE — COMPLETE HARD-ENDGAME ENCOUNTER SPECIFICATION
+Version 1.0 | Claude implementation blueprint | Original RotMG-inspired design
+
+DIRECTIVE TO CLAUDE
+Implement this as an endgame castle event and four boss encounters. Review the existing project's code, combat rules, movement, defenses, loot tables, asset pipeline, and usable classes FIRST. Preserve good mechanics and reuse systems; no gratuitous rewrites. Treat the concrete figures below as an IMPLEMENTATION BASELINE, not a license to ignore playtesting. Preserve the distinct boss sprites already provided. The provided Ashkar JPG is VISUAL REFERENCE, not a native-resolution, alpha-transparent sprite. Do not pretend a JPG sheet is a working animation atlas.
+
+SCOPE: realm eruption -> castle entry -> lava-covered approach -> mandatory Hollow Jarl Warrior + Wizard duo encounter -> Ashkar alone -> giant portal doorway -> Solkhar finale -> rewards/exit. Do not alter unrelated bosses.
+
+=============================================================================
+0. COMBAT CONTRACT — EXACT UNITS, DANGER, FAIRNESS, AND PERFORMANCE
+=============================================================================
+
+Reference solo player (VERIFY AGAINST ACTUAL GAME): 900 HP, 6.0 tiles/sec unhindered movement, 2,500 theoretical maximum single-target DPS, approximately 1,400-1,900 DPS in a real movement-heavy battle. If actual player HP, speed, defense, or DPS differs, normalize numbers BEFORE playtest. Damage specified below is EFFECTIVE HP loss after ordinary defense, not necessarily the projectile's raw damage parameter.
+
+Coordinates: 1 tile = 16 native world pixels. All x/y arena coordinates below use tile centers from top-left origin. Angles in degrees; 0 = east, 90 = south, increasing clockwise. Every radial 'N-shot ring' has evenly spaced shots at alpha + 360*k/N unless another arrangement is given. Every 'fan N, angle A' includes both endpoints, centered on a snapshot of player bearing at lock time. No homing unless explicitly specified. Shot speeds are in tiles/second. Travel stops at given range, collision, or wall. Projectile image sizes are IN NATIVE PIXELS: generally 2x2 rune, 2x4 lance, 3x3 cinder, 3x5 axe crescent, 3x6 sun spear. Keep hitboxes at or slightly INSIDE the visible solid sprite; ignore decorative glow. Draw at integer pixel positions/nearest-neighbor where necessary. Boss sprite center, feet and attack origin must remain stable when rotating.
+
+Bosses cannot hit player on the same frame as an unannounced telegraph; standard telegraphs >=0.70 seconds, lethal directional charges/beams >=1.05 seconds, major arena transformations >=1.40 seconds. If actual player movement is slower than 6 tiles/sec, lengthen warning/gaps. Allow >=0.30 tile clearance between PLAYER collision circle and safe-lane projectile boundaries after accounting for both radii. Stop same named beam/puddle from reapplying damage faster than every 0.50 seconds; avoid duplicate damage from a primary melee hit and its decorative projectile at the same instant. Keep current invulnerability system unless it fails fairness checks.
+
+Combat is high-risk, NOT random unavoidable: demanding weaving and snap decisions, no unavoidable corner pin, impossible overlaid walls, invisible origin, cheap spawn-on-player shot, or teleport collision. Do not add forced disorientation/controls reversal. Avoid a giant unavoidable shotgun at point-blank range. No attack starts during load, gate cutscene, or player spawn protection.
+
+IMPORTANT: attack cooldown listed is measured from END of that attack's active window. One boss may execute a PRIMARY move while independent SUPPORT attacks are active, but no two incompatible primary moves may animate simultaneously. An attack on cooldown is replaced by another eligible move, never a blank idle. Secondary emitters continue to fire independently. Avoid overlong invulnerability and scripts that reset on fast damage. A phase crossing queues the transition at the next safe combo boundary (max 3.0 sec delay), prevents skipping the next phase, carries excess damage into the new phase up to 5% max HP, and rewards strong DPS with 0.9-sec visible stagger following every third completed combo if the player reached a 5%-max-HP damage threshold during it. Do not make stagger spam interrupt the danger before the combo finishes.
+
+No silent warnings. Telegraph coding: red/orange dashed lane = physical/hammer; violet dotted circle = arcane; golden spoke = solar; white flash and 2-tone chime = imminent release; unique one-line boss speech only at phase transitions/signature attacks; important countdowns also use icons/patterns, not color alone. Display large boss HUD with phase title, dual health bars for twin encounter, cast progress for a major signature. Sound cues must be short, distinct and rate-limited.
+
+ENDGAME PRESSURE STANDARD: in normal active fight, primary starts every 1.4-2.5 sec where compatible and independent emitters release shots ~0.4-1.0 sec. Roughly 70-90% of active combat time contains navigable projectiles, with intentional 0.6-1.4 sec relief after major sequences. Attack DENSITY is calibrated to player speed, not arbitrary shot spam. A player cannot win by standing still or circling the boundary in one direction; aimed, inward, offset, and anti-rotation attacks force path changes. Test no-hit expert route and reasonably survivable recovery from a mistake; do not turn first mistakes into automatic death.
+
+Suggested scaling if game supports more than one player: HP(n)=baseHP * [1 + 0.60*(n-1)] for 1-6 participants; always cap targeted simultaneous attack sources based on arena solvability. Never scale projectile count linearly with participant count. Do not implement multiplayer or netcode merely for this request.
+
+GLOBAL PROJECTILE LIBRARY (graphics/shape, base speed, damage is per individual attack defined later):
+  ASH_CRESCENT: 3x5 silver/ember curved blade; narrow 0.15-tile radius.
+  RUNE_DART: 2x3 violet diamond; radius 0.11 tile.
+  SPECTRAL_LANCE: 2x5 violet-white needle; radius 0.12 tile.
+  ARCANE_ORB: 3x3 lavender orb with thin outline; radius 0.14 tile.
+  SLAG_SHARD: 3x3 irregular orange rock; radius 0.16 tile.
+  CHAIN_LINK: 3x5 linked dark-metal pixels; radius 0.17 tile.
+  HAMMER_WAVE: connected line segments each 2x3; collision continuous across visible wave.
+  SOLAR_SPEAR: 3x6 golden lance; radius 0.16 tile.
+  SUN_DOT: 2x2 yellow-white ember; radius 0.11 tile.
+  BLACK_STAR: 3x3 dark disk with violet rim; radius 0.14 tile.
+  SOLAR_FRAGMENT: 4x5 fractured gold/obsidian; radius 0.20 tile.
+  ARENA_BEAM: telegraphed filled strip; collision matches bright strip, not particles.
+
+=========================================
+1. THE CASTLE — WORLD EVENT AND ROUTING
+=========================================
+
+CASTLE PREMISE: The realm's sky fractures. A solar eclipse blots out the sun; ground fissures erupt and an enormous black-gold castle emerges above a sea of lava. Survivors are transported inside the outer breach after an unmistakable event warning. This is not a random dungeon: fixed landmark topology with small local variations, so players can learn mastery, and never generic interchangeable square rooms.
+
+REALM ERUPTION EVENT (12.0 seconds total):
+ t=0.0 on-screen banner 'THE SUN HAS BEEN STOLEN.'; rumble, darkening sky; mark persistent event zone.
+ t=3.0 show cracking tiles as NON-DAMAGING environmental VFX. Message: 'THE CASTLE RISES.'
+ t=6.0 a massive open rift appears; alert 'THE BREACH OPENS IN 6'. Countdown visible to all in range/qualified realm players, according to existing realm event rule.
+ t=12.0 eligible players receive screen fade (0.50s), teleport to entry foyer with 2.5 sec spawn protection; do not teleport dead, disconnected, or ineligible players. If your game already uses a portal entry rather than teleport, adapt this transition without breaking existing entrance rules.
+
+CASTLE MAP (tiles; conceptual coordinate system; use native tileset and collision):
+ A. Breach Vestibule 24x20: safe spawning, 2.5s invulnerability, 3-second ominous door-opening; two giant statues; floating volcanic ash; no immediate hostile fire.
+ B. Cinder Causeway 54x20: broken stone bridge over animated lava; two staggered 6-tile-width safe lanes; moving 2x2 magma geyser warnings (1.20 sec -> burst 0.35 sec, 110 effective dmg) every 4 seconds; 2 Furnace Brutes (each 24k HP, frontal 5-shot fan every 2.5sec, 80 dmg) and 2 Obsidian Sentinels (each 32k HP, 3-lance volley every 2.2sec, 90 dmg). Never spawn on arrival tile.
+ C. Embersmith Gallery 38x28: 3 forge ventilator devices at (8,14),(19,8),(30,14), each 18k HP. Every 1.4 sec active vent fires 5 SLAG_SHARD at speed 4.5 tiles/s; 70 dmg. Destroy all three to unlock main portcullis, but surviving mobs do not infinitely respawn. Spawn 3 Sentinel and 2 Brute total in two waves. Show objective 'BREAK THE THREE FORGE HEARTS — 0/3'.
+ D. Hall of Broken Crowns 46x18: narrow corridor interrupted by three staggered safe alcoves. Two 5-second waves of sidewall jets: 1.2-second warm-up, 0.8-second damaging wave, then 1.0-second respite; 95 damage. Five assorted small foes total, not a tedious mob farm. Show fragments of lore and giant wall reliefs of the two Hollow Jarls.
+ E. The Hollow Court 40x34: paired-jarl arena, coordinates detailed below, door locks on 2-second entry grace period. This is ONE required simultaneous two-boss encounter. No splitting into two easy one-on-ones. When both die, lock releases, tiered loot appears and north stairs open.
+ F. The Chainwalk 42x18: exposed bridge above the forge. Alternating bridge ribs crack every 5sec with 1.4sec orange warning; hot tiles deal 90 per 0.5 sec for 2sec. Two sentinels guard exit. No forced enemy farming, no instantly lethal floor collapse.
+ G. Ashkar's Chained Gate 38x34: chained colossus in front of a monumental locked portal, arena detailed below. Kill Ashkar to break chains off the GRAND SUN DOOR.
+ H. Grand Sun Door 14x10: immense black-gold arch with concentric rings, broken links and a bright sun-shaped lock. The gate opens after Ashkar's 3.0sec death scene. Player WALKS through the central 4-tile-wide doorway and interacts/overlaps portal trigger to travel to Solkhar. Do not auto-teleport on Ashkar death. Text above arch: 'BEYOND THIS GATE, EVEN LIGHT OBEYS HIM.' A 1.0sec fade teleports to next arena with 2.5sec grace period.
+ I. The Stolen Sun 44x44 circular dais; Solkhar final battle. On kill, world changes to warm sunrise and a safe exit/reward chamber appears.
+
+Room sequence visualization:
+ REALM ERUPTION -> BREACH -> CAUSEWAY -> EMBERSMITH GALLERY -> HALL OF BROKEN CROWNS
+                 -> [HOLLOW COURT: WARRIOR + WIZARD TOGETHER]
+                 -> CHAINWALK -> [ASHKAR: ALONE] -> [WALK THROUGH GREAT SUN DOOR]
+                 -> [SOLKHAR: FINAL BOSS] -> REWARDS / EXIT
+
+CASTLE VISUAL LANGUAGE: native crisp pixel-art architecture, volcanic stone and violet banners, uneven black basalt with visible cracks, forge chains spanning over chasms, molten reflections, falling embers, brass ornaments, long shadowy arches. Lava animation must not overwhelm enemy shots. Collision layer, hazard layer, floor tiles, decorations, overhead arch layer, and projectiles should be separate; overhead elements fade when blocking gameplay. Avoid blurry scaling, Minecraft-like square trees/decor, sterile procedural repetition. Scope of environment animations: 6–10 fps for molten animation; stable frame rate under projectile stress. Fixed landmarks; minor optional alcove variants only.
+
+INTER-ROOM FLOW: objective text <3 seconds, door-open transition 0.5 sec, no unskippable long cutscenes, optional reward rest stop after duo (brief safe space for inventory; no full heal unless intended by existing game). Preserve inventory, HP/MP, status and loot on room transition; do not reset player to full health automatically. If permadeath/escape exists, honor it.
+
+===================================================
+2. THE HOLLOW COURT — DOUBLE JARL SHOWDOWN
+===================================================
+
+ARENA: 40x34 tiles; safe fight rectangle x=2..38,y=2..32, shallow pillars at (5,6),(35,6),(5,28),(35,28). Corner runic sockets at (4,4),(36,4),(4,30),(36,30). Doors locked after entry grace; pillars break line-of-sight only for decorative enemy props, never cheese the bosses. Floor has alternating 2-tile-wide gold and violet concentric inlay circles for readable attack geometry. Warrior spawns (13,16), Wizard (27,16). Player starts south at (20,29), receives 2.5s entry safety.
+
+BASE HP: Warrior 245,000; Wizard 265,000. Both 4.5★ as a coordinated encounter. They fight AT THE SAME TIME. The duo is the first HARD gate. Warrior walks at 4.4 tiles/sec during normal moves; Wizard strafes at 3.6 tiles/sec between 4 fixed magic steps and does not spam untargetable teleports. When one dies, surviving Jarl enters 'BROKEN OATH' mode after 1.0sec announcement, gains a new sequence but NOT an HP refill. If both would die in the same frame, resolve both and finish encounter correctly.
+
+Shared HUD: 'THE HOLLOW COURT' with two independent health bars and icons, one axe, one crown rune. On activation Warrior shouts 'BEND THE KNEE.' Wizard responds 'THEN BURN THE SOUL.' Displays duo mechanic titles, not every normal shot.
+
+WARRIOR ATTACK CATALOG:
+ W1. NINEFOLD CLEAVE: warning 0.75s, aim locks at 0.55s, 9 ASH_CRESCENT across 100-degree fan at t=0.75 and 9 offset +5deg at t=1.15; speed 6.5, range 10 tiles, 105 dmg each; axe contact 185 in a 2.1tile forward sector only during visible swing t=0.75..1.00; active ends 1.40; CD 3.5s. Hit spark orange; warning red 100-degree floor wedge.
+ W2. HUNTSMAN CHARGE: visible red 1.2-tile-wide line for 1.05s; direction locks at 0.75s; lunge from current position for max 6tiles in 0.55s, contact 195. On arrival fire 7 ASH_CRESCENT fan 140deg toward direction traveled, speed 5.8, damage 100. Repeat second marked lunge 1.1s after first if player's safe route allows; 0.8s warning each; total active ~3.2s; CD 7.0s.
+ W3. KING'S ANVIL: 1.0s center warning; 3 rings of 18 SLAG_SHARD at t=1.0,1.55,2.10, angle offsets 0,10,20deg. Remove 3 adjacent shot positions from each ring to create a shifting gap wider than player's hitbox and dodge clearance; speed 4.1; 95 dmg; active ends 2.35; CD 8.5s. Can be used while Wizard casts WIZ2, but never with full-screen lane lock.
+ W4. EXECUTION CROSS: mark 3.0 tile wide line from Warrior to edge at t=0, lock direction t=0.80, blast melee axe trail at t=1.20 for 0.35sec dealing 220. Two spectral side blades spawn from arena edges perpendicular to primary line at t=1.45 and t=2.0, each 7 blades with 2 missing slots, 110 dmg, 5.4tiles/s. CD 11s. Show 'EXECUTION!' with cracked-axe icon.
+ W5. DEATH HUNT (phase >=2): announce 'YOU CANNOT RUN.' 1.05s warning, chase for 8.0s at 5.5tiles/sec, no instant turning; every 1.2sec aim-lock 0.35sec then shoot 5 crescents (60degree, 105dmg, 6tiles/s); at chase t=2.6 and 5.3 short 3-tile dash with 0.8sec red line and 195 contact. On exit 1.2sec recovery; CD 19.0s after recovery. No overlap with W4 or Wizard full arena lock.
+ W6. THRONEBREAKER (survivor after Wizard death): 0.95sec warning, three swings at t=0.95,1.70,2.45 producing alternating 11-shot left/right fans (105 dmg, 6.2 tiles/s); second swing aimed player snapshot; final slam 215 in 2tile radius at t=3.25, 1.25sec recovery; CD 12s.
+
+WIZARD ATTACK CATALOG:
+ Z1. LANCE INQUISITION: warning 0.55s; 6 waves of 5 SPECTRAL_LANCE at 18degree fan every 0.42 sec starting t=0.60; each wave takes NEW player snapshot at t=shot-0.23, no tracking afterwards; speed 7.4tiles/s; 105 dmg; active ends 2.80; CD 3.2s.
+ Z2. FOUR HOLLOW WINDOWS: all 4 corner sockets display purple summoning rings for 0.95s. They activate in alternating diagonal pairs (NW+SE, then NE+SW) every 0.65sec for total 7sec. Each active portal fires 3 RUNE_DART 22degree fan toward center-lane, speed 5.3, 85dmg. Portals 12,000 HP each and can be destroyed. Remaining portals expire at 7sec. CD 14.5sec after expiry. Never create portals on player.
+ Z3. ARCANE LOOM: warning 0.90s with five violet dotted parallel lanes across arena; 5 successive staggered rows spawn from opposite edges, alternating direction every 0.70sec starting t=0.90. Each row = 12 orbs with TWO 2-orb-wide openings staggered across rows (precompute gap path); speed 4.4, 95 dmg. Keep 2.5-tile minimum navigable lane width. Active 4.0sec; CD 9.0sec.
+ Z4. SIGIL PUNISHMENT: player positions snap at 0,0.50,1.00,1.50sec; each snap creates 1.6-tile-radius dotted purple circle which detonates exactly 1.15sec later. Hit=175 within circle. Each releases 4 RUNE_DART cardinal shots, speed 4.8, 70dmg. Four marks total. CD 8.5sec after last explosion. Players are encouraged to move deliberately, not punished for unknown targeting.
+ Z5. RETURNING ROYALTY: warning 0.75s; cast 12 SPECTRAL_LANCE in 360deg ring with 2 adjacent slots empty at t=0.80, speed 4.6, 115dmg; after 1.55sec the lances freeze for 0.45sec and flash white before traversing backward on their original paths at 5.4tiles/sec; terminate at original source. CD 11sec after all return.
+ Z6. HOLLOW CAGE (phase >=2): warn 1.0s with eight outer runes around the player's snapshot at radius 5.0tiles; contract over 2.3sec to radius 2.5tiles; 3 neighboring runes go dark at t=1.1 creating a 2.6tile safe opening; other 5 runes release two 2x3 darts inward at t=2.0 and 2.55. 95dmg each; CD 12s. Never spawn a rune on top of player. Show 'THE CAGE CLOSES.'
+ Z7. EXCOMMUNICATION (survivor after Warrior death): 1.05sec warning; Wizard teleports to marked safe corner. Four portals at fixed sockets fire a 3-step spell: t=1.10 two portals release 7-shot fans; t=2.00 other two release 7-shot fans; t=2.90 Wizard fires a 9-lance 120deg fan aimed at player (snapshot 0.40sec earlier). Portal bullets 90dmg; lances 125dmg. Ends 3.5sec; CD 11sec.
+
+SYNCHRONIZED DUO PHASES & EXACT SCHEDULE:
+ Act I — 'TWO CROWNS' 100%-66% on BOTH (or first 40sec, whichever first), use repeating 18.0s block:
+  at block 0.0 Warrior W1; Wizard Z1 starts at +0.70.
+  +3.8 Warrior W2; Wizard Z4 begins +4.10.
+  +8.4 Wizard Z2; Warrior W3 begins +9.15 (aligned gaps).
+  +13.2 Warrior W1; Wizard Z1 +13.85.
+  +16.1 0.90-sec shared reposition/recovery (active portal shots may linger). Repeat with mirrored coordinates/angles.
+ Act II — 'OATHS IN ASH' begins when either boss <=66% HP, repeat 23.0s block:
+  +0.0 Wizard Z2 corner portals; +1.3 Warrior W2 (precomputed safe corridor).
+  +4.5 Wizard Z3 while Warrior emits ONE W1 at +5.0 in the selected corridor.
+  +9.0 Warrior W5 chase; Wizard Z4 marks at +9.7, but cancel hazardous marks that would block every chase escape route.
+  +18.0 Wizard Z5; Warrior W3 +18.5; +22.0 1.0sec recovery.
+ Act III — 'THE HOLLOWED OATH' begins when either boss <=30% HP, or one dies:
+  While both alive repeat 20.0s: +0.0 Z6 cage + W1 +1.0; +5.0 W5 chase + Z2 portals +5.6; +14.0 Z5 return + W4 +14.8; +19.0 1.0sec recovery. Test route and adjust timing only if solver finds it impossible.
+  After one dies, survivor uses existing eligible basic attacks and mandatory W6/Z7 signature every 12-15sec, independent hazards capped at 2 portals. Surviving boss gains +12% movement and +10% projectile velocity (not damage), with 1.2-second transition announcement 'ONE CROWN REMAINS.' No HP reset, no instant damage shot during transition.
+ Act transitions have 1.1s alert and 0.4s vulnerability pause after completing current primary combo; no health regeneration. If player burns one boss, don't let both freeze indefinitely or become harmless.
+
+Duo success: Both boss deaths -> stop active emitters safely after 0.45sec, render dual death scene 2.0sec, drop guaranteed progression-appropriate tiered equipment using existing loot tiers (not guaranteed UT/Mythic/Legendary); open north exit and play cracked-crown chime.
+
+====================================================
+3. ASHKAR — THE CHAINED FORGE-GIANT, SOLO BOSS
+====================================================
+
+ARENA: 38x34. Center (19,17), gate north (19,2), four huge chain anchors (5,5),(33,5),(5,29),(33,29), glowing furnace vents at (10,17),(28,17). Stone floor, four 2-tile wall alcoves. Ashkar begins at (19,11) chained to north anchors; giant 32x32 or 48x48 native sprite if practical, separate weapon, chain, armor and core layers. Stable hitbox ~1.2tile radius (validate against actual sprite); never scale pixels blurry. Player enters south (19,30).
+
+HP: 540,000; 5★. Speed phase I 0.0 with restrained positioning; phase II 3.3tile/s within a 7tile center radius; phase III 5.0tiles/s with telegraphed charges. Keep at least one 2.5tile-wide navigable path during floor hazards. Boss is vulnerable through most attack patterns. Attack origin: center chest for core shots; hammer-head for hammer waves; anchors for chain volleys.
+
+A1. ANVIL'S SENTENCE (all phases): red 110degree hammer wedge reaches 5tiles, warning 1.15sec, locks 0.30sec before hit. At t=1.15 strike deals 230 in wedge; immediately 11 HAMMER_WAVE nodes spread across 110deg as a single expanding fan, 120dmg at 5.6tiles/s; t=1.75 second 9-shot fan offset 7deg, 110dmg; ends 2.1; CD 5.5sec. Notify with ground hammer outline and deep clang.
+ A2. RED-HOT CHAINS (I/II): two anchors light up at t=0; warning 1.0sec. At t=1.0 chain sweeps across TWO marked lanes, each width 0.65tile, lateral speed 4.5tiles/s for 2.2sec; direct chain contact 170; every 0.55sec 5 CHAIN_LINK shard shots shed sideways from each moving chain, 100dmg speed 4.8; expires 3.3sec; CD 10sec. Only two opposing anchors active, alternating each usage; never cross with simultaneously sealed hammer lane.
+ A3. FURNACE TEETH (all phases): vents warn 0.85sec then alternate five 9-shot 120deg cones from x10 and x28 at intervals 0.65sec. Each SLAG_SHARD 95dmg, speed 5.1tiles/s, range 13tiles. Arrange each cone to leave center or side gaps at alternating times; ends 4.1sec; CD 8sec. Player can destroy temporarily active vent (16kHP, disabled 6sec), but both cannot be disabled permanently.
+ A4. THE PRESS (I/II): warning 1.25sec; 3 successive rectangular horizontal projectile walls (width arena minus 2 gaps each >=3tiles), launched from north and south alternately at t=1.25,2.2,3.15, speed 3.9, 110dmg; off-center gaps move 5tiles between waves; ends 4.2sec; CD 11sec. Show red press icon and on-screen 'THE FORGE DESCENDS.'
+ A5. MOLTEN FAULTLINES (II/III): after 0.9sec warning, 4 jagged 1tile-wide red fissures cut across arena at 45-degree/135-degree angles; after an additional 0.35sec, each ejects 7 SLAG_SHARD at t=1.25,2.0,2.75 along its length, 110dmg, speed 5.5. Fissures persist only as harmless visual cracks after final burst; CD 10sec. No untelegraphed standing fire on otherwise safe lanes.
+ A6. ARMOR SHATTER (II only): Ashkar tears off 4 chunks of armor at t=1.0 after 1.0sec bright orange cracks. Chunks (SOLAR_FRAGMENT recolored charcoal) fly outward at 3.8tiles/s, 155dmg. At t=2.0 each chunk breaks into 5 SLAG_SHARD with a 0.35sec sparkle warning, 85dmg, 5.0tiles/s. CD 13sec. Don't keep all armor visually intact afterwards.
+ A7. SCYTHING LINKS (III): announce 'THE CHAINS WILL FOLLOW YOU.' 1.0sec warning; two broken-chain arcs swing around Ashkar on opposite sides, each arc 90degrees long, radius 5tiles, angular speed 95deg/sec for 5.5sec. CHAIN_LINK bullets at 1tile arc spacing, 110dmg on contact, plus at t=2.0 and 4.0 emit 8 links in tangential 4-shot paired fans, 105dmg speed 5.5; CD 14sec after end. Show animated chain path across floor 0.6sec ahead of contact, no invisible sweeping hitbox.
+ A8. FORGE HUNT (III): Ashkar locks player bearing after 0.85sec and charges up to 5tiles in 0.65sec, contact 210; 1.5sec later executes another charge with own 0.85sec warning; total 3 charges and 5.3sec active. After each arrival fire 7 slow wide hammer cinders 90dmg at 4.8tiles/s. Recovery 1.1sec; CD 15sec. No instant reversing without lock telegraph.
+ A9. INVERTED ANVIL (III): 0.9sec warning; forge releases 16 SLAG_SHARD outward in 2 rings 0.55sec apart, 105dmg, 4.0tiles/s; at t=2.8 all surviving shots flash white for 0.55sec and reverse their existing path toward their respective source. Return speed 5.2, 115dmg; CD 12sec after cleared. Do not create projectile explosion at their source that hits adjacent players unfairly.
+ A10. THE GATEBREAKER (III, unlock below 15% HP): once initially, announce 'NO CHAIN CAN HOLD ME.' repeatable 11.5sec choreography: t=0..1.2 draw two safe corridors; t=1.2..3.4 two sweeps of 12 chain links rotate inward (105dmg, 4.6tiles/s); t=3.7..6.1 three hammer cones alternate left-right-center with 0.7sec warnings (125 waves, 235 direct slam); t=6.2..9.3 eight fissures pulse in 2 groups of four with 1.0sec telegraph each (110dmg); t=9.3..10.5 short vulnerability/recovery; then 1.0sec to next attack selection. Don't overlap with A7+A8.
+
+ASHKAR STATE & SCHEDULE:
+ Phase I 'THE BOUND GIANT' 100..70% HP: chain anchor shots active intermittently. Cycle 20sec: +0 A2, +3.8 A1, +7.5 A3, +12.5 A4, +18.5 1.0sec recovery. Shot occupancy ~70%. Physical restraint remains visually intact.
+ Phase II 'THE FURNACE FRACTURES' 70..35% HP: 1.3s transition, armor cracks and two chains break; ash bursts visible but not damage. Cycle 23sec: +0 A5, +3.3 A1, +6.8 A6, +11.4 A3, +15.2 A2, +19.5 A4 (use shorter one-wave version if prior hazard persists), +22.0 recovery. During phase II Ashkar can reposition between cast windows; don't become untargetable.
+ Phase III 'THE UNCHAINED' 35..0% HP: 1.6sec break-free animation, all chain anchors scatter as decorative pixels and final chain arcs become independent attacks. Cycle 24sec: +0 A7, +6.7 A8, +13.0 A9, +18.0 A1, +22.5 1.0sec recovery. At <=15% end current combo at next safe boundary then replace next cycle with A10 (no instant repeated A10 while cooldown; in between use A1/A8).
+ Damage range 85-235; one heavy hammer is a real threat, repeated dodging mistakes can kill, but every hazard is readable. On death, t=0 hammer falls, t=1.0 molten core implodes, t=2.8 gate-chain seals disintegrate, t=3.0 giant sun door becomes accessible. Drop guaranteed appropriate tiered gear, rarer Ashkar-specific equipment subject to existing odds.
+
+===============================================
+4. SOLKHAR, THE SUNTHIEF — FINAL ENDGAME BOSS
+===============================================
+
+ARENA: 44x44, circular playable dais centered (22,22) with radius 19tiles, four outer solar obelisks at north/east/south/west (22,5),(39,22),(22,39),(5,22). Solar lens pads at diagonal positions (11,11),(33,11),(11,33),(33,33). Outside circle is a visible impassable drop, not instant surprise damage. Near center, player can move around Solkhar at radius 3tiles, except if his current marked attack says otherwise. Portals emerge from fixed obelisks and are never placed on player. Soft edge barriers avoid offscreen shots. Boss core and halo remain separately animated; phase sprites must match supplied art.
+
+HP 850,000; 5★ final, tuned to 2.5k PEAK solo DPS. Target actual 7-10 minutes for a skilled geared solo based on measured combat DPS; reduce pointless downtime before increasing HP. Solkhar is stationary/hovering phase I, repositioning phase II, aggressively mobile phase III. Entry spawn at (22,39), 2.5sec grace. Main music with audible phase transitions; music never masks telegraphs.
+
+S1. SUNDIAL EXECUTION (I+): warning 0.85sec. Twelve SOLAR_SPEAR arranged radius 6tiles in a ring, spin 60degrees clockwise over 0.85sec; 4 consecutive spears darken at t=0.55 to reveal ~120-degree opening. At t=0.85 8 bright spears fire radially outward speed 7.0, 125dmg; 0.65sec later new 12-spears ring with safe wedge rotated 60degrees, launches 0.70sec after full formation. CD 6.5sec following final launch. Show thin gold spoke lines before release.
+ S2. CORONA TIDES (I+): 1.0sec telegraph; two concentric 20-dot rings SUN_DOT at r=4 and r=10. Inner ring expands at 3.7tiles/s and outer contracts 3.4tiles/s for 3sec. Remove 4 CONSECUTIVE dot slots per ring and rotate openings 36degrees relative to one another. 105dmg; 5.0sec active; CD 9.0sec. Dots are distinct from golden background with dark outlines.
+ S3. JUDGMENT OF NOON (I+): mark three distinct 2.0tile-wide radial beam strips from outer edge aimed at player snapshot positions at t=0,0.65,1.30. Each beam warns 1.25sec, fires at t=1.25,1.90,2.55 for 0.4sec, 230dmg per beam. Each fire emits 6 SUN_DOT sidewards from intersection with center, 85dmg speed 4.5; CD 11sec after last beam. Warning 'KNEEL BEFORE THE LAST SUN.' reserved for first use/phase 3 only; subsequent icon/chime.
+ S4. THE FOUR HERALDS (I+): one-time alert 'THE HERALDS ARE AWAKENING.' 1.10sec summon at 4 obelisks; opposite pair active at any one time, swap every 1.4sec for 8.4sec. Each active herald fires 6 SUN_DOT across 85deg fan at player snapshot, 95dmg, speed 5.4, 0.70sec between paired volleys. Herald HP 24k each; disabled for 3sec on defeat, respawn only next usage (not instantly). CD 16sec after expiry.
+ S5. ECLIPSE LAW (II+): after transition, recurring environmental cycle every 17sec: 1.65sec 'LIGHT FADES / SEEK THE MARKED SHADOW' warning, 7.0sec solar state in which BRIGHT clearly outlined quadrant wedges hurt at 55dmg/0.50sec; 1.65sec swap warning, 6.5sec eclipse state where DARK purple-hatched quadrants hurt similarly; 0.20sec neutral seam. The danger is indicated via symbols and floor outlines not brightness alone. Keep >=2 separated 4tile-wide safe wedge corridors and test path for combined attack; no fatal spawn in damaging floor, no state swap while players are forced into a narrow corridor with nowhere to move. Environmental states do not count as primary boss attacks.
+ S6. HALO KNIVES (II+): 0.8sec warning; six halo shards orbit at radius 5tiles at 110deg/sec for 5.0sec, and each shard fires ONE 3-shot 24deg fan every 1.15sec sequentially clockwise; 115dmg, speed 6.0. At final t=5.0 each shard releases a single outward lance 130dmg, 7.2tiles/s, after 0.45sec bright warning; CD 13sec.
+ S7. BLACK SUN CLOCK (II+): four BLACK_STAR mini-suns at cardinal obelisks materialize with 1.0sec warning. They take turns firing a 7-dart fan once every 0.65sec for 6.5sec; bolts 105dmg, 5.4tiles/s; distinct dark purple silhouettes; suns have 30k HP each, killing one disables it for the remaining window. CD 15sec after expiry. Spawn only 4 black suns (never duplicate with S4 heralds).
+ S8. SUNLESS PURSUIT (II+): warning 0.85sec and red-gold dash line; Solkhar performs four dashes in 6.4sec, each 4..6tiles distance over 0.55sec, at intervals 1.60sec; individually warn 0.75sec and lock bearing 0.25sec before movement; dash contact 205. Following each dash launch 5 SOLAR_SPEAR trailing rays toward player at snapshot (115dmg speed 6.3). End 1.0sec recovery; CD 17sec. Never dash into/through impassable circle edge or appear on the player.
+ S9. LENS OF STARVATION (II/III): 1.30sec alert 'BREAK HIS LENSES.' Four gold-black lens crystals spawn at diagonal pads, 22k HP each; over next 7sec each active lens fires one 5-shot fan at t=1.7,2.8,3.9,5.0,6.1, 100dmg speed 5.6. Players can destroy at least 2 lenses for a 1.4sec Solkhar stagger after the attack; if they ignore lenses, attack finishes at full strength but NEVER unavoidably wipes them. Surviving lenses despawn at t=8sec. CD 19sec. This adds meaningful offensive decision, not forced DPS-check death.
+ S10. HELIOCENTRIC VISE (III): 1.25sec warning. Two 6-shot rotating projectile arms form at radius 7tiles, separated by 180degrees. Arms sweep 100degrees over 4sec at steady speed while each emits SUN_DOT every 0.40sec (100dmg, 4.3tiles/s); one 3tile-wide rotating safe corridor always remains between arms, precompute relative to orbit and arena boundary. CD 11sec after end. Flash path 0.6sec ahead of dangerous arc.
+ S11. BLACK SUN RETURN (III): 1.0sec warning. 24 BLACK_STAR shots spawn at radius 15tiles arranged circularly with FOUR separated 2-shot gaps, converge toward center at 4.0tiles/s for 3.2sec, 115dmg. At t=3.4 surviving shots pause 0.55sec and reverse outward at 5.7tiles/s as SOLAR_FRAGMENT, damage 145. CD 13sec after cleared. Prevent reversal into player without >=0.55sec telegraph.
+ S12. HEAVENS UNDERFOOT (III): three sequences of arena sectors: +0.0 mark opposite cardinal sectors, +1.25 fire 2tile-wide sector beam strips 0.45sec 205dmg, +1.0s mark next sectors, +1.25s fire, repeat a third time. Each sector strike also releases 8 outward SUN_DOT (95dmg, 5.0tiles/s) from obelisk origin. No sector activate without 1.25sec clear warning. CD 11sec after last strike.
+ S13. FALLEN SUN CHASE (III): 1.0sec announcement 'THE SUN WILL HUNT YOU.' For 7.2sec Solkhar aggressively follows at 4.6tile/sec and performs three locked dash bursts at 1.4,3.5,5.8sec with 0.85sec advance red line; each dash 205 contact; every 0.75sec the core fires 4 SOLAR_SPEAR 35deg aimed fan (120dmg, 6.5tiles/s). After completion 1.2sec recovery; CD 18sec. Never combine with S10 rotating vise.
+ S14. THE LAST LIGHT (<=15% HP, phase III ultimate): banner 'THE STOLEN SUN IS COLLAPSING.' Entire 14.0sec attack choreography, replay no sooner than 18sec after finish if he lives:
+    t=0.00-1.20: six golden obelisks illuminate in sequence, safe openings outlined.
+    t=1.20-3.60: 3 rings of 18 SUN_DOT expand at t=1.2,2.0,2.8; each has 3-consecutive-shot gaps offset 20degrees, 105dmg, speed 4.7.
+    t=3.60-4.70: display two 3tile corridors on solar floor, minor guided reposition.
+    t=4.70-7.40: four diagonal BLACK_STAR portals fire alternating 5-shot fans each 0.65sec, 110dmg speed 6.0; portal firing offset ensures at least one safe approach lane.
+    t=7.40-8.60: dramatic 1.20sec warning for triple judgment beams, no other new shots spawned.
+    t=8.60,9.30,10.00: three staggered 2tile-wide solar beams, 225dmg each, on 0.35sec only; aim locked before warnings finish.
+    t=10.60-11.65: all remaining bright shots vanish after 0.35sec white flash; 8 SOLAR_FRAGMENT around core telegraph outward vectors.
+    t=11.65: release 8 fragments in 360deg ring with 2-consecutive-shot gap, speed 6.2, 150dmg.
+    t=12.30-13.50: Solkhar vulnerable and visibly exhausted, no new independent portals; t=13.5-14.0 reset/clean.
+ No S8/S10/S13 during S14. Eclipse floor state must be paused or set to neutral for the triple beams and collapse if combination invalidates safe path. Endgame can still be absolutely punishing without an unfair wipe.
+
+SOLKHAR PHASE SCRIPT:
+ Phase I 'THE GOLDEN TYRANT' 100..70%: cycle length 22sec: +0 S1, +3.7 S2, +8.5 S4, +12.5 S3 timed across herald swaps, +17.0 S1, +21.0 ~1.0sec relief. Keep vulnerable ~80% time.
+ Phase II 'THE BROKEN SUN' 70..35%: transition 1.5sec and show armor fractures; S5 eclipse repeating independent. Cycle 25sec: +0 S7, +4.0 S6, +9.5 S8, +17.0 S9, +23.5 1.0sec respite. If S5 plus S7 or S9 is impossible by path solver, reduce dangerous sectors rather than eliminating all projectiles. Update phase indicator to eclipse icon.
+ Phase III 'THE SUNTHIEF UNBOUND' 35..15%: transition 1.8sec sun erupts from chest, 1.5sec grace before collision. Cycle 27sec: +0 S10, +5.8 S11, +11.5 S12, +17.0 S13, +25.0 1.3sec recovery; S5 continues in configured fair states only.
+ Final <15%: finish current attack at safe boundary; launch S14 and then alternate S13 or S11 with S14 after cooldown. Don't phase-skip on burst DPS; don't make boss fully invulnerable for long while transition plays. Solar halo/armor progression must visibly evolve with state.
+
+SOLKHAR DEATH (4.0sec): 0.0 every portal stops; 0.8 solar core lifts and flickers; 1.6 implosion (no damage); 2.2 crown and halo fragment into embers; 3.0 screen shifts from eclipse to sunrise; 4.0 final loot and exit appear. No player damage during death scene. Confirm guaranteed progression-appropriate tiered loot and separate rare chance for unique Sunthief equipment; never guarantee rare items unintentionally.
+
+====================================================
+5. SCHEDULER, HUD, NOTIFICATIONS, AND QA CHECKLIST
+====================================================
+
+ATTACK METADATA must include: ability_id, boss_id, phase_mask, telegraph_s, active_s, cooldown_after_active_s, origin, player_target_lock_offset_s, projectile_type, count, spawn_angles, velocity_tiles_s, range_tiles, effective_damage, projectile_radius, compatible_support_categories, forbidden_overlap_ability_ids, audio_event_id, on_screen_warning, transition_cleanup, and test_assertions. Encode named patterns rather than loose random intervals. Every visual warning is synchronized to the actual hit time.
+
+DIRECTOR: Use scripted phase-specific combo blocks above; rotate orientations by +/- 30/60 degrees and choose mirrored lanes deterministically based on prior completed combo and player position. Never randomize counts, warning lengths or unknown speed to surprise player. Rate limit simultaneous active hostile projectiles to whichever cap maintains >=60fps on target machine; if over budget, preserve the key pattern and prune peripheral cosmetic/secondary emitters, NOT the telegraph. Cap independent attack sources in pair fight at boss primary + 2 portals/support; Ashkar at primary + 2 vents/chains; Solkhar at primary + at most 2 active damaging supplemental emitters when floor state hazardous. Don't spam identical VO; once each boss transition, at most one major VO line per 10sec.
+
+NOTIFICATION TIMELINE QUICK REFERENCE:
+ Realm +0: 'THE SUN HAS BEEN STOLEN.'; +6: 'THE BREACH OPENS IN 6'; +12 teleport.
+ Duo pull: 'THE HOLLOW COURT'; first 66%: 'OATHS IN ASH'; first 30%: 'THE HOLLOWED OATH'; one death: 'ONE CROWN REMAINS.'; Warrior W4: 'EXECUTION!'; Warrior W5: 'YOU CANNOT RUN.'; Wizard Z6: 'THE CAGE CLOSES.'
+ Ashkar pull: 'THE CHAINED FORGE-GIANT'; 70%: 'THE FURNACE FRACTURES'; 35%: 'THE CHAINS BREAK'; A4: 'THE FORGE DESCENDS'; A10: 'NO CHAIN CAN HOLD ME.'; death: 'THE GREAT SUN DOOR IS UNSEALED.'
+ Portal approach: 'STEP THROUGH THE SUN DOOR.'; on interaction 1sec fade.
+ Solkhar pull: 'SOLKHAR, THE SUNTHIEF'; 70%: 'LIGHT IS STOLEN'; phase-II state flips: 'SOLAR' / 'ECLIPSE' plus icon; 35%: 'THE SUNTHIEF UNBOUND'; S9: 'BREAK HIS LENSES'; 15%: 'THE STOLEN SUN IS COLLAPSING'; death: 'DAWN RETURNS.'
+
+BALANCE ACCEPTANCE TESTS (IMPLEMENT AND RUN WHERE POSSIBLE):
+ [ ] reference solo near 900hp, peak 2,500DPS: challenge is threatening; first-time untrained player typically cannot trivialize fights simply by kiting a circle.
+ [ ] geared expert theoretical damage is not always applied; actual successful fight contains active projectile dodging and survival choices.
+ [ ] hard but fair: no hits caused by visual-only sprites or lag; every marked dash/beam has warning and a physically reachable safe corridor.
+ [ ] auto-script stationary character and simple constant clockwise/counterclockwise running dummy: both take dangerous damage, neither safely AFKs boss encounter.
+ [ ] path solver samples 0.10sec time steps with player circle radius from actual game and conservative dodge acceleration; finds continuous safe route from reasonable starting positions during each combo and especially when 2 patterns overlap.
+ [ ] all spawns are offset away from player; boss body and projectile origins correct during screen rotation and sprite facing.
+ [ ] projectile counts, velocity, frame timing, and collision not dependent on FPS; test at 30, 60, 120 and uncapped, including rotation.
+ [ ] confirm a boss survives long enough to show each phase at actual DPS; finish combos before staggering; no permanent immunity or free full-DPS cheese.
+ [ ] Duo both concurrently active, survivor state works whichever dies first, simultaneous deaths don't softlock, loot is guaranteed only where intended.
+ [ ] Ashkar chain breaks, core and armor visually update across three phases, no leftover invisible chains or hitboxes after transitions.
+ [ ] Solkhar neutralizes incompatible eclipses during otherwise impassable ultimate beams, lens destroy objective works, portal door works only after Ashkar death.
+ [ ] ALL four bosses' defeat events, reward bag, tiered guaranteed loot, progression unlock, and player teleport persist reliably; rare item rates unaffected.
+ [ ] castle entry/survivor validation, death/escape, reentry, pause, disconnect/reload, and game-over don't break state machines.
+ [ ] sound cues, names, colorblind-friendly floor symbols, phase HUD, cast warnings all rendered when expected.
+ [ ] under sustained projectile stress maintain acceptable frame pacing, no leaked particles or untimed collision objects; projectile pools cleaned correctly.
+
+TEST RECORD REQUEST: Return a table for ALL FOUR bosses: final HP, recorded solo completion duration at actual gear, phase durations, attack cooldown compliance, shots fired per minute, hit/near-miss count on scripted test paths, demonstrated avoidance of stationary/circle cheese, and any known untested risks. If no automated in-engine test support, say exactly which conditions were not verified and implement simple collision-path debug capture if feasible. Never claim tested if it was only read from source.
+
+Prioritize genuine boss mastery: pursuit + geometry + interacting sources + meaningful objective choices. These should achieve the high-end intensity of challenging RotMG endgame encounters without literally copying their mechanics. Apply this blueprint to the existing game directly; refine numbers after concrete playtests rather than scaling HP or damage blindly. Keep the existing art identities and any well-designed working systems.
+
+END OF IMPLEMENTATION BLUEPRINT

@@ -11,8 +11,8 @@ sys.path.insert(0, here)
 from reduce import read_png  # noqa: E402
 from pixlib import write_png  # noqa: E402
 
-GRID = {'hollow_jarl_warrior': 64, 'hollow_jarl_wizard': 64, 'solkhar_the_sunthief': 60}   # (blocks across the whole picture: Solkhar's own grid is 10.35 px, ~121 across, so two of his pixels a block)
-DESPECKLE = {60}                                                    # (the grids that get the speck pass: Solkhar's)
+GRID = {'hollow_jarl_warrior': 64, 'hollow_jarl_wizard': 64, 'solkhar_the_sunthief': 60, 'ashkar_chained_forge_giant': 112}   # (Ashkar's: his own grid, ~11 px; drawn at half scale, one of his pixels to one of the screen's)   # (blocks across the whole picture: Solkhar's own grid is 10.35 px, ~121 across, so two of his pixels a block)
+DESPECKLE = {'solkhar_the_sunthief'}   # (the pictures that get the speck pass)
 out = os.path.join(root, 'art', 'source', 'bosses')
 os.makedirs(out, exist_ok=True)
 
@@ -36,7 +36,7 @@ def native(px, G):
     return cells
 
 
-def tidy(cells, G):
+def tidy(cells, G, name=""):
     # the ground: the colour round the picture's edge; cut away every block like it that the edge can reach
     edge = [cells[y][x] for y in range(G) for x in range(G) if x in (0, G - 1) or y in (0, G - 1)]
     bg = tuple(sorted(c[i] for c in edge)[len(edge) // 2] for i in range(3))
@@ -66,7 +66,7 @@ def tidy(cells, G):
         for x, y in add: img[y][x] = ink
     # a speck: a pixel like none of its four neighbours, where three of them agree, takes their colour (Solkhar's picture
     # is fine work, two of its pixels to each of ours, and the halving leaves a scatter of lone pixels)
-    if G in DESPECKLE:
+    if name in DESPECKLE:
         for _ in range(2):
             out = [row[:] for row in img]
             for y in range(1, G - 1):
@@ -86,8 +86,9 @@ def tidy(cells, G):
 if __name__ == '__main__':
     src = sys.argv[1]
     for name, G in GRID.items():
+        if sys.argv[2:] and name not in sys.argv[2:]: continue          # (py -I tools/import_boss_art.py <png-dir> [names...]: just those)
         px = read_png(os.path.join(src, name + '.png'))
-        img, npal = tidy(native(px, G), G)
+        img, npal = tidy(native(px, G), G, name)
         rgba = [[(0, 0, 0, 0) if c is None else (int(c[0]), int(c[1]), int(c[2]), 255) for c in row] for row in img]
         write_png(os.path.join(out, name + '.png'), rgba)
         S = 8; P = [[(40, 30, 44, 255)] * (len(rgba[0]) * S) for _ in range(len(rgba) * S)]

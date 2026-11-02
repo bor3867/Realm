@@ -22,7 +22,8 @@ export const BXF = {
     const S = (e.bx = { B, def, phase: 1, state: e.state === 'sleep' ? 'sleep' : 'intro', t: 0, pat: null, patIdx: 0, vol: [], wait: 1.6,
       anim: def ? new Anim(def, def.phases['1'].idle) : null, hurtT: 0, flashT: 0, phase0: R() * TAU, arena: e.room || null });
     // where shots hit it and come from: the middle of its drawn body, in tiles above its feet
-    e.hitUp = def ? Math.max(0.5, (def.foot[1] - def.size[1] / 2) / 8) : 1.4;
+    e.hitUp = def ? Math.max(0.5, (def.foot[1] - def.size[1] / 2) / 8 * (B.drawScale || 1)) : 1.4;
+    if (B.drawScale) S.drawK = B.drawScale;                  // (art finer than the game's pixels, drawn smaller: Ashkar's, at half)
     // a boss that floats over its floor, seen from above (B.grounded: the Grand Orrery): its body is drawn centred on its
     // spot, so its middle, its planets and its shots don't swing round when the camera turns (they did: 2026-10-24)
     if (B.grounded) { e.bxLift = e.hitUp; e.hitUp = 0.01; }
