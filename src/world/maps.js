@@ -1,7 +1,7 @@
 // Map generation: the Nexus (hub), the Realm (procedural island), the Drowned Forge (dungeon).
 import { keyParen } from '../settings.js';
 import { rng, noise2, dist } from '../util.js';
-import { AREAS, WAYS, LOCKS, MECHS } from './castle_plan.js';
+import { AREAS, WAYS, LOCKS, MECHS, GEYSERS } from './castle_plan.js';
 
 export const TILE_NAMES = ['water', 'deep', 'sand', 'fen', 'mud', 'snow', 'runefloor', 'runeglyph',
   'ash', 'obsidian', 'marble', 'forge', 'forgewall', 'lava', 'void', 'chapelfloor', 'chapelwall', 'goldvein', 'ribwall',
@@ -2753,6 +2753,18 @@ export function dungeon(seed, def) {
       if (R === 'forest') set(x, y, TID.bramble); else if (R === 'mountain') set(x, y, TID.cliff); else if (R === 'eclipse' || R === 'sanctum') set(x, y, TID.starvoid);
     }
     for (let y = 2; y < 330; y++) for (let x = 640; x < S - 2; x++) if (tile(x, y) === TID.void) set(x, y, TID.starvoid);   // (the eclipse floats in the stars)
+    // the geysers: on floor, at least four apart, never on a gate, a lock or a mechanism's tile; each its own timing
+    m.castle.geysers = [];
+    for (const [num, nf, nl] of GEYSERS) {
+      const n = rooms.find((q) => q.num === num); if (!n) continue;
+      const cand = [];
+      for (let y = n.y + 2; y < n.y + n.h - 2; y++) for (let x = n.x + 2; x < n.x + n.w - 2; x++) { const t = tile(x, y); if (t !== TID.void && t !== TID.lava && !SOLID_TILES.has(t) && t !== TID.goldvein && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) cand.push([x, y]); }
+      const hsh = (x, y) => ((Math.sin(x * 91.7 + y * 37.3 + num) * 43758.5) % 1 + 1) % 1;
+      cand.sort((a, b) => hsh(...a) - hsh(...b));
+      const put1 = (kind) => { const c = cand.find(([x, y]) => m.castle.geysers.every((G) => Math.hypot(G.x - x, G.y - y) >= 4)); if (!c) return; put(m, 'castle_decor/' + (kind === 'lava' ? 'fissure' : 'vent'), c[0], c[1], false); m.castle.geysers.push({ kind, x: c[0], y: c[1], o: m.objects[m.objects.length - 1], area: num, t: 1 + hsh(c[1], c[0]) * 5 }); };
+      for (let k = 0; k < nf; k++) put1('flame');
+      for (let k = 0; k < nl; k++) put1('lava');
+    }
     // the mechanisms: on the floor nearest the area's middle (below the Furnace Control's housing)
     m.castle.mechs = MECHS.map(([key, num, name, verb, sprite, fx, fy]) => {
       const n = rooms.find((q) => q.num === num), ty = fy !== undefined ? n.y + fy * n.h : n.form === 'u' ? n.y + Math.floor(n.h * 0.55) + 2 : n.cy, tx = fx !== undefined ? n.x + fx * n.w : n.cx;

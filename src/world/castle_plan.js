@@ -101,3 +101,5 @@ export const MECHS = [
 ];
 // the cursed things to break (an area's lock): [area, count, enemy id]
 export const TARGETS = [[25, 3, 'cursed_banner'], [31, 3, 'cursed_altar'], [50, 2, 'celestial_anchor'], [6, 1, 'cursed_altar']];
+// the geysers (src/castle.js): [area, flame vents, lava fissures]; set into the ground on and beside its way
+export const GEYSERS = [[9, 3, 0], [10, 4, 0], [11, 0, 3], [12, 5, 0], [13, 2, 0], [15, 2, 0], [16, 0, 4], [17, 0, 2], [18, 3, 0], [19, 4, 1], [20, 4, 0], [21, 0, 2]];

@@ -9,10 +9,90 @@
    "image": "castle_decor.png",
    "kind": "decor",
    "sprites": {
-    "chain_anchor": {
+    "vent": {
      "frames": {
       "f0": [
        0,
+       0,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "vent_hot": {
+     "frames": {
+      "f0": [
+       16,
+       0,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "fissure": {
+     "frames": {
+      "f0": [
+       32,
+       0,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "fissure_hot": {
+     "frames": {
+      "f0": [
+       48,
+       0,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "chain_anchor": {
+     "frames": {
+      "f0": [
+       64,
        0,
        16,
        16
@@ -32,7 +112,7 @@
     "broken_hammer": {
      "frames": {
       "f0": [
-       16,
+       80,
        0,
        16,
        16
@@ -52,7 +132,7 @@
     "celestial_pillar": {
      "frames": {
       "f0": [
-       32,
+       96,
        0,
        16,
        16
@@ -72,7 +152,7 @@
     "bed": {
      "frames": {
       "f0": [
-       48,
+       112,
        0,
        16,
        16
@@ -92,8 +172,8 @@
     "table": {
      "frames": {
       "f0": [
-       64,
        0,
+       16,
        16,
        16
       ]
@@ -112,8 +192,8 @@
     "chandelier": {
      "frames": {
       "f0": [
-       80,
-       0,
+       16,
+       16,
        16,
        16
       ]
@@ -132,8 +212,8 @@
     "window": {
      "frames": {
       "f0": [
-       96,
-       0,
+       32,
+       16,
        16,
        16
       ]
@@ -152,8 +232,8 @@
     "glass_shards": {
      "frames": {
       "f0": [
-       112,
-       0,
+       48,
+       16,
        16,
        16
       ]
@@ -172,7 +252,7 @@
     "portcullis": {
      "frames": {
       "f0": [
-       0,
+       64,
        16,
        16,
        16
@@ -192,7 +272,7 @@
     "pipe": {
      "frames": {
       "f0": [
-       16,
+       80,
        16,
        16,
        16
@@ -212,7 +292,7 @@
     "lava_tank": {
      "frames": {
       "f0": [
-       32,
+       96,
        16,
        16,
        16
@@ -232,7 +312,7 @@
     "book_pile": {
      "frames": {
       "f0": [
-       48,
+       112,
        16,
        16,
        16
@@ -252,8 +332,8 @@
     "log": {
      "frames": {
       "f0": [
-       64,
-       16,
+       0,
+       32,
        16,
        16
       ]
@@ -272,8 +352,8 @@
     "stump": {
      "frames": {
       "f0": [
-       80,
        16,
+       32,
        16,
        16
       ]
@@ -292,8 +372,8 @@
     "rock": {
      "frames": {
       "f0": [
-       96,
-       16,
+       32,
+       32,
        16,
        16
       ]
@@ -312,8 +392,8 @@
     "roots": {
      "frames": {
       "f0": [
-       112,
-       16,
+       48,
+       32,
        16,
        16
       ]
@@ -332,7 +412,7 @@
     "wagon": {
      "frames": {
       "f0": [
-       0,
+       64,
        32,
        16,
        16
@@ -352,7 +432,7 @@
     "tent": {
      "frames": {
       "f0": [
-       16,
+       80,
        32,
        16,
        16
@@ -372,7 +452,7 @@
     "shrine_altar": {
      "frames": {
       "f0": [
-       32,
+       96,
        32,
        16,
        16
@@ -392,7 +472,7 @@
     "siege_engine": {
      "frames": {
       "f0": [
-       48,
+       112,
        32,
        16,
        16
@@ -412,8 +492,8 @@
     "barricade": {
      "frames": {
       "f0": [
-       64,
-       32,
+       0,
+       48,
        16,
        16
       ]
@@ -432,8 +512,8 @@
     "winch": {
      "frames": {
       "f0": [
-       80,
-       32,
+       16,
+       48,
        16,
        16
       ]
@@ -452,8 +532,8 @@
     "winch_done": {
      "frames": {
       "f0": [
-       96,
        32,
+       48,
        16,
        16
       ]
@@ -472,8 +552,8 @@
     "valve": {
      "frames": {
       "f0": [
-       112,
-       32,
+       48,
+       48,
        16,
        16
       ]
@@ -492,7 +572,7 @@
     "valve_done": {
      "frames": {
       "f0": [
-       0,
+       64,
        48,
        16,
        16
@@ -512,7 +592,7 @@
     "fallen_soldier": {
      "frames": {
       "f0": [
-       16,
+       80,
        48,
        16,
        16
@@ -532,7 +612,7 @@
     "shattered_statue": {
      "frames": {
       "f0": [
-       32,
+       96,
        48,
        16,
        16
@@ -552,7 +632,7 @@
     "statue_head": {
      "frames": {
       "f0": [
-       48,
+       112,
        48,
        16,
        16
@@ -572,8 +652,8 @@
     "broken_catapult": {
      "frames": {
       "f0": [
+       0,
        64,
-       48,
        16,
        16
       ]
@@ -592,8 +672,8 @@
     "rubble": {
      "frames": {
       "f0": [
-       80,
-       48,
+       16,
+       64,
        16,
        16
       ]
@@ -610,86 +690,6 @@
      "meta": {}
     },
     "collapsed_pillar": {
-     "frames": {
-      "f0": [
-       96,
-       48,
-       16,
-       16
-      ]
-     },
-     "anims": {
-      "idle": {
-       "frames": [
-        "f0"
-       ],
-       "fps": 1,
-       "loop": true
-      }
-     },
-     "meta": {}
-    },
-    "banner_torn": {
-     "frames": {
-      "f0": [
-       112,
-       48,
-       16,
-       16
-      ]
-     },
-     "anims": {
-      "idle": {
-       "frames": [
-        "f0"
-       ],
-       "fps": 1,
-       "loop": true
-      }
-     },
-     "meta": {}
-    },
-    "bones": {
-     "frames": {
-      "f0": [
-       0,
-       64,
-       16,
-       16
-      ]
-     },
-     "anims": {
-      "idle": {
-       "frames": [
-        "f0"
-       ],
-       "fps": 1,
-       "loop": true
-      }
-     },
-     "meta": {}
-    },
-    "chain_post": {
-     "frames": {
-      "f0": [
-       16,
-       64,
-       16,
-       16
-      ]
-     },
-     "anims": {
-      "idle": {
-       "frames": [
-        "f0"
-       ],
-       "fps": 1,
-       "loop": true
-      }
-     },
-     "meta": {}
-    },
-    "mural": {
      "frames": {
       "f0": [
        32,
@@ -709,7 +709,7 @@
      },
      "meta": {}
     },
-    "sun_statue": {
+    "banner_torn": {
      "frames": {
       "f0": [
        48,
@@ -729,7 +729,7 @@
      },
      "meta": {}
     },
-    "shield_broken": {
+    "bones": {
      "frames": {
       "f0": [
        64,
@@ -749,17 +749,97 @@
      },
      "meta": {}
     },
-    "orb": {
+    "chain_post": {
      "frames": {
       "f0": [
        80,
        64,
        16,
        16
-      ],
-      "f1": [
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "mural": {
+     "frames": {
+      "f0": [
        96,
        64,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "sun_statue": {
+     "frames": {
+      "f0": [
+       112,
+       64,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "shield_broken": {
+     "frames": {
+      "f0": [
+       0,
+       80,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "orb": {
+     "frames": {
+      "f0": [
+       16,
+       80,
+       16,
+       16
+      ],
+      "f1": [
+       32,
+       80,
        16,
        16
       ]
@@ -779,13 +859,13 @@
     "gear": {
      "frames": {
       "f0": [
-       112,
-       64,
+       48,
+       80,
        16,
        16
       ],
       "f1": [
-       0,
+       64,
        80,
        16,
        16
@@ -806,60 +886,6 @@
     "pyre": {
      "frames": {
       "f0": [
-       16,
-       80,
-       16,
-       16
-      ],
-      "f1": [
-       32,
-       80,
-       16,
-       16
-      ]
-     },
-     "anims": {
-      "idle": {
-       "frames": [
-        "f0",
-        "f1"
-       ],
-       "fps": 4,
-       "loop": true
-      }
-     },
-     "meta": {}
-    },
-    "winch_turn": {
-     "frames": {
-      "f0": [
-       48,
-       80,
-       16,
-       16
-      ],
-      "f1": [
-       64,
-       80,
-       16,
-       16
-      ]
-     },
-     "anims": {
-      "idle": {
-       "frames": [
-        "f0",
-        "f1"
-       ],
-       "fps": 4,
-       "loop": true
-      }
-     },
-     "meta": {}
-    },
-    "valve_turn": {
-     "frames": {
-      "f0": [
        80,
        80,
        16,
@@ -884,7 +910,7 @@
      },
      "meta": {}
     },
-    "lava_crack": {
+    "winch_turn": {
      "frames": {
       "f0": [
        112,
@@ -911,7 +937,7 @@
      },
      "meta": {}
     },
-    "burning_debris": {
+    "valve_turn": {
      "frames": {
       "f0": [
        16,
@@ -938,7 +964,7 @@
      },
      "meta": {}
     },
-    "forge_press": {
+    "lava_crack": {
      "frames": {
       "f0": [
        48,
@@ -965,7 +991,7 @@
      },
      "meta": {}
     },
-    "eclipse_obelisk": {
+    "burning_debris": {
      "frames": {
       "f0": [
        80,
@@ -976,6 +1002,60 @@
       "f1": [
        96,
        96,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1"
+       ],
+       "fps": 4,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "forge_press": {
+     "frames": {
+      "f0": [
+       112,
+       96,
+       16,
+       16
+      ],
+      "f1": [
+       0,
+       112,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1"
+       ],
+       "fps": 4,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "eclipse_obelisk": {
+     "frames": {
+      "f0": [
+       16,
+       112,
+       16,
+       16
+      ],
+      "f1": [
+       32,
+       112,
        16,
        16
       ]

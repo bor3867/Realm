@@ -63,12 +63,14 @@ const methods = {
     if (key && !S.said[key]) { S.said[key] = true; this.castleEnter(key, n); }
     this.castleLight(dt, Rm, n);
     // Realmfall Hollow: no attack while you arrive; four seconds on, three Cinder Bats out of the trees to the north
-    if (!S.bats && this.t - S.t0 > 4 && Rm.a01 && this.spawnPending) { S.bats = true; const A = Rm.a01; this.spawnPending([0.3, 0.5, 0.7].map((f) => ['cinder_bat', A.x + f * A.w, A.y + 3])); }
+    // (on a shared castle the server's copy alone makes monsters and hazards: a player's copy that did too made its own,
+    // seen and felt by that player only, doubled)
+    if (!S.bats && !m.netWorld && this.t - S.t0 > 4 && Rm.a01 && this.spawnPending) { S.bats = true; const A = Rm.a01; this.spawnPending([0.3, 0.5, 0.7].map((f) => ['cinder_bat', A.x + f * A.w, A.y + 3])); }
     // the locks (src/world/castle_plan.js LOCKS): each way's gate opens when what holds it is done
     for (const L of C.locks || []) if (!L.open && this.castleCond(L.cond, Rm)) { L.open = true; this.castleOpen(L.name); this.banner(L.say, 3000); }
     this.castleMechs(dt, Rm, S);
-    this.castleWaves(Rm, S);
-    if (n && n.form) this.castleHazard(dt, n, S);
+    if (this.castleLater) this.castleLater = this.castleLater.filter((q) => { if (this.t < q.t) return true; q.f(); return false; });
+    if (!m.netWorld) { this.castleWaves(Rm, S); this.castleGeysers(dt, S); if (n && n.form) this.castleHazard(dt, n, S); }
     // a gate the server opened (its tile back to the floor): open in this copy too
     for (const w of Object.keys(C.gates || {})) for (const o of C.gates[w]) if (o.solid && !m.solid[Math.floor(o.y) * m.w + Math.floor(o.x)] && m.tiles[Math.floor(o.y) * m.w + Math.floor(o.x)] !== TID.cobble) { o.solid = false; o.sprite = 'gate_open'; }
     if (!n) return;
@@ -177,15 +179,16 @@ const methods = {
         for (const a of pr ? [Math.PI / 4, Math.PI * 5 / 4] : [Math.PI * 3 / 4, Math.PI * 7 / 4]) { const vx = n.cx + Math.cos(a) * n.w * 0.36, vy = n.cy + Math.sin(a) * n.h * 0.36; lane(vx, vy, a + Math.PI, n.w * 0.7, 1.0, 120, 1.6, 'a furnace vent', RED); }
       } break;
       case 'a42': if (T(k, 2.4)) { const a = (H.ga = (H.ga || 0) + 0.9), gx = n.cx + Math.cos(a) * 6, gy = n.cy + Math.sin(a) * 6; lane(gx - Math.cos(a + 1.57) * 8, gy - Math.sin(a + 1.57) * 8, a + 1.57, 16, 0.9, 115, 1.4, 'a turning gear', RED); } break;   // the Chain Galleries: the great gears' arms sweeping, a little further round each time
-      case 'a10': if (T(k, 1.8)) zone(...near(7), 1.1, 1.2, 95, 'falling rocks', ROCK); break;                        // the Scree Ascent: loose rock, marked where it falls
-      case 'a11': if (T(k, 1.5)) { const [x] = near(10); zone(x, n.cy + (R() - 0.5) * 4, 1.2, 1.1, 110, 'a fissure erupting', FIRE); } break;   // the Viaduct: the gorge's fissures erupting through the bridge
+
       case 'a13': case 'a15': {                                       // the Broken Siege Battery: while its mechanism stands, its engine fires down a fixed lane (here and onto the Ember Stair)
         const B = m.castle.rooms.a13; if (!B || B.pending || !alive('siege_battery') || !T('battery', 3.2)) break;
-        if (k === 'a13') lane(B.x, B.cy, 0, B.w, 1.0, 150, 2.2, 'the siege battery', RED);
+        if (k === 'a13') { lane(B.x, B.cy, 0, B.w, 1.0, 150, 2.2, 'the siege battery', RED);
+          if ((H.bolt = (H.bolt || 0) + 1) % 3 === 0) this.castleBreach(B.x + B.w * 0.75, B.y + B.h * 0.35, p);   // (every third: a breaching bolt that breaks your armour)
+        }
         else lane(n.cx - 2, n.y, Math.PI / 2, n.h, 1.0, 150, 2.2, 'the siege battery', RED);
         break;
       }
-      case 'a16': if (p.y < n.cy && T(k, 1.4)) { for (let i = 0; i < 3; i++) zone(p.x + (i - 1) * 2.4, p.y + (R() - 0.5), 1.0, 0.9 + i * 0.25, 105, 'a furnace vent', FIRE); } break;   // the Twin Bridges: the north one's furnace vents, in a running row (the south one is held by archers)
+
       case 'a17': {                                                   // the Crucible: its reservoir erupts in rings; its four vents fire by turns
         if (T(k, 4.2)) { this.vx({ k: 'burst', x: n.cx, y: n.cy, n: 20, colors: FIRE }); for (let i = 0; i < 14; i++) this.shoot('e', n.cx, n.cy, (i / 14) * Math.PI * 2 + R(), 4.2, 14, D(110), 'castle_shots/blob', 0.45, false, 'the reservoir erupting'); }
         if (T('vent', 1.3)) { const a = ((H.vk = (H.vk || 0) + 1) % 4) * Math.PI / 2 + Math.PI / 4, vx = n.cx + Math.cos(a) * n.w * 0.36, vy = n.cy + Math.sin(a) * n.h * 0.36, b = Math.atan2(p.y - vy, p.x - vx); for (let i = -1; i <= 1; i++) this.shoot('e', vx, vy, b + i * 0.2, 5, 12, D(100), 'castle_shots/flame', 0.4, false, 'a lava vent'); }
@@ -193,6 +196,39 @@ const methods = {
       }
     }
     if (k === 'a15' && T('stair', 2.2)) { const y = p.y + (R() - 0.5) * 4; lane(n.cx + 7, y, Math.PI, 14, 0.9, 110, 1.2, 'a lava burst', RED); }   // the Ember Stair: lava bursting from the wall vents across it
+  },
+  // the geysers (2026-11-02, the user: geysers set in the ground, not bombs over your head): each vent and fissure on its
+  // own rhythm while anyone is near. A flame vent: glows 1.0-1.3 s, then a column of fire 0.55 s (120) and a few embers;
+  // 5-8 s between. A lava fissure: glows 1.2-1.5 s, then lava 0.7 s (150) and a molten pool 2.5 s; 'FISSURE ERUPTING!'
+  // when one blows (at most every 8 s)
+  castleGeysers(dt, S) {
+    const C = this.map.castle; if (!C.geysers) return;
+    const who = [this.player, ...(this.netTargets || [])].filter((q) => q && !q.dead);
+    for (const G of C.geysers) {
+      if (!who.some((q) => Math.abs(q.x - G.x) < 18 && Math.abs(q.y - G.y) < 14)) continue;
+      if ((G.t -= dt) > 0) continue;
+      const lava = G.kind === 'lava', x = G.x + 0.5, y = G.y + 0.5;
+      if (!G.warn) {                                              // it glows: the warning
+        G.warn = true; const w = lava ? 1.2 + R() * 0.3 : 1.0 + R() * 0.3; G.t = w;
+        if (G.o) G.o.sprite = 'castle_decor/' + (lava ? 'fissure_hot' : 'vent_hot');
+        this.fx.push({ kind: 'zone', x, y, r: lava ? 1.5 : 1.1, t: 0, delay: w, life: w + (lava ? 0.7 : 0.55), dmg: D(lava ? 150 : 120), by: lava ? 'a lava geyser' : 'a flame geyser', done: false,
+          colors: lava ? ['#ff5a1a', '#ffd650'] : ['#ff8a1f', '#ffe08a'], ...(lava ? { pool: { life: 2.5, dmg: D(45), kind: 'fire' } } : {}) });
+        if (lava && !(S.fissT > this.t) && who.some((q) => Math.hypot(q.x - x, q.y - y) < 12)) { S.fissT = this.t + 8; this.banner('FISSURE ERUPTING!', 1400); }
+        continue;
+      }
+      G.warn = false; G.t = 5 + R() * 3;                          // it blows: a column of fire or lava, then cools
+      if (G.o) G.o.sprite = 'castle_decor/' + (lava ? 'fissure' : 'vent');
+      for (let h = 0; h < 4; h++) this.vx({ k: 'burst', x, y: y - h * 0.5, n: lava ? 10 : 7, colors: lava ? ['#ff5a1a', '#ffd650', '#ff3a1a'] : ['#ff8a1f', '#ffe08a', '#ffffff'] });
+      if (!lava) { const n = 4 + Math.floor(R() * 3), a0 = R() * Math.PI * 2; for (let i = 0; i < n; i++) this.shoot('e', x, y, a0 + (i / n) * Math.PI * 2, 4.2, 5, D(70), 'castle_shots/ember', 0.3, false, 'a flame geyser'); }
+      this.sfx('hammer');
+    }
+  },
+  // a breaching bolt: marked 0.9 s, then one heavy bolt that breaks your armour (Armor Broken: your Defense nothing for
+  // 2.5 s; another does not add to it, only renews it. The game's own status: src/owbosses.js owBroken)
+  castleBreach(x, y, p) {
+    const a = Math.atan2(p.y - y, p.x - x);
+    this.fx.push({ kind: 'lane', x, y, a, len: 16, w: 0.6, delay: 0.9, t: 0, life: 0.9, dmg: 0, by: '', hitT: 0, cols: ['#a8a0b0', '#a8a0b0', '#5a5560', '#ffffff'] });
+    (this.castleLater = this.castleLater || []).push({ t: this.t + 0.9, f: () => { const b = this.shoot('e', x, y, a, 9, 16, D(110), 'castle_shots/darrow', 0.45, false, 'a breaching bolt'); if (b) { b.sig = 'armor'; b.sigV = 2.5; } } });
   },
   // second waves (src/data/enemies.js WAVES): once an area's first defenders are down, the rest come in where they are
   // shown (a mark on the floor 1.2 s first; never on you)
