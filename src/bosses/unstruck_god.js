@@ -345,7 +345,7 @@ const FINALE = {
     S.slSpears = S.slCorona = S.slHalo = S.slVise = S.slChase = S.slHeralds = S.slBlack = S.slLens = S.slSuns = null; e.slDash = null; S.slPause = g.t + 999;
     for (const q of S.slMinions || []) if (!q.dead) { q.noLoot = true; q.dead = true; q.deadT = 0; }
     S.slFin = { lights: reclaimLights(e), sunFrom: [cx, cy], home: P(e, 22, 6), x0: e.x, y0: e.y, tick: 0, fan: 0.6, volley: 1.4, port: 0.8, pk: 0, lance: 14, wall: 24.6, wk: 0, ring: 36 };
-    if (S.anim && S.def.anims[S.def.death]) { S.anim.play(S.def.death, { speed: 0 }); S.anim.t = 2; S.anim.i = 2; }   // (a dark, collapsing figure: the sun gone out of him)
+    if (S.anim && S.def.anims.void) S.anim.play('void', { speed: 1 });   // (a dark, collapsing figure: the sun gone out of him, coming apart)
     if (g.map) g.map.ambBoss = [6, 2, 12, 0.74];
     g.vx({ k: 'burst', x: cx, y: cy, n: 70, colors: ['#ffffff', ...SUNC] }); g.fx.push({ kind: 'ring', x: e.x, y: e.y, t: 0, max: 12, color: '#ffd650' }); g.sfx('shatter');
     if (g.banner) g.banner('THE STOLEN SUN TEARS FREE · RECLAIM IT', 3000);

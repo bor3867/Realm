@@ -197,6 +197,19 @@ def enter(act, k):
     return arc(tint(g, LIGHT, (255, 240, 190), 0.8), ring(7, 12) + ring(13, 16, 0.2) + ring(19, 20), SOL)   # (the sun bursting out)
 
 
+def void(k):
+    # his last form (src/bosses/unstruck_god.js, Reclaim the Sun): the sun torn out of him, a dark figure coming apart: all of
+    # him drawn down to violet-black, a hole where the sun was, violet cracks and motes breaking off him, more each frame
+    g = tint(base(3, k % 4), ALL, (34, 12, 54), 0.78)
+    g = tint(g, SUN, (8, 2, 14), 0.95)
+    g = tint(g, LIGHT, (138, 90, 216), 0.35)
+    rnd = random.Random(70 + k)
+    for y in range(len(g)):
+        for x in range(len(g[0])):
+            if g[y][x][3] and rnd.random() < 0.022 + 0.01 * k: g[y][x] = BLANK if rnd.random() < 0.5 else (138, 90, 216, 255)
+    return arc(g, [(PS + CX + math.cos(i * 1.3 + k) * (10 + i % 4 * 3), PT + CY - 4 - (i * 3 + k * 2) % 14) for i in range(10)], [(138, 90, 216, 255), (60, 26, 100, 255), (200, 160, 255, 255)])
+
+
 def die(k):
     if k >= 3: return pad(fall(k - 2), PT, PS)
     g = base(3)
@@ -228,7 +241,7 @@ if __name__ == '__main__':
         frames += [(f'i{act}_{k}', base(act, k)) for k in range(4)] + [(f'a{act}_{k}', strike(act, k)) for k in range(3)]
         frames += [(f'w{act}_{k}', walk(act, k)) for k in range(4)] + [(f'c{act}_{k}', rush(act, k)) for k in range(2)] + [(f'h{act}', flinch(act))]
         if act > 1: frames += [(f'e{act}_{k}', enter(act, k)) for k in range(4)]
-    frames += [(f'd{k}', die(k)) for k in range(5)]
+    frames += [(f'd{k}', die(k)) for k in range(5)] + [(f'v{k}', void(k)) for k in range(4)]
     fr, px = pack(BID, frames, W2, H2)
     anims = {}
     for act in (1, 2, 3):
@@ -239,6 +252,7 @@ if __name__ == '__main__':
         anims[f'hurt{act}'] = {'frames': [f'h{act}'], 'fps': 5, 'loop': False}
         if act > 1: anims[f'enter{act}'] = {'frames': [f'e{act}_{k}' for k in range(4)], 'fps': 3, 'loop': False}
     anims['death'] = {'frames': [f'd{k}' for k in range(5)], 'fps': 1.6, 'loop': False}
+    anims['void'] = {'frames': [f'v{k}' for k in range(4)], 'fps': 4, 'loop': True}   # (his last form: Reclaim the Sun)
     sfr, _ = pack('sol_shots', [(k, [list(r) for r in g]) for k, g in SHOTS.items()], 9, 9)
     sheets = {
         f'bx_{BID}': {'image': f'{BID}.png', 'kind': 'boss', 'sprites': {BID: {'frames': fr, 'anims': anims,

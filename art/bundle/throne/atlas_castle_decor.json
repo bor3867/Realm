@@ -9,10 +9,90 @@
    "image": "castle_decor.png",
    "kind": "decor",
    "sprites": {
-    "fallen_soldier": {
+    "winch": {
      "frames": {
       "f0": [
        0,
+       0,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "winch_done": {
+     "frames": {
+      "f0": [
+       16,
+       0,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "valve": {
+     "frames": {
+      "f0": [
+       32,
+       0,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "valve_done": {
+     "frames": {
+      "f0": [
+       48,
+       0,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "fallen_soldier": {
+     "frames": {
+      "f0": [
+       64,
        0,
        16,
        16
@@ -32,7 +112,7 @@
     "shattered_statue": {
      "frames": {
       "f0": [
-       16,
+       80,
        0,
        16,
        16
@@ -52,7 +132,7 @@
     "statue_head": {
      "frames": {
       "f0": [
-       32,
+       96,
        0,
        16,
        16
@@ -72,7 +152,7 @@
     "broken_catapult": {
      "frames": {
       "f0": [
-       48,
+       112,
        0,
        16,
        16
@@ -92,8 +172,8 @@
     "rubble": {
      "frames": {
       "f0": [
-       64,
        0,
+       16,
        16,
        16
       ]
@@ -112,8 +192,8 @@
     "collapsed_pillar": {
      "frames": {
       "f0": [
-       80,
-       0,
+       16,
+       16,
        16,
        16
       ]
@@ -130,86 +210,6 @@
      "meta": {}
     },
     "banner_torn": {
-     "frames": {
-      "f0": [
-       96,
-       0,
-       16,
-       16
-      ]
-     },
-     "anims": {
-      "idle": {
-       "frames": [
-        "f0"
-       ],
-       "fps": 1,
-       "loop": true
-      }
-     },
-     "meta": {}
-    },
-    "bones": {
-     "frames": {
-      "f0": [
-       112,
-       0,
-       16,
-       16
-      ]
-     },
-     "anims": {
-      "idle": {
-       "frames": [
-        "f0"
-       ],
-       "fps": 1,
-       "loop": true
-      }
-     },
-     "meta": {}
-    },
-    "chain_post": {
-     "frames": {
-      "f0": [
-       0,
-       16,
-       16,
-       16
-      ]
-     },
-     "anims": {
-      "idle": {
-       "frames": [
-        "f0"
-       ],
-       "fps": 1,
-       "loop": true
-      }
-     },
-     "meta": {}
-    },
-    "mural": {
-     "frames": {
-      "f0": [
-       16,
-       16,
-       16,
-       16
-      ]
-     },
-     "anims": {
-      "idle": {
-       "frames": [
-        "f0"
-       ],
-       "fps": 1,
-       "loop": true
-      }
-     },
-     "meta": {}
-    },
-    "sun_statue": {
      "frames": {
       "f0": [
        32,
@@ -229,7 +229,7 @@
      },
      "meta": {}
     },
-    "shield_broken": {
+    "bones": {
      "frames": {
       "f0": [
        48,
@@ -249,17 +249,151 @@
      },
      "meta": {}
     },
-    "lava_crack": {
+    "chain_post": {
      "frames": {
       "f0": [
        64,
        16,
        16,
        16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "mural": {
+     "frames": {
+      "f0": [
+       80,
+       16,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "sun_statue": {
+     "frames": {
+      "f0": [
+       96,
+       16,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "shield_broken": {
+     "frames": {
+      "f0": [
+       112,
+       16,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "winch_turn": {
+     "frames": {
+      "f0": [
+       0,
+       32,
+       16,
+       16
+      ],
+      "f1": [
+       16,
+       32,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1"
+       ],
+       "fps": 4,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "valve_turn": {
+     "frames": {
+      "f0": [
+       32,
+       32,
+       16,
+       16
+      ],
+      "f1": [
+       48,
+       32,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1"
+       ],
+       "fps": 4,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "lava_crack": {
+     "frames": {
+      "f0": [
+       64,
+       32,
+       16,
+       16
       ],
       "f1": [
        80,
-       16,
+       32,
        16,
        16
       ]
@@ -280,13 +414,13 @@
      "frames": {
       "f0": [
        96,
-       16,
+       32,
        16,
        16
       ],
       "f1": [
        112,
-       16,
+       32,
        16,
        16
       ]
@@ -307,13 +441,13 @@
      "frames": {
       "f0": [
        0,
-       32,
+       48,
        16,
        16
       ],
       "f1": [
        16,
-       32,
+       48,
        16,
        16
       ]
@@ -334,13 +468,13 @@
      "frames": {
       "f0": [
        32,
-       32,
+       48,
        16,
        16
       ],
       "f1": [
        48,
-       32,
+       48,
        16,
        16
       ]

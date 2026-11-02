@@ -123,13 +123,14 @@ const methods = {
     for (const M of C.mechs) {
       if (M.done) continue;
       const rm = Rm[M.key], near = who.some((q) => Math.hypot(q.x - M.x - 0.5, q.y - M.y - 0.5) < 2.4);
-      if (!near) { M.prog = Math.max(0, (M.prog || 0) - dt * 0.5); continue; }
-      if (rm && this.enemies.some((e) => !e.dead && (e.D.kin || e.rb) && inR(rm, e.x, e.y))) { if (!(M.toldT > this.t)) { M.toldT = this.t + 4; this.banner(`${M.name}: ITS DEFENDERS STILL HOLD IT`, 2200); } continue; }
-      M.prog = (M.prog || 0) + dt / 3;
+      const look = (k) => { if (M.o) M.o.sprite = M.sprite + k; };   // (its art: still, turning, turned: castle_decor/winch, _turn, _done)
+      if (!near) { M.prog = Math.max(0, (M.prog || 0) - dt * 0.5); look(''); continue; }
+      if (rm && this.enemies.some((e) => !e.dead && (e.D.kin || e.rb) && inR(rm, e.x, e.y))) { if (!(M.toldT > this.t)) { M.toldT = this.t + 4; this.banner(`${M.name}: ITS DEFENDERS STILL HOLD IT`, 2200); } look(''); continue; }
+      M.prog = (M.prog || 0) + dt / 3; look('_turn');
       if (!(M.sayT > this.t)) { M.sayT = this.t + 0.5; this.banner(`${M.verb} · ${Math.min(100, Math.round(M.prog * 100))}%`, 700); }
       if (Math.random() < 0.3) this.vx({ k: 'burst', x: M.x + 0.5, y: M.y, n: 2, colors: M.key === 'winch' ? ['#a39bb2', '#ff8a1f'] : ['#ffd650', '#fff6c8'] });
       if (M.prog >= 1) {
-        M.done = true; this.sfx('chain'); this.vx({ k: 'shake', amt: 5 }); this.vx({ k: 'burst', x: M.x + 0.5, y: M.y, n: 24, colors: ['#ffd650', '#ff8a1f', '#ffffff'] });
+        M.done = true; look('_done'); this.sfx('chain'); this.vx({ k: 'shake', amt: 5 }); this.vx({ k: 'burst', x: M.x + 0.5, y: M.y, n: 24, colors: ['#ffd650', '#ff8a1f', '#ffffff'] });
         if (C.mechs.every((q) => q.done)) { this.castleOpen('forge'); this.banner('THE FORGE GATE OPENS · ASHKAR WAITS', 3000); }
         else this.banner(`${M.name} TURNED · ONE MORE HOLDS THE FORGE GATE`, 2600);
       }

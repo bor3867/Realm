@@ -1514,8 +1514,8 @@ export function dungeon(seed, def) {
       m.castle = { rooms: R0, door: { x0: gate.cx - 2, x1: gate.cx + 1, y0: gate.y, y1: gate.y + 2 },
         // its gates: the arrival's door (3 s), the keep gate (the Jarls), the forge gate (the two mechanisms)
         ways: { breach: { x0: 198, x1: 202, y0: 428, y1: 428 }, keep: { x0: 199, x1: 201, y0: 182, y1: 182 }, forge: { x0: 199, x1: 201, y0: 90, y1: 90 } },
-        mechs: [{ key: 'winch', x: winch.cx, y: winch.y + 5, name: 'THE CHAIN WINCH', verb: 'TURNING THE CHAIN WINCH', sprite: 'castle_decor/chain_post' },
-          { key: 'valves', x: valves.cx, y: valves.y + 5, name: 'THE SOLAR VALVES', verb: 'OPENING THE SOLAR VALVES', sprite: 'castle_decor/forge_press' }],
+        mechs: [{ key: 'winch', x: winch.cx, y: winch.y + 5, name: 'THE CHAIN WINCH', verb: 'TURNING THE CHAIN WINCH', sprite: 'castle_decor/winch' },
+          { key: 'valves', x: valves.cx, y: valves.y + 5, name: 'THE SOLAR VALVES', verb: 'OPENING THE SOLAR VALVES', sprite: 'castle_decor/valve' }],
         arrive: { x: walk.x + 3.5, y: walk.cy + 0.5 } };
       m.citadel = { starts: [{ x: arrival.cx + 0.5, y: arrival.cy + 0.5 }], bars: [], top: ashkar.y, bottom: arrival.y + arrival.h };
       return { start: arrival, boss };

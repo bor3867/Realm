@@ -15,6 +15,12 @@ PAL = {'k': (26, 18, 32), 'd': (52, 46, 60), 'm': (82, 74, 92), 'l': (122, 114, 
        'o': (190, 56, 20), 'O': (255, 118, 30), 'y': (255, 188, 60), 'Y': (255, 240, 170), 'e': (196, 186, 166), 'E': (234, 226, 208),
        'c': (28, 12, 42), 'C': (88, 48, 148), 'X': (190, 140, 255), 'a': (40, 34, 38), 'r': (150, 36, 44)}
 SPR = {
+    # the keep's two mechanisms (2026-11-02; src/castle.js castleMechs): the Chain Winch, a drum on its posts, its chain
+    # hanging; the Solar Valves, a gold wheel on a pipe over a vent of the stolen light. Still and turned here; turning below
+    'winch': ['................', '.kkk........kkk.', '.kIk..kkkk..kIk.', '.kIk.kBWWBk.kIk.', '.kIkkBbWWbBkkIk.', '.kIkkWWSSWWkkIk.', '.kIkkWWSSWWkkIk.', '.kIkkBbWWbBkkIk.', '.kIk.kBWWBk.kIk.', '.kIk..kkkk..kIk.', '.kIk...SI...kIk.', '.kIk...IS...kIk.', '.kIk...SI...kIk.', '.kIk...IS...kIk.', 'kddddddddddddddk', '.kkkkkkkkkkkkkk.'],
+    'winch_done': ['................', '.kkk........kkk.', '.kIk..kkkk..kIk.', '.kIk.kBWWBk.kIk.', '.kIkkBbWWbBkkIk.', '.kIkkWWGGWWkkIk.', '.kIkkWWGGWWkkIk.', '.kIkkBbWWbBkkIk.', '.kIk.kBWWBk.kIk.', '.kIk..kkkk..kIk.', '.kIk..SISI..kIk.', '.kIk...GG...kIk.', '.kIk........kIk.', '.kIk........kIk.', 'kddddddddddddddk', '.kkkkkkkkkkkkkk.'],
+    'valve': ['................', '.....kkkkkk.....', '....kGggggGk....', '...kGk.kk.kGk...', '...kgkkGGkkgk...', '...kgkGyyGkgk...', '...kgkkGGkkgk...', '...kGk.kk.kGk...', '....kGggggGk....', '.....kkkkkk.....', '......kIIk......', '......kIIk......', '....kkkIIkkk....', '...koodddddok...', 'kddddddddddddddk', '.kkkkkkkkkkkkkk.'],
+    'valve_done': ['................', '.....kkkkkk.....', '....kGggggGk....', '...kGk.kk.kGk...', '...kgkkGGkkgk...', '...kgkGYYGkgk...', '...kgkkGGkkgk...', '...kGk.kk.kGk...', '....kGggggGk....', '.....kkkkkk.....', '......kIIk......', '......kIIk......', '....kkkIIkkk....', '...kYYYYYYYYk...', 'kddddddddddddddk', '.kkkkkkkkkkkkkk.'],
     # a defender of the castle, fallen: helm, mail, a red surcoat, his sword beside him
     'fallen_soldier': ['................', '................', '................', '................', '................', '................',
                        '................', '................', '..........kkk...', '.........kSSIk..', '..kkkkkkkIIIIk..', '.kIIrrrrIIkIk...',
@@ -62,6 +68,10 @@ SPR = {
 }
 # the animated ones (two or four frames)
 ANIM = {
+    'winch_turn': [['................', '.kkk........kkk.', '.kIk..kkkk..kIk.', '.kIk.kBWWBk.kIk.', '.kIkkBbWWbBkkIk.', '.kIkkWWSSWWkkIk.', '.kIkkWWSSWWkkIk.', '.kIkkBbWWbBkkIk.', '.kIk.kBWWBk.kIk.', '.kIk..kkkk..kIk.', '.kIk...SI...kIk.', '.kIk...IS...kIk.', '.kIk...SI...kIk.', '.kIk...IS...kIk.', 'kddddddddddddddk', '.kkkkkkkkkkkkkk.'],
+        ['................', '.kkk........kkk.', '.kIk..kkkk..kIk.', '.kIk.kWBBWk.kIk.', '.kIkkWWbbWWkkIk.', '.kIkkBbSSbBkkIk.', '.kIkkBbSSbBkkIk.', '.kIkkWWbbWWkkIk.', '.kIk.kWBBWk.kIk.', '.kIk..kkkk..kIk.', '.kIk...IS...kIk.', '.kIk...SI...kIk.', '.kIk...IS...kIk.', '.kIk...SI...kIk.', 'kddddddddddddddk', '.kkkkkkkkkkkkkk.']],
+    'valve_turn': [['................', '.....kkkkkk.....', '....kGggggGk....', '...kGk.kk.kGk...', '...kgkkGGkkgk...', '...kgkGYYGkgk...', '...kgkkGGkkgk...', '...kGk.kk.kGk...', '....kGggggGk....', '.....kkkkkk.....', '......kIIk......', '......kIIk......', '....kkkIIkkk....', '...kOOyYYyOOk...', 'kddddddddddddddk', '.kkkkkkkkkkkkkk.'],
+        ['................', '.....kkkkkk.....', '....kGggggGk....', '...kGkk..kkGk...', '...kgkkGGkkgk...', '...kg.GyyG.gk...', '...kgkkGGkkgk...', '...kGkk..kkGk...', '....kGggggGk....', '.....kkkkkk.....', '......kIIk......', '......kIIk......', '....kkkIIkkk....', '...kOyYYYYyOk...', 'kddddddddddddddk', '.kkkkkkkkkkkkkk.']],
     'lava_crack': [['................'] * 10 + ['.....kk.........', '..kkkoOkkk..kk..', '.kooOyYOookkook.', '..kkkoOkkkokk...', '.....kk...k.....', '................'],
                    ['................'] * 10 + ['.....kk.........', '..kkkOyokk..kk..', '.kOOyYYyOOkkOOk.', '..kkkOykkkOkk...', '.....kk...k.....', '................']],
     'burning_debris': [['................'] * 6 + ['.....y..........', '....yOy...o.....', '....oOo..oyo....', '...kbObk.kOk....', '..kbBbBbkbBbk...', '.kBbkkbBBbkbBk..',

@@ -4,6 +4,7 @@
 # (the same, its dark pixels a shade redder).
 #   'castle_kin/<id>'  frames move1 move2 attack hurt      art/bundle/throne/castle_kin.png + atlas_castle_kin.json
 #   py -I tools/build_castle_kin.py
+import math
 import json, os, sys
 here = os.path.dirname(os.path.abspath(__file__)); root = os.path.dirname(here)
 src = os.path.join(root, 'art', 'source', 'castle'); out = os.path.join(root, 'art', 'bundle', 'throne')
@@ -93,29 +94,89 @@ if __name__ == '__main__':
                 if c != '.': shots[oy + y][k * 8 + ox + x] = (*SPAL[c], 255)
         sfr[name] = {'frames': {'0': [k * 8, 0, 8, 8]}, 'meta': {}}
     write_png(os.path.join(out, 'castle_shots.png'), shots)
-    # the Forge Overseer, the miniboss, on the boss engine ('bx_forge_overseer/forge_overseer'): its sprite as drawn; idle a
-    # breath; each phase its bright parts hotter (I as drawn, II orange, III white-hot); the strike a flare; a death to ash
-    ov = read_png(os.path.join(src, 'forge_overseer.png')); F = frames(ov, False)
+    # the Forge Overseer, the miniboss, on the boss engine ('bx_forge_overseer/forge_overseer'): its sprite as drawn, each
+    # phase its bright parts hotter (I as drawn, II orange, III white-hot). Alive (2026-11-02, the user: "finish all boss
+    # animations"): frames from its own art a part at a time (tools/boss_motion.py), with room above and beside it:
+    #   idle     a breath (the body up a pixel by turns)
+    #   walk     a step: one foot lifted, the body over it, then the other; the hammer swinging the other way
+    #   attack   the hammer hauled up over his crown (his eyes and core flaring); brought down before him, sparks thrown up
+    #            where it lands; drawn back
+    #   hurt     a flinch: sinking a pixel, his fire flaring (no white, no knockback)
+    #   enter    II, III: he staggers, his forge-fire roars up through him, a ring of sparks, the hotter form
+    #   death    the hammer drops from his hand, he sinks to a knee, then to ash
+    from boss_motion import pad, shift, arc, tint
+    PT, PS = 3, 2
+    OW, OH = 16 + 2 * PS, 16 + PT
+    O = lambda x, y: (x - PS, y - PT)
+    HAM = lambda x, y, c: O(x, y)[0] <= 2 or (O(x, y)[0] <= 4 and O(x, y)[1] <= 5)
+    LEGL = lambda x, y, c: O(x, y)[1] >= 14 and 2 < O(x, y)[0] < 8
+    LEGR = lambda x, y, c: O(x, y)[1] >= 14 and O(x, y)[0] >= 8
+    ABOVE = lambda x, y, c: O(x, y)[1] < 14 and O(x, y)[0] > 2
+    HOT = lambda x, y, c: lum(c) > 110
+    ALL = lambda x, y, c: True
+    SPARK = [(255, 214, 96, 255), (255, 140, 40, 255), (255, 240, 190, 255)]
+    ov = soften(read_png(os.path.join(src, 'forge_overseer.png')))
     heat = lambda g, k: [[(min(255, c[0] + 30 * k), max(0, c[1] - 8 * k) if k < 2 else min(255, c[1] + 25), c[2], c[3]) if c[3] and lum(c) > 110 else c for c in row] for row in g]
+    base = lambda a: pad(heat(ov, a - 1), PT, PS)
+
+    def o_idle(a, k): return shift(base(a), ABOVE, 0, -1, keep=True) if k in (1, 2) else base(a)
+
+    def o_walk(a, k):
+        g = base(a)
+        if k == 0: g = shift(g, LEGL, 0, -1, fill=False)
+        if k == 2: g = shift(g, LEGR, 0, -1, fill=False)
+        if k in (1, 3): g = shift(g, ABOVE, 0, -1, keep=True)
+        return shift(g, HAM, 1 if k < 2 else -1, 0, fill=False)
+
+    def o_attack(a, k):
+        if k == 0: return tint(shift(shift(base(a), HAM, 1, -3, fill=False), ABOVE, 0, -1, keep=True), HOT, (255, 240, 190), 0.5)
+        if k == 1:
+            g = tint(shift(base(a), HAM, 3, 2, fill=False), HOT, (255, 236, 170), 0.6)
+            return arc(g, [(PS + 5 + i, OH - 2 - (i % 3)) for i in range(7)], SPARK)
+        return shift(base(a), HAM, 1, 1, fill=False)
+
+    def o_hurt(a): return tint(shift(base(a), ABOVE, 0, 1, keep=True), HOT, (255, 210, 120), 0.7)
+
+    def o_enter(a, k):
+        if k == 3: return base(a)
+        g = shift(base(a - 1 if k < 2 else a), ABOVE, 0, 1 if k == 0 else 0, keep=True)
+        if k >= 1: g = tint(g, HOT, (255, 240, 190), 0.8)
+        if k == 2: g = arc(g, [(PS + 8 + math.cos(i * 0.7) * 8, PT + 8 + math.sin(i * 0.7) * 8) for i in range(9)], SPARK)
+        return g
+
+    def o_die(k):
+        if k >= 3: return pad(ash(ov, k - 2), PT, PS)
+        g = shift(base(3), HAM, -1, 3, fill=False)                                 # (the hammer drops from his hand)
+        if k >= 1: g = shift(g, ABOVE, 0, 2)                                       # (to a knee)
+        if k == 2: g = tint(g, HOT, (90, 40, 30), 0.7)                             # (his fire dying)
+        return g
+
     ash = lambda g, k: [[((70 + c[0]) // 2, (60 + c[1]) // 2, (66 + c[2]) // 2, c[3]) if c[3] and (x * 3 + y * 5 + k) % (4 - k) else (BLANK if k == 2 and c[3] and (x + y) % 2 else c) for x, c in enumerate(row)] for y, row in enumerate(g)]
     ofr = []
     for a in (1, 2, 3):
-        ofr += [(f'i{a}_{k}', heat(F['move1' if k % 2 == 0 else 'move2'], a - 1)) for k in range(4)] + [(f'a{a}', heat(F['attack'], a - 1)), (f'a{a}b', heat(F['attack'], a))]
-    ofr += [(f'd{k}', ash(F['move1'], k)) for k in range(3)]
-    osheet = [[BLANK] * (16 * 6) for _ in range(16 * 4)]; ofrm = {}
+        ofr += [(f'i{a}_{k}', o_idle(a, k)) for k in range(4)] + [(f'a{a}_{k}', o_attack(a, k)) for k in range(3)]
+        ofr += [(f'w{a}_{k}', o_walk(a, k)) for k in range(4)] + [(f'h{a}', o_hurt(a))]
+        if a > 1: ofr += [(f'e{a}_{k}', o_enter(a, k)) for k in range(4)]
+    ofr += [(f'd{k}', o_die(k)) for k in range(5)]
+    rows = (len(ofr) + 5) // 6
+    osheet = [[BLANK] * (OW * 6) for _ in range(OH * rows)]; ofrm = {}
     for n, (key, g2) in enumerate(ofr):
-        ox, oy = (n % 6) * 16, (n // 6) * 16
-        for y in range(16):
-            for x in range(16): osheet[oy + y][ox + x] = g2[y][x]
-        ofrm[key] = [ox, oy, 16, 16]
+        ox, oy = (n % 6) * OW, (n // 6) * OH
+        for y in range(OH):
+            for x in range(OW): osheet[oy + y][ox + x] = g2[y][x] if g2[y][x] is not None else BLANK
+        ofrm[key] = [ox, oy, OW, OH]
     write_png(os.path.join(out, 'forge_overseer.png'), osheet)
     oanims = {}
     for a in (1, 2, 3):
         oanims[f'idle{a}'] = {'frames': [f'i{a}_{k}' for k in range(4)], 'fps': 4, 'loop': True}
-        oanims[f'attack{a}'] = {'frames': [f'a{a}', f'a{a}b', f'a{a}'], 'fps': 6, 'loop': False}
-    oanims['death'] = {'frames': ['d0', 'd1', 'd2'], 'fps': 3, 'loop': False}
+        oanims[f'attack{a}'] = {'frames': [f'a{a}_0', f'a{a}_1', f'a{a}_2', f'a{a}_2'], 'fps': 7, 'loop': False}
+        oanims[f'walk{a}'] = {'frames': [f'w{a}_{k}' for k in range(4)], 'fps': 6, 'loop': True}
+        oanims[f'hurt{a}'] = {'frames': [f'h{a}'], 'fps': 5, 'loop': False}
+        if a > 1: oanims[f'enter{a}'] = {'frames': [f'e{a}_{k}' for k in range(4)], 'fps': 3.5, 'loop': False}
+    oanims['death'] = {'frames': [f'd{k}' for k in range(5)], 'fps': 2.2, 'loop': False}
+    NM = {1: 'The Taskmaster', 2: 'The Furnace Master', 3: 'The Final Forging'}
     oboss = {'image': 'forge_overseer.png', 'kind': 'boss', 'sprites': {'forge_overseer': {'frames': ofrm, 'anims': oanims, 'death': 'death', 'meta': {},
-             'phases': {'1': {'name': 'The Taskmaster', 'idle': 'idle1', 'attack': 'attack1'}, '2': {'name': 'The Furnace Master', 'idle': 'idle2', 'attack': 'attack2'}, '3': {'name': 'The Final Forging', 'idle': 'idle3', 'attack': 'attack3'}}}}}
+             'phases': {str(a): {'name': NM[a], 'idle': f'idle{a}', 'attack': f'attack{a}', 'walk': f'walk{a}', 'hurt': f'hurt{a}', **({'enter': f'enter{a}'} if a > 1 else {})} for a in (1, 2, 3)}}}}
     json.dump({'rf': True, 'meta': {'name': "Sunthief's Castle's defenders (the user's sprites)", 'version': 1}, 'sheets': {'castle_kin': {'image': 'castle_kin.png', 'kind': 'enemy', 'sprites': sprites}, 'castle_shots': {'image': 'castle_shots.png', 'kind': 'shot', 'sprites': sfr}, 'bx_forge_overseer': oboss}},
               open(os.path.join(out, 'atlas_castle_kin.json'), 'w', encoding='utf8', newline='\n'), indent=1)
     ip = os.path.join(root, 'art', 'bundle', 'index.json'); idx = json.load(open(ip, encoding='utf8'))
