@@ -1,0 +1,870 @@
+{
+ "rf": true,
+ "meta": {
+  "name": "Sunthief's Castle's defenders, the user's art",
+  "version": 1
+ },
+ "sheets": {
+  "castle_user": {
+   "image": "castle_user.png",
+   "kind": "enemy",
+   "sprites": {
+    "infernal_hound": {
+     "frames": {
+      "infernal_hound_m0": [
+       0,
+       0,
+       49,
+       38
+      ],
+      "infernal_hound_m1": [
+       49,
+       0,
+       49,
+       38
+      ],
+      "infernal_hound_m2": [
+       98,
+       0,
+       49,
+       38
+      ],
+      "infernal_hound_m3": [
+       147,
+       0,
+       49,
+       38
+      ],
+      "infernal_hound_s0": [
+       196,
+       0,
+       49,
+       38
+      ],
+      "infernal_hound_s1": [
+       245,
+       0,
+       49,
+       38
+      ],
+      "infernal_hound_s2": [
+       294,
+       0,
+       49,
+       38
+      ],
+      "infernal_hound_s3": [
+       343,
+       0,
+       49,
+       38
+      ],
+      "infernal_hound_h": [
+       392,
+       0,
+       49,
+       38
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "infernal_hound_m0",
+        "infernal_hound_m1",
+        "infernal_hound_m2",
+        "infernal_hound_m3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "infernal_hound_s0",
+        "infernal_hound_s1",
+        "infernal_hound_s2",
+        "infernal_hound_s3"
+       ],
+       "fps": 10,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "infernal_hound_s2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "infernal_hound_h"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "cinder_archer": {
+     "frames": {
+      "cinder_archer_m0": [
+       0,
+       38,
+       42,
+       42
+      ],
+      "cinder_archer_m1": [
+       42,
+       38,
+       42,
+       42
+      ],
+      "cinder_archer_m2": [
+       84,
+       38,
+       42,
+       42
+      ],
+      "cinder_archer_m3": [
+       126,
+       38,
+       42,
+       42
+      ],
+      "cinder_archer_s0": [
+       168,
+       38,
+       42,
+       42
+      ],
+      "cinder_archer_s1": [
+       210,
+       38,
+       42,
+       42
+      ],
+      "cinder_archer_s2": [
+       252,
+       38,
+       42,
+       42
+      ],
+      "cinder_archer_s3": [
+       294,
+       38,
+       42,
+       42
+      ],
+      "cinder_archer_h": [
+       336,
+       38,
+       42,
+       42
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "cinder_archer_m0",
+        "cinder_archer_m1",
+        "cinder_archer_m2",
+        "cinder_archer_m3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "cinder_archer_s0",
+        "cinder_archer_s1",
+        "cinder_archer_s2",
+        "cinder_archer_s3"
+       ],
+       "fps": 10,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "cinder_archer_s2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "cinder_archer_h"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "sunbound_knight": {
+     "frames": {
+      "sunbound_knight_m0": [
+       0,
+       80,
+       47,
+       48
+      ],
+      "sunbound_knight_m1": [
+       47,
+       80,
+       47,
+       48
+      ],
+      "sunbound_knight_m2": [
+       94,
+       80,
+       47,
+       48
+      ],
+      "sunbound_knight_m3": [
+       141,
+       80,
+       47,
+       48
+      ],
+      "sunbound_knight_s0": [
+       188,
+       80,
+       47,
+       48
+      ],
+      "sunbound_knight_s1": [
+       235,
+       80,
+       47,
+       48
+      ],
+      "sunbound_knight_s2": [
+       282,
+       80,
+       47,
+       48
+      ],
+      "sunbound_knight_s3": [
+       329,
+       80,
+       47,
+       48
+      ],
+      "sunbound_knight_h": [
+       376,
+       80,
+       47,
+       48
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "sunbound_knight_m0",
+        "sunbound_knight_m1",
+        "sunbound_knight_m2",
+        "sunbound_knight_m3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "sunbound_knight_s0",
+        "sunbound_knight_s1",
+        "sunbound_knight_s2",
+        "sunbound_knight_s3"
+       ],
+       "fps": 10,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "sunbound_knight_s2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "sunbound_knight_h"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "solar_acolyte": {
+     "frames": {
+      "solar_acolyte_m0": [
+       0,
+       128,
+       44,
+       46
+      ],
+      "solar_acolyte_m1": [
+       44,
+       128,
+       44,
+       46
+      ],
+      "solar_acolyte_m2": [
+       88,
+       128,
+       44,
+       46
+      ],
+      "solar_acolyte_m3": [
+       132,
+       128,
+       44,
+       46
+      ],
+      "solar_acolyte_s0": [
+       176,
+       128,
+       44,
+       46
+      ],
+      "solar_acolyte_s1": [
+       220,
+       128,
+       44,
+       46
+      ],
+      "solar_acolyte_s2": [
+       264,
+       128,
+       44,
+       46
+      ],
+      "solar_acolyte_s3": [
+       308,
+       128,
+       44,
+       46
+      ],
+      "solar_acolyte_h": [
+       352,
+       128,
+       44,
+       46
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "solar_acolyte_m0",
+        "solar_acolyte_m1",
+        "solar_acolyte_m2",
+        "solar_acolyte_m3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "solar_acolyte_s0",
+        "solar_acolyte_s1",
+        "solar_acolyte_s2",
+        "solar_acolyte_s3"
+       ],
+       "fps": 10,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "solar_acolyte_s2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "solar_acolyte_h"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "cinder_elemental": {
+     "frames": {
+      "cinder_elemental_m0": [
+       0,
+       174,
+       46,
+       52
+      ],
+      "cinder_elemental_m1": [
+       46,
+       174,
+       46,
+       52
+      ],
+      "cinder_elemental_m2": [
+       92,
+       174,
+       46,
+       52
+      ],
+      "cinder_elemental_m3": [
+       138,
+       174,
+       46,
+       52
+      ],
+      "cinder_elemental_s0": [
+       184,
+       174,
+       46,
+       52
+      ],
+      "cinder_elemental_s1": [
+       230,
+       174,
+       46,
+       52
+      ],
+      "cinder_elemental_s2": [
+       276,
+       174,
+       46,
+       52
+      ],
+      "cinder_elemental_s3": [
+       322,
+       174,
+       46,
+       52
+      ],
+      "cinder_elemental_h": [
+       368,
+       174,
+       46,
+       52
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "cinder_elemental_m0",
+        "cinder_elemental_m1",
+        "cinder_elemental_m2",
+        "cinder_elemental_m3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "cinder_elemental_s0",
+        "cinder_elemental_s1",
+        "cinder_elemental_s2",
+        "cinder_elemental_s3"
+       ],
+       "fps": 10,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "cinder_elemental_s2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "cinder_elemental_h"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "lava_slime": {
+     "frames": {
+      "lava_slime_m0": [
+       0,
+       226,
+       21,
+       26
+      ],
+      "lava_slime_m1": [
+       21,
+       226,
+       21,
+       26
+      ],
+      "lava_slime_m2": [
+       42,
+       226,
+       21,
+       26
+      ],
+      "lava_slime_m3": [
+       63,
+       226,
+       21,
+       26
+      ],
+      "lava_slime_s0": [
+       84,
+       226,
+       21,
+       26
+      ],
+      "lava_slime_s1": [
+       105,
+       226,
+       21,
+       26
+      ],
+      "lava_slime_s2": [
+       126,
+       226,
+       21,
+       26
+      ],
+      "lava_slime_s3": [
+       147,
+       226,
+       21,
+       26
+      ],
+      "lava_slime_h": [
+       168,
+       226,
+       21,
+       26
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "lava_slime_m0",
+        "lava_slime_m1",
+        "lava_slime_m2",
+        "lava_slime_m3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "lava_slime_s0",
+        "lava_slime_s1",
+        "lava_slime_s2",
+        "lava_slime_s3"
+       ],
+       "fps": 10,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "lava_slime_s2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "lava_slime_h"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "lava_guard": {
+     "frames": {
+      "lava_guard_m0": [
+       0,
+       252,
+       51,
+       48
+      ],
+      "lava_guard_m1": [
+       51,
+       252,
+       51,
+       48
+      ],
+      "lava_guard_m2": [
+       102,
+       252,
+       51,
+       48
+      ],
+      "lava_guard_m3": [
+       153,
+       252,
+       51,
+       48
+      ],
+      "lava_guard_s0": [
+       204,
+       252,
+       51,
+       48
+      ],
+      "lava_guard_s1": [
+       255,
+       252,
+       51,
+       48
+      ],
+      "lava_guard_s2": [
+       306,
+       252,
+       51,
+       48
+      ],
+      "lava_guard_s3": [
+       357,
+       252,
+       51,
+       48
+      ],
+      "lava_guard_h": [
+       408,
+       252,
+       51,
+       48
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "lava_guard_m0",
+        "lava_guard_m1",
+        "lava_guard_m2",
+        "lava_guard_m3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "lava_guard_s0",
+        "lava_guard_s1",
+        "lava_guard_s2",
+        "lava_guard_s3"
+       ],
+       "fps": 10,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "lava_guard_s2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "lava_guard_h"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "sun_cultist": {
+     "frames": {
+      "sun_cultist_m0": [
+       0,
+       300,
+       54,
+       54
+      ],
+      "sun_cultist_m1": [
+       54,
+       300,
+       54,
+       54
+      ],
+      "sun_cultist_m2": [
+       108,
+       300,
+       54,
+       54
+      ],
+      "sun_cultist_m3": [
+       162,
+       300,
+       54,
+       54
+      ],
+      "sun_cultist_s0": [
+       216,
+       300,
+       54,
+       54
+      ],
+      "sun_cultist_s1": [
+       270,
+       300,
+       54,
+       54
+      ],
+      "sun_cultist_s2": [
+       324,
+       300,
+       54,
+       54
+      ],
+      "sun_cultist_s3": [
+       378,
+       300,
+       54,
+       54
+      ],
+      "sun_cultist_h": [
+       432,
+       300,
+       54,
+       54
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "sun_cultist_m0",
+        "sun_cultist_m1",
+        "sun_cultist_m2",
+        "sun_cultist_m3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "sun_cultist_s0",
+        "sun_cultist_s1",
+        "sun_cultist_s2",
+        "sun_cultist_s3"
+       ],
+       "fps": 10,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "sun_cultist_s2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "sun_cultist_h"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "cinder_bat": {
+     "frames": {
+      "cinder_bat_m0": [
+       0,
+       354,
+       37,
+       23
+      ],
+      "cinder_bat_m1": [
+       37,
+       354,
+       37,
+       23
+      ],
+      "cinder_bat_m2": [
+       74,
+       354,
+       37,
+       23
+      ],
+      "cinder_bat_m3": [
+       111,
+       354,
+       37,
+       23
+      ],
+      "cinder_bat_s0": [
+       148,
+       354,
+       37,
+       23
+      ],
+      "cinder_bat_s1": [
+       185,
+       354,
+       37,
+       23
+      ],
+      "cinder_bat_s2": [
+       222,
+       354,
+       37,
+       23
+      ],
+      "cinder_bat_s3": [
+       259,
+       354,
+       37,
+       23
+      ],
+      "cinder_bat_h": [
+       296,
+       354,
+       37,
+       23
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "cinder_bat_m0",
+        "cinder_bat_m1",
+        "cinder_bat_m2",
+        "cinder_bat_m3"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "cinder_bat_s0",
+        "cinder_bat_s1",
+        "cinder_bat_s2",
+        "cinder_bat_s3"
+       ],
+       "fps": 10,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "cinder_bat_s2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "cinder_bat_h"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    }
+   }
+  }
+ }
+}
