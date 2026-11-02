@@ -187,9 +187,14 @@ export const BXF = {
     // (2026-11-02, the user: "all shots MUST come from the center of the bottom of the boss, always": a shot from anywhere
     // on its body, a staff's tip, its chest, a hand, starts at its feet. From up its body they flew from a point that
     // turned away from the boss as the camera did, and seemed to come out of nowhere)
-    { const top = Math.max(2, (e.hitUp || 1) * 2 + 1), [tx, ty] = this.up(e.x, e.y, top), vx = tx - e.x, vy = ty - e.y, L2 = vx * vx + vy * vy || 1;
-      const k = Math.max(0, Math.min(1, ((x - e.x) * vx + (y - e.y) * vy) / L2)), d = Math.hypot(x - (e.x + vx * k), y - (e.y + vy * k));
-      if (d < Math.max(1.6, (e.D.r || 1) + 0.6)) { x = e.x; y = e.y; } }
+    // A shot set off anywhere inside its drawn sprite (its full width and height, whatever the camera's turn: a staff held
+    // out to its side, a hand, its chest) starts at its feet: the anchor is the boss's ground point, never a part of its art.
+    // (2026-11-02: the first fix looked only along its middle, and the Wizard's staff tip, 2.5 tiles to his side, slipped past)
+    { const S = e.bx, def = S && S.def, K = (S && S.drawK) || 1;
+      const H = def ? (def.size[1] * 2 * K) / 16 : 3, W2 = def ? (def.size[0] * K) / 16 : 1.5;   // (in tiles: a sprite pixel is 2 screen pixels, 16 a tile)
+      const [ux, uy] = this.up(e.x, e.y, 1), upx = ux - e.x, upy = uy - e.y, dx = x - e.x, dy = y - e.y;
+      const h = dx * upx + dy * upy, w = dx * -upy + dy * upx;                             // (up its body, and across it)
+      if (h > -0.6 && h < H + 0.6 && Math.abs(w) < W2 + 0.6) { x = e.x; y = e.y; } }
     const b = this.shoot('e', x, y, a, V.speed || 5, V.range || 14, this.bxDmg(e, V.dmg || 60), V.sprite || `${e.bx.B.shotSheet || 'bx_shots'}/${e.bx.B.art || e.D.bx}.${V.shot}`, V.size || 0.45, false, e.D.name);
     if (V.mv) b.mv = { ...V.mv };
     if (V.life) b.life = V.life;

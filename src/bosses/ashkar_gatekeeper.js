@@ -30,7 +30,9 @@ const anchor = (e, i) => hall(e).P(...[[5, 5], [33, 5], [5, 29], [33, 29]][i]);
 const vent = (e, i) => hall(e).P(...[[10, 17], [28, 17]][i]);
 // a point on his body: dx tiles right of him on the screen, h tiles up (whatever the camera's turn); his core, his wrists
 function at(g, e, dx, h) { const a = g.camAngle || 0; return g.up(e.x + dx * Math.cos(a), e.y - dx * Math.sin(a), h); }
-const CORE = (g, e) => at(g, e, 0, 4.4);
+const CORE = (g, e) => at(g, e, 0, 4.4);                    // (his core: where its light and embers are drawn)
+// every shot leaves from the centre of its feet (the user: the bottom-centre of the boss, always; its staff or chest may glow, but never sets where a shot begins)
+const FEET = (g, e) => [e.x, e.y];
 const later = (e, t, name, V = {}) => e.bx.vol.push({ t, V: { form: 'special', ...V, name } });   // (its own name last: a spread V may carry the caller's)
 const shot = (g, e, x, y, a, V) => g.bxShot(e, x, y, a, V);
 const lane = (g, e, x, y, a, len, delay, dmg = 0, w = 1, cols) => g.fx.push({ kind: 'lane', x, y, a, len, w, delay, t: 0, life: delay + (dmg ? 0.35 : 0.02), dmg: dmg ? g.bxDmg(e, dmg) : 0, by: e.D.name, hitT: 0, ...(cols ? { cols } : {}) });
@@ -55,8 +57,8 @@ function sentenceLock(g, e, V) {
   if (!V.one) later(e, 0.9, 'sentenceWave', { a, n: 9, dmg: 110, off: deg(7) });
 }
 function sentenceWave(g, e, V) {
-  const x = e.x + Math.cos(V.a) * 2, y = e.y + Math.sin(V.a) * 2;
-  if (!V.off) thud(g, e, x, y);
+  const x = e.x, y = e.y;                                  // (from his feet, like every boss shot; the blow's burst shows where the hammer fell)
+  if (!V.off) thud(g, e, e.x + Math.cos(V.a) * 2, e.y + Math.sin(V.a) * 2);   // (the dust where the hammer struck)
   for (let k = 0; k < V.n; k++) shot(g, e, x, y, V.a + V.off + (k / (V.n - 1) - 0.5) * deg(110), { ...WAVE, speed: 5.6, range: 12, dmg: D(V.dmg) });
 }
 
@@ -162,7 +164,7 @@ function shatter(g, e) {
   later(e, 1.0, 'plates');
 }
 function plates(g, e) {
-  const [ox, oy] = CORE(g, e), q = target(g, e), a = angleTo(ox, oy, q.x, q.y);
+  const [ox, oy] = FEET(g, e), q = target(g, e), a = angleTo(ox, oy, q.x, q.y);
   e.bx.akPlates = [0, 1, 2, 3].map((k) => shot(g, e, ox, oy, a + k * Math.PI / 2, { ...CHUNK, speed: 3.8, range: 12, dmg: D(155), mv: { split: { at: 1.0, n: 5, speed: 5.0, range: 6, proj: 'slag_shard' } } }));
   later(e, 0.65, 'sparkle');
   g.vx({ k: 'burst', x: ox, y: oy, n: 18, colors: GLASS }); g.sfx('shatter');
@@ -274,7 +276,7 @@ function anchorShot(g, e) {
   g.vx({ k: 'burst', x: P.x, y: P.y, n: 6, colors: FIRE });
 }
 function coreShot(g, e) {
-  const S = e.bx, n = (S.akCo = (S.akCo || 0) + 1), [cx, cy] = CORE(g, e), q = target(g, e), [tx, ty] = n % 2 ? ahead(g, e, 0.8) : [q.x, q.y], a = angleTo(cx, cy, tx, ty);
+  const S = e.bx, n = (S.akCo = (S.akCo || 0) + 1), [cx, cy] = FEET(g, e), q = target(g, e), [tx, ty] = n % 2 ? ahead(g, e, 0.8) : [q.x, q.y], a = angleTo(cx, cy, tx, ty);
   for (let k = 0; k < 4; k++) shot(g, e, cx, cy, a + (k - 1.5) * deg(11), { sprite: 'cinder', size: 0.5, speed: 6, range: 14, dmg: D(90) });
 }
 

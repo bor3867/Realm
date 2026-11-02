@@ -33,8 +33,8 @@ const court = (e) => e.room || { x: Math.floor(e.x) - 27, y: Math.floor(e.y) - 1
 const at40 = (e, sx, sy) => { const C = court(e); return { x: C.x + (sx / 40) * C.w, y: C.y + (sy / 34) * C.h }; };
 const SOCKETS = (e) => [[4, 4], [36, 4], [36, 30], [4, 30]].map(([x, y]) => at40(e, x, y));   // NW, NE, SE, SW
 const STEPS = (e) => [[10, 9], [30, 9], [30, 25], [10, 25]].map(([x, y]) => at40(e, x, y));    // his four magic steps
-function at(g, e, dx, h) { const a = g.camAngle || 0; return g.up(e.x + dx * Math.cos(a), e.y - dx * Math.sin(a), h); }
-const STAFF = (g, e) => at(g, e, -2.5, 5.6);
+// every shot leaves from the centre of its feet (the user: the bottom-centre of the boss, always; its staff or chest may glow, but never sets where a shot begins)
+const FEET = (g, e) => [e.x, e.y];
 function portal(g, e, x, y, life, hp) {                    // a portal: it hangs in the air; it can be broken; it closes by itself
   const q = g.addEnemy('wiz_portal', x, y);
   q.noLoot = true; q.seen = true; q.jzUntil = g.t + life; if (hp) q.hp = q.maxHp = hp;
@@ -47,11 +47,11 @@ const closePortals = (e) => { for (const q of e.bx.jzPortals || []) if (!q.dead)
 // ================================================================ Z1 Lance Inquisition
 function inquisition(g, e) { for (let w = 0; w < 6; w++) later(e, 0.6 + w * 0.42 - 0.23, 'lanceAim', { lead: w % 2 }); }
 function lanceAim(g, e, V) {                               // where you are now (every second wave: where you will be as they arrive); 0.23 s on, five lances there
-  const [ox, oy] = STAFF(g, e), q = target(g, e), [tx, ty] = V.lead ? ahead(g, e, 0.23 + Math.hypot(q.x - ox, q.y - oy) / 7.4) : [q.x, q.y], a = angleTo(ox, oy, tx, ty);
+  const [ox, oy] = FEET(g, e), q = target(g, e), [tx, ty] = V.lead ? ahead(g, e, 0.23 + Math.hypot(q.x - ox, q.y - oy) / 7.4) : [q.x, q.y], a = angleTo(ox, oy, tx, ty);
   show(g, e, ox, oy, a, 9, 0.23, 0.4);
   later(e, 0.23, 'lanceFire', { a });
 }
-function lanceFire(g, e, V) { const [ox, oy] = STAFF(g, e); for (let k = 0; k < 5; k++) shot(g, e, ox, oy, V.a + (k / 4 - 0.5) * deg(18), { ...LANCE, speed: 7.4, range: 14, dmg: D(105) }); }
+function lanceFire(g, e, V) { const [ox, oy] = FEET(g, e); for (let k = 0; k < 5; k++) shot(g, e, ox, oy, V.a + (k / 4 - 0.5) * deg(18), { ...LANCE, speed: 7.4, range: 14, dmg: D(105) }); }
 
 // ================================================================ Z2 Four Hollow Windows
 function windows(g, e) {
@@ -142,8 +142,8 @@ function excomFans(g, e, V) {
   const q = target(g, e);
   for (const i of V.ids) { const p = (e.bx.jzExc || [])[i]; if (!p || p.dead) continue; const a = angleTo(p.x, p.y, q.x, q.y); for (let k = 0; k < 7; k++) shot(g, e, p.x, p.y, a + (k / 6 - 0.5) * deg(70), { ...BOLT, speed: 5.2, range: 18, dmg: D(90) }); }
 }
-function excomAim(g, e) { const [ox, oy] = STAFF(g, e), q = target(g, e), a = angleTo(ox, oy, q.x, q.y); show(g, e, ox, oy, a, 10, 0.4, 1.4); later(e, 0.4, 'excomLances', { a }); }
-function excomLances(g, e, V) { const [ox, oy] = STAFF(g, e); for (let k = 0; k < 9; k++) shot(g, e, ox, oy, V.a + (k / 8 - 0.5) * deg(120), { ...LANCE, speed: 7, range: 15, dmg: D(125) }); }
+function excomAim(g, e) { const [ox, oy] = FEET(g, e), q = target(g, e), a = angleTo(ox, oy, q.x, q.y); show(g, e, ox, oy, a, 10, 0.4, 1.4); later(e, 0.4, 'excomLances', { a }); }
+function excomLances(g, e, V) { const [ox, oy] = FEET(g, e); for (let k = 0; k < 9; k++) shot(g, e, ox, oy, V.a + (k / 8 - 0.5) * deg(120), { ...LANCE, speed: 7, range: 15, dmg: D(125) }); }
 
 // alone: two portals of his kept at opposite corners (the spec's cap), three darts by turns every 1.3 s, at you and where
 // you are going; one broken comes back 6 s later

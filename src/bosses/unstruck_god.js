@@ -34,7 +34,9 @@ const MID = (e) => P(e, 22, 22), RAD = (e) => (room(e).w / 44) * 19;
 const OBELISKS = (e) => [[22, 5], [39, 22], [22, 39], [5, 22]].map(([x, y]) => P(e, x, y));   // N E S W
 const PADS = (e) => [[11, 11], [33, 11], [33, 33], [11, 33]].map(([x, y]) => P(e, x, y));
 function at(g, e, dx, h) { const a = g.camAngle || 0; return g.up(e.x + dx * Math.cos(a), e.y - dx * Math.sin(a), h); }
-const CORE = (g, e) => at(g, e, 0, 4.2);
+const CORE = (g, e) => at(g, e, 0, 4.2);                    // (the stolen sun in his chest: where its light is drawn)
+// every shot leaves from the centre of its feet (the user: the bottom-centre of the boss, always; its staff or chest may glow, but never sets where a shot begins)
+const FEET = (g, e) => [e.x, e.y];
 const bearing = (g, e, x = e.x, y = e.y) => { const q = target(g, e); return angleTo(x, y, q.x, q.y); };
 function inDais(e, x, y, m = 1.5) { const C = MID(e), d = Math.hypot(x - C.x, y - C.y), R0 = RAD(e) - m; return d <= R0 ? [x, y] : [C.x + (x - C.x) * R0 / d, C.y + (y - C.y) * R0 / d]; }
 function minion(g, e, id, x, y, life) { const q = g.addEnemy(id, x, y); q.noLoot = true; q.seen = true; q.hidden = true; q.slUntil = g.t + life; (e.bx.slMinions = e.bx.slMinions || []).push(q); return q; }
@@ -42,7 +44,7 @@ const gone = (q) => !q || q.dead;
 
 // ================================================================ under it all: spears from his chest
 function solarVolley(g, e) {
-  const S = e.bx, [ox, oy] = CORE(g, e), q = target(g, e), lead = (S.slVk = (S.slVk || 0) + 1) % 2, [x, y] = lead ? ahead(g, e, Math.hypot(q.x - ox, q.y - oy) / 7) : [q.x, q.y], a = angleTo(ox, oy, x, y);
+  const S = e.bx, [ox, oy] = FEET(g, e), q = target(g, e), lead = (S.slVk = (S.slVk || 0) + 1) % 2, [x, y] = lead ? ahead(g, e, Math.hypot(q.x - ox, q.y - oy) / 7) : [q.x, q.y], a = angleTo(ox, oy, x, y);
   for (const o of [-0.2, -0.07, 0.07, 0.2]) shot(g, e, ox, oy, a + o, { ...SPEAR, speed: 7, range: 18, dmg: D(100) });
   if (running(e)) { const [fx, fy] = ahead(g, e, 1.4 + Math.hypot(q.x - ox, q.y - oy) / 7), b = angleTo(ox, oy, fx, fy); for (const o of [-0.08, 0.08]) shot(g, e, ox, oy, b + o, { ...SPEAR, speed: 7, range: 18, dmg: D(100) }); }   // (a runner: two more, well ahead of you)
 }
@@ -314,11 +316,11 @@ export default {
     if (S.state === 'sleep' || S.state === 'intro') return;
     const Dh = e.slDash;                                    // a dash: once into you (205); spears after it when it's the Pursuit's
     if (Dh && g.t >= Dh.at) {
-      if (g.t >= Dh.until) { e.slDash = null; if (Dh.trail) { const [ox, oy] = CORE(g, e), a = bearing(g, e, ox, oy); for (let k = 0; k < 5; k++) shot(g, e, ox, oy, a + (k / 4 - 0.5) * deg(40), { ...SPEAR, speed: 6.3, range: 16, dmg: D(115) }); } }
+      if (g.t >= Dh.until) { e.slDash = null; if (Dh.trail) { const [ox, oy] = FEET(g, e), a = bearing(g, e, ox, oy); for (let k = 0; k < 5; k++) shot(g, e, ox, oy, a + (k / 4 - 0.5) * deg(40), { ...SPEAR, speed: 6.3, range: 16, dmg: D(115) }); } }
       else { const k = (g.t - Dh.at) / (Dh.until - Dh.at); e.x = Dh.x0 + (Dh.x1 - Dh.x0) * k; e.y = Dh.y0 + (Dh.y1 - Dh.y0) * k; const p = g.player; if (!Dh.hit && p && !p.dead && Math.hypot(p.x - e.x, p.y - e.y) < e.D.r + 0.4) { Dh.hit = true; g.hurtPlayer(g.bxDmg(e, D(205)), e.D.name); } }
     }
     const Ch = S.slChase;                                   // the Chase: the core's spears every 0.75 s
-    if (Ch && g.t > Ch.from && g.t < Ch.until && (Ch.t -= dt) <= 0) { Ch.t = 0.75; const [ox, oy] = CORE(g, e), a = bearing(g, e, ox, oy); for (let k = 0; k < 4; k++) shot(g, e, ox, oy, a + (k / 3 - 0.5) * deg(35), { ...SPEAR, speed: 6.5, range: 16, dmg: D(120) }); }
+    if (Ch && g.t > Ch.from && g.t < Ch.until && (Ch.t -= dt) <= 0) { Ch.t = 0.75; const [ox, oy] = FEET(g, e), a = bearing(g, e, ox, oy); for (let k = 0; k < 4; k++) shot(g, e, ox, oy, a + (k / 3 - 0.5) * deg(35), { ...SPEAR, speed: 6.5, range: 16, dmg: D(120) }); }
     if (Ch && g.t > Ch.until) S.slChase = null;
     const Hd = S.slHeralds;                                 // the heralds: an opposite pair at a time, swapping every 1.4 s; fans every 0.7 s
     if (Hd && g.t > Hd.from) {

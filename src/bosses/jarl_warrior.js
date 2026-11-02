@@ -47,7 +47,7 @@ function cleaveLock(g, e) {                                    // ...locked: 0.2
   later(e, 0.2, 'swish');
 }
 function crescents(g, e, V) {
-  for (let k = 0; k < 9; k++) { const b = V.a + V.off + (k / 8 - 0.5) * deg(100); shot(g, e, e.x + Math.cos(b) * 2.2, e.y + Math.sin(b) * 2.2, b, { ...CRESCENT, speed: 6.5, range: 10, dmg: D(105) }); }
+  for (let k = 0; k < 9; k++) { const b = V.a + V.off + (k / 8 - 0.5) * deg(100); shot(g, e, e.x, e.y, b, { ...CRESCENT, speed: 6.5, range: 12, dmg: D(105) }); }   // (from his feet: the user's rule for every boss shot)
 }
 function swish(g) { g.sfx('shatter'); g.vx({ k: 'shake', amt: 3 }); }
 
