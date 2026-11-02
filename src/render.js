@@ -2567,22 +2567,26 @@ export class Renderer {
       const x = bx * s, y = (by - 20) * s, t = `${keyHint('portal')}${g.nearNPC.label}`;
       platedLabel(ctx, t, x, y, 16, '#f2c14e');
     }
-    let bar = null;
-    {
-      let best = 22;
-      for (const e of g.enemies) {
-        if (!(e.rb || e.herald || (e.warden && e.seen !== false)) || e.dead || e.cloneOf) continue;
-        const d = Math.hypot(e.x - g.player.x, e.y - g.player.y) - (e.rb ? 4 : e.warden ? 8 : 0);
-        const surv = e.surviveUntil > g.t ? ` · SURVIVE ${Math.ceil(e.surviveUntil - g.t)}s` : e.frenzyUntil > g.t ? ` · ${e.D.bloodlust ? 'BLOODLUST' : 'FRENZY'} ${Math.ceil(e.frenzyUntil - g.t)}s` : '';
-        const X = e.D.bx && g.bxBar ? g.bxBar(e) : null;
-        if (X && d < best) { best = d; bar = { name: e.D.name, sub: X.name, f: e.hp / e.maxHp, hot: X.phase > 1, immune: X.immune, pips: X.pips, e }; continue; }
-        if (d < best) { best = d; bar = { e, name: e.D.name + surv, f: surv ? (e.surviveUntil > g.t ? (e.surviveUntil - g.t) / 22 : (e.frenzyUntil - g.t) / (e.frenzyLen || 10)) : e.hp / e.maxHp, hot: e.phaseIdx > 0 || !!surv, immune: e.invulnT > 0 && !surv }; }
-      }
+    // every boss you're fighting has its bar, the nearest first (2026-11-02, the user: "when fighting multiple bosses at once,
+    // show both boss hp bars"); a boss still asleep shows only when it is the one nearest
+    let bar = null; const bars = [];
+    for (const e of g.enemies) {
+      if (!(e.rb || e.herald || (e.warden && e.seen !== false)) || e.dead || e.cloneOf) continue;
+      const d = Math.hypot(e.x - g.player.x, e.y - g.player.y) - (e.rb ? 4 : e.warden ? 8 : 0);
+      if (d >= 22) continue;
+      const surv = e.surviveUntil > g.t ? ` · SURVIVE ${Math.ceil(e.surviveUntil - g.t)}s` : e.frenzyUntil > g.t ? ` · ${e.D.bloodlust ? 'BLOODLUST' : 'FRENZY'} ${Math.ceil(e.frenzyUntil - g.t)}s` : '';
+      const X = e.D.bx && g.bxBar ? g.bxBar(e) : null, awake = !(e.bx && e.bx.state === 'sleep') && !(e.bx && e.bx.state === 'gone');
+      if (X) bars.push({ d, awake, name: e.D.name, sub: X.name, f: e.hp / e.maxHp, hot: X.phase > 1, immune: X.immune, pips: X.pips, e });
+      else bars.push({ d, awake, e, name: e.D.name + surv, f: surv ? (e.surviveUntil > g.t ? (e.surviveUntil - g.t) / 22 : (e.frenzyUntil - g.t) / (e.frenzyLen || 10)) : e.hp / e.maxHp, hot: e.phaseIdx > 0 || !!surv, immune: e.invulnT > 0 && !surv });
     }
+    bars.sort((a, b) => a.d - b.d); bar = bars[0] || null;
+    const also = bars.slice(1).filter((q) => q.awake && bar.awake).slice(0, 2);
     if (bar && bar.e && bar.e.jcCourt) {                   // the Hollow Court: both Jarls' bars, the court's act under them
       const C = bar.e.jcCourt, L = Object.values(C.m).filter((q) => q && !q.dead), A = ACTS[C.act] || '';
       L.forEach((q, k) => this.bossWidget(g, { e: q, name: q.D.name, sub: k === L.length - 1 ? (C.surv ? 'ONE CROWN REMAINS' : 'THE HOLLOW COURT · ' + A) : '', f: q.hp / q.maxHp, hot: (q.bx && q.bx.phase) > 1, pips: [0.66, 0.30] }, k * 52));
-    } else if (bar) this.bossWidget(g, bar);
+    } else if (bar) { const L = [bar, ...also]; L.forEach((q, k) => this.bossWidget(g, k < L.length - 1 ? { ...q, sub: '' } : q, k * 52)); }   // (stacked: the phase line only under the last, as the Jarls')
+    const goal = g.map.castle && g.map.castle.goal;          // the castle: what holds the way on (src/castle.js castleGoal)
+    if (goal) { ctx.textAlign = 'center'; platedLabel(ctx, goal, Math.round(this.c.width / 2), this.c.height - 28, 16, '#ffd650'); }   // (at the view's foot: clear of the boss bars and the banners)
   }
   // the boss's health, RotMG's way (2026-10-21): a compact pill at the top right of the view, its Life in numbers on the
   // bar, phase ticks, the boss's own likeness in a diamond badge at its end, its name and phase in small type under it

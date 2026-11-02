@@ -68,6 +68,7 @@ const methods = {
     if (!S.bats && !m.netWorld && this.t - S.t0 > 4 && Rm.a01 && this.spawnPending) { S.bats = true; const A = Rm.a01; this.spawnPending([0.3, 0.5, 0.7].map((f) => ['cinder_bat', A.x + f * A.w, A.y + 3])); }
     // the locks (src/world/castle_plan.js LOCKS): each way's gate opens when what holds it is done
     for (const L of C.locks || []) if (!L.open && this.castleCond(L.cond, Rm)) { L.open = true; this.castleOpen(L.name); this.banner(L.say, 3000); }
+    C.goal = n ? this.castleGoal(n, Rm, S) : null;
     this.castleMechs(dt, Rm, S);
     if (this.castleLater) this.castleLater = this.castleLater.filter((q) => { if (this.t < q.t) return true; q.f(); return false; });
     if (!m.netWorld) { this.castleWaves(Rm, S); this.castleGeysers(dt, S); if (n && n.form) this.castleHazard(dt, n, S); }
@@ -121,6 +122,24 @@ const methods = {
   // what holds a lock: clear:<n> (that area's defenders, once woken, all dead), break:<n> (its cursed things broken),
   // mech:<key> (a mechanism turned), jarls / ashkar (the bosses dead), seal+chain (the Broken Crown Seal and the Great
   // Chain Release both done)
+  // what holds the way on out of the area you're in, said at the top of the view while it does (2026-11-02, the user: "For
+  // rooms that require you to clear all enemies to continue please give players something to let them know"): its
+  // defenders and how many are left, the cursed things to break, the mechanisms still to turn. Said once as a banner too
+  castleGoal(n, Rm, S) {
+    const C = this.map.castle, inA = (e) => e.x >= n.x - 2 && e.y >= n.y - 2 && e.x < n.x + n.w + 2 && e.y < n.y + n.h + 2;
+    const mine = (C.mechs || []).filter((M) => M.num === n.num && !M.done);
+    const L = (C.locks || []).find((q) => !q.open && (q.cond === 'clear:' + n.num || q.cond === 'break:' + n.num || (/^mechs?:/.test(q.cond) && mine.some((M) => q.cond.split(':')[1].split(',').includes(M.key)))));
+    if (!L) return null;
+    const foes = this.enemies.filter((e) => !e.dead && inA(e) && (L.cond.startsWith('clear') ? !e.rb : e.D.kin || e.rb || e.D.target)), brk = L.cond.startsWith('break'), tg = foes.filter((e) => e.D.target);
+    let text;
+    if (brk && tg.length) text = `DESTROY THE ${tg[0].D.name.toUpperCase().replace(/^THE /, '')}${tg.length > 1 ? 'S' : ''} TO OPEN THE WAY · ${tg.length} LEFT`;
+    else if (n.pending || foes.length) text = `DEFEAT EVERY DEFENDER TO OPEN THE WAY · ${foes.length} LEFT${n.pending ? ' · MORE ARE COMING' : ''}`;
+    else if (mine.length) text = `STAND AT ${mine.length > 1 ? 'EACH OF ' : ''}${mine.map((M) => M.name).join(' AND ')} TO TURN ${mine.length > 1 ? 'THEM' : 'IT'}`;
+    else return null;
+    if (!S.told) S.told = {};
+    if (!S.told[n.num] && (foes.length || brk)) { S.told[n.num] = true; (this.castleLater = this.castleLater || []).push({ t: this.t + 2.4, f: () => this.banner(brk ? 'BREAK THE CURSED THINGS TO OPEN THE WAY' : 'DEFEAT EVERY DEFENDER TO OPEN THE WAY', 2600) }); }
+    return text;
+  },
   castleCond(c, Rm) {
     const C = this.map.castle, area = (n) => Object.values(Rm).find((q) => q.num === n), mech = (k) => (C.mechs || []).some((M) => M.key === k && M.done);
     const [k, v] = c.split(':'), inA = (n, e) => e.x >= n.x - 2 && e.y >= n.y - 2 && e.x < n.x + n.w + 2 && e.y < n.y + n.h + 2;
