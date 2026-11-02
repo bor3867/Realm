@@ -2451,6 +2451,8 @@ export function dungeon(seed, def) {
     glow_larva: [4, '#ffd650', 1], honey_vat: [3, '#ffb830', 0], footlight: [3.5, '#fff0b0', 0], vanity_mirror: [3, '#fff6d8', 0], ticket_booth: [3, '#ffd650', 0],
     crystal_cluster: [3.5, '#c8a0ff', 0], prism_pillar: [5, '#ffffff', 0], great_lens: [8, '#fffbe0', 0], lens_pedestal: [3, '#fff6c8', 0], beam_lamp: [3, '#fffbe0', 0],
     dream_lamp: [5.5, '#c8b0ff', 1], moon_shard: [3.5, '#bff0ff', 0], dream_sigil: [3.5, '#ff7ab8', 0],
+    'castle_decor/burning_debris': [4.5, '#ff8a2a', 1], 'castle_decor/lava_crack': [3.2, '#ff6a1a', 1], 'castle_decor/forge_press': [3.5, '#ff8c1e', 1],   // (the castle's: its fires, its cracks, its presses, its eclipse)
+    'castle_decor/eclipse_obelisk': [4, '#a070ff', 0], 'castle_decor/sun_statue': [5, '#ffd650', 0], 'castle_decor/banner_torn': [2.2, '#c890ff', 0],
     'ow_objects/midlands_campfire': [5, '#ff9a3a', 1], 'ow_objects/midlands_glow_mushrooms': [2.5, '#7affc8', 0], 'ow_objects/godlands_blood_fountain': [4, '#ff3a4a', 0],
     'ow_objects/godlands_rift_crystal': [2, '#ff5ad0', 0], 'ow_objects/godlands_corrupted_obelisk': [3, '#c03aff', 0],
     'ex_decor/frostveil_frost_brazier': [5, '#a8f0ff', 1], 'ex_decor/frostveil_ice_crystal': [2.2, '#8ad8ff', 0],

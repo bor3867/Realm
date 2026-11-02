@@ -16,8 +16,8 @@ const inR = (n, x, y) => n && x >= n.x && y >= n.y && x < n.x + n.w && y < n.y +
 const D = (n) => n + 4;
 // each part of the castle its own light: the entrance burning, the court's violet dusk, the forge's glare, Ashkar's
 // red, the eclipse almost black, the sanctum the stolen sun's gold
-const AMBIENT = { gate: 'rgba(44,16,8,0.44)', siege: 'rgba(40,18,10,0.46)', court: 'rgba(18,10,34,0.54)', forge: 'rgba(50,18,4,0.38)', ashkar: 'rgba(58,10,4,0.46)',
-  eclipse: 'rgba(8,3,20,0.7)', sanctum: 'rgba(34,22,8,0.42)' };
+const AMBIENT = { gate: 'rgba(44,16,8,0.34)', siege: 'rgba(40,18,10,0.36)', court: 'rgba(18,10,34,0.42)', forge: 'rgba(50,18,4,0.3)', ashkar: 'rgba(58,10,4,0.36)',
+  eclipse: 'rgba(8,3,20,0.55)', sanctum: 'rgba(34,22,8,0.34)' };   // (dark enough to feel, light enough that every shot reads)
 const FALLING = { battlements: [1.8, 90, 'falling stones'], towerfall: [1.5, 90, 'falling masonry'], chainbridge: [1.3, 110, 'an eruption'] };
 
 const methods = {
