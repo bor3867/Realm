@@ -8,7 +8,6 @@
   "castle_kin": {
    "image": "castle_kin.png",
    "kind": "enemy",
-   "outline": true,
    "sprites": {
     "cinder_bat": {
      "frames": {
@@ -942,7 +941,6 @@
   "bx_forge_overseer": {
    "image": "forge_overseer.png",
    "kind": "boss",
-   "outline": true,
    "sprites": {
     "forge_overseer": {
      "frames": {

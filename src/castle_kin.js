@@ -290,7 +290,9 @@ export function installCastleKin(Game) { Object.assign(Game.prototype, methods);
   // the elites' (the user: "better tiered equipment opportunities"): a tier up and better odds, still only a chance
   const E = [{ slot: 'weapon', tiers: [10, 12], p: 0.16 }, { slot: 'armor', tiers: [10, 12], p: 0.16 }, { slot: 'ability', tiers: [5, 6], p: 0.08 }, { slot: 'ring', tiers: [5, 6], p: 0.08 }, { stat: true, p: 0.2 }, { id: 'pot_hp', p: 0.12 }];
   const ELITE = new Set(['sunbound_knight', 'cinder_elemental', 'eclipse_shade', 'forge_golem', 'sunbound_construct']);
-  const def = (id, name, hp, contact, speed, r, df, xp, extra = {}) => { ENEMIES[id] = { name, biome: 'throne', reg: 'castle_kin/' + id, hp, def: df, speed, xp, r, ai: 'kite', keep: 5, aggro: 12, contact, touchCd: 0.8, kin: id, attacks: [], loot: ELITE.has(id) ? E : T, ...extra }; };
+  // their size (the user: "too large"): a regular one a tile tall, one of its pixels to one of the screen's (crisp, never
+  // resampled), RotMG's size; an elite two tiles; its touch the size it's drawn
+  const def = (id, name, hp, contact, speed, r, df, xp, extra = {}) => { const el = ELITE.has(id); ENEMIES[id] = { name, biome: 'throne', reg: 'castle_kin/' + id, hp, def: df, speed, xp, r: el ? r : Math.min(r, 0.4), ai: 'kite', keep: 5, aggro: 12, contact, touchCd: 0.8, kin: id, attacks: [], loot: el ? E : T, ...(el ? {} : { scale: 0.5, hitUp: 0.4 }), ...extra }; };
   def('cinder_bat', 'Cinder Bat', 4500, 55, 5.2, 0.45, 8, 300, { fly: true });
   def('lava_slime', 'Lava Slime', 6500, 65, 2.2, 0.5, 10, 350);
   def('cinder_archer', 'Cinder Archer', 9500, 45, 3.4, 0.5, 12, 450);

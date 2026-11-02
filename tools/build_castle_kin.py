@@ -18,7 +18,22 @@ BLANK = (0, 0, 0, 0)
 lum = lambda c: c[0] * 0.3 + c[1] * 0.59 + c[2] * 0.11
 
 
+EDGE = (38, 26, 48, 255)                                    # (their rim: a deep charcoal-purple, not black; the user, 2026-11-02)
+
+
+def soften(px):
+    # the near-black pixels on a sprite's silhouette (touching the outside) turn to the rim colour; the inside is as drawn
+    H, W = len(px), len(px[0]); out = [row[:] for row in px]
+    for y in range(H):
+        for x in range(W):
+            c = px[y][x]
+            if not c[3] or lum(c) > 30: continue
+            if any(not (0 <= X < W and 0 <= Y < H) or not px[Y][X][3] for X, Y in ((x + 1, y), (x - 1, y), (x, y + 1), (x, y - 1))): out[y][x] = EDGE
+    return out
+
+
 def frames(px, hover):
+    px = soften(px)
     H, W = len(px), len(px[0])
     m1 = [row[:] for row in px]
     m2 = [[BLANK] * W for _ in range(H)]
@@ -99,9 +114,9 @@ if __name__ == '__main__':
         oanims[f'idle{a}'] = {'frames': [f'i{a}_{k}' for k in range(4)], 'fps': 4, 'loop': True}
         oanims[f'attack{a}'] = {'frames': [f'a{a}', f'a{a}b', f'a{a}'], 'fps': 6, 'loop': False}
     oanims['death'] = {'frames': ['d0', 'd1', 'd2'], 'fps': 3, 'loop': False}
-    oboss = {'image': 'forge_overseer.png', 'kind': 'boss', 'outline': True, 'sprites': {'forge_overseer': {'frames': ofrm, 'anims': oanims, 'death': 'death', 'meta': {},
+    oboss = {'image': 'forge_overseer.png', 'kind': 'boss', 'sprites': {'forge_overseer': {'frames': ofrm, 'anims': oanims, 'death': 'death', 'meta': {},
              'phases': {'1': {'name': 'The Taskmaster', 'idle': 'idle1', 'attack': 'attack1'}, '2': {'name': 'The Furnace Master', 'idle': 'idle2', 'attack': 'attack2'}, '3': {'name': 'The Final Forging', 'idle': 'idle3', 'attack': 'attack3'}}}}}
-    json.dump({'rf': True, 'meta': {'name': "Sunthief's Castle's defenders (the user's sprites)", 'version': 1}, 'sheets': {'castle_kin': {'image': 'castle_kin.png', 'kind': 'enemy', 'outline': True, 'sprites': sprites}, 'castle_shots': {'image': 'castle_shots.png', 'kind': 'shot', 'sprites': sfr}, 'bx_forge_overseer': oboss}},
+    json.dump({'rf': True, 'meta': {'name': "Sunthief's Castle's defenders (the user's sprites)", 'version': 1}, 'sheets': {'castle_kin': {'image': 'castle_kin.png', 'kind': 'enemy', 'sprites': sprites}, 'castle_shots': {'image': 'castle_shots.png', 'kind': 'shot', 'sprites': sfr}, 'bx_forge_overseer': oboss}},
               open(os.path.join(out, 'atlas_castle_kin.json'), 'w', encoding='utf8', newline='\n'), indent=1)
     ip = os.path.join(root, 'art', 'bundle', 'index.json'); idx = json.load(open(ip, encoding='utf8'))
     if 'throne/atlas_castle_kin.json' not in idx['atlases']:
