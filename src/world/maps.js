@@ -900,7 +900,7 @@ export function shotBlocked(m, x, y) {
   if (xi < 0 || yi < 0 || xi >= m.w || yi >= m.h) return true;
   if (m.shotPass && m.shotPass.has(yi * m.w + xi)) return false;   // (an arena's pillars and urns)
   const t = m.tiles[yi * m.w + xi];
-  return !(t === TID.water || t === TID.deep);
+  return !(t === TID.water || t === TID.deep || t === TID.nxchasm);   // (and over a chasm: the Deadwater Ravine's, the user, 2026-11-02)
 }
 // a clockwork bridge's two arms at step k (of eight): three-wide lines of grate out from the hub, opposite each other
 export function clockTiles(C, k, n = 8) {
@@ -1485,7 +1485,7 @@ export function dungeon(seed, def) {
           }
           case 'ravine': {                                            // two banks, a chasm north to south between them, a broken bridge across
             for (const side of [-1, 1]) { const bx = cx + side * w * 0.3, f = (a) => 0.85 + 0.1 * Math.sin(a * 3 + s + side) + 0.05 * Math.sin(a * 7 + s); for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) { const dx = (xx - bx) / (w * 0.26), dy = (yy - cy) / (h / 2), a = Math.atan2(dy, dx); if (Math.hypot(dx, dy) <= f(a)) set(xx, yy, FLOOR); } }   // (the two banks, ragged)
-            for (let yy = y; yy < y + h; yy++) for (let xx = cx - 6; xx <= cx + 6; xx++) set(xx + Math.round(2 * Math.sin(yy / 5)), yy, TID.void);
+            for (let yy = y; yy < y + h; yy++) for (let xx = cx - 6; xx <= cx + 6; xx++) set(xx + Math.round(2 * Math.sin(yy / 5)), yy, TID.nxchasm);   // (a chasm: shots fly over it)
             for (let xx = cx - 9; xx <= cx + 9; xx++) for (let dy = -1; dy <= 1; dy++) { const gapp = Math.abs(xx - cx + 3) <= 1 || Math.abs(xx - cx - 4) <= 1; if (!gapp || dy === 0) set(xx, cy + dy, BR); }   // (two missing sections: one board wide)
             n.bridge = { x0: cx - 9, x1: cx + 9, y: cy, gaps: [cx - 3, cx + 4] };   // (drawn as a rope bridge over the tiles: src/render.js castleBridges)
             break;

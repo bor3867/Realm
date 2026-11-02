@@ -2088,8 +2088,10 @@ export class Renderer {
     for (const B of L) {
       const [cx0, cy0] = P(B.x0, B.y); if (cx0 < -400 || cy0 < -400 || cx0 > this.buf.width + 400 || cy0 > this.buf.height + 400) continue;
       const gap = (x) => B.gaps.some((q) => Math.abs(x - q) <= 1);
-      for (let x = B.x0; x <= B.x1; x++) quad(gap(x) ? [[x, B.y + 0.1], [x + 1, B.y + 0.1], [x + 1, B.y + 0.9], [x, B.y + 0.9]] : [[x, B.y - 1], [x + 1, B.y - 1], [x + 1, B.y + 2], [x, B.y + 2]], '#0c070a');   // the drop between the boards
+      const seen = (x, y) => g.seen(x + 0.5, y + 0.5);       // (under the fog of war where you haven't been: the user, 2026-11-02)
+      for (let x = B.x0; x <= B.x1; x++) if (seen(x, B.y)) quad(gap(x) ? [[x, B.y + 0.1], [x + 1, B.y + 0.1], [x + 1, B.y + 0.9], [x, B.y + 0.9]] : [[x, B.y - 1], [x + 1, B.y - 1], [x + 1, B.y + 2], [x, B.y + 2]], '#0c070a');   // the drop between the boards
       for (let x = B.x0; x <= B.x1; x++) for (const h of [0.06, 0.54]) {                        // two planks a tile
+        if (!seen(x, B.y)) continue;
         const i = x * 2 + (h > 0.5 ? 1 : 0), r = hash(i), sk = (r - 0.5) * 0.12, broke = gap(x);
         const y0 = broke ? B.y + 0.05 + r * 0.2 : B.y - 0.95, y1 = broke ? B.y + 0.95 - hash(i + 7) * 0.2 : B.y + 1.95;
         if (broke && r < 0.35) continue;                                                    // (some gone altogether)
@@ -2100,12 +2102,13 @@ export class Renderer {
       for (const side of [-1.05, 2.05]) {                                                  // the rope rails, sagging between posts
         let last = null;
         for (let x = B.x0; x <= B.x1 + 1; x += 0.25) {
-          if (B.gaps.some((q) => x > q - 0.6 && x < q + 1.6)) { last = null; continue; }   // (snapped at the broken sections)
+          if (B.gaps.some((q) => x > q - 0.6 && x < q + 1.6) || !seen(Math.floor(x), B.y)) { last = null; continue; }   // (snapped at the broken sections)
           const ph = ((x - B.x0) % 3) / 3, sag = Math.sin(ph * Math.PI) * 2, [X, Y] = P(x, B.y + side), y = Math.round(Y - 7 + sag);
           if (last) { b.strokeStyle = '#a07a4a'; b.lineWidth = 1; b.beginPath(); b.moveTo(last[0], last[1]); b.lineTo(Math.round(X), y); b.stroke(); }
           last = [Math.round(X), y];
         }
         for (let x = B.x0; x <= B.x1 + 1; x += 3) {                                         // posts
+          if (!seen(Math.min(x, B.x1), B.y)) continue;
           const [X, Y] = P(x, B.y + side); b.fillStyle = '#2e1c10'; b.fillRect(Math.round(X) - 1, Math.round(Y) - 9, 3, 10); b.fillStyle = '#6e4626'; b.fillRect(Math.round(X) - 1, Math.round(Y) - 9, 2, 9);
         }
       }

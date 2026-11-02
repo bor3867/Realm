@@ -30,8 +30,7 @@ const methods = {
       const c = S.col, k = Math.min(1, c.t / 0.25, (4.4 - c.t) / 0.4), [sx, sy] = this.proj(c.x, c.y), w = 2.5 * TS;
       b.save(); b.globalCompositeOperation = 'lighter';
       const gr = b.createLinearGradient(sx - w, 0, sx + w, 0); gr.addColorStop(0, 'rgba(255,243,196,0)'); gr.addColorStop(0.5, `rgba(255,243,196,${0.28 * k})`); gr.addColorStop(1, 'rgba(255,243,196,0)');
-      b.fillStyle = gr; b.fillRect(sx - w, 0, w * 2, this.buf.height);
-      b.strokeStyle = `rgba(255,243,196,${0.5 * k})`; b.lineWidth = 1; b.beginPath(); b.ellipse(sx, sy, w, w * 0.18, 0, 0, Math.PI * 2); b.stroke(); b.restore();
+      b.fillStyle = gr; b.fillRect(sx - w, 0, w * 2, this.buf.height); b.restore();   // (no ring round you: the user, 2026-11-02)
     }
     // Celestial Weaver: the constellation's lines and stars
     const st = S.stars && S.stars.filter((s) => s.until > t);
