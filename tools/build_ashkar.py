@@ -152,6 +152,90 @@ def fall(k):
     return g
 
 
+# ---- his motion (2026-11-02, the user: "Ashkar should wind up and slam his massive hammer with convincing weight... heavy
+# bosses should move with deliberate weight... visibly fracture his armor and eventually break his chains"): frames from
+# his own art a part at a time (tools/boss_motion.py), with room above and beside him (his feet where they were):
+#   walk     a heavy step: a foot lifted, his bulk sinking onto the other, rising over the pass; the hammer swinging
+#   attack   the wind-up (the hammer hauled high, him leaning back, the core brightening), the slam (the hammer down before
+#            him, dust and lava thrown up, the core flaring), the drag back up
+#   charge   leaning in, the hammer drawn back, his feet driving
+#   hurt     a flinch: he sinks, his core and the lava in him flare (no white, no knockback)
+#   enter    II: he staggers, roars (the core flaring), two of his chains snap in sparks; III: he heaves, every chain
+#            bursting, the core blazing, and rises unchained
+#   death    the hammer falls from his hand; he sinks to a knee, the core dimming; it implodes; ash
+from boss_motion import pad, shift, arc, tint  # noqa: E402
+PT, PS = 12, 10
+W2, H2 = SW + 2 * PS, SH + PT
+O = lambda x, y: (x - PS, y - PT)
+LEG_Y, MIDX = 88, 55                            # (his legs below this row; the left one left of this column)
+
+
+def _k(x, y):
+    X, Y = O(x, y)
+    return KIND[Y][X] if 0 <= X < SW and 0 <= Y < SH else '.'
+
+
+HAM = lambda x, y, c: O(x, y)[0] < 33 and O(x, y)[1] < LEG_Y + 4     # (the hammer, its haft, the fist that holds it)
+LEFT = lambda x, y, c: O(x, y)[1] >= LEG_Y and 33 <= O(x, y)[0] < MIDX
+RIGHT = lambda x, y, c: O(x, y)[1] >= LEG_Y and O(x, y)[0] >= MIDX
+UPPER = lambda x, y, c: O(x, y)[1] < LEG_Y and O(x, y)[0] >= 33
+ABOVE = lambda x, y, c: O(x, y)[1] < LEG_Y
+LAVA = lambda x, y, c: _k(x, y) == 'lava' or (abs(O(x, y)[0] - CORE[0]) < 8 and abs(O(x, y)[1] - CORE[1]) < 8 and c[0] > 200)
+EMB = [(255, 214, 96, 255), (255, 140, 40, 255), (255, 240, 190, 255), (140, 120, 120, 255)]
+
+
+def base(act, f=0, s=False): return pad(ashkar(act, f, s), PT, PS)
+
+
+def walk(act, k):
+    g = base(act, k)
+    if k == 0: g = shift(g, LEFT, 0, -3, fill=False); g = shift(g, ABOVE, 0, 2, keep=True)    # (his weight onto the right foot)
+    if k == 2: g = shift(g, RIGHT, 0, -3, fill=False); g = shift(g, ABOVE, 0, 2, keep=True)
+    if k in (1, 3): g = shift(g, ABOVE, 0, -1, keep=True)                                      # (rising over the pass)
+    return shift(g, HAM, 1 if k < 2 else -1, 0, fill=False)
+
+
+def slam(act, k):
+    if k == 0:
+        g = shift(base(act, 0, True), HAM, 3, -10, fill=False)
+        return tint(shift(g, UPPER, 0, -2, keep=True), LAVA, (255, 220, 140), 0.4)
+    if k == 1:
+        g = shift(base(act), HAM, 14, 10, fill=False); g = shift(g, UPPER, 0, 3)
+        g = tint(g, LAVA, (255, 236, 170), 0.7)
+        return arc(g, [(PS + 30 + i * 4 + (i % 2) * 2, H2 - 2 - (i % 3) * 2) for i in range(12)], EMB)   # (dust and lava thrown up where it struck)
+    return shift(shift(base(act, 1), HAM, 8, 5, fill=False), UPPER, 0, 1)
+
+
+def rush(act, k):
+    g = shift(base(act, k * 2), UPPER, 0, 3); g = shift(g, HAM, -5, 2, fill=False)
+    g = shift(g, LEFT if k == 0 else RIGHT, 0, -3, fill=False)
+    return arc(g, [(PS + 30 + i * 9 + k * 4, H2 - 1) for i in range(6)], [(120, 104, 112, 255)])
+
+
+def flinch(act): return tint(shift(base(act, 1), ABOVE, 0, 2, keep=True), LAVA, (255, 210, 120), 0.7)
+
+
+def enter(act, k):
+    if k == 3: return base(act)
+    g = base(act - 1 if k < 2 else act, 1)
+    g = shift(g, ABOVE, 0, 3 if k == 0 else 1, keep=True)
+    if k == 1: g = tint(g, LAVA, (255, 240, 190), 0.8)                                        # (the roar: the core flaring)
+    if k == 2:                                                                                 # (the chains snapping: sparks where they were)
+        names = BROKEN[act] if act == 3 else ('r_shoulder', 'l_dangle')
+        pts = [(PS + (CHAINS[n][0] + CHAINS[n][2]) / 2 + math.cos(i * 1.7) * 5, PT + (CHAINS[n][1] + CHAINS[n][3]) / 2 + math.sin(i * 1.7) * 6) for n in names for i in range(4)]
+        g = arc(tint(g, LAVA, (255, 240, 190), 0.9), pts, EMB)
+    return g
+
+
+def die(k):
+    if k == 4: return pad(fall(2), PT, PS)
+    g = base(3) if k < 2 else pad(fall(k - 2), PT, PS)
+    g = shift(g, HAM, -6, 14, fill=False)                                                      # (the hammer falls from his hand)
+    if k >= 1: g = shift(g, UPPER, 0, 5)                                                       # (to a knee)
+    if k == 1: g = tint(g, LAVA, (90, 40, 30), 0.6)                                            # (the core dimming)
+    return g
+
+
 def pack(name, entries, W, H, cols=6):
     rows = (len(entries) + cols - 1) // cols
     px = [[BLANK] * (cols * W) for _ in range(rows * H)]; fr = {}
@@ -188,16 +272,22 @@ if __name__ == '__main__':
     BID, NAMES = 'ashkar_gatekeeper', {1: 'The Bound Giant', 2: 'The Furnace Fractures', 3: 'The Unchained'}
     frames = []
     for act in (1, 2, 3):
-        frames += [(f'i{act}_{k}', ashkar(act, k)) for k in range(4)] + [(f'a{act}', ashkar(act, 0, True)), (f'a{act}b', ashkar(act, 2, True))]
-    frames += [(f'd{k}', fall(k)) for k in range(3)]
-    fr = pack(BID, frames, SW, SH)
+        frames += [(f'i{act}_{k}', base(act, k)) for k in range(4)] + [(f'a{act}_{k}', slam(act, k)) for k in range(3)]
+        frames += [(f'w{act}_{k}', walk(act, k)) for k in range(4)] + [(f'c{act}_{k}', rush(act, k)) for k in range(2)] + [(f'h{act}', flinch(act))]
+        if act > 1: frames += [(f'e{act}_{k}', enter(act, k)) for k in range(4)]
+    frames += [(f'd{k}', die(k)) for k in range(5)]
+    fr = pack(BID, frames, W2, H2)
     anims = {}
     for act in (1, 2, 3):
         anims[f'idle{act}'] = {'frames': [f'i{act}_{k}' for k in range(4)], 'fps': 7, 'loop': True}
-        anims[f'attack{act}'] = {'frames': [f'a{act}', f'a{act}b', f'a{act}'], 'fps': 6, 'loop': False}
-    anims['death'] = {'frames': ['d0', 'd1', 'd2'], 'fps': 1.2, 'loop': False}
+        anims[f'attack{act}'] = {'frames': [f'a{act}_0', f'a{act}_1', f'a{act}_2', f'a{act}_2'], 'fps': 7, 'loop': False}
+        anims[f'walk{act}'] = {'frames': [f'w{act}_{k}' for k in range(4)], 'fps': 5, 'loop': True}
+        anims[f'charge{act}'] = {'frames': [f'c{act}_0', f'c{act}_1'], 'fps': 9, 'loop': True}
+        anims[f'hurt{act}'] = {'frames': [f'h{act}'], 'fps': 5, 'loop': False}
+        if act > 1: anims[f'enter{act}'] = {'frames': [f'e{act}_{k}' for k in range(4)], 'fps': 3.5, 'loop': False}
+    anims['death'] = {'frames': [f'd{k}' for k in range(5)], 'fps': 1.7, 'loop': False}
     sheets = {f'bx_{BID}': {'image': f'{BID}.png', 'kind': 'boss', 'sprites': {BID: {'frames': fr, 'anims': anims,
-              'phases': {str(a): {'name': NAMES[a], 'idle': f'idle{a}', 'attack': f'attack{a}'} for a in (1, 2, 3)}, 'death': 'death', 'meta': {'half': True}}}}}
+              'phases': {str(a): {'name': NAMES[a], 'idle': f'idle{a}', 'attack': f'attack{a}', 'walk': f'walk{a}', 'charge': f'charge{a}', 'hurt': f'hurt{a}', **({'enter': f'enter{a}'} if a > 1 else {})} for a in (1, 2, 3)}, 'death': 'death', 'meta': {'half': True}}}}}
     json.dump({'rf': True, 'meta': {'name': 'Ashkar, the Chained Forge-Giant (the user\'s sprite)', 'version': 4}, 'sheets': sheets},
               open(os.path.join(out, 'atlas_gatekeeper.json'), 'w', encoding='utf8', newline='\n'), indent=1)
     vfr = pack('ash_kin', [('move1', vent(0)), ('move2', vent(2)), ('attack', vent(1, True)), ('hurt', vent(3))], 16, 16, cols=4)

@@ -314,6 +314,8 @@ export default {
     3: { move: 'hunt', patterns: Object.values(AT), pressure: [{ special: 'coreShot', every: 1.15, delay: 1.5 }] },
   },
   choose,
+  walkPace: 3.0,                                            // (his heavy step at the pace he moves)
+  charging: (g, e) => !!(e.akDash && g.t >= e.akDash.at),   // (his Forge Hunt's charges)
   specials: { sentence, sentenceLock, sentenceWave, chains, chainSweep, teeth, tooth, teethDone, press, pressMark, pressWall, faults, fault, shatter, plates, sparkle,
     scythe, scytheGo, scytheFan, hunt, charge, inverted, invRing, invHold, invBack, gatebreaker, gateLinks, gateCone, gateFaults, anchorShot, coreShot },
   moves: {
