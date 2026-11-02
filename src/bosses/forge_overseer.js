@@ -10,6 +10,11 @@
 //       out for 2 s, 100; two walls closing for 2.5 s, 110; chains and molten bursts for 2 s, 160 / 90; a slam, 185; 1.5 s
 //       spent). 17 s again after
 // A light volley of gears under it all, by turns at you and where you are going. Its sprite the user's, drawn larger.
+// (2026-11-02, the user: "its attacks should revolve around forge machinery, falling molten fragments, chain mechanisms,
+// and active environmental hazards".) It tours its four forge stations (its vents), pausing at each to work it, and the
+// vent it works erupts beside it (1.2 s marked, 120); come within 3 tiles and it steps off; in III it hunts you instead.
+// Slag Cascade (all phases): molten fragments from the crucible overhead, five marks in a cross on and round you (1.0 s),
+// each landing (120) and shattering in four shards (85).
 // Damage numbers are effective ones (D(n): set above a Throne-geared character's Defense).
 import { TAU, angleTo, target, ahead, scheduler } from './kit.js';
 
@@ -23,6 +28,14 @@ const zone = (g, e, x, y, r, delay, dmg = 0) => g.fx.push({ kind: 'zone', src: e
 // its foundry (the Chainforge Threshold, 40x32), and its four vents
 const room = (e) => e.room || { x: Math.floor(e.x) - 20, y: Math.floor(e.y) - 16, w: 40, h: 32 };
 export const VENTS = (n) => [[8, 8], [32, 8], [32, 24], [8, 24]].map(([u, v]) => ({ x: n.x + (u / 40) * n.w, y: n.y + (v / 32) * n.h }));
+
+// ================================================================ Slag Cascade: molten fragments, a cross of five marks on and round you
+function slag(g, e) {
+  const q = target(g, e), r = 2.6;
+  for (const [dx, dy] of [[0, 0], [r, 0], [-r, 0], [0, r], [0, -r]]) { zone(g, e, q.x + dx, q.y + dy, 1.0, 1.0, 120); later(e, 1.0, 'slagLand', { x: q.x + dx, y: q.y + dy, n: 4 }); }
+  g.sfx('hammer');
+}
+function slagLand(g, e, V) { const a0 = Math.random() * TAU; for (let k = 0; k < V.n; k++) shot(g, e, V.x, V.y, a0 + (k / V.n) * TAU, { ...STONE, speed: 4.2, range: 6, dmg: D(85), free: true }); g.vx({ k: 'burst', x: V.x, y: V.y, n: 10, colors: ['#ff8a1f', '#ffd650', '#5a5560'] }); }
 
 // ================================================================ under it all
 function gearVolley(g, e) {
@@ -98,6 +111,7 @@ function slamThud(g) { g.vx({ k: 'shake', amt: 9 }); g.sfx('hammer'); }
 
 const P = {
   gearfall: { name: 'Gearfall', special: 'gearfall', windup: 0.2, dur: 2.1, cd: 6 },
+  slag: { name: 'Slag Cascade', special: 'slag', windup: 0.2, dur: 1.4, cd: 9 },
   chains: { name: 'Crucible Chains', special: 'chains', windup: 0.2, dur: 3.2, cd: 8 },
   command: { name: 'Furnace Command', special: 'command', windup: 0.2, dur: 1.4, cd: 15, when: (g, e) => !(e.bx.ovAdds || []).some((q) => !q.dead) },
   tribunal: { name: 'Molten Tribunal', special: 'tribunal', windup: 0.2, dur: 1.0, cd: 14 + 6 },
@@ -106,16 +120,26 @@ const P = {
 const sched = scheduler([[2.2, 3.0], [1.9, 2.6], [1.7, 2.4]]);
 
 export default {
-  id: 'forge_overseer', art: 'forge_overseer', drawScale: 1.5, name: 'The Forge Overseer', biome: 'dungeon', hp: 110000, def: 26, xp: 8000,
+  id: 'forge_overseer', art: 'forge_overseer', drawScale: 1.5, name: 'The Forge Overseer', biome: 'dungeon', hp: 135000, def: 26, xp: 8000,
   r: 0.9, speed: 2.7, keep: 3, faces: false, tempo: 1, dmgScale: 1, spawnCentre: true, thresholds: [0.65, 0.30], morphGrace: 1.5,
   choose: (g, e, list) => sched(g, e, list.filter((p) => !p.when || p.when(g, e))),
   phases: {
-    1: { move: 'walk', pressure: [{ every: 2.4, special: 'gearVolley', delay: 1.5 }], patterns: [P.gearfall, P.chains] },
-    2: { move: 'walk', pressure: [{ every: 2.2, special: 'gearVolley', delay: 1.5 }], patterns: [P.command, P.tribunal, P.gearfall, P.chains] },
-    3: { move: 'walk', pressure: [{ every: 2.0, special: 'gearVolley', delay: 1.5 }], patterns: [P.judgment, P.gearfall, P.chains] },
+    1: { move: 'stations', pressure: [{ every: 2.4, special: 'gearVolley', delay: 1.5 }], patterns: [P.gearfall, P.chains, P.slag] },
+    2: { move: 'stations', pressure: [{ every: 2.2, special: 'gearVolley', delay: 1.5 }], patterns: [P.command, P.tribunal, P.gearfall, P.chains, P.slag] },
+    3: { move: 'walk', pressure: [{ every: 2.0, special: 'gearVolley', delay: 1.5 }], patterns: [P.judgment, P.gearfall, P.chains, P.slag] },
   },
-  specials: { gearVolley, gearfall, gearWave, chains, chainGo, command, summon, tribunal, judgment, judgeRing, judgeWall, judgeStone, judgeBurst, judgeSlamMark, slamThud },
+  specials: { slag, slagLand, gearVolley, gearfall, gearWave, chains, chainGo, command, summon, tribunal, judgment, judgeRing, judgeWall, judgeStone, judgeBurst, judgeSlamMark, slamThud },
   moves: {
+    stations(g, e, dt) {                                   // its round of the forge: to a vent, a while working it (the vent erupts), on to the next
+      const S = e.bx, V = VENTS(room(e)), q = target(g, e), d = Math.hypot(q.x - e.x, q.y - e.y);
+      if (d < 3) { g.moveCircle(e, ((e.x - q.x) / d) * 2.4 * dt, ((e.y - q.y) / d) * 2.4 * dt, 0.8); return; }   // (too close: it steps off)
+      if (S.ovSt === undefined) S.ovSt = 0;
+      const v = V[S.ovSt % 4], tx = v.x + (room(e).x + room(e).w / 2 - v.x) * 0.25, ty = v.y + (room(e).y + room(e).h / 2 - v.y) * 0.25, L = Math.hypot(tx - e.x, ty - e.y);
+      if (L > 0.4) { g.moveCircle(e, ((tx - e.x) / L) * Math.min(L, 2.6 * dt), ((ty - e.y) / L) * Math.min(L, 2.6 * dt), 0.8); S.ovWork = 0; return; }
+      S.ovWork = (S.ovWork || 0) + dt;
+      if (S.ovWork > 0.4 && !S.ovVented) { S.ovVented = true; zone(g, e, v.x, v.y, 1.6, 1.2, 120); later(e, 1.2, 'slagLand', { x: v.x, y: v.y, n: 6 }); }   // (it works the vent: it blows)
+      if (S.ovWork > 3.2) { S.ovSt++; S.ovWork = 0; S.ovVented = false; }
+    },
     walk(g, e, dt) { const q = target(g, e), d = Math.hypot(q.x - e.x, q.y - e.y); if (d > 3) g.moveCircle(e, ((q.x - e.x) / d) * 2.7 * dt, ((q.y - e.y) / d) * 2.7 * dt, 0.8); },
   },
   onWake(g) { if (g.banner) g.banner('THE FORGE OVERSEER', 2400); },
