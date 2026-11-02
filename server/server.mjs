@@ -57,10 +57,10 @@ const dungeons = new Map();          // 'dg:N' -> { world, to, until }
 let nextIid = Date.now() % 1e9;
 const worldOf = (room) => (room === REALM ? world : room === 'nexus' ? nexusWorld : room && dungeons.has(room) ? dungeons.get(room).world : null);
 // ---- the realm's life (2026-10-30, the user: "Have the realm run on a timer. It stays active for 15 minutes before
-// erupting and sending players to the final boss. This also lets the realm reset"). Warnings as it nears; then everyone
+// erupting and sending players to the final boss. This also lets the realm reset"; 2026-11-02: every 30 minutes). Warnings as it nears; then everyone
 // in it is thrown together into one shared Throne of Solkhar, and a fresh realm (a new seed) takes its place. An admin
 // can set it off early (/erupt).
-const REALM_LIFE = (+process.env.REALM_LIFE_S || 15 * 60) * 1000, REALM_WARN = [300, 60, 30, 10];   // (REALM_LIFE_S: shorter, to try it locally)
+const REALM_LIFE = (+process.env.REALM_LIFE_S || 30 * 60) * 1000, REALM_WARN = [300, 60, 30, 10];   // (REALM_LIFE_S: shorter, to try it locally)
 let realmBorn = Date.now(), realmWarned = new Set();
 const realmEnds = () => realmBorn + REALM_LIFE;
 function newRealm() {
@@ -124,6 +124,8 @@ function onMessage(c, text) {
       // the rooms its players had cleared stay clear (it used to come back whole: every monster again, 2026-10-24)
       const g = dw._g, R = g.map.rooms || [], gone = new Set((Array.isArray(m.cleared) ? m.cleared : []).slice(0, 200).map((v) => R[Math.floor(num(v, 0, 1e4))]).filter(Boolean));
       if (gone.size) g.enemies = g.map.enemies = g.enemies.filter((e) => ![...gone].some((r) => e.x >= r.x && e.x < r.x + r.w && e.y >= r.y && e.y < r.y + r.h));
+      for (const r of gone) r.pending = null;                       // (and an area whose defenders wait to wake as you come in does not wake again)
+      if (m.castle && g.castleRestore) g.castleRestore(m.castle);   // (the castle's progress: its gates, mechanisms, waves: src/castle.js)
       // and in the rest, the monsters they killed (so many of each kind, room by room): a warden or a boss stays dead
       const K = m.kills && typeof m.kills === 'object' ? m.kills : {}, out = new Set();
       for (const [ri, ids] of Object.entries(K).slice(0, 200)) { const r = R[Math.floor(num(+ri, 0, 1e4))]; if (!r || !ids || typeof ids !== 'object') continue;

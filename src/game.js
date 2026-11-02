@@ -44,7 +44,7 @@ import { SPEECH, BIOME_SPEECH, BOSS_SPEECH, HERALD_SPEECH, WANDERERS, LORE, QUES
 
 import { PET_KINDS, RARITY, PET_TICK, PET_MAX, petHeal, petMagic, petCap, petLevel, feedCost, feedValue, hatchKind, newPet, upgradePet, feed, canMorph, morph, FUSE_GOLD, petSprite, petName, petStage, START_LV, FAMILIES, eggId } from './data/pets.js';
 const PLAYER_R = 0.32;
-const REALM_LIFE = 15 * 60 * 1000;                         // a realm lasts 15 minutes, then erupts (online the server keeps the clock)
+const REALM_LIFE = 30 * 60 * 1000;                         // a realm lasts 30 minutes, then erupts (online the server keeps the clock; the user, 2026-11-02)
 // hits follow the art. You are an upright capsule a little inside your sprite (feet to the top of your head); a shot is a
 // capsule along its flight the size of its visible pixels (src/data/shot_boxes.js, made by tools/shot_boxes.mjs),
 // trimmed by HIT_K so that a graze of a pixel or two does not count. tools/check_hitboxes.mjs holds them to the art.

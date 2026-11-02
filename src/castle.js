@@ -212,6 +212,27 @@ const methods = {
     }
     if (S.waveAt) S.waveAt = S.waveAt.filter((q) => { if (this.t < q.t) return true; if (this.spawnPending) this.spawnPending(q.at); return false; });
   },
+  // the castle's progress, to carry over a server restart (2026-11-02, the user: a castle "reset" mid-run). Every deploy
+  // and every sleep restarts the server; a player's copy then asks for its castle again (net.js 'rejoin'), and it was made
+  // fresh from its seed: its gates shut again, its mechanisms unturned, its waves to come again. Now the copy says what
+  // was done and the new castle is set to it, quietly: locks open, mechanisms turned, waves spent, the arrival's bats come
+  castleState() {
+    const C = this.map.castle; if (!C || !C.locks) return null;
+    const open = (L) => L.open || ((C.gates[L.name] || []).length && C.gates[L.name].every((o) => !o.solid));
+    return { locks: C.locks.filter(open).map((L) => L.name), mechs: (C.mechs || []).filter((M) => M.done).map((M) => M.key), waves: Object.keys((C.st && C.st.waves) || {}), bats: !!(C.st && C.st.bats) };
+  },
+  castleRestore(st) {
+    const C = this.map.castle; if (!C || !C.locks || !st || typeof st !== 'object') return;
+    const S = C.st || (C.st = { t0: this.t, geyser: 2, fall: 1, press: 1, pressK: 0, said: {} });
+    const list = (v) => (Array.isArray(v) ? v.slice(0, 64).map(String) : []);
+    const b0 = this.banner, s0 = this.sfx; this.banner = () => {}; this.sfx = () => {};
+    try {
+      for (const name of list(st.locks)) { const L = C.locks.find((q) => q.name === name); if (L && !L.open) { L.open = true; this.castleOpen(name); } }
+      for (const key of list(st.mechs)) { const M = (C.mechs || []).find((q) => q.key === key); if (M && !M.done) { M.done = true; M.prog = 1; if (M.o) { if (M.sprite.endsWith('pyre')) M.o.unlit = true; else M.o.sprite = M.sprite + '_done'; } } }
+      S.waves = S.waves || {}; for (const k of list(st.waves)) S.waves[k] = true;
+      if (st.bats) S.bats = true;
+    } finally { this.banner = b0; this.sfx = s0; }
+  },
   castleEnter(key, n) {
     const m = this.map;
     if (key === 'arrival') this.player.status.invuln = Math.max(this.player.status.invuln || 0, 2.5);

@@ -259,7 +259,8 @@ export function makeWorld(seed, send, where = 'realm') {
       if (RF && at) at.rfRoom = RF.room;
       anchor.hp = 1e9; anchor.dead = false; g.mode = 'play';
       for (const e of g.enemies) if (!e.nid) e.nid = ++nid;
-      if (dung) for (const e of g.enemies) if (e.rb && e.dead && !e.netExit) { e.netExit = true; out.push({ k: 'exit', x: e.x, y: e.y, name: e.D.name }); }   // its master falls: a way out for all
+      if (dung) for (const e of g.enemies) if (e.rb && !e.midBoss && e.dead && !e.netExit) { e.netExit = true;   // (a guardian on the way, a miniboss: no way out; only the dungeon's last boss opens one, as in src/game.js. 2026-11-02, the user: the Jarls opened realm portals)
+        out.push({ k: 'exit', x: e.x, y: e.y, name: e.D.name }); }   // its master falls: a way out for all
       for (let i = objN; i < g.map.objects.length; i++) { const j = safe(g.map.objects[i]); log.objs.push(j); out.push({ k: 'obj', o: j }); }   // (things the world added this tick)
       if (g.bags && g.bags.length > 40) g.bags.length = 0;                       // (the server's own loot: nobody's)
       // shots a boss holds and moves itself (set pieces, orbits): where they are, until they fly free; and their end

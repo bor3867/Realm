@@ -62,7 +62,7 @@ const methods = {
         const M = this.map, inR = (r, e) => e.x >= r.x && e.x < r.x + r.w && e.y >= r.y && e.y < r.y + r.h;
         const cleared = [...(M.netDeadRooms || [])].filter((ri) => M.rooms[ri] && !this.enemies.some((e) => e.net && !e.dead && inR(M.rooms[ri], e))).slice(0, 200);
         N.byId.clear(); this.enemies = M.enemies = [];
-        N.ws.send(JSON.stringify({ t: 'rejoin', iid: M.netIid, seed: M.netSeed, to: M.netTo, cleared, kills: M.netKills || {}, rfDead: [...(M.netRfDead || [])].slice(0, 400) }));   // (and every monster you saw fall, by kind and room: a warden stays dead)   // (made again if the server lost it)
+        N.ws.send(JSON.stringify({ t: 'rejoin', iid: M.netIid, seed: M.netSeed, to: M.netTo, cleared, kills: M.netKills || {}, castle: M.castle && this.castleState ? this.castleState() : undefined, rfDead: [...(M.netRfDead || [])].slice(0, 400) }));   // (and every monster you saw fall, by kind and room: a warden stays dead)   // (made again if the server lost it)
       }
     } else if (m.t === 'online') N.online = m.n;
     else if (m.t === 'gift') {                            // an admin's gift: your own chests and chickens (shared chickens in the realm come as monsters)
