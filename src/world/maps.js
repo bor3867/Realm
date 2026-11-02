@@ -1446,53 +1446,36 @@ export function dungeon(seed, def) {
       vein(far, boss);
       return { start, boss };
     },
-    // ---- THE THRONE OF SOLKHAR (2026-11-01, the user: "players storm the final boss keep... from four different paths
-    // all grouping eventually together... the keep is inside a volcano"): an island in a lava sea. Four landings on the
-    // south shore; from each a bridge over the lava to a gatehouse, and a wing that winds in, barred by a barricade to
-    // break down. The two wings of a side meet in a champion's court (its warden holds a seal); ramparts run in from both
-    // courts to the scorched courtyard; the causeway climbs over the lava to the Guardian's hall, and the throne. The
-    // further in, the hotter: the floor, the lava, the lava bombs (the heat pass after the walls, and src/citadel.js)
+    // ---- SUNTHIEF'S CASTLE (the user's castle spec, art/sunthiefs_castle_complete_encounter_spec.txt, 1): a fixed castle,
+    // the same every time, its rooms in the spec's order and sizes, up from the breach to the Grand Sun Door; Solkhar's
+    // dais apart from it, reached only through the door (src/castle.js runs each room's hazards and the door):
+    //   A Breach Vestibule 24x20 (safe; its door opens after 3 s)   B Cinder Causeway 54x20 (two staggered 6-tile lanes
+    //   over lava, geysers)   C Embersmith Gallery 38x28 (three forge hearts hold its portcullis)   D Hall of Broken Crowns
+    //   46x18 (wall jets, three alcoves)   E The Hollow Court 40x34 (both Jarls)   F The Chainwalk 42x18 (a bridge whose
+    //   ribs crack)   G Ashkar's Chained Gate 38x34   H Grand Sun Door 14x10   I The Stolen Sun, a 44x44 round dais
     throne() {
-      const CX = S >> 1, OY = 8;
-      const M = (s, x) => (s < 0 ? x : 2 * CX - x);                        // a side's own x (the right side mirrors the left)
-      const hall = (s, x0, y0, x1, y1, o = {}) => { const a = M(s, x0), b = M(s, x1); return room(Math.min(a, b), y0 + OY, Math.abs(b - a) + 1, y1 - y0 + 1, { kind: 'wing', few: true, ...o }); };
-      const box = (s, x, y, w, h, o) => room(s < 0 ? x : 2 * CX - (x + w - 1), y + OY, w, h, o);
-      const lava = (x0, y0, x1, y1) => { for (let y = y0 + OY; y <= y1 + OY; y++) for (let x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) if (tile(x, y) === TID.void) set(x, y, TID.lava); };
-      m.citadel = { starts: [], bars: [], top: 44 + OY, bottom: 200 + OY };
-      const boss = room(CX - (bossW >> 1), 4 + OY, bossW, bossH, { kind: 'throneroom', dep: 9 });
-      const guard = room(CX - 17, 45 + OY, 35, 21, { kind: 'guardhall', dep: 8 });
-      carve(CX - 3, boss.y + boss.h, CX + 3, guard.y - 1); link(guard, boss);
-      lava(CX - 9, 66, CX + 9, 83);                                        // the causeway: a road over the lava, its sentinels either side
-      const cause = room(CX - 3, 66 + OY, 7, 18, { kind: 'causeway', dep: 7, few: true });
-      roads.push([CX, cause.y, cause.y + cause.h - 1]); link(cause, guard);
-      const yard = room(CX - 28, 84 + OY, 57, 27, { kind: 'courtyard', dep: 6 });
-      link(yard, cause);
-      let start = null;
-      for (const s of [-1, 1]) {
-        const court = box(s, 44, 120, 29, 23, { kind: 'champion', prefer: 'warden', dep: 4 });
-        const rampV = hall(s, 55, 103, 61, 119, { kind: 'rampart', dep: 5 }), rampH = hall(s, 55, 96, CX - 29, 102, { kind: 'rampart', dep: 5.5 });
-        link(court, rampV); link(rampV, rampH); link(rampH, yard);
-        m.citadel.bars.push({ x0: M(s, 74), x1: M(s, 74), y0: 96 + OY, y1: 102 + OY });           // a barricade across each rampart
-        const tre = box(s, 30, 117, 11, 9, { kind: 'treasury', leaf: true, role: 'treasure', dep: 4 });
-        carve(Math.min(M(s, 41), M(s, 43)), 121 + OY, Math.max(M(s, 41), M(s, 43)), 123 + OY); link(court, tre);
-        // the two wings of this side: the outer from the far landing up the coast, the inner from the near one
-        for (const [lx, ly, gy, wing] of [[36, 212, 186, 'outer'], [78, 224, 196, 'inner']]) {
-          const land = box(s, lx - 7, ly - 7, 15, 15, { kind: 'landing', shape: 'round', dep: 0, role: 'rest' });
-          const gate = box(s, lx - 8, gy - 6, 17, 13, { kind: 'gatehouse', dep: 1 });
-          lava(M(s, lx - 6), gy + 7, M(s, lx + 6), ly - 8);                  // the bridge over the lava
-          carve(M(s, lx) - 1, gy + 7 + OY, M(s, lx) + 1, ly - 7 + OY);
-          link(land, gate);
-          m.citadel.starts.push({ x: land.cx + 0.5, y: land.cy + 0.5 });
-          if (!start) start = land;
-          let a, b;
-          if (wing === 'outer') { a = hall(s, lx - 3, 135, lx + 3, gy - 7, { dep: 2 }); b = hall(s, lx - 3, 128, 43, 134, { dep: 3 }); }
-          else { a = hall(s, lx - 3, 139, lx + 3, gy - 7, { dep: 2 }); b = hall(s, 73, 132, lx + 3, 138, { dep: 3 }); }
-          link(gate, a); link(a, b); link(b, court);
-          const my = Math.round((a.y + a.y + a.h) / 2);
-          m.citadel.bars.push({ x0: a.x, x1: a.x + a.w - 1, y0: my, y1: my });                     // and one across each wing
-        }
-      }
-      return { start, boss };
+      const CX = S >> 1, way = (x0, y0, x1, y1) => carve(x0, y0, x1, y1);
+      const A = room(CX - 14 - 12, 222, 24, 20, { kind: 'breach', role: 'rest', dep: 0 });
+      const B = room(CX - 27, 198, 54, 20, { kind: 'causeway', dep: 1, lanes: [CX - 16, CX + 11] });
+      way(CX - 16, 218, CX - 11, 221); link(A, B);                                    // (A's door: onto the causeway's west lane)
+      const C = room(CX + 13 - 19, 166, 38, 28, { kind: 'gallery', dep: 2 });
+      way(CX + 11, 194, CX + 16, 197); link(B, C);                                    // (off the east lane)
+      const D = room(CX - 23, 140, 46, 18, { kind: 'crowns', dep: 3 });
+      way(CX + 12, 158, CX + 15, 165); link(C, D);
+      m.castle = { port: { x0: CX + 12, x1: CX + 15, y: 162 } };                      // (the gallery's portcullis, in that way)
+      for (const [x, top] of [[CX - 18, true], [CX - 2, false], [CX + 14, true]]) carve(x, top ? D.y - 3 : D.y + D.h, x + 2, top ? D.y - 1 : D.y + D.h + 2);   // its three alcoves
+      const E = room(CX - 20, 98, 40, 34, { kind: 'court', prefer: 'warden', dep: 4 });
+      way(CX - 2, 132, CX + 1, 139); link(D, E);
+      const F = room(CX - 21, 72, 42, 18, { kind: 'chainwalk', dep: 5 });
+      way(CX - 2, 90, CX + 1, 97); link(E, F);
+      const G = room(CX - 19, 30, 38, 34, { kind: 'guardhall', dep: 6 });
+      way(CX - 2, 64, CX + 1, 71); link(F, G);
+      const H = room(CX - 7, 16, 14, 10, { kind: 'sundoor', role: 'rest', dep: 7 });
+      way(CX - 2, 26, CX + 1, 29); link(G, H);
+      const boss = room(14, 112, 44, 44, { kind: 'throneroom', shape: 'round', dep: 9 });   // (apart: the door takes you there)
+      Object.assign(m.castle, { rooms: { A, B, C, D, E, F, G, H, I: boss }, door: { x0: CX - 2, x1: CX + 1, y0: H.y, y1: H.y + 2 } });
+      m.citadel = { starts: [{ x: A.cx + 0.5, y: A.cy + 0.5 }], bars: [], top: G.y, bottom: A.y + A.h };
+      return { start: A, boss };
     },
 
     // ---- THE HONEYED HOLLOW: a hive in a hollow tree. Hexagonal comb cells, wax tunnels, a royal cell at the heart
@@ -2059,16 +2042,28 @@ export function dungeon(seed, def) {
         put2(null, n.x + 4, n.y + 1, 'banner'); put2(null, n.x + n.w - 5, n.y + 1, 'banner');
       } else if (n.kind === 'treasury') {
         put2(null, n.x + 1, n.y + 1, 'brazier'); put2(null, n.x + n.w - 2, n.y + 1, 'brazier'); put2(null, n.x + 2, n.y + n.h - 2, 'ingot_pile');
-      } else if (n.kind === 'throneroom') {                             // the throne itself, behind where the god stands
-        carve(n.cx - 4, n.y + 1, n.cx + 4, n.y + 4, TID.marble);
-        put2(null, n.cx, n.y + 2, 'throne');
-        for (let y = n.y + 7; y < n.y + n.h - 3; y += 5) for (const x of [n.x + 4, n.x + n.w - 5]) carve(x, y, x + 1, y + 1, WALL);
-        put2(null, n.x + 2, n.y + 1, 'banner'); put2(null, n.x + n.w - 3, n.y + 1, 'banner');
+      } else if (n.kind === 'throneroom') {                             // the Stolen Sun's dais: his throne at its north edge
+        put2(null, n.cx, n.y + 3, 'throne');
+      } else if (n.kind === 'causeway') {                               // a broken bridge over lava: two staggered lanes 6 wide, a band between them
+        const [L, Rl] = n.lanes;
+        for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) {
+          const lane = (x >= L && x < L + 6 && y >= n.y + 7) || (x >= Rl && x < Rl + 6 && y <= n.y + 12) || (y >= n.y + 7 && y <= n.y + 12 && x >= L && x < Rl + 6);
+          if (!lane && isF(x, y)) set(x, y, TID.lava);
+        }
+      } else if (n.kind === 'chainwalk') {                              // the bridge above the forge: lava either side of it
+        for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) if ((x < n.x + 8 || x >= n.x + n.w - 8) && isF(x, y)) set(x, y, TID.lava);
+      } else if (n.kind === 'gallery') {                                // the forge hearts' places, braziers along the walls
+        for (let y = n.y + 4; y < n.y + n.h - 3; y += 6) { put2(n, n.x + 1, y, 'brazier'); put2(n, n.x + n.w - 2, y, 'brazier'); }
+      } else if (n.kind === 'crowns') {                                 // the hall of broken crowns: braziers between the jets
+        put2(null, n.x + 1, n.y + 1, 'brazier'); put2(null, n.x + n.w - 2, n.y + 1, 'brazier');
+      } else if (n.kind === 'court') {                                  // the Hollow Court: four pillars, banners at the north wall
+        for (const [u, v] of [[5, 6], [35, 6], [5, 28], [35, 28]]) { const x = n.x + Math.round((u / 40) * n.w), y = n.y + Math.round((v / 34) * n.h); carve(x, y, x, y, WALL); }
+        put2(null, n.x + 6, n.y + 1, 'banner'); put2(null, n.x + n.w - 7, n.y + 1, 'banner');
+      } else if (n.kind === 'sundoor') {                                // the Grand Sun Door: the great arch at its north wall (tools/build_gate_arch.py)
+        put(m, 'throne_gate/arch', n.cx, n.y, false, { gateArch: true });
       } else if (n.kind === 'guardroom') {
         for (let x = n.x + 2; x < n.x + n.w - 2; x += 3) put2(null, x, n.y + 1, 'weapon_rack');
         put2(null, n.cx, n.y + n.h - 2, 'brazier');
-      } else if (n.kind === 'guardhall') {                            // the Gatekeeper's gate: an arch between banner-hung pillars over the way on to Solkhar (tools/build_gate_arch.py)
-        put(m, 'throne_gate/arch', n.cx, n.y, false, { gateArch: true });
       } else if (n.kind === 'gatehouse') {
         put2(null, n.x + 1, n.y + 1, 'brazier'); put2(null, n.x + n.w - 2, n.y + 1, 'brazier'); put2(null, n.cx, n.y + 1, 'banner');
       }
@@ -2205,7 +2200,7 @@ export function dungeon(seed, def) {
   // the Throne's barricades: wall to wall across a hall, one life between them (game.hitWeak), so it falls all at once
   // (each stands on a cobble tile of its own: when it falls that tile turns to the floor round it, and so it falls for
   // everyone in a shared Throne too, the server's tiles going out with whether they are solid)
-  const heatFloor = (y) => (y > m.citadel.bottom - 16 ? TID.ash : y > 128 + 8 ? TID.obsidian : TID.emberfloor);
+  const heatFloor = (y) => (y > m.citadel.bottom - 16 ? TID.ash : y > (m.citadel.top + m.citadel.bottom) / 2 ? TID.obsidian : TID.emberfloor);
   if (m.citadel) for (const B of m.citadel.bars) {
     B.hp = 30; B.floor = heatFloor(B.y0);
     for (let y = B.y0; y <= B.y1; y++) for (let x = B.x0; x <= B.x1; x++) if (isF(x, y)) { set(x, y, TID.cobble); put(m, (x + y) % 2 ? 'ruin_wall' : 'ruin_wall2', x, y, true, { interact: 'weak', bar: B }); }
@@ -2485,6 +2480,12 @@ export function dungeon(seed, def) {
   if (m.spans) m.spans = m.spans.map((sp) => ({ ...sp, tiles: sp.tiles.filter((i) => m.tiles[i] === TID.fadebridge || m.tiles[i] === TID.dreambridge) })).filter((sp) => sp.tiles.length);
   finalize(m);
   for (const o of m.objects) if (o.bar) { o.solid = true; m.solid[idx(m, Math.floor(o.x), Math.floor(o.y))] = 1; }   // (a ruin piece is no block in the realm; a barricade is)
+  if (m.castle) {                                                     // the castle's gates: the breach's door (3 s) and the gallery's portcullis (src/castle.js opens them)
+    const P = m.castle.port, A = m.castle.rooms.A, Bl = m.castle.rooms.B;
+    m.castle.gates = { port: [], breach: [] };
+    for (let x = P.x0; x <= P.x1; x++) { put(m, 'seal_gate', x, P.y, true, { castleGate: 'port' }); const o = m.objects[m.objects.length - 1]; m.solid[idx(m, x, P.y)] = 1; m.castle.gates.port.push(o); }
+    for (let x = Bl.lanes[0]; x < Bl.lanes[0] + 6; x++) { put(m, 'seal_gate', x, A.y - 2, true, { castleGate: 'breach' }); const o = m.objects[m.objects.length - 1]; m.solid[idx(m, x, A.y - 2)] = 1; m.castle.gates.breach.push(o); }
+  }
   // m.rooms: entrance first, boss last (other code relies on that); secret rooms ride along in m.secrets
   const order = [start, ...rooms.filter((n) => n !== start && n !== boss), boss];
   for (const o of m.objects) if (o.room !== undefined) o.room = order.indexOf(rooms[o.room]);

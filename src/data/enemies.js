@@ -1346,23 +1346,27 @@ Object.assign(DUNGEONS.forge, { seals: [], puzzle: null, altar: false, layout: {
 // the upper ones each guard the boss their own way
 Object.assign(DUNGEONS.scriptorium, { seals: ['puzzle', 'lever', 'warden'], puzzle: 'runes', altar: true, layout: { secrets: 3 } });
 Object.assign(DUNGEONS.heart, { seals: ['warden', 'warden', 'warden'], puzzle: null, altar: true, layout: { secrets: 2 } });
-Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden', 'warden'], puzzle: null, altar: false, layout: { secrets: 0 },
+Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden'], puzzle: null, altar: false, layout: { secrets: 0 },
   // (2026-11-01: the volcano island, src/world/maps.js LAYOUT.throne) who holds each part of it, harder the further in:
   // the island's own monsters (below), the shore's weakest, the hall's worst
   mobs: ['ash_wretch', 'cinder_hound', 'magma_slinger', 'obsidian_sentinel', 'brimstone_acolyte', 'caldera_serpent'],
   guardian: 'ashkar_gatekeeper',
   courtBosses: ['jarl_warrior', 'jarl_wizard'],                                                         // (the courts' own bosses, one a court: src/bosses/jarl_*.js)
+  hazardFx: null,                                                       // (the castle's rooms have their own hazards: src/castle.js)
   compose(rm, r) {
     const P = (n, ids) => Array.from({ length: n }, () => r.pick(ids));
-    switch (rm.kind) {
+    switch (rm.kind) {                                                  // the castle (the user's spec): who holds each room
+      case 'causeway': return ['furnace_brute', 'furnace_brute', 'obsidian_sentinel', 'obsidian_sentinel'];
+      case 'crowns': return P(5, ['ash_wretch', 'cinder_hound', 'magma_slinger', 'brimstone_acolyte']);
+      case 'chainwalk': return ['obsidian_sentinel', 'obsidian_sentinel'];
+      case 'gallery': case 'court': case 'breach': case 'sundoor': return [];   // (the gallery's come in waves; the court is the Jarls')
       case 'gatehouse': return P(r.int(3, 4), ['ash_wretch', 'ash_wretch', 'cinder_hound']);
       case 'wing': return P(r.int(2, 3), ['ash_wretch', 'cinder_hound', 'magma_slinger']);
       case 'champion': return P(3, ['obsidian_sentinel', 'magma_slinger', 'cinder_hound']);
       case 'treasury': return P(2, ['obsidian_sentinel', 'magma_slinger']);
       case 'rampart': return P(r.int(2, 3), ['obsidian_sentinel', 'brimstone_acolyte', 'caldera_serpent']);
       case 'courtyard': return [...P(5, ['brimstone_acolyte', 'caldera_serpent', 'obsidian_sentinel', 'stolen_ray']), 'furnace_brute', 'furnace_brute'];
-      case 'causeway': return P(2, ['stolen_ray']);
-      case 'guardhall': return P(2, ['stolen_ray']);                                        // (Ashkar, the Gatekeeper, holds it: src/bosses/ashkar_gatekeeper.js)
+      case 'guardhall': return [];                                                          // (Ashkar alone: src/bosses/ashkar_gatekeeper.js)
       default: return [];
     }
   } });
@@ -1370,6 +1374,8 @@ Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden', 'warden'], p
 ENEMIES.jarl_vassal = { name: 'Vassal of the Dead', biome: 'throne', reg: 'jarl_kin/vassal', hp: 8000, def: 10, speed: 1.6, xp: 0, r: 0.5, ai: 'kite', keep: 6, aggro: 30, fly: true,
   attacks: [{ pattern: 'aimed', proj: 'jarl_shots/sword', count: 2, arc: 0.14, dmg: 59, speed: 5, range: 9, cd: 2.0, tell: 350 }], loot: [] };
 // ---- the Hollow Jarl, Wizard's portals: they hang in the air and can be broken; he fires through them (src/bosses/jarl_wizard.js)
+ENEMIES.forge_heart = { name: 'Forge Heart', biome: 'throne', reg: 'ash_kin/vent', hp: 18000, def: 14, speed: 0, xp: 600, r: 0.7, ai: 'rooted', aggro: 16, scale: 1.4,   // (the Embersmith Gallery's three: src/castle.js)
+  attacks: [{ pattern: 'aimed', proj: 'slag_shard', count: 5, arc: 0.7, dmg: 74, speed: 4.5, range: 12, cd: 1.4, tell: 300 }], loot: [] };
 ENEMIES.forge_vent = { name: 'Forge Vent', biome: 'throne', reg: 'ash_kin/vent', hp: 16000, def: 10, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 30, attacks: [], loot: [] };   // (Ashkar's Furnace Teeth: break one and it is out for 6 s)
 ENEMIES.wiz_portal = { name: 'Hollow Portal', biome: 'throne', reg: 'wiz_kin/portal', hp: 6000, def: 8, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 30, fly: true, attacks: [], loot: [] };
 // ---- the Hollow Jarl's war banners: they stand and are cut down; he throws ash from them (src/bosses/jarl_warrior.js)
@@ -1387,18 +1393,16 @@ ENEMIES.jarl_banner = { name: 'Gravebound War Banner', biome: 'throne', reg: 'ja
     // the wings and the courts: an imp lobbing pots of magma that burst where they land; a slab of black glass that throws shards in a cross and a bolt that splits
     magma_slinger: { name: 'Magma Slinger', biome: 'throne', reg: K('magma_slinger'), hp: 1500, def: 12, speed: 1.6, xp: 200, r: 0.5, ai: 'kite', keep: 8, aggro: 12,
       attacks: [{ pattern: 'aimed', proj: 'fireball', count: 1, dmg: 90, speed: 5, range: 8, cd: 2.4, tell: 500, mv: { lob: { n: 8, h: 34 } } }], loot: TL },
-    obsidian_sentinel: { name: 'Obsidian Sentinel', biome: 'throne', reg: K('obsidian_sentinel'), hp: 3200, def: 32, speed: 1.0, xp: 260, r: 0.7, ai: 'kite', keep: 5, aggro: 11,
-      attacks: [{ pattern: 'cross', proj: 'slag_shard', count: 8, dmg: 70, speed: 5, range: 7, cd: 2.2, tell: 400 },
-        { pattern: 'aimed', proj: 'slag', count: 1, dmg: 110, speed: 8, range: 8, cd: 3, tell: 600, mv: { split: { at: 0.6, n: 5 } } }], loot: TL },
+    obsidian_sentinel: { name: 'Obsidian Sentinel', biome: 'throne', reg: K('obsidian_sentinel'), hp: 32000, def: 32, speed: 1.0, xp: 900, r: 0.7, ai: 'kite', keep: 5, aggro: 11,   // (the castle spec: 32k, a 3-lance volley every 2.2 s, 90)
+      attacks: [{ pattern: 'aimed', proj: 'gaze', count: 3, arc: 0.3, dmg: 94, speed: 7, range: 9, cd: 2.2, tell: 450 }], loot: TL },
     // the ramparts and the courtyard: a priest of the stolen sun who blinks about; a serpent that swims the floor and rises in a ring of embers; a brute with a furnace for a belly
     brimstone_acolyte: { name: 'Brimstone Acolyte', biome: 'throne', reg: K('brimstone_acolyte'), hp: 2400, def: 18, speed: 1.6, xp: 300, r: 0.5, ai: 'blink', keep: 5, aggro: 12,
       attacks: [{ pattern: 'radial', proj: 'fireball', count: 10, dmg: 70, speed: 4, range: 7, cd: 2.8, tell: 500, mv: { curve: 0.8 } },
         { pattern: 'aimed', proj: 'rift_flame', count: 3, arc: 0.5, dmg: 75, speed: 8, range: 8, cd: 1.7, tell: 300 }], loot: TL },
     caldera_serpent: { name: 'Caldera Serpent', biome: 'throne', reg: K('caldera_serpent'), hp: 2000, def: 16, speed: 2.2, xp: 260, r: 0.5, ai: 'burrow', aggro: 10, contact: 90,
       attacks: [{ pattern: 'radial', proj: 'ember', count: 12, dmg: 70, speed: 3, range: 7, cd: 2.2, tell: 350, mv: { accel: 12 } }], loot: TL },
-    furnace_brute: { name: 'Furnace Brute', biome: 'throne', reg: K('furnace_brute'), hp: 4200, def: 26, speed: 1.8, xp: 380, r: 0.75, ai: 'charge', aggro: 11, contact: 110,
-      attacks: [{ pattern: 'slam', proj: 'slag_shard', r: 2.2, count: 10, dmg: 120, wind: 0.6, freeze: true, cd: 3.4, tell: 400, range: 6, speed: 6, colors: ['#ff8a1f', '#ffd650'] },
-        { pattern: 'shotgun', proj: 'slag_shard', count: 7, arc: 0.7, dmg: 70, speed: 8, range: 6, cd: 1.8, tell: 300 }], loot: TL },
+    furnace_brute: { name: 'Furnace Brute', biome: 'throne', reg: K('furnace_brute'), hp: 24000, def: 26, speed: 1.8, xp: 800, r: 0.75, ai: 'charge', aggro: 11, contact: 110,   // (the castle spec: 24k, a frontal 5-shot fan every 2.5 s, 80)
+      attacks: [{ pattern: 'shotgun', proj: 'slag_shard', count: 5, arc: 0.8, dmg: 84, speed: 6.5, range: 8, cd: 2.5, tell: 450 }], loot: TL },
     // the causeway and the Guardian's hall: a splinter of the sun Solkhar stole, circling you and burning a line through the air
     stolen_ray: { name: 'Stolen Ray', biome: 'throne', reg: K('stolen_ray'), hp: 1800, def: 14, speed: 2.4, xp: 260, r: 0.5, ai: 'orbit', keep: 4.5, aggro: 12, fly: true,
       attacks: [{ pattern: 'beam', proj: 'gaze', dmg: 130, range: 9, cd: 3, tell: 650, col: '#ffd650' },

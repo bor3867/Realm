@@ -30,6 +30,7 @@ import { installSigils } from './sigils.js';
 import { installMythics } from './mythics.js';
 import { installArmory } from './armory.js';
 import { installGearMech } from './gearmech.js';
+import { installCastle } from './castle.js';
 import { BX, bxEnemyDef } from './bosses/index.js';
 import { joinCourt } from './bosses/jarl_court.js';
 import { installRF } from './rf/host.js';
@@ -888,7 +889,7 @@ export class Game {
           const b = this.spawnRealmBoss(id, { x: rm.x + (spots[k][0] / 40) * rm.w, y: rm.y + (spots[k][1] / 34) * rm.h }, bxEnemyDef(id));
           b.state = 'sleep'; b.room = rm; b.midBoss = true; b.warden = true; (m.wardens = m.wardens || []).push(b); return b;
         });
-        if (L.length === 2) joinCourt(L[0], L[1]);
+        if (L.length === 2) { joinCourt(L[0], L[1]); m.seals = (m.seals || 0) + 1; m.sealsLeft = (m.sealsLeft || 0) + 1; }   // (two Jarls, two seals)
         return;
       }
       if (rm.role === 'warden') { spawn(def.compose ? def.compose(rm, r, (rm.dep || 0) / maxDep).map((id) => [id, ...spot(rm)]) : fill(rm, r.int(2, 4), false)); warden(rm); return; }
@@ -909,7 +910,7 @@ export class Game {
     const br = m.rooms[m.rooms.length - 1];
     const gr = def.guardian && m.rooms.find((q) => q.kind === 'guardhall');
     if (gr) {                                           // a guardian on the way (the Throne's Gatekeeper): asleep in its hall till you come in; its death is the gate's last seal
-      const b = this.spawnRealmBoss(def.guardian, { x: gr.cx + 0.5, y: gr.y + 6 }, bxEnemyDef(def.guardian));
+      const b = this.spawnRealmBoss(def.guardian, { x: gr.x + (19 / 38) * gr.w, y: gr.y + (11 / 34) * gr.h }, bxEnemyDef(def.guardian));   // (the spec's (19, 11) of his 38x34 hall)
       b.state = 'sleep'; b.room = gr; b.midBoss = true; b.warden = true;
       (m.wardens = m.wardens || []).push(b); m.seals = (m.seals || 0) + 1; m.sealsLeft = (m.sealsLeft || 0) + 1;
     }
@@ -2986,7 +2987,7 @@ export class Game {
       if (f.kind === 'lane' && f.t >= f.delay && !p.dead) {                // standing on a lane of fire burns
         f.hitT -= dt;
         const dx = p.x - f.x, dy = p.y - f.y, along = dx * Math.cos(f.a) + dy * Math.sin(f.a), across = Math.abs(-dx * Math.sin(f.a) + dy * Math.cos(f.a));
-        if (f.dmg && f.hitT <= 0 && along > 0 && along < f.len && across < f.w) { f.hitT = 0.3; this.hurtPlayer(f.dmg, f.by); }   // (a lane with no damage is only a mark)
+        if (f.dmg && f.hitT <= 0 && along > 0 && along < f.len && across < f.w) { f.hitT = f.every || 0.3; this.hurtPlayer(f.dmg, f.by); }   // (a lane with no damage is only a mark)
       }
       if (f.kind === 'cleave' && !f.done && f.t >= f.delay && !p.dead) {   // a blow over a wedge of floor (a Jarl's axe): marked, then struck once
         f.done = true;
@@ -3110,6 +3111,7 @@ export class Game {
     const m = this.map, def = m.def, p = this.player;
     { const br = m.rooms && m.rooms[m.rooms.length - 1]; if (def && br && !(m.beats && m.beats.boss) && p.x > br.x && p.x < br.x + br.w && p.y > br.y && p.y < br.y + br.h) this.dungeonBeat('boss'); }   // into the boss's hall: the story's last line
     if (m.citadel) this.citadelHeat(dt);
+    if (m.castle) this.castleTick(dt);
     if (!def || m.netWorld) return;                       // (a shared dungeon's hazards and ambushes are the server's)
     const room = m.rooms.find((rm) => p.x > rm.x && p.x < rm.x + rm.w && p.y > rm.y && p.y < rm.y + rm.h);
     for (const rm of m.rooms) {                         // rooms can overlap, so check every one you're standing in
@@ -4807,6 +4809,7 @@ installSigils(Game);
 installMythics(Game);
 installArmory(Game);
 installGearMech(Game);
+installCastle(Game);
 installMelon(Game);
 installAchievements(Game);
 installRealmEvents(Game);
