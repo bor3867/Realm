@@ -1,0 +1,69 @@
+{
+ "rf": true,
+ "meta": {
+  "name": "Ashkar's hall",
+  "version": 1
+ },
+ "sheets": {
+  "ash_kin": {
+   "image": "ash_kin.png",
+   "kind": "enemy",
+   "sprites": {
+    "vent": {
+     "frames": {
+      "move1": [
+       0,
+       0,
+       16,
+       16
+      ],
+      "move2": [
+       16,
+       0,
+       16,
+       16
+      ],
+      "attack": [
+       32,
+       0,
+       16,
+       16
+      ],
+      "hurt": [
+       48,
+       0,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "move1",
+        "move2"
+       ],
+       "fps": 6,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "move1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "move1"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     }
+    }
+   }
+  }
+ }
+}

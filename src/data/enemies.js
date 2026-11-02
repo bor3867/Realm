@@ -1370,6 +1370,7 @@ Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden', 'warden'], p
 ENEMIES.jarl_vassal = { name: 'Vassal of the Dead', biome: 'throne', reg: 'jarl_kin/vassal', hp: 8000, def: 10, speed: 1.6, xp: 0, r: 0.5, ai: 'kite', keep: 6, aggro: 30, fly: true,
   attacks: [{ pattern: 'aimed', proj: 'jarl_shots/sword', count: 2, arc: 0.14, dmg: 59, speed: 5, range: 9, cd: 2.0, tell: 350 }], loot: [] };
 // ---- the Hollow Jarl, Wizard's portals: they hang in the air and can be broken; he fires through them (src/bosses/jarl_wizard.js)
+ENEMIES.forge_vent = { name: 'Forge Vent', biome: 'throne', reg: 'ash_kin/vent', hp: 16000, def: 10, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 30, attacks: [], loot: [] };   // (Ashkar's Furnace Teeth: break one and it is out for 6 s)
 ENEMIES.wiz_portal = { name: 'Hollow Portal', biome: 'throne', reg: 'wiz_kin/portal', hp: 6000, def: 8, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 30, fly: true, attacks: [], loot: [] };
 // ---- the Hollow Jarl's war banners: they stand and are cut down; he throws ash from them (src/bosses/jarl_warrior.js)
 ENEMIES.jarl_banner = { name: 'Gravebound War Banner', biome: 'throne', reg: 'jarl_kin/banner', hp: 9000, def: 12, speed: 0, xp: 0, r: 0.55, ai: 'rooted', aggro: 30, attacks: [], loot: [] };

@@ -32,7 +32,8 @@
   "throne/atlas_jarl_warrior.json",
   "throne/atlas_jarl_wizard.json",
   "unstruck/atlas_solkhar.json",
-  "throne/atlas_ash_items.json"
+  "throne/atlas_ash_items.json",
+  "throne/atlas_ash_kin.json"
  ],
  "hover": "HOVER.json",
  "manifest": "MANIFEST.json"

@@ -9,6 +9,7 @@
 # Four idle frames a look, the strike (the hammer raised, white-hot; the core flaring), a death (the hammer falls, the
 # core implodes, he goes to ash).
 #   'bx_ashkar_gatekeeper/ashkar_gatekeeper' (the same key as before: tools/build_gatekeeper.py drew the old one)
+#   'ash_kin/vent': a forge vent of his hall (Furnace Teeth), an iron grate over the fire, 16x16
 #   art/bundle/throne/ashkar_gatekeeper.png + atlas_gatekeeper.json          py -I tools/build_ashkar.py
 import json, math, os, random, sys
 here = os.path.dirname(os.path.abspath(__file__)); root = os.path.dirname(here)
@@ -164,6 +165,25 @@ def pack(name, entries, W, H, cols=6):
     return fr
 
 
+def vent(f=0, hot=False):
+    # an iron grate in a stone collar, the fire under it showing between the bars (brighter as it fires)
+    o, i, I, h, H = (14, 10, 18), (52, 48, 60), (76, 70, 86), (108, 100, 120), (146, 138, 160)
+    fire = [(200, 56, 26), (255, 106, 28), (255, 162, 44), (255, 214, 96), (255, 244, 196)]
+    g = [[BLANK] * 16 for _ in range(16)]
+    for y in range(16):
+        for x in range(16):
+            d = max(abs(x - 7.5), abs(y - 8.5) * 1.15)
+            if d > 7.6: continue
+            if d > 6.2: g[y][x] = (*(h if y < 8 else i), 255)
+            elif d > 5.2: g[y][x] = (*o, 255)
+            elif x % 3 == 1: g[y][x] = (*(H if y < 7 else I), 255)          # a bar
+            else:
+                k = 2 + (1 if (x + y + f) % 4 == 0 else 0) - (1 if y > 12 else 0) + (1 if hot else 0)
+                g[y][x] = (*fire[max(0, min(4, k))], 255)
+    g[15] = [(*o, 255) if c[3] else c for c in g[15]]
+    return g
+
+
 if __name__ == '__main__':
     BID, NAMES = 'ashkar_gatekeeper', {1: 'The Bound Giant', 2: 'The Furnace Fractures', 3: 'The Unchained'}
     frames = []
@@ -180,6 +200,13 @@ if __name__ == '__main__':
               'phases': {str(a): {'name': NAMES[a], 'idle': f'idle{a}', 'attack': f'attack{a}'} for a in (1, 2, 3)}, 'death': 'death', 'meta': {'half': True}}}}}
     json.dump({'rf': True, 'meta': {'name': 'Ashkar, the Chained Forge-Giant (the user\'s sprite)', 'version': 4}, 'sheets': sheets},
               open(os.path.join(out, 'atlas_gatekeeper.json'), 'w', encoding='utf8', newline='\n'), indent=1)
+    vfr = pack('ash_kin', [('move1', vent(0)), ('move2', vent(2)), ('attack', vent(1, True)), ('hurt', vent(3))], 16, 16, cols=4)
+    json.dump({'rf': True, 'meta': {'name': "Ashkar's hall", 'version': 1}, 'sheets': {'ash_kin': {'image': 'ash_kin.png', 'kind': 'enemy', 'sprites': {'vent': {'frames': vfr,
+              'anims': {'move': {'frames': ['move1', 'move2'], 'fps': 6, 'loop': True}, 'attack': {'frames': ['move1', 'attack'], 'fps': 6, 'loop': False}, 'hurt': {'frames': ['hurt', 'move1'], 'fps': 8, 'loop': False}}}}}}},
+              open(os.path.join(out, 'atlas_ash_kin.json'), 'w', encoding='utf8', newline='\n'), indent=1)
+    ip = os.path.join(root, 'art', 'bundle', 'index.json'); idx = json.load(open(ip, encoding='utf8'))
+    if 'throne/atlas_ash_kin.json' not in idx['atlases']:
+        idx['atlases'].append('throne/atlas_ash_kin.json'); json.dump(idx, open(ip, 'w', encoding='utf8', newline='\n'), indent=1)
     S = 4; G = [ashkar(1, 0), ashkar(1, 2), ashkar(2, 1), ashkar(3, 1), ashkar(3, 0, True), fall(1)]
     P = [[(30, 22, 34, 255)] * (len(G) * (SW + 2) * S) for _ in range((SH + 2) * S)]
     for gi, g in enumerate(G):
