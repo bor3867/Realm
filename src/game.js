@@ -1237,7 +1237,7 @@ export class Game {
     p.mp = Math.min(this.stat('mp'), p.mp + mpRegen(this.stat('wis')) * dt);
     // lava
     const ti = this.map.tiles[Math.floor(p.y) * this.map.w + Math.floor(p.x)];
-    if (ti === TID.lava || ti === TID.emberlava) { p.lavaT -= dt; if (p.lavaT <= 0) { p.lavaT = 0.25; this.hurtPlayer(14 + (this.map.citadel ? Math.round(30 * this.heatAt(p.y)) : 0), 'molten floor', true); } }   // (the Throne's lava burns hotter the further in: 56 a second on the shore, 176 by the Gatekeeper)
+    if (ti === TID.lava || ti === TID.emberlava) { p.lavaT -= dt; if (p.lavaT <= 0) { p.lavaT = 0.25; this.hurtPlayer(this.map.castle ? 90 : 14 + (this.map.citadel ? Math.round(30 * this.heatAt(p.y)) : 0), 'molten floor', true); } }   // (the castle's lava: 360 a second, never a short cut past its bridges, 2026-11-02)   // (the Throne's lava burns hotter the further in: 56 a second on the shore, 176 by the Gatekeeper)
     else if (ti === TID.rift) { p.lavaT -= dt; if (p.lavaT <= 0) { p.lavaT = 0.5; this.hurtPlayer(6, 'a godland rift', true); } }   // the godlands' ground itself bites
     // shooting
     p.fireCd -= dt;

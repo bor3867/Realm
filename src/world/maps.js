@@ -1516,10 +1516,12 @@ export function dungeon(seed, def) {
             box(n, TID.lava); carve(x, y, x + 5, y + h - 1); carve(x + w - 6, y, x + w - 1, y + h - 1);
             // the Broken Span (north): straight across and short, three wide, collapsed to one in two places; its lava fissures erupt (castle_plan GEYSERS)
             for (let xx = x + 5; xx <= x + w - 6; xx++) { const k = (xx - x) / w, broke = (k > 0.3 && k < 0.37) || (k > 0.6 && k < 0.67), yy = cy - 4 + Math.round(Math.sin(xx / 6)), y0 = cy - 4 + Math.round(Math.sin((xx - 1) / 6)); for (let d = broke ? 0 : -1; d <= (broke ? 0 : 1); d++) set(xx, yy + d, FLOOR); if (broke && y0 !== yy) set(xx, y0, FLOOR); }   // (one wide where it broke, but never a step only on the diagonal)
-            // the Defended Causeway (south): longer, dipping round in a curve, five wide, two fortified platforms where its defenders stand
-            poly([[x + 5, cy + 6], [x + w * 0.22, cy + 14], [x + w * 0.5, cy + 15], [x + w * 0.78, cy + 14], [x + w - 6, cy + 6]], 2);
-            for (const f of [0.3, 0.7]) ell(x + w * f, cy + 13, 3.5, 2.4);
-            n.spanY = cy - 4; n.causewayY = cy + 13;
+            // the Defended Causeway (south): longer, dipping round in a curve, five wide, two fortified platforms where its defenders stand.
+            // Lava on both sides of it (2026-11-02, the user: "What's the point of the lava bridge if players can just walk to the
+            // right and up around avoiding it completely?": it ran along the room's edge, a ledge with the way in on it)
+            poly([[x + 5, cy + 5], [x + w * 0.22, cy + 10], [x + w * 0.5, cy + 11], [x + w * 0.78, cy + 10], [x + w - 6, cy + 5]], 2);
+            for (const f of [0.3, 0.7]) ell(x + w * f, cy + 10, 3.5, 2.2);
+            n.spanY = cy - 4; n.causewayY = cy + 10;
             break;
           }
           case 'ring': {                                              // a path round a reservoir of lava
@@ -1551,7 +1553,9 @@ export function dungeon(seed, def) {
       const floorNear = (n, tx, ty) => { let best = null, bd = 1e9; for (let yy = n.y; yy < n.y + n.h; yy++) for (let xx = n.x; xx < n.x + n.w; xx++) { const t = tile(xx, yy); if (t === FLOOR || t === BR) { const d = Math.hypot(xx - tx, yy - ty); if (d < bd) { bd = d; best = [xx, yy]; } } } return best || [n.cx, n.cy]; };
       const ways = {};
       for (const [a, b, opt] of WAYS) {
-        const P = U(a), Q = U(b), pa = floorNear(P, Q.cx, Q.cy), pb = floorNear(Q, ...pa), pa2 = floorNear(P, ...pb);
+        const P = U(a), Q = U(b), pa = floorNear(P, Q.cx, Q.cy);
+        // (the Twin Lava Bridges: in at the west landing's foot, out from the east landing's middle, so a bridge must be crossed)
+        const pb = Q.form === 'twin' ? [Q.x + 2, Q.y + Q.h - 2] : floorNear(Q, ...pa), pa2 = P.form === 'twin' ? [P.x + P.w - 3, P.cy] : floorNear(P, ...pb);
         const mx = (pa2[0] + pb[0]) / 2, my = (pa2[1] + pb[1]) / 2, L = Math.hypot(pb[0] - pa2[0], pb[1] - pa2[1]) || 1, jog = Math.min(4, L / 4) * (hash(a * 31 + b) < 0.5 ? -1 : 1);
         const mid = [Math.round(mx - ((pb[1] - pa2[1]) / L) * jog), Math.round(my + ((pb[0] - pa2[0]) / L) * jog)];
         const w = P.region === 'forest' || P.region === 'mountain' ? 2 : 1;
