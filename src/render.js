@@ -1366,16 +1366,16 @@ export class Renderer {
     else if (e.abil && def.anims.ability) { const A = def.anims.ability; fr = A.frames[Math.min(A.frames.length - 1, Math.floor(e.abil.t * A.fps))]; }   // an elite's ability: the clip is the telegraph
     else if (e.dead && def.anims.death) { const A = def.anims.death; fr = A.frames[Math.min(A.frames.length - 1, Math.floor(e.deadT * A.fps))]; }
     else if (e.dead) fr = fHurt;
-    else if (def.anims.shoot && (e.state === 'tell' || e.state === 'charge' || e.state === 'attack' || (e.shootSeen && g.t - e.shootSeen.t < 0.32 && e.shootSeen.s === 'attack'))) {
+    else if (def.anims.shoot && (e.state === 'tell' || e.state === 'charge' || e.state === 'attack' || (e.shootSeen && g.t - e.shootSeen.t < 0.36 && e.shootSeen.s === 'attack'))) {
       // a full shot (the castle's redrawn defenders): the wind-up and the draw through its telegraph, the release and the
       // recovery as it fires. Timed by this copy's clock from when it saw the state change (online the state is the server's)
       const st = e.state === 'charge' ? 'tell' : e.state, Q = e.shootSeen;
       if (!Q || (Q.s !== st && (st === 'tell' || st === 'attack'))) e.shootSeen = { s: st, t: g.t };
       const A = def.anims.shoot.frames, T = g.t - e.shootSeen.t;
-      fr = e.shootSeen.s === 'tell' ? A[T < 0.18 ? 0 : 1] : A[T < 0.12 ? 2 : 3];
+      fr = A.length >= 6 ? (e.shootSeen.s === 'tell' ? A[T < 0.12 ? 0 : T < 0.3 ? 1 : 2] : A[T < 0.08 ? 3 : T < 0.2 ? 4 : 5]) : e.shootSeen.s === 'tell' ? A[T < 0.18 ? 0 : 1] : A[T < 0.12 ? 2 : 3];
     }
     else if (e.state === 'tell' || e.state === 'charge' || e.state === 'attack') fr = fAtk;
-    else fr = mv[Math.floor(g.t * (e.hop || e.sk || e.dive ? 9 : 5) + e.phase) % mv.length];
+    else fr = mv[Math.floor(g.t * (def.anims.move && def.anims.move.fps > 6 ? def.anims.move.fps : e.hop || e.sk || e.dive ? 9 : 5) + e.phase) % mv.length];   // (a clip's own pace where it has one: the castle's six-frame steps)
     const L = this.alive(g, e, sx, sy, 16), K = e.D.scale || 1;
     if (def.anims.shoot) { L.glow = false; if (e.digT === undefined && e.diveWarn === undefined) { L.dx = 0; L.dy = 0; } }   // (its own wind-up and release are drawn: no tremble, no blink, no lunge on top)
     L.flip = !L.flip;                                       // the bundle's art faces right; the old sheets face left
@@ -2121,6 +2121,43 @@ export class Renderer {
     if (s > 0.35 && Math.random() < 0.2 + s * 0.8) {                        // flames licking up along the channel
       const q = f.pts[Math.floor(Math.random() * f.pts.length)];
       if (q && Math.abs(q[0] - f.cx) < FW / 2 - 3 && Math.abs(q[1] - f.cy) < FH / 2 - 3) this.parts.push({ x: q[0] + (Math.random() - 0.5) * 0.6, y: q[1], z: 2, vx: 0, vy: 0, vz: 10 + Math.random() * 16, g: -4, life: 0.45, max: 0.45, color: ['#ffd650', '#ff8a1f', '#ff4a1a', '#fff6c8'][Math.floor(Math.random() * 4)] });
+    }
+  }
+  // the castle's rope bridges (the Deadwater Ravine's; 2026-11-02, the user: "The wooden bridge can look a lot better"):
+  // the chasm showing between its planks, each plank its own worn shade and a little askew, rope rails along both sides
+  // sagging between posts, and in its two broken sections only a plank or two left hanging on. Laid in the world, so it
+  // turns as the camera does
+  castleBridges(g, m) {
+    const L = m.castle.bridgeList || (m.castle.bridgeList = Object.values(m.castle.rooms).filter((n) => n.bridge).map((n) => n.bridge));
+    const b = this.b, P = (x, y) => this.proj(x, y), WOOD = ['#4a2e18', '#5e3a1e', '#6e4626', '#7e5430'], hash = (i) => ((Math.sin(i * 12.9898) * 43758.5453) % 1 + 1) % 1;
+    const quad = (pts, col) => { b.fillStyle = col; b.beginPath(); pts.forEach(([x, y], i) => { const [X, Y] = P(x, y); if (i) b.lineTo(Math.round(X), Math.round(Y)); else b.moveTo(Math.round(X), Math.round(Y)); }); b.closePath(); b.fill(); };
+    for (const B of L) {
+      const [cx0, cy0] = P(B.x0, B.y); if (cx0 < -400 || cy0 < -400 || cx0 > this.buf.width + 400 || cy0 > this.buf.height + 400) continue;
+      const gap = (x) => B.gaps.some((q) => Math.abs(x - q) <= 1);
+      const seen = (x, y) => g.seen(x + 0.5, y + 0.5);       // (under the fog of war where you haven't been: the user, 2026-11-02)
+      for (let x = B.x0; x <= B.x1; x++) if (seen(x, B.y)) quad(gap(x) ? [[x, B.y + 0.1], [x + 1, B.y + 0.1], [x + 1, B.y + 0.9], [x, B.y + 0.9]] : [[x, B.y - 1], [x + 1, B.y - 1], [x + 1, B.y + 2], [x, B.y + 2]], '#0c070a');   // the drop between the boards
+      for (let x = B.x0; x <= B.x1; x++) for (const h of [0.06, 0.54]) {                        // two planks a tile
+        if (!seen(x, B.y)) continue;
+        const i = x * 2 + (h > 0.5 ? 1 : 0), r = hash(i), sk = (r - 0.5) * 0.12, broke = gap(x);
+        const y0 = broke ? B.y + 0.05 + r * 0.2 : B.y - 0.95, y1 = broke ? B.y + 0.95 - hash(i + 7) * 0.2 : B.y + 1.95;
+        if (broke && r < 0.35) continue;                                                    // (some gone altogether)
+        quad([[x + h + sk, y0], [x + h + 0.4 + sk, y0], [x + h + 0.4 - sk, y1], [x + h - sk, y1]], WOOD[Math.floor(r * 4)]);
+        quad([[x + h + sk, y0], [x + h + 0.4 + sk, y0], [x + h + 0.4 + sk, y0 + 0.12], [x + h + sk, y0 + 0.12]], '#9a6c40');   // its worn top edge
+        if (!broke && r > 0.6) { const [nx, ny] = P(x + h + 0.2, B.y + 0.5); b.fillStyle = '#2a1a10'; b.fillRect(Math.round(nx), Math.round(ny), 1, 1); }   // a nail
+      }
+      for (const side of [-1.05, 2.05]) {                                                  // the rope rails, sagging between posts
+        let last = null;
+        for (let x = B.x0; x <= B.x1 + 1; x += 0.25) {
+          if (B.gaps.some((q) => x > q - 0.6 && x < q + 1.6) || !seen(Math.floor(x), B.y)) { last = null; continue; }   // (snapped at the broken sections)
+          const ph = ((x - B.x0) % 3) / 3, sag = Math.sin(ph * Math.PI) * 2, [X, Y] = P(x, B.y + side), y = Math.round(Y - 7 + sag);
+          if (last) { b.strokeStyle = '#a07a4a'; b.lineWidth = 1; b.beginPath(); b.moveTo(last[0], last[1]); b.lineTo(Math.round(X), y); b.stroke(); }
+          last = [Math.round(X), y];
+        }
+        for (let x = B.x0; x <= B.x1 + 1; x += 3) {                                         // posts
+          if (!seen(Math.min(x, B.x1), B.y)) continue;
+          const [X, Y] = P(x, B.y + side); b.fillStyle = '#2e1c10'; b.fillRect(Math.round(X) - 1, Math.round(Y) - 9, 3, 10); b.fillStyle = '#6e4626'; b.fillRect(Math.round(X) - 1, Math.round(Y) - 9, 2, 9);
+        }
+      }
     }
   }
   laneFx(f, g) {

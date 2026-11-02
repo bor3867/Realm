@@ -117,63 +117,120 @@ WEAPON = {'cinder_archer': 'right', 'lava_guard': 'right', 'sunbound_knight': 'l
 
 
 def frames(base, kind, id_=''):
+    # (2026-11-02, the user: "The animations are a little lackluster. Please enhance"): six frames to a step and six to an
+    # attack, each a pose: the body leans into its stride and bobs, legs lift two pixels, the weapon swings; an attack
+    # crouches, raises its weapon, gathers a ring of light, lets fly with a flash, a shock ring and a streak, follows
+    # through as the sparks fall, and settles
     H, W = len(base), len(base[0])
     ys = [y for y in range(H) if any(c[3] for c in base[y])]; top, bot = ys[0], ys[-1]; hh = bot - top + 1
     legY = bot - max(2, round(hh * (0.28 if kind == 'beast' else 0.22)))
+    xs = [x for x in range(W) if any(base[y][x][3] for y in range(H))]; cx = (xs[0] + xs[-1]) / 2; ww = xs[-1] - xs[0] + 1
     UP = lambda x, y: y < legY
-    def bob(g):                                             # the body up a pixel, its waist stretched so no gap opens above the legs
-        o = moved(g, UP, 0, -1)
-        for x in range(W):
-            if not o[legY - 1][x][3] and g[legY - 1][x][3]: o[legY - 1][x] = g[legY - 1][x]
+    def stretch(o, g, row):                                 # (a row the body left: filled from the frame before, so no gap opens)
+        if 0 <= row < H:
+            for x in range(W):
+                if not o[row][x][3] and g[row][x][3]: o[row][x] = g[row][x]
         return o
-    # the weapon's point: where its brightest light gathers
+    def bob(g, d=1):                                        # the body up (or down) d pixels over still feet
+        o = g
+        for _ in range(abs(d)): o = stretch(moved(o, UP, 0, -1 if d > 0 else 1), o, legY - 1 if d > 0 else legY)
+        return o
+    def lean(g, d):                                         # the upper body leaned d pixels, more at the head (a shear)
+        if not d: return g
+        o = g
+        mid = top + (legY - top) // 2
+        o = moved(o, lambda x, y: y < legY and y >= mid, d // 2 if abs(d) > 1 else 0, 0) if abs(d) > 1 else o
+        return moved(o, lambda x, y: y < mid, d, 0)
     hot = [(x, y) for y in range(H) for x in range(W) if base[y][x][3] and lum(base[y][x]) > 175]
     wx, wy = (sum(p[0] for p in hot) / len(hot), sum(p[1] for p in hot) / len(hot)) if hot else (W * 0.7, H * 0.4)
-    if id_ in WEAPON and hot:                               # (the point at the weapon's end: its brightest pixel furthest that way)
+    if id_ in WEAPON and hot:
         sd = 1 if WEAPON[id_] == 'right' else -1
         wx, wy = max(hot, key=lambda p: sd * p[0] + (H - p[1]) * (0.15 if sd > 0 else 0.5))
-    xs = [x for x in range(W) if any(base[y][x][3] for y in range(H))]; cx = (xs[0] + xs[-1]) / 2
+    fwd = 1 if (WEAPON.get(id_) != 'left') else 1           # (the art faces right: forward is +x; the renderer mirrors it)
+    WR = 7 if kind in ('walker', 'robe') else 0
+    WPN = lambda x, y: WR and (x - wx) ** 2 + (y - wy) ** 2 <= WR * WR
+    def weapon(g, dx, dy): return moved(g, WPN, dx, dy) if WR and (dx or dy) else g
+    GOLD_, HOT_, WHITE_ = (255, 214, 96, 255), (255, 140, 40, 255), (255, 252, 230, 255)
+    def ring(g, x0, y0, r, col, n=12, gaps=0):
+        return dots(g, [(x0 + math.cos(a * 2 * math.pi / n) * r, y0 + math.sin(a * 2 * math.pi / n) * r * 0.8) for a in range(n) if not gaps or a % gaps], col)
+    def streak(g, x0, y0, n): return dots(g, [(x0 + fwd * i, y0) for i in range(1, n + 1)], WHITE_ if n < 3 else GOLD_)
     mv = []
-    for k in range(4):
-        g = base
-        if kind == 'beast':                                 # a trot: the legs in pairs, the body rising between
-            q = lambda x: int(4 * (x - xs[0]) / max(1, xs[-1] - xs[0] + 1))
-            g = moved(g, lambda x, y: y >= legY and q(x) % 2 == (k // 2) % 2 and k % 2 == 0, 1 if k == 0 else -1, -1)
-            if k % 2: g = bob(g)
-        elif kind == 'walker':                              # a step: one leg then the other, a bob
-            if k == 0: g = moved(g, lambda x, y: y >= legY and x < cx, 0, -1)
-            if k == 2: g = moved(g, lambda x, y: y >= legY and x >= cx, 0, -1)
-            if k in (1, 3): g = bob(g)
-        elif kind == 'robe':                                # a glide: the hem swaying, the body breathing
-            g = moved(g, lambda x, y: y >= legY, [1, 0, -1, 0][k], 0)
-            if k in (1, 2): g = bob(g)
-        elif kind == 'wings':                               # wings beating: the outer thirds up, level, down, level
-            d = [-2, 0, 1, 0][k]
-            g = moved(g, lambda x, y: x < xs[0] + (xs[-1] - xs[0]) * 0.33 or x > xs[0] + (xs[-1] - xs[0]) * 0.67, 0, d)
-            g = moved(g, lambda x, y: True, 0, [0, -1, 0, 1][k])
-        else:                                               # flame: its upper rows sway, the whole of it bobbing
-            for yy in range(top, top + hh // 2):
-                s = round(math.sin(k * math.pi / 2 + yy * 0.5) * (1 if yy > top + hh // 4 else 1.5))
+    for k in range(6):
+        ph = k * 2 * math.pi / 6; g = base
+        if kind == 'beast':                                 # a gallop: legs in pairs, the body rolling, the tail flame flicking
+            q = lambda x: int(4 * (x - xs[0]) / max(1, ww))
+            front = lambda x: q(x) >= 2
+            g = moved(g, lambda x, y: y >= legY and front(x), round(math.cos(ph) * 2), -1 if math.sin(ph) > 0.3 else 0)
+            g = moved(g, lambda x, y: y >= legY and not front(x), round(-math.cos(ph) * 2), -1 if math.sin(ph) < -0.3 else 0)
+            g = bob(g, 1 if k in (1, 4) else 0) if k in (1, 4) else g
+            g = moved(g, lambda x, y: y < legY and front(x) and x > xs[0] + ww * 0.7, 0, -1 if k in (2, 5) else 0) if k in (2, 5) else g
+            g = moved(g, lambda x, y: x < xs[0] + ww * 0.22 and y < top + hh * 0.5, 0, [-1, 0, 1, 0, -1, 0][k]) if k % 2 == 0 else g
+        elif kind == 'walker':                              # a march: a leg up two, the other planted, a lean into the stride
+            side = k < 3; lift = [1, 2, 1][k % 3]
+            g = moved(g, lambda x, y: y >= legY and ((x < cx) == side), fwd if k % 3 == 1 else 0, -lift)
+            g = bob(g, 1 if k % 3 == 1 else 0) if k % 3 == 1 else g
+            g = lean(g, fwd if k % 3 != 2 else 0)
+            g = weapon(g, 0, [1, 0, -1, -1, 0, 1][k])
+        elif kind == 'robe':                                # a glide: the hem swaying in a wave, the body rising and falling, the staff with it
+            g = moved(g, lambda x, y: y >= legY + (bot - legY) // 2, round(math.sin(ph) * 1.6), 0)
+            g = moved(g, lambda x, y: y >= legY and y < legY + (bot - legY) // 2, round(math.sin(ph - 0.8)), 0)
+            g = bob(g, 1) if k in (1, 2, 3) else g
+            g = weapon(g, 0, round(math.sin(ph + 1) * 1.4))
+        elif kind == 'wings':                               # a full wing-beat: up high, sweeping down, the body lifting as they fall
+            d = [-3, -1, 1, 2, 1, -1][k]
+            g = moved(g, lambda x, y: x < xs[0] + ww * 0.3 or x > xs[0] + ww * 0.7, 0, d)
+            g = moved(g, lambda x, y: (xs[0] + ww * 0.3 <= x < xs[0] + ww * 0.4) or (xs[0] + ww * 0.6 < x <= xs[0] + ww * 0.7), 0, round(d / 2))
+            g = moved(g, lambda x, y: True, 0, [1, 0, -1, -1, 0, 1][k])
+        else:                                               # flames: they rise and lick, sway row by row, embers wheeling round
+            for yy in range(top, top + hh * 2 // 3):
+                amp = 2 if yy < top + hh // 4 else 1
+                s = round(math.sin(ph + yy * 0.45) * amp)
                 if s: g = moved(g, lambda x, y, yy=yy: y == yy, s, 0)
-            g = moved(g, lambda x, y: True, 0, [0, -1, -1, 0][k])
+            if k % 2 == 0: g = stretch(moved(g, lambda x, y: y < top + hh // 3, 0, -1), g, top + hh // 3 - 1)
+            g = lit(g, [0.0, 0.15, 0.3, 0.15, 0.0, 0.1][k])
+            g = moved(g, lambda x, y: True, 0, [0, -1, -1, 0, 1, 1][k] if hh > 30 else [0, -1, 0, 1, 0, 0][k])
+            R0 = ww * 0.55
+            g = dots(g, [(cx + math.cos(ph + j * 2.1) * R0, top + hh * 0.55 + math.sin(ph + j * 2.1) * R0 * 0.45) for j in range(3)], GOLD_ if k % 2 else HOT_)
         mv.append(g)
-    back = -1 if wx >= cx else 1                            # drawn back away from its weapon's side
-    BODY = (lambda x, y: True) if kind in ('flame', 'wings') else UP
-    sh = [
-        lit(moved(base, BODY, back, 0), 0.25),
-        dots(lit(moved(base, BODY, back * 2 if kind not in ('flame', 'wings') else 0, -1 if kind in ('flame', 'wings') else 0), 0.5), [(wx + math.cos(a) * 3, wy + math.sin(a) * 3) for a in (0, 1.6, 3.2, 4.8)], (255, 214, 96, 255)),
-        star(lit(moved(base, BODY, -back * 2 if kind not in ('flame', 'wings') else 0, 1 if kind in ('flame', 'wings') else 0), 0.3), round(wx - back * 3), round(wy), 3),
-        moved(base, BODY, -back, 0),
-    ]
-    hurt = moved(base, lambda x, y: True, 0, 1)
+    # the attack, six beats
+    sh = []
+    if kind == 'beast':                                     # crouch, coil, lunge with the jaws alight, the bite, a shake, back
+        mx = max((p for p in hot if p[0] > cx), key=lambda p: p[0], default=(xs[-1] - 3, top + hh * 0.4)); mx, my = mx
+        sh.append(lit(bob(base, -1), 0.2))
+        sh.append(ring(lit(moved(bob(base, -1), lambda x, y: True, -1, 0), 0.4), mx - 1, my, 2, GOLD_, 8))
+        sh.append(star(lit(moved(base, lambda x, y: True, 3, -1), 0.5), round(mx + 4), round(my), 3))
+        sh.append(ring(moved(base, lambda x, y: True, 2, 0), mx + 3, my, 4, HOT_, 10, 3))
+        sh.append(moved(base, lambda x, y: True, 1, 0))
+        sh.append(base)
+    elif kind in ('flame', 'wings'):                       # it draws in, swells with light, bursts in a ring of embers, the sparks fall, it settles
+        R1 = max(ww, hh) * 0.6
+        sh.append(lit(moved(base, lambda x, y: True, 0, 1), 0.2))
+        sh.append(ring(lit(base, 0.45), cx, top + hh * 0.5, R1 * 0.5, GOLD_, 8))
+        sh.append(star(ring(lit(moved(base, lambda x, y: True, 0, -1), 0.7), cx, top + hh * 0.5, R1 * 0.35, WHITE_, 6), round(cx), round(top + hh * 0.5), 3))
+        sh.append(ring(lit(moved(base, lambda x, y: True, 0, -1), 0.3), cx, top + hh * 0.5, R1, HOT_, 16))
+        sh.append(ring(base, cx, top + hh * 0.5, R1 * 1.2, GOLD_, 16, 2))
+        sh.append(lit(base, 0.1))
+    else:                                                   # crouch, raise, charge (light gathering), release (flash, shock ring, streak), follow through, settle
+        b0 = bob(base, -1)
+        sh.append(weapon(lean(b0, -fwd), -fwd, 0))
+        sh.append(ring(lit(weapon(lean(base, -fwd), -fwd, -2), 0.3), wx - fwd, wy - 2, 3, GOLD_, 8, 2))
+        sh.append(ring(lit(weapon(lean(base, -2 * fwd), -2 * fwd, -2), 0.6), wx - 2 * fwd, wy - 2, 2, WHITE_, 8))
+        rel = weapon(lean(base, 2 * fwd), 2 * fwd, 1)
+        sh.append(streak(ring(star(lit(rel, 0.4), round(wx + 3 * fwd), round(wy + 1), 4), wx + 3 * fwd, wy + 1, 6, HOT_, 12, 2), wx + 7 * fwd, round(wy + 1), 5))
+        sh.append(dots(weapon(lean(base, fwd), fwd, 1), [(wx + 5 * fwd, wy + 3), (wx + 7 * fwd, wy), (wx + 4 * fwd, wy - 3), (wx + 8 * fwd, wy + 4)], HOT_))
+        sh.append(dots(base, [(wx + 6 * fwd, wy + 5), (wx + 9 * fwd, wy + 3)], (200, 80, 30, 255)))
+    hurt = lean(moved(base, lambda x, y: True, 0, 1), -fwd)
     return mv, sh, hurt
 
 
 if __name__ == '__main__':
     blocks = []; y0 = 0; sheetW = 0
     for id_, (th, kind) in KIN.items():
-        base = outline(shrink(cut(read_png(os.path.join(src, id_ + '.png'))), th))
-        H, W = len(base), len(base[0]); P = 2                # (room to move: the frames shift a pixel or two)
+        nat = os.path.join(src, 'native', id_ + '.png')
+        if os.path.exists(nat) and os.path.getmtime(nat) >= os.path.getmtime(os.path.join(src, id_ + '.png')): base = read_png(nat)
+        else:
+            base = outline(shrink(cut(read_png(os.path.join(src, id_ + '.png'))), th)); os.makedirs(os.path.dirname(nat), exist_ok=True); write_png(nat, base)
+        H, W = len(base), len(base[0]); P = 6                # (room to move: the poses reach out, its flashes and rings past its edge)
         base = [[BLANK] * (W + 2 * P) for _ in range(P)] + [[BLANK] * P + row + [BLANK] * P for row in base] + [[BLANK] * (W + 2 * P) for _ in range(P)]
         mv, sh, hurt = frames(base, kind, id_)
         fr = [(f'{id_}_m{k}', g) for k, g in enumerate(mv)] + [(f'{id_}_s{k}', g) for k, g in enumerate(sh)] + [(f'{id_}_h', hurt)]
@@ -186,9 +243,9 @@ if __name__ == '__main__':
             for y in range(h):
                 for x in range(w): sheet[oy + y][n * w + x] = g[y][x]
             frames_[key] = [n * w, oy, w, h]
-        sprites[id_] = {'frames': frames_, 'anims': {'move': {'frames': [f'{id_}_m{k}' for k in range(4)], 'fps': 6, 'loop': True},
-                                                    'shoot': {'frames': [f'{id_}_s{k}' for k in range(4)], 'fps': 10, 'loop': False},
-                                                    'attack': {'frames': [f'{id_}_s2'], 'fps': 1, 'loop': False},
+        sprites[id_] = {'frames': frames_, 'anims': {'move': {'frames': [f'{id_}_m{k}' for k in range(6)], 'fps': 9, 'loop': True},
+                                                    'shoot': {'frames': [f'{id_}_s{k}' for k in range(6)], 'fps': 12, 'loop': False},
+                                                    'attack': {'frames': [f'{id_}_s3'], 'fps': 1, 'loop': False},
                                                     'hurt': {'frames': [f'{id_}_h'], 'fps': 1, 'loop': False}}, 'meta': {}}
     write_png(os.path.join(out, 'castle_user.png'), sheet)
     if len(sys.argv) > 1:
