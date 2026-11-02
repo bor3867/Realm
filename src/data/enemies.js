@@ -1353,13 +1353,16 @@ Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden'], puzzle: nul
   guardian: 'ashkar_gatekeeper',
   courtBosses: ['jarl_warrior', 'jarl_wizard'],                                                         // (the courts' own bosses, one a court: src/bosses/jarl_*.js)
   hazardFx: null,                                                       // (the castle's rooms have their own hazards: src/castle.js)
+  // the Embersmith Gallery's three forge hearts, where the spec puts them (part of the dungeon, so a shared castle's server has them too)
+  extraSpawns(m) { const n = m.castle && m.castle.rooms && m.castle.rooms.C; return n ? [[8, 14], [19, 8], [30, 14]].map(([u, v]) => ['forge_heart', n.x + (u / 38) * n.w, n.y + (v / 28) * n.h]) : []; },
   compose(rm, r) {
     const P = (n, ids) => Array.from({ length: n }, () => r.pick(ids));
     switch (rm.kind) {                                                  // the castle (the user's spec): who holds each room
       case 'causeway': return ['furnace_brute', 'furnace_brute', 'obsidian_sentinel', 'obsidian_sentinel'];
       case 'crowns': return P(5, ['ash_wretch', 'cinder_hound', 'magma_slinger', 'brimstone_acolyte']);
       case 'chainwalk': return ['obsidian_sentinel', 'obsidian_sentinel'];
-      case 'gallery': case 'court': case 'breach': case 'sundoor': return [];   // (the gallery's come in waves; the court is the Jarls')
+      case 'gallery': rm.ambush = true; return ['obsidian_sentinel', 'obsidian_sentinel', 'obsidian_sentinel', 'furnace_brute', 'furnace_brute'];   // (they come as you enter; its three forge hearts: extraSpawns)
+      case 'court': case 'breach': case 'sundoor': return [];   // (the court is the Jarls')
       case 'gatehouse': return P(r.int(3, 4), ['ash_wretch', 'ash_wretch', 'cinder_hound']);
       case 'wing': return P(r.int(2, 3), ['ash_wretch', 'cinder_hound', 'magma_slinger']);
       case 'champion': return P(3, ['obsidian_sentinel', 'magma_slinger', 'cinder_hound']);

@@ -176,7 +176,7 @@ function onMessage(c, text) {
   }
   if (m.t === 'hits' && worldOf(c.room) && Array.isArray(m.list)) {   // your blows on the shared monsters
     const W = worldOf(c.room);
-    for (const h of m.list.slice(0, 200)) if (Array.isArray(h)) W.hit(c.id, num(h[0], 0, 1e9), num(h[1], 0, 1e6));
+    for (const h of m.list.slice(0, 200)) if (Array.isArray(h)) W.hit(c.id, num(h[0], 0, 1e9), num(h[1], 0, 1e7), Math.round(num(h[2] ?? 1, 1, 60)));   // (h[2]: how many blows the sum holds)
     return;
   }
   if (m.t === 'portal' && world && typeof c.room === 'string' && c.room.startsWith('dg:') && /^rfa_[a-z]+$/.test(m.to)) {   // a shared dungeon's boss door: one room for the group

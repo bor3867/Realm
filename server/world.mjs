@@ -233,13 +233,13 @@ export function makeWorld(seed, send, where = 'realm') {
     leave(id) { P.delete(id); g.netTargets = [...P.values()]; if (!P.size) lastEmpty = Date.now(); },
     player(id, s) { const q = P.get(id); if (q) { q.x = s.x; q.y = s.y; q.dead = !!s.dead; q.hp = s.hp; } },
     // a player's shot (or ability) took d off a monster: the server's tally, and its death if it falls
-    hit(id, eid, d) {
+    hit(id, eid, d, n = 1) {
       const q = P.get(id), e = g.enemies.find((o) => o.nid === eid);
       if (!q || !e || e.dead || e.state === 'dead' || !(d > 0)) return;
       if (Math.hypot(e.x - q.x, e.y - q.y) > 20) return;             // (out of reach: ignored)
-      d = Math.min(d, Math.max(5000, e.maxHp * 0.25));             // (no one blow takes more than a quarter, or 5000)
+      d = Math.min(d, n * Math.max(5000, e.maxHp * 0.25));         // (no one blow takes more than a quarter, or 5000: a sum of n blows, n times that)
       d = Math.min(d, Math.max(1, Math.ceil(e.hp)));                // (overkill counts for nothing, so it doesn't use up the allowance below)
-      d = allowHit(q, d);                                           // (nor more than a player can deal: server/guard.mjs)
+      d = allowHit(q, d, n);                                        // (nor more than a player can deal: server/guard.mjs)
       if (!(d > 0)) return;
       (e.netHitBy || (e.netHitBy = new Set())).add(id);
       // through the game's own damage step (immunity, a three-phase boss's phases and morphs, survive phases, its death),

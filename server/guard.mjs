@@ -3,7 +3,8 @@
 // impossible instead:
 //   saves      items that don't exist, admin items on a non-admin, levels and stats past their caps, gold / fame /
 //              essence growing faster than play allows: removed or clamped before the save is kept (the rest is kept)
-//   damage     no blow over HIT_MAX; no more than DPS_1S in a second or DPS_10S in ten (a top player is well under)
+//   damage     no blow over HIT_MAX; no more than DPS_1S in a second or DPS_10S in ten (a top player is well under:
+//              a capped archer through a pack ~60k a second)
 //   movement   running faster than any build can (SPEED) again and again, or blinking about too often: dropped
 //   chat       one line every CHAT_GAP
 // Admin accounts are trusted.
@@ -12,7 +13,8 @@ const ROOT = new URL('../', import.meta.url);
 const { ITEMS } = await import(new URL('src/data/items.js', ROOT));
 const { CLASSES, MAX_LEVEL } = await import(new URL('src/data/classes.js', ROOT));
 
-export const LIMIT = { HIT_MAX: 12000, DPS_1S: 60000, DPS_10S: 400000, SPEED: 22, JUMPS_10S: 8, STRIKES: 25, CHAT_GAP: 700 };
+export const LIMIT = { HIT_MAX: 12000, DPS_1S: 250000, DPS_10S: 1500000,   // (2026-11-02: a Dexterity-capped archer piercing a pack deals 35-60k a second; the old 60k/40k-a-second caps ate real blows)
+  SPEED: 22, JUMPS_10S: 8, STRIKES: 25, CHAT_GAP: 700 };
 // how fast each purse may grow: per minute since the last save kept, plus a burst (a boss's hoard, a big death's fame)
 const PURSE = { gold: [15000, 60000], fame: [3000, 25000], essence: [2500, 15000] };
 const PURSE_NEW = { gold: 2e6, fame: 2e6, essence: 5e5 };       // a new account's uploaded progress, at most
@@ -61,10 +63,10 @@ export function hadItem(save, id) {
 }
 
 // a player's blows against the shared monsters: how much of this one counts (0: none)
-export function allowHit(q, d) {
+export function allowHit(q, d, n = 1) {
   if (q.admin) return d;
   const now = Date.now(), W = (q.dmgWin = (q.dmgWin || []).filter((x) => now - x[0] < 10000));
-  d = Math.min(d, LIMIT.HIT_MAX);
+  d = Math.min(d, LIMIT.HIT_MAX * n);                        // (a sum of n blows: each up to HIT_MAX)
   let s1 = 0, s10 = 0;
   for (const [t, v] of W) { s10 += v; if (now - t < 1000) s1 += v; }
   const room = Math.max(0, Math.min(LIMIT.DPS_1S - s1, LIMIT.DPS_10S - s10));

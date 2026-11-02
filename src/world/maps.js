@@ -2483,8 +2483,11 @@ export function dungeon(seed, def) {
   if (m.castle) {                                                     // the castle's gates: the breach's door (3 s) and the gallery's portcullis (src/castle.js opens them)
     const P = m.castle.port, A = m.castle.rooms.A, Bl = m.castle.rooms.B;
     m.castle.gates = { port: [], breach: [] };
-    for (let x = P.x0; x <= P.x1; x++) { put(m, 'seal_gate', x, P.y, true, { castleGate: 'port' }); const o = m.objects[m.objects.length - 1]; m.solid[idx(m, x, P.y)] = 1; m.castle.gates.port.push(o); }
-    for (let x = Bl.lanes[0]; x < Bl.lanes[0] + 6; x++) { put(m, 'seal_gate', x, A.y - 2, true, { castleGate: 'breach' }); const o = m.objects[m.objects.length - 1]; m.solid[idx(m, x, A.y - 2)] = 1; m.castle.gates.breach.push(o); }
+    // (each gate on a cobble tile of its own: opening it turns that tile back to the floor, so a shared castle's server
+    // sends the change and the gate opens for everyone, as the old barricades did)
+    const gate = (x, y, which) => { put(m, 'seal_gate', x, y, true, { castleGate: which, floor: tile(x, y) }); const o = m.objects[m.objects.length - 1]; set(x, y, TID.cobble); m.solid[idx(m, x, y)] = 1; m.castle.gates[which].push(o); };
+    for (let x = P.x0; x <= P.x1; x++) gate(x, P.y, 'port');
+    for (let x = Bl.lanes[0]; x < Bl.lanes[0] + 6; x++) gate(x, A.y - 2, 'breach');
   }
   // m.rooms: entrance first, boss last (other code relies on that); secret rooms ride along in m.secrets
   const order = [start, ...rooms.filter((n) => n !== start && n !== boss), boss];

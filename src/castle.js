@@ -3,8 +3,9 @@
 // LAYOUT.throne (m.castle.rooms A..I). Nothing here runs while you are dead; every hazard is shown before it hurts.
 //   A Breach       safe; its door onto the causeway opens 3 s after you arrive (2.5 s of protection on arrival)
 //   B Causeway     a geyser every 4 s on the lanes near you (never where you came in): 1.2 s marked, then it bursts (110)
-//   C Gallery      three forge hearts (18,000 each) fire five slag every 1.4 s; break all three to raise the portcullis
-//                  ('BREAK THE THREE FORGE HEARTS — 0/3'); two waves, three sentinels and two brutes in all, no more
+//   C Gallery      three forge hearts (18,000 each; the dungeon's own, so a shared castle's server has them) fire five slag
+//                  every 1.4 s; break all three to raise the portcullis ('BREAK THE THREE FORGE HEARTS — 0/3'); three
+//                  sentinels and two brutes rise as you come in, no more
 //   D Crowns       jets from the walls: rows across the hall, 1.2 s warming, 0.8 s burning (95, every 0.5 s), 1.0 s
 //                  rest, the rows changing each time; the three alcoves are clear of them
 //   F Chainwalk    the bridge's ribs crack by turns every 5 s: 1.4 s glowing, then hot for 2 s (90 every 0.5 s)
@@ -34,16 +35,18 @@ const methods = {
         this.fx.push({ kind: 'zone', x: tx + 1, y: ty + 1, r: 1.1, t: 0, delay: 1.2, life: 1.55, dmg: D(110), by: 'a magma geyser', done: false, colors: ['#ff8a1f', '#ffd650'] });
       }
     }
-    // C: the forge hearts
-    if (S.hearts) {
-      const left = S.hearts.filter((q) => !q.dead).length;
-      if (left !== S.heartsLeft) {
+    // C: the forge hearts (the dungeon's own: in a shared castle, the server's): all three broken, the portcullis rises
+    if (!S.portOpen) {
+      const left = this.enemies.filter((q) => q.id === 'forge_heart' && !q.dead && inR(Rm.C, q.x, q.y)).length;
+      S.heartsMax = Math.max(S.heartsMax || 0, left);
+      if (S.heartsMax && left !== S.heartsLeft) {
+        if (S.heartsLeft !== undefined && left < S.heartsLeft && here) this.banner(`BREAK THE THREE FORGE HEARTS — ${3 - left}/3`, 1800);
         S.heartsLeft = left;
-        if (left < 3) this.banner(`BREAK THE THREE FORGE HEARTS — ${3 - left}/3`, 1800);
-        if (left <= 2 && S.wave === 1) { S.wave = 2; this.castleWave(['obsidian_sentinel', 'furnace_brute']); }
-        if (!left && !S.portOpen) { S.portOpen = true; this.castleOpen('port'); this.banner('The portcullis rises.', 2200); }
+        if (!left) { S.portOpen = true; this.castleOpen('port'); if (here) this.banner('The portcullis rises.', 2200); }
       }
     }
+    // a gate the server opened (its tile back to the floor): open in this copy too
+    for (const w of ['breach', 'port']) for (const o of (C.gates && C.gates[w]) || []) if (o.solid && !m.solid[Math.floor(o.y) * m.w + Math.floor(o.x)] && m.tiles[Math.floor(o.y) * m.w + Math.floor(o.x)] !== TID.cobble) { o.solid = false; o.sprite = 'gate_open'; }
     // D: the wall jets (rows across the hall; the alcoves are out of their reach)
     if (here === 'D' && (S.jet -= dt) <= 0) {
       S.jet = 3.0; const n = Rm.D, rows = S.jetK++ % 2 ? [3, 9, 15] : [6, 12];
@@ -69,25 +72,17 @@ const methods = {
     const m = this.map, Rm = m.castle.rooms, S = m.castle.st;
     if (k === 'A') { this.player.status.invuln = Math.max(this.player.status.invuln || 0, 2.5); this.banner('THE BREACH', 2000); }
     if (k === 'B') this.banner('THE CINDER CAUSEWAY', 1800);
-    if (k === 'C' && !S.hearts) {                          // the hearts, and the first wave
-      this.banner('BREAK THE THREE FORGE HEARTS — 0/3', 2600);
-      const n = Rm.C;
-      S.hearts = [[8, 14], [19, 8], [30, 14]].map(([u, v]) => { const q = this.addEnemy('forge_heart', n.x + (u / 38) * n.w, n.y + (v / 28) * n.h); q.seen = true; return q; });
-      S.wave = 1; this.castleWave(['obsidian_sentinel', 'obsidian_sentinel', 'furnace_brute']);
-    }
+    if (k === 'C' && !S.portOpen) this.banner('BREAK THE THREE FORGE HEARTS — 0/3', 2600);
     if (k === 'D') this.banner('THE HALL OF BROKEN CROWNS', 1800);
     if (k === 'F') this.banner('THE CHAINWALK', 1800);
     if (k === 'H') this.banner(m.sealsLeft > 0 ? 'BEYOND THIS GATE, EVEN LIGHT OBEYS HIM.' : 'STEP THROUGH THE SUN DOOR.', 2600);
     if (k === 'I') this.banner('THE STOLEN SUN', 2000);
   },
-  castleWave(ids) {                                        // a wave into the gallery, along its far side (never on you)
-    const n = this.map.castle.rooms.C;
-    ids.forEach((id, k) => { const q = this.addEnemy(id, n.x + 4 + ((k + 0.5) / ids.length) * (n.w - 8), n.y + 3); q.seen = true; this.unstick(q, 0.6); });
-  },
   castleOpen(which) {
     const m = this.map;
     for (const o of (m.castle.gates && m.castle.gates[which]) || []) {
-      o.sprite = 'gate_open'; o.solid = false; m.solid[Math.floor(o.y) * m.w + Math.floor(o.x)] = 0;
+      const i = Math.floor(o.y) * m.w + Math.floor(o.x);
+      o.sprite = 'gate_open'; o.solid = false; m.solid[i] = 0; if (o.floor !== undefined) m.tiles[i] = o.floor;   // (the tile changes: the server sends it on)
       this.vx({ k: 'burst', x: o.x, y: o.y - 0.4, n: 6, colors: ['#ff8a1f', '#ffd650'] });
     }
     this.sfx('chain');

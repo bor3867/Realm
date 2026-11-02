@@ -284,7 +284,10 @@ const methods = {
     N.shots = [];
     // (one entry a monster: a spray of shots on a crowd made more than the 60 that used to go, and the rest were lost,
     // so the server's monster outlived yours and stood at 1 Life for good. 2026-10-24)
-    if (N.hits.length && this.map.netWorld) { const sum = new Map(); for (const [nid, d] of N.hits) sum.set(nid, (sum.get(nid) || 0) + d); parts.push({ t: 'hits', list: [...sum].slice(0, 200) }); }
+    if (N.hits.length && this.map.netWorld) {                // (each monster's blows since the last send, summed, with how many: the server caps a blow, not the sum)
+      const sum = new Map(); for (const [nid, d] of N.hits) { const a = sum.get(nid) || [0, 0]; a[0] += d; a[1]++; sum.set(nid, a); }
+      parts.push({ t: 'hits', list: [...sum].slice(0, 200).map(([nid, [d, n]]) => [nid, d, n]) });
+    }
     N.hits = [];
     if (this.map.netWorld) for (const e of N.byId.values()) if (e.netPx || e.netPy) { N.efx.push([e.nid, 'push', +e.netPx.toFixed(2), +(e.netPy || 0).toFixed(2)]); e.netPx = e.netPy = 0; }
     if (N.efx.length && this.map.netWorld) parts.push({ t: 'efx', list: N.efx.slice(0, 40) });
