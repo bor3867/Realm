@@ -287,5 +287,6 @@ export default {
     }
   },
   lights(g, e) { const ph = e.bx.phase || 1; return [{ x: e.x, y: e.y, h: 3.3, r: ph === 3 ? 110 : ph === 2 ? 90 : 60, col: '#ff8a1f', fire: true }]; },
-  loot: [], lootLuck: 1.3,                                  // (filled with every class's gear in its band: src/bosses/boss_loot.js)
+  // his relics (boss_loot.js gives them their real, rare chances), and every class's gear in his band
+  loot: [{ id: 'fetterbreaker', p: 0.1 }, { id: 'slagplate', p: 0.1 }, { id: 'the_last_link', p: 0.1 }, { id: 'gatekeepers_chain', p: 0.1 }], lootLuck: 1.3,
 };

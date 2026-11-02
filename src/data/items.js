@@ -312,6 +312,18 @@ const UT = [
   { id: 'colossus_core', reg: 'ix_items/colossus_core', type: 'bellows', slot: 'ability', name: 'The Colossus Core', bag: 'urn',
     ability: { cost: 80, berserk: 5, burst: { count: 14, proj: 'fireball', dmg: 220, range: 3.5 } },
     desc: 'The Forgeheart\'s burning core. Breathe through it and the forge breathes with you.' },
+  // ---- Ashkar, the Chained Forge-Giant (the island's Guardian): his relics (art: tools/build_ashkar_items.py; their
+  // mechanics: weapon_rework.js 'shackle', gear_rework.js 'forgeheat' and 'anchor', the grapple line's 'slagline')
+  { id: 'fetterbreaker', reg: 'ash_items/fetterbreaker', type: 'sword', slot: 'weapon', name: 'The Fetterbreaker', bag: 'urn',
+    weapon: { dmg: [225, 310], count: 1, arc: 0, range: 3.2, speed: 11, rate: 0.82, proj: 'ash_shots/fetter', size: 0.6 },
+    desc: 'Ashkar\'s hammer, his broken shackle still round the haft. It was made to break chains. It puts them on just as well.' },
+  { id: 'slagplate', reg: 'ash_items/slagplate', type: 'heavy', slot: 'armor', name: 'The Slagplate', bag: 'urn', bonus: { def: 28, hp: 70, vit: 4, att: 2 },
+    desc: 'His breastplate, split down the middle where the forge broke through. Every blow you take stokes it.' },
+  { id: 'the_last_link', reg: 'ash_items/the_last_link', type: 'ring', slot: 'ring', name: 'The Last Link', bag: 'urn', bonus: { def: 6, vit: 6, hp: 40 },
+    desc: 'Of all the chains that held the Gatekeeper, this link was the last to give. It still remembers how to hold.' },
+  { id: 'gatekeepers_chain', reg: 'ash_items/gatekeepers_chain', type: 'hookline', slot: 'ability', name: 'The Gatekeeper\'s Chain', bag: 'urn',
+    ability: { cost: 85, armored: 3.5, burst: { count: 1, proj: 'hook', dmg: 540, range: 10 }, mod: 'slagline' },
+    desc: 'A shackle on a length of his chain, its cuff still lined with the forge. What it drags in arrives branded.' },
   // ---- urn: realm boss uniques
   { id: 'abbots_claw', type: 'gauntlet', slot: 'weapon', name: 'The Abbot\'s Claw', bag: 'urn',
     weapon: { dmg: [70, 105], count: 2, arc: 0.25, range: 3.6, speed: 12, rate: 1.05, proj: 'pj_claw', size: 0.5 },
@@ -940,7 +952,7 @@ const MOD_TEXT = {
   inferno: 'The charge sets the ground ablaze behind you and ends in two eruptions.', meteor: 'A ring of anvils rains down, then one great anvil in the middle.',
   eclipse: 'One huge pillar that follows your cursor, burns, and heals you on kills.', kings: 'Gilded kings that cleave and explode when they fall.',
   maelstrom: 'Hooks up to five enemies, and they arrive in a thunderclap.', infinite: 'Leaves five reflections in a ring, each shattering twice.',
-  eye: 'Three kites circle you wherever you go.', unwind: 'When time restarts, everything frozen takes a huge blow.', shockline: 'Reeled-in enemies arrive in a thunderclap explosion.', nuke: 'Deletes everything nearby.',
+  eye: 'Three kites circle you wherever you go.', unwind: 'When time restarts, everything frozen takes a huge blow.', shockline: 'Reeled-in enemies arrive in a thunderclap explosion.', slagline: 'Whatever it catches is branded with slag: it burns, and takes 20% more damage for 4s. A boss is branded as it hauls you in.', nuke: 'Deletes everything nearby.',
 };
 export function specialLines(it) {
   const L = [], w = it.weapon && it.weapon.special, p = it.passive;

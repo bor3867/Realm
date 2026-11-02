@@ -1383,7 +1383,7 @@ export class Game {
       // GRAPPLE LINE: the hook flies to the cursor. A monster gets reeled in and stunned;
       // a boss reels YOU in; nothing at all and the line hauls you to where it landed.
       p.hook = { x: cx0, y: cy0, vx: Math.cos(aim) * 26, vy: Math.sin(aim) * 26, a: aim, flown: 0, max: B.range, state: 'fly',
-        dmg: Math.round(B.dmg * mult), caught: [], room: mod === 'reel3' ? 3 : mod === 'maelstrom' ? 5 : 1, shock: mod === 'shockline' || mod === 'maelstrom' };
+        dmg: Math.round(B.dmg * mult), caught: [], room: mod === 'reel3' ? 3 : mod === 'maelstrom' ? 5 : 1, shock: mod === 'shockline' || mod === 'maelstrom', slag: mod === 'slagline' ? Math.round(B.dmg * mult * 0.15) : 0 };
       this.sfx('shoot', 'harpooner');
     } else if (type === 'mirror') {
       // MIRROR STEP: blink to the cursor; your reflection stays behind and every monster nearby hunts it
@@ -1600,6 +1600,12 @@ export class Game {
       }
     }
   }
+  slagBrand(e, dps) {                                    // the Gatekeeper's Chain: burning, and 20% more damage taken, for 4s
+    this.ignite(e, dps, 4);
+    e.curseF = Math.max(e.curseT > 0 ? e.curseF || 0 : 0, 0.2); e.curseT = Math.max(e.curseT || 0, 4);
+    e.wmark = { until: this.t + 4, col: '#ff6a1c' };
+    this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.5), n: 14, colors: ['#ffd660', '#ff6a1c', '#6c6478'] });
+  }
   updateHook(dt) {
     const p = this.player, H = p.hook;
     if (H.state === 'fly') {
@@ -1610,6 +1616,7 @@ export class Game {
         this.damageEnemy(e, H.dmg, ...lift(e.x, e.y, 0.5));
         if (e.rb || e.dead || (e.D && e.D.dummy)) {   // too big to move: the line hauls you to it instead
           H.state = 'done';
+          if (H.slag && !e.dead) this.slagBrand(e, H.slag);
           p.pull = { x: e.x - Math.cos(H.a) * 2, y: e.y - Math.sin(H.a) * 2, t: 0.9 };
           break;
         }
@@ -1642,7 +1649,7 @@ export class Game {
           this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.4), n: 30, colors: ['#8af6ff', '#ffffff', '#3befff'] });
           this.vx({ k: 'shake', amt: 5 });
         }
-        for (const e of H.caught) if (!e.dead) this.stun(e, 1.4);
+        for (const e of H.caught) if (!e.dead) { this.stun(e, 1.4); if (H.slag) this.slagBrand(e, H.slag); }
         H.state = 'done'; H.t = 0.1;
       }
     }

@@ -3,6 +3,7 @@
 // once (no stacking). game.js calls in: gearPreHurt (a blow, before it lands), gearPostHurt (after), gearOnHit (your weapon
 // hits), gearOnKill, gearOnAbility (a cast) and gearTick (every frame). Visuals are small static glyphs and rings.
 // Armour:  stride (keep moving: a barrier that breaks on the next hit), bigpulse (a heavy hit: a weakening pulse),
+//          forgeheat (blows taken stoke it; your next hit spends it in a slag blast: the Slagplate),
 //          sanctuary (dropping below low Life: an absorbing shield, long cooldown), hazard (a hit leaves a patch behind),
 //          counter (hits store stacks; at the cap the next blow is softened and a countershot fires), markkill (killing
 //          an enemy you have just hit restores a little and pulses), nebula (a near miss leaves an afterimage)
@@ -10,7 +11,8 @@
 //          nearest enemy), motion (moving charges your next ability), accuracy (hits on one enemy build to a follow-up),
 //          glyph (surviving a heavy blow drops a glyph that stops one shot), tempo (an ability right after a hit refunds Mana
 //          and fires a small shot), and the Mythic and Legendary rings' own: satellite, openhand, coronation, stillwater,
-//          aurora, firstflame, starspear, blight, conductor, glowcap, mask, tideeye
+//          aurora, firstflame, starspear, blight, conductor, glowcap, mask, tideeye, anchor (stand still: blows land softer;
+//          move off and the chain snaps in a ring of links: the Last Link)
 import { lift, liftO, angleUp } from './util.js';
 import { ITEMS } from './data/items.js';
 import { dmgMult } from './data/classes.js';
@@ -44,6 +46,7 @@ const methods = {
     }
     if (S.sanct && S.sanct.until > this.t && S.sanct.left > 0) { const w = Math.min(d, S.sanct.left); S.sanct.left -= w; d -= w; }
     if (S.damp && S.damp > this.t) { d = Math.round(d * 0.5); S.damp = 0; }
+    if (G.anchor && S.anchored) d = Math.round(d * (1 - G.anchor.soak));   // (the chain holds you)
     if (G.counter && (S.n.counter || 0) >= G.counter.cap) {   // a stored counter: softened, and a shot straight back
       S.n.counter = 0; d = Math.round(d * (1 - G.counter.soften));
       this.gshot(...lift(p.x, p.y, 0.5), this.aimAngle(), Math.round(G.counter.dmg * this.gmult()), 'rune_slash', 13, 6);
@@ -80,6 +83,7 @@ const methods = {
       S.spores = (S.spores ?? G.glowcap.max) - 1;
       this.fx.push({ kind: 'gear', h: 'mushroom', x: p.x, y: p.y, t: 0, life: G.glowcap.t, r: 1.3, heal: G.glowcap.heal });
     }
+    if (G.forgeheat && (S.heat || 0) < G.forgeheat.cap && (S.heat = (S.heat || 0) + 1) === G.forgeheat.cap) this.float(...lift(p.x, p.y, 1.4), 'STOKED', G.forgeheat.col);
     S.crownT = 0;                                              // (being struck resets the coronation's build)
   },
   // ------------------------------------------------------------ your weapon hits
@@ -105,6 +109,12 @@ const methods = {
         for (let k = -2; k <= 2; k++) { const s = this.gshot(...lift(p.x, p.y, 0.5), a + k * 0.08, Math.round(G.firstflame.dmg * m), 'ember', 12, 5); s.sp = { burn: { dps: Math.round(60 * m), t: 2 } }; }
       }
       if (G.tideeye && e.acc >= G.tideeye.need) { S.tide = e; e.wmark = { until: this.t + 4, col: '#7ae0e0' }; }
+    }
+    if (G.forgeheat && S.heat > 0) {                           // the stoked plate: every blow you took, back in one blast of slag
+      const F = G.forgeheat, n = S.heat; S.heat = 0;
+      for (const o of this.enemiesIn(e.x, e.y, F.r)) { this.damageEnemy(o, Math.round(F.dmg * n * m), ...lift(o.x, o.y, 0.5), true); this.ignite(o, Math.round(F.burn * m), 2.5); }
+      this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.5), n: 6 + n * 3, colors: [F.col, '#ffd660', '#4c4656'] });
+      this.fx.push({ kind: 'ring', ...liftO(e.x, e.y, 0.3), t: 0, max: F.r, color: F.col });
     }
     if (G.satellite && (S.n.sat = (S.n.sat || 0) + 1) % G.satellite.every === 0) S.sat = Math.min(3, (S.sat || 0) + 1);
     if (G.satellite && S.sat >= 3) {                           // three charges: one strike across the target
@@ -201,6 +211,18 @@ const methods = {
     if (G.stillwater) {
       if (!moving && S.stillT >= 1.5 && !S.pool) { S.pool = { x: p.x, y: p.y, moved: false }; this.glyphAt(p.x, p.y, '#9ad8ff'); }
       if (S.pool && !S.pool.moved && dist(p.x, p.y, S.pool.x, S.pool.y) > 2) S.pool.moved = true;
+    }
+    if (G.anchor) {                                            // stood your ground: anchored; moved off: the chain snaps
+      const A = G.anchor;
+      if (!moving && S.stillT >= A.at && !S.anchored) { S.anchored = true; this.glyphAt(p.x, p.y, A.col); }
+      if (S.anchored && moving) {
+        S.anchored = false;
+        if (this.ready('anchor')) {
+          this.cool('anchor', A.cd); const a0 = this.aimAngle();
+          for (let k = 0; k < A.n; k++) this.gshot(...lift(p.x, p.y, 0.5), a0 + (k / A.n) * TAU, Math.round(A.dmg * this.gmult()), 'ash_shots/link', 10, 4);
+          this.float(...lift(p.x, p.y, 1.4), 'SNAP', A.col);
+        }
+      }
     }
     if (G.glowcap) { S.sporeT = (S.sporeT || 0) + dt; if (S.sporeT > 6) { S.sporeT = 0; S.spores = Math.min(G.glowcap.max, (S.spores ?? G.glowcap.max) + 1); } }
     // near misses (nebula, aurora): an enemy shot that came close and passed

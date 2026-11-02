@@ -1,0 +1,87 @@
+{
+ "rf": true,
+ "meta": {
+  "name": "Ashkar's relics",
+  "notes": "tools/build_ashkar_items.py"
+ },
+ "sheets": {
+  "ash_items": {
+   "image": "ash_items.png",
+   "kind": "item",
+   "sprites": {
+    "fetterbreaker": {
+     "frames": {
+      "0": [
+       0,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "slagplate": {
+     "frames": {
+      "0": [
+       8,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "the_last_link": {
+     "frames": {
+      "0": [
+       16,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "gatekeepers_chain": {
+     "frames": {
+      "0": [
+       24,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    }
+   }
+  },
+  "ash_shots": {
+   "image": "ash_shots.png",
+   "kind": "shot",
+   "sprites": {
+    "fetter": {
+     "frames": {
+      "0": [
+       0,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    },
+    "link": {
+     "frames": {
+      "0": [
+       8,
+       0,
+       8,
+       8
+      ]
+     },
+     "meta": {}
+    }
+   }
+  }
+ }
+}

@@ -23,6 +23,7 @@
 //   heart      every Nth swing is a heartbeat: a heavier blow whose hits pulse out around the enemy and mend you
 //   flock      an arrow that flies its full length without striking breaks into three bats that scatter on
 //   loop       the arrow flies out, goes round once in a small circle, then on (round and round, then in)
+//   shackle    a hit chains the enemy (slowed); a hit on a chained enemy breaks the chain in a blast of slag (the Fetterbreaker)
 // A Legendary adds charge: accurate volleys fill it, and when full your next swing is its signature strike.
 import { R, lift, liftO, liftA, liftB } from './util.js';
 const TAU = Math.PI * 2;
@@ -280,6 +281,19 @@ const methods = {
           for (const o of this.enemiesIn(e.x, e.y, M.r)) { this.damageEnemy(o, Math.round(b.dmg * M.f), ...lift(o.x, o.y, 0.5), true); this.mechDebuff(o, M.theme, 3); }
           this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.5), n: 8, colors: T.col });
           this.fx.push({ kind: 'ring', ...liftO(e.x, e.y, 0.3), t: 0, max: M.r, color: T.col[0] });
+        }
+        break;
+      case 'shackle':                                           // the first hit chains it; a hit on a chained enemy breaks the chain
+        if (b.hitN !== 1) break;
+        if (e.shackle && e.shackle.until > this.t) {
+          e.shackle = null; e.wmark = null;
+          for (const o of this.enemiesIn(e.x, e.y, M.r)) { this.damageEnemy(o, Math.round(b.dmg * M.f), ...lift(o.x, o.y, 0.5), true); this.mechDebuff(o, M.theme, 2); }
+          this.mechShards(b, { ...M, f: M.sf }, e);
+          this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.5), n: 12, colors: ['#ffd660', '#ff6a1c', '#6c6478'] });
+          this.fx.push({ kind: 'ring', ...liftO(e.x, e.y, 0.3), t: 0, max: M.r, color: '#ff6a1c' });
+        } else {
+          e.shackle = { until: this.t + M.t }; e.wmark = { until: this.t + M.t, col: '#928aa0' };
+          if (!e.rb) { e.slowT = Math.max(e.slowT || 0, M.t); e.slowF = Math.max(e.slowF || 0, M.slow); }
         }
         break;
       case 'cinder':                                            // and a cinder where it strikes, at the enemy's feet

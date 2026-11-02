@@ -85,6 +85,8 @@ export const GEAR_REWORK = {
   leviathan_eye: { kind: 'tideeye', need: 5, dmg: 320 },
   pharaohs_deathmask: { kind: 'glyph', at: 0.18, cd: 12, life: 7, col: '#e0c070' },
   rubber_duck: { kind: 'tempo', window: 0.6, mana: 6, dmg: 100 },
+  slagplate: { kind: 'forgeheat', cap: 4, dmg: 65, r: 1.5, burn: 60, col: '#ff6a1c' },
+  the_last_link: { kind: 'anchor', at: 1.2, soak: 0.15, n: 6, dmg: 120, cd: 4, col: '#ffa22c' },
   starless_band: { kind: 'glyph', at: 0.12, cd: 14, life: 4, col: '#c8b8ff' },
   trap_hound_collar: { kind: 'glyph', at: 0.14, cd: 10, life: 5, col: '#ffd6f0' },
 };
@@ -115,6 +117,8 @@ export const GEAR_TEXT = {
   conductor: () => 'Alternate weapon hits and abilities: the third beat sends a lightning note down your aim',
   glowcap: () => 'Up to three glowing spores; being hit spends one to grow a healing mushroom patch at your feet',
   mask: () => 'Every third ability leaves a grinning mask that draws enemy aim, and throws three crescent knives',
+  forgeheat: (g) => `Every blow you take stokes the plate (up to ${g.cap}); your next weapon hit spends it all in a slag blast round the enemy (${g.dmg} a blow stored, and it burns)`,
+  anchor: (g) => `Stand your ground ${g.at}s and the chain holds you: blows land ${pc(g.soak)} softer; move off and it snaps, throwing ${g.n} links round you (every ${g.cd}s at most)`,
   tideeye: (g) => `${g.need} hits on one enemy mark it with tide-rings; your next ability drags it closer and sends an undertow at it`,
 };
 export const gearLine = (g) => GEAR_TEXT[g.kind](g);

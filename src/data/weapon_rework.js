@@ -54,6 +54,7 @@ export const WEAPON_REWORK = {
   the_white_whale: { mech: { kind: 'whale', theme: 'sea', foam: 'bubble', foamF: 0.3, underF: 0.8, delay: 0.5, r: 1.5 } },
   // ---- staves
   bloodthorn_staff: { stats: { count: 1, arc: 0, dmg: [120, 185] }, mech: { kind: 'follow', theme: 'nature', f: 0.4, r: 1.2 } },
+  fetterbreaker: { mech: { kind: 'shackle', theme: 'fire', t: 3, slow: 0.4, r: 1.6, f: 0.7, len: 1.8, sf: 0.35 } },
   cinderwood_staff: { stats: { count: 1, arc: 0, dmg: [160, 240] }, mech: { kind: 'cinder', theme: 'fire', gap: 0.8, r: 0.55, t: 1.5, f: 0.35 } },
   graverite_staff: { stats: { count: 3, dmg: [77, 109] }, mech: { kind: 'center', theme: 'death', arc: 0.12, flankF: 0.6, mark: 0.22 } },
   heaven_wire: { stats: { count: 3, dmg: [62, 90] }, mech: { kind: 'center', theme: 'storm', arc: 0.09, flankF: 0.6, mark: 0.18 } },
@@ -117,6 +118,7 @@ export function mechLine(M) {
     choir: `Each enemy hit adds a voice; three voices sound a chord between them (${pc(M.f)}) and give you ${M.mana} Mana`,
     witch: 'Every third volley is an eye that marks; two more hits on the mark burst it into a hex',
     echo: 'A hit stores a beat: your next volley repeats that shot from where it ended',
+    shackle: `A hit shackles the enemy (slowed ${pc(M.slow)} for ${M.t}s); striking a shackled enemy breaks the chain: a slag blast round it (${pc(M.f)}) and two links flung out to the sides`,
     page: 'A slow page flies out, then splits in two on its way back; both halves on one enemy expose it (+' + pc(M.expose) + ' damage taken)',
   }[M.kind];
   const C = M.charge;
