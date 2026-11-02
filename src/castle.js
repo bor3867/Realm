@@ -135,7 +135,7 @@ const methods = {
     for (const M of C.mechs) {
       if (M.done) continue;
       const rm = Object.values(Rm).find((q) => q.num === M.num), near = who.some((q) => Math.hypot(q.x - M.x - 0.5, q.y - M.y - 0.5) < 2.4);
-      const look = (k) => { if (M.o) M.o.sprite = M.sprite + k; };   // (its art: still, turning, turned: castle_decor/winch, _turn, _done)
+      const look = (k) => { if (!M.o) return; if (M.sprite.endsWith('pyre')) { if (k === '_done') M.o.unlit = true; return; } M.o.sprite = M.sprite + k; };   // (a signal fire: burning, then out, dark and still)   // (its art: still, turning, turned: castle_decor/winch, _turn, _done)
       if (!near) { M.prog = Math.max(0, (M.prog || 0) - dt * 0.5); look(''); continue; }
       if (rm && this.enemies.some((e) => !e.dead && (e.D.kin || e.rb) && inR(rm, e.x, e.y))) { if (!(M.toldT > this.t)) { M.toldT = this.t + 4; this.banner(`${M.name}: ITS DEFENDERS STILL HOLD IT`, 2200); } look(''); continue; }
       M.prog = (M.prog || 0) + dt / 3; look('_turn');
@@ -156,6 +156,12 @@ const methods = {
     const ROCK = ['#8a7a6a', '#c8b8a0'], FIRE = ['#ff6a1c', '#ffd650'], RED = ['#ff6a1c', '#ff6a1c', '#ff3a1a', '#ffffff'];
     const alive = (id) => this.enemies.some((e) => !e.dead && e.D === ENEMIES[id] && inR(n, e.x, e.y));
     switch (k) {
+      case 'a34': if (T(k, 1.6)) { const [x] = near(10); zone(x, p.y + (R() - 0.5) * 6, 1.2, 1.0, 110, 'a valve erupting', FIRE); } break;   // the Western Aqueduct: its valves erupting along the channels
+      case 'a39': if (T(k, 3.0)) {                                    // the Ember Crucible: its four vents by pairs, lanes of fire across the chamber, the pair turning each time
+        const pr = (H.cp = ((H.cp || 0) + 1) % 2);
+        for (const a of pr ? [Math.PI / 4, Math.PI * 5 / 4] : [Math.PI * 3 / 4, Math.PI * 7 / 4]) { const vx = n.cx + Math.cos(a) * n.w * 0.36, vy = n.cy + Math.sin(a) * n.h * 0.36; lane(vx, vy, a + Math.PI, n.w * 0.7, 1.0, 120, 1.6, 'a furnace vent', RED); }
+      } break;
+      case 'a42': if (T(k, 2.4)) { const a = (H.ga = (H.ga || 0) + 0.9), gx = n.cx + Math.cos(a) * 6, gy = n.cy + Math.sin(a) * 6; lane(gx - Math.cos(a + 1.57) * 8, gy - Math.sin(a + 1.57) * 8, a + 1.57, 16, 0.9, 115, 1.4, 'a turning gear', RED); } break;   // the Chain Galleries: the great gears' arms sweeping, a little further round each time
       case 'a10': if (T(k, 1.8)) zone(...near(7), 1.1, 1.2, 95, 'falling rocks', ROCK); break;                        // the Scree Ascent: loose rock, marked where it falls
       case 'a11': if (T(k, 1.5)) { const [x] = near(10); zone(x, n.cy + (R() - 0.5) * 4, 1.2, 1.1, 110, 'a fissure erupting', FIRE); } break;   // the Viaduct: the gorge's fissures erupting through the bridge
       case 'a13': case 'a15': {                                       // the Broken Siege Battery: while its mechanism stands, its engine fires down a fixed lane (here and onto the Ember Stair)
@@ -179,6 +185,7 @@ const methods = {
     const m = this.map, W = S.waves || (S.waves = {});
     for (const [key, list] of Object.entries(WAVES)) {
       const n = Rm[key]; if (!n || n.pending || W[key]) continue;
+      if (key === 'a24' && ['brazL', 'brazR'].every((q) => (this.map.castle.mechs || []).some((M) => M.key === q && M.done))) { W[key] = true; continue; }   // (the watchtowers' fires out: the alarm never sounded, no archers come)
       if (!S.woken) S.woken = {};
       if (!S.woken[key]) { if (this.enemies.some((e) => !e.dead && !e.rb && e.x >= n.x && e.y >= n.y && e.x < n.x + n.w && e.y < n.y + n.h)) S.woken[key] = true; continue; }
       if (this.enemies.some((e) => !e.dead && !e.rb && !e.D.target && e.x >= n.x - 2 && e.y >= n.y - 2 && e.x < n.x + n.w + 2 && e.y < n.y + n.h + 2)) continue;

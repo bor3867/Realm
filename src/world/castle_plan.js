@@ -89,8 +89,10 @@ export const LOCKS = [
   [43, 44, 'seal+chain', 'THE BROKEN CROWN SEAL AND THE CHAIN RELEASE · THE GATE OPENS'], [45, 46, 'mech:seal45', 'THE ENTRANCE SEAL OPENS'],
   [46, 47, 'ashkar', 'ASHKAR IS FALLEN · THE GREAT SUN GATE IS OPEN'], [50, 51, 'break:50', 'THE CELESTIAL ANCHORS FAIL · THE WAY STEADIES'],
 ];
-// the mechanisms (stand at one, its area cleared, 3 s): [key, area, name, verb, sprite]
+// the mechanisms (stand at one, its area cleared, 3 s): [key, area, name, verb, sprite, at x, at y (0..1; else the middle)]
 export const MECHS = [
+  ['brazL', 22, 'THE WEST SIGNAL BRAZIER', 'SMOTHERING THE SIGNAL FIRE', 'castle_decor/pyre', 0.2, 0.7],
+  ['brazR', 22, 'THE EAST SIGNAL BRAZIER', 'SMOTHERING THE SIGNAL FIRE', 'castle_decor/pyre', 0.8, 0.7],
   ['draw', 23, 'THE DRAWBRIDGE WINCH', 'LOWERING THE DRAWBRIDGE', 'castle_decor/winch'],
   ['seal', 32, 'THE BROKEN CROWN SEAL', 'TAKING THE BROKEN CROWN SEAL', 'castle_decor/valve'],
   ['valve', 35, 'THE COOLING VALVE', 'TURNING THE COOLING VALVE', 'castle_decor/valve'],
