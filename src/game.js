@@ -3544,14 +3544,16 @@ export class Game {
   realmErupt(m) {
     if (this.map.kind !== 'realm' || this.erupting) { this.realmStale = true; return; }
     this.erupting = true;
-    this.banner('THE REALM ERUPTS!', 2600); this.vx({ k: 'shake', amt: 10 }); this.sfx('boss');
-    this.say('The realm erupts! In moments you are thrown before Solkhar.', '#ff8a3a');
+    // the user's castle spec (1): 12 s. 0 s the sun stolen; 3 s the castle rises (cracks, no harm); 6 s the rift and its
+    // count; 12 s a fade, and the breach (2.5 s of protection there)
+    this.banner('THE SUN HAS BEEN STOLEN.', 2800); this.vx({ k: 'shake', amt: 6 }); this.sfx('boss');
+    this.say('The sun has been stolen. A castle rises from the lava; in moments you are thrown into its breach.', '#ff8a3a');
     this.realmStale = true;
     if (m && m.iid) this.netEnterNext = { iid: m.iid, seed: m.seed, served: 1 };   // (the shared Throne the server opened for all of you)
     // the world shakes for a while first (2026-10-31, the user: "should shake the world and last a bit longer"): the
     // ground heaves harder and harder, the sky reddens and embers rain down; nothing hurts you while it lasts
-    this.eruptFx = { t0: this.t, dur: 8, next: 0, sec: 9 };
-    this.fx.push({ kind: 'erupttint', t: 0, life: 8.4 });
+    this.eruptFx = { t0: this.t, dur: 12, next: 0, sec: 13, stage: 0 };
+    this.fx.push({ kind: 'eclipse', t: 0, life: 12.4 }, { kind: 'erupttint', t: 0, life: 12.4 });
   }
   eruptTick() {
     const E = this.eruptFx;
@@ -3568,9 +3570,16 @@ export class Game {
         if (R() < 0.3) this.fx.push({ kind: 'ring', x, y, t: 0, max: 1.4, color: '#ff6a1a' });
       }
     }
-    const sec = Math.ceil(E.dur - (this.t - E.t0));
-    if (sec < E.sec && sec > 0) { E.sec = sec; if (sec <= 5) this.banner(`THE REALM ERUPTS IN ${sec}...`, 900); }
-    if (k >= 1) { this.eruptFx = null; this.erupting = false; this.vx({ k: 'shake', amt: 16 }); this.travel('throne'); }
+    const el = this.t - E.t0;
+    if (E.stage === 0 && el >= 3) {                          // the castle rises: the ground cracks round you (no harm)
+      E.stage = 1; this.banner('THE CASTLE RISES.', 2600);
+      for (let c = 0; c < 7; c++) { let x = p.x + (R() - 0.5) * 16, y = p.y + (R() - 0.5) * 12, a = R() * TAU; const pts = []; for (let i = 0; i < 14; i++) { pts.push([x, y]); a += (R() - 0.5) * 0.9; x += Math.cos(a) * 0.45; y += Math.sin(a) * 0.45; } this.fx.push({ kind: 'crack', pts, t: 0, life: 9.4 - c * 0.2 }); }
+    }
+    if (E.stage === 1 && el >= 6) { E.stage = 2; this.fx.push({ kind: 'rift', x: p.x, y: p.y - 4, t: 0, life: 6.4 }); this.sfx('portal'); }
+    const sec = Math.ceil(E.dur - el);
+    if (E.stage === 2 && sec < E.sec && sec > 0 && sec <= 6) { E.sec = sec; this.banner(`THE BREACH OPENS IN ${sec}`, 900); }
+    if (E.stage === 2 && el >= E.dur - 0.5 && !E.faded) { E.faded = true; this.fx.push({ kind: 'fade', t: 0, life: 1.0 }); }
+    if (k >= 1) { this.eruptFx = null; this.erupting = false; this.vx({ k: 'shake', amt: 16 }); this.travel('throne'); this.fx.push({ kind: 'fade', t: 0.5, life: 1.0 }); this.player.status.invuln = Math.max(this.player.status.invuln || 0, 2.5); }
   }
   // ---- waypoints: travel between the ones you have found (warpTo: it was also named travel, and the portals' travel,
   // defined later in the class, replaced it, so a waypoint sent you to the realm's landing beach)

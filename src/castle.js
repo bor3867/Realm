@@ -63,7 +63,6 @@ const methods = {
     if (S.through && this.t - S.through >= 0.5 && !S.arrived) {   // (under the fade's darkest)
       S.arrived = true; const I = Rm.I;
       p.x = I.cx + 0.5; p.y = I.y + I.h - 5; p.status.invuln = Math.max(p.status.invuln || 0, 2.5);
-      this.fx.push({ kind: 'fade', t: 0.5, life: 1.0 });
     }
   },
   castleEnter(k) {

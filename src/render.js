@@ -334,6 +334,18 @@ export class Renderer {
       else if (f.kind === 'skyfall') this.skyfallFx(f, g);
       else if (f.kind === 'erupttint') { const k = Math.min(1, f.t / 6), a = Math.min(1, (f.life - f.t) * 3) * (0.12 + 0.22 * k + 0.06 * Math.sin(g.t * 9));   // the realm erupting: the sky reddens
         this.b.fillStyle = `rgba(255,70,20,${Math.max(0, a).toFixed(3)})`; this.b.fillRect(0, 0, this.buf.width, this.buf.height); }
+      else if (f.kind === 'fade') { const h = f.life / 2, a = Math.max(0, Math.min(1, 1 - Math.abs(f.t - h) / h));   // a fade to black and back (the Sun Door; the eruption's last step)
+        this.b.fillStyle = `rgba(0,0,0,${a.toFixed(3)})`; this.b.fillRect(0, 0, this.buf.width, this.buf.height); }
+      else if (f.kind === 'eclipse') { const a = Math.min(1, f.t / 3) * Math.min(1, (f.life - f.t) * 2) * 0.42;   // the sun stolen: the light drains to violet-black
+        this.b.fillStyle = `rgba(14,6,26,${a.toFixed(3)})`; this.b.fillRect(0, 0, this.buf.width, this.buf.height); }
+      else if (f.kind === 'crack') {                       // a crack in the ground, glowing (the eruption: no harm in it)
+        const a = Math.min(1, f.t * 3) * Math.min(1, (f.life - f.t) * 2), b = this.b; b.globalAlpha = a;
+        for (let k = 0; k < f.pts.length; k++) { const [x, y] = this.proj(f.pts[k][0], f.pts[k][1]); b.fillStyle = '#1a0806'; b.fillRect(Math.round(x) - 2, Math.round(y) - 1, 4, 3); b.fillStyle = (k + Math.floor(g.t * 8)) % 3 ? '#ff6a1c' : '#ffd650'; b.fillRect(Math.round(x) - 1, Math.round(y), 2, 1); }
+        b.globalAlpha = 1; }
+      else if (f.kind === 'rift') {                        // the rift: a gash of dark with a burning rim, opening
+        const k = Math.min(1, f.t / 1.5), [x, y] = this.proj(f.x, f.y), w = Math.round(48 * k), h = Math.round(16 * k), b = this.b;
+        for (let i = -w; i <= w; i++) { const d = Math.round(h * Math.sqrt(Math.max(0, 1 - (i / (w || 1)) ** 2))); b.fillStyle = '#ff6a1c'; b.fillRect(Math.round(x) + i, Math.round(y) - d - 1, 1, 2 * d + 2); b.fillStyle = (i + Math.floor(g.t * 20)) % 5 ? '#0a0410' : '#3a0c3a'; b.fillRect(Math.round(x) + i, Math.round(y) - d, 1, 2 * d); }
+      }
       else if (f.kind === 'lane') this.laneFx(f, g);
       else if (f.kind === 'cleave') this.cleaveFx(f, g);
       else if (f.kind === 'wglyph' || f.kind === 'wphantom') this.mechFx(f, g);
