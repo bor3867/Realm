@@ -29,7 +29,7 @@ import { TAU, angleTo, target, mark, ahead, running, scheduler } from './kit.js'
 
 const FIRE = ['#ff8a1f', '#ffd650', '#ff3a1a'], ASH = ['#5a5560', '#8a8490', '#b884cc'];
 const D = (n) => n + 4;                                    // (an effective number, set above Defense: a Throne-geared character's, measured)
-const later = (e, t, name, V) => e.bx.vol.push({ t, V: { form: 'special', name, ...V } });
+const later = (e, t, name, V) => e.bx.vol.push({ t, V: { form: 'special', ...V, name } });   // (its own name last: a V passed on whole keeps the step it's for)
 const shot = (g, e, x, y, a, V) => g.bxShot(e, x, y, a, V);
 const CRESCENT = { sprite: 'jarl_shots/crescent', size: 0.4 }, SHARD = { sprite: 'jarl_shots/shard', size: 0.35 }, STONE = { sprite: 'jarl_shots/stone', size: 0.4 };
 const cleave = (g, e, a, r, spread, delay, dmg) => g.fx.push({ kind: 'cleave', x: e.x, y: e.y, a, r, spread, delay, t: 0, life: delay + 0.3, dmg: g.bxDmg(e, dmg), by: e.D.name, done: false });
