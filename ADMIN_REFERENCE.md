@@ -11,7 +11,7 @@ Type commands in chat (`/` or Enter). Ids use underscores. Regenerate with `node
 | `/w NAME message` | Whisper to one player (anyone; also /whisper, /tell, /msg). Shown in blue, their name in [] |
 | `/r message` | Reply to whoever last whispered to you (anyone; also /reply) |
 | `/cleardeaths` | Forget your own fallen heroes, off your account and the Hall of Legends (asks you to type /cleardeaths confirm; also a button in the Hall of Legends). Fame and achievements stay |
-| `/erupt` | The realm erupts now: everyone in it is sent together into a shared Throne of Solkhar, and a new realm rises (online: the shared realm; it also erupts on its own every 15 minutes) |
+| `/rift` | The void opens under the realm now: Solkhar speaks as it widens, it swallows everyone in it into a shared Throne of Solkhar, and a new realm rises (online: the shared realm; it also opens on its own every 30 minutes) |
 | `/admin` | Equip the admin kit (old gear goes to your backpack) |
 | `/god` | Toggle god mode |
 | `/mortal` | God mode off and the admin kit to your backpack (to be hurt again) |

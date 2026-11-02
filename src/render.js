@@ -334,8 +334,8 @@ export class Renderer {
       else if (f.kind === 'scorch' || f.kind === 'wcinder') this.scorchFx(f, g);
       else if (f.kind === 'hexzone') this.hexFx(f, g);
       else if (f.kind === 'skyfall') this.skyfallFx(f, g);
-      else if (f.kind === 'erupttint') { const k = Math.min(1, f.t / 6), a = Math.min(1, (f.life - f.t) * 3) * (0.12 + 0.22 * k + 0.06 * Math.sin(g.t * 9));   // the realm erupting: the sky reddens
-        this.b.fillStyle = `rgba(255,70,20,${Math.max(0, a).toFixed(3)})`; this.b.fillRect(0, 0, this.buf.width, this.buf.height); }
+      else if (f.kind === 'erupttint') { const k = Math.min(1, f.t / 6), a = Math.min(1, (f.life - f.t) * 3) * (0.1 + 0.2 * k + 0.05 * Math.sin(g.t * 6));   // the void opening: the sky goes violet
+        this.b.fillStyle = `rgba(110,40,190,${Math.max(0, a).toFixed(3)})`; this.b.fillRect(0, 0, this.buf.width, this.buf.height); }
       else if (f.kind === 'fade') { const h = f.life / 2, a = Math.max(0, Math.min(1, 1 - Math.abs(f.t - h) / h));   // a fade to black and back (the Sun Door; the eruption's last step)
         this.b.fillStyle = `rgba(0,0,0,${a.toFixed(3)})`; this.b.fillRect(0, 0, this.buf.width, this.buf.height); }
       else if (f.kind === 'sunrise') { const a = Math.min(1, f.t * 1.5) * Math.max(0, 1 - f.t / f.life) * 0.35;   // Solkhar falls: the eclipse turns to dawn
@@ -1646,6 +1646,10 @@ export class Renderer {
     }
   }
   player(g, p, sx, sy) {
+    if (p.voidSink > 0) {                                  // (the void taking you: sinking into the crack, fading)
+      const b = this.b, a0 = b.globalAlpha; b.globalAlpha = a0 * Math.max(0, 1 - p.voidSink);
+      try { return this.player0(g, p, sx, sy + Math.round(p.voidSink * 12)); } finally { b.globalAlpha = a0; }
+    }
     const d = !p.dead ? this.wadeIn(g.map, p.x, p.y) : 0;   // (wading: see wadeIn)
     this.wade = d ? { y: sy, d } : null; this.wadeT = g.t;
     try { return this.player0(g, p, sx, sy); } finally { this.wade = null; }
@@ -2097,19 +2101,26 @@ export class Renderer {
         const c = G.cell[i], d = G.dm[i]; let col;
         const flick = 0.85 + 0.15 * Math.sin(el * 9 + G.along[i] * 40 + x * 0.2);
         if (d < wm) {                                                          // the channel
-          const k = d / wm; col = k < 0.15 ? [255, 248, 196] : k < 0.42 ? [255, 210, 52] : k < 0.72 ? [255, 124, 20] : [196, 44, 18];
-          if (k < 0.42 && Math.sin(G.along[i] * 90 - el * 7) > 0.7) col = [255, 236, 140];   // (its flow, pulsing along it)
+          const k = d / wm;
+          if (f.void) {                                                        // the void: black, stars in it, a violet rim
+            const h = ((Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1 + 1) % 1;
+            col = k < 0.62 ? (h > 0.985 - 0.01 * Math.sin(el * 3 + h * 40) ? [236, 226, 255] : h > 0.96 ? [120, 90, 190] : [8, 4, 16]) : k < 0.8 ? [70, 30, 130] : [176, 110, 255];
+          } else {
+            col = k < 0.15 ? [255, 248, 196] : k < 0.42 ? [255, 210, 52] : k < 0.72 ? [255, 124, 20] : [196, 44, 18];
+            if (k < 0.42 && Math.sin(G.along[i] * 90 - el * 7) > 0.7) col = [255, 236, 140];   // (its flow, pulsing along it)
+          }
         } else {
           const nr = Math.max(0, 1 - d / reach), crack = G.gap[i] < 1.0 + nr * hot * 1.4;
           if (crack) {
             const v = nr * hot * flick;
-            col = hot <= 0 || d >= reach ? [18, 10, 22] : v > 0.55 ? [255, 200, 64] : v > 0.3 ? [255, 120, 28] : nr * hot > 0.08 ? [196, 44, 26] : [70, 18, 22];
+            col = hot <= 0 || d >= reach ? [18, 10, 22] : f.void ? (v > 0.55 ? [226, 196, 255] : v > 0.3 ? [168, 100, 250] : nr * hot > 0.08 ? [96, 44, 170] : [40, 18, 70])
+              : v > 0.55 ? [255, 200, 64] : v > 0.3 ? [255, 120, 28] : nr * hot > 0.08 ? [196, 44, 26] : [70, 18, 22];
           } else {
             const up = G.cell[Math.max(0, i - W - 1)] !== c, dn = G.cell[Math.min(W * H - 1, i + W + 1)] !== c, v = G.seeds[c][2];
             col = PL[up ? 3 : dn ? 0 : v < 0.4 ? 1 : 2].slice();
-            if (d < wm + 1.6) col = [120, 40, 30];                              // (the channel's scorched lips)
+            if (d < wm + 1.6) col = f.void ? [40, 20, 70] : [120, 40, 30];       // (the channel's lips)
             const glow = Math.max(0, 1 - d / (8 + 30 * hot)) * hot;               // (the plates lit red by the lava beside them)
-            if (glow > 0) { col[0] = Math.min(255, col[0] + 150 * glow); col[1] = Math.min(255, col[1] + 40 * glow); }
+            if (glow > 0) { if (f.void) { col[0] = Math.min(255, col[0] + 60 * glow); col[2] = Math.min(255, col[2] + 130 * glow); } else { col[0] = Math.min(255, col[0] + 150 * glow); col[1] = Math.min(255, col[1] + 40 * glow); } }
           }
         }
         Dt[o] = col[0]; Dt[o + 1] = col[1]; Dt[o + 2] = col[2]; Dt[o + 3] = Math.round(255 * rise * out);
@@ -2120,7 +2131,7 @@ export class Renderer {
     b.save(); b.imageSmoothingEnabled = false; b.transform((ax - ox) / TX, (ay - oy) / TX, (bx - ox) / TX, (by - oy) / TX, ox, oy); b.drawImage(f.cv, 0, 0); b.restore();
     if (s > 0.35 && Math.random() < 0.2 + s * 0.8) {                        // flames licking up along the channel
       const q = f.pts[Math.floor(Math.random() * f.pts.length)];
-      if (q && Math.abs(q[0] - f.cx) < FW / 2 - 3 && Math.abs(q[1] - f.cy) < FH / 2 - 3) this.parts.push({ x: q[0] + (Math.random() - 0.5) * 0.6, y: q[1], z: 2, vx: 0, vy: 0, vz: 10 + Math.random() * 16, g: -4, life: 0.45, max: 0.45, color: ['#ffd650', '#ff8a1f', '#ff4a1a', '#fff6c8'][Math.floor(Math.random() * 4)] });
+      if (q && Math.abs(q[0] - f.cx) < FW / 2 - 3 && Math.abs(q[1] - f.cy) < FH / 2 - 3) this.parts.push({ x: q[0] + (Math.random() - 0.5) * 0.6, y: q[1], z: 2, vx: 0, vy: 0, vz: 10 + Math.random() * 16, g: -4, life: 0.45, max: 0.45, color: (f.void ? ['#c88aff', '#8a5ad8', '#e6c8ff', '#4a2a80'] : ['#ffd650', '#ff8a1f', '#ff4a1a', '#fff6c8'])[Math.floor(Math.random() * 4)] });   // (from the void: violet motes rising)
     }
   }
   // the castle's rope bridges (the Deadwater Ravine's; 2026-11-02, the user: "The wooden bridge can look a lot better"):

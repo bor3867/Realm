@@ -3561,30 +3561,32 @@ export class Game {
   }
   realmWarn(left) {
     const t = left >= 60 ? `${left / 60} minute${left >= 120 ? 's' : ''}` : `${left} seconds`;
-    if (this.map.kind === 'realm') this.banner(`The realm erupts in ${t}!`, 3000);
-    this.say(`The realm erupts in ${t}.`, '#ff8a3a');
+    if (this.map.kind === 'realm') this.banner(`The void opens in ${t}!`, 3000);
+    this.say(`The void opens beneath the realm in ${t}.`, '#c88aff');
   }
   realmErupt(m) {
     if (this.map.kind !== 'realm' || this.erupting) { this.realmStale = true; return; }
     this.erupting = true;
     // the user's castle spec (1): 12 s. 0 s the sun stolen; 3 s the castle rises (cracks, no harm); 6 s the rift and its
     // count; 12 s a fade, and the breach (2.5 s of protection there)
-    this.banner('THE SUN HAS BEEN STOLEN.', 2800); this.vx({ k: 'shake', amt: 6 }); this.sfx('boss');
-    this.say('The sun has been stolen. A castle rises from the lava; in moments you are thrown into its breach.', '#ff8a3a');
+    // (2026-11-02, the user: "instead of the erupt, can we make it a void crack that swallows the players into it. Solkhar
+    // talks to the players as it's happening. He welcomes them to come and try and defeat him"): the ground splits into
+    // the void; he speaks as it widens (eruptTick: SOLKHAR); at the end it drags you in
+    this.vx({ k: 'shake', amt: 6 }); this.sfx('boss');
+    this.say('The ground splits open into the void beneath the realm.', '#c88aff');
     this.realmStale = true;
     if (m && m.iid) this.netEnterNext = { iid: m.iid, seed: m.seed, served: 1 };   // (the shared Throne the server opened for all of you)
     // the world shakes for a while first (2026-10-31, the user: "should shake the world and last a bit longer"): the
     // ground heaves harder and harder, the sky reddens and embers rain down; nothing hurts you while it lasts
-    this.eruptFx = { t0: this.t, dur: 12, next: 0, sec: 13, stage: 0 };
+    this.eruptFx = { t0: this.t, dur: 12, next: 0, sec: 13, stage: 0, said: 0 };
     { const p = this.player, walk = (x, y, a, n, st, a0w = a) => { const pts = []; for (let i = 0; i < n; i++) { pts.push([x, y]); a += (R() - 0.5) * 0.5; a += (a0w - a) * 0.08; x += Math.cos(a) * st; y += Math.sin(a) * st * 0.8; } return pts; };
       // (2026-11-02, the user: "Almost like a crack in the ground with lava flowing in it growing as the realm shakes"): it
       // splits open from beside you both ways, widening, lava flowing along it; branches break off it as it grows
       const a0 = R() * Math.PI, x0 = p.x + (R() - 0.5) * 3, y0 = p.y + 1.5 + R() * 1.5, half = 70;
       const main = [...walk(x0, y0, a0 + Math.PI, half, 0.3).reverse(), ...walk(x0, y0, a0, half, 0.3).slice(1)];
       const br = []; for (let k = 0; k < 6; k++) { const i = Math.floor(R() * main.length), [bx, by] = main[i]; br.push({ at: 3 + k * 1.2, pts: walk(bx, by, a0 + (R() < 0.5 ? 1 : -1) * (0.8 + R() * 0.8), 20 + Math.floor(R() * 16), 0.28) }); }
-      // (2026-11-02, the user's reference sheet "REALM ERUPTION · LAVA CRACK / FISSURE": cracked stone plates round it, a web
-      // of cracks lighting outward from it, stable → rumble → surge → erupt; src/render.js fissureFx)
-      this.fx.push({ kind: 'fissure', cx: x0, cy: y0, pts: main, br, t: 0, life: 12.6, seed: Math.floor(R() * 1e6) + 1 }); }
+      // (the user's reference sheet's cracked plates and web of cracks, in the void's colours: src/render.js fissureFx)
+      this.fx.push({ kind: 'fissure', void: true, cx: x0, cy: y0, pts: main, br, t: 0, life: 12.6, seed: Math.floor(R() * 1e6) + 1 }); }
     this.fx.push({ kind: 'eclipse', t: 0, life: 12.4 }, { kind: 'erupttint', t: 0, life: 12.4 });
   }
   // the minute before the eruption the sun is taken (2026-11-02, the user: "The minute before the eruption, take the
@@ -3602,26 +3604,33 @@ export class Game {
     const E = this.eruptFx;
     if (!E) return;
     const p = this.player, k = (this.t - E.t0) / E.dur;
-    if (this.map.kind !== 'realm' || p.dead) { this.eruptFx = null; this.erupting = false; return; }
+    if (this.map.kind !== 'realm' || p.dead) { this.eruptFx = null; this.erupting = false; p.voidSink = 0; return; }
     p.status.invuln = Math.max(p.status.invuln || 0, 0.3);
     if (this.t >= E.next) {                                  // a heave of the ground, harder as it builds
       E.next = this.t + 0.22;
       this.vx({ k: 'shake', amt: Math.round(3 + 11 * Math.min(1, k)) });
       for (let i = 0; i < 1 + Math.floor(k * 4); i++) {
         const a = R() * TAU, d = 2 + R() * 9, x = p.x + Math.cos(a) * d, y = p.y + Math.sin(a) * d;
-        this.vx({ k: 'burst', x, y, n: 10, colors: ['#ff8a3a', '#ffd650', '#ff3a1a', '#2a1a14'] });
-        if (R() < 0.3) this.fx.push({ kind: 'ring', x, y, t: 0, max: 1.4, color: '#ff6a1a' });
+        this.vx({ k: 'burst', x, y, n: 10, colors: ['#8a5ad8', '#c88aff', '#2a1440', '#0a0612'] });   // (dust of the void)
+        if (R() < 0.3) this.fx.push({ kind: 'ring', x, y, t: 0, max: 1.4, color: '#9a6ae8' });
       }
     }
-    const el = this.t - E.t0;
-    if (E.stage === 0 && el >= 3) {                          // the castle rises: the ground cracks round you (no harm)
-      E.stage = 1; this.banner('THE CASTLE RISES.', 2600);
+    const el = this.t - E.t0, dt = Math.min(0.1, this.t - (E.lt ?? this.t)); E.lt = this.t;
+    // Solkhar, as the void opens: he welcomes you to come and try him
+    const LINES = [[0.4, 'Little lights... how bravely you gather in my dark.'], [3.2, 'Your sun is mine now. I have it burning on my throne.'],
+      [6.0, 'Come, then. I open the way myself.'], [8.8, 'Step into the void, and try to take it back from me.'], [10.8, 'Welcome to my throne.']];
+    while (E.said < LINES.length && el >= LINES[E.said][0]) { const L = LINES[E.said++][1]; this.banner(`SOLKHAR: "${L}"`, 2700); this.say(`Solkhar: ${L}`, '#c88aff'); }
+    if (E.stage === 0 && el >= 3) E.stage = 1;
+    if (E.stage === 1 && el >= 6) { E.stage = 2; this.sfx('portal'); }
+    // the last seconds: the void takes you: dragged to the crack, sinking into it
+    const F = this.fx.find((f) => f.kind === 'fissure');
+    if (F && el > E.dur - 2.6) {
+      if (!E.to) { let best = null, bd = 1e9; for (const q of F.pts) { const d = Math.hypot(q[0] - p.x, q[1] - p.y); if (d < bd) { bd = d; best = q; } } E.to = best || [p.x, p.y]; }
+      const pull = Math.min(1, dt * 2.6); p.x += (E.to[0] - p.x) * pull; p.y += (E.to[1] - p.y) * pull;
+      p.voidSink = Math.min(1, (el - (E.dur - 2.6)) / 2.3);
     }
-    if (E.stage === 1 && el >= 6) { E.stage = 2; this.sfx('portal'); }   // (the rift's black hole gone: the user, 2026-11-02; the fissure is the breach)
-    const sec = Math.ceil(E.dur - el);
-    if (E.stage === 2 && sec < E.sec && sec > 0 && sec <= 6) { E.sec = sec; this.banner(`THE BREACH OPENS IN ${sec}`, 900); }
     if (E.stage === 2 && el >= E.dur - 0.5 && !E.faded) { E.faded = true; this.fx.push({ kind: 'fade', t: 0, life: 1.0 }); }
-    if (k >= 1) { this.eruptFx = null; this.erupting = false; this.vx({ k: 'shake', amt: 16 }); this.travel('throne'); this.fx.push({ kind: 'fade', t: 0.5, life: 1.0 }); this.player.status.invuln = Math.max(this.player.status.invuln || 0, 2.5); }
+    if (k >= 1) { this.eruptFx = null; this.erupting = false; p.voidSink = 0; this.vx({ k: 'shake', amt: 16 }); this.travel('throne'); this.fx.push({ kind: 'fade', t: 0.5, life: 1.0 }); this.player.status.invuln = Math.max(this.player.status.invuln || 0, 2.5); }
   }
   // ---- waypoints: travel between the ones you have found (warpTo: it was also named travel, and the portals' travel,
   // defined later in the class, replaced it, so a waypoint sent you to the realm's landing beach)
@@ -4515,7 +4524,7 @@ export class Game {
       case 'help':
         say('Player: /w NAME message (a whisper)  /r message (reply)  /teleport NAME (to someone here)  /dance  · Enter to chat, Esc for settings and your keys.');
         if (!this.adminOk()) break;
-        say('/cleardeaths (forget your fallen heroes, off the Hall of Legends too)  /erupt (the realm erupts now: everyone in it to the Throne, a new realm)  /admin  /ascend (top level, stats maxed; a priest gets the Hosanna set)  /backpack  /maxlevel  /level N  /maxstats  /heal  /god  /give ITEM [N]  /give dungeon ID (its whole loot set)  /items TEXT  /spawn ID [N] (any monster, elite or boss; /spawn chicken N, /spawn pigeon N: up to 100 XP birds)  /boss ID  ' +
+        say('/cleardeaths (forget your fallen heroes, off the Hall of Legends too)  /rift (the void opens under the realm now: everyone in it to the Throne, a new realm)  /admin  /ascend (top level, stats maxed; a priest gets the Hosanna set)  /backpack  /maxlevel  /level N  /maxstats  /heal  /god  /give ITEM [N]  /give dungeon ID (its whole loot set)  /items TEXT  /spawn ID [N] (any monster, elite or boss; /spawn chicken N, /spawn pigeon N: up to 100 XP birds)  /boss ID  ' +
             '/bx BOSS (a three-phase boss beside you)  /kraken  /treant  /melon  /event BIOME  /adminchest [N] (best loot)  /armory [TIER] (the Mad God Armory)  /keys [dungeon N] (dungeon keys)  /pet [kind rarity max]  /star (a falling star in Godfall)  /seals (open a dungeon boss gate)  /progress BIOME N  /gold N  /essence N  /bosses  /tp LAND|nexus|realm|DUNGEON (lands: shore fen runeholt godfall dunes thornwood steppe lowlands)  /killall  /clearbags  /fame N  /portal DUNGEON  (all ids: ADMIN_REFERENCE.md; final boss: /portal throne)');
         break;
       case 'w': case 'whisper': case 'tell': case 'msg': case 'r': case 'reply': {   // a whisper: one player only (src/net.js)
@@ -4531,8 +4540,8 @@ export class Game {
         this.clearDeaths(); say(`Your ${n} fallen hero${n === 1 ? '' : 'es'} cleared.`);
         break;
       }
-      case 'erupt':                                       // the realm erupts now (online: the shared one, for everyone in it)
-        if (this.netErupt && this.netErupt()) say('The realm erupts (sent to the server).');
+      case 'rift':                                        // the void opens under the realm now (online: the shared one, for everyone in it)
+        if (this.netErupt && this.netErupt()) say('The void opens (sent to the server).');
         else if (this.map && this.map.kind === 'realm') this.realmErupt();
         else { this.realmBorn = 0; say('Your realm will be new the next time you enter it.'); }
         break;

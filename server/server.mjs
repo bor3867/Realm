@@ -59,7 +59,7 @@ const worldOf = (room) => (room === REALM ? world : room === 'nexus' ? nexusWorl
 // ---- the realm's life (2026-10-30, the user: "Have the realm run on a timer. It stays active for 15 minutes before
 // erupting and sending players to the final boss. This also lets the realm reset"; 2026-11-02: every 30 minutes). Warnings as it nears; then everyone
 // in it is thrown together into one shared Throne of Solkhar, and a fresh realm (a new seed) takes its place. An admin
-// can set it off early (/erupt).
+// can set it off early (/rift: the void opens under the realm, 2026-11-02).
 const REALM_LIFE = (+process.env.REALM_LIFE_S || 30 * 60) * 1000, REALM_WARN = [300, 60, 30, 10];   // (REALM_LIFE_S: shorter, to try it locally)
 let realmBorn = Date.now(), realmWarned = new Set();
 const realmEnds = () => realmBorn + REALM_LIFE;
@@ -79,7 +79,7 @@ function erupt(by) {
     catch (err) { console.error('erupt', err); }
   }
   for (const c of inRealm) send(c, { t: 'erupt', to: 'throne', ...(pass || {}) });
-  toAll({ t: 'chat', id: 0, name: 'Server', text: `The realm has erupted${by ? ` (${by})` : ''}! Those in it are thrown before Solkhar. A new realm rises.` });
+  toAll({ t: 'chat', id: 0, name: 'Server', text: `The void has swallowed the realm${by ? ` (${by})` : ''}! Solkhar welcomes those in it to his throne. A new realm rises.` });
   newRealm();
 }
 setInterval(() => {
