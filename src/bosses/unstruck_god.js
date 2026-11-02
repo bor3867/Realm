@@ -310,7 +310,7 @@ export default {
     for (const q of S.slMinions || []) if (!q.dead) { q.noLoot = true; q.dead = true; q.deadT = 0; }
     S.wait = ph === 2 ? 1.5 : 1.8;
     if (ph === 2) { if (g.banner) g.banner('LIGHT IS STOLEN', 2600); g.vx({ k: 'shake', amt: 8 }); g.vx({ k: 'burst', x: e.x, y: e.y - 3, n: 40, colors: SUNC }); g.sfx('shatter'); S.slLaw = null; }
-    if (ph === 3) { if (g.banner) g.banner('THE SUNTHIEF UNBOUND', 2800); g.vx({ k: 'shake', amt: 12 }); g.vx({ k: 'burst', x: e.x, y: e.y - 3, n: 60, colors: [...SUNC, '#ff3a1a'] }); g.sfx('roar'); if (g.map) g.map.ambient = 'rgba(14,4,10,0.62)'; }
+    if (ph === 3) { if (g.banner) g.banner('THE SUNTHIEF UNBOUND', 2800); g.vx({ k: 'shake', amt: 12 }); g.vx({ k: 'burst', x: e.x, y: e.y - 3, n: 60, colors: [...SUNC, '#ff3a1a'] }); g.sfx('roar'); if (g.map) g.map.ambBoss = [12, 3, 8, 0.66]; }   // (his sanctum darker: src/castle.js eases into it)
   },
   update(g, e, dt) {
     const S = e.bx;
@@ -353,7 +353,7 @@ export default {
     for (const q of S.slMinions || []) if (!q.dead) { q.noLoot = true; q.dead = true; q.deadT = 0; }
     g.vx({ k: 'shake', amt: 14 }); if (g.banner) g.banner('DAWN RETURNS.', 3600);
     g.fx.push({ kind: 'sunrise', t: 0, life: 6 });
-    if (g.map) g.map.ambient = 'rgba(60,40,10,0.12)';
+    if (g.map) g.map.ambBoss = [60, 40, 10, 0.14];               // (the sun given back: his sanctum lit)
   },
   // the dais's marks: the Eclipse Law's quarters (gold-outlined suns, violet hatching), the corona's rings shown, the vise's path ahead
   drawGround(r, g, e) {

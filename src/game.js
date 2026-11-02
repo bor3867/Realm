@@ -3149,7 +3149,7 @@ export class Game {
   heatAt(y) { const C = this.map.citadel; return Math.max(0, Math.min(1, (C.bottom - y) / (C.bottom - C.top))); }
   citadelHeat(dt) {
     const m = this.map, p = this.player, k = this.heatAt(p.y);
-    m.ambient = `rgba(${Math.round(20 + 40 * k)},${Math.round(12 - 6 * k)},${Math.round(30 - 26 * k)},${(0.36 + 0.1 * k).toFixed(2)})`;
+    if (!m.castle) m.ambient = `rgba(${Math.round(20 + 40 * k)},${Math.round(12 - 6 * k)},${Math.round(30 - 26 * k)},${(0.36 + 0.1 * k).toFixed(2)})`;   // (the castle lights itself by region: src/castle.js)
     this.emberT = (this.emberT || 0) - dt;
     if (this.emberT > 0) return;
     this.emberT = 0.5 - 0.4 * k;

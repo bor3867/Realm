@@ -14,13 +14,38 @@ import { TID } from './world/maps.js';
 
 const inR = (n, x, y) => n && x >= n.x && y >= n.y && x < n.x + n.w && y < n.y + n.h;
 const D = (n) => n + 4;
-// each part of the castle its own light: the entrance burning, the court's violet dusk, the forge's glare, Ashkar's
-// red, the eclipse almost black, the sanctum the stolen sun's gold
-const AMBIENT = { gate: 'rgba(44,16,8,0.34)', siege: 'rgba(40,18,10,0.36)', court: 'rgba(18,10,34,0.42)', forge: 'rgba(50,18,4,0.3)', ashkar: 'rgba(58,10,4,0.36)',
-  eclipse: 'rgba(8,3,20,0.55)', sanctum: 'rgba(34,22,8,0.34)' };   // (dark enough to feel, light enough that every shot reads)
+// each region of the castle its own light (2026-11-02, the user: "the castle changes brightness abruptly... establish a
+// cohesive lighting system based on dungeon regions... transition smoothly between neighbouring rooms and hallways"):
+// the eruption's smoky orange dark outside, the Hollow Court's cold violet, the forges deep charcoal (their molten light
+// is their own lamps'), Ashkar's red, the eclipse darker purple-black the further along it, the sanctum near-black but
+// for the stolen sun. [r, g, b, alpha] of the dark laid over the floor (under every shot: they always read).
+const AMBIENT = { gate: [42, 18, 10, 0.4], siege: [38, 16, 10, 0.42], court: [16, 10, 32, 0.46], forge: [22, 12, 10, 0.48], ashkar: [36, 8, 6, 0.48],
+  eclipse: [10, 4, 24, 0.54], sanctum: [8, 3, 10, 0.6] };
+const DEEPER = { walk: 0, eclipseshrine: 0.05, walk2: 0.1 };        // (along the eclipse: each part a little darker)
+const roomAmb = (n) => { const A = AMBIENT[n.sect]; if (!A) return null; const d = DEEPER[n.key] ?? DEEPER[n.kind] ?? 0; return d ? [A[0], A[1], A[2], A[3] + d] : A; };
+const distR = (n, x, y) => Math.hypot(Math.max(n.x - x, 0, x - (n.x + n.w)), Math.max(n.y - y, 0, y - (n.y + n.h)));
 const FALLING = { battlements: [1.8, 90, 'falling stones'], towerfall: [1.5, 90, 'falling masonry'], chainbridge: [1.3, 110, 'an eruption'] };
 
 const methods = {
+  // the light where you stand: every room near you by how near (inside one, it is all its own; in a hallway between two,
+  // a mix of both), eased toward over about a second, so no doorway switches the screen's brightness at a step. A boss
+  // may darken its own room (Solkhar's sanctum as his sun is torn from him): m.ambBoss, while you are in it.
+  castleLight(dt, Rm, here) {
+    const m = this.map, p = this.player, S = m.castle.st;
+    let w = 0; const T = [0, 0, 0, 0];
+    for (const k in Rm) {
+      const n = Rm[k], d = distR(n, p.x, p.y); if (d > 16) continue;
+      const A = n === here && m.ambBoss && here.sect === 'sanctum' ? m.ambBoss : roomAmb(n); if (!A) continue;
+      const q = d === 0 ? 1e3 : 1 / (1 + (d * d) / 9) ** 2;
+      for (let i = 0; i < 4; i++) T[i] += A[i] * q;
+      w += q;
+    }
+    if (!w) return;
+    for (let i = 0; i < 4; i++) T[i] /= w;
+    const cur = S.amb || (S.amb = T.slice()), k = 1 - Math.exp(-dt / 0.7);
+    for (let i = 0; i < 4; i++) cur[i] += (T[i] - cur[i]) * k;
+    m.ambient = `rgba(${Math.round(cur[0])},${Math.round(cur[1])},${Math.round(cur[2])},${cur[3].toFixed(3)})`;
+  },
   castleTick(dt) {
     const m = this.map, C = m.castle, p = this.player;
     if (!C || !C.rooms || p.dead) return;
@@ -28,7 +53,7 @@ const methods = {
     this.castleParty();
     const key = Object.keys(Rm).find((k) => inR(Rm[k], p.x, p.y)), n = key && Rm[key];
     if (key && !S.said[key]) { S.said[key] = true; this.castleEnter(key, n); }
-    if (n && n.sect) m.ambient = AMBIENT[n.sect] || m.ambient;
+    this.castleLight(dt, Rm, n);
     // the arrival's door
     if (!S.breachOpen && this.t - S.t0 > 3) { S.breachOpen = true; this.castleOpen('breach'); }
     // a gate the server opened (its tile back to the floor): open in this copy too
