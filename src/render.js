@@ -667,7 +667,7 @@ export class Renderer {
     const ax = o.center || o.rot !== undefined ? f.w / 2 : def.foot[0], ay = o.center || o.rot !== undefined ? f.h / 2 : def.foot[1];
     let I, pad = 0;
     if (o.flash) I = this.white(def.img, f.x, f.y, f.w, f.h);
-    else if (def.outline) { I = outlinedFrame(def.img, f.x, f.y, f.w, f.h, U * K, undefined, U >= 2 ? 2 : 1); pad = I.pad / U; }
+    else if (def.outline) { I = def.rim === 'soft' ? outlinedFrame(def.img, f.x, f.y, f.w, f.h, U * K, 'self', 1, false) : outlinedFrame(def.img, f.x, f.y, f.w, f.h, U * K, undefined, U >= 2 ? 2 : 1); pad = I.pad / U; }
     else I = null;
     const W = f.w * K, H = f.h * K, ga = b.globalAlpha;
     if (o.alpha !== undefined) b.globalAlpha = ga * o.alpha;

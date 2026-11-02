@@ -19,11 +19,16 @@ export function outlinedFrame(img, sx, sy, w, h, U = 1, col = '#05040a', rim = 0
   const art = document.createElement('canvas'); art.width = W; art.height = H;
   const a = art.getContext('2d');
   a.imageSmoothingEnabled = false;
-  a.drawImage(img, sx, sy, w, h, 0, 0, W, H);
+  if (col === 'self') a.drawImage(softEdge(img, sx, sy, w, h), 0, 0, W, H);
+  else a.drawImage(img, sx, sy, w, h, 0, 0, W, H);
   const sil = document.createElement('canvas'); sil.width = W; sil.height = H;
   const s = sil.getContext('2d');
   s.drawImage(art, 0, 0);
-  s.globalCompositeOperation = 'source-in'; s.fillStyle = col; s.fillRect(0, 0, W, H);
+  // col 'self': the rim is the sprite's own colours a good deal darker, toward charcoal violet (the castle's monsters, bosses
+  // and shots: 2026-11-02, the user: "use subtle charcoal, dark purple, or appropriate darker shades of their existing
+  // colours" instead of a heavy black border); otherwise one flat colour
+  if (col === 'self') { s.globalCompositeOperation = 'source-atop'; s.fillStyle = 'rgba(24,14,32,0.74)'; s.fillRect(0, 0, W, H); }
+  else { s.globalCompositeOperation = 'source-in'; s.fillStyle = col; s.fillRect(0, 0, W, H); }
   for (const [dx, dy] of [[0, o], [2 * o, o], [o, 0], [o, 2 * o]]) x.drawImage(sil, dx, dy);
   if (corners) {                                    // (a softer fill at the corners; a thin line has none)
     x.globalAlpha = 0.6;
@@ -32,5 +37,28 @@ export function outlinedFrame(img, sx, sy, w, h, U = 1, col = '#05040a', rim = 0
   }
   x.drawImage(art, o, o);
   per.set(key, cv);
+  return cv;
+}
+
+// the art's own black edge (a pixel touching the outside, near black) in a darker shade of the colour just inside it,
+// a little violet; where the black is all there is (a thick border), charcoal violet. At the art's own pixels.
+function softEdge(img, sx, sy, w, h) {
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+  const x = cv.getContext('2d'); x.drawImage(img, sx, sy, w, h, 0, 0, w, h);
+  let D; try { D = x.getImageData(0, 0, w, h); } catch { return cv; }
+  const d = D.data, src = new Uint8ClampedArray(d), at = (X, Y) => (Y * w + X) * 4;
+  const out = (X, Y) => X < 0 || Y < 0 || X >= w || Y >= h || src[at(X, Y) + 3] < 40, dark = (i) => Math.max(src[i], src[i + 1], src[i + 2]) < 40;
+  for (let Y = 0; Y < h; Y++) for (let X = 0; X < w; X++) {
+    const i = at(X, Y);
+    if (src[i + 3] < 40 || !dark(i) || !(out(X + 1, Y) || out(X - 1, Y) || out(X, Y + 1) || out(X, Y - 1))) continue;
+    let r = 38, g = 26, b = 48, n = 0, R = 0, G = 0, B = 0;
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+      const U = X + dx, V = Y + dy; if (out(U, V)) continue; const j = at(U, V); if (dark(j)) continue;
+      R += src[j]; G += src[j + 1]; B += src[j + 2]; n++;
+    }
+    if (n) { r = (R / n) * 0.42 + 10; g = (G / n) * 0.42 + 6; b = (B / n) * 0.42 + 16; }
+    d[i] = r; d[i + 1] = g; d[i + 2] = b;
+  }
+  x.putImageData(D, 0, 0);
   return cv;
 }
