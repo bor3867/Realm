@@ -34,7 +34,8 @@
   "unstruck/atlas_solkhar.json",
   "throne/atlas_ash_items.json",
   "throne/atlas_ash_kin.json",
-  "throne/atlas_castle_kin.json"
+  "throne/atlas_castle_kin.json",
+  "throne/atlas_castle_decor.json"
  ],
  "hover": "HOVER.json",
  "manifest": "MANIFEST.json"

@@ -1,0 +1,363 @@
+{
+ "rf": true,
+ "meta": {
+  "name": "Sunthief's Castle's ruin",
+  "version": 1
+ },
+ "sheets": {
+  "castle_decor": {
+   "image": "castle_decor.png",
+   "kind": "decor",
+   "sprites": {
+    "fallen_soldier": {
+     "frames": {
+      "f0": [
+       0,
+       0,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "shattered_statue": {
+     "frames": {
+      "f0": [
+       16,
+       0,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "statue_head": {
+     "frames": {
+      "f0": [
+       32,
+       0,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "broken_catapult": {
+     "frames": {
+      "f0": [
+       48,
+       0,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "rubble": {
+     "frames": {
+      "f0": [
+       64,
+       0,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "collapsed_pillar": {
+     "frames": {
+      "f0": [
+       80,
+       0,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "banner_torn": {
+     "frames": {
+      "f0": [
+       96,
+       0,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "bones": {
+     "frames": {
+      "f0": [
+       112,
+       0,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "chain_post": {
+     "frames": {
+      "f0": [
+       0,
+       16,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "mural": {
+     "frames": {
+      "f0": [
+       16,
+       16,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "sun_statue": {
+     "frames": {
+      "f0": [
+       32,
+       16,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "shield_broken": {
+     "frames": {
+      "f0": [
+       48,
+       16,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "lava_crack": {
+     "frames": {
+      "f0": [
+       64,
+       16,
+       16,
+       16
+      ],
+      "f1": [
+       80,
+       16,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1"
+       ],
+       "fps": 4,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "burning_debris": {
+     "frames": {
+      "f0": [
+       96,
+       16,
+       16,
+       16
+      ],
+      "f1": [
+       112,
+       16,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1"
+       ],
+       "fps": 4,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "forge_press": {
+     "frames": {
+      "f0": [
+       0,
+       32,
+       16,
+       16
+      ],
+      "f1": [
+       16,
+       32,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1"
+       ],
+       "fps": 4,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "eclipse_obelisk": {
+     "frames": {
+      "f0": [
+       32,
+       32,
+       16,
+       16
+      ],
+      "f1": [
+       48,
+       32,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1"
+       ],
+       "fps": 4,
+       "loop": true
+      }
+     },
+     "meta": {}
+    }
+   }
+  }
+ }
+}

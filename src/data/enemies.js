@@ -1346,7 +1346,7 @@ Object.assign(DUNGEONS.forge, { seals: [], puzzle: null, altar: false, layout: {
 // the upper ones each guard the boss their own way
 Object.assign(DUNGEONS.scriptorium, { seals: ['puzzle', 'lever', 'warden'], puzzle: 'runes', altar: true, layout: { secrets: 3 } });
 Object.assign(DUNGEONS.heart, { seals: ['warden', 'warden', 'warden'], puzzle: null, altar: true, layout: { secrets: 2 } });
-Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden'], puzzle: null, altar: false, layout: { secrets: 0 },
+Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden'], puzzle: null, altar: false, layout: { secrets: 3 },   // (three cracked walls, secret rooms behind)
   // (2026-11-01: the volcano island, src/world/maps.js LAYOUT.throne) who holds each part of it, harder the further in:
   // the island's own monsters (below), the shore's weakest, the hall's worst
   mobs: ['ash_wretch', 'cinder_hound', 'magma_slinger', 'obsidian_sentinel', 'brimstone_acolyte', 'caldera_serpent'],
@@ -1358,12 +1358,26 @@ Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden'], puzzle: nul
     const P = (n, ids) => Array.from({ length: n }, () => r.pick(ids));
     switch (rm.kind) {                                                  // the castle (the user's map): who holds each room (for now the island's monsters, by role)
       // the user's encounters (2026-11-02), each a formation whose attacks work together (src/castle_kin.js):
+      // the burning entrance
+      case 'battlements': return ['cinder_bat', 'cinder_bat', 'cinder_archer'];                             // the walls' last defenders
+      case 'gatehouse': return ['lava_guard', 'cinder_archer', 'lava_slime'];
+      case 'barracks': return ['infernal_hound', 'infernal_hound'];                                         // (off the way: a chest)
       case 'ashfall': return ['cinder_bat', 'cinder_bat', 'cinder_archer', 'hollow_wraith'];                // A The Ashfall Ambush
       case 'causeway': return ['lava_slime', 'lava_slime', 'infernal_hound', 'infernal_hound'];             // B The Burning Causeway
       case 'siege': return ['sunbound_knight', 'lava_guard', 'cinder_archer', 'cinder_archer'];            // C The Siege Formation
+      case 'workshop': return ['sunbound_knight', 'forge_golem'];                                           // (off the way: two elites and a chest)
+      case 'towerfall': return ['hollow_wraith', 'cinder_archer', 'cinder_archer', 'lava_slime'];           // (they come out of the rubble as you enter)
       case 'banners': return ['sun_cultist', 'solar_acolyte', 'solar_acolyte', 'hollow_wraith'];            // D The Hollow Ritual
+      case 'royalgallery': return ['hollow_wraith', 'hollow_wraith', 'eclipse_shade'];                      // (the gallery's ghosts, on you as you come in)
+      case 'oldthrone': return ['sunbound_construct'];                                                      // (off the way: its old guardian and a chest)
       case 'galleries': return ['forge_golem', 'cinder_elemental', 'infernal_hound'];                       // E The Cinder Furnace
-      case 'eclipsewalk': return ['sunbound_construct', 'eclipse_shade', 'sun_cultist'];                    // G The Eclipse Procession
+      case 'lavariver': return ['lava_slime', 'lava_slime', 'cinder_elemental'];
+      case 'ingotvault': return ['forge_golem'];                                                            // (off the way: a chest)
+      case 'hammers': return ['infernal_hound', 'cinder_archer', 'lava_guard'];
+      case 'chainbridge': return ['cinder_bat', 'cinder_bat', 'cinder_bat'];
+      case 'antechamber': return ['sunbound_knight', 'forge_golem', 'solar_acolyte', 'cinder_archer'];      // (Ashkar's guards: the worst before him)
+      case 'eclipsewalk': return rm.title === 'THE LAST SPAN' ? ['eclipse_shade', 'eclipse_shade'] : ['sunbound_construct', 'eclipse_shade', 'sun_cultist'];   // G The Eclipse Procession
+      case 'eclipseshrine': return ['sun_cultist', 'solar_acolyte', 'solar_acolyte', 'eclipse_shade'];
       case 'arrival': case 'chainforge': return [];
       case 'crowns': return P(5, ['ash_wretch', 'cinder_hound', 'magma_slinger', 'brimstone_acolyte']);
       case 'chainwalk': return ['obsidian_sentinel', 'obsidian_sentinel'];
