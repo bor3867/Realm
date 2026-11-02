@@ -10,6 +10,7 @@ const { BX } = await import('../src/bosses/index.js');
 
 const B = new URL('../art/bundle/', import.meta.url), J = (p) => JSON.parse(readFileSync(new URL(p, B), 'utf8'));
 const idx = J('index.json');
+const OLD_SHOTS = JSON.parse(readFileSync(new URL('../art/world/world.json', import.meta.url), 'utf8')).projectiles;
 const reg = buildRegistry(idx.atlases.map((a) => ({ pack: a.split('/')[0], json: J(a) })), J(idx.hover), (p) => p);
 const only = process.argv[2];
 let fail = 0;
@@ -40,8 +41,9 @@ for (const id of Object.keys(BX)) {
     if (S.state === 'death' && diedAt === null) diedAt = t;
     if (e.dead && g.bags.length) bagAt = t;
   }
-  for (const k of shotNames) if (!reg.resolve(k)) problems.push('shot sprite missing ' + k);
-  if (seen.join() !== '1,2,3') problems.push('phases seen ' + seen.join());
+  for (const k of shotNames) if (!reg.resolve(k) && !(k in OLD_SHOTS)) problems.push('shot sprite missing ' + k);   // (a bare name: the older projectile sheet, art/world/world.json)
+  const want = Array.from({ length: (BX[id].thresholds || [0, 0]).length + 1 }, (_, k) => k + 1).join();   // (each boss its own number of phases: the Drawbridge Technician's two)
+  if (seen.join() !== want) problems.push('phases seen ' + seen.join() + ', expected ' + want);
   if (morphHits) problems.push(`took damage while morphing (${morphHits})`);
   if (diedAt === null) problems.push('never reached the death clip');
   if (!bagAt) problems.push('no loot after death');
