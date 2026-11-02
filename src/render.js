@@ -1371,7 +1371,7 @@ export class Renderer {
       // recovery as it fires. Timed by this copy's clock from when it saw the state change (online the state is the server's)
       const st = e.state === 'charge' ? 'tell' : e.state, Q = e.shootSeen;
       if (!Q || (Q.s !== st && (st === 'tell' || st === 'attack'))) e.shootSeen = { s: st, t: g.t };
-      const A = def.anims.shoot.frames, T = g.t - e.shootSeen.t;
+      const A = ((e.kinClip && def.anims[e.kinClip]) || def.anims.shoot).frames, T = g.t - e.shootSeen.t;   // (its own clip for this attack where it has one)
       fr = A.length >= 6 ? (e.shootSeen.s === 'tell' ? A[T < 0.12 ? 0 : T < 0.3 ? 1 : 2] : A[T < 0.08 ? 3 : T < 0.2 ? 4 : 5]) : e.shootSeen.s === 'tell' ? A[T < 0.18 ? 0 : 1] : A[T < 0.12 ? 2 : 3];
     }
     else if (e.state === 'tell' || e.state === 'charge' || e.state === 'attack') fr = fAtk;

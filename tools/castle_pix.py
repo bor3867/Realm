@@ -7,6 +7,7 @@
 #   'at X Y' then rows                           a block of pixels redrawn at X,Y ('?' leaves the pixel below as it was)
 #   'clear X0 Y0 X1 Y1'                          a box of it rubbed out (the old pose's limb), then drawn again:
 #   'row Y X PIXELS'                             a run of pixels drawn at X,Y (one line of the new pose)
+#   'grow N'                                     N clear rows added above (a weapon raised over its head): its feet stay on the ground line
 #   'nudge DX DY'                                (rarely) the frame as a whole moved on its canvas, the ground anchor kept by its feet
 # Clips: 'clip NAME FPS frame frame ...'. Every frame is drawn, pixel by pixel: nothing is turned, stretched or slid apart.
 #   py -I tools/castle_pix.py dump <id>      writes the base frame from art/source/castle2/native/<id>.png (palette to ~22)
@@ -61,6 +62,7 @@ def parse(id_):
         if t[0] == 'clip': clips[t[1]] = (float(t[2]), t[3:]); continue
         if t[0] == 'at': block = (int(t[1]), int(t[2]), []); cur['patches'].append(block); continue
         if t[0] == 'nudge': cur['nudge'] = (int(t[1]), int(t[2])); continue
+        if t[0] == 'grow': cur['grow'] = int(t[1]); continue
         if t[0] == 'clear': cur['patches'].append(('clear', int(t[1]), int(t[2]), int(t[3]), int(t[4]))); block = None; continue
         if t[0] == 'row': cur['patches'].append((int(t[2]), int(t[1]), [t[3]])); block = None; continue
         if block is not None: block[2].append(line.rstrip('\n'))
@@ -73,6 +75,7 @@ def render(pal, frames, name, memo):
     F = frames[name]
     if F['from']: g = [row[:] for row in render(pal, frames, F['from'], memo)]
     else: g = [[pal.get(ch) for ch in row] for row in F['rows']]
+    if F.get('grow'): g = [[None] * max(len(r) for r in g) for _ in range(F['grow'])] + g
     W = max([len(r) for r in g] + [P_[0] + max(len(q) for q in P_[2]) for P_ in F['patches'] if P_[0] != 'clear'])   # (a pose may reach past the art: its canvas grows)
     g = [r + [None] * (W - len(r)) for r in g]
     for P_ in F['patches']:

@@ -170,7 +170,10 @@ const KIN = {
       mark: (g, e, p, S) => { const a = ang(e.x, e.y, p.x, p.y), L = Math.min(3, reach(g, e, a, Math.hypot(p.x - e.x, p.y - e.y))); S.land = [e.x + Math.cos(a) * L, e.y + Math.sin(a) * L]; zone(g, e, S.land[0], S.land[1], 1.1, 0.8, 115); },
       run: (g, e, p, S) => { e.x = S.land[0]; e.y = S.land[1]; pool(g, e, e.x, e.y, 1.0, 2.5, 35); g.vx({ k: 'burst', x: e.x, y: e.y, n: 12, colors: ['#ff8a1f', '#ffd650'] }); } },
     { n: 'Boiling Split', tele: 0.7, dur: 0.7, cd: 6, range: 8,
-      run: (g, e, p, S) => { const gap = Math.floor(R() * 8), burst = (o) => { for (let k = 0; k < 8; k++) if (k !== gap && k !== (gap + 1) % 8) fire(g, e, o + (k / 8) * TAU, 3.4, 80, 'blob', 8, 0.4); }; const a0 = R() * TAU; burst(a0); later(S, 0.6, () => burst(a0 + TAU / 16)); } },
+      run: (g, e, p, S) => { const gap = Math.floor(R() * 10), burst = (o) => { for (let k = 0; k < 10; k++) if (k !== gap && k !== (gap + 1) % 10) fire(g, e, o + (k / 10) * TAU, 3.4, 80, 'blob', 8, 0.4); }; const a0 = R() * TAU; burst(a0); later(S, 0.6, () => burst(a0 + TAU / 20)); } },
+    // Ember Spit: three quick bursts of three at you (the small flame elemental's own)
+    { n: 'Ember Spit', tele: 0.45, dur: 0.7, cd: 3.5, range: 9,
+      run: (g, e, p, S) => { for (let k = 0; k < 3; k++) later(S, k * 0.22, () => fan(g, e, aim(g, e, p, S, 6), 3, deg(14), 6, 70, 'ember', 9)); } },
   ], death(g, e) {                                          // Boiling Remains: it swells 0.5 s, then bursts in six slow droplets, wide gaps between
     zone(g, e, e.x, e.y, 1.3, 0.5, 0);
     g.kinLater(0.5, () => { const a0 = R() * TAU; for (let k = 0; k < 6; k++) g.shoot('e', ...g.up(e.x, e.y, 0.4), a0 + (k / 6) * TAU, 2.4, 7, D(55), 'castle_shots/blob', 0.4, false, e.D.name); pool(g, e, e.x, e.y, 0.8, 1.5, 0.0001, '#a03a1a'); });
@@ -192,7 +195,10 @@ const KIN = {
         const a = ang(e.x, e.y, p.x, p.y); later(S, 0.25, () => { fan(g, e, a + deg(28), 5, deg(40), 5, 95, 'ghost', 10); fan(g, e, a - deg(28), 5, deg(40), 5, 95, 'ghost', 10); });   // (two fans, crossing where you stood)
       } },
   ] },
-  infernal_hound: { move: MOVE.flank, atk: [
+  infernal_hound: { move: MOVE.flank, tick(g, e, dt, S) {   // its trail (the user, 2026-11-02: "The hounds should leave fire trails"): a little fire where its paws were, every 0.3 s it's running
+    const L = S.trailAt; if (!L) { S.trailAt = [e.x, e.y]; return; }
+    if (Math.hypot(e.x - L[0], e.y - L[1]) > 0.7) { S.trailAt = [e.x, e.y]; if (!e.dead) pool(g, e, L[0], L[1], 0.42, 1.6, 30, '#ff6a1c'); }
+  }, atk: [
     { n: 'Hellbound Pounce', tele: 0.65, dur: 0.75, cd: 5, range: 8, still: true,
       mark: (g, e, p, S) => { S.aim = ang(e.x, e.y, p.x, p.y); lane(g, e, e.x, e.y, S.aim, 6, 0.65, 0, 0.6); },
       run: (g, e, p, S) => dash(S, e, S.aim, Math.min(6, reach(g, e, S.aim, 6)), 9, 150, () => { for (let k = 0; k < 5; k++) fire(g, e, S.aim + ((k + 0.5) / 5) * TAU, 4.5, 80, 'flame', 6); }) },
@@ -205,6 +211,12 @@ const KIN = {
     { n: 'Sunspot', tele: 0.9, dur: 0.1, cd: 8, range: 11,
       mark: (g, e, p, S) => { S.lock = [p.x, p.y]; zone(g, e, p.x, p.y, 1.4, 0.9, 0, GOLD); },
       run: (g, e, p, S) => pool(g, e, S.lock[0], S.lock[1], 1.4, 2.5, 40, '#ffd650') },
+    // Drifting Gate (2026-11-02, the user: "the mage should spawn portals that slowly move from the mage in one direction
+    // and spawn shots"): a gate opens at his side and drifts off, slowly, across your way (a third of a turn off you), for
+    // 6 s, firing as it goes: a fan of three at you every 1.1 s, a ring of six every third time
+    { n: 'Drifting Gate', tele: 0.8, dur: 0.3, cd: 9, range: 11, when: (g, e, S) => (S.gates || []).filter((q) => !q.dead).length < 2,
+      mark: (g, e, p, S) => { const a = ang(e.x, e.y, p.x, p.y) + (R() < 0.5 ? 1 : -1) * deg(60); S.gateA = a; S.gateAt = [e.x + Math.cos(a) * 1.2, e.y + Math.sin(a) * 1.2]; zone(g, e, S.gateAt[0], S.gateAt[1], 0.7, 0.8, 0, VIO); },
+      run: (g, e, p, S) => { if (g.blockedAt(S.gateAt[0], S.gateAt[1], 0.4)) return; const q = g.addEnemy('acolyte_gate', S.gateAt[0], S.gateAt[1]); if (!q) return; q.noLoot = true; q.seen = true; q.kinUntil = g.t + 6; q.kinVx = Math.cos(S.gateA) * 1.3; q.kinVy = Math.sin(S.gateA) * 1.3; (S.gates = (S.gates || []).filter((o) => !o.dead)).push(q); } },
     { n: 'Radiant Lance', tele: 0.75, dur: 0.6, cd: 7, range: 12, still: true,
       mark: (g, e, p, S) => { S.aim = ang(e.x, e.y, p.x, p.y); lane(g, e, e.x, e.y, S.aim, 10, 0.75, 0, 0.3, GOLD); },
       run: (g, e, p, S) => { fire(g, e, S.aim, 8, 115, 'lance', 13, 0.35); const b = ang(e.x, e.y, p.x, p.y); lane(g, e, e.x, e.y, b, 10, 0.5, 0, 0.3, GOLD); later(S, 0.5, () => fire(g, e, b, 8, 115, 'lance', 13, 0.35)); } },
@@ -217,6 +229,19 @@ const KIN = {
         if (!q.dead && Math.hypot(q.x - e.x, q.y - e.y) < 2.4 && da < deg(48) && !(q.status.invuln > 0)) g.owSig({ sig: 'armor', sigV: 2.5 });
         fan(g, e, S.aim, 6, deg(70), 5, 90, 'blob', 8);
       } },
+    // Molten Upheaval (2026-11-02, the user: "another attack and animation where he swings the mace into the ground and
+    // shooting a bunch of earth/molten fire at players"): the mace hauled up and round (1.0 s, the ground before him
+    // marked), driven into the ground there (150 where it lands); the earth bursts out at you in two sprays, rock and
+    // molten fire, a cone of eleven then nine between them
+    { n: 'Molten Upheaval', tele: 1.0, dur: 0.9, cd: 8, range: 9, still: true, clip: 'slam',
+      mark: (g, e, p, S) => { S.aim = ang(e.x, e.y, p.x, p.y); S.hit = [e.x + Math.cos(S.aim) * 1.6, e.y + Math.sin(S.aim) * 1.6]; zone(g, e, S.hit[0], S.hit[1], 1.3, 1.0, 150, ['#ff8a1f', '#ffd650']); },
+      run: (g, e, p, S) => {
+        const [hx, hy] = S.hit, from = g.up(hx, hy, 0.3); g.vx({ k: 'shake', amt: 5 }); g.vx({ k: 'burst', x: hx, y: hy, n: 18, colors: ['#5a4a52', '#8a7e86', '#ff8a1f', '#ffd650'] });
+        const a = ang(hx, hy, p.x, p.y);
+        for (let k = 0; k < 11; k++) fire(g, e, a + (k / 10 - 0.5) * deg(120), 5 + (k % 3) * 0.6, 95, k % 2 ? 'stone' : 'blob', 10, 0.4, from);
+        later(S, 0.3, () => { for (let k = 0; k < 9; k++) fire(g, e, a + ((k + 0.5) / 9 - 0.5) * deg(110), 4.2, 95, k % 2 ? 'blob' : 'stone', 9, 0.4, from); });
+        pool(g, e, hx, hy, 1.0, 2.5, 40);
+      } },
     { n: 'Furnace Wall', tele: 0.9, dur: 0.7, cd: 7, range: 9,
       run: (g, e, p, S) => {                                // two rows of seven square to you, each with its own gap
         const a = ang(e.x, e.y, p.x, p.y), row = (gap) => { for (let k = 0; k < 7; k++) { if (k === gap) continue; const o = (k - 3) * 0.85, x = e.x - Math.sin(a) * o, y = e.y + Math.cos(a) * o; fire(g, e, a, 4.5, 90, 'blob', 10, 0.4, g.up(x, y, 0.5)); } };
@@ -225,15 +250,37 @@ const KIN = {
   ], tick(g, e, dt, S) {                                    // Shielded Advance: every 9 s, 2 s with its shield up (frontal blows 35% softer)
     if ((S.shieldT = (S.shieldT ?? 4) - dt) <= 0) { S.shieldT = 9; e.kinShieldUntil = g.t + 2; e.kinFace = ang(e.x, e.y, g.player.x, g.player.y); g.fx.push({ kind: 'ring', x: e.x, y: e.y - 0.5, t: 0, max: 1.2, color: '#ffb030' }); }
   } },
-  sun_cultist: { move: MOVE.skulk, atk: [
+  sun_cultist: { move: MOVE.skulk, tick(g, e, dt, S) {   // its rite of mending (the user, 2026-11-02: "The priest should heal enemies periodically"): every 8 s, its hurt friends within 7 tiles a sixth of their Life back, a line of light to each
+    if ((S.healT = (S.healT ?? 4) - dt) > 0 || e.dead) return; S.healT = 8;
+    const L = g.enemies.filter((q) => q !== e && !q.dead && q.D.kin && q.hp < q.maxHp && !/portal|gate|node/.test(q.D.kin) && Math.hypot(q.x - e.x, q.y - e.y) < 7);
+    for (const q of L) { const h = Math.round(q.maxHp / 6); q.hp = Math.min(q.maxHp, q.hp + h); lane(g, e, e.x, e.y, ang(e.x, e.y, q.x, q.y), Math.hypot(q.x - e.x, q.y - e.y), 0.01, 0, 0.25, ['#ffd650', '#ffd650', '#fff6c8', '#ffffff'], 0.4); if (g.float) g.float(q.x, q.y - 1.2, '+' + h.toLocaleString(), '#7af08a'); }
+    if (L.length) { g.fx.push({ kind: 'ring', x: e.x, y: e.y - 0.4, t: 0, max: 7, color: '#ffd650' }); }
+  }, atk: [
     { n: 'Sun Siphon', tele: 0.9, dur: 0.4, cd: 6.5, range: 11, still: true,
       mark: (g, e, p, S) => { S.aim = ang(e.x, e.y, p.x, p.y); lane(g, e, e.x, e.y, S.aim, 11, 0.9, 145, 0.35, RED, 0.35); } },
     { n: 'Ritual Portals', tele: 1.0, dur: 0.2, cd: 20, range: 11, when: (g, e, S) => !(S.portals || []).some((q) => !q.dead),   // (13 s after they close: they last 7)
       mark: (g, e, p, S) => { const a = ang(e.x, e.y, p.x, p.y); S.at = [-1, 1].map((s) => [e.x - Math.sin(a) * s * 3.5, e.y + Math.cos(a) * s * 3.5]).filter(([x, y]) => !g.blockedAt(x, y, 0.5) && Math.hypot(x - p.x, y - p.y) > 2); for (const [x, y] of S.at) zone(g, e, x, y, 0.8, 1.0, 0, GOLD); },
       run: (g, e, p, S) => { S.portals = S.at.map(([x, y]) => { const q = g.addEnemy('sun_portal', x, y); q.noLoot = true; q.seen = true; q.kinUntil = g.t + 7; q.kinOwner = e; return q; }); } },
+    // Unholy Light (2026-11-02, the user: "spawn beams of evil light onto players (with notification and time to dodge)"):
+    // "EVIL LIGHT!" over you; three columns marked about you (1.3 s, the last on you), each a beam of black-violet light
+    // when it falls (150)
+    { n: 'Unholy Light', tele: 0.5, dur: 1.6, cd: 7, range: 12,
+      run: (g, e, p, S) => {
+        if (g.float) g.float(p.x, p.y - 1.4, 'EVIL LIGHT!', '#e070ff');
+        const o = R() * TAU;
+        for (let k = 0; k < 3; k++) { const r = k === 2 ? 0 : 2.4, x = p.x + Math.cos(o + k * 2.1) * r, y = p.y + Math.sin(o + k * 2.1) * r; zone(g, e, x, y, 1.1, 1.3 + k * 0.2, 150, ['#7a1aa8', '#f0c8ff']); later(S, 1.3 + k * 0.2, () => { g.fx.push({ kind: 'ring', x, y, t: 0, max: 1.4, color: '#e070ff' }); g.vx({ k: 'burst', x, y: y - 1.2, n: 14, colors: ['#2a0a3a', '#a040e0', '#f0c8ff'] }); }); }
+      } },
     { n: 'Burning Benediction', tele: 0.8, dur: 0.2, cd: 14, range: 12,
       run: (g, e) => { for (const o of g.enemiesIn(e.x, e.y, 6)) if (o.D.kin) o.kinHaste = Math.max(o.kinHaste || 0, g.t + 6); g.fx.push({ kind: 'ring', x: e.x, y: e.y - 0.4, t: 0, max: 6, color: '#ffd650' }); } },
   ] },
+  acolyte_gate: { move: () => {}, atk: [], tick(g, e, dt, S) {   // the Mage's drifting gate: on its way, firing as it goes; gone in 6 s or at a wall
+    if (g.t > e.kinUntil || e.dead) { e.noLoot = true; e.dead = true; e.deadT = 0; return; }
+    if (g.blockedAt(e.x + e.kinVx * dt * 4, e.y + e.kinVy * dt * 4, 0.4)) { e.kinUntil = g.t; return; }
+    e.x += e.kinVx * dt; e.y += e.kinVy * dt;
+    if ((S.gT = (S.gT ?? 0.5) - dt) > 0) return; S.gT = 1.1; S.gk = (S.gk || 0) + 1; const p = g.player; if (!p || p.dead) return;
+    if (S.gk % 3 === 0) { const a0 = R() * TAU; for (let k = 0; k < 6; k++) fire(g, e, a0 + (k / 6) * TAU, 4, 80, 'porb', 10); }
+    else { const a = ang(e.x, e.y, p.x, p.y); for (let k = 0; k < 3; k++) fire(g, e, a + (k - 1) * deg(14), 5, 85, 'porb', 12); }
+  } },
   sun_portal: { move: () => {}, atk: [
     { n: 'Portal Bolts', tele: 0.3, dur: 0.1, cd: 1.2, range: 14, run: (g, e, p) => { const a = ang(e.x, e.y, p.x, p.y); for (let k = 0; k < 4; k++) fire(g, e, a + (k - 1.5) * deg(12), 5, 85, 'gorb', 13); } },   // (four, one of them at you)
   ], tick(g, e) { if (g.t > e.kinUntil) { e.noLoot = true; e.dead = true; e.deadT = 0; } } },
@@ -247,14 +294,17 @@ const KIN = {
   ] },
   cinder_elemental: { move: MOVE.float, atk: [
     { n: 'Thermal Spiral', tele: 0.85, dur: 3.6, cd: 9, range: 10,
-      run: (g, e, p, S) => { const a0 = R() * TAU, s = R() < 0.5 ? 1 : -1; for (let k = 0; k * 0.45 < 3.6; k++) later(S, k * 0.45, () => { for (let i = 0; i < 5; i++) fire(g, e, a0 + s * deg(14) * k + (i / 5) * TAU, 4.5, 90, 'flame', 10); }); } },
+      run: (g, e, p, S) => { const a0 = R() * TAU, s = R() < 0.5 ? 1 : -1; for (let k = 0; k * 0.3 < 3.6; k++) later(S, k * 0.3, () => { for (let i = 0; i < 7; i++) fire(g, e, a0 + s * deg(11) * k + (i / 7) * TAU, 4.5, 90, 'flame', 10); }); } },   // (2026-11-02, the user: "Elementals should have some more shots": seven arms, oftener)
     { n: 'Eruption Columns', tele: 1.0, dur: 2.2, cd: 10, range: 11,
       mark: (g, e, p, S) => {                               // five narrow lanes across your way, erupting one after another
         const a = ang(e.x, e.y, p.x, p.y) + Math.PI / 2, nx = Math.cos(a - Math.PI / 2), ny = Math.sin(a - Math.PI / 2);
         for (let k = 0; k < 5; k++) { const o = (k - 2) * 2.4, cx = p.x + nx * o, cy = p.y + ny * o; lane(g, e, cx - Math.cos(a) * 8, cy - Math.sin(a) * 8, a, 16, 1.0 + k * 0.45, 130, 0.4, RED, 0.4); }
       } },
     { n: 'Cinder Scatter', tele: 0.6, dur: 0.6, cd: 6, range: 10,
-      run: (g, e, p, S) => { const a = aim(g, e, p, S, 5.5); fan(g, e, a, 12, deg(150), 5.5, 95, 'ember'); later(S, 0.55, () => fan(g, e, a + deg(150) / 22, 12, deg(150), 5.5, 95, 'ember')); } },
+      run: (g, e, p, S) => { const a = aim(g, e, p, S, 5.5); fan(g, e, a, 16, deg(160), 5.5, 95, 'ember'); later(S, 0.5, () => fan(g, e, a + deg(160) / 30, 16, deg(160), 5.5, 95, 'ember')); later(S, 1.0, () => fan(g, e, a, 16, deg(160), 5.5, 95, 'ember')); } },
+    // Flare Rings: three rings of fourteen, each turned off the last, a gap of two in each
+    { n: 'Flare Rings', tele: 0.7, dur: 1.1, cd: 7, range: 11,
+      run: (g, e, p, S) => { const a0 = ang(e.x, e.y, p.x, p.y); for (let r = 0; r < 3; r++) later(S, r * 0.45, () => { const gap = Math.floor(R() * 14); for (let k = 0; k < 14; k++) if (k !== gap && k !== (gap + 1) % 14) fire(g, e, a0 + (k / 14) * TAU + r * deg(9), 4 + r * 0.5, 90, 'flame', 11); }); } },
   ] },
   eclipse_shade: { move: MOVE.blinker, atk: [
     { n: 'Eclipse Blink', tele: 0.8, dur: 0.6, cd: 6, range: 11, still: true,
@@ -358,7 +408,7 @@ const methods = {
       const C = this.kinCond(e);
       if (C && !C.may(this, e, A)) continue;
       S.lead = C ? C.start(this, e, A) : false;
-      S.cur = A; S.busy = A.tele + A.dur; e.state = 'tell';
+      S.cur = A; S.busy = A.tele + A.dur; e.state = 'tell'; e.kinClip = A.clip || 'shoot';
       if (A.mark) A.mark(this, e, p, S);
       later(S, A.tele, () => { e.state = 'attack'; if (A.run && !e.dead) A.run(this, e, p, S); later(S, 0.2, () => { if (e.state === 'attack') e.state = 'move'; }); });
       break;
@@ -441,6 +491,7 @@ export function installCastleKin(Game) { Object.assign(Game.prototype, methods);
   def('forge_golem', 'Forge Golem', 62000, 130, 2.0, 0.7, 30, 1100);
   def('sunbound_construct', 'Sunbound Construct', 70000, 115, 3.5, 0.7, 28, 1400, { fly: true });
   ENEMIES.infernal_alpha = { ...ENEMIES.infernal_hound, name: 'Infernal Alpha', hp: Math.round(ENEMIES.infernal_hound.hp * 2.5), scale: 1, r: 0.95, hitUp: 1.25, elite: true };   // (its redrawn art at half again)   // (the Wolf's Den's leader: more Life, the same pack's charge)
+  ENEMIES.acolyte_gate = { name: 'Drifting Gate', biome: 'throne', reg: 'wiz_kin/portal', hp: 4000, def: 8, speed: 0, xp: 0, r: 0.55, ai: 'rooted', aggro: 30, fly: true, kin: 'acolyte_gate', attacks: [], loot: [] };   // (the Mage's: src/castle_kin.js Drifting Gate)
   ENEMIES.sun_portal = { name: 'Solar Portal', biome: 'throne', reg: 'wiz_kin/portal', hp: 5000, def: 8, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 30, fly: true, kin: 'sun_portal', attacks: [], loot: [] };
   ENEMIES.solar_node = { name: 'Solar Node', biome: 'throne', reg: 'wiz_kin/portal', hp: 7500, def: 10, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 30, fly: true, kin: 'solar_node', attacks: [], loot: [] };
 }

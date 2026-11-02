@@ -584,59 +584,93 @@
       "lava_guard_base": [
        0,
        265,
-       65,
-       51
+       74,
+       61
       ],
       "lava_guard_step0": [
-       65,
+       74,
        265,
-       65,
-       51
+       74,
+       61
       ],
       "lava_guard_step1": [
-       130,
+       148,
        265,
-       65,
-       51
+       74,
+       61
       ],
       "lava_guard_step2": [
-       195,
+       222,
        265,
-       65,
-       51
+       74,
+       61
       ],
       "lava_guard_step3": [
-       260,
+       296,
        265,
-       65,
-       51
+       74,
+       61
       ],
       "lava_guard_smash0": [
-       325,
+       370,
        265,
-       65,
-       51
+       74,
+       61
       ],
       "lava_guard_smash1": [
-       390,
+       444,
        265,
-       65,
-       51
+       74,
+       61
       ],
       "lava_guard_smash2": [
-       455,
+       518,
        265,
-       65,
-       51
+       74,
+       61
       ],
       "lava_guard_smash3": [
-       520,
+       592,
        265,
-       65,
-       51
+       74,
+       61
+      ],
+      "lava_guard_slam0": [
+       666,
+       265,
+       74,
+       61
+      ],
+      "lava_guard_slam1": [
+       740,
+       265,
+       74,
+       61
+      ],
+      "lava_guard_slam2": [
+       814,
+       265,
+       74,
+       61
+      ],
+      "lava_guard_slam3": [
+       888,
+       265,
+       74,
+       61
       ]
      },
      "anims": {
+      "slam": {
+       "frames": [
+        "lava_guard_slam0",
+        "lava_guard_slam1",
+        "lava_guard_slam2",
+        "lava_guard_slam3"
+       ],
+       "fps": 9.0,
+       "loop": false
+      },
       "move": {
        "frames": [
         "lava_guard_step0",
@@ -678,55 +712,55 @@
      "frames": {
       "sun_cultist_base": [
        0,
-       316,
+       326,
        66,
        57
       ],
       "sun_cultist_walk0": [
        66,
-       316,
+       326,
        66,
        57
       ],
       "sun_cultist_walk1": [
        132,
-       316,
+       326,
        66,
        57
       ],
       "sun_cultist_walk2": [
        198,
-       316,
+       326,
        66,
        57
       ],
       "sun_cultist_walk3": [
        264,
-       316,
+       326,
        66,
        57
       ],
       "sun_cultist_rite0": [
        330,
-       316,
+       326,
        66,
        57
       ],
       "sun_cultist_rite1": [
        396,
-       316,
+       326,
        66,
        57
       ],
       "sun_cultist_rite2": [
        462,
-       316,
+       326,
        66,
        57
       ],
       "sun_cultist_rite3": [
        528,
-       316,
+       326,
        66,
        57
       ]
@@ -773,55 +807,55 @@
      "frames": {
       "cinder_bat_base": [
        0,
-       373,
+       383,
        49,
        26
       ],
       "cinder_bat_fly0": [
        49,
-       373,
+       383,
        49,
        26
       ],
       "cinder_bat_fly1": [
        98,
-       373,
+       383,
        49,
        26
       ],
       "cinder_bat_fly2": [
        147,
-       373,
+       383,
        49,
        26
       ],
       "cinder_bat_fly3": [
        196,
-       373,
+       383,
        49,
        26
       ],
       "cinder_bat_spit0": [
        245,
-       373,
+       383,
        49,
        26
       ],
       "cinder_bat_spit1": [
        294,
-       373,
+       383,
        49,
        26
       ],
       "cinder_bat_spit2": [
        343,
-       373,
+       383,
        49,
        26
       ],
       "cinder_bat_spit3": [
        392,
-       373,
+       383,
        49,
        26
       ]
