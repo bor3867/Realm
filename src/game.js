@@ -883,8 +883,8 @@ export class Game {
       if (rm.role === 'puzzle' || rm.role === 'altar' || rm.role === 'rest') return;          // quiet rooms: the danger here is of another kind
       if (rm.role === 'warden' && def.courtBosses && !m.courtDone) {   // the Hollow Court: the Throne's two Jarls in one court at once, each death a seal (src/bosses/jarl_court.js)
         m.courtDone = true;
-        const spots = [[13, 16], [27, 16]], L = def.courtBosses.map((id, k) => {
-          const b = this.spawnRealmBoss(id, { x: rm.x + (spots[k][0] / 40) * rm.w, y: rm.y + (spots[k][1] / 34) * rm.h }, bxEnemyDef(id));
+        const spots = { jarl_warrior: [20, 20], jarl_wizard: [20, 4.5] }, L = def.courtBosses.map((id) => {   // (the Wizard on his throne at the court's north end)
+          const b = this.spawnRealmBoss(id, { x: rm.x + (spots[id][0] / 40) * rm.w, y: rm.y + (spots[id][1] / 34) * rm.h }, bxEnemyDef(id));
           b.state = 'sleep'; b.room = rm; b.midBoss = true; b.warden = true; (m.wardens = m.wardens || []).push(b); return b;
         });
         if (L.length === 2) { joinCourt(L[0], L[1]); m.seals = (m.seals || 0) + 1; m.sealsLeft = (m.sealsLeft || 0) + 1; }   // (two Jarls, two seals)
