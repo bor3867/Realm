@@ -2064,6 +2064,8 @@ export function dungeon(seed, def) {
       } else if (n.kind === 'court') {                                  // the Hollow Court: four pillars, banners at the north wall
         for (const [u, v] of [[5, 6], [35, 6], [5, 28], [35, 28]]) { const x = n.x + Math.round((u / 40) * n.w), y = n.y + Math.round((v / 34) * n.h); carve(x, y, x, y, WALL); }
         put2(null, n.x + 6, n.y + 1, 'banner'); put2(null, n.x + n.w - 7, n.y + 1, 'banner');
+      } else if (n.kind === 'chainforge') {                            // the Overseer's foundry: its four furnace vents, marked in the floor
+        for (const [u, v] of [[8, 8], [32, 8], [32, 24], [8, 24]]) put(m, 'ash_kin/vent', Math.floor(n.x + (u / 40) * n.w), Math.floor(n.y + (v / 32) * n.h), false, { ovVent: true });
       } else if (n.kind === 'sundoor') {                                // the Grand Sun Door: the great arch at its north wall (tools/build_gate_arch.py)
         put(m, 'throne_gate/arch', n.cx, n.y, false, { gateArch: true });
       } else if (n.kind === 'guardroom') {

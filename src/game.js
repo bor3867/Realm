@@ -915,6 +915,11 @@ export class Game {
       b.state = 'sleep'; b.room = gr; b.midBoss = true; b.warden = true;
       (m.wardens = m.wardens || []).push(b); m.seals = (m.seals || 0) + 1; m.sealsLeft = (m.sealsLeft || 0) + 1;
     }
+    const fr = def.foundry && m.rooms.find((q) => q.kind === 'chainforge');
+    if (fr) {                                           // a miniboss in its own hall (the castle's Forge Overseer): asleep till you come in; its doors lock till it falls
+      const b = this.spawnRealmBoss(def.foundry, { x: fr.cx + 0.5, y: fr.cy + 0.5 }, bxEnemyDef(def.foundry));
+      b.state = 'sleep'; b.room = fr; b.midBoss = true;
+    }
     {                                                   // its boss (three-phase engine) waits at the far side of its arena
       const b = this.spawnRealmBoss(def.boss, { x: br.cx + 0.5, y: BX[def.boss].spawnCentre ? br.cy + 0.5 : br.y + 11 }, bxEnemyDef(def.boss));
       b.state = 'sleep'; b.room = br;

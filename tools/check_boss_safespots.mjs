@@ -20,7 +20,7 @@ function fight(id, strat) {
   RNG = 41; GR.seed(11); CLOCK = 1.7e12;
   const g = new Game({ reg }, { fame: 0, gold: 0, essence: 0, vaults: [[]], graveyard: [], chars: [], slots: 8, bestLevel: 0 });
   g.newCharacter('priest'); g.persist = () => {}; g.god = false;
-  const home = Object.keys(DUNGEONS).find((k) => DUNGEONS[k].boss === id || DUNGEONS[k].guardian === id);   // a dungeon boss (or a guardian: Ashkar) fights in its own room (its arena, its drums and pillars)
+  const home = Object.keys(DUNGEONS).find((k) => DUNGEONS[k].boss === id || DUNGEONS[k].guardian === id || DUNGEONS[k].foundry === id);   // a dungeon boss (or a guardian: Ashkar) fights in its own room (its arena, its drums and pillars)
   if (home) { g.enter(home); for (const q of g.enemies) if (q.D.bx !== id) { q.dead = true; q.noLoot = true; } g.enemies = g.map.enemies = g.enemies.filter((q) => q.D.bx === id); }
   else { g.enter(BX[id].map || 'realm'); g.enemies.length = 0; g.command(`/bx ${id}`); }
   const e = g.enemies.find((q) => q.D.bx === id), p = g.player;

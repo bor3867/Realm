@@ -1351,6 +1351,7 @@ Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden'], puzzle: nul
   // the island's own monsters (below), the shore's weakest, the hall's worst
   mobs: ['ash_wretch', 'cinder_hound', 'magma_slinger', 'obsidian_sentinel', 'brimstone_acolyte', 'caldera_serpent'],
   guardian: 'ashkar_gatekeeper',
+  foundry: 'forge_overseer',                                                                            // (the Chainforge Threshold's miniboss: src/bosses/forge_overseer.js)
   courtBosses: ['jarl_warrior', 'jarl_wizard'],                                                         // (the courts' own bosses, one a court: src/bosses/jarl_*.js)
   hazardFx: null,                                                       // (the castle's rooms have their own hazards: src/castle.js)
   compose(rm, r) {

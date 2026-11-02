@@ -78,7 +78,30 @@ if __name__ == '__main__':
                 if c != '.': shots[oy + y][k * 8 + ox + x] = (*SPAL[c], 255)
         sfr[name] = {'frames': {'0': [k * 8, 0, 8, 8]}, 'meta': {}}
     write_png(os.path.join(out, 'castle_shots.png'), shots)
-    json.dump({'rf': True, 'meta': {'name': "Sunthief's Castle's defenders (the user's sprites)", 'version': 1}, 'sheets': {'castle_kin': {'image': 'castle_kin.png', 'kind': 'enemy', 'outline': True, 'sprites': sprites}, 'castle_shots': {'image': 'castle_shots.png', 'kind': 'shot', 'sprites': sfr}}},
+    # the Forge Overseer, the miniboss, on the boss engine ('bx_forge_overseer/forge_overseer'): its sprite as drawn; idle a
+    # breath; each phase its bright parts hotter (I as drawn, II orange, III white-hot); the strike a flare; a death to ash
+    ov = read_png(os.path.join(src, 'forge_overseer.png')); F = frames(ov, False)
+    heat = lambda g, k: [[(min(255, c[0] + 30 * k), max(0, c[1] - 8 * k) if k < 2 else min(255, c[1] + 25), c[2], c[3]) if c[3] and lum(c) > 110 else c for c in row] for row in g]
+    ash = lambda g, k: [[((70 + c[0]) // 2, (60 + c[1]) // 2, (66 + c[2]) // 2, c[3]) if c[3] and (x * 3 + y * 5 + k) % (4 - k) else (BLANK if k == 2 and c[3] and (x + y) % 2 else c) for x, c in enumerate(row)] for y, row in enumerate(g)]
+    ofr = []
+    for a in (1, 2, 3):
+        ofr += [(f'i{a}_{k}', heat(F['move1' if k % 2 == 0 else 'move2'], a - 1)) for k in range(4)] + [(f'a{a}', heat(F['attack'], a - 1)), (f'a{a}b', heat(F['attack'], a))]
+    ofr += [(f'd{k}', ash(F['move1'], k)) for k in range(3)]
+    osheet = [[BLANK] * (16 * 6) for _ in range(16 * 4)]; ofrm = {}
+    for n, (key, g2) in enumerate(ofr):
+        ox, oy = (n % 6) * 16, (n // 6) * 16
+        for y in range(16):
+            for x in range(16): osheet[oy + y][ox + x] = g2[y][x]
+        ofrm[key] = [ox, oy, 16, 16]
+    write_png(os.path.join(out, 'forge_overseer.png'), osheet)
+    oanims = {}
+    for a in (1, 2, 3):
+        oanims[f'idle{a}'] = {'frames': [f'i{a}_{k}' for k in range(4)], 'fps': 4, 'loop': True}
+        oanims[f'attack{a}'] = {'frames': [f'a{a}', f'a{a}b', f'a{a}'], 'fps': 6, 'loop': False}
+    oanims['death'] = {'frames': ['d0', 'd1', 'd2'], 'fps': 3, 'loop': False}
+    oboss = {'image': 'forge_overseer.png', 'kind': 'boss', 'outline': True, 'sprites': {'forge_overseer': {'frames': ofrm, 'anims': oanims, 'death': 'death', 'meta': {},
+             'phases': {'1': {'name': 'The Taskmaster', 'idle': 'idle1', 'attack': 'attack1'}, '2': {'name': 'The Furnace Master', 'idle': 'idle2', 'attack': 'attack2'}, '3': {'name': 'The Final Forging', 'idle': 'idle3', 'attack': 'attack3'}}}}}
+    json.dump({'rf': True, 'meta': {'name': "Sunthief's Castle's defenders (the user's sprites)", 'version': 1}, 'sheets': {'castle_kin': {'image': 'castle_kin.png', 'kind': 'enemy', 'outline': True, 'sprites': sprites}, 'castle_shots': {'image': 'castle_shots.png', 'kind': 'shot', 'sprites': sfr}, 'bx_forge_overseer': oboss}},
               open(os.path.join(out, 'atlas_castle_kin.json'), 'w', encoding='utf8', newline='\n'), indent=1)
     ip = os.path.join(root, 'art', 'bundle', 'index.json'); idx = json.load(open(ip, encoding='utf8'))
     if 'throne/atlas_castle_kin.json' not in idx['atlases']:
