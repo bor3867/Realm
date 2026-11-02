@@ -336,6 +336,8 @@ export class Renderer {
         this.b.fillStyle = `rgba(255,70,20,${Math.max(0, a).toFixed(3)})`; this.b.fillRect(0, 0, this.buf.width, this.buf.height); }
       else if (f.kind === 'fade') { const h = f.life / 2, a = Math.max(0, Math.min(1, 1 - Math.abs(f.t - h) / h));   // a fade to black and back (the Sun Door; the eruption's last step)
         this.b.fillStyle = `rgba(0,0,0,${a.toFixed(3)})`; this.b.fillRect(0, 0, this.buf.width, this.buf.height); }
+      else if (f.kind === 'sunrise') { const a = Math.min(1, f.t * 1.5) * Math.max(0, 1 - f.t / f.life) * 0.35;   // Solkhar falls: the eclipse turns to dawn
+        this.b.fillStyle = `rgba(255,190,90,${a.toFixed(3)})`; this.b.fillRect(0, 0, this.buf.width, this.buf.height); }
       else if (f.kind === 'eclipse') { const a = Math.min(1, f.t / 3) * Math.min(1, (f.life - f.t) * 2) * 0.42;   // the sun stolen: the light drains to violet-black
         this.b.fillStyle = `rgba(14,6,26,${a.toFixed(3)})`; this.b.fillRect(0, 0, this.buf.width, this.buf.height); }
       else if (f.kind === 'crack') {                       // a crack in the ground, glowing (the eruption: no harm in it)

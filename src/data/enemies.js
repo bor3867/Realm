@@ -1374,6 +1374,10 @@ Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden'], puzzle: nul
 ENEMIES.jarl_vassal = { name: 'Vassal of the Dead', biome: 'throne', reg: 'jarl_kin/vassal', hp: 8000, def: 10, speed: 1.6, xp: 0, r: 0.5, ai: 'kite', keep: 6, aggro: 30, fly: true,
   attacks: [{ pattern: 'aimed', proj: 'jarl_shots/sword', count: 2, arc: 0.14, dmg: 59, speed: 5, range: 9, cd: 2.0, tell: 350 }], loot: [] };
 // ---- the Hollow Jarl, Wizard's portals: they hang in the air and can be broken; he fires through them (src/bosses/jarl_wizard.js)
+// Solkhar's own (src/bosses/unstruck_god.js draws them; they can be broken): his heralds, black suns and lenses
+ENEMIES.sol_herald = { name: 'Solar Herald', biome: 'throne', hp: 24000, def: 12, speed: 0, xp: 0, r: 0.7, ai: 'rooted', aggro: 40, fly: true, attacks: [], loot: [] };
+ENEMIES.sol_blacksun = { name: 'Black Sun', biome: 'throne', hp: 30000, def: 12, speed: 0, xp: 0, r: 0.7, ai: 'rooted', aggro: 40, fly: true, attacks: [], loot: [] };
+ENEMIES.sol_lens = { name: 'Lens of Starvation', biome: 'throne', hp: 22000, def: 10, speed: 0, xp: 0, r: 0.7, ai: 'rooted', aggro: 40, fly: true, attacks: [], loot: [] };
 ENEMIES.forge_heart = { name: 'Forge Heart', biome: 'throne', reg: 'ash_kin/vent', hp: 18000, def: 14, speed: 0, xp: 600, r: 0.7, ai: 'rooted', aggro: 16, scale: 1.4,   // (the Embersmith Gallery's three: src/castle.js)
   attacks: [{ pattern: 'aimed', proj: 'slag_shard', count: 5, arc: 0.7, dmg: 74, speed: 4.5, range: 12, cd: 1.4, tell: 300 }], loot: [] };
 ENEMIES.forge_vent = { name: 'Forge Vent', biome: 'throne', reg: 'ash_kin/vent', hp: 16000, def: 10, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 30, attacks: [], loot: [] };   // (Ashkar's Furnace Teeth: break one and it is out for 6 s)
