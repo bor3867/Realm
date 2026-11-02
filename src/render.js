@@ -737,6 +737,18 @@ export class Renderer {
       else if (o.ckCoffin && def.anims.open) fr = (o.openT === undefined ? def.anims.closed : def.anims.open).frames[0];   // a coffin, shut or open
       else if (o.hmStriker && def.anims.ring) { const k = this.lastT - (o.ringT || -9); fr = k < 0.8 ? def.anims.ring.frames[Math.min(def.anims.ring.frames.length - 1, Math.floor(k * 8))] : def.anims.idle.frames[0]; }   // the puck flies up and rings the bell
       if (o.gateArch) { this.flatDef(def, fr, o); return; }   // (the great arch: set in the world along its wall, not turned to face you)
+      if (o.lie !== undefined || o.sprite === 'castle_decor/log') {   // a fallen log lies along the ground its own way, and turns as the camera does (2026-11-02, the user: logs "look stupid" upright)
+        const L = o.lie || 0, [ax, ay] = this.proj(o.x, o.y), [bx, by] = this.proj(o.x + Math.cos(L), o.y + Math.sin(L));
+        let rot = Math.atan2(by - ay, bx - ax); if (rot > Math.PI / 2) rot -= Math.PI; else if (rot < -Math.PI / 2) rot += Math.PI;
+        const b = this.b; b.fillStyle = 'rgba(0,0,0,0.3)'; b.save(); b.translate(Math.round(sx), Math.round(sy + 3)); b.rotate(rot); b.fillRect(-14, -2, 28, 5); b.restore();
+        this.drawDef(def, fr, sx, sy + 1, { rot });
+        return;
+      }
+      if (/^castle_decor\/(pine|oak|deadwood)/.test(o.sprite)) {   // a tree stands in its own shade: a broad shadow at its foot, so it never floats (the user, 2026-11-02)
+        const b = this.b, x = Math.round(sx), y = Math.round(sy + 7);
+        b.fillStyle = 'rgba(0,0,0,0.22)'; b.fillRect(x - 11, y - 2, 22, 5); b.fillRect(x - 9, y - 3, 18, 7);
+        b.fillStyle = 'rgba(0,0,0,0.3)'; b.fillRect(x - 6, y - 1, 12, 3);
+      }
       if (o.solid) this.shadow(sx, sy + 7, def.size[1] > 8 ? 12 : 10);
       if (o.fuse !== undefined) { this.drawDef(def, fr, sx, sy + 8, { scale: 1.3, flash: Math.floor(this.lastT * 20) % 2 === 0 }); return; }   // a spore pod about to burst
       const bob = o.bob ? Math.round(Math.sin(this.lastT * 1.4 + o.x * 0.9) * 2) : 0;   // (adrift in the Nexus sky: it bobs)
