@@ -1353,12 +1353,16 @@ Object.assign(DUNGEONS.throne, { style: 'throne', seals: ['warden'], puzzle: nul
   guardian: 'ashkar_gatekeeper',
   courtBosses: ['jarl_warrior', 'jarl_wizard'],                                                         // (the courts' own bosses, one a court: src/bosses/jarl_*.js)
   hazardFx: null,                                                       // (the castle's rooms have their own hazards: src/castle.js)
-  // the Embersmith Gallery's three forge hearts, where the spec puts them (part of the dungeon, so a shared castle's server has them too)
-  extraSpawns(m) { const n = m.castle && m.castle.rooms && m.castle.rooms.C; return n ? [[8, 14], [19, 8], [30, 14]].map(([u, v]) => ['forge_heart', n.x + (u / 38) * n.w, n.y + (v / 28) * n.h]) : []; },
   compose(rm, r) {
     const P = (n, ids) => Array.from({ length: n }, () => r.pick(ids));
-    switch (rm.kind) {                                                  // the castle (the user's spec): who holds each room
+    switch (rm.kind) {                                                  // the castle (the user's map): who holds each room (for now the island's monsters, by role)
+      case 'ashfall': return ['cinder_hound', 'cinder_hound', 'magma_slinger', 'brimstone_acolyte'];
       case 'causeway': return ['furnace_brute', 'furnace_brute', 'obsidian_sentinel', 'obsidian_sentinel'];
+      case 'siege': return ['obsidian_sentinel', 'furnace_brute', 'magma_slinger', 'magma_slinger'];
+      case 'banners': return ['brimstone_acolyte', 'brimstone_acolyte', 'stolen_ray', 'caldera_serpent'];
+      case 'galleries': return ['furnace_brute', 'caldera_serpent', 'cinder_hound'];
+      case 'eclipsewalk': return ['stolen_ray', 'brimstone_acolyte', 'obsidian_sentinel'];
+      case 'arrival': case 'chainforge': return [];
       case 'crowns': return P(5, ['ash_wretch', 'cinder_hound', 'magma_slinger', 'brimstone_acolyte']);
       case 'chainwalk': return ['obsidian_sentinel', 'obsidian_sentinel'];
       case 'gallery': rm.ambush = true; return ['obsidian_sentinel', 'obsidian_sentinel', 'obsidian_sentinel', 'furnace_brute', 'furnace_brute'];   // (they come as you enter; its three forge hearts: extraSpawns)

@@ -937,7 +937,7 @@ export function randomTileInBiome(m, b, r, avoid, minD = 14) {
 // Upper dungeons seal their boss behind a gate (def.seals: wardens, levers, a puzzle); the lower ones don't.
 export function dungeon(seed, def) {
   const r = rng(seed);
-  const S = { chapel: 200, crypt: 180, forge: 180, scriptorium: 214, heart: 196, throne: 250, hive: 200, theatre: 190, spire: 220, islands: 230, frostveil: 300, mirerot: 280, astral: 470, sandscour: 320, keep: 280, hollowmoon: 300 }[def.style] || 230;
+  const S = { chapel: 200, crypt: 180, forge: 180, scriptorium: 214, heart: 196, throne: 330, hive: 200, theatre: 190, spire: 220, islands: 230, frostveil: 300, mirerot: 280, astral: 470, sandscour: 320, keep: 280, hollowmoon: 300 }[def.style] || 230;
   const FLOOR = TID[def.floor], WALL = TID[def.wall], HAZ = def.hazard ? TID[def.hazard] : null;
   const WET = def.style === 'crypt' ? TID.cryptwater : TID.water, HOT = def.style === 'ember' ? TID.emberlava : TID.lava;
   const m = makeMap('dungeon', def.name, S, S, TID.void);
@@ -1446,36 +1446,41 @@ export function dungeon(seed, def) {
       vein(far, boss);
       return { start, boss };
     },
-    // ---- SUNTHIEF'S CASTLE (the user's castle spec, art/sunthiefs_castle_complete_encounter_spec.txt, 1): a fixed castle,
-    // the same every time, its rooms in the spec's order and sizes, up from the breach to the Grand Sun Door; Solkhar's
-    // dais apart from it, reached only through the door (src/castle.js runs each room's hazards and the door):
-    //   A Breach Vestibule 24x20 (safe; its door opens after 3 s)   B Cinder Causeway 54x20 (two staggered 6-tile lanes
-    //   over lava, geysers)   C Embersmith Gallery 38x28 (three forge hearts hold its portcullis)   D Hall of Broken Crowns
-    //   46x18 (wall jets, three alcoves)   E The Hollow Court 40x34 (both Jarls)   F The Chainwalk 42x18 (a bridge whose
-    //   ribs crack)   G Ashkar's Chained Gate 38x34   H Grand Sun Door 14x10   I The Stolen Sun, a 44x44 round dais
+    // ---- SUNTHIEF'S CASTLE, after the eruption (the user's map, 2026-11-02: twelve steps). The same every time: up from the
+    // shattered overlook, room by room, to the Sunthief Gate; its portal takes you to the Eclipse Walk, a skybridge along
+    // the edge of the eclipse, and Solkhar's Sanctum at its end (src/castle.js runs the doors and the gate):
+    //   1 Eruption Arrival   2 Ashfall Descent   3 The Broken Causeway   4 Outer Siege Court   5 Hall of Hollow Banners
+    //   6 Twin Jarl Arena (both Jarls)   7 The Cinder Galleries   8 Chainforge Threshold (the Forge Overseer's foundry)
+    //   9 Ashkar's Forge Gate   10 The Sunthief Gate   11 Eclipse Walk   12 Solkhar's Sanctum
     throne() {
       const CX = S >> 1, way = (x0, y0, x1, y1) => carve(x0, y0, x1, y1);
-      const A = room(CX - 14 - 12, 222, 24, 20, { kind: 'breach', role: 'rest', dep: 0 });
-      const B = room(CX - 27, 198, 54, 20, { kind: 'causeway', dep: 1, lanes: [CX - 16, CX + 11] });
-      way(CX - 16, 218, CX - 11, 221); link(A, B);                                    // (A's door: onto the causeway's west lane)
-      const C = room(CX + 13 - 19, 166, 38, 28, { kind: 'gallery', dep: 2 });
-      way(CX + 11, 194, CX + 16, 197); link(B, C);                                    // (off the east lane)
-      const D = room(CX - 23, 140, 46, 18, { kind: 'crowns', dep: 3 });
-      way(CX + 12, 158, CX + 15, 165); link(C, D);
-      m.castle = { port: { x0: CX + 12, x1: CX + 15, y: 162 } };                      // (the gallery's portcullis, in that way)
-      for (const [x, top] of [[CX - 18, true], [CX - 2, false], [CX + 14, true]]) carve(x, top ? D.y - 3 : D.y + D.h, x + 2, top ? D.y - 1 : D.y + D.h + 2);   // its three alcoves
-      const E = room(CX - 20, 98, 40, 34, { kind: 'court', prefer: 'warden', dep: 4 });
-      way(CX - 2, 132, CX + 1, 139); link(D, E);
-      const F = room(CX - 21, 72, 42, 18, { kind: 'chainwalk', dep: 5 });
-      way(CX - 2, 90, CX + 1, 97); link(E, F);
-      const G = room(CX - 19, 30, 38, 34, { kind: 'guardhall', dep: 6 });
-      way(CX - 2, 64, CX + 1, 71); link(F, G);
-      const H = room(CX - 7, 16, 14, 10, { kind: 'sundoor', role: 'rest', dep: 7 });
-      way(CX - 2, 26, CX + 1, 29); link(G, H);
-      const boss = room(14, 112, 44, 44, { kind: 'throneroom', shape: 'round', dep: 9 });   // (apart: the door takes you there)
-      Object.assign(m.castle, { rooms: { A, B, C, D, E, F, G, H, I: boss }, door: { x0: CX - 2, x1: CX + 1, y0: H.y, y1: H.y + 2 } });
-      m.citadel = { starts: [{ x: A.cx + 0.5, y: A.cy + 0.5 }], bars: [], top: G.y, bottom: A.y + A.h };
-      return { start: A, boss };
+      const arrival = room(CX - 24, 300, 20, 18, { kind: 'arrival', shape: 'round', role: 'rest', dep: 0 });
+      const ashfall = room(CX - 26, 266, 24, 30, { kind: 'ashfall', dep: 1 });
+      way(CX - 16, 296, CX - 13, 299); link(arrival, ashfall);
+      const cause = room(CX - 27, 242, 54, 20, { kind: 'causeway', dep: 2, lanes: [CX - 16, CX + 11] });
+      way(CX - 16, 262, CX - 11, 265); link(ashfall, cause);
+      const siege = room(CX - 7, 210, 40, 28, { kind: 'siege', dep: 3 });
+      way(CX + 11, 238, CX + 16, 241); link(cause, siege);
+      const banners = room(CX - 20, 184, 40, 22, { kind: 'banners', dep: 4 });
+      way(CX + 8, 206, CX + 11, 209); link(siege, banners);
+      const court = room(CX - 20, 146, 40, 34, { kind: 'court', prefer: 'warden', dep: 5 });
+      way(CX - 2, 180, CX + 1, 183); link(banners, court);
+      const galleries = room(CX - 22, 116, 44, 26, { kind: 'galleries', dep: 6 });
+      way(CX - 2, 142, CX + 1, 145); link(court, galleries);
+      const forge = room(CX - 20, 80, 40, 32, { kind: 'chainforge', dep: 7 });
+      way(CX - 2, 112, CX + 1, 115); link(galleries, forge);
+      const ashkar = room(CX - 19, 42, 38, 34, { kind: 'guardhall', dep: 8 });
+      way(CX - 2, 76, CX + 1, 79); link(forge, ashkar);
+      const gate = room(CX - 9, 24, 18, 14, { kind: 'sundoor', role: 'rest', dep: 9 });
+      way(CX - 2, 38, CX + 1, 41); link(ashkar, gate);
+      // apart from the castle: the skybridge and the sanctum (the gate's portal takes you to the bridge's west end)
+      const walk = room(20, 150, 56, 14, { kind: 'eclipsewalk', dep: 10 });
+      const boss = room(26, 100, 44, 44, { kind: 'throneroom', shape: 'round', dep: 11 });
+      way(46, 144, 49, 149); link(walk, boss);
+      m.castle = { rooms: { arrival, ashfall, cause, siege, banners, court, galleries, forge, ashkar, gate, walk, I: boss },
+        door: { x0: CX - 2, x1: CX + 1, y0: gate.y, y1: gate.y + 2 }, breachWay: { x0: CX - 16, x1: CX - 13, y: 298 }, arrive: { x: walk.x + 3.5, y: walk.cy + 0.5 } };
+      m.citadel = { starts: [{ x: arrival.cx + 0.5, y: arrival.cy + 0.5 }], bars: [], top: ashkar.y, bottom: arrival.y + arrival.h };
+      return { start: arrival, boss };
     },
 
     // ---- THE HONEYED HOLLOW: a hive in a hollow tree. Hexagonal comb cells, wax tunnels, a royal cell at the heart
@@ -2480,15 +2485,15 @@ export function dungeon(seed, def) {
   if (m.spans) m.spans = m.spans.map((sp) => ({ ...sp, tiles: sp.tiles.filter((i) => m.tiles[i] === TID.fadebridge || m.tiles[i] === TID.dreambridge) })).filter((sp) => sp.tiles.length);
   finalize(m);
   for (const o of m.objects) if (o.bar) { o.solid = true; m.solid[idx(m, Math.floor(o.x), Math.floor(o.y))] = 1; }   // (a ruin piece is no block in the realm; a barricade is)
-  if (m.castle) {                                                     // the castle's gates: the breach's door (3 s) and the gallery's portcullis (src/castle.js opens them)
-    const P = m.castle.port, A = m.castle.rooms.A, Bl = m.castle.rooms.B;
-    m.castle.gates = { port: [], breach: [] };
-    // (each gate on a cobble tile of its own: opening it turns that tile back to the floor, so a shared castle's server
-    // sends the change and the gate opens for everyone, as the old barricades did)
+  if (m.castle) {                                                     // the castle's gate: the arrival's door onto the descent (3 s; src/castle.js opens it)
+    const W0 = m.castle.breachWay;
+    m.castle.gates = { breach: [] };
+    // (on a cobble tile of its own: opening it turns that tile back to the floor, so a shared castle's server sends the
+    // change and the gate opens for everyone)
     const gate = (x, y, which) => { put(m, 'seal_gate', x, y, true, { castleGate: which, floor: tile(x, y) }); const o = m.objects[m.objects.length - 1]; set(x, y, TID.cobble); m.solid[idx(m, x, y)] = 1; m.castle.gates[which].push(o); };
-    for (let x = P.x0; x <= P.x1; x++) gate(x, P.y, 'port');
-    for (let x = Bl.lanes[0]; x < Bl.lanes[0] + 6; x++) gate(x, A.y - 2, 'breach');
+    for (let x = W0.x0; x <= W0.x1; x++) gate(x, W0.y, 'breach');
   }
+
   // m.rooms: entrance first, boss last (other code relies on that); secret rooms ride along in m.secrets
   const order = [start, ...rooms.filter((n) => n !== start && n !== boss), boss];
   for (const o of m.objects) if (o.room !== undefined) o.room = order.indexOf(rooms[o.room]);

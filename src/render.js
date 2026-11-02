@@ -648,6 +648,18 @@ export class Renderer {
   // ---- a registry sprite (the Realm Update bundle, src/registry.js): native art at 2 buffer px per art px,
   // anchored at its foot (or centred), outlined like every other sprite. o: { flip, flash, alpha, rot, scale, center }
   drawDef(def, frame, x, y, o = {}) { return this.wade && !o.center ? this.sprW((yy) => this.drawDef0(def, frame, x, yy, o), y) : this.drawDef0(def, frame, x, y, o); }
+  // a wide thing standing along a wall (the Sunthief Gate's arch): drawn a column at a time, each at its own place along
+  // the world's x, so it stays where it stands and narrows as the camera turns (a sprite drawn whole faces the camera,
+  // and swung round into the rooms either side: 2026-11-02)
+  flatDef(def, frame, o) {
+    const f = def.frames[frame] || def.frames[Object.keys(def.frames)[0]]; if (!f) return;
+    const b = this.b, ax = def.foot[0], ay = def.foot[1];
+    for (let c = 0; c < f.w; c++) {
+      const [x0, y0] = this.proj(o.x + (c - ax) / 8, o.y), [x1] = this.proj(o.x + (c + 1 - ax) / 8, o.y);
+      const w = Math.max(1, Math.round(Math.abs(x1 - x0)));
+      b.drawImage(def.img, f.x + c, f.y, 1, f.h, Math.round(Math.min(x0, x1)), Math.round(y0 + 8 - ay * 2), w, f.h * 2);
+    }
+  }
   drawDef0(def, frame, x, y, o = {}) {
     const f = def.frames[frame] || def.frames[Object.keys(def.frames)[0]];
     if (!f) return;
@@ -723,6 +735,7 @@ export class Renderer {
       else if (o.sdUrn) fr = A.frames[o.cracked ? 1 : 0];
       else if (o.ckCoffin && def.anims.open) fr = (o.openT === undefined ? def.anims.closed : def.anims.open).frames[0];   // a coffin, shut or open
       else if (o.hmStriker && def.anims.ring) { const k = this.lastT - (o.ringT || -9); fr = k < 0.8 ? def.anims.ring.frames[Math.min(def.anims.ring.frames.length - 1, Math.floor(k * 8))] : def.anims.idle.frames[0]; }   // the puck flies up and rings the bell
+      if (o.gateArch) { this.flatDef(def, fr, o); return; }   // (the great arch: set in the world along its wall, not turned to face you)
       if (o.solid) this.shadow(sx, sy + 7, def.size[1] > 8 ? 12 : 10);
       if (o.fuse !== undefined) { this.drawDef(def, fr, sx, sy + 8, { scale: 1.3, flash: Math.floor(this.lastT * 20) % 2 === 0 }); return; }   // a spore pod about to burst
       const bob = o.bob ? Math.round(Math.sin(this.lastT * 1.4 + o.x * 0.9) * 2) : 0;   // (adrift in the Nexus sky: it bobs)

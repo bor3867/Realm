@@ -1,0 +1,230 @@
+{
+  "art_style": "True native 16x16 pixel-art sprites. RGBA PNG, transparent background, nearest-neighbor filtering only, sprite anchor bottom-center (8,15).",
+  "source": "Original pixel art created for the Sunthief Castle post-eruption dungeon.",
+  "sprites": [
+    {
+      "id": "sunbound_knight",
+      "size": [
+        16,
+        16
+      ],
+      "anchor": [
+        8,
+        15
+      ],
+      "name": "Sunbound Knight",
+      "zone": "Outer Siege Court / Hollow Banners",
+      "role": "melee pursuit; sweeping sword arcs",
+      "difficulty": "common",
+      "file": "sunbound_knight.png"
+    },
+    {
+      "id": "lava_guard",
+      "size": [
+        16,
+        16
+      ],
+      "anchor": [
+        8,
+        15
+      ],
+      "name": "Lava Guard",
+      "zone": "Broken Causeway / Outer Siege Court",
+      "role": "shield wall; slow charge; burning guard break",
+      "difficulty": "common",
+      "file": "lava_guard.png"
+    },
+    {
+      "id": "cinder_archer",
+      "size": [
+        16,
+        16
+      ],
+      "anchor": [
+        8,
+        15
+      ],
+      "name": "Cinder Archer",
+      "zone": "Ashfall Descent / Broken Causeway",
+      "role": "ranged volleys; marks aimed shots; retreats",
+      "difficulty": "common",
+      "file": "cinder_archer.png"
+    },
+    {
+      "id": "solar_acolyte",
+      "size": [
+        16,
+        16
+      ],
+      "anchor": [
+        8,
+        15
+      ],
+      "name": "Solar Acolyte",
+      "zone": "Hall of Hollow Banners / Eclipse Walk",
+      "role": "healing/rune caster; prioritise interrupting",
+      "difficulty": "common",
+      "file": "solar_acolyte.png"
+    },
+    {
+      "id": "forge_golem",
+      "size": [
+        16,
+        16
+      ],
+      "anchor": [
+        8,
+        15
+      ],
+      "name": "Forge Golem",
+      "zone": "Cinder Galleries / Chainforge Threshold",
+      "role": "slow bruiser; ground fractures and heavy slam",
+      "difficulty": "elite",
+      "file": "forge_golem.png"
+    },
+    {
+      "id": "hollow_wraith",
+      "size": [
+        16,
+        16
+      ],
+      "anchor": [
+        8,
+        15
+      ],
+      "name": "Hollow Wraith",
+      "zone": "Ashfall Descent / Hollow Court",
+      "role": "drifting spectral bolts; phased movement",
+      "difficulty": "common",
+      "file": "hollow_wraith.png"
+    },
+    {
+      "id": "cinder_bat",
+      "size": [
+        16,
+        16
+      ],
+      "anchor": [
+        8,
+        15
+      ],
+      "name": "Cinder Bat",
+      "zone": "Ashfall Descent / Cinder Galleries",
+      "role": "fast divebombing flier; sweeping shot",
+      "difficulty": "common",
+      "file": "cinder_bat.png"
+    },
+    {
+      "id": "lava_slime",
+      "size": [
+        16,
+        16
+      ],
+      "anchor": [
+        8,
+        15
+      ],
+      "name": "Lava Slime",
+      "zone": "Broken Causeway / Cinder Galleries",
+      "role": "split into small slimes; molten puddles",
+      "difficulty": "common",
+      "file": "lava_slime.png"
+    },
+    {
+      "id": "sun_cultist",
+      "size": [
+        16,
+        16
+      ],
+      "anchor": [
+        8,
+        15
+      ],
+      "name": "Sun Cultist",
+      "zone": "Hall of Hollow Banners / Eclipse Walk",
+      "role": "radiant caster; portals and slow aimed fans",
+      "difficulty": "common",
+      "file": "sun_cultist.png"
+    },
+    {
+      "id": "infernal_hound",
+      "size": [
+        16,
+        16
+      ],
+      "anchor": [
+        8,
+        15
+      ],
+      "name": "Infernal Hound",
+      "zone": "Outer Siege Court / Chainforge Threshold",
+      "role": "aggressive zigzag chase; fire trails",
+      "difficulty": "common",
+      "file": "infernal_hound.png"
+    },
+    {
+      "id": "sunbound_construct",
+      "size": [
+        16,
+        16
+      ],
+      "anchor": [
+        8,
+        15
+      ],
+      "name": "Sunbound Construct",
+      "zone": "Eclipse Walk / The Great Sun Door",
+      "role": "stationary beam turret; rotating solar spokes",
+      "difficulty": "elite",
+      "file": "sunbound_construct.png"
+    },
+    {
+      "id": "cinder_elemental",
+      "size": [
+        16,
+        16
+      ],
+      "anchor": [
+        8,
+        15
+      ],
+      "name": "Cinder Elemental",
+      "zone": "Cinder Galleries / Ashkar Forge Gate",
+      "role": "spiraling embers; erupts on death",
+      "difficulty": "elite",
+      "file": "cinder_elemental.png"
+    },
+    {
+      "id": "eclipse_shade",
+      "size": [
+        16,
+        16
+      ],
+      "anchor": [
+        8,
+        15
+      ],
+      "name": "Eclipse Shade",
+      "zone": "Eclipse Walk / Solkhar approach",
+      "role": "teleport ambush; shadow projectiles",
+      "difficulty": "elite",
+      "file": "eclipse_shade.png"
+    },
+    {
+      "id": "forge_overseer",
+      "size": [
+        16,
+        16
+      ],
+      "anchor": [
+        8,
+        15
+      ],
+      "name": "Forge Overseer",
+      "zone": "Chainforge Threshold / Ashkar approach",
+      "role": "mini-boss; chained hammer and shockwaves",
+      "difficulty": "miniboss",
+      "file": "forge_overseer.png"
+    }
+  ]
+}

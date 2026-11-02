@@ -184,6 +184,12 @@ export const BXF = {
     // a dying boss throws nothing more: what its own mechanics still call for comes to nothing (a shot not in play, so the
     // caller can still dress it). Three bosses kept firing through their death clip (tools/check_shot_lifecycle.mjs)
     if ((e.dead || (e.bx && (e.bx.state === 'death' || e.bx.state === 'deathhold' || e.bx.state === 'gone'))) && !(e.bx && e.bx.burstUntil > this.t)) return { x, y, vx: 0, vy: 0, a, life: 0, dmg: 0, dead: true };
+    // (2026-11-02, the user: "all shots MUST come from the center of the bottom of the boss, always": a shot from anywhere
+    // on its body, a staff's tip, its chest, a hand, starts at its feet. From up its body they flew from a point that
+    // turned away from the boss as the camera did, and seemed to come out of nowhere)
+    { const top = Math.max(2, (e.hitUp || 1) * 2 + 1), [tx, ty] = this.up(e.x, e.y, top), vx = tx - e.x, vy = ty - e.y, L2 = vx * vx + vy * vy || 1;
+      const k = Math.max(0, Math.min(1, ((x - e.x) * vx + (y - e.y) * vy) / L2)), d = Math.hypot(x - (e.x + vx * k), y - (e.y + vy * k));
+      if (d < Math.max(1.6, (e.D.r || 1) + 0.6)) { x = e.x; y = e.y; } }
     const b = this.shoot('e', x, y, a, V.speed || 5, V.range || 14, this.bxDmg(e, V.dmg || 60), V.sprite || `${e.bx.B.shotSheet || 'bx_shots'}/${e.bx.B.art || e.D.bx}.${V.shot}`, V.size || 0.45, false, e.D.name);
     if (V.mv) b.mv = { ...V.mv };
     if (V.life) b.life = V.life;

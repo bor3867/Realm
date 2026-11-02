@@ -1,0 +1,772 @@
+{
+ "rf": true,
+ "meta": {
+  "name": "Sunthief's Castle's defenders (the user's sprites)",
+  "version": 1
+ },
+ "sheets": {
+  "castle_kin": {
+   "image": "castle_kin.png",
+   "kind": "enemy",
+   "outline": true,
+   "sprites": {
+    "cinder_bat": {
+     "frames": {
+      "move1": [
+       0,
+       0,
+       16,
+       16
+      ],
+      "move2": [
+       16,
+       0,
+       16,
+       16
+      ],
+      "attack": [
+       32,
+       0,
+       16,
+       16
+      ],
+      "hurt": [
+       48,
+       0,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "move1",
+        "move2"
+       ],
+       "fps": 4,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "move1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "move1"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     }
+    },
+    "lava_slime": {
+     "frames": {
+      "move1": [
+       0,
+       16,
+       16,
+       16
+      ],
+      "move2": [
+       16,
+       16,
+       16,
+       16
+      ],
+      "attack": [
+       32,
+       16,
+       16,
+       16
+      ],
+      "hurt": [
+       48,
+       16,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "move1",
+        "move2"
+       ],
+       "fps": 4,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "move1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "move1"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     }
+    },
+    "cinder_archer": {
+     "frames": {
+      "move1": [
+       0,
+       32,
+       16,
+       16
+      ],
+      "move2": [
+       16,
+       32,
+       16,
+       16
+      ],
+      "attack": [
+       32,
+       32,
+       16,
+       16
+      ],
+      "hurt": [
+       48,
+       32,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "move1",
+        "move2"
+       ],
+       "fps": 4,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "move1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "move1"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     }
+    },
+    "hollow_wraith": {
+     "frames": {
+      "move1": [
+       0,
+       48,
+       16,
+       16
+      ],
+      "move2": [
+       16,
+       48,
+       16,
+       16
+      ],
+      "attack": [
+       32,
+       48,
+       16,
+       16
+      ],
+      "hurt": [
+       48,
+       48,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "move1",
+        "move2"
+       ],
+       "fps": 4,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "move1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "move1"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     }
+    },
+    "infernal_hound": {
+     "frames": {
+      "move1": [
+       0,
+       64,
+       16,
+       16
+      ],
+      "move2": [
+       16,
+       64,
+       16,
+       16
+      ],
+      "attack": [
+       32,
+       64,
+       16,
+       16
+      ],
+      "hurt": [
+       48,
+       64,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "move1",
+        "move2"
+       ],
+       "fps": 4,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "move1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "move1"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     }
+    },
+    "solar_acolyte": {
+     "frames": {
+      "move1": [
+       0,
+       80,
+       16,
+       16
+      ],
+      "move2": [
+       16,
+       80,
+       16,
+       16
+      ],
+      "attack": [
+       32,
+       80,
+       16,
+       16
+      ],
+      "hurt": [
+       48,
+       80,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "move1",
+        "move2"
+       ],
+       "fps": 4,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "move1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "move1"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     }
+    },
+    "lava_guard": {
+     "frames": {
+      "move1": [
+       0,
+       96,
+       16,
+       16
+      ],
+      "move2": [
+       16,
+       96,
+       16,
+       16
+      ],
+      "attack": [
+       32,
+       96,
+       16,
+       16
+      ],
+      "hurt": [
+       48,
+       96,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "move1",
+        "move2"
+       ],
+       "fps": 4,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "move1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "move1"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     }
+    },
+    "sun_cultist": {
+     "frames": {
+      "move1": [
+       0,
+       112,
+       16,
+       16
+      ],
+      "move2": [
+       16,
+       112,
+       16,
+       16
+      ],
+      "attack": [
+       32,
+       112,
+       16,
+       16
+      ],
+      "hurt": [
+       48,
+       112,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "move1",
+        "move2"
+       ],
+       "fps": 4,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "move1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "move1"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     }
+    },
+    "sunbound_knight": {
+     "frames": {
+      "move1": [
+       0,
+       128,
+       16,
+       16
+      ],
+      "move2": [
+       16,
+       128,
+       16,
+       16
+      ],
+      "attack": [
+       32,
+       128,
+       16,
+       16
+      ],
+      "hurt": [
+       48,
+       128,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "move1",
+        "move2"
+       ],
+       "fps": 4,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "move1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "move1"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     }
+    },
+    "cinder_elemental": {
+     "frames": {
+      "move1": [
+       0,
+       144,
+       16,
+       16
+      ],
+      "move2": [
+       16,
+       144,
+       16,
+       16
+      ],
+      "attack": [
+       32,
+       144,
+       16,
+       16
+      ],
+      "hurt": [
+       48,
+       144,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "move1",
+        "move2"
+       ],
+       "fps": 4,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "move1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "move1"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     }
+    },
+    "eclipse_shade": {
+     "frames": {
+      "move1": [
+       0,
+       160,
+       16,
+       16
+      ],
+      "move2": [
+       16,
+       160,
+       16,
+       16
+      ],
+      "attack": [
+       32,
+       160,
+       16,
+       16
+      ],
+      "hurt": [
+       48,
+       160,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "move1",
+        "move2"
+       ],
+       "fps": 4,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "move1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "move1"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     }
+    },
+    "forge_golem": {
+     "frames": {
+      "move1": [
+       0,
+       176,
+       16,
+       16
+      ],
+      "move2": [
+       16,
+       176,
+       16,
+       16
+      ],
+      "attack": [
+       32,
+       176,
+       16,
+       16
+      ],
+      "hurt": [
+       48,
+       176,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "move1",
+        "move2"
+       ],
+       "fps": 4,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "move1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "move1"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     }
+    },
+    "sunbound_construct": {
+     "frames": {
+      "move1": [
+       0,
+       192,
+       16,
+       16
+      ],
+      "move2": [
+       16,
+       192,
+       16,
+       16
+      ],
+      "attack": [
+       32,
+       192,
+       16,
+       16
+      ],
+      "hurt": [
+       48,
+       192,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "move1",
+        "move2"
+       ],
+       "fps": 4,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "move1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "move1"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     }
+    },
+    "forge_overseer": {
+     "frames": {
+      "move1": [
+       0,
+       208,
+       16,
+       16
+      ],
+      "move2": [
+       16,
+       208,
+       16,
+       16
+      ],
+      "attack": [
+       32,
+       208,
+       16,
+       16
+      ],
+      "hurt": [
+       48,
+       208,
+       16,
+       16
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "move1",
+        "move2"
+       ],
+       "fps": 4,
+       "loop": true
+      },
+      "attack": {
+       "frames": [
+        "move1",
+        "attack"
+       ],
+       "fps": 6,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hurt",
+        "move1"
+       ],
+       "fps": 8,
+       "loop": false
+      }
+     }
+    }
+   }
+  }
+ }
+}
