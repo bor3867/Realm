@@ -1,0 +1,173 @@
+# cinder_elemental: 42x46, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #461a39
+D #c7131f
+E #a30a21
+F #fa6609
+G #f9590b
+H #f53817
+I #fa9000
+J #fb600a
+K #5b2b55
+L #fae10f
+M #f3331f
+N #fbde0c
+O #f02f20
+P #fb9700
+Q #5e2b58
+R #fb9900
+S #fa9b01
+T #fada0b
+U #70081f
+V #5a2954
+frame base
+........................AA................
+.......................AJJA...............
+.....................AAAJJA...............
+....................ADDJJJA...............
+................A...ADJJAA................
+...............AIA..AJJJA.................
+................A..ADDJJA.................
+...............A...ADDDJA..A..............
+..............AJA.AADJJA..AJA.............
+...............A.ADDJJJA...A..............
+............A....ADDJJJA.....A............
+...........AJA...ADDJNJAA...AJA...........
+..........AJJA...AJJJNJDDA..AJJA..........
+.........AJJA.....AJLLJJJDA..AJJA.........
+........AJJJA.....AJJLLJJJHA.AJJA.........
+........AJJEA.....AJJGLLJJHA.AOJKA........
+.......AVJOEA....AADJJLLGJJAACOCKA........
+.......AVCOEUA..ADDDJGLLMMJBCCOCVAA.......
+......AVVVOOKVAADDDJFLLJMMMBCCCVQKCA......
+......AVVVVBVVAADJFNLLLJDDMDDBCKQKCA......
+.......AABVCCCJDMJJLLLLJJDODDBKKBAA.......
+.........AVCCJJDBJJLLJGRPDBDOBKCA.........
+.....A....ACCJJJVFFLJJJRSFVFJBCA....A.....
+....AJA...ABCCJJVVVJJTPPVVVVVVCA...AJA....
+....AJA...AABCJJVVVVJTPVVVVCCVA....AFJA...
+...AJJA....ACCABEAAVVIVVAABCCA...A.AJJJA..
+...AJJA....ACBBBDAAAVVCAAADCCA..AIAAJFFA..
+..AJJEA.....ABUEDDUACVAUDDUUA....A.AEIIA..
+..AJJEA......AUDDLLUUVULLEEUA......AEIIA..
+..AJMEEA..A...AUDHLLUULLLEEUA..A..AAEMIIA.
+..AEMIEEAAVA..AUEDLLDDDLDEEA..AVAAEEEMEEA.
+...AMIIECCVAA..AECDDDJJDDAA..AAVCCEEGMUA..
+...ACIIGCKKQKA.ACCJJJJJJDA..AVVVKVFFIUUA..
+....ACCCQQCCCA..AAUJNJJJJA..ACCCKVVICAA...
+....ACCCKCAAA....AUJNNJAA..ACCCAACVVVA....
+.....AACQA.......ADDJNJA...ACAA.ACVVA.....
+......ACKA....A.ADDDPNJFA...A....AACA.....
+.......AAA...APAADJPPAAA..........AA......
+........ACA..APAADJPPA....................
+.........A....A..AAJPA....................
+...................AJJA...................
+...................AJJA...................
+....................AJA...................
+.....................A....................
+..........................................
+..........................................
+
+# ---- the fire (drawn): its great tongue in a new shape each frame (leaning, split in two, standing tall with a lick
+# torn off it), the tips of its side flames and its tail changing, embers in new places
+frame fire0 from base
+frame fire1 from base
+clear 15 0 28 10
+row 0 22 AA
+row 1 21 AJJA
+row 2 20 AJJJA
+row 3 20 ADJJAA
+row 4 19 ADJJJA
+row 5 19 ADDJA
+row 6 18 ADDJJA
+row 7 18 ADDDJA
+row 8 18 AADJJA
+row 9 17 ADDJJJA
+row 10 17 ADDJJJA
+row 3 15 I
+row 6 27 I
+row 21 4 A
+row 22 3 AJA
+row 42 20 AA
+row 43 21 .
+frame fire2 from base
+clear 15 0 28 10
+row 0 19 A.....AA
+row 1 18 AJA...AJJA
+row 2 18 AJA..AJJA
+row 3 18 ADJA.AJJA
+row 4 19 ADJAAJJA
+row 5 19 ADDJJJA
+row 6 19 ADDJJA
+row 7 19 ADDDJA
+row 8 18 AADJJA
+row 9 17 ADDJJJA
+row 10 17 ADDJJJA
+row 7 14 AIA
+row 2 28 I
+row 22 36 ...
+row 23 35 AJA.
+row 41 19 AJJA
+row 42 19 AJA
+row 43 19 A..
+frame fire3 from base
+clear 15 0 28 10
+row 0 22 F...A
+row 1 25 AJA
+row 2 24 AJJA
+row 3 23 AJJJA
+row 4 22 ADJJA
+row 5 21 ADJJA
+row 6 20 ADDJJA
+row 7 19 ADDDJA
+row 8 18 AADJJA
+row 9 17 ADDJJJA
+row 10 17 ADDJJJA
+row 9 13 I
+row 11 30 .
+row 4 29 I
+row 24 3 AJJA
+row 28 1 AJJEA
+row 40 18 AJJA
+
+# ---- its attack (drawn): the fire sinks low and its eyes go white; it rears up (its tongue towering, its arms flung
+# high, its heart bright); it bursts (a ring of embers flung off it); it settles
+frame blast0 from base
+clear 15 0 28 7
+row 6 20 AA
+row 7 19 ADJA
+row 28 17 NN
+row 28 23 NN
+row 29 18 NN
+row 29 22 NNN
+frame blast1 from fire3
+row 21 2 AJA
+row 20 3 A
+row 21 37 AJA
+row 20 38 A
+row 18 20 LLL
+row 19 19 LTTL
+row 28 17 OO
+row 28 23 OO
+row 29 18 OO
+row 29 22 OOO
+frame blast2 from fire2
+row 28 17 OO
+row 28 23 OO
+row 29 18 OO
+row 29 22 OOO
+row 19 19 TNNT
+row 2 2 I......................................I
+row 12 0 F
+row 12 41 F
+row 24 0 I
+row 24 41 I
+row 36 1 F
+row 36 40 F
+row 44 8 I.........................I
+row 45 21 F
+frame blast3 from base
+row 19 20 NN
+clip move 8 fire0 fire1 fire2 fire3
+clip shoot 10 blast0 blast1 blast2 blast3

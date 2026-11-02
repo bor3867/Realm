@@ -1,0 +1,142 @@
+# sun_cultist: 50x49, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #f3a228
+D #f9c14f
+E #c00a6e
+F #c41664
+G #dc7c1a
+H #9b758e
+I #621c5d
+J #41163c
+K #631247
+L #e0c0ae
+M #b01d56
+N #aa4b17
+O #8a1060
+P #802d24
+Q #880f57
+R #f09624
+S #841451
+T #ecd2bb
+U #f6d986
+V #ebd0b9
+frame base
+.........A........................................
+........AOA.............A.........................
+.......A.AA............ADA........................
+......AOAAEA...........AUA........................
+......AFOAA............AUAA.......................
+.....AAFFOA...........ADCCCA......................
+....AEAUUFA.......A.AAGACAAGA.AA..................
+.....ADDMCA......ADARAAAUA.ARADDA.................
+...AADACAEDAA....ARRA.ADODA.ARRA..................
+..ADDAAOEAADDA....AGAADOUSCA.AGA..................
+..AADAEEEOADAA...AGAADSOUSSCAAGA..................
+.AUUUAEGCEUUUUA.AAGAARQUFDSGAAGAA.................
+.ARRPAFCRFAPRRAACCGAARKODKKGJAGCCA................
+..AAGAEOQAARAA..AAGAJJKQRKJGJAGAA.................
+....ARADDARA......ANIKKDDRJGKAA...................
+...ARARCCRARA.....ASOSDAAARRKKA...................
+....AARUURAA.....AKKQDAA.AAAKKJA..................
+......AJJA......AAAKCAADADRAARAA............A.....
+......ARGA.....ARCIACQAA.AAQKRJGA..........AJAA...
+......ARUA...AAIKDCJAQFA.AMOAAGGKAA...AAA..AKKKA..
+.......AJA..ACDDIIJGGAAMAAMANGGIIRRA.AHHHA..AAKKA.
+......AAKA...AADDKDUCAAMAAMADDRJRRAAAHHHIIA.AKKKA.
+.....AHHHHAAAIAAACCORAJSAAKJRQRGAAIDAHIAIIAAAKKA..
+.....AHHHIADIIIJAAHRAADKDAKRARRAJAIDJIIRCAAKKKKA..
+.....AIIIJJDDIIJANHACAACDCRAJGHAAJICAAADRAASSAAA..
+......AAAAACCJJJGNHJCAADBRDADJHHAJJCA.ADAAAQAAAEA.
+.......AKAACRJJRGALKHRDDFQDDHKHNGJRRA.AAADAEEOAA..
+.......AIA.ARRRAAATILAAGKBGAHILAARRRJADAAGAAEEOA..
+......ARKAAARCA..ATTVAAADGAALVLLAARJJADAUAAAEEOA..
+......ARGAJAPAJAAHTTVANACAAAVTVLAJAJKADDCADEEEEA..
+.......AJAJAGJJAAHTTTAGJRAGATVJLAJAKACAOCQDEAAA...
+.......ASAJAGJJAAVJJTARRJJGAVVJLAJJKADDUUUKA......
+.......AQAJJGJA.AVVVTAPARRAAVVJLAJKKAGDAPARGA.....
+.......AQAAGGJAAVVJJVANJCAAATJJJAAKKAJJJDFKA......
+.......AIAAGGAAAVTJJTAGJJJJAVJJJAAAAAKKJDDKA......
+.......AIA.AAAAATVVVTARJJJJATSJLAA...ACDDPPA......
+.......AKA.AJJAAVTJTTARJIIJRTTKVAAA...AKNKA.......
+......AKKA.AJJAJTTTTCACKIIIRUTOVAJA....AGA........
+......ARDAAJJAPPAATTAACIIIIRACVAAKJA....A.........
+.......AJAJJAANA.ATA.ACIDCIRAJVAAPJAA.............
+.......AKAJAAAGAAAAAAACIIIICAKAAAGGJA.............
+.......AKAAGGGGJJJJMJACIIIIRASAJAAGGGA............
+.......AKAGPAAAJMJJNJACCIICRJJAJOJAAJGA...........
+.......AKAAJJAJJFJKGJAACCCCAJJGJMJJJAA............
+......ARGAJJJJJFKKJRJJAACCAAJJRJJJMJJA............
+......ACGAJJJQFKKCCRJAAAAAJAAJRRRJMSJJA...........
+.......AA.AAARCCCAAAJIIIJAJIIIAARRRGAA............
+.............AAAA...AAAAA.AAAA..AAAA..............
+..................................................
+
+# ---- the procession (drawn): his robe's hem swinging; his staff's flame and his censer's smoke curling to new shapes
+frame walk0 from base
+frame walk1 from base
+row 46 8 AJJA
+row 47 9 AAA
+row 0 8 AA
+row 1 7 AOAA
+row 17 44 .
+row 18 43 .AJA
+row 16 46 J
+frame walk2 from base
+row 0 9 .
+row 1 10 A
+row 2 9 AOA
+row 17 45 A
+row 16 45 J
+row 20 49 A
+frame walk3 from base
+row 46 36 GJA
+row 47 35 AAA
+row 46 9 .
+row 0 10 A
+row 1 9 .OA
+row 19 47 AA
+row 18 47 J
+
+# ---- the rite (drawn): his cross-staff kindles; the power gathers (his halo blazing, sparks round the staff's head,
+# the censer's smoke surging); a burst of light from the staff; recovery, the light dying
+frame rite0 from base
+row 11 2 DDD
+row 11 10 DDDD
+row 12 2 DD
+row 12 11 DD
+row 9 7 U
+frame rite1 from rite0
+row 2 24 U
+row 3 24 D
+row 5 23 DDDD
+row 6 24 D
+row 4 0 D
+row 4 14 D
+row 15 0 D
+row 15 14 D
+row 9 0 C
+row 9 15 C
+row 22 47 EO
+row 21 48 E
+row 23 48 O
+frame rite2 from rite1
+row 8 7 DUD
+row 9 6 DUUUD
+row 10 7 DUD
+row 0 3 D.......D
+row 2 1 U...........U
+row 7 0 U
+row 7 16 U
+row 13 0 D
+row 13 16 U
+row 17 2 U.........U
+row 19 7 D
+row 10 17 DUU
+row 11 19 D
+frame rite3 from base
+row 9 7 U
+row 4 1 C
+row 17 13 C
+clip move 7 walk0 walk1 walk2 walk3
+clip shoot 10 rite0 rite1 rite2 rite3

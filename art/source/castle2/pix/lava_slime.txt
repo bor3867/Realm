@@ -1,0 +1,105 @@
+# lava_slime: 17x21, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #c72431
+D #f85805
+E #b72e62
+F #fb9702
+G #fb7a01
+H #52153d
+I #a12b86
+J #ec4312
+K #86243d
+L #e7301f
+M #f85901
+N #9d1a4c
+O #fcd211
+P #792939
+Q #813a7b
+R #82397d
+S #c53859
+T #3a0a00
+U #6f2766
+V #8c2d75
+frame base
+....A............
+...AIA..AA.......
+....AQAASRA......
+...AISA.AVRA.....
+...AISA.AVVA.....
+...AAAAANLVA.....
+..AMAANCDDUA.....
+.AMAANLGGNAA.A...
+..AANLGMKHAVARA..
+..ANNLGFMLNNAAQA.
+..AMLJGOFGJNMAA..
+.APMGGFOOFGJFJA..
+.APKGBMOODBFFCA..
+.APPGBOMMOTFLUA..
+..AAKDBBBBMJAA...
+...AAADMMDLA.....
+..ARA.AHLUA......
+...A..ACUA.......
+.....APUA........
+......AA.........
+.................
+
+# ---- the flame (drawn): a new silhouette each frame: its tongue leaning, splitting and standing, embers breaking away
+frame burn0 from base
+frame burn1 from base
+clear 2 0 12 4
+row 0 2 ......AA...
+row 1 2 ..A..ASRA..
+row 2 2 .AIA.AVRA..
+row 3 2 .AQSAAVVA..
+row 4 2 .AISAAVRA..
+row 16 2 .AR
+row 17 3 .
+frame burn2 from base
+clear 2 0 12 4
+row 0 2 ........A..
+row 1 2 .......ARA.
+row 2 2 ..A..AASRA.
+row 3 2 .AIA.AVVRA.
+row 4 2 .AQA.AVVA..
+row 7 13 ...
+row 6 13 .A.
+row 7 12 ARA
+frame burn3 from base
+clear 2 0 12 4
+row 0 2 ...G..A....
+row 1 2 ......ARA..
+row 2 2 ..A..ASVRA.
+row 3 2 .AISAAVVRA.
+row 4 2 .AISAAVVA..
+row 16 2 ...
+row 17 2 .A.
+row 15 1 G
+
+# ---- its attack (drawn): it draws in (low, its heart white-hot); it swells, flames reaching; it bursts, a ring of embers; it settles
+frame flare0 from base
+clear 2 0 12 3
+row 2 8 AA
+row 3 7 AVRA
+row 10 7 OOO
+row 11 7 OOO
+frame flare1 from burn3
+row 10 6 FOOOF
+row 11 7 OOO
+row 6 1 F
+row 4 13 F
+row 0 9 F
+frame flare2 from burn1
+row 10 6 OOOOO
+row 11 6 OVVO
+row 1 0 F...........F
+row 6 0 I
+row 6 16 I
+row 12 0 F
+row 12 16 F
+row 18 2 I.........I
+row 20 8 F
+frame flare3 from base
+row 11 7 OF
+clip move 9 burn0 burn1 burn2 burn3
+clip shoot 10 flare0 flare1 flare2 flare3

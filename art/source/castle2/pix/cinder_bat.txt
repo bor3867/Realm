@@ -1,0 +1,121 @@
+# cinder_bat: 33x18, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #5b3156
+D #bb2813
+E #872655
+F #fb8001
+G #9b8397
+H #3b1637
+I #fcae05
+J #bf2f37
+K #60124d
+L #fb5406
+M #e63a13
+N #f85c04
+O #6f1850
+P #b42e5e
+Q #7b6279
+R #a32766
+S #ab2c6b
+T #69526a
+U #fbc911
+V #fbe828
+frame base
+............A.......A............
+...........AQA.....AQA...........
+.......AA..AQRA...APQA..AA.......
+......AGGA..ALCAAACLA..AGGA......
+....AAGGA..AOLHAGAALOA.ATGGAA....
+...AGGQQCAAOOAQQQTQAOOAATQQGGA...
+...ACAAACQAAOAAQGQAHOAAQCAAACA...
+..ATAAODAQGAA.AHQHAAAAGQADKAAQA..
+.AGAKOJLAAATCANVAVNATTAAALJKKAGA.
+.AQARLLKOODAAQHHHHHQAADOOMLRRAQA.
+..AMRLHKSNMKAACHHHCAAKMOSKHFRMA..
+..AFIFOSSNOA..AQEQA..AOLSSOFIFA..
+..AIISAAAJA...AAFAA...APAAAFIIA..
+..ANVA..ASA..AHAMHHA..APA..AVNA..
+...AFA...A...ANCAHNA...A...AFA...
+....A.........AFAFA.......AIA....
+...............A.A.........A.....
+.................................
+
+# ---- the wing-beat (drawn): spread (the art), raised high and narrowed, spread, driven down long
+frame fly0 from base
+frame fly1 from base
+clear 0 2 10 16
+clear 22 2 32 16
+row 0 0 ..AA.......
+row 1 0 .AGGA......
+row 2 0 .AQGGA.....
+row 3 0 .AQQQCA....
+row 4 0 ..ACKOCA.AA
+row 5 0 ..AKRLOOAOA
+row 6 0 ..ALRLKOOOA
+row 7 0 ..AFLLHKOAA
+row 8 0 ..AIFNSSAA.
+row 9 0 ...AIFAA...
+row 10 0 ....AA.....
+row 0 22 .......AA..
+row 1 22 ......AGGA.
+row 2 22 .....AGGQA.
+row 3 22 ....ACQQQA.
+row 4 22 AA.ACOKCA..
+row 5 22 AOAOOLRKA..
+row 6 22 AOOOKLRLA..
+row 7 22 AAOKHLLFA..
+row 8 22 .AASSNFIA..
+row 9 22 ...AAFIA...
+row 10 22 .....AA....
+frame fly2 from base
+row 13 3 V
+row 13 28 V
+frame fly3 from base
+clear 0 2 10 16
+clear 22 2 32 16
+row 4 0 .........AA
+row 5 0 ......AAAOA
+row 6 0 ....AAGQOOA
+row 7 0 ...AGQCKOAA
+row 8 0 ..AGQKOLJA.
+row 9 0 .AQAKRLLKOA
+row 10 0 .AAMRLHKSNA
+row 11 0 .AFIFOSSNOA
+row 12 0 AIISAAAJA..
+row 13 0 ANVA..ASA..
+row 14 0 AFA....A...
+row 15 0 AIA........
+row 16 0 .A.........
+row 4 22 AA.........
+row 5 22 AOAAA......
+row 6 22 AOOQGAA....
+row 7 22 AAOKCQGA...
+row 8 22 .AJLOKQGA..
+row 9 22 AOKLLRKAQA.
+row 10 22 ANSKHLRMAA.
+row 11 22 AONSSOFIFA.
+row 12 22 ..AJAAASIIA
+row 13 22 ..ASA..AVNA
+row 14 22 ...A....AFA
+row 15 22 ........AIA
+row 16 22 .........A.
+
+# ---- its attack (drawn): wings flung up, its eyes flaring; it dives, wings driven back; a gout of fire from its jaws; recovery
+frame spit0 from fly1
+row 8 15 NVSVN
+frame spit1 from fly3
+row 8 15 NVSVN
+row 12 16 F
+frame spit2 from fly3
+row 12 15 AFUFA
+row 13 14 AFVSVFA
+row 14 14 AUSVSUA
+row 15 14 AFVSVFA
+row 16 15 AUFUA
+row 17 16 FAF
+row 18 15 I...I
+frame spit3 from fly0
+row 13 16 J
+clip move 10 fly0 fly1 fly2 fly3
+clip shoot 10 spit0 spit1 spit2 spit3

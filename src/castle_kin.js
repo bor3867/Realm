@@ -422,7 +422,7 @@ export function installCastleKin(Game) { Object.assign(Game.prototype, methods);
   // elemental ... the small mage ... can all look better and be stronger. I want full shooting animations": these seven
   // redrawn at their full size, so drawn at scale 1, with a four-frame shot (tools/build_castle_elite.py), and a third more
   // Life and touch; the rest of the big ones a quarter more)
-  // (and then the user's own art for nine of them, 2026-11-02: tools/build_castle_user.py, at one art pixel to one of the
+  // (and then the user's own art for nine of them, 2026-11-02: tools/castle_pix.py (hand-drawn frames: art/source/castle2/pix), at one art pixel to one of the
   // game's, so scale 0.5; their Life as above)
   const USER = new Set(['infernal_hound', 'cinder_archer', 'sunbound_knight', 'solar_acolyte', 'cinder_elemental', 'lava_slime', 'lava_guard', 'sun_cultist', 'cinder_bat']);
   const REDRAWN = new Set(['cinder_archer', 'infernal_hound', 'solar_acolyte', 'sun_cultist', 'lava_guard', 'sunbound_knight', 'cinder_elemental']), BIGGER = new Set(['eclipse_shade', 'forge_golem', 'sunbound_construct']);

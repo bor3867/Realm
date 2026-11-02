@@ -1,0 +1,129 @@
+# solar_acolyte: 40x40, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #a70f76
+D #ed4c47
+E #613135
+F #b75f1a
+G #71095f
+H #ee9827
+I #580f5b
+J #bb2074
+K #782b7d
+L #d6781e
+M #37123b
+N #5b285f
+O #dd2c6f
+P #f8ad36
+Q #4b234b
+R #fbd845
+S #fabb3b
+T #461d4c
+U #fac33e
+V #fab957
+frame base
+........AA..............................
+.......AKKA.............................
+......AACCA.............................
+.....ACCAA..............................
+.....AGJBA...........A..................
+.....AGOCCA.........ARA.................
+....AJBGVJA.....A...ARA...A.............
+....ABMCDDA....APA.AARA..APA.....A......
+...ARBCDCMRA...APAASOOSAAAPA....AGA.....
+..APBBDHOCBPA..ALLULLGLULLLA...AAA......
+..APBDHRLDBPA...ALBBSSBBLAA...AGGAAA....
+..ALMGMPIGMLA...ATTTTMTTTA.....AAGGGA...
+...ALBMCBBLA...AATTPUUHTTA.....A.AAGGA..
+....ALMCBLA...ATTTPBBBBPTTA...AGA.AOGA..
+.....AAUHA....ATTPBBBBBBPTA....AAACOAGA.
+......AQA.....ATPPEHBBBMPIA...ACCDOA.A..
+......AQA....ATTPBEHBBHEBJIA..ACDHDCA...
+......AQA.....ABHBBBBBBBBHIIA.ACDRROCA..
+......ARPA..AABABKKBBBBBIBAA...AJRROA...
+......AQA..ARPPAABNKBBBIBBBA...ACJJA....
+......ANA.A.APRPAAAKKBIIBAPUAAANCTTA....
+......AGAAHAATBBPSLMMBMMLPBBIPMNTTA.....
+......AIGAPKTTTBBBEMMTMMEBMMIPMKAA......
+......AIBBPKTTTBBMLBBMBBLBMMIPBA........
+.......ABBLKTTBBBMLBBPBBLBMIILBA........
+......ANBBLTTTBBMMHLRJULLBMMMLBA........
+......ANBBLTTBBBMMLBLGLBLMMMMLA.........
+......ANBBLTBBBBTMLBBPBBLMBBMLA.........
+......AQBBLABBBBCTLBABMALMMBAFA.........
+......AQBAA.ABIICIHBMMMAHTTA.A..........
+......ARPA...AIJJIHAMTTAHCIA............
+......ARPA..AIIOOIHATTTAPJIIA...........
+......AQA...AIOOIIPATTTAPOOIA...........
+......AQA..AMIOOIIPATTTAPIOIIA..........
+......AQA.AAMIOIIPPAAPMAPIIIIA..........
+......AQAAIIIIIIIPAAPPSAAIIIIIA.........
+......ALAAIIIAAHHPHHSASHPLLAIIA.........
+.......A..AAA..AAAAAA.AAAAA.AA..........
+........................................
+........................................
+
+# ---- the glide (drawn): his robe's hem swinging one way and the other; the flames on his staff and in his hand flickering to new shapes
+frame glide0 from base
+frame glide1 from base
+row 36 9 AIIIIA
+row 37 8 AIIIA
+row 38 9 AA
+row 36 29 A.
+row 0 7 AA.
+row 1 6 AKKA
+row 2 6 ACCA
+row 9 33 .
+row 8 32 AGA.
+frame glide2 from base
+row 0 8 .A
+row 1 7 AKA
+row 7 33 A
+row 6 33 .
+row 15 37 .
+frame glide3 from base
+row 36 26 LLAIIA
+row 37 25 AIIIIA
+row 38 26 AAAA
+row 36 9 AA
+row 0 8 AA
+row 1 8 KKA
+row 2 7 ACKA
+row 10 35 .A
+row 14 38 A
+
+# ---- the cast (drawn): his staff's orb kindles; the power gathers (sparks round orb and hand, the hand's fire swelling);
+# the release (his hand flares and the bolt flies); recovery, the last sparks dying
+frame cast0 from base
+row 9 6 HRV
+row 10 5 HRRV
+frame cast1 from base
+row 9 5 HRVRH
+row 10 5 HRRRV
+row 11 6 PRP
+row 7 1 U
+row 6 13 U
+row 13 1 U
+row 13 13 U
+row 12 34 AOA
+row 11 34 AOA
+row 10 35 A
+row 14 39 U
+row 19 39 U
+row 16 31 OHH
+frame cast2 from cast1
+row 15 33 RRA
+row 16 32 RVRRA
+row 17 32 RVVVRA
+row 18 33 RRRA
+row 17 38 .OS.ORRVVRA
+row 16 41 ORVVR
+row 18 41 ORVVR
+row 15 43 U
+row 19 43 U
+frame cast3 from base
+row 14 39 U
+row 20 40 D
+row 9 7 R
+clip move 7 glide0 glide1 glide2 glide3
+clip shoot 10 cast0 cast1 cast2 cast3

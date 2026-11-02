@@ -1,0 +1,155 @@
+# sunbound_knight: 43x42, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #833637
+D #665873
+E #facb38
+F #562e52
+G #3e1b38
+H #df930d
+I #f7ba1d
+J #fbf38b
+K #c27309
+L #9e90aa
+M #fbe064
+N #b2a7b9
+O #fcf9e8
+P #701f4e
+Q #90819d
+R #faf9e5
+S #8d7f9b
+T #f9de62
+U #b7adbe
+V #d9d3d3
+frame base
+......................A....................
+.......A.............AMA...................
+......AIA............AJA...................
+......AIA...........AIJIA..................
+.....AOIA......A....AIJIA...AA.............
+.....AOIA.....AMAA.AAIIIAA.AMMA............
+....AOOIA.....AEJIAETTMIIIAJIA.............
+....AOOIA......AIJJIHHHHHJJIIA.............
+....AOOIA......AIIIBBBBBBBJKA..............
+....ARIIA......AHHBLLMCFFBBKA..............
+....AREIA....AAIIBFSQMTDDFBIIAAA...........
+....AREEA...AIIIIBFDDMTDDDBBIIIIA..........
+....AREHA....AKKBFLLNEHLLLGBAHAA...........
+....AIEHA.....AAAFLLLEHBLBGA.A.............
+....AIEHA...AAAABFBBIBBIIBGBAAAAA..........
+....AIOHA..AQSTTBFDDBBBBIDGBTTDDDA.........
+....AIOHA.AAQQTTBFDDSQGSFDBBTTDDDA.........
+....AIOHAAFFDDTTBBFFSSGSDFBBTTFFFFA........
+....AIOHAAFDDDDDTBBBDSGSBBBTDDFFFBAA.......
+...AAHTHAAGGGDDDIBHIBSBBBEBHBBBBBJEEAAAA...
+..AHHMTMHBGGGDDIIBGIIJIIIIBHBEJBTTGEEEHHA..
+..AHHHHHHBHKTTTKBBGGIJEEIGBBBEJJTTGGEEHHHA.
+...AAHHBBBHKKKBBBDGGGGEGGGDBTTGPPGGGGGGKKA.
+.....AQQBDDFBBBGFFKGGGIGGKFBTGGFFGIGGGGKKA.
+....ADLLBDFFBBGGFFKGGIEGGKFBIIGFFGIGGGGGA..
+....AFDDBFFFBBBBDDHIIIIIIHDBIIGIGGEEGGGGKA.
+....AFDDAFBBBGGBDDHGGIEGGHDBIIGGEEJJIIGGKA.
+.....ABA.AAPGGGBBBIGGGEGGHBBIIGGEEJJEIEKKA.
+.....AHA..APGGGHHKIGGGGGGKKBIAEEEIJJEEEKKA.
+......A..APPGGBHHKHKKIIIKKKBHHGAGEEIIGGKKA.
+.........APPGGBGGDBGGGGGGBGBHKGAEAHIGIGKA..
+........APPGBBDDDDBIGPPGIBFBBIIGGGEGGGGHA..
+........APPGBBDDDDBIGPPGIBFFBIHAGGEGGGGHA..
+........APPGBLLLUDBIGPPGHBDDBBHHGGGGGHHA...
+.......APPPGBBBBBBBIGPPGIBBBBBBHHGGGHHA....
+.......APPPGGBGGGGBAEPPIABGGGGBBHHGAHA.....
+........AAAGBBBNGGAAIEPIAAGGGNBBBHHHA......
+...........AADNNDGA.AEIA.AGDNUSBAHHHA......
+............ADDDDGA..AA..AGDDDDDAAAA.......
+.............AAAAA........AAAAAA...........
+...........................................
+...........................................
+
+# ---- the walk (drawn): his boots in turn, lifted and set down; his cape swinging behind
+frame walk0 from base
+frame walk1 from base
+clear 11 36 18 39
+row 36 12 ADNNDGA
+row 37 12 ADDDDGA
+row 38 13 AAAAA
+row 35 6 AP
+frame walk2 from base
+row 34 6 .APPP
+row 35 6 .APPPG
+row 36 7 .AAAG
+row 33 7 .APP
+frame walk3 from base
+clear 25 37 33 39
+row 36 25 AGDNUSBA
+row 37 25 AGDDDDDA
+row 38 26 AAAAAA
+row 36 37 .
+row 35 37 HA
+
+# ---- the strike (drawn): the blade glints; he draws it back over his shoulder; he brings it down across, a trail of
+# light behind it; the follow-through, the blade low, sparks at its point
+frame cut0 from base
+row 3 6 J
+row 5 6 J
+row 7 6 R
+row 2 7 J
+row 1 7 J
+row 0 7 M
+frame cut1 from base
+clear 3 0 9 18
+row 2 1 A
+row 3 1 AIA
+row 4 0 AOIA
+row 5 0 AOIA
+row 6 0 AOOIA
+row 7 1 AOOIA
+row 8 1 AOOIA
+row 9 1 ARIIA
+row 10 2 AREIA
+row 11 2 AREEA
+row 12 2 AREHA
+row 13 3 AIEHA
+row 14 3 AIEHA
+row 15 3 AIOHA
+row 16 4 AIOHA
+row 17 4 AIOHA
+row 18 4 AIOHA
+row 1 1 J
+row 3 0 J
+frame cut2 from base
+clear 3 0 9 18
+row 23 4 AHOIA
+row 24 4 AHOIA
+row 25 3 AHOIA
+row 26 3 AHEIA
+row 27 3 AHEIA
+row 28 2 AHERA
+row 29 2 AEERA
+row 30 2 AIERA
+row 31 1 AIIRA
+row 32 1 AIOOA
+row 33 1 AIOOA
+row 34 0 AIOOA
+row 35 0 AIOA
+row 36 1 AIA
+row 37 1 A
+row 1 6 MJ
+row 3 4 JM
+row 5 2 MJ
+row 8 1 JM
+row 11 0 MJ
+row 14 0 J
+row 17 0 M
+row 20 0 J
+frame cut3 from cut2
+clear 0 0 2 21
+row 1 6 ..
+row 3 4 ..
+row 5 2 ..
+row 8 1 .K
+row 11 0 K
+row 38 0 J.M
+row 37 2 .J
+row 39 0 M
+clip move 8 walk0 walk1 walk2 walk3
+clip shoot 10 cut0 cut1 cut2 cut3

@@ -1,0 +1,187 @@
+# cinder_archer: 38x36, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #915b5b
+D #744754
+E #fa8d15
+F #712934
+G #352436
+H #c4b7bf
+I #f1611c
+J #fcd734
+K #4a2646
+L #b43d28
+M #cb4927
+N #dc5025
+O #534559
+P #56485c
+Q #5a4d62
+R #8e8194
+S #fbf459
+T #928597
+U #96899c
+V #fcf357
+frame base
+............AA........................
+...........AQQAAAA....................
+...........AGPPPPIA......AA...........
+.......A...AGGQPPIAA....AIIA..........
+....AAAEA..AGGGPPPEEA...AIIA..........
+...AEEBJIA..AGGPPPEENA..AIIA..........
+..AEIIBJIA.AOOOOIIJJIA..AMIIA.........
+..AEIIBBA.AOPOOOIIJJEKA..ALLAA........
+...AIGGBGAAAOOOIIBBBBIA...ALQQAA......
+...AGBGBGBGOOOMBBBBBBBLA...AAQPQA.....
+...AGBGIFBGOOOMBBBBBBBLA....AQEEA.....
+...ALIIIABGGIIBBIJBBJBA.....AKEEA.....
+...ALGFFABGGMMBBBBBBBBA.....AGNNA.....
+....AGFBBBBLMMGGKKKKGGA.....AGNNA.....
+....AGGBRRPPPBGGKKKKGGAA....ALAA......
+.....ABBRTTQPQQBGKKGGBPQA..AMMA.AA....
+......AQQPTTUQQBBGGGBBPQA..AMMAAEEA...
+......AQBBBBBGBIIBBBBBBBAAAABBBAEVVA..
+.......ABKKIKKIIIBHHHHHHHHHHUHHHESSA..
+.......AGKKIKKLLLBKKBBAGGGBBFFAAEEA...
+.......AGKKIGKLLBBKKBBAGGGAALLA.AA....
+........AGGMBBBBBKKKBBAAAA..ALAA......
+.........ABBBFFIIIILLA......ALNNA.....
+........AAAAALLIIIILLBA.....AGNNA.....
+.......AGGGGAALBKKKAMGGA....AGEEA.....
+.......AGGGGAALBKKKAMGGA....AGEEA.....
+.......AGGGGLLEKKIKKELGA...AOOAA......
+......AGGGGGLLEKKJKKELGGA.ALOOA.......
+......AGGGIILLBKEJEKBLIGAAALGA........
+......AGIIBBBABKKEKKBBBIBIIEA.........
+......AIBBBGA.AKKKKKAABBAIIA..........
+.......AAGKKA..AKKAAKKKAAIA...........
+........AGOKA...AA.AKKKA.A............
+.........AAA........AAA...............
+......................................
+......................................
+
+# ---- the walk (drawn): standing; the back foot lifted and brought on, the hem swinging; passing; the front foot lifted
+frame walk0 from base
+frame walk1 from base
+clear 6 31 13 33
+row 30 6 AIBBBGA
+row 31 8 AGKKA
+row 32 9 AGOKA
+row 33 10 AAA
+row 29 5 AG
+frame walk2 from base
+row 29 6 .AGIIBB
+row 30 6 .AIBBBGA
+row 31 7 .AAGKKA
+frame walk3 from base
+clear 19 31 24 33
+row 31 20 AKKKA
+row 32 21 AKKKA
+row 33 22 AAA
+row 30 25 .AIIA
+row 31 25 AIA
+
+# ---- the shot (drawn): the arrow nocked, the string taken back; the full draw (the string to his cheek, the arrow
+# pulled back, its head burning bright); the release (the string snaps straight, the arrow gone in a streak); recovery
+frame shot0 from base
+row 4 25 R
+row 5 25 R
+row 6 24 R
+row 7 24 R
+row 8 24 R
+row 9 23 R
+row 10 23 R
+row 11 23 R
+row 12 23 R
+row 13 22 R
+row 14 22 R
+row 15 22 R
+row 16 22 R
+row 17 22 R
+row 19 22 R
+row 20 22 R
+row 21 23 R
+row 22 23 R
+row 23 23 R
+row 24 24 R
+row 25 24 R
+row 26 24 R
+row 27 24 R
+row 28 25 R
+row 29 25 R
+frame shot1 from base
+row 4 24 R
+row 5 24 R
+row 6 23 R
+row 7 23 R
+row 8 22 R
+row 9 22 R
+row 10 21 R
+row 11 21 R
+row 12 20 R
+row 13 20 R
+row 14 19 R
+row 15 19 R
+row 16 18 R
+row 17 18 R
+row 19 18 R
+row 20 18 R
+row 21 19 R
+row 22 19 R
+row 23 20 R
+row 24 21 R
+row 25 22 R
+row 26 22 R
+row 27 23 R
+row 28 24 R
+row 29 24 R
+clear 32 15 36 20
+row 16 29 AEEA
+row 17 29 EVSVA
+row 18 28 HESSSA
+row 19 29 EEVA
+row 20 30 AA
+row 15 31 J
+row 14 33 V
+row 21 32 J
+frame shot2 from base
+row 18 18 KKKKKA....ABBBA....
+row 17 32 ....
+row 19 32 ...
+row 16 32 ...
+row 3 25 R
+row 4 25 R
+row 5 25 R
+row 6 25 R
+row 7 25 R
+row 8 25 R
+row 9 25 R
+row 10 25 R
+row 11 25 R
+row 12 25 R
+row 13 25 R
+row 14 25 R
+row 15 25 R
+row 16 25 R
+row 17 25 R
+row 18 25 R
+row 19 25 R
+row 20 25 R
+row 21 25 R
+row 22 25 R
+row 23 25 R
+row 24 25 R
+row 25 25 R
+row 26 25 R
+row 27 25 R
+row 28 25 R
+row 29 25 R
+row 17 36 .J.EJ
+row 18 34 HHHEVSSA
+row 19 36 .J.EJ
+row 16 38 J
+row 20 38 J
+frame shot3 from shot2
+clear 33 15 40 21
+row 18 30 BBA
+clip move 8 walk0 walk1 walk2 walk3
+clip shoot 10 shot0 shot1 shot2 shot3

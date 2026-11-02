@@ -1,0 +1,130 @@
+# infernal_hound: 45x32, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #fa9900
+D #813d47
+E #7b1d1f
+F #e73d12
+G #fad702
+H #805f6a
+I #2f192a
+J #461b27
+K #462c40
+L #3c2134
+M #f86201
+N #f95b00
+O #a48685
+P #fa5f01
+Q #fa6002
+R #631b23
+S #fbec05
+T #9b7b7d
+U #f75304
+V #9a797b
+frame base
+................................A............
+...............................ARA...........
+........AA....................ARRA...........
+.......AFFA...................ARRA...A.......
+........AFFA.................AFFRA..ARA......
+........AFNA................ALFRRA.AIRA......
+.....A.AFFNA...........AAA..ALFREHAAJJA......
+....AFAAFFCUA.........AOVVAAALFEAHHOBJA......
+...AFFUUUCCA...........AKTHHBLABOOOHOBA......
+...AFCUCCUUA.....AAA...AKHBBBLABOOOOHHOA.....
+..AFNCUUAAA.....AOOTA.AHVBLBBLLLAABBOOOA.....
+..AFNCSCA.......ADDVVAAHVBLFFBLLLAEUBBHOA....
+..AFNSFA....AAA.AHHBBBKBBLLLUUBLLBASSBBHAA...
+...AFNFAA..ATVTAAKBBBHOBBLLLLBBALLABEIBBLLA..
+....ANNRRA..ADTDABLBBHHHOBBLLBLAALLIILLLLA...
+.....AJJRRAAADHKALBOOHHHHBLLBBBLAAFICJGJJLA..
+.....AJJJRALLBBBAEBBBHOHHTBBBIBLAFFNSFGJCEA..
+......AAJBBLLJLBLLBBBBBOOTBLJJJBBAFSUSNNAA...
+........ALLLELLBLFBBBKKBBOBJUUUJJAAAUUNA.....
+........ALLLFLLLLAABLKKLLHBJUERJJA..AUA......
+........ALLLULLBBIBLKKLLBBBRGEAAA....A.......
+.......AFFUMLLLBBBBKKKULBRUMGEA..............
+......AFFLLLLLBBBABKKULLARERRA...............
+......AELLLABBBBA.AKKPLA.AABAA...............
+......ALLAA.ABBA...ALULA...ABLA..............
+.....ALLLA...ABA...ALFLA....AILAAA...........
+.....ALDKLA..ABBAA.AKKDDA...ALLLLIA..........
+.....ALILLLA..AAAMAAKKLLLA...ALLUIMA.........
+.....ALMLMMA.....A.ALLUIMA....AAMAA..........
+......AAAAA.........AAMAA.......A............
+......................A......................
+.............................................
+
+# ---- the gallop (drawn): extended (the art's own pose), passing, gathered, passing; the tail's flame licks a new tip each frame
+frame run0 from base
+row 2 8 ..
+row 3 7 .AA
+row 4 8 AFFA
+frame run1 from base
+clear 4 23 36 30
+row 23 6 AELLA.ABBBA..AKKPLA..AABAA
+row 24 7 ALDLA.ABA...ALULA...ABLA
+row 25 7 ALLLA.ABA...ALFLA...AILA
+row 26 7 ALILA.ABBA..AKKDA...ALLA
+row 27 7 ALLLA.AMBA..ALLLA...ALIA
+row 28 7 ALMLMA.AA..ALUIMA...AMMA
+row 29 8 AAAA.......AAMAA....AAA
+row 2 8 A.
+row 3 7 AFA
+frame run2 from base
+clear 4 23 36 30
+row 23 7 ALLLA.ABBA..AKKPLA.AABA
+row 24 8 ALDLA.ABA...ALULA.ABLA
+row 25 9 ALLA..ABA...ALFLA.AILA
+row 26 10 ALIA.ABA...AKKDA..ALA
+row 27 10 ALLLAABA...ALLLA..AMA
+row 28 10 ALMLMAMA..ALUIMA...A
+row 29 11 AAAA.A...AAMAA
+row 2 8 .A
+row 3 7 .AFA
+row 4 8 AFNA
+frame run3 from run1
+clear 4 23 36 30
+row 23 6 AELLA..ABBBA.AKKPLA..AABAA
+row 24 7 ALDLA..ABBA.ALULA....ABLA
+row 25 6 ALLLA....ABA.ALFLA....AILA
+row 26 6 ALILA....ABA.AKKDA.....ALLA
+row 27 5 ALLLA.....AMA.ALLLA.....ALIA
+row 28 5 ALMLMA.....A.ALUIMA.....AMMA
+row 29 6 AAAA.........AAMAA.....AAA
+row 2 8 AA
+row 3 7 AFFA
+
+# ---- the attack (drawn): it crouches, its jaws filling with fire; it leaps; the bite (jaws wide, a gout of flame); it lands
+frame bite0 from run2
+row 16 36 SGG
+row 17 35 GSGS
+row 18 36 GS
+frame bite1 from base
+clear 4 23 36 30
+row 23 4 AELLLA.ABBBA.....AKKPLA..AABAA
+row 24 2 ALLLDA..ABBA........ALULA...ABLAA
+row 25 1 ALLLA...ABA..........ALFLA....AILLA
+row 26 0 AMLMA...AMA...........AKKA......ALLIA
+row 27 1 AAA.....A..............AMA.......AMMA
+row 16 36 SGS
+row 17 35 GSGS
+row 18 34 AFSGSA
+row 19 35 AGSA
+nudge 1 -2
+frame bite2 from bite1
+row 15 41 .A
+row 16 40 GSA
+row 17 39 GSSGA
+row 18 33 AFSUSGSGSSA
+row 19 34 AFGSGNA.SG
+row 20 35 AUNUA..G
+row 21 36 AAA
+row 16 43 GC
+row 17 44 C
+nudge 2 -1
+frame bite3 from run2
+row 17 35 SUSN
+nudge 1 0
+clip move 10 run0 run1 run2 run3
+clip shoot 10 bite0 bite1 bite2 bite3
