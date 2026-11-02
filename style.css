@@ -953,7 +953,7 @@ body #app #vwbody { min-height: 0; flex: 1 1 auto; }
 .famebox { max-width: 320px; text-align: left; background: #120f18; border: 2px solid #3a2f1a; padding: 8px 12px; }
 .famebox .fr { display: flex; justify-content: space-between; color: #c8c0d8; gap: 14px; }
 .famebox .fr.tot { border-top: 1px solid #3a2f1a; margin-top: 4px; padding-top: 4px; color: #ffd650; }
-#overlay .splash { position: fixed; inset: 0; width: 100vw; height: 100vh; image-rendering: pixelated; z-index: -1; }
+#overlay .splash { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: -1; }   /* (Solkhar, painted: smooth, not pixelated) */
 #overlay .screen.login, #overlay .screen.account, #overlay .screen.home { position: relative; z-index: 1; }
 .screen .logo { text-align: center; margin-bottom: 18px; }
 .screen .logo h1 { margin: 0; color: #ffd650; text-shadow: 0 4px 0 #8a5a12, 0 8px 0 #2a1608, 0 0 30px #ffb84a88; }

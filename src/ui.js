@@ -1210,70 +1210,58 @@ export class UI {
 
   // ------------------------------------------------------------- home: account + character select
   // ---------------------------------------------------------------- the front door: login, account, characters
-  // A living pixel scene behind every menu screen: night sky, the four biomes, the eight heroes on the march,
-  // monsters coming the other way, and something enormous waiting on the hill.
+  // Behind every menu screen (2026-11-02, the user: "a super sinister background of Solkhar zoomed in with menacing
+  // eyes, a little clearer than just the pixel"): his own painting (art/solkhar_the_sunthief.jpg) at its full resolution,
+  // close on his crowned face and the stolen sun in his chest, sunk in darkness; his eyes burn and pulse, the sun throbs,
+  // embers drift up through the dark, and he leans in, very slowly, as if breathing.
   splash(o) {
-    const A = this.r.A, W = A.world, cv = document.createElement('canvas');
-    cv.className = 'splash'; o.prepend(cv);
-    const S = 3, t0 = performance.now();
-    const stars = Array.from({ length: 90 }, (_, i) => ({ x: (i * 73.13) % 1, y: ((i * 37.7) % 1) * 0.55, p: i * 1.7 }));
-    const biomes = ['sand', 'grass', 'fen', 'snow', 'runefloor', 'ash', 'obsidian'];
-    const heroes = Object.keys(CLASSES);
-    const mobs = ['brine_pilgrim', 'bog_toad', 'frozen_executioner', 'hollow_thane', 'salt_widow', 'cairn_crawler', 'peat_saint', 'ash_harpy'];
+    const cv = document.createElement('canvas'); cv.className = 'splash'; o.prepend(cv);
+    cv.style.imageRendering = 'auto';
+    const img = this.solkharImg || (this.solkharImg = Object.assign(new Image(), { src: 'art/solkhar_the_sunthief.jpg' }));
+    const t0 = performance.now(), EYES = [[611, 344], [655, 344]], SUN = [628, 545];   // (in the painting's own pixels)
+    const embers = Array.from({ length: 60 }, (_, i) => ({ x: (i * 0.6180339) % 1, p: (i * 0.3819) % 1, s: 0.4 + (i % 5) * 0.15, r: 1 + (i % 3) }));
     const draw = () => {
       if (!cv.isConnected) return;
-      const w = Math.ceil(innerWidth / S), h = Math.ceil(innerHeight / S);
+      const dpr = Math.min(2, devicePixelRatio || 1), w = Math.ceil(innerWidth * dpr), h = Math.ceil(innerHeight * dpr);
       if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
       const x = cv.getContext('2d'), t = (performance.now() - t0) / 1000;
-      x.imageSmoothingEnabled = false;
-      const sky = x.createLinearGradient(0, 0, 0, h);
-      sky.addColorStop(0, '#07051a'); sky.addColorStop(0.55, '#24164a'); sky.addColorStop(0.8, '#5a2e5e'); sky.addColorStop(1, '#2a1a30');
-      x.fillStyle = sky; x.fillRect(0, 0, w, h);
-      for (const st of stars) { x.fillStyle = Math.sin(t * 2 + st.p) > 0.6 ? '#ffffff' : '#9a8ac8'; x.fillRect(Math.floor(st.x * w), Math.floor(st.y * h), 1, 1); }
-      x.fillStyle = '#fff6d8'; x.beginPath(); x.arc(w * 0.78, h * 0.2, 14, 0, Math.PI * 2); x.fill();
-      x.fillStyle = '#e8d8b0'; x.beginPath(); x.arc(w * 0.78 + 4, h * 0.2 - 3, 3, 0, Math.PI * 2); x.fill();
-      const ground = Math.floor(h * 0.72);
-      for (const [k, col, amp, fr] of [[0, '#1a1236', 28, 0.012], [1, '#120c26', 18, 0.02]]) {      // two ranges of distant hills
-        x.fillStyle = col;
-        for (let i = 0; i < w; i++) {
-          const yy = ground - 10 - k * 4 - Math.round(amp * (0.5 + 0.5 * Math.sin((i + t * (3 + k * 4)) * fr + k * 2)));
-          x.fillRect(i, yy, 1, ground - yy + 2);
+      x.fillStyle = '#050208'; x.fillRect(0, 0, w, h);
+      if (img.complete && img.naturalWidth) {
+        // his face high on the screen, his eyes over the title and the menus below them; about 900 of the painting's
+        // pixels top to bottom (near enough to loom, far enough to stay sharp), leaning in slowly
+        const k = Math.max(h / 900, w / 1254) * (1.02 + 0.02 * Math.sin(t * 0.35)), fx = 633 + Math.sin(t * 0.13) * 5, fy = 344 + Math.sin(t * 0.17) * 3;
+        const ox = w / 2 - fx * k, oy = h * 0.15 - fy * k, at = ([px, py]) => [ox + px * k, oy + py * k];
+        x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high';
+        x.filter = 'brightness(0.72) saturate(1.2) contrast(1.12)';
+        x.drawImage(img, ox, oy, img.naturalWidth * k, img.naturalHeight * k);
+        x.filter = 'none';
+        x.globalCompositeOperation = 'multiply'; x.fillStyle = '#8a3a5a'; x.fillRect(0, 0, w, h);   // (a blood-violet cast over all of it)
+        x.globalCompositeOperation = 'source-over';
+        // the stolen sun in his chest, throbbing
+        const [sx, sy] = at(SUN), sp = 0.55 + 0.25 * Math.sin(t * 1.6) + 0.1 * Math.sin(t * 4.3);
+        x.globalCompositeOperation = 'lighter';
+        let G = x.createRadialGradient(sx, sy, 0, sx, sy, 90 * k); G.addColorStop(0, `rgba(255,200,90,${0.55 * sp})`); G.addColorStop(0.4, `rgba(255,110,30,${0.25 * sp})`); G.addColorStop(1, 'rgba(255,60,0,0)');
+        x.fillStyle = G; x.fillRect(sx - 90 * k, sy - 90 * k, 180 * k, 180 * k);
+        // his eyes: burning, pulsing, now and then flaring
+        const flare = Math.max(0, Math.sin(t * 0.7)) ** 12, ep = 0.75 + 0.2 * Math.sin(t * 2.2) + flare * 0.9;
+        for (const E of EYES) {
+          const [ex, ey] = at(E);
+          G = x.createRadialGradient(ex, ey, 0, ex, ey, 34 * k); G.addColorStop(0, `rgba(255,240,170,${0.95 * ep})`); G.addColorStop(0.18, `rgba(255,150,40,${0.8 * ep})`); G.addColorStop(0.5, `rgba(220,30,10,${0.35 * ep})`); G.addColorStop(1, 'rgba(160,0,0,0)');
+          x.fillStyle = G; x.fillRect(ex - 34 * k, ey - 34 * k, 68 * k, 68 * k);
+          G = x.createRadialGradient(ex, ey, 0, ex, ey, 140 * k); G.addColorStop(0, `rgba(255,60,20,${0.18 * ep})`); G.addColorStop(1, 'rgba(255,0,0,0)');   // (their glow across his face)
+          x.fillStyle = G; x.fillRect(ex - 140 * k, ey - 140 * k, 280 * k, 280 * k);
         }
-      }
-      // the boss on the hill: the Penitent Colossus, breathing slowly
-      const RB = A.sheets.realm_bosses, bf = RB.guide.frameWidth, brow = RB.guide.bosses.penitent_colossus.row;
-      const bfr = outlinedFrame(RB.img, (Math.floor(t * 1.5) % 4) * bf, brow * bf, bf, bf);
-      x.globalAlpha = 0.9; x.drawImage(bfr, Math.round(w * 0.82 - bf / 2), ground - bf - 4); x.globalAlpha = 1;
-      // the ground: a strip of every biome, scrolling
-      const TS = 16, tiles = A.img.tiles, tc = W.tilesCols, scroll = Math.floor(t * 10);
-      for (let row = 0; row < Math.ceil((h - ground) / TS) + 1; row++) {
-        for (let i = -1; i < Math.ceil(w / TS) + 1; i++) {
-          const gi = i + Math.floor(scroll / TS), nm = biomes[Math.floor(gi / 6) % biomes.length < 0 ? 0 : Math.floor(((gi / 6) % biomes.length + biomes.length) % biomes.length)];
-          const T = W.tiles[nm], k = T.i + ((gi * 7 + row * 3) % T.variants + T.variants) % T.variants * T.frames;
-          x.drawImage(tiles, (k % tc) * TS, Math.floor(k / tc) * TS, TS, TS, i * TS - (scroll % TS), ground + row * TS, TS, TS);
+        // embers rising through the dark
+        for (const e of embers) {
+          const yy = h - ((t * 26 * e.s * dpr + e.p * h) % (h * 1.1)), xx = (e.x * w + Math.sin(t * 0.8 + e.p * 9) * 18 * dpr) % w, a = Math.min(1, yy / h * 1.6) * (0.4 + 0.6 * Math.abs(Math.sin(t * 2 + e.p * 7)));
+          x.fillStyle = `rgba(255,${120 + e.r * 30},40,${a * 0.8})`; x.fillRect(Math.round(xx), Math.round(yy), e.r * dpr, e.r * dpr);
         }
+        x.globalCompositeOperation = 'source-over';
       }
-      // the heroes march right; monsters come the other way
-      const shadow = (cx, cy) => { x.fillStyle = 'rgba(0,0,0,0.35)'; x.fillRect(cx - 5, cy - 1, 10, 2); };
-      heroes.forEach((c, i) => {
-        const Sh = A.sheets[CLASSES[c].sheet], an = Sh.guide.animations.side_walk, F = Sh.guide.frameWidth;
-        const fr = outlinedFrame(Sh.img, (an.col + Math.floor(t * 6 + i) % an.frames) * F, an.row * F, F, F);
-        const cx = Math.round(w * 0.12 + i * 22), cy = ground + 8 + (i % 2) * 6;
-        shadow(cx, cy); x.drawImage(fr, cx - F / 2 - 1, cy - F);
-      });
-      const E = A.sheets.enemies;
-      mobs.forEach((id, i) => {
-        const row = E.guide.enemies[id] && E.guide.enemies[id].row;
-        if (row === undefined) return;
-        const fr = outlinedFrame(E.img, (Math.floor(t * 5 + i) % 4) * 16, row * 16, 16, 16);
-        const span = w * 0.42, cx = Math.round(w * 0.95 - ((t * 9 + i * 40) % span)), cy = ground + 10 + (i % 3) * 5;
-        shadow(cx, cy); x.drawImage(fr, cx - 9, cy - 16);
-      });
-      for (let i = 0; i < 14; i++) {                             // fireflies
-        const fx = (i * 97.3 + t * 6 * (1 + i % 3)) % w, fy = ground - 20 + Math.sin(t * 1.3 + i) * 12;
-        x.fillStyle = i % 3 ? '#ffe45c' : '#8af6ff'; x.globalAlpha = 0.5 + 0.5 * Math.sin(t * 4 + i); x.fillRect(Math.round(fx), Math.round(fy), 1, 1);
-      }
-      x.globalAlpha = 1;
+      // the dark closing in: a heavy vignette, deepest at the edges and the foot (where the menus sit)
+      const V = x.createRadialGradient(w / 2, h * 0.22, Math.min(w, h) * 0.12, w / 2, h * 0.35, Math.max(w, h) * 0.8);
+      V.addColorStop(0, 'rgba(5,2,8,0)'); V.addColorStop(0.55, 'rgba(5,2,8,0.45)'); V.addColorStop(1, 'rgba(5,2,8,0.95)');
+      x.fillStyle = V; x.fillRect(0, 0, w, h);
       requestAnimationFrame(draw);
     };
     draw();
