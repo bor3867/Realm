@@ -120,7 +120,7 @@ const P = {
 const sched = scheduler([[2.2, 3.0], [1.9, 2.6], [1.7, 2.4]]);
 
 export default {
-  id: 'forge_overseer', art: 'forge_overseer', drawScale: 1.5, name: 'The Forge Overseer', biome: 'dungeon', hp: 135000, def: 26, xp: 8000,
+  id: 'forge_overseer', art: 'forge_overseer', drawScale: 0.5, name: 'The Forge Overseer', biome: 'dungeon', hp: 135000, def: 26, xp: 8000,
   r: 0.9, speed: 2.7, keep: 3, faces: false, tempo: 1, dmgScale: 1, spawnCentre: true, thresholds: [0.65, 0.30], morphGrace: 1.5,
   choose: (g, e, list) => sched(g, e, list.filter((p) => !p.when || p.when(g, e))),
   phases: {

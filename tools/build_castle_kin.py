@@ -165,7 +165,7 @@ if __name__ == '__main__':
         for y in range(OH):
             for x in range(OW): osheet[oy + y][ox + x] = g2[y][x] if g2[y][x] is not None else BLANK
         ofrm[key] = [ox, oy, OW, OH]
-    write_png(os.path.join(out, 'forge_overseer.png'), osheet)
+    pass   # (his image is tools/build_overseer.py's now: the user's redesign)
     oanims = {}
     for a in (1, 2, 3):
         oanims[f'idle{a}'] = {'frames': [f'i{a}_{k}' for k in range(4)], 'fps': 4, 'loop': True}
@@ -177,7 +177,7 @@ if __name__ == '__main__':
     NM = {1: 'The Taskmaster', 2: 'The Furnace Master', 3: 'The Final Forging'}
     oboss = {'image': 'forge_overseer.png', 'kind': 'boss', 'sprites': {'forge_overseer': {'frames': ofrm, 'anims': oanims, 'death': 'death', 'meta': {},
              'phases': {str(a): {'name': NM[a], 'idle': f'idle{a}', 'attack': f'attack{a}', 'walk': f'walk{a}', 'hurt': f'hurt{a}', **({'enter': f'enter{a}'} if a > 1 else {})} for a in (1, 2, 3)}}}}
-    json.dump({'rf': True, 'meta': {'name': "Sunthief's Castle's defenders (the user's sprites)", 'version': 1}, 'sheets': {'castle_kin': {'image': 'castle_kin.png', 'kind': 'enemy', 'sprites': sprites}, 'castle_shots': {'image': 'castle_shots.png', 'kind': 'shot', 'sprites': sfr}, 'bx_forge_overseer': oboss}},
+    json.dump({'rf': True, 'meta': {'name': "Sunthief's Castle's defenders (the user's sprites)", 'version': 1}, 'sheets': {'castle_kin': {'image': 'castle_kin.png', 'kind': 'enemy', 'sprites': sprites}, 'castle_shots': {'image': 'castle_shots.png', 'kind': 'shot', 'sprites': sfr}}}   # (the Forge Overseer: his own atlas now, tools/build_overseer.py),
               open(os.path.join(out, 'atlas_castle_kin.json'), 'w', encoding='utf8', newline='\n'), indent=1)
     ip = os.path.join(root, 'art', 'bundle', 'index.json'); idx = json.load(open(ip, encoding='utf8'))
     if 'throne/atlas_castle_kin.json' not in idx['atlases']:
