@@ -110,7 +110,7 @@ export function isSolid(m, x, y) {
 // (low ruin walls and whale ribs you step over: their rows walled players and realm bosses in)
 // only the big things stop you: trees, rocks, spires, pillars and walls, statues, the great furniture, gates. Chests,
 // crates, barrels, braziers, candles, fences, seats, signs, lamps, shrines and people you walk through, as in RotMG
-const BIG = /tree|palm|pine|oak|deadwood|keep_stone|crimson_(?:big|mid|small)|castle_art\/(?:ruin_(?:swordsman|kneeling|torso|crowned_head)|pedestal|altar|brazier|statue|throne|gargoyle)|keep_brazier|keep_bowl|keep_ritual|keep_wheel|castle_decor\/(?:log|barricade|wagon|siege_engine|tent|pipe|lava_tank|bed|table|winch|valve)$|saguaro|giant_mushroom|rotting_log|boulder|rock|cairn|spire|crystal_cluster|ice_crystal|pillar|column|obelisk|(?<!ruin_)wall|statue|fallen_head|bookshelf|furnace|well$|fountain|throne|sarcophag|coffin|gate|telescope|star_globe|high_striker|circus_cannon|rowboat|ticket_booth|stage_moon|great_lens|golem_husk|anvil_block|crucible|stump|gargoyle/;
+const BIG = /tree|palm|pine|oak|deadwood|keep_stone|keep_pylon|crimson_(?:big|mid|small)|castle_art\/(?:ruin_(?:swordsman|kneeling|torso|crowned_head)|pedestal|altar|brazier|statue|throne|gargoyle)|keep_brazier|keep_bowl|keep_ritual|keep_wheel|castle_decor\/(?:log|barricade|wagon|siege_engine|tent|pipe|lava_tank|bed|table|winch|valve)$|saguaro|giant_mushroom|rotting_log|boulder|rock|cairn|spire|crystal_cluster|ice_crystal|pillar|column|obelisk|(?<!ruin_)wall|statue|fallen_head|bookshelf|furnace|well$|fountain|throne|sarcophag|coffin|gate|telescope|star_globe|high_striker|circus_cannon|rowboat|ticket_booth|stage_moon|great_lens|golem_husk|anvil_block|crucible|stump|gargoyle/;
 export const blocks = (sprite) => BIG.test(sprite || '');
 function finalize(m) {
   for (let i = 0; i < m.tiles.length; i++) if (SOLID_TILES.has(m.tiles[i])) m.solid[i] = 1;
@@ -1501,7 +1501,16 @@ export function dungeon(seed, def) {
           }
           case 'zigzag': {                                            // a mountain trail turning back and forth up the slope
             const k = Math.max(3, Math.round(h / 12)), pts = []; for (let i = 0; i <= k; i++) pts.push([i % 2 ? x + w - 4 : x + 3, y + h - 3 - (i / k) * (h - 6)]);
-            poly(pts, 2); break;
+            if (n.region !== 'mountain') { poly(pts, 2); break; }
+            // the scree trail: each leg bowed and wandering, its width breathing from a narrow ledge to a broad shelf; a rest
+            // ledge at each turn; a stream of lava running down the cliff between the legs
+            for (let i = 1; i < pts.length; i++) {
+              const [ax, ay] = pts[i - 1], [bx, by] = pts[i], L = Math.ceil(Math.hypot(bx - ax, by - ay) * 2);
+              for (let j = 0; j <= L; j++) { const t = j / L, bow = Math.sin(t * Math.PI) * 2.5 * (i % 2 ? 1 : -1), px = ax + (bx - ax) * t, py = ay + (by - ay) * t + bow + Math.sin(t * 9 + s + i) * 0.8, r = 1.3 + 1.4 * (0.5 + 0.5 * Math.sin(t * 6.3 + i * 2 + s)); ell(px, py, r, r * 0.9); }
+              ell(bx, by, 3, 2.4);
+            }
+            for (let yy = y + 2; yy < y + h - 2; yy++) { const lx = Math.round(cx + 1.5 * Math.sin(yy / 4 + s)); for (let d = 0; d < 2; d++) { const xx = lx + d; let clear = true; for (let q = -2; q <= 2; q++) if (tile(xx + q, yy) !== TID.void) clear = false; if (clear) set(xx, yy, TID.lava); } }
+            break;
           }
           case 'switch': {                                            // three winding terraces up the cliff (2026-11-02, the user: "replace their boxy geometry with natural, winding cliffside switchbacks"): each its own width as it goes, its edge ragged; a rounded turn at alternate ends; lava running in the cliffs between; a platform or two carved out of the slope
             const T = 3, th = (h - 2) / T, mid = (i, xx) => y + h - 1 - (i + 0.5) * th + 2.2 * Math.sin(xx / 4.5 + s + i * 1.7);
@@ -1535,9 +1544,19 @@ export function dungeon(seed, def) {
             break;
           }
           case 'ring': {                                              // a path round a reservoir of lava
-            ell(cx, cy, w / 2, h / 2); ell(cx, cy, w / 2 - 8, h / 2 - 8, TID.lava); break;
+            if (n.region !== 'mountain') { ell(cx, cy, w / 2, h / 2); ell(cx, cy, w / 2 - 8, h / 2 - 8, TID.lava); break; }
+            // the Crucible Traverse: a ragged rim round the reservoir, wide in places, a ledge in others; molten inlets biting into it
+            for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) { const dx = (xx - cx) / (w / 2), dy = (yy - cy) / (h / 2), a = Math.atan2(dy, dx), r = Math.hypot(dx, dy); if (r <= 0.88 + 0.08 * Math.sin(a * 4 + s) + 0.04 * Math.sin(a * 9)) set(xx, yy, FLOOR); }
+            for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) { const dx = (xx - cx) / (w / 2 - 8), dy = (yy - cy) / (h / 2 - 8), a = Math.atan2(dy, dx); if (Math.hypot(dx, dy) <= 1 + 0.18 * Math.sin(a * 5 + s * 2)) set(xx, yy, TID.lava); }
+            break;
           }
           case 'stair': {                                             // a broad stair up, lava running beside it
+            if (n.region === 'mountain') {                         // the Ember Stair: a stair winding up the slope, landings where it turns, a lava stream wandering down beside it
+              for (let yy = y; yy < y + h; yy++) { const c = cx - 1 + 3 * Math.sin((yy - y) / 9 + s), hw = 2.2 + 1.3 * (0.5 + 0.5 * Math.sin((yy - y) / 5 + s * 2)); for (let xx = Math.floor(c - hw); xx <= c + hw; xx++) set(xx, yy, FLOOR); }
+              for (let yy = y + 5; yy < y + h - 4; yy += 10) { const c = cx - 1 + 3 * Math.sin((yy - y) / 9 + s); ell(c + ((yy / 10) % 2 ? -3 : 3), yy, 4.2, 2.6); }
+              for (let yy = y + 1; yy < y + h - 1; yy++) { const c = cx - 1 + 3 * Math.sin((yy - y) / 9 + s), lx = Math.round(c + 6.5 + 1.6 * Math.sin(yy / 4 + s)); for (let d = 0; d < 2; d++) if (tile(lx + d, yy) === TID.void && tile(lx + d - 2, yy) === TID.void) set(lx + d, yy, TID.lava); }
+              break;
+            }
             carve(cx - 6, y, cx + 4, y + h - 1); carve(cx + 5, y + 2, cx + 7, y + h - 3, n.region === 'eclipse' ? TID.void : TID.lava);
             for (let yy = y + 4; yy < y + h - 3; yy += 9) carve(cx - 10, yy, cx - 7, yy + 4);   // (landings)
             break;
@@ -1551,8 +1570,18 @@ export function dungeon(seed, def) {
             for (const f of [0.18, 0.5, 0.82]) { if (vert) carve(x, Math.round(y + f * h) - 1, x + w - 1, Math.round(y + f * h) + 1, BR); else carve(Math.round(x + f * w) - 1, y, Math.round(x + f * w) + 1, y + h - 1, BR); }
             break;
           }
-          case 'hall': box(n); for (let xx = x + 4; xx < x + w - 4; xx += 6) { set(xx, y + 3, TID.void); set(xx, y + h - 4, TID.void); } break;   // (its two rows of pillars)
-          case 'octa': { const k = Math.min(w, h) * 0.28; for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) if (Math.min(xx - x, x + w - 1 - xx) + Math.min(yy - y, y + h - 1 - yy) >= k) set(xx, yy, FLOOR); break; }
+          case 'hall': box(n); for (let xx = x + 4; xx < x + w - 4; xx += 6) { set(xx, y + 3, TID.void); set(xx, y + h - 4, TID.void); }   // (its two rows of pillars)
+            if (n.region === 'mountain') {                         // the Final Rampart: the fortress's outer wall across its head, crenellated, broken by siege in places; two towers on it; its yard paved
+              n.pave = true;   // (its yard paved in the floor pass, after its ways and gate are cut)
+              for (let xx = x + 2; xx < x + w - 2; xx++) { const gap = Math.abs(xx - cx) <= 2 || Math.sin(xx * 1.7 + s) > 0.86; if (!gap) { set(xx, y + 5, TID.kpwall); if (xx % 2) set(xx, y + 4, TID.kpwall); } }   // (crenels; the gate's breach in the middle)
+              for (const tx of [x + 6, x + w - 9]) for (let dy = 0; dy < 4; dy++) for (let dx = 0; dx < 4; dx++) if (dy === 0 || dy === 3 || dx === 0 || dx === 3) set(tx + dx, y + 3 + dy, TID.kpwall);   // (two towers on the wall)
+            }
+            break;
+          case 'octa': if (n.region === 'mountain') {             // a plateau broken off the mountain: ragged, terraced by outcrops of rock
+            for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) { const dx = (xx - cx) / (w / 2), dy = (yy - cy) / (h / 2), a = Math.atan2(dy, dx); if (Math.hypot(dx, dy) <= 0.86 + 0.09 * Math.sin(a * 3 + s) + 0.06 * Math.sin(a * 7 + s * 2)) set(xx, yy, FLOOR); }
+            for (const [u, v] of [[0.3, 0.42], [0.7, 0.58]]) ell(x + u * w + Math.sin(s) * 2, y + v * h, 2.2, 1.6, TID.void);
+            break;
+          } else { const k = Math.min(w, h) * 0.28; for (let yy = y; yy < y + h; yy++) for (let xx = x; xx < x + w; xx++) if (Math.min(xx - x, x + w - 1 - xx) + Math.min(yy - y, y + h - 1 - yy) >= k) set(xx, yy, FLOOR); break; }
           case 'cross': { const cw = Math.floor(w / 4), ch = Math.floor(h / 4); carve(x + cw, y, x + w - 1 - cw, y + h - 1); carve(x, y + ch, x + w - 1, y + h - 1 - ch); break; }
           case 'u': box(n); carve(cx - 6, y, cx + 6, y + Math.floor(h * 0.55), TID.void); break;   // (the chain mechanism's housing in the middle)
           case 'round': ell(cx, cy, w / 2, h / 2); break;
@@ -1933,6 +1962,22 @@ export function dungeon(seed, def) {
       put2(null, x, y, treeAt(x, y, hsh(x, y, 9)), edge > 2, { tree: true });
     }
   };
+  // a bridge's architecture (2026-11-02, the user: "Rebuild lava bridges with actual architectural detail: stone supports and
+  // broken masonry, distinctive entrance and exit structures, guardrails where appropriate, lava flowing beneath ... burning
+  // debris and damaged sections"): on its dressed stone (t), a railing post every other tile along each edge over the lava,
+  // a pylon at either end of it, the stumps of its old supports standing in the lava beside it, debris burning on it
+  const bridgeDress = (n, t, only = () => true) => {
+    const lavaAt = (x, y) => tile(x, y) === TID.lava, ends = [];
+    for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) {
+      if (tile(x, y) !== t || !only(x, y)) continue;
+      const edgeN = lavaAt(x, y - 1), edgeS = lavaAt(x, y + 1), edgeW = lavaAt(x - 1, y), edgeE = lavaAt(x + 1, y);
+      if ((edgeN || edgeS) && !(edgeN && edgeS) && x % 2 === 0 && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) put(m, 'keep_decor/keep_rail', x, y, false);
+      if ((edgeN || edgeS) && x % 6 === 3) { const yy = edgeN ? y - 1 : y + 1; if (lavaAt(x, yy) && lavaAt(x, yy + (edgeN ? -1 : 1))) put(m, 'castle_decor/collapsed_pillar', x, yy + (edgeN ? -1 : 1), true); }
+      if (!lavaAt(x - 1, y) && lavaAt(x + 2, y) && (edgeN || edgeS)) ends.push([x, y]); else if (!lavaAt(x + 1, y) && lavaAt(x - 2, y) && (edgeN || edgeS)) ends.push([x, y]);
+      if (edgeW && edgeE && ((x * 7 + y) % 5 === 0)) put(m, 'castle_decor/burning_debris', x, y, false);   // (a narrow, broken stretch: burning)
+    }
+    for (const [x, y] of ends.slice(0, 8)) if (!m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) put(m, 'keep_decor/keep_pylon', x, y, true);
+  };
   const castleDress = (n) => {
     if (n.region === 'outer' || n.region === 'inner') keepDress(n);
     const at = (fx, fy) => [Math.round(n.x + fx * n.w), Math.round(n.y + fy * n.h)];
@@ -1972,21 +2017,24 @@ export function dungeon(seed, def) {
       case 'a06': P('castle_decor/shrine_altar', 0.5, 0.4); for (const [fx, fy] of [[0.3, 0.3], [0.7, 0.3], [0.25, 0.6], [0.75, 0.6]]) P('castle_decor/shattered_statue', fx, fy); P('castle_decor/sun_statue', 0.5, 0.2); break;   // (statues facing the altar; the sun he stole, on its stone)
       case 'a07': for (let a = 0; a < 6.28; a += 0.45) if (Math.sin(a * 3) > -0.3) P('ruin_wall', 0.5 + Math.cos(a) * 0.16, 0.5 + Math.sin(a) * 0.18); P('brazier', 0.5, 0.5); P('castle_decor/rubble', 0.3, 0.7, false); P('castle_decor/tent', 0.2, 0.25); P('castle_decor/tent', 0.8, 0.75); break;   // (the broken tower, its beacon; the watch's camp)
       case 'a09': P('castle_decor/wagon', 0.35, 0.4); P('castle_decor/tent', 0.75, 0.3); P('castle_decor/barricade', 0.5, 0.2); P('castle_decor/fallen_soldier', 0.45, 0.55, false); P('castle_decor/fallen_soldier', 0.6, 0.35, false); P('castle_decor/lava_crack', 0.7, 0.6, false); P('castle_decor/lava_crack', 0.25, 0.7, false); break;
-      case 'a10': P('ruin_wall', 0.5, 0.08); P('ruin_wall2', 0.6, 0.08); break;   // (the lookout above the last turn)
-      case 'a11': case 'a36': case 'a49': row('castle_decor/chain_post', 0.15, 0.1, 0.9, 9, false); break;
+      case 'a10': P('ruin_wall', 0.5, 0.08); P('ruin_wall2', 0.6, 0.08); P('castle_art/ruin_swordsman', 0.3, 0.12); P('castle_decor/pyre', 0.62, 0.12); break;   // (the lookout above the last turn, a broken sentinel)
+      case 'a11': case 'a36': case 'a49': row('castle_decor/chain_post', 0.15, 0.1, 0.9, 9, false); if (n.key === 'a11') bridgeDress(n, FLOOR); break;
+      case 'a16': bridgeDress(n, FLOOR, (x, y) => y > n.spanY + 3 && x > n.x + 5 && x < n.x + n.w - 6); for (let xx = n.x + 6; xx < n.x + n.w - 6; xx += 7) { const yy = n.spanY + (xx % 2 ? 3 : -3); if (tile(xx, yy) === TID.lava) put(m, 'castle_decor/collapsed_pillar', xx, yy, true); } break;   // (the Broken Span: bare rock; the causeway dressed stone, railed, gated)
       case 'a44': for (let k = 0; k < 5; k++) for (const side of [-1, 1]) {   // the Chained Causeway: anchors rising from the lava either side, pyres burning between
         const y = Math.round(n.y + 4 + k * (n.h - 8) / 4), x = n.cx + side * Math.round(n.w * 0.38);
         if (tile(x, y) === TID.lava) put(m, k % 2 ? 'castle_decor/pyre' : 'castle_decor/chain_anchor', x, y, true);
       } break;
-      case 'a12': for (const fy of [0.3, 0.62]) for (const fx of [0.4, 0.6]) P('castle_decor/barricade', fx, fy); break;   // (the barricades)
+      case 'a12': for (const fy of [0.3, 0.62]) for (const fx of [0.4, 0.6]) P('castle_decor/barricade', fx, fy); for (const [fx, fy] of [[0.3, 0.88], [0.65, 0.5], [0.3, 0.16]]) { P('castle_art/pedestal_banner', fx, fy); P('castle_art/brazier_gold', fx + 0.06, fy); } break;   // (the barricades; a guard post on each terrace)
       case 'a13': P('castle_decor/siege_engine', 0.25, 0.35); P('castle_decor/siege_engine', 0.75, 0.35); P('castle_decor/barricade', 0.35, 0.8); for (const fx of [0.4, 0.55, 0.65]) P('crate', fx, 0.75); P('castle_decor/burning_debris', 0.5, 0.6, false); break;
       case 'a14': P('castle_decor/log', 0.4, 0.5); P('castle_decor/log', 0.6, 0.3); P('crate', 0.5, 0.12); P('barrel', 0.6, 0.12); P('crate', 0.4, 0.15); break;   // (the smugglers' cache)
       case 'a43': for (let k = 0; k < 4; k++) { P('brazier', 0.12, 0.15 + k * 0.22); P('castle_decor/chain_post', 0.88, 0.15 + k * 0.22, false); } break;   // (huge braziers, the chains in the walls)
-      case 'a15': for (let k = 0; k < 4; k++) P('brazier', 0.2, 0.15 + k * 0.22); break;
+      case 'a15': for (let k = 0; k < 4; k++) { P('castle_decor/pyre', 0.22, 0.15 + k * 0.22); P('castle_decor/barricade', 0.3, 0.2 + k * 0.22); } P('castle_art/statue_knight', 0.5, 0.06); break;   // (watch-fires up the stair; a sentinel at its head)
       case 'a51': for (let k = 0; k < 5; k++) P(k < 3 ? 'castle_decor/eclipse_obelisk' : 'castle_decor/celestial_pillar', 0.15, 0.85 - k * 0.18); break;   // the Sanctum Ascent: the eclipse's stones giving way to the sanctum's starred pillars
       case 'a17': case 'a39': for (let a = 0; a < 6.28; a += 1.57) P('ember_vent', 0.5 + Math.cos(a) * 0.36, 0.5 + Math.sin(a) * 0.36, false); break;   // (the vents round the reservoir)
-      case 'a18': P('banner', 0.5, 0.1); P('castle_decor/barricade', 0.3, 0.7); P('castle_decor/barricade', 0.7, 0.7); P('castle_decor/tent', 0.15, 0.2); break;   // (its layered barricades; the two pyres stand as monsters: src/data/enemies.js)
-      case 'a19': case 'a20': row('banner', 0.1, 0.15, 0.85, 8); P('castle_decor/barricade', 0.3, 0.55); P('castle_decor/barricade', 0.7, 0.55); P('castle_decor/siege_engine', 0.12, 0.8); P('brazier', 0.15, 0.5); P('brazier', 0.85, 0.5); break;
+      case 'a18': P('castle_art/statue_knight', 0.38, 0.12); P('castle_art/statue_knight', 0.62, 0.12); for (const [fx, fy] of [[0.18, 0.45], [0.82, 0.45]]) P('castle_art/pedestal_banner', fx, fy); P('castle_decor/pyre', 0.5, 0.82); P('castle_decor/barricade', 0.3, 0.7); P('castle_decor/barricade', 0.7, 0.7); P('castle_decor/tent', 0.15, 0.2); break;   // (its layered barricades; the two pyres stand as monsters: src/data/enemies.js)
+      case 'a19': if (n.key === 'a19') { for (const fx of [0.22, 0.4, 0.6, 0.78]) P('castle_art/banner_sun', fx, 0.2, false); P('castle_art/statue_knight', 0.43, 0.24); P('castle_art/statue_knight', 0.57, 0.24); for (const fx of [0.15, 0.85]) P('castle_art/gargoyle_perched', fx, 0.08); P('castle_art/ruin_torso', 0.3, 0.7); P('castle_decor/rubble', 0.5, 0.18, false); }
+      // falls through: its barricades, siege engine, braziers (the Killing Ground's too)
+      case 'a20': row('banner', 0.1, 0.15, 0.85, 8); P('castle_decor/barricade', 0.3, 0.55); P('castle_decor/barricade', 0.7, 0.55); P('castle_decor/siege_engine', 0.12, 0.8); P('brazier', 0.15, 0.5); P('brazier', 0.85, 0.5); break;
       case 'a21': for (const fy of [0.3, 0.7]) for (let x = n.x + 3; x < n.x + n.w - 3; x++) if (x % 9 > 1) set(x, Math.round(n.y + fy * n.h), TID.lava);   // (its shallow lava channels, crossed at the gaps)
         P('castle_decor/barricade', 0.3, 0.45); P('castle_decor/barricade', 0.7, 0.55); P('castle_decor/barricade', 0.5, 0.85); P('castle_decor/siege_engine', 0.8, 0.15); P('castle_decor/burning_debris', 0.2, 0.15, false); break;
       case 'a22': for (const fx of [0.2, 0.8]) { const [x, y] = at(fx, 0.4); carve(x - 2, y - 2, x + 2, y + 2, TID.void); } row('banner', 0.08, 0.35, 0.65, 6); row('castle_decor/rubble', 0.75, 0.35, 0.65, 5, false); break;   // (the two towers on the battlements; their signal braziers are the mechanisms: castle.mechs)
@@ -2784,7 +2832,7 @@ export function dungeon(seed, def) {
     }
   }
   // ---- light: the dungeon is dark, and things that burn or glow light it (radius in tiles, colour, flickers)
-  const LIGHT = { brazier: [5, '#ff9a3a', 1], 'castle_art/brazier_gold': [5, '#ff9a3a', 1], 'castle_art/brazier_purple': [5, '#d050ff', 1], 'castle_art/pedestal_flame': [3.5, '#ff9a3a', 1], 'castle_art/ancient_lava_tree': [4, '#ff7a1a', 1], 'keep_decor/keep_brazier': [5, '#ff9a3a', 1], 'keep_decor/keep_bowl': [8, '#ff9a3a', 1], 'keep_decor/keep_ritual': [5, '#ff5af0', 1], crypt_candle: [3.5, '#9cff6a', 1], crucible: [4.5, '#ff8c1e', 1], furnace: [5.5, '#ff7a1a', 1], ember_vent: [3, '#ff6a1a', 1],
+  const LIGHT = { brazier: [5, '#ff9a3a', 1], 'keep_decor/keep_pylon': [3.5, '#ff9a3a', 1], 'castle_art/brazier_gold': [5, '#ff9a3a', 1], 'castle_art/brazier_purple': [5, '#d050ff', 1], 'castle_art/pedestal_flame': [3.5, '#ff9a3a', 1], 'castle_art/ancient_lava_tree': [4, '#ff7a1a', 1], 'keep_decor/keep_brazier': [5, '#ff9a3a', 1], 'keep_decor/keep_bowl': [8, '#ff9a3a', 1], 'keep_decor/keep_ritual': [5, '#ff5af0', 1], crypt_candle: [3.5, '#9cff6a', 1], crucible: [4.5, '#ff8c1e', 1], furnace: [5.5, '#ff7a1a', 1], ember_vent: [3, '#ff6a1a', 1],
     fountain: [4.5, '#6ad8ff', 0], rune_pillar: [3.5, '#3befff', 0], throne: [6, '#ffd650', 0], statue_sun: [4.5, '#ffe89a', 0], mystery_altar: [3.5, '#b888ff', 0],
     journal: [2.5, '#fff6c8', 0], seal_gate: [3, '#ff4a5a', 0], lever_off: [2.2, '#ffd650', 0], lorestone: [3, '#8af0ff', 0], statue_anvil: [3, '#ff9a3a', 0],
     glow_larva: [4, '#ffd650', 1], honey_vat: [3, '#ffb830', 0], footlight: [3.5, '#fff0b0', 0], vanity_mirror: [3, '#fff6d8', 0], ticket_booth: [3, '#ffd650', 0],
@@ -2888,7 +2936,9 @@ export function dungeon(seed, def) {
     for (let y = 2; y < S - 2; y++) for (let x = 2; x < S - 2; x++) {
       const t = tile(x, y); if (t === TID.void) continue;
       const n = areaAt(x, y); if (!n) continue; regionOf[y * S + x] = REG.indexOf(n.region) + 1;
-      if (t === FLOOR) set(x, y, AREA_FL[n.key] && bd(n, x, y) === 0 ? AREA_FL[n.key] : FL[n.region](x, y, n));
+      // (dressed stone where the mountain is built on: the viaduct, the Final Rampart's yard, the fortified causeway; the Broken Span bare rock)
+      const paved = bd(n, x, y) === 0 && (n.pave || (n.region === 'mountain' && n.form === 'viaduct') || (n.form === 'twin' && y > n.spanY + 3 && x > n.x + 5 && x < n.x + n.w - 6));
+      if (t === FLOOR) set(x, y, paved ? TID.kpfloor : AREA_FL[n.key] && bd(n, x, y) === 0 ? AREA_FL[n.key] : FL[n.region](x, y, n));
     }
     for (let y = 3; y < S - 3; y++) for (let x = 3; x < S - 3; x++) {          // the edges: woods (thorn), cliffs, or the star-void; the keep's stay its walls
       if (tile(x, y) !== TID.void && tile(x, y) !== WALL) continue;   // (the castle's wall ring too: in the woods it is the woods, on the mountain the cliff)

@@ -65,6 +65,8 @@ for k in range(3):                                            # the bastion's gr
     DECOR[f'keep_bowl{k}'] = fl + ['IIiiiiiiiiiII.', 'kIIIIIIIIIIIk.', '.kkiiiiiiiik..', '...kkiiiikk...', '...kiiiiiik...', '..kkkkkkkkkk..']
     mg = [['....P.....', '...pPp....', '..pPWPp...', '..pPWPpv..', '.vpPPPpv..'], ['.....P....', '....pPp...', '...pPWPp..', '..vpPWPp..', '..vpPPPpv.'], ['...P..P...', '...pPpP...', '..pPWPPp..', '..pPWPpv..', '.vpPPPPv..']][k]
     DECOR[f'keep_ritual{k}'] = mg + ['IiiiiiiiiI', '.iIIIIIIi.', '..kiiiik..', '...kiik...', '...kiik...', '..kkiikk..', '.kkkkkkkk.']
+DECOR['keep_rail'] = ['.hhhhhh.', 'hllllllm', 'mddddddm', '..lsd...', '..lsd...', '..lsd...', '.hlllld.', 'mmmmmmmm']   # (a bridge's balustrade post)
+DECOR['keep_pylon'] = ['...F..F...', '..fFwwFf..', '..efFFfe..', 'IIiiiiiiII', '.kIIIIIIk.', 'hhhhhhhhhh', 'hllllllllm', 'mddgGgdddm', '.lsgGGgdl.', '.lsdgGdsl.', '.lssdgsdl.', '.llsssdsl.', '.lssssddl.', '.llsssdsl.', '.lssssddl.', '.llsssdsl.', '.lssssddl.', 'hllllllllm', 'mddddddddm', 'mmmmmmmmmm']   # (a bridge's gateway pylon, a sun on it, a fire on top)
 DECOR['keep_stone_a'] = ['..kkkk..', '.kIhIIk.', '.kIhIIk.', 'kIIhIIik', 'kIIffIik', 'kIIfFIik', 'kIIffIik', 'kIhIIIik', 'kIhIIIik', 'kIIIIiik', 'kIIffiik', 'kIhIIiik', 'kIIIIiik', 'kkIIIikk', 'kkkkkkkk']   # (a standing stone, a rune burning in it)
 DECOR['keep_stone_b'] = ['...kk...', '..kIhk..', '.kIhIIk.', '.kIhIIk.', '.kIIpIk.', '.kIpPpk.', '.kIIpIk.', 'kIhIIIik', 'kIhIIIik', 'kIIIIiik', 'kIhIIiik', 'kkIIIikk', 'kkkkkkkk']
 for k in range(2):                                            # the engine's great gear-wheel, turning (two frames, half a tooth apart)
@@ -130,7 +132,7 @@ if __name__ == '__main__':
     sp['keep_banner'] = {'frames': {'f0': fr['keep_banner']}, 'anims': {'idle': {'frames': ['f0'], 'fps': 1, 'loop': True}}, 'meta': {}}
     sp['keep_pillar'] = {'frames': {'f0': fr['keep_pillar']}, 'anims': {'idle': {'frames': ['f0'], 'fps': 1, 'loop': True}}, 'meta': {}}
     sp['keep_brazier'] = {'frames': {f'f{k}': fr[f'keep_brazier{k}'] for k in range(3)}, 'anims': {'idle': {'frames': ['f0', 'f1', 'f2'], 'fps': 7, 'loop': True}}, 'meta': {}}
-    for nm in ('keep_tree', 'keep_window', 'keep_stone_a', 'keep_stone_b'): sp[nm] = {'frames': {'f0': fr[nm]}, 'anims': {'idle': {'frames': ['f0'], 'fps': 1, 'loop': True}}, 'meta': {}}
+    for nm in ('keep_tree', 'keep_window', 'keep_stone_a', 'keep_stone_b', 'keep_rail', 'keep_pylon'): sp[nm] = {'frames': {'f0': fr[nm]}, 'anims': {'idle': {'frames': ['f0'], 'fps': 1, 'loop': True}}, 'meta': {}}
     sp['keep_wheel'] = {'frames': {f'f{k}': fr[f'keep_wheel{k}'] for k in range(2)}, 'anims': {'idle': {'frames': ['f0', 'f1'], 'fps': 3, 'loop': True}}, 'meta': {}}
     for nm in ('keep_bowl', 'keep_ritual'): sp[nm] = {'frames': {f'f{k}': fr[f'{nm}{k}'] for k in range(3)}, 'anims': {'idle': {'frames': ['f0', 'f1', 'f2'], 'fps': 7, 'loop': True}}, 'meta': {}}
     write_png(os.path.join(out, 'keep_decor.png'), sheet)
