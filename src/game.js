@@ -862,10 +862,11 @@ export class Game {
       }
       return spot(rm);
     };
-    const spot = (rm) => {                                // a free floor tile inside a room
-      for (let j = 0; j < 30; j++) {
+    const spot = (rm) => {                                // a free floor tile inside a room (in the castle: one walkable from its ways)
+      const reach = m.castle ? reachOf(rm) : null;
+      for (let j = 0; j < (reach ? 80 : 30); j++) {
         const x = rm.x + 1.5 + r() * (rm.w - 3), y = rm.y + 1.5 + r() * (rm.h - 3);
-        if (!isSolid(m, x, y) && m.tiles[Math.floor(y) * m.w + Math.floor(x)] !== TID.lava && m.tiles[Math.floor(y) * m.w + Math.floor(x)] !== TID.emberlava) return [x, y];
+        if (!isSolid(m, x, y) && m.tiles[Math.floor(y) * m.w + Math.floor(x)] !== TID.lava && m.tiles[Math.floor(y) * m.w + Math.floor(x)] !== TID.emberlava && (!reach || reach.has(Math.floor(y) * m.w + Math.floor(x)))) return [x, y];
       }
       return [rm.cx, rm.cy];
     };
