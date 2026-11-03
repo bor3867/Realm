@@ -110,7 +110,7 @@ export function isSolid(m, x, y) {
 // (low ruin walls and whale ribs you step over: their rows walled players and realm bosses in)
 // only the big things stop you: trees, rocks, spires, pillars and walls, statues, the great furniture, gates. Chests,
 // crates, barrels, braziers, candles, fences, seats, signs, lamps, shrines and people you walk through, as in RotMG
-const BIG = /tree|palm|pine|oak|deadwood|crimson_(?:big|mid|small)|castle_art\/(?:ruin_(?:swordsman|kneeling|torso|crowned_head)|pedestal|altar|brazier|statue|throne|gargoyle)|keep_brazier|keep_bowl|keep_ritual|keep_wheel|castle_decor\/(?:log|barricade|wagon|siege_engine|tent|pipe|lava_tank|bed|table|winch|valve)$|saguaro|giant_mushroom|rotting_log|boulder|rock|cairn|spire|crystal_cluster|ice_crystal|pillar|column|obelisk|(?<!ruin_)wall|statue|fallen_head|bookshelf|furnace|well$|fountain|throne|sarcophag|coffin|gate|telescope|star_globe|high_striker|circus_cannon|rowboat|ticket_booth|stage_moon|great_lens|golem_husk|anvil_block|crucible|stump|gargoyle/;
+const BIG = /tree|palm|pine|oak|deadwood|keep_stone|crimson_(?:big|mid|small)|castle_art\/(?:ruin_(?:swordsman|kneeling|torso|crowned_head)|pedestal|altar|brazier|statue|throne|gargoyle)|keep_brazier|keep_bowl|keep_ritual|keep_wheel|castle_decor\/(?:log|barricade|wagon|siege_engine|tent|pipe|lava_tank|bed|table|winch|valve)$|saguaro|giant_mushroom|rotting_log|boulder|rock|cairn|spire|crystal_cluster|ice_crystal|pillar|column|obelisk|(?<!ruin_)wall|statue|fallen_head|bookshelf|furnace|well$|fountain|throne|sarcophag|coffin|gate|telescope|star_globe|high_striker|circus_cannon|rowboat|ticket_booth|stage_moon|great_lens|golem_husk|anvil_block|crucible|stump|gargoyle/;
 export const blocks = (sprite) => BIG.test(sprite || '');
 function finalize(m) {
   for (let i = 0; i < m.tiles.length; i++) if (SOLID_TILES.has(m.tiles[i])) m.solid[i] = 1;
@@ -1888,6 +1888,51 @@ export function dungeon(seed, def) {
       if (fl(x, y) && clear(x, y) && Math.hypot(x - n.cx, y - n.cy) > 4) put(m, 'keep_decor/keep_pillar', x, y, true);
     }
   };
+  // ---- THE ASHEN FOREST, grown (2026-11-02, the user's rebuild: "The forest should look like a genuine corrupted woodland
+  // rather than stone rooms containing a few trees ... Tree clusters should form recognizable forest boundaries and natural
+  // openings ... winding trails ... forks, bends, and small clearings ... abandoned campsites, destroyed wagons, ruined
+  // shrines, fallen soldiers, broken wooden barricades, ancient standing stones ... Every forest area should have a
+  // distinct landmark"). Each area: its own features, each in a glade of its own; a side trail forking out to each from
+  // the clearing; then the trees, by a slow pattern of thickets and openings (never rows), thick toward its edges, the
+  // trail kept clear at its own varying width; the first trees at an edge ones you can walk among
+  const FOREST_FEAT = {
+    a01: [['stones', 0.3, 0.35], ['ancient', 0.4, 0.78]], a02: [['camp', 0.18, 0.3], ['soldiers', 0.72, 0.72]], a03: [['pool', 0.24, 0.72], ['ancient', 0.8, 0.28]],
+    a04: [['soldiers', 0.5, 0.55], ['ruin', 0.25, 0.3]], a05: [['pool', 0.24, 0.28], ['cracks', 0.76, 0.74]], a06: [['stones', 0.5, 0.78]],
+    a07: [['camp', 0.24, 0.72], ['soldiers', 0.72, 0.28]], a09: [['cracks', 0.28, 0.3], ['wagon', 0.72, 0.74], ['cracks', 0.72, 0.28]],
+  };
+  const forestWild = (n, at, nearRoad, treeAt) => {
+    const road = m.castle.roadTiles, hsh = (x, y, k = 0) => ((Math.sin(x * 12.9898 + y * 78.233 + k * 7.13) * 43758.5453) % 1 + 1) % 1;
+    const nzF = (x, y) => (Math.sin(x * 0.19 + n.num * 1.7) + Math.sin(y * 0.23 - n.num) + Math.sin((x + y) * 0.11 + n.num)) / 6 + 0.5;   // (slow: thickets and openings)
+    const glades = [[n.cx, n.cy, n.form === 'ravine' ? 0 : 4]];
+    const PL = (sp, x, y, solid = true, ex) => put2(null, Math.round(x), Math.round(y), sp, solid, ex);
+    const FEAT = {
+      camp(x, y) { PL('castle_decor/pyre', x, y); PL('castle_decor/tent', x - 3, y - 1); PL('castle_decor/log', x - 2, y + 1, true, { lie: 0 }); PL('castle_decor/log', x + 2, y + 1, true, { lie: 0 }); PL('crate', x + 2, y - 2); PL('barrel', x + 3, y - 1); PL('castle_decor/fallen_soldier', x + 1, y + 2, false); },
+      wagon(x, y) { PL('castle_decor/wagon', x, y); PL('barrel', x + 2, y); PL('crate', x - 2, y + 1); PL('crate', x + 1, y + 2); PL('castle_decor/barricade', x - 3, y - 1); PL('castle_decor/fallen_soldier', x + 3, y + 2, false); },
+      soldiers(x, y) { for (const [dx, dy, sp, so] of [[0, 0, 'fallen_soldier', false], [2, 1, 'shield_broken', false], [-2, 1, 'fallen_soldier', false], [1, -2, 'bones', false], [-1, -1, 'barricade', true], [3, -1, 'barricade', true], [-3, 2, 'shield_broken', false]]) PL('castle_decor/' + sp, x + dx, y + dy, so); },
+      stones(x, y) { PL('castle_art/pedestal_flame', x, y); for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3 + n.num; PL('keep_decor/keep_stone_' + (k % 2 ? 'a' : 'b'), x + Math.cos(a) * 3.2, y + Math.sin(a) * 2.6); } },
+      pool(x, y) { for (let dy = -2; dy <= 2; dy++) for (let dx = -3; dx <= 3; dx++) if ((dx / 3.2) ** 2 + (dy / 2.2) ** 2 <= 1 && isF(x + dx, y + dy)) set(x + dx, y + dy, TID.shallows); for (const [dx, dy] of [[-4, 0], [4, 1], [0, -3], [-2, 3], [3, -2]]) PL('castle_decor/rock', x + dx, y + dy, dx === -4); },
+      cracks(x, y) { for (const [dx, dy, sp] of [[0, 0, 'fissure'], [-2, 1, 'lava_crack'], [2, -1, 'lava_crack'], [1, 2, 'burning_debris'], [-3, -1, 'lava_crack'], [3, 2, 'fissure']]) PL('castle_decor/' + sp, x + dx, y + dy, false); PL('castle_art/ember_bloom', x - 1, y - 2, false); },
+      ancient(x, y) { PL('castle_art/' + (n.num % 3 === 0 ? 'crimson_big' : 'ancient_lava_tree'), x, y); for (const [dx, dy] of [[-2, 1], [2, 1], [0, 2]]) PL('castle_decor/roots', x + dx, y + dy, false); },
+      ruin(x, y) { PL('castle_art/ruin_swordsman', x, y); PL('castle_decor/collapsed_pillar', x + 2, y); PL('castle_decor/rubble', x - 2, y + 1, false); PL('castle_art/ruin_crowned_head', x + 1, y + 2); },
+    };
+    for (const [kind, fx, fy] of FOREST_FEAT[n.key] || []) {
+      const [x, y] = at(fx, fy); FEAT[kind](x, y); glades.push([x, y, kind === 'stones' ? 5 : 4]);
+      // a side trail forking off from the clearing to it, wandering a little
+      const L = Math.hypot(x - n.cx, y - n.cy), steps = Math.ceil(L * 2), side = hsh(x, y) < 0.5 ? 1 : -1;
+      for (let k = 0; k <= steps; k++) { const t = k / steps, w = Math.sin(t * Math.PI) * 2.5 * side, nx = -(y - n.cy) / (L || 1), ny = (x - n.cx) / (L || 1); road.add(Math.round(n.cy + (y - n.cy) * t + ny * w) * S + Math.round(n.cx + (x - n.cx) * t + nx * w)); }
+    }
+    for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) {
+      if (!isF(x, y) || m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) continue;
+      const v = nzF(x, y), wTrail = v > 0.62 ? 1 : 2;                  // (the trail wider where the wood opens, tighter in the thickets)
+      if (nearRoad(x, y, wTrail) || glades.some(([gx, gy, r]) => Math.hypot(x - gx, y - gy) < r)) continue;
+      let edge = 9; for (let dy = -3; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) if (!isF(x + dx, y + dy) && tile(x + dx, y + dy) !== TID.stageboards && tile(x + dx, y + dy) !== TID.shallows) edge = Math.min(edge, Math.max(Math.abs(dx), Math.abs(dy)));
+      const dens = Math.min(0.75, Math.max(0, (v - 0.38) * 1.6) + (edge <= 2 ? 0.35 : edge <= 4 ? 0.12 : 0));
+      if (hsh(x, y, 3) > dens * 0.62) continue;
+      let crowd = false; for (let dy = -1; dy <= 1 && !crowd; dy++) for (let dx = -1; dx <= 1; dx++) if ((dx || dy) && m.objects.some((o) => o.tree && Math.floor(o.x) === x + dx && Math.floor(o.y) === y + dy)) { crowd = true; break; }
+      if (crowd && hsh(x, y, 5) < 0.7) continue;                       // (room between trunks, mostly)
+      put2(null, x, y, treeAt(x, y, hsh(x, y, 9)), edge > 2, { tree: true });
+    }
+  };
   const castleDress = (n) => {
     if (n.region === 'outer' || n.region === 'inner') keepDress(n);
     const at = (fx, fy) => [Math.round(n.x + fx * n.w), Math.round(n.y + fy * n.h)];
@@ -1904,25 +1949,6 @@ export function dungeon(seed, def) {
     if (n.region === 'forest') for (let k = 0; k < Math.floor(n.w * n.h / (n.num >= 7 ? 60 : 160)); k++) {   // volcanic growth: ember shrubs and glowing mushrooms, more of it further up
       const [x, y] = at(0.08 + 0.84 * ((k * 0.7548 + n.num * 0.21) % 1), 0.08 + 0.84 * ((k * 0.5698 + n.num * 0.37) % 1));
       put2(null, x, y, 'castle_art/' + ['shrub_small', 'grass_ember', 'shrub_mid', 'leaf_ember', 'ember_bloom', 'grass_small', 'leaf_small', 'shrub_big'][k % 8], false);
-    }
-    if (n.region === 'forest') {                                    // the woods: trees thick along every edge, clumps between
-      for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) {
-        if (!isF(x, y) || nearRoad(x, y, 1)) continue;
-        let edge = 9; for (let dy = -3; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) if (!isF(x + dx, y + dy) && tile(x + dx, y + dy) !== TID.stageboards) edge = Math.min(edge, Math.max(Math.abs(dx), Math.abs(dy)));
-        const hh = ((Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1 + 1) % 1;
-        // (a thick tree line; thinner further in; the odd lone tree). The line along the edge is passable (2026-11-02, the
-        // user: a big enemy "keeps getting stuck behind trees ... have some more trees/spaces in the first row of blocks that
-        // enemies can pass through to get around"): you and they walk in among those trunks; the trees further in stand solid
-        if ((edge <= 2 && hh < 0.4) || (edge <= 4 && hh < 0.14) || hh < 0.02) put2(null, x, y, treeAt(x, y, hh), edge > 2);
-      }
-      for (let k = 0; k < Math.floor(n.w * n.h / 120); k++) {        // clumps of three or four
-        const [x0, y0] = at(0.2 + 0.6 * (((k * 0.618 + n.num * 0.31) % 1)), 0.2 + 0.6 * (((k * 0.381 + n.num * 0.17) % 1)));
-        if (Math.hypot(x0 - n.cx, y0 - n.cy) < 4 || nearRoad(x0, y0, 2)) continue;
-        for (const [dx, dy] of [[0, 0], [2, 0], [1, 2]]) if (!nearRoad(x0 + dx, y0 + dy)) put2(null, x0 + dx, y0 + dy, treeAt(x0, y0, 0.5), true);   // (a clump: one family)
-      }
-    }
-    if (n.region === 'forest' && n.w >= 20) {               // each clearing's landmark: an ancient tree, lava in its bark (or a great crimson by the shrine)
-      for (const [fx, fy] of [[0.72, 0.32], [0.3, 0.68], [0.7, 0.7], [0.3, 0.3]]) { const [x, y] = at(fx, fy); if (!nearRoad(x, y, 3) && isF(x, y) && isF(x - 1, y) && isF(x + 1, y)) { put2(null, x, y, 'castle_art/' + (n.num % 3 === 1 ? 'crimson_big' : 'ancient_lava_tree'), true); break; } }
     }
     if (n.region === 'forest') for (let k = 0; k < Math.floor(n.w * n.h / 90); k++) {   // roots across the ground, stumps, fallen trunks
       const [x, y] = at(0.1 + 0.8 * ((k * 0.754 + n.num * 0.13) % 1), 0.1 + 0.8 * ((k * 0.437 + n.num * 0.29) % 1)), K = k % 5;
@@ -2004,6 +2030,7 @@ export function dungeon(seed, def) {
       case 'a52': for (let a = 0; a < 6.28; a += 0.785) P('castle_decor/celestial_pillar', 0.5 + Math.cos(a) * 0.46, 0.5 + Math.sin(a) * 0.46); break;   // Solkhar's sanctum: its celestial pillars round the rim
 
     }
+    if (n.region === 'forest') forestWild(n, at, nearRoad, treeAt);
   };
   const DRESS = {
     hollowmoon(n) {
@@ -2854,14 +2881,14 @@ export function dungeon(seed, def) {
     // the user: "instead of the blotchy/oval patches ... make the forest part more of a pathway of sorts. You can keep some of
     // the patches but have a small pathway for players"): the road's own line and a ragged tile either side of it
     const road0 = m.castle.roadTiles, onPath = (x, y) => { if (road0.has(y * S + x)) return true; const h = ((Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1 + 1) % 1; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (road0.has((y + dy) * S + x + dx)) return h < 0.7; return false; };
-    const FL = { forest: (x, y) => { if (onPath(x, y)) return TID.dirt; const v = nz(x, y); return v > 0.8 ? TID.dirt : v < 0.15 ? TID.ash : TID.grass; }, mountain: (x, y) => (nz(x, y) > 0.6 ? TID.obsidian : TID.ash),
+    const FL = { forest: (x, y, n) => { if (onPath(x, y)) return TID.dirt; const v = nz(x, y), up = Math.max(0, (n.num || 1) - 1) / 8; if (up > 0.8 && v > 0.84) return TID.obsidian; return v > 0.8 ? TID.dirt : v < 0.15 + up * 0.3 ? TID.ash : TID.grass; }, mountain: (x, y) => (nz(x, y) > 0.6 ? TID.obsidian : TID.ash),   // (the forest: ash, then black stone, as it climbs toward the mountain)
       outer: () => TID.kpfloor, inner: () => TID.kpfloor, ashkar: () => TID.emberfloor, eclipse: () => TID.obsidian, sanctum: () => FLOOR };
     const AREA_FL = { a34: TID.forge, a35: TID.forge, a38: TID.forge, a39: TID.forge, a40: TID.forge, a41: TID.forge, a42: TID.forge, a43: TID.forge, a46: TID.forge };
     const regionOf = new Uint8Array(S * S), REG = ['forest', 'mountain', 'outer', 'inner', 'ashkar', 'eclipse', 'sanctum'];
     for (let y = 2; y < S - 2; y++) for (let x = 2; x < S - 2; x++) {
       const t = tile(x, y); if (t === TID.void) continue;
       const n = areaAt(x, y); if (!n) continue; regionOf[y * S + x] = REG.indexOf(n.region) + 1;
-      if (t === FLOOR) set(x, y, AREA_FL[n.key] && bd(n, x, y) === 0 ? AREA_FL[n.key] : FL[n.region](x, y));
+      if (t === FLOOR) set(x, y, AREA_FL[n.key] && bd(n, x, y) === 0 ? AREA_FL[n.key] : FL[n.region](x, y, n));
     }
     for (let y = 3; y < S - 3; y++) for (let x = 3; x < S - 3; x++) {          // the edges: woods (thorn), cliffs, or the star-void; the keep's stay its walls
       if (tile(x, y) !== TID.void && tile(x, y) !== WALL) continue;   // (the castle's wall ring too: in the woods it is the woods, on the mountain the cliff)
