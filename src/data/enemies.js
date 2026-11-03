@@ -1497,7 +1497,7 @@ ENEMIES.sol_blacksun = { name: 'Black Sun', biome: 'throne', hp: 30000, def: 12,
 ENEMIES.siege_battery = { name: 'Battery Mechanism', biome: 'throne', reg: 'castle_decor/siege_engine', hp: 16000, def: 14, speed: 0, xp: 0, r: 0.7, ai: 'rooted', aggro: 0, target: true, attacks: [], loot: [] };   // (the Broken Siege Battery's working engine: src/castle.js fires its lane while it stands)
 ENEMIES.burning_pyre = { name: 'Ritual Pyre', biome: 'throne', reg: 'castle_decor/pyre', hp: 12000, def: 12, speed: 0, xp: 0, r: 0.7, ai: 'rooted', aggro: 16, target: true,
   attacks: [{ pattern: 'aimed', proj: 'castle_shots/flame', count: 5, arc: 0.9, dmg: 89, speed: 5, range: 13, cd: 2.0, tell: 400 }], loot: [] };   // (the Pyre Redoubt's: the cultists' fire; break them and it stops)
-ENEMIES.cursed_banner = { name: 'Cursed Banner', biome: 'throne', reg: 'castle_decor/banner_torn', hp: 15000, def: 10, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 28, target: true, kin: 'cursed_banner', scale: 1.5, hitUp: 1.2,
+ENEMIES.cursed_banner = { name: 'Cursed Banner', biome: 'throne', reg: 'castle_art/banner_chain_cursed', hp: 15000, def: 10, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 28, target: true, kin: 'cursed_banner', scale: 1.5, hitUp: 1.2,
   attacks: [], loot: [] };   // (the Hall of Hollow Banners': src/castle_kin.js, their crossing fire)
 ENEMIES.cursed_altar = { name: 'Cursed Altar', biome: 'throne', reg: 'castle_decor/eclipse_obelisk', hp: 8000, def: 10, speed: 0, xp: 0, r: 0.6, ai: 'rooted', aggro: 14, target: true,
   attacks: [{ pattern: 'aimed', proj: 'wiz_shots/bolt', count: 5, arc: 1.1, dmg: 79, speed: 4.5, range: 12, cd: 3, tell: 500 }], loot: [] };   // (the chapel's ritual, the shrine's)

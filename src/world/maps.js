@@ -1847,14 +1847,14 @@ export function dungeon(seed, def) {
   // which of the sheet's four each keep room is (2026-11-02, the user: "whichever rooms you think would look best with which
   // design. But make a unique room for the drawbridge"): halls of state, broken courtyards, a fire bastion, ritual galleries;
   // the Drawbridge Engine its own: the machine that works the bridge
-  const KEEP_KIND = { a22: 'hall', a24: 'hall', a25: 'hall', a27: 'hall', a29: 'hall', a20: 'yard', a28: 'yard', a33: 'yard', a21: 'bastion', a30: 'bastion',
+  const KEEP_KIND = { a22: 'towers', a24: 'barbican', a25: 'banners', a26: 'court', a27: 'hall', a29: 'hall', a20: 'killing', a28: 'yard', a33: 'yard', a21: 'trench', a30: 'bastion',
     a31: 'ritual', a32: 'ritual', a37: 'ritual', a23: 'engine' };
   m.keepKind = KEEP_KIND; m.keepSkin = m.keepSkin || new Map();
   const keepDress = (n) => {
     const kind = KEEP_KIND[n.key], skin = (x, y, name) => m.keepSkin.set(y * S + x, name);
     // its banners by what the room is (the user's banner rules, 2026-11-02): crown in halls of state, sun on the defences,
     // forge in the forges, cursed purple in ritual rooms, torn where the battle went through
-    const forge = n.num >= 34, BAN = kind === 'hall' ? ['banner_crown', 'banner_sun'] : kind === 'ritual' ? ['banner_cursed', 'banner_eclipse'] : kind === 'yard' ? ['banner_crown_torn', 'banner_sun_torn', 'banner_castle_torn'] : forge ? ['banner_forge', 'banner_chain_forge'] : kind === 'engine' ? ['banner_forge'] : ['banner_sun', 'banner_castle'];
+    const forge = n.num >= 34, BAN = kind === 'banners' || kind === 'court' ? ['banner_cursed', 'banner_crown', 'banner_eclipse'] : kind === 'barbican' ? ['banner_crown', 'banner_sun'] : kind === 'killing' || kind === 'trench' ? ['banner_sun_torn', 'banner_crown_torn', 'banner_castle_torn'] : kind === 'towers' ? ['banner_sun', 'banner_chain_sun'] : kind === 'hall' ? ['banner_crown', 'banner_sun'] : kind === 'ritual' ? ['banner_cursed', 'banner_eclipse'] : kind === 'yard' ? ['banner_crown_torn', 'banner_sun_torn', 'banner_castle_torn'] : forge ? ['banner_forge', 'banner_chain_forge'] : kind === 'engine' ? ['banner_forge'] : ['banner_sun', 'banner_castle'];
     const fl = (x, y) => { const t = tile(x, y); return t !== WALL && t !== TID.void && !SOLID_TILES.has(t) && t !== TID.lava; }, wl = (x, y) => !fl(x, y);
     const road = m.castle && m.castle.roadTiles, clear = (x, y) => !(road && road.has(y * S + x)) && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y);
     const cx = Math.round(n.cx), cy = Math.round(n.cy), topY = (x) => { for (let y = n.y; y < n.y + n.h; y++) if (fl(x, y)) return y; return n.y; };
@@ -1978,8 +1978,88 @@ export function dungeon(seed, def) {
     }
     for (const [x, y] of ends.slice(0, 8)) if (!m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) put(m, 'keep_decor/keep_pylon', x, y, true);
   };
+  // ---- THE OUTER KEEP, built (2026-11-02, the user's rebuild: "The Outer Keep should be the most visually impressive region
+  // before the Hollow Jarls ... Rooms must look like they were built for specific purposes"). Each room's own architecture
+  // in the keep's stone (its walls kpwall; raised floors and carpets as ground), never across a way in or out, its open
+  // ground kept for fighting
+  const outerKeep = (n) => {
+    const road = m.castle.roadTiles, nearRd = (x, y, r = 1) => { for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) if (road.has((y + dy) * S + x + dx)) return true; return false; };
+    const fl = (x, y) => isF(x, y) && tile(x, y) !== TID.lava, free = (x, y) => fl(x, y) && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y);
+    const W = (x, y) => { if (fl(x, y) && !nearRd(x, y, 1)) set(x, y, TID.kpwall); };   // (a block of wall, never on a way)
+    const O = (sp, x, y, solid = true, ex) => { x = Math.round(x); y = Math.round(y); if (free(x, y) && !nearRd(x, y, 0)) put(m, sp, x, y, solid, ex); };
+    const F = (fx, fy) => [Math.round(n.x + fx * (n.w - 1)), Math.round(n.y + fy * (n.h - 1))];
+    const skin = (x, y, name) => m.keepSkin.set(y * S + x, name);
+    const runnerEW = (y, x0, x1, style = 'crown') => { for (let x = x0; x <= x1; x++) for (let c = 0; c < 3; c++) { const yy = y - 1 + c; if (!fl(yy === y ? x : x, yy)) continue; set(x, yy, TID.kpcarpet); skin(x, yy, `${style}_ew_${x === x1 ? 'top' : x === x0 ? 'bot' : 'mid' + ((x1 - x) % 4)}_${c}`); } };
+    const runnerNS = (x, y0, y1, style = 'crown') => { for (let y = y0; y <= y1; y++) for (let c = 0; c < 3; c++) { const xx = x - 1 + c; if (!fl(xx, y)) continue; set(xx, y, TID.kpcarpet); skin(xx, y, `${style}_ns_${y === y0 ? 'top' : y === y1 ? 'bot' : 'mid' + ((y - y0) % 4)}_${c}`); } };
+    const emblem = (cx, cy, style) => { for (let j = 0; j < 5; j++) for (let k = 0; k < 5; k++) if (fl(cx - 2 + k, cy - 2 + j)) { if (tile(cx - 2 + k, cy - 2 + j) === TID.kpcarpet) set(cx - 2 + k, cy - 2 + j, FLOOR); skin(cx - 2 + k, cy - 2 + j, `emblem_${style}_${j * 5 + k}`); } };   // (an emblem lies over a runner: its tiles floor again)
+    const dais = (cx, cy, w2, h2) => { for (let dy = -h2; dy <= h2; dy++) for (let dx = -w2; dx <= w2; dx++) if (fl(cx + dx, cy + dy)) skin(cx + dx, cy + dy, Math.abs(dx) === w2 || Math.abs(dy) === h2 ? 'keep_step' : 'keep_dais'); };
+    const hsh = (x, y) => ((Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1 + 1) % 1;
+    if (n.key === 'a20') {                                   // THE KILLING GROUND: the exposed approach. Walls down both flanks (broken by the siege),
+      // two burning trenches across it, the wreck of the assault everywhere, guard posts, and the castle's great gate ahead
+      for (const fy of [0.1, 0.9]) for (let x = n.x + 3; x < n.x + n.w - 3; x++) { const y = F(0, fy)[1]; if (Math.sin(x * 0.9 + fy * 7) < 0.75) { W(x, y); W(x, y + (fy < 0.5 ? 1 : -1)); } }
+      for (const [ax, ay, bx, by] of [[0.28, 0.24, 0.44, 0.42], [0.58, 0.6, 0.74, 0.8]]) { const [x0, y0] = F(ax, ay), [x1, y1] = F(bx, by), L = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)); for (let k = 0; k <= L; k++) { const x = Math.round(x0 + (x1 - x0) * k / L), y = Math.round(y0 + (y1 - y0) * k / L); for (const d of [0, 1]) if (fl(x + d, y) && !nearRd(x + d, y, 2)) set(x + d, y, TID.lava); } }
+      { const gx = n.x + n.w - 3; for (let y = n.y + 4; y < n.y + n.h - 4; y++) W(gx, y); for (const fy of [0.22, 0.78]) { const y = F(0, fy)[1]; O('castle_art/statue_king', gx - 2, y); O('keep_decor/keep_pylon', gx - 1, y + (fy < 0.5 ? 3 : -3)); } }   // (the castle's gate wall ahead, kings either side of it)
+      for (const [fx, fy, sp, so] of [[0.18, 0.3, 'castle_decor/broken_catapult', true], [0.75, 0.25, 'castle_decor/siege_engine', true], [0.3, 0.72, 'castle_decor/barricade', true], [0.48, 0.55, 'castle_decor/barricade', true], [0.66, 0.4, 'castle_decor/burning_debris', false],
+        [0.22, 0.85, 'castle_decor/fallen_soldier', false], [0.55, 0.2, 'castle_decor/fallen_soldier', false], [0.4, 0.82, 'castle_art/banner_sun_torn', false], [0.62, 0.15, 'castle_art/banner_crown_torn', false], [0.12, 0.55, 'castle_decor/rubble', false], [0.85, 0.6, 'castle_decor/rubble', false], [0.35, 0.18, 'castle_art/ruin_torso', true]]) O(sp, ...F(fx, fy), so);
+      for (const [fx, fy] of [[0.15, 0.2], [0.82, 0.82]]) { const [x, y] = F(fx, fy); O('castle_art/pedestal_banner', x, y); O('castle_art/brazier_gold', x + 1, y); O('castle_decor/barricade', x, y + 1); }   // (guard posts)
+      for (const fx of [0.3, 0.6]) for (const fy of [0.14, 0.86]) O('castle_art/gargoyle_perched', ...F(fx, fy));   // (gargoyles on the flank walls)
+    }
+    if (n.key === 'a21') {                                   // THE SIEGE TRENCH: angled stone defences between its lava channels, pockets to hold, wrecked carts, racks, burning pits
+      for (const [ax, ay, dx, dy] of [[0.2, 0.42, 1, 1], [0.62, 0.42, 1, -1], [0.38, 0.58, -1, 1], [0.8, 0.58, -1, -1]]) { const [x, y] = F(ax, ay); for (let k = 0; k < 5; k++) { W(x + k * dx, y + Math.floor(k / 2) * dy); } }
+      for (const [fx, fy, open] of [[0.12, 0.12, 1], [0.88, 0.12, -1], [0.12, 0.88, 1], [0.88, 0.88, -1]]) { const [x, y] = F(fx, fy); for (let k = -1; k <= 1; k++) { W(x - open, y + k); } W(x, y - 1); W(x, y + 1); O('castle_art/statue_knight', x, y); }   // (alcoves, a sentinel in each)
+      for (const [fx, fy, sp] of [[0.3, 0.15, 'castle_decor/wagon'], [0.7, 0.85, 'castle_decor/wagon'], [0.45, 0.12, 'keep_decor/keep_rack'], [0.55, 0.88, 'keep_decor/keep_rack'], [0.08, 0.5, 'keep_decor/keep_rack'], [0.5, 0.48, 'castle_decor/pyre'], [0.25, 0.5, 'castle_decor/pyre'], [0.75, 0.5, 'castle_decor/burning_debris'], [0.62, 0.18, 'crate'], [0.35, 0.85, 'barrel']]) O(sp, ...F(fx, fy), sp !== 'castle_decor/burning_debris');
+      for (const fy of [0.3, 0.7]) { const y = F(0, fy)[1]; for (let x = n.x + 3; x < n.x + n.w - 3; x++) if (tile(x, y) !== TID.lava && tile(x - 1, y) === TID.lava) { O('castle_decor/barricade', x, y - (fy < 0.5 ? 2 : -2)); } }   // (a barricade by each crossing)
+    }
+    if (n.key === 'a22') {                                   // THE TWIN WATCHTOWERS: two real towers, a ring of stone each with a door toward the yard and a stair up
+      // to it, a raised floor inside and the signal brazier at its middle (castle_plan MECHS brazL/brazR); a battlement along the north
+      for (const [fx, side] of [[0.2, 1], [0.8, -1]]) {
+        const [tx, ty] = F(fx, 0.7);
+        for (let dy = -3; dy <= 3; dy++) for (let dx = -3; dx <= 3; dx++) {
+          const ring = Math.abs(dx) === 3 || Math.abs(dy) === 3, door = Math.sign(dx) === side && Math.abs(dx) === 3 && Math.abs(dy) <= 1;
+          if (ring && !door && fl(tx + dx, ty + dy)) set(tx + dx, ty + dy, TID.kpwall); else if (!ring) skin(tx + dx, ty + dy, 'keep_dais');
+        }
+        for (let dy = -1; dy <= 1; dy++) skin(tx + side * 4, ty + dy, 'keep_stair');
+        O('castle_art/banner_chain_sun', tx + side * 4, ty - 3, false); O('keep_decor/keep_pylon', tx + side * 4, ty + 3);
+      }
+      for (let x = n.x + 3; x < n.x + n.w - 3; x++) { const y = n.y + 3; if (x % 2) W(x, y); W(x, y + 1); }   // (the battlement)
+    }
+    if (n.key === 'a23') {                                   // THE DRAWBRIDGE ENGINE: machinery housings with winch drums, chains to the bridge, levers by the clamps, platforms
+      for (const fx of [0.3, 0.7]) { const [x, y] = F(fx, 0.12); for (let dy = 0; dy < 2; dy++) for (let dx = -2; dx <= 2; dx++) W(x + dx, y + dy); O('keep_decor/keep_winch', x, y + 3); for (let k = 0; k < 3; k++) O('castle_decor/chain_post', x + (fx < 0.5 ? 1 : -1) * (k + 1), y + 3 - k, false); }
+      for (const fx of [0.12, 0.88]) O('keep_decor/keep_lever', ...F(fx, 0.3));
+      for (const fx of [0.2, 0.8]) { const [x, y] = F(fx, 0.62); dais(x, y, 2, 1); }
+    }
+    if (n.key === 'a24') {                                   // THE BARBICAN: the gate through the outer wall: a thick double wall across it, an arch, guard alcoves, platforms behind, the wreck of its old gate
+      const yw = F(0, 0.45)[1];
+      for (let x = n.x; x < n.x + n.w; x++) { if (Math.abs(x - n.cx) <= 2) continue; W(x, yw); W(x, yw + 1); }
+      for (const d of [-3, 3]) O('keep_decor/keep_pylon', n.cx + d, yw + 2);
+      O('castle_decor/gate_portcullis_open', n.cx - 1, yw - 1, false); O('castle_decor/rubble', n.cx + 1, yw + 3, false);
+      for (const fx of [0.2, 0.8]) { const x = F(fx, 0)[0]; W(x - 2, yw + 2); W(x - 2, yw + 3); W(x + 2, yw + 2); W(x + 2, yw + 3); O('castle_art/statue_knight', x, yw + 2); O('castle_art/banner_crown', x, yw - 1, false); }   // (alcoves in its face, a knight in each)
+      for (const fx of [0.18, 0.82]) { const [x, y] = F(fx, 0.2); dais(x, y, 3, 1); O('castle_art/brazier_gold', x - 3, y); O('castle_art/brazier_gold', x + 3, y); }   // (platforms behind the wall)
+      for (const [fx, fy, sp] of [[0.4, 0.78, 'castle_decor/broken_catapult'], [0.65, 0.85, 'castle_decor/burning_debris'], [0.3, 0.6, 'castle_art/ruin_kneeling'], [0.72, 0.6, 'castle_decor/rubble']]) O(sp, ...F(fx, fy), !/debris|rubble/.test(sp));
+    }
+    if (n.key === 'a25') {                                   // THE HALL OF HOLLOW BANNERS: a corrupted ceremonial hall: its runner its whole length, crown and sun in its floor,
+      // kings and queens down both sides, broken columns, gold and purple fire; the sealed gate at its far end (the cursed banners' light runs into it: render)
+      const cy = Math.round(n.cy); runnerEW(cy, n.x + 2, n.x + n.w - 3, 'crown'); emblem(F(0.35, 0)[0], cy, 'crown'); emblem(F(0.68, 0)[0], cy, 'sun');
+      for (const fx of [0.2, 0.42, 0.58, 0.8]) for (const fy of [0.25, 0.75]) O('castle_art/' + ((fx * 10 | 0) % 2 ? 'statue_queen' : 'statue_king'), ...F(fx, fy));
+      for (const fx of [0.3, 0.5, 0.7]) for (const fy of [0.36, 0.64]) O(hsh(fx * 9, fy * 7) < 0.4 ? 'castle_decor/collapsed_pillar' : 'keep_decor/keep_pillar', ...F(fx, fy));
+      for (const fx of [0.12, 0.88]) for (const fy of [0.2, 0.8]) O('castle_art/' + (fx < 0.5 ? 'brazier_purple' : 'brazier_gold'), ...F(fx, fy));
+      { const gx = n.x + 1; for (const d of [-4, -3, 3, 4]) { W(gx, cy + d); W(gx + 1, cy + d); } O('castle_art/throne_chained', gx + 2, cy - 4); O('castle_art/throne_chained', gx + 2, cy + 4); O('castle_art/pedestal_crystal', gx + 3, cy - 2); O('castle_art/pedestal_crystal', gx + 3, cy + 2); }   // (the sealed gate's frame, chained kings guarding it)
+    }
+    if (n.key === 'a26') {                                   // THE HOLLOW JARLS' COURT: a royal defensive courtyard. A crown sigil at its heart; the runner leading in to it; the
+      // Wizard's ritual platforms at his marks (src/bosses/jarl_wizard.js MARKS); kings in the corners; broken columns round its edge; its lanes kept open
+      const at40 = (sx, sy) => [Math.round(n.x + (sx / 40) * n.w), Math.round(n.y + (sy / 34) * n.h)];
+      const [cx, cy] = at40(20, 17); emblem(cx, cy, 'crown');
+      for (const [sx, sy] of [[10, 9], [30, 9], [30, 25], [10, 25]]) { const [x, y] = at40(sx, sy); dais(x, y, 1, 1); }
+      runnerEW(cy, cx + 3, n.x + n.w - 3, 'crown');
+      for (const [fx, fy] of [[0.06, 0.08], [0.94, 0.08], [0.06, 0.92], [0.94, 0.92]]) O('castle_art/throne_horned', ...F(fx, fy));
+      for (let k = 0; k < 10; k++) { const a = k * Math.PI / 5 + 0.3, [x, y] = [Math.round(n.cx + Math.cos(a) * n.w * 0.45), Math.round(n.cy + Math.sin(a) * n.h * 0.44)]; O(k % 3 ? 'castle_decor/collapsed_pillar' : 'keep_decor/keep_pillar', x, y); }
+      for (const fx of [0.25, 0.75]) for (const fy of [0.04, 0.96]) O('castle_art/brazier_gold', ...F(fx, fy));
+      for (const fx of [0.42, 0.58]) O('castle_art/statue_king', ...F(fx, 0.05));   // (kings either side of the gate to the inner keep)
+    }
+  };
   const castleDress = (n) => {
     if (n.region === 'outer' || n.region === 'inner') keepDress(n);
+    if (/^a2[0-6]$/.test(n.key)) outerKeep(n);
     const at = (fx, fy) => [Math.round(n.x + fx * n.w), Math.round(n.y + fy * n.h)];
     const P = (sprite, fx, fy, solid = true) => { const [x, y] = at(fx, fy); put2(null, x, y, sprite, solid); };
     const wall = (fx0, fy0, fx1, fy1) => { const [x0, y0] = at(fx0, fy0), [x1, y1] = at(fx1, fy1); for (let y = Math.min(y0, y1); y <= Math.max(y0, y1); y++) for (let x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) if (isF(x, y)) set(x, y, TID.void); };   // (a wall inside an area: its rooms, its passages)
@@ -2034,13 +2114,13 @@ export function dungeon(seed, def) {
       case 'a18': P('castle_art/statue_knight', 0.38, 0.12); P('castle_art/statue_knight', 0.62, 0.12); for (const [fx, fy] of [[0.18, 0.45], [0.82, 0.45]]) P('castle_art/pedestal_banner', fx, fy); P('castle_decor/pyre', 0.5, 0.82); P('castle_decor/barricade', 0.3, 0.7); P('castle_decor/barricade', 0.7, 0.7); P('castle_decor/tent', 0.15, 0.2); break;   // (its layered barricades; the two pyres stand as monsters: src/data/enemies.js)
       case 'a19': if (n.key === 'a19') { for (const fx of [0.22, 0.4, 0.6, 0.78]) P('castle_art/banner_sun', fx, 0.2, false); P('castle_art/statue_knight', 0.43, 0.24); P('castle_art/statue_knight', 0.57, 0.24); for (const fx of [0.15, 0.85]) P('castle_art/gargoyle_perched', fx, 0.08); P('castle_art/ruin_torso', 0.3, 0.7); P('castle_decor/rubble', 0.5, 0.18, false); }
       // falls through: its barricades, siege engine, braziers (the Killing Ground's too)
-      case 'a20': row('banner', 0.1, 0.15, 0.85, 8); P('castle_decor/barricade', 0.3, 0.55); P('castle_decor/barricade', 0.7, 0.55); P('castle_decor/siege_engine', 0.12, 0.8); P('brazier', 0.15, 0.5); P('brazier', 0.85, 0.5); break;
+      case 'a20': if (n.key === 'a19') { row('banner', 0.1, 0.15, 0.85, 8); P('castle_decor/barricade', 0.3, 0.55); P('castle_decor/barricade', 0.7, 0.55); P('castle_decor/siege_engine', 0.12, 0.8); P('brazier', 0.15, 0.5); P('brazier', 0.85, 0.5); } break;
       case 'a21': for (const fy of [0.3, 0.7]) for (let x = n.x + 3; x < n.x + n.w - 3; x++) if (x % 9 > 1) set(x, Math.round(n.y + fy * n.h), TID.lava);   // (its shallow lava channels, crossed at the gaps)
         P('castle_decor/barricade', 0.3, 0.45); P('castle_decor/barricade', 0.7, 0.55); P('castle_decor/barricade', 0.5, 0.85); P('castle_decor/siege_engine', 0.8, 0.15); P('castle_decor/burning_debris', 0.2, 0.15, false); break;
-      case 'a22': for (const fx of [0.2, 0.8]) { const [x, y] = at(fx, 0.4); carve(x - 2, y - 2, x + 2, y + 2, TID.void); } row('banner', 0.08, 0.35, 0.65, 6); row('castle_decor/rubble', 0.75, 0.35, 0.65, 5, false); break;   // (the two towers on the battlements; their signal braziers are the mechanisms: castle.mechs)
-      case 'a23': P('castle_decor/gear', 0.2, 0.2); P('castle_decor/gear', 0.35, 0.2); P('castle_decor/gear', 0.8, 0.2); P('castle_decor/chain_post', 0.65, 0.2); P('castle_decor/chain_post', 0.2, 0.75, false); P('castle_decor/chain_post', 0.8, 0.75, false); break;   // (the drawbridge's gears and chains)
-      case 'a24': wall(0, 0.45, 0.42, 0.45); wall(0.58, 0.45, 1, 0.45); P('castle_decor/portcullis', 0.5, 0.92, false); P('castle_decor/portcullis', 0.5, 0.45, false);   // (two defensive lines: the wall across it, its portcullis raised) row('rune_pillar', 0.3, 0.2, 0.8, 10); for (const fx of [0.08, 0.92]) for (const fy of [0.25, 0.65]) P('brazier', fx, fy); break;   // (its two portcullises, raised: the two defensive lines; its arches; the murder-holes' fires)
-      case 'a25': row('banner', 0.08, 0.1, 0.9, 6); row('bust_statue', 0.85, 0.15, 0.85, 9); for (const fx of [0.12, 0.88]) P('brazier', fx, 0.5); P('castle_decor/portcullis', 0.5, 0.05, false); break;   // (banners, the Jarls' statues, its sealed gate)
+      case 'a22': break;   // (the Twin Watchtowers: outerKeep)
+      case 'a23': break;   // (the Drawbridge Engine: keepDress's engine and outerKeep)
+      case 'a24': break;   // (the Barbican: outerKeep)
+      case 'a25': break;   // (the Hall of Hollow Banners: outerKeep)
       case 'a27': P('castle_decor/shattered_statue', 0.2, 0.3); P('castle_decor/shattered_statue', 0.8, 0.3); P('castle_decor/statue_head', 0.4, 0.6, false); P('castle_decor/chandelier', 0.6, 0.5, false); P('castle_decor/portcullis', 0.5, 0.06, false); P('banner', 0.3, 0.06); P('banner', 0.7, 0.06); break;   // (the broken kings, a chandelier come down, the great doors)
       case 'a28': row('castle_decor/table', 0.35, 0.15, 0.45, 2, true); row('castle_decor/table', 0.65, 0.15, 0.45, 2, true); row('bench_h', 0.28, 0.15, 0.45, 2, true); P('castle_decor/chandelier', 0.3, 0.5, false); P('castle_decor/collapsed_pillar', 0.75, 0.3); P('castle_decor/collapsed_pillar', 0.85, 0.7); P('castle_decor/rubble', 0.7, 0.8, false); for (let k = 0; k < n.w * 0.5; k++) { const x = Math.round(n.x + n.w * 0.55 + k * 0.6), y = Math.round(n.y + n.h * 0.2 + k); if (isF(x, y) && k % 7 !== 3) { set(x, y, TID.lava); set(x + 1, y, TID.lava); } } break;   // (the tables; the fissure across it, crossed where it narrows)
       case 'a29': for (const fx of [0.35, 0.65]) { wall(fx, 0, fx, 0.4); wall(fx, 0.6, fx, 1); } row('weapon_rack', 0.08, 0.4, 0.6, 3);   // (the guard hall in the middle, the bunk rooms either side through their doors)

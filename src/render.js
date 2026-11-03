@@ -296,7 +296,7 @@ export class Renderer {
     for (const f of g.fx) if (f.kind === 'cloud' || f.kind === 'zone' || f.kind === 'pool') this.groundFx(f, g);
     for (const e of g.active || []) if (!e.dead && (e.pulseUntil > g.t || e.chainTo)) this.pulseChain(g, e);
     if (g.activeMap === m) for (const e of g.notable) if (e.bx && e.bx.B.drawGround && !e.dead) { try { e.bx.B.drawGround(this, g, e); } catch (err) { if (!e.net) throw err; } }   // (a shared boss draws from the server's word: a gap there must not stop the game)   // a boss's hazards on the ground
-    if (m.castle && m.castle.rooms) this.castleBridges(g, m);
+    if (m.castle && m.castle.rooms) { this.castleBridges(g, m); this.castleBeams(g, m); }
     for (const f of g.fx) if (f.kind === 'fissure') this.fissureFx(f, g);   // (the eruption's: on the ground, under everything)
     if (m.graves) this.drawGraves(g, m);                        // the fallen: a gravestone each, where they fell
     this.spGround(g);                                       // set-piece telegraphs (src/setpieces.js)
@@ -2170,6 +2170,20 @@ export class Renderer {
         }
       }
     }
+  }
+  // the Hall of Hollow Banners' seal (2026-11-02, the user: the cursed banners "should appear to be ancient magical objects
+  // powering the gate"): from each banner still standing, cursed light running along the floor into the sealed gate (the
+  // way on to the Jarls' court), the seal pulsing with it; a banner broken, its line goes out; all three, and the gate opens
+  castleBeams(g, m) {
+    const W = m.castle.plan && m.castle.plan.ways && m.castle.plan.ways['25-26']; if (!W) return;
+    const L = g.enemies.filter((e) => !e.dead && e.D.kin === 'cursed_banner' && Math.hypot(e.x - g.player.x, e.y - g.player.y) < 45); if (!L.length) return;
+    const b = this.b, [gx, gy] = this.proj(W.mid[0] + 0.5, W.mid[1] + 0.5);
+    for (const e of L) {
+      const [ex, ey] = this.proj(e.x, e.y), d = Math.hypot(gx - ex, gy - ey), n = Math.max(2, Math.floor(d / 3));
+      b.globalAlpha = 0.25; b.strokeStyle = '#8a3ac8'; b.lineWidth = 3; b.beginPath(); b.moveTo(ex, ey); b.lineTo(gx, gy); b.stroke(); b.globalAlpha = 1;
+      for (let k = 0; k < n; k++) { const t = ((k / n) + g.t * 0.6) % 1, x = Math.round(ex + (gx - ex) * t), y = Math.round(ey + (gy - ey) * t); b.fillStyle = k % 3 ? '#c870ff' : '#f0d0ff'; b.fillRect(x - 1, y - 1, 2, 2); }   // (the light running toward the gate)
+    }
+    const r = 10 + 3 * Math.sin(g.t * 4) + L.length * 2; b.globalAlpha = 0.5; b.strokeStyle = '#d090ff'; b.lineWidth = 2; b.beginPath(); b.ellipse(gx, gy, r, r * 0.6, 0, 0, Math.PI * 2); b.stroke(); b.globalAlpha = 1;
   }
   laneFx(f, g) {
     const b = this.b, live = f.t >= f.delay, L = f.len, n = Math.ceil(L * 2);

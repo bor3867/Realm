@@ -89,6 +89,11 @@ if __name__ == '__main__':
         g = resize(trim(load('sheet_carpets', i)), 40, 40)
         for j in range(5):
             for k in range(5): tiles[f'emblem_{st}_{j * 5 + k}'] = [r[k * 8:k * 8 + 8] for r in g[j * 8:j * 8 + 8]]
+    # (each tile laid on the keep's own flagstones: where the carpet's art is clear, the floor shows, never black)
+    kp = read_png(os.path.join(out, 'keep_tiles.png')); ka = json.load(open(os.path.join(out, 'atlas_keep_tiles.json'), encoding='utf8'))['sheets']['kp_tiles']['sprites']
+    flo = [[[kp[ka[f]['frames']['f0'][1] + y][ka[f]['frames']['f0'][0] + x] for x in range(8)] for y in range(8)] for f in ('keep_floor_a', 'keep_floor_b')]
+    for k, (n, t) in enumerate(tiles.items()):
+        F2 = flo[k % 2]; tiles[n] = [[c if c[3] > 128 else F2[y][x] for x, c in enumerate(r)] for y, r in enumerate(t)]
     names = list(tiles); cols = 16; R = (len(names) + cols - 1) // cols
     ts = [[BL] * (cols * 8) for _ in range(R * 8)]; tsp = {}
     for n, k in enumerate(names):
