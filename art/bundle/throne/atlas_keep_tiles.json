@@ -109,7 +109,7 @@
      },
      "meta": {}
     },
-    "keep_carpet": {
+    "keep_dais": {
      "frames": {
       "f0": [
        40,
@@ -129,7 +129,7 @@
      },
      "meta": {}
     },
-    "keep_sigil_0": {
+    "keep_stair": {
      "frames": {
       "f0": [
        48,
@@ -149,7 +149,7 @@
      },
      "meta": {}
     },
-    "keep_sigil_1": {
+    "keep_step": {
      "frames": {
       "f0": [
        56,
@@ -169,10 +169,110 @@
      },
      "meta": {}
     },
-    "keep_sigil_2": {
+    "keep_plate": {
      "frames": {
       "f0": [
        0,
+       8,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_grate": {
+     "frames": {
+      "f0": [
+       8,
+       8,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_carpet": {
+     "frames": {
+      "f0": [
+       16,
+       8,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_0": {
+     "frames": {
+      "f0": [
+       24,
+       8,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_1": {
+     "frames": {
+      "f0": [
+       32,
+       8,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_2": {
+     "frames": {
+      "f0": [
+       40,
        8,
        8,
        8
@@ -192,7 +292,7 @@
     "keep_sigil_3": {
      "frames": {
       "f0": [
-       8,
+       48,
        8,
        8,
        8
@@ -212,7 +312,7 @@
     "keep_sigil_4": {
      "frames": {
       "f0": [
-       16,
+       56,
        8,
        8,
        8
@@ -232,8 +332,8 @@
     "keep_sigil_5": {
      "frames": {
       "f0": [
-       24,
-       8,
+       0,
+       16,
        8,
        8
       ]
@@ -252,8 +352,8 @@
     "keep_sigil_6": {
      "frames": {
       "f0": [
-       32,
        8,
+       16,
        8,
        8
       ]
@@ -272,8 +372,8 @@
     "keep_sigil_7": {
      "frames": {
       "f0": [
-       40,
-       8,
+       16,
+       16,
        8,
        8
       ]
@@ -292,8 +392,8 @@
     "keep_sigil_8": {
      "frames": {
       "f0": [
-       48,
-       8,
+       24,
+       16,
        8,
        8
       ]
@@ -312,8 +412,8 @@
     "keep_sigil_9": {
      "frames": {
       "f0": [
-       56,
-       8,
+       32,
+       16,
        8,
        8
       ]
@@ -332,7 +432,7 @@
     "keep_sigil_10": {
      "frames": {
       "f0": [
-       0,
+       40,
        16,
        8,
        8
@@ -352,7 +452,7 @@
     "keep_sigil_11": {
      "frames": {
       "f0": [
-       8,
+       48,
        16,
        8,
        8
@@ -372,7 +472,7 @@
     "keep_sigil_12": {
      "frames": {
       "f0": [
-       16,
+       56,
        16,
        8,
        8
@@ -392,8 +492,8 @@
     "keep_sigil_13": {
      "frames": {
       "f0": [
+       0,
        24,
-       16,
        8,
        8
       ]
@@ -412,8 +512,8 @@
     "keep_sigil_14": {
      "frames": {
       "f0": [
-       32,
-       16,
+       8,
+       24,
        8,
        8
       ]
@@ -432,8 +532,8 @@
     "keep_sigil_15": {
      "frames": {
       "f0": [
-       40,
        16,
+       24,
        8,
        8
       ]
@@ -452,8 +552,8 @@
     "keep_sigil_16": {
      "frames": {
       "f0": [
-       48,
-       16,
+       24,
+       24,
        8,
        8
       ]
@@ -472,8 +572,8 @@
     "keep_sigil_17": {
      "frames": {
       "f0": [
-       56,
-       16,
+       32,
+       24,
        8,
        8
       ]
@@ -492,7 +592,7 @@
     "keep_sigil_18": {
      "frames": {
       "f0": [
-       0,
+       40,
        24,
        8,
        8
@@ -512,7 +612,7 @@
     "keep_sigil_19": {
      "frames": {
       "f0": [
-       8,
+       48,
        24,
        8,
        8
@@ -532,7 +632,7 @@
     "keep_sigil_20": {
      "frames": {
       "f0": [
-       16,
+       56,
        24,
        8,
        8
@@ -552,8 +652,8 @@
     "keep_sigil_21": {
      "frames": {
       "f0": [
-       24,
-       24,
+       0,
+       32,
        8,
        8
       ]
@@ -572,8 +672,8 @@
     "keep_sigil_22": {
      "frames": {
       "f0": [
+       8,
        32,
-       24,
        8,
        8
       ]
@@ -592,8 +692,8 @@
     "keep_sigil_23": {
      "frames": {
       "f0": [
-       40,
-       24,
+       16,
+       32,
        8,
        8
       ]
@@ -612,8 +712,508 @@
     "keep_sigil_24": {
      "frames": {
       "f0": [
-       48,
        24,
+       32,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_0": {
+     "frames": {
+      "f0": [
+       32,
+       32,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_1": {
+     "frames": {
+      "f0": [
+       40,
+       32,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_2": {
+     "frames": {
+      "f0": [
+       48,
+       32,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_3": {
+     "frames": {
+      "f0": [
+       56,
+       32,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_4": {
+     "frames": {
+      "f0": [
+       0,
+       40,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_5": {
+     "frames": {
+      "f0": [
+       8,
+       40,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_6": {
+     "frames": {
+      "f0": [
+       16,
+       40,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_7": {
+     "frames": {
+      "f0": [
+       24,
+       40,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_8": {
+     "frames": {
+      "f0": [
+       32,
+       40,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_9": {
+     "frames": {
+      "f0": [
+       40,
+       40,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_10": {
+     "frames": {
+      "f0": [
+       48,
+       40,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_11": {
+     "frames": {
+      "f0": [
+       56,
+       40,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_12": {
+     "frames": {
+      "f0": [
+       0,
+       48,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_13": {
+     "frames": {
+      "f0": [
+       8,
+       48,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_14": {
+     "frames": {
+      "f0": [
+       16,
+       48,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_15": {
+     "frames": {
+      "f0": [
+       24,
+       48,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_16": {
+     "frames": {
+      "f0": [
+       32,
+       48,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_17": {
+     "frames": {
+      "f0": [
+       40,
+       48,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_18": {
+     "frames": {
+      "f0": [
+       48,
+       48,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_19": {
+     "frames": {
+      "f0": [
+       56,
+       48,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_20": {
+     "frames": {
+      "f0": [
+       0,
+       56,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_21": {
+     "frames": {
+      "f0": [
+       8,
+       56,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_22": {
+     "frames": {
+      "f0": [
+       16,
+       56,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_23": {
+     "frames": {
+      "f0": [
+       24,
+       56,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_ritual_24": {
+     "frames": {
+      "f0": [
+       32,
+       56,
        8,
        8
       ]
