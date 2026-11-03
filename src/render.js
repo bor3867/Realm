@@ -745,7 +745,7 @@ export class Renderer {
         this.drawDef(def, fr, sx, sy + 1, { rot });
         return;
       }
-      if (/^castle_decor\/(pine|oak|deadwood)/.test(o.sprite)) {   // a tree stands in its own shade: a broad shadow at its foot, so it never floats (the user, 2026-11-02)
+      if (/^castle_(?:decor|art)\/(pine|oak|deadwood|crimson|ancient)/.test(o.sprite)) {   // a tree stands in its own shade: a broad shadow at its foot, so it never floats (the user, 2026-11-02)
         const b = this.b, x = Math.round(sx), y = Math.round(sy + 7);
         b.fillStyle = 'rgba(0,0,0,0.22)'; b.fillRect(x - 11, y - 2, 22, 5); b.fillRect(x - 9, y - 3, 18, 7);
         b.fillStyle = 'rgba(0,0,0,0.3)'; b.fillRect(x - 6, y - 1, 12, 3);

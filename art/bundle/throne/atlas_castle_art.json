@@ -1,0 +1,1377 @@
+{
+ "rf": true,
+ "meta": {
+  "name": "Sunthief's Castle's art (the user's sheets)",
+  "version": 1
+ },
+ "sheets": {
+  "castle_art": {
+   "image": "castle_art.png",
+   "kind": "decor",
+   "sprites": {
+    "statue_king": {
+     "frames": {
+      "f0": [
+       0,
+       9,
+       25,
+       31
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "statue_queen": {
+     "frames": {
+      "f0": [
+       26,
+       9,
+       20,
+       31
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "statue_priest": {
+     "frames": {
+      "f0": [
+       47,
+       10,
+       21,
+       30
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "statue_knight": {
+     "frames": {
+      "f0": [
+       69,
+       9,
+       21,
+       31
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "statue_monk": {
+     "frames": {
+      "f0": [
+       91,
+       9,
+       19,
+       31
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "ruin_swordsman": {
+     "frames": {
+      "f0": [
+       111,
+       20,
+       25,
+       20
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "ruin_torso": {
+     "frames": {
+      "f0": [
+       137,
+       21,
+       23,
+       19
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "ruin_crowned_head": {
+     "frames": {
+      "f0": [
+       161,
+       22,
+       24,
+       18
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "ruin_kneeling": {
+     "frames": {
+      "f0": [
+       186,
+       21,
+       26,
+       19
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "ruin_hand": {
+     "frames": {
+      "f0": [
+       213,
+       21,
+       20,
+       19
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "throne_horned": {
+     "frames": {
+      "f0": [
+       234,
+       14,
+       24,
+       26
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "throne_chained": {
+     "frames": {
+      "f0": [
+       259,
+       14,
+       21,
+       26
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "throne_orb": {
+     "frames": {
+      "f0": [
+       281,
+       14,
+       21,
+       26
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "gargoyle_winged_purple": {
+     "frames": {
+      "f0": [
+       303,
+       14,
+       24,
+       26
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "gargoyle_winged": {
+     "frames": {
+      "f0": [
+       328,
+       14,
+       26,
+       26
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "pedestal_banner": {
+     "frames": {
+      "f0": [
+       355,
+       17,
+       12,
+       23
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "pedestal_crystal": {
+     "frames": {
+      "f0": [
+       368,
+       17,
+       11,
+       23
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "pedestal_flame": {
+     "frames": {
+      "f0": [
+       380,
+       17,
+       11,
+       23
+      ],
+      "f1": [
+       392,
+       17,
+       11,
+       23
+      ],
+      "f2": [
+       404,
+       17,
+       11,
+       23
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2"
+       ],
+       "fps": 6,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "gargoyle_perched": {
+     "frames": {
+      "f0": [
+       416,
+       18,
+       20,
+       22
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "gargoyle_perched_purple": {
+     "frames": {
+      "f0": [
+       437,
+       18,
+       19,
+       22
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "brazier_gold": {
+     "frames": {
+      "f0": [
+       457,
+       18,
+       15,
+       22
+      ],
+      "f1": [
+       473,
+       18,
+       15,
+       22
+      ],
+      "f2": [
+       489,
+       18,
+       15,
+       22
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2"
+       ],
+       "fps": 6,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "brazier_purple": {
+     "frames": {
+      "f0": [
+       505,
+       19,
+       14,
+       21
+      ],
+      "f1": [
+       520,
+       19,
+       14,
+       21
+      ],
+      "f2": [
+       535,
+       19,
+       14,
+       21
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2"
+       ],
+       "fps": 6,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "altar": {
+     "frames": {
+      "f0": [
+       550,
+       23,
+       18,
+       17
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "pine_mid": {
+     "frames": {
+      "f0": [
+       569,
+       16,
+       18,
+       24
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "pine_big": {
+     "frames": {
+      "f0": [
+       588,
+       9,
+       25,
+       31
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "crimson_mid": {
+     "frames": {
+      "f0": [
+       614,
+       16,
+       24,
+       24
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "crimson_big": {
+     "frames": {
+      "f0": [
+       639,
+       9,
+       36,
+       31
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "pine_small": {
+     "frames": {
+      "f0": [
+       676,
+       22,
+       14,
+       18
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "crimson_small": {
+     "frames": {
+      "f0": [
+       691,
+       21,
+       19,
+       19
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "deadwood_big": {
+     "frames": {
+      "f0": [
+       711,
+       13,
+       27,
+       27
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "ember_bloom": {
+     "frames": {
+      "f0": [
+       739,
+       23,
+       21,
+       17
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "deadwood_small": {
+     "frames": {
+      "f0": [
+       761,
+       25,
+       12,
+       15
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "deadwood_mid": {
+     "frames": {
+      "f0": [
+       774,
+       17,
+       20,
+       23
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "shrub_small": {
+     "frames": {
+      "f0": [
+       795,
+       32,
+       13,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "shrub_mid": {
+     "frames": {
+      "f0": [
+       809,
+       27,
+       17,
+       13
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "shrub_big": {
+     "frames": {
+      "f0": [
+       827,
+       26,
+       21,
+       14
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "grass_small": {
+     "frames": {
+      "f0": [
+       849,
+       32,
+       12,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "grass_ember": {
+     "frames": {
+      "f0": [
+       862,
+       29,
+       17,
+       11
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "stump_broken": {
+     "frames": {
+      "f0": [
+       880,
+       19,
+       25,
+       21
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "ancient_lava_tree": {
+     "frames": {
+      "f0": [
+       906,
+       0,
+       49,
+       40
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "stump_small": {
+     "frames": {
+      "f0": [
+       956,
+       29,
+       16,
+       11
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "stump_mid": {
+     "frames": {
+      "f0": [
+       973,
+       24,
+       19,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "leaf_small": {
+     "frames": {
+      "f0": [
+       993,
+       32,
+       12,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "leaf_ember": {
+     "frames": {
+      "f0": [
+       1006,
+       29,
+       18,
+       11
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "banner_crown": {
+     "frames": {
+      "f0": [
+       1025,
+       6,
+       19,
+       34
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "banner_castle": {
+     "frames": {
+      "f0": [
+       1045,
+       7,
+       17,
+       33
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "banner_forge": {
+     "frames": {
+      "f0": [
+       1063,
+       7,
+       17,
+       33
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "banner_sun": {
+     "frames": {
+      "f0": [
+       1081,
+       7,
+       17,
+       33
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "banner_cursed": {
+     "frames": {
+      "f0": [
+       1099,
+       7,
+       17,
+       33
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "banner_eclipse": {
+     "frames": {
+      "f0": [
+       1117,
+       7,
+       16,
+       33
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "banner_crown_torn": {
+     "frames": {
+      "f0": [
+       1134,
+       16,
+       17,
+       24
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "banner_castle_torn": {
+     "frames": {
+      "f0": [
+       1152,
+       16,
+       16,
+       24
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "banner_forge_torn": {
+     "frames": {
+      "f0": [
+       1169,
+       16,
+       16,
+       24
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "banner_sun_torn": {
+     "frames": {
+      "f0": [
+       1186,
+       15,
+       16,
+       25
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "banner_cursed_torn": {
+     "frames": {
+      "f0": [
+       1203,
+       16,
+       16,
+       24
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "banner_eclipse_torn": {
+     "frames": {
+      "f0": [
+       1220,
+       16,
+       16,
+       24
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "garland_red": {
+     "frames": {
+      "f0": [
+       1237,
+       29,
+       23,
+       11
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "banner_chain_crown": {
+     "frames": {
+      "f0": [
+       1261,
+       13,
+       14,
+       27
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "banner_chain_forge": {
+     "frames": {
+      "f0": [
+       1276,
+       14,
+       13,
+       26
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "banner_chain_sun": {
+     "frames": {
+      "f0": [
+       1290,
+       16,
+       14,
+       24
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "banner_chain_cursed": {
+     "frames": {
+      "f0": [
+       1305,
+       15,
+       13,
+       25
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "pennant_crown": {
+     "frames": {
+      "f0": [
+       1319,
+       22,
+       9,
+       18
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "pennant_forge": {
+     "frames": {
+      "f0": [
+       1329,
+       22,
+       9,
+       18
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "pennant_sun": {
+     "frames": {
+      "f0": [
+       1339,
+       22,
+       9,
+       18
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "pennant_cursed": {
+     "frames": {
+      "f0": [
+       1349,
+       22,
+       10,
+       18
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "garland_cursed": {
+     "frames": {
+      "f0": [
+       1360,
+       29,
+       23,
+       11
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    }
+   }
+  }
+ }
+}

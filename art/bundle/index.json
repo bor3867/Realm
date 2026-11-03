@@ -40,7 +40,9 @@
   "throne/atlas_castle_elite.json",
   "throne/atlas_castle_user.json",
   "throne/atlas_keep_tiles.json",
-  "throne/atlas_keep_decor.json"
+  "throne/atlas_keep_decor.json",
+  "throne/atlas_castle_art.json",
+  "throne/atlas_castle_carpet.json"
  ],
  "hover": "HOVER.json",
  "manifest": "MANIFEST.json"
