@@ -1,0 +1,635 @@
+{
+ "rf": true,
+ "meta": {
+  "name": "Sunthief's Castle's keep: its ground",
+  "version": 1
+ },
+ "sheets": {
+  "kp_tiles": {
+   "image": "keep_tiles.png",
+   "kind": "tile",
+   "sprites": {
+    "keep_floor_a": {
+     "frames": {
+      "f0": [
+       0,
+       0,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_floor_b": {
+     "frames": {
+      "f0": [
+       8,
+       0,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_floor_c": {
+     "frames": {
+      "f0": [
+       16,
+       0,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_wall_top": {
+     "frames": {
+      "f0": [
+       24,
+       0,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_wall_side": {
+     "frames": {
+      "f0": [
+       32,
+       0,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_carpet": {
+     "frames": {
+      "f0": [
+       40,
+       0,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_0": {
+     "frames": {
+      "f0": [
+       48,
+       0,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_1": {
+     "frames": {
+      "f0": [
+       56,
+       0,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_2": {
+     "frames": {
+      "f0": [
+       0,
+       8,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_3": {
+     "frames": {
+      "f0": [
+       8,
+       8,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_4": {
+     "frames": {
+      "f0": [
+       16,
+       8,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_5": {
+     "frames": {
+      "f0": [
+       24,
+       8,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_6": {
+     "frames": {
+      "f0": [
+       32,
+       8,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_7": {
+     "frames": {
+      "f0": [
+       40,
+       8,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_8": {
+     "frames": {
+      "f0": [
+       48,
+       8,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_9": {
+     "frames": {
+      "f0": [
+       56,
+       8,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_10": {
+     "frames": {
+      "f0": [
+       0,
+       16,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_11": {
+     "frames": {
+      "f0": [
+       8,
+       16,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_12": {
+     "frames": {
+      "f0": [
+       16,
+       16,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_13": {
+     "frames": {
+      "f0": [
+       24,
+       16,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_14": {
+     "frames": {
+      "f0": [
+       32,
+       16,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_15": {
+     "frames": {
+      "f0": [
+       40,
+       16,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_16": {
+     "frames": {
+      "f0": [
+       48,
+       16,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_17": {
+     "frames": {
+      "f0": [
+       56,
+       16,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_18": {
+     "frames": {
+      "f0": [
+       0,
+       24,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_19": {
+     "frames": {
+      "f0": [
+       8,
+       24,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_20": {
+     "frames": {
+      "f0": [
+       16,
+       24,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_21": {
+     "frames": {
+      "f0": [
+       24,
+       24,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_22": {
+     "frames": {
+      "f0": [
+       32,
+       24,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_23": {
+     "frames": {
+      "f0": [
+       40,
+       24,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_sigil_24": {
+     "frames": {
+      "f0": [
+       48,
+       24,
+       8,
+       8
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    }
+   }
+  }
+ }
+}

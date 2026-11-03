@@ -1,0 +1,89 @@
+{
+ "rf": true,
+ "meta": {
+  "name": "Sunthief's Castle's keep: its furnishings",
+  "version": 1
+ },
+ "sheets": {
+  "keep_decor": {
+   "image": "keep_decor.png",
+   "kind": "decor",
+   "sprites": {
+    "keep_banner": {
+     "frames": {
+      "f0": [
+       0,
+       3,
+       12,
+       16
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_pillar": {
+     "frames": {
+      "f0": [
+       13,
+       0,
+       10,
+       19
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "keep_brazier": {
+     "frames": {
+      "f0": [
+       24,
+       7,
+       10,
+       12
+      ],
+      "f1": [
+       35,
+       7,
+       10,
+       12
+      ],
+      "f2": [
+       46,
+       7,
+       10,
+       12
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2"
+       ],
+       "fps": 7,
+       "loop": true
+      }
+     },
+     "meta": {}
+    }
+   }
+  }
+ }
+}

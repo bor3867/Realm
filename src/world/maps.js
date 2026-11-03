@@ -12,10 +12,12 @@ export const TILE_NAMES = ['water', 'deep', 'sand', 'fen', 'mud', 'snow', 'runef
   // the user's Realmforge dungeons (src/rf/host.js): one name per tile code of theirs; their art is drawn per dungeon
   'rf_wall', 'rf_floor', 'rf_path', 'rf_pit', 'rf_secret', 'rf_gate', 'rf_haz', 'rf_liq', 'rf_ice', 'rf_bridge', 'rf_tog', 'rf_break', 'rf_conv', 'rf_deep',
   // the Nexus, built in true 8x8 tiles (tools/build_nexus_tiles.py)
-  'nxstone', 'nxtrim', 'nxinlay', 'nxwall', 'nxwater', 'nxchasm', 'nxbridge', 'nxsand', 'nxgrass', 'nxbrick'];
+  'nxstone', 'nxtrim', 'nxinlay', 'nxwall', 'nxwater', 'nxchasm', 'nxbridge', 'nxsand', 'nxgrass', 'nxbrick',
+  // Sunthief's Castle's keep, after the user's sheet (tools/build_keep_tiles.py): flagstones, its walls, the red runner
+  'kpfloor', 'kpwall', 'kpcarpet'];
 export const TID = Object.fromEntries(TILE_NAMES.map((n, i) => [n, i]));
 const SOLID_TILES = new Set([TID.nxwall, TID.nxchasm, TID.water, TID.deep, TID.forgewall, TID.void, TID.chapelwall, TID.ribwall, TID.hedge, TID.bramble, TID.cryptwall, TID.emberwall, TID.cryptwater,
-  TID.waxwall, TID.velvetwall, TID.crystalwall, TID.dreamwall, TID.starvoid, TID.fadegone, TID.cliff, TID.fvwall, TID.mrwall, TID.aswall, TID.sdwall, TID.ckwall, TID.ckwin, TID.hmwall]);
+  TID.waxwall, TID.velvetwall, TID.crystalwall, TID.dreamwall, TID.starvoid, TID.fadegone, TID.cliff, TID.fvwall, TID.mrwall, TID.aswall, TID.sdwall, TID.ckwall, TID.ckwin, TID.hmwall, TID.kpwall]);
 export const BIOMES = ['shore', 'fen', 'runeholt', 'godfall', 'dunes', 'thornwood', 'steppe', 'lowlands'];
 // how deep in each land lies: 0 the coast ... 3 the god's fall. The three newer lands share a ring with an older one.
 export const BIOME_RING = [0, 1, 2, 3, 0, 1, 2, 1];
@@ -72,9 +74,12 @@ export const SKINS = [null,
   ['nx_tiles/nexus_flow_4_0', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }], ['nx_tiles/nexus_flow_4_1', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }],
   ['nx_tiles/nexus_flow_5_0', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }], ['nx_tiles/nexus_flow_5_1', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }],
   ['nx_tiles/nexus_flow_6_0', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }], ['nx_tiles/nexus_flow_6_1', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }],
-  ['nx_tiles/nexus_flow_7_0', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }], ['nx_tiles/nexus_flow_7_1', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }]];
+  ['nx_tiles/nexus_flow_7_0', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }], ['nx_tiles/nexus_flow_7_1', 'nxwater', { flow: 1, foam: 'nx_tiles/nexus_foam' }],
+  // the castle's keep (2026-11-02, the user's "CASTLE APPROACH" sheet): flagstones a/b/cracked, the wall's cap, the runner, the inlaid sun (5x5 tiles)
+  ['kp_tiles/keep_floor_a', 'kpfloor'], ['kp_tiles/keep_floor_b', 'kpfloor'], ['kp_tiles/keep_floor_c', 'kpfloor'], ['kp_tiles/keep_wall_top', 'kpwall'], ['kp_tiles/keep_carpet', 'kpcarpet'],
+  ['kp_tiles/keep_sigil_0', 'kpfloor'], ['kp_tiles/keep_sigil_1', 'kpfloor'], ['kp_tiles/keep_sigil_2', 'kpfloor'], ['kp_tiles/keep_sigil_3', 'kpfloor'], ['kp_tiles/keep_sigil_4', 'kpfloor'], ['kp_tiles/keep_sigil_5', 'kpfloor'], ['kp_tiles/keep_sigil_6', 'kpfloor'], ['kp_tiles/keep_sigil_7', 'kpfloor'], ['kp_tiles/keep_sigil_8', 'kpfloor'], ['kp_tiles/keep_sigil_9', 'kpfloor'], ['kp_tiles/keep_sigil_10', 'kpfloor'], ['kp_tiles/keep_sigil_11', 'kpfloor'], ['kp_tiles/keep_sigil_12', 'kpfloor'], ['kp_tiles/keep_sigil_13', 'kpfloor'], ['kp_tiles/keep_sigil_14', 'kpfloor'], ['kp_tiles/keep_sigil_15', 'kpfloor'], ['kp_tiles/keep_sigil_16', 'kpfloor'], ['kp_tiles/keep_sigil_17', 'kpfloor'], ['kp_tiles/keep_sigil_18', 'kpfloor'], ['kp_tiles/keep_sigil_19', 'kpfloor'], ['kp_tiles/keep_sigil_20', 'kpfloor'], ['kp_tiles/keep_sigil_21', 'kpfloor'], ['kp_tiles/keep_sigil_22', 'kpfloor'], ['kp_tiles/keep_sigil_23', 'kpfloor'], ['kp_tiles/keep_sigil_24', 'kpfloor']];
 // a wall skin's face: drawn under the wall, toward the camera, so walls stand up (RotMG-style)
-export const WALL_FACE = { nxwall: 'nx_tiles/nexus_wall_side', fvwall: 'ex_tiles/frostveil_wall_side', mrwall: 'ex_tiles/mirerot_wall_side', aswall: 'ex_tiles/astral_wall_side', sdwall: 'ex_tiles/sandscour_wall_side', ckwall: 'd2_tiles/crimson_keep_wall_side', ckwin: 'd2_tiles/crimson_keep_wall_window', hmwall: 'd2_tiles/hollowmoon_wall_side' };
+export const WALL_FACE = { kpwall: 'kp_tiles/keep_wall_side', nxwall: 'nx_tiles/nexus_wall_side', fvwall: 'ex_tiles/frostveil_wall_side', mrwall: 'ex_tiles/mirerot_wall_side', aswall: 'ex_tiles/astral_wall_side', sdwall: 'ex_tiles/sandscour_wall_side', ckwall: 'd2_tiles/crimson_keep_wall_side', ckwin: 'd2_tiles/crimson_keep_wall_window', hmwall: 'd2_tiles/hollowmoon_wall_side' };
 export const SKIN_TID = SKINS.map((s) => (s ? TID[s[1]] : -1));
 export const SKIN_OPT = SKINS.map((s) => (s && s[2]) || null);   // a skin's drawing options (flow, foam)
 export const SK = Object.fromEntries(SKINS.map((s, k) => [s ? s[0].split('/')[1].replace(/^(shore|lowlands|midlands|highlands|godlands)_/, '') + (s[1] === 'deep' || s[1] === 'steppe' || s[1] === 'ckwin' ? '@' + s[1] : '') : '-', k]));
@@ -101,7 +106,7 @@ export function isSolid(m, x, y) {
 // (low ruin walls and whale ribs you step over: their rows walled players and realm bosses in)
 // only the big things stop you: trees, rocks, spires, pillars and walls, statues, the great furniture, gates. Chests,
 // crates, barrels, braziers, candles, fences, seats, signs, lamps, shrines and people you walk through, as in RotMG
-const BIG = /tree|palm|pine|oak|deadwood|castle_decor\/(?:log|barricade|wagon|siege_engine|tent|pipe|lava_tank|bed|table|winch|valve)$|saguaro|giant_mushroom|rotting_log|boulder|rock|cairn|spire|crystal_cluster|ice_crystal|pillar|column|obelisk|(?<!ruin_)wall|statue|fallen_head|bookshelf|furnace|well$|fountain|throne|sarcophag|coffin|gate|telescope|star_globe|high_striker|circus_cannon|rowboat|ticket_booth|stage_moon|great_lens|golem_husk|anvil_block|crucible|stump|gargoyle/;
+const BIG = /tree|palm|pine|oak|deadwood|keep_brazier|castle_decor\/(?:log|barricade|wagon|siege_engine|tent|pipe|lava_tank|bed|table|winch|valve)$|saguaro|giant_mushroom|rotting_log|boulder|rock|cairn|spire|crystal_cluster|ice_crystal|pillar|column|obelisk|(?<!ruin_)wall|statue|fallen_head|bookshelf|furnace|well$|fountain|throne|sarcophag|coffin|gate|telescope|star_globe|high_striker|circus_cannon|rowboat|ticket_booth|stage_moon|great_lens|golem_husk|anvil_block|crucible|stump|gargoyle/;
 export const blocks = (sprite) => BIG.test(sprite || '');
 function finalize(m) {
   for (let i = 0; i < m.tiles.length; i++) if (SOLID_TILES.has(m.tiles[i])) m.solid[i] = 1;
@@ -1804,7 +1809,26 @@ export function dungeon(seed, def) {
   // user: "if an area is called the Royal Barracks, it needs beds, weapon racks, guard posts..."). Woodland: a dense line
   // of trees inside every edge and clumps through the clearings (never on a road); the rest by area, with the pieces the
   // game has (their own new art to come: beds, tables, gears, siege engines, the orrery)
+  // the keep's rooms furnished as the user's sheet has them (2026-11-02): a red banner with the gold sun every few tiles
+  // along the wall at the top of a room, a brazier in each corner, stone pillars down the sides of its long halls
+  const keepDress = (n) => {
+    const fl = (x, y) => { const t = tile(x, y); return t !== WALL && t !== TID.void && !SOLID_TILES.has(t) && t !== TID.lava; }, wl = (x, y) => !fl(x, y);
+    const road = m.castle && m.castle.roadTiles, clear = (x, y) => !(road && road.has(y * S + x)) && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y);
+    let k = 0;
+    for (let x = n.x + 2; x < n.x + n.w - 2; x++) for (let y = n.y; y < n.y + 4; y++) {   // banners: on the first floor tile under the room's north wall
+      if (fl(x, y) && wl(x, y - 1) && wl(x - 1, y - 1) && wl(x + 1, y - 1)) { if (k++ % 4 === 1 && clear(x, y)) put(m, 'keep_decor/keep_banner', x, y, false, { banner: true }); break; }
+    }
+    for (const [fx, fy] of [[0.08, 0.12], [0.92, 0.12], [0.08, 0.88], [0.92, 0.88]]) {      // braziers at the corners (they light the room)
+      const x = Math.round(n.x + fx * (n.w - 1)), y = Math.round(n.y + fy * (n.h - 1));
+      for (let r = 0; r < 3; r++) { const xx = x + (fx < 0.5 ? r : -r), yy = y + (fy < 0.5 ? r : -r); if (fl(xx, yy) && clear(xx, yy)) { put(m, 'keep_decor/keep_brazier', xx, yy, true); break; } }
+    }
+    if (n.w >= 18 && n.h >= 12) for (const fy of [0.3, 0.7]) for (const fx of [0.2, 0.8]) {   // pillars down a great hall's sides
+      const x = Math.round(n.x + fx * (n.w - 1)), y = Math.round(n.y + fy * (n.h - 1));
+      if (fl(x, y) && clear(x, y) && Math.hypot(x - n.cx, y - n.cy) > 4) put(m, 'keep_decor/keep_pillar', x, y, true);
+    }
+  };
   const castleDress = (n) => {
+    if (n.region === 'outer' || n.region === 'inner') keepDress(n);
     const at = (fx, fy) => [Math.round(n.x + fx * n.w), Math.round(n.y + fy * n.h)];
     const P = (sprite, fx, fy, solid = true) => { const [x, y] = at(fx, fy); put2(null, x, y, sprite, solid); };
     const wall = (fx0, fy0, fx1, fy1) => { const [x0, y0] = at(fx0, fy0), [x1, y1] = at(fx1, fy1); for (let y = Math.min(y0, y1); y <= Math.max(y0, y1); y++) for (let x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) if (isF(x, y)) set(x, y, TID.void); };   // (a wall inside an area: its rooms, its passages)
@@ -2668,7 +2692,7 @@ export function dungeon(seed, def) {
     }
   }
   // ---- light: the dungeon is dark, and things that burn or glow light it (radius in tiles, colour, flickers)
-  const LIGHT = { brazier: [5, '#ff9a3a', 1], crypt_candle: [3.5, '#9cff6a', 1], crucible: [4.5, '#ff8c1e', 1], furnace: [5.5, '#ff7a1a', 1], ember_vent: [3, '#ff6a1a', 1],
+  const LIGHT = { brazier: [5, '#ff9a3a', 1], 'keep_decor/keep_brazier': [5, '#ff9a3a', 1], crypt_candle: [3.5, '#9cff6a', 1], crucible: [4.5, '#ff8c1e', 1], furnace: [5.5, '#ff7a1a', 1], ember_vent: [3, '#ff6a1a', 1],
     fountain: [4.5, '#6ad8ff', 0], rune_pillar: [3.5, '#3befff', 0], throne: [6, '#ffd650', 0], statue_sun: [4.5, '#ffe89a', 0], mystery_altar: [3.5, '#b888ff', 0],
     journal: [2.5, '#fff6c8', 0], seal_gate: [3, '#ff4a5a', 0], lever_off: [2.2, '#ffd650', 0], lorestone: [3, '#8af0ff', 0], statue_anvil: [3, '#ff9a3a', 0],
     glow_larva: [4, '#ffd650', 1], honey_vat: [3, '#ffb830', 0], footlight: [3.5, '#fff0b0', 0], vanity_mirror: [3, '#fff6d8', 0], ticket_booth: [3, '#ffd650', 0],
@@ -2766,8 +2790,8 @@ export function dungeon(seed, def) {
     // the patches but have a small pathway for players"): the road's own line and a ragged tile either side of it
     const road0 = m.castle.roadTiles, onPath = (x, y) => { if (road0.has(y * S + x)) return true; const h = ((Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1 + 1) % 1; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (road0.has((y + dy) * S + x + dx)) return h < 0.7; return false; };
     const FL = { forest: (x, y) => { if (onPath(x, y)) return TID.dirt; const v = nz(x, y); return v > 0.8 ? TID.dirt : v < 0.15 ? TID.ash : TID.grass; }, mountain: (x, y) => (nz(x, y) > 0.6 ? TID.obsidian : TID.ash),
-      outer: () => TID.cryptfloor, inner: () => TID.marble, ashkar: () => TID.emberfloor, eclipse: () => TID.obsidian, sanctum: () => FLOOR };
-    const AREA_FL = { a28: TID.carpet, a31: TID.chapelfloor, a32: TID.cryptfloor, a37: TID.runefloor, a34: TID.forge, a35: TID.forge, a38: TID.forge, a39: TID.forge, a40: TID.forge, a41: TID.forge, a42: TID.forge, a43: TID.forge, a46: TID.forge };
+      outer: () => TID.kpfloor, inner: () => TID.kpfloor, ashkar: () => TID.emberfloor, eclipse: () => TID.obsidian, sanctum: () => FLOOR };
+    const AREA_FL = { a28: TID.kpcarpet, a31: TID.chapelfloor, a32: TID.cryptfloor, a37: TID.runefloor, a34: TID.forge, a35: TID.forge, a38: TID.forge, a39: TID.forge, a40: TID.forge, a41: TID.forge, a42: TID.forge, a43: TID.forge, a46: TID.forge };
     const regionOf = new Uint8Array(S * S), REG = ['forest', 'mountain', 'outer', 'inner', 'ashkar', 'eclipse', 'sanctum'];
     for (let y = 2; y < S - 2; y++) for (let x = 2; x < S - 2; x++) {
       const t = tile(x, y); if (t === TID.void) continue;
@@ -2786,6 +2810,26 @@ export function dungeon(seed, def) {
       } else if (R === 'mountain') set(x, y, TID.cliff); else if (R === 'eclipse' || R === 'sanctum') set(x, y, TID.starvoid);
     }
     for (let y = 2; y < 330; y++) for (let x = 640; x < S - 2; x++) if (tile(x, y) === TID.void) set(x, y, TID.starvoid);   // (the eclipse floats in the stars)
+    // the keep (2026-11-02, the user's sheet "CASTLE APPROACH — ROOM LAYOUT VARIANTS": "I want rooms to look like this"):
+    // its walls the keep's stone (tall, coursed, a pale cap), its floors flagstones in slow patches with the odd cracked one,
+    // a red runner where a hall has one, and in each great hall a gold sun inlaid in the floor
+    if (!m.skin) m.skin = new Uint8Array(S * S);
+    const KEEP = new Set([REG.indexOf('outer') + 1, REG.indexOf('inner') + 1]);
+    for (let y = 3; y < S - 3; y++) for (let x = 3; x < S - 3; x++) {
+      const i = y * S + x, t = m.tiles[i];
+      if (t === WALL || t === TID.void) { let near = false; for (let dy = -2; dy <= 2 && !near; dy++) for (let dx = -2; dx <= 2; dx++) if (KEEP.has(regionOf[(y + dy) * S + x + dx])) { near = true; break; } if (near && t === WALL) set(x, y, TID.kpwall); }
+    }
+    for (let i = 0; i < S * S; i++) {
+      const t = m.tiles[i]; if (t !== TID.kpfloor && t !== TID.kpwall && t !== TID.kpcarpet) continue;
+      const x = i % S, y = (i / S) | 0, h = ((Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1 + 1) % 1;
+      m.skin[i] = t === TID.kpwall ? SK.keep_wall_top : t === TID.kpcarpet ? SK.keep_carpet : h < 0.06 ? SK.keep_floor_c : (Math.sin(x * 0.31) + Math.cos(y * 0.27)) > 0 ? SK.keep_floor_a : SK.keep_floor_b;
+    }
+    for (const n of rooms) {                                          // the sun in the floor of each great hall
+      if (!n.region || !KEEP.has(REG.indexOf(n.region) + 1) || n.w < 16 || n.h < 14) continue;
+      const x0 = Math.round(n.cx) - 2, y0 = Math.round(n.cy) - 2; let ok = true;
+      for (let j = 0; j < 5 && ok; j++) for (let k = 0; k < 5; k++) if (m.tiles[(y0 + j) * S + x0 + k] !== TID.kpfloor) { ok = false; break; }
+      if (ok) for (let j = 0; j < 5; j++) for (let k = 0; k < 5; k++) m.skin[(y0 + j) * S + x0 + k] = SK['keep_sigil_' + (j * 5 + k)];
+    }
     // the geysers: on floor, at least four apart, never on a gate, a lock or a mechanism's tile; each its own timing
     m.castle.geysers = [];
     for (const [num, nf, nl] of GEYSERS) {
