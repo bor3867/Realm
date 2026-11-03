@@ -85,6 +85,68 @@ if __name__ == '__main__':
                 t = [r[c * 8:c * 8 + 8] for r in band]
                 tiles[f'{st}_ns_{part}_{c}'] = t
                 tiles[f'{st}_ew_{part}_{c}'] = [[t[7 - x][y] for x in range(8)] for y in range(8)]   # (turned a quarter: the same art laid east-west)
+    # (2026-11-02, the user's carpet system: "Damaged carpet variations. Burned and torn versions ... corners ... T-junctions"):
+    # each runner's middle torn (holes to the floor, its edge frayed) and burned (charred patches, embers in them); and its
+    # junctions, built from its own border and field: an L each way, a T each way, a crossing (3x3 tiles each)
+    import random
+    for st in ('crown', 'sun', 'cursed'):
+        rnd = random.Random(st)
+        for o in ('ns', 'ew'):
+            for part in ('mid0', 'mid1', 'mid2', 'mid3'):
+                for c in range(3):
+                    t = tiles[f'{st}_{o}_{part}_{c}']
+                    torn = [r[:] for r in t]; burn = [r[:] for r in t]
+                    for _ in range(4 + (c != 1) * 4):            # (holes, more at its edges)
+                        x0, y0 = rnd.randrange(8), rnd.randrange(8)
+                        for dx, dy in ((0, 0), (1, 0), (0, 1)):
+                            if 0 <= x0 + dx < 8 and 0 <= y0 + dy < 8 and rnd.random() < 0.8: torn[y0 + dy][x0 + dx] = BL
+                    for _ in range(3):                          # (charred patches, an ember or two in each)
+                        x0, y0 = rnd.randrange(8), rnd.randrange(8)
+                        for dy in range(-1, 2):
+                            for dx in range(-2, 2):
+                                x, y = x0 + dx, y0 + dy
+                                if 0 <= x < 8 and 0 <= y < 8 and burn[y][x][3]:
+                                    q = burn[y][x]; burn[y][x] = (q[0] // 4 + 14, q[1] // 4 + 8, q[2] // 4 + 8, 255)
+                        burn[y0][x0] = (255, 140, 40, 255) if rnd.random() < 0.6 else (60, 30, 24, 255)
+                    tiles[f'{st}_{o}_{part}_{c}_torn'] = torn; tiles[f'{st}_{o}_{part}_{c}_burn'] = burn
+        # the junctions: border band B (the runner's left column, outer edge at x=0), field C (its middle)
+        B, Cf = tiles[f'{st}_ns_mid0_0'], tiles[f'{st}_ns_mid0_1']
+        from collections import Counter as _C
+        base = _C(c for r in Cf for c in r if c[3]).most_common(1)[0][0]; gold = max((c for r in B for c in r if c[3]), key=lambda c: c[0] + c[1])
+        Cf = [[base] * 8 for _ in range(8)]   # (the field plain, the runner's own ground colour)
+        rot = lambda t: [[t[7 - x][y] for x in range(8)] for y in range(8)]   # (a quarter turn: left edge to the top)
+        band = {'W': B, 'N': rot(B), 'E': rot(rot(B)), 'S': rot(rot(rot(B)))}
+        def over(t, side, depth=3):
+            o = [r[:] for r in t]; b = band[side]
+            for y in range(8):
+                for x in range(8):
+                    d = {'W': x, 'N': y, 'E': 7 - x, 'S': 7 - y}[side]
+                    if d < depth: o[y][x] = b[y][x]
+            return o
+        def nub(t, cx, cy):                                     # (a turning's inner corner: the border's corner pixels)
+            o = [r[:] for r in t]
+            for y in range(8):
+                for x in range(8):
+                    if abs(x - cx) + abs(y - cy) <= 2: o[y][x] = B[min(7, y)][0]
+            return o
+        SHAPES = {'lse': 'SE', 'lsw': 'SW', 'lne': 'NE', 'lnw': 'NW', 'tn': 'ESW', 'te': 'NSW', 'ts': 'NEW', 'tw': 'NES', 'x': 'NESW'}   # (the sides each opens on)
+        for nm, opn in SHAPES.items():
+            closed = [d for d in 'NESW' if d not in opn]
+            for j in range(3):
+                for i in range(3):
+                    t = [r[:] for r in Cf]
+                    sides = ([] if j else ['N']) + ([] if j < 2 else ['S']) + ([] if i else ['W']) + ([] if i < 2 else ['E'])
+                    for sd in sides:
+                        if sd in closed: t = over(t, sd)
+                    if len(sides) == 2 and all(sd not in closed for sd in sides):   # (a corner between two open sides: the border turns there)
+                        t = nub(t, 0 if 'W' in sides else 7, 0 if 'N' in sides else 7)
+                    if len(sides) == 1 and sides[0] not in closed:   # (an open side's edge cell: the borders it runs between carried to it)
+                        pass
+                    if i == 1 and j == 1:                       # (where they meet: a small gold diamond)
+                        for y in range(8):
+                            for x in range(8):
+                                if abs(x - 3.5) + abs(y - 3.5) in (2, 3): t[y][x] = gold
+                    tiles[f'{st}_j{nm}_{j * 3 + i}'] = t
     for i, st in EMBLEMS.items():
         g = resize(trim(load('sheet_carpets', i)), 40, 40)
         for j in range(5):
