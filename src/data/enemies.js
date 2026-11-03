@@ -1354,7 +1354,7 @@ const F = (...L) => L;
 // the second waves (src/castle.js): when an area's first are all down, these come in where it says, shown first
 export const WAVES = {
   a25: [['sunbound_knight', 0.35, 0.9], ['sunbound_knight', 0.65, 0.9], ['sun_cultist', 0.5, 0.95]],   // (the Hall of Hollow Banners' second: in from its door behind you)
-  a19: [['cinder_archer', 0.15, 0.1], ['cinder_archer', 0.85, 0.1], ['lava_guard', 0.5, 0.08]],     // (the Final Rampart's second line)
+  a19: [['cinder_archer', 0.15, 0.3], ['cinder_archer', 0.85, 0.3], ['lava_guard', 0.5, 0.26]],     // (the Final Rampart's second line)
   a12: [['infernal_hound', 0.85, 0.15], ['infernal_hound', 0.15, 0.15]],                              // (hounds down the switchbacks after you)
   a18: [['sunbound_knight', 0.2, 0.1], ['sunbound_knight', 0.8, 0.1]],
   a21: [['infernal_hound', 0.9, 0.2], ['infernal_hound', 0.9, 0.8], ['lava_guard', 0.85, 0.5]],

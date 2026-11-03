@@ -82,7 +82,7 @@ const P = {
   weights: { name: 'Counterweights', special: 'weights', windup: 0.3, dur: 1.6, cd: 6 },
   vents: { name: 'Furnace Vents', special: 'vents', windup: 0.3, dur: 2.4, cd: 8 },
 };
-const sched = scheduler([[0.9, 1.3], [0.6, 0.9]]);
+const sched = scheduler([[1.3, 1.8], [0.9, 1.3]]);
 
 export default {
   id: 'drawbridge_technician', art: 'drawbridge_technician', name: 'The Drawbridge Technician', biome: 'dungeon', hp: 120000, def: 24, xp: 7000,
@@ -90,8 +90,8 @@ export default {
   choose: (g, e, list) => (e.bx.tcHold > g.t ? null : sched(g, e, list)),
   walkPace: 2.5,
   phases: {
-    1: { move: 'engine', pressure: [{ every: 1.2, special: 'rivets', delay: 2 }], patterns: Object.values(P) },
-    2: { move: 'engine', pressure: [{ every: 0.9, special: 'rivets', delay: 1 }], patterns: Object.values(P) },
+    1: { move: 'engine', pressure: [{ every: 1.7, special: 'rivets', delay: 2 }], patterns: Object.values(P) },
+    2: { move: 'engine', pressure: [{ every: 1.25, special: 'rivets', delay: 1 }], patterns: Object.values(P) },   // (gentler, 2026-11-02: the playtest had him at twice the Jarls' hurt a second)
   },
   specials: { rivets, winch, valves, cogs, cogFan, weights, weightFall, vents, vent },
   moves: {
@@ -116,7 +116,7 @@ export default {
     if (W && g.t >= W.t1) S.tcSweep = null;
     const V = S.tcValve;                                    // the valves' streams, turning
     if (V && g.t >= V.next && g.t < V.until) {
-      V.next = g.t + 0.15; V.k++;
+      V.next = g.t + 0.2; V.k++;
       const turn = V.k * deg(9);
       for (let j = 0; j < 4; j++) shot(g, e, e.x, e.y, V.a + turn + j * TAU / 4, { ...STEAM, speed: 5.2, range: 12, dmg: D(95) });
       if (two(e)) for (let j = 0; j < 4; j++) shot(g, e, e.x, e.y, V.a - turn + j * TAU / 4 + deg(45), { ...STEAM, speed: 4.6, range: 12, dmg: D(95) });

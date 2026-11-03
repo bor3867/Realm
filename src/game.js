@@ -842,12 +842,23 @@ export class Game {
     const m = this.map;
     const r = rng(m.w * 7 + 1);
     const buff = (e) => { if (!e.D.kin) e.hp = e.maxHp = Math.round(e.hp * def.mobHp); return e; };   // (a castle defender keeps the user's own Life: src/castle_kin.js)
+    // (the playtest, 2026-11-02: archers stood on ground cut off by lava on the viaduct, the Ember Stair, the twin bridges:
+    // in the castle a formation's place is floor you can walk to from the room's ways, never an island)
+    const reachOf = (rm) => {
+      if (rm._reach !== undefined) return rm._reach;
+      const road = m.castle && m.castle.roadTiles; let seed = -1;
+      if (road) for (const i of road) { const x = i % m.w, y = (i / m.w) | 0; if (x >= rm.x && y >= rm.y && x < rm.x + rm.w && y < rm.y + rm.h && !isSolid(m, x + 0.5, y + 0.5) && m.tiles[i] !== TID.lava) { seed = i; break; } }
+      if (seed < 0) return (rm._reach = null);
+      const R = new Set([seed]), Q = [seed];
+      while (Q.length) { const i = Q.pop(), x = i % m.w, y = (i / m.w) | 0; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const X = x + dx, Y = y + dy, j = Y * m.w + X; if (R.has(j) || X < rm.x - 3 || Y < rm.y - 3 || X >= rm.x + rm.w + 3 || Y >= rm.y + rm.h + 3 || isSolid(m, X + 0.5, Y + 0.5) || m.tiles[j] === TID.lava) continue; R.add(j); Q.push(j); } }
+      return (rm._reach = R);
+    };
     const spotAt = (rm, fx, fy) => {                     // the free floor nearest a place in a room (a formation's)
-      const tx = rm.x + fx * rm.w, ty = rm.y + fy * rm.h;
+      const tx = rm.x + fx * rm.w, ty = rm.y + fy * rm.h, reach = m.castle ? reachOf(rm) : null;
       for (let rad = 0; rad < 12; rad++) for (let dy = -rad; dy <= rad; dy++) for (let dx = -rad; dx <= rad; dx++) {
         if (Math.max(Math.abs(dx), Math.abs(dy)) !== rad) continue;
         const x = Math.floor(tx) + dx, y = Math.floor(ty) + dy;
-        if (x >= rm.x && y >= rm.y && x < rm.x + rm.w && y < rm.y + rm.h && !isSolid(m, x + 0.5, y + 0.5) && m.tiles[y * m.w + x] !== TID.lava) return [x + 0.5, y + 0.5];
+        if (x >= rm.x && y >= rm.y && x < rm.x + rm.w && y < rm.y + rm.h && !isSolid(m, x + 0.5, y + 0.5) && m.tiles[y * m.w + x] !== TID.lava && (!reach || reach.has(y * m.w + x))) return [x + 0.5, y + 0.5];
       }
       return spot(rm);
     };
