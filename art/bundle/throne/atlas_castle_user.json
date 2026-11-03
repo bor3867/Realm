@@ -897,6 +897,101 @@
       }
      },
      "meta": {}
+    },
+    "forge_golem": {
+     "frames": {
+      "forge_golem_base": [
+       0,
+       409,
+       67,
+       51
+      ],
+      "forge_golem_walk0": [
+       67,
+       409,
+       67,
+       51
+      ],
+      "forge_golem_walk1": [
+       134,
+       409,
+       67,
+       51
+      ],
+      "forge_golem_walk2": [
+       201,
+       409,
+       67,
+       51
+      ],
+      "forge_golem_walk3": [
+       268,
+       409,
+       67,
+       51
+      ],
+      "forge_golem_slam0": [
+       335,
+       409,
+       67,
+       51
+      ],
+      "forge_golem_slam1": [
+       402,
+       409,
+       67,
+       51
+      ],
+      "forge_golem_slam2": [
+       469,
+       409,
+       67,
+       51
+      ],
+      "forge_golem_slam3": [
+       536,
+       409,
+       67,
+       51
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "forge_golem_walk0",
+        "forge_golem_walk1",
+        "forge_golem_walk2",
+        "forge_golem_walk3"
+       ],
+       "fps": 6.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "forge_golem_slam0",
+        "forge_golem_slam1",
+        "forge_golem_slam2",
+        "forge_golem_slam3"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "forge_golem_slam2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "forge_golem_walk0"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
     }
    }
   }

@@ -474,7 +474,7 @@ export function installCastleKin(Game) { Object.assign(Game.prototype, methods);
   // Life and touch; the rest of the big ones a quarter more)
   // (and then the user's own art for nine of them, 2026-11-02: tools/castle_pix.py (hand-drawn frames: art/source/castle2/pix), at one art pixel to one of the
   // game's, so scale 0.5; their Life as above)
-  const USER = new Set(['infernal_hound', 'cinder_archer', 'sunbound_knight', 'solar_acolyte', 'cinder_elemental', 'lava_slime', 'lava_guard', 'sun_cultist', 'cinder_bat']);
+  const USER = new Set(['infernal_hound', 'cinder_archer', 'sunbound_knight', 'solar_acolyte', 'cinder_elemental', 'lava_slime', 'lava_guard', 'sun_cultist', 'cinder_bat', 'forge_golem']);
   const REDRAWN = new Set(['cinder_archer', 'infernal_hound', 'solar_acolyte', 'sun_cultist', 'lava_guard', 'sunbound_knight', 'cinder_elemental']), BIGGER = new Set(['eclipse_shade', 'forge_golem', 'sunbound_construct']);
   const def = (id, name, hp, contact, speed, r, df, xp, extra = {}) => { const el = ELITE.has(id), sc = SIZE[id] || 1, [rr, up] = BODY[sc], re = REDRAWN.has(id), k = re ? 1.3 : BIGGER.has(id) ? 1.25 : 1; ENEMIES[id] = { name, biome: 'throne', reg: (USER.has(id) ? 'castle_user/' : re ? 'castle_elite/' : 'castle_kin/') + id, hp: Math.round(hp * k), def: df, speed, xp, r: rr, ai: 'kite', keep: 5, aggro: 12, contact: Math.round(contact * (re ? 1.2 : 1)), touchCd: 0.8, kin: id, attacks: [], loot: el ? E : T, scale: USER.has(id) ? 0.5 : re ? 1 : sc, hitUp: up, ...extra }; };
   def('cinder_bat', 'Cinder Bat', 7000, 55, 5.2, 0.45, 8, 300, { fly: true });

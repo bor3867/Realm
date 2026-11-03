@@ -19,7 +19,7 @@ from pixlib import write_png  # noqa: E402
 from reduce import read_png  # noqa: E402
 SRC = os.path.join(root, 'art', 'source', 'castle2'); PIX = os.path.join(SRC, 'pix'); OUT = os.path.join(root, 'art', 'bundle', 'throne')
 SYM = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#%&*+=@$'
-IDS = ['infernal_hound', 'cinder_archer', 'sunbound_knight', 'solar_acolyte', 'cinder_elemental', 'lava_slime', 'lava_guard', 'sun_cultist', 'cinder_bat']
+IDS = ['infernal_hound', 'cinder_archer', 'sunbound_knight', 'solar_acolyte', 'cinder_elemental', 'lava_slime', 'lava_guard', 'sun_cultist', 'cinder_bat', 'forge_golem']
 
 
 def quantize(cols, n):
