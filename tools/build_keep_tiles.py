@@ -70,6 +70,18 @@ DECOR['keep_pylon'] = ['...F..F...', '..fFwwFf..', '..efFFfe..', 'IIiiiiiiII', '
 DECOR['keep_rack'] = ['.h..h..h..h.', '.I..I..I..I.', '.I..I..I..I.', 'nnnnnnnnnnnn', 'n.I..I..I..n', 'n.I..I..I..n', 'n.I..I..I..n', 'n.h..h..h..n', 'nnnnnnnnnnnn', 'n..........n', 'n..........n', 'nk........kn']   # (a weapon rack: spears and blades)
 DECOR['keep_winch'] = ['..kkkkkkkkkkkkkk..', '.kIiIiIiIiIiIiIik.', 'kInnnnInnnnInnnnIk', 'kIhhhhIhhhhIhhhhIk', 'kInnnnInnnnInnnnIk', 'kIhhhhIhhhhIhhhhIk', 'kInnnnInnnnInnnnIk', '.kIiIiIiIiIiIiIik.', '..kkkkkkkkkkkkkk..', '...mllm....mllm...', '...mssm....mssm...', '..mlllm....mlllm..', '..mmmmm....mmmmm..']   # (a winch drum, the chain wound on it)
 DECOR['keep_lever'] = ['.....RR.', '....RqR.', '....kk..', '...kI...', '...kI...', '..kI....', '..kI....', '.kI.....', 'hhhhhhh.', 'llllllm.', 'mddddmm.']   # (an operating lever)
+DECOR['keep_bunk'] = ['nnnnnnnnnnnnnn', 'nWWWWWWWWWWWWn', 'nrrrrrrrrrrRRn', 'nqqqqqqqqqqqqn', 'nnnnnnnnnnnnnn', 'n............n', 'nnnnnnnnnnnnnn', 'nWWWWWWWWWWWWn', 'nrrrrrrrrrrRRn', 'nqqqqqqqqqqqqn', 'nnnnnnnnnnnnnn', 'n............n', 'nk..........kn']   # (a bunk: two beds, red blankets)
+DECOR['keep_armor'] = ['...hhhh...', '..hIIIIh..', '..IkIIkI..', '...IIII...', '.hhIhhIhh.', 'hIIIggIIIh', 'hIIIggIIIh', '.IIIggIII.', '..IIIIII..', '..IIIIII..', '...I..I...', '...I..I...', '...n..n...', '..nnnnnn..', '.nnnnnnnn.']   # (an armour stand: plate, a gold sun on it)
+DECOR['keep_dummy'] = ['...nnnn...', '..nWWWWn..', '..nWkWkn..', '..nWWWWn..', '...nnnn...', 'nnnnnnnnnn', '...nWWn...', '...nWWn...', '...nWWn...', '...nWWn...', '....nn....', '....nn....', '....nn....', '..nnnnnn..']   # (a training dummy: straw on a post)
+DECOR['keep_pew'] = ['nnnnnnnnnnnnnnnn', 'nWWWWWWWWWWWWWWn', 'nnnnnnnnnnnnnnnn', 'n..............n', 'nnnnnnnnnnnnnnnn', 'n.n..........n.n', 'n.n..........n.n']   # (a chapel pew)
+DECOR['keep_pew_broken'] = ['nnnnnn......nnnn', 'nWWWWn.....nWWWn', 'nnnnnnn...nnnnnn', 'n.....n....n...n', 'nnnnnn..n..nnnnn', 'n.n.....n.....n.', 'n.n..nn.......n.']   # (a pew, broken)
+DECOR['keep_pillar_iron'] = ['IIIIIIII', 'hhhhhhhi', 'iIkIIkIi', '.IhIIIi.', '.IhIIIi.', '.IhIkIi.', '.IhIIIi.', '.IhIIIi.', '.IhIkIi.', '.IhIIIi.', '.IhIIIi.', '.IhIkIi.', '.IhIIIi.', '.IhIIIi.', 'iIkIIkIi', 'hhhhhhhi', 'IIIIIIII', 'kkkkkkkk']   # (an iron pillar, riveted)
+DECOR['keep_anvil'] = ['.hhhhhhhhhh.', 'hIIIIIIIIIIk', 'kkIIIIIIIkk.', '...kIIIIk...', '...kIIIIk...', '..kIIIIIIk..', '.kkkkkkkkkk.']   # (a great anvil)
+DECOR['keep_basin'] = ['.mmmmmmmmmmmmmm.', 'mllllllllllllllm', 'lfFFfFFFFfFFFFfl', 'lfFwFFfFFFwFFffl', 'lefFFfFFFfFFfFel', 'mllllllllllllllm', '.mmmmmmmmmmmmmm.']   # (a basin of lava)
+for k in range(2):                                            # (a stone furnace, its mouth glowing, the glow breathing)
+    m2 = ['ffFFff', 'fFwwFf', 'fFFFFf'] if k == 0 else ['fFFFff', 'FFwFFf', 'fFFFFF']
+    DECOR[f'keep_furnace{k}'] = ['....kkkkkkkk....', '....kIIIIIIk....', '....kIiiiiIk....', '..hhhhhhhhhhhhm.', '.hllllllllllllm.', 'hlsssdsssdssssdm', 'hlsdkkkkkkkkdsdm',
+                                 'hlsdk' + m2[0] + 'kdsdm', 'hlsdk' + m2[1] + 'kdsdm', 'hlsdk' + m2[2] + 'kdsdm', 'hlsdkkkkkkkkdsdm', 'hlsssdsssdssssdm', 'hlllllllllllllldm'[:16], 'mmmmmmmmmmmmmmmm']
 DECOR['keep_stone_a'] = ['..kkkk..', '.kIhIIk.', '.kIhIIk.', 'kIIhIIik', 'kIIffIik', 'kIIfFIik', 'kIIffIik', 'kIhIIIik', 'kIhIIIik', 'kIIIIiik', 'kIIffiik', 'kIhIIiik', 'kIIIIiik', 'kkIIIikk', 'kkkkkkkk']   # (a standing stone, a rune burning in it)
 DECOR['keep_stone_b'] = ['...kk...', '..kIhk..', '.kIhIIk.', '.kIhIIk.', '.kIIpIk.', '.kIpPpk.', '.kIIpIk.', 'kIhIIIik', 'kIhIIIik', 'kIIIIiik', 'kIhIIiik', 'kkIIIikk', 'kkkkkkkk']
 for k in range(2):                                            # the engine's great gear-wheel, turning (two frames, half a tooth apart)
@@ -135,7 +147,8 @@ if __name__ == '__main__':
     sp['keep_banner'] = {'frames': {'f0': fr['keep_banner']}, 'anims': {'idle': {'frames': ['f0'], 'fps': 1, 'loop': True}}, 'meta': {}}
     sp['keep_pillar'] = {'frames': {'f0': fr['keep_pillar']}, 'anims': {'idle': {'frames': ['f0'], 'fps': 1, 'loop': True}}, 'meta': {}}
     sp['keep_brazier'] = {'frames': {f'f{k}': fr[f'keep_brazier{k}'] for k in range(3)}, 'anims': {'idle': {'frames': ['f0', 'f1', 'f2'], 'fps': 7, 'loop': True}}, 'meta': {}}
-    for nm in ('keep_tree', 'keep_window', 'keep_stone_a', 'keep_stone_b', 'keep_rail', 'keep_pylon', 'keep_rack', 'keep_winch', 'keep_lever'): sp[nm] = {'frames': {'f0': fr[nm]}, 'anims': {'idle': {'frames': ['f0'], 'fps': 1, 'loop': True}}, 'meta': {}}
+    for nm in ('keep_tree', 'keep_window', 'keep_stone_a', 'keep_stone_b', 'keep_rail', 'keep_pylon', 'keep_rack', 'keep_winch', 'keep_lever', 'keep_bunk', 'keep_armor', 'keep_dummy', 'keep_pew', 'keep_pew_broken', 'keep_pillar_iron', 'keep_anvil', 'keep_basin'): sp[nm] = {'frames': {'f0': fr[nm]}, 'anims': {'idle': {'frames': ['f0'], 'fps': 1, 'loop': True}}, 'meta': {}}
+    sp['keep_furnace'] = {'frames': {f'f{k}': fr[f'keep_furnace{k}'] for k in range(2)}, 'anims': {'idle': {'frames': ['f0', 'f1'], 'fps': 3, 'loop': True}}, 'meta': {}}
     sp['keep_wheel'] = {'frames': {f'f{k}': fr[f'keep_wheel{k}'] for k in range(2)}, 'anims': {'idle': {'frames': ['f0', 'f1'], 'fps': 3, 'loop': True}}, 'meta': {}}
     for nm in ('keep_bowl', 'keep_ritual'): sp[nm] = {'frames': {f'f{k}': fr[f'{nm}{k}'] for k in range(3)}, 'anims': {'idle': {'frames': ['f0', 'f1', 'f2'], 'fps': 7, 'loop': True}}, 'meta': {}}
     write_png(os.path.join(out, 'keep_decor.png'), sheet)

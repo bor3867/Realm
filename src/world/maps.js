@@ -110,7 +110,7 @@ export function isSolid(m, x, y) {
 // (low ruin walls and whale ribs you step over: their rows walled players and realm bosses in)
 // only the big things stop you: trees, rocks, spires, pillars and walls, statues, the great furniture, gates. Chests,
 // crates, barrels, braziers, candles, fences, seats, signs, lamps, shrines and people you walk through, as in RotMG
-const BIG = /tree|palm|pine|oak|deadwood|keep_stone|keep_pylon|crimson_(?:big|mid|small)|castle_art\/(?:ruin_(?:swordsman|kneeling|torso|crowned_head)|pedestal|altar|brazier|statue|throne|gargoyle)|keep_brazier|keep_bowl|keep_ritual|keep_wheel|castle_decor\/(?:log|barricade|wagon|siege_engine|tent|pipe|lava_tank|bed|table|winch|valve)$|saguaro|giant_mushroom|rotting_log|boulder|rock|cairn|spire|crystal_cluster|ice_crystal|pillar|column|obelisk|(?<!ruin_)wall|statue|fallen_head|bookshelf|furnace|well$|fountain|throne|sarcophag|coffin|gate|telescope|star_globe|high_striker|circus_cannon|rowboat|ticket_booth|stage_moon|great_lens|golem_husk|anvil_block|crucible|stump|gargoyle/;
+const BIG = /tree|palm|pine|oak|deadwood|keep_stone|keep_pylon|keep_(?:bunk|armor|dummy|pew|pillar_iron|anvil|basin|furnace|rack|winch)|crimson_(?:big|mid|small)|castle_art\/(?:ruin_(?:swordsman|kneeling|torso|crowned_head)|pedestal|altar|brazier|statue|throne|gargoyle)|keep_brazier|keep_bowl|keep_ritual|keep_wheel|castle_decor\/(?:log|barricade|wagon|siege_engine|tent|pipe|lava_tank|bed|table|winch|valve)$|saguaro|giant_mushroom|rotting_log|boulder|rock|cairn|spire|crystal_cluster|ice_crystal|pillar|column|obelisk|(?<!ruin_)wall|statue|fallen_head|bookshelf|furnace|well$|fountain|throne|sarcophag|coffin|gate|telescope|star_globe|high_striker|circus_cannon|rowboat|ticket_booth|stage_moon|great_lens|golem_husk|anvil_block|crucible|stump|gargoyle/;
 export const blocks = (sprite) => BIG.test(sprite || '');
 function finalize(m) {
   for (let i = 0; i < m.tiles.length; i++) if (SOLID_TILES.has(m.tiles[i])) m.solid[i] = 1;
@@ -1847,14 +1847,15 @@ export function dungeon(seed, def) {
   // which of the sheet's four each keep room is (2026-11-02, the user: "whichever rooms you think would look best with which
   // design. But make a unique room for the drawbridge"): halls of state, broken courtyards, a fire bastion, ritual galleries;
   // the Drawbridge Engine its own: the machine that works the bridge
-  const KEEP_KIND = { a22: 'towers', a24: 'barbican', a25: 'banners', a26: 'court', a27: 'hall', a29: 'hall', a20: 'killing', a28: 'yard', a33: 'yard', a21: 'trench', a30: 'bastion',
-    a31: 'ritual', a32: 'ritual', a37: 'ritual', a23: 'engine' };
+  const KEEP_KIND = { a22: 'towers', a24: 'barbican', a25: 'banners', a26: 'court', a27: 'hall', a29: 'barracks', a20: 'killing', a28: 'royal', a33: 'royal', a21: 'trench', a30: 'servants',
+    a34: 'forge', a35: 'forge', a38: 'forge', a39: 'forge', a40: 'forge', a41: 'forge', a42: 'chains', a43: 'stairs',
+    a31: 'chapel', a32: 'chapel', a37: 'ritual', a23: 'engine' };
   m.keepKind = KEEP_KIND; m.keepSkin = m.keepSkin || new Map();
   const keepDress = (n) => {
     const kind = KEEP_KIND[n.key], skin = (x, y, name) => m.keepSkin.set(y * S + x, name);
     // its banners by what the room is (the user's banner rules, 2026-11-02): crown in halls of state, sun on the defences,
     // forge in the forges, cursed purple in ritual rooms, torn where the battle went through
-    const forge = n.num >= 34, BAN = kind === 'banners' || kind === 'court' ? ['banner_cursed', 'banner_crown', 'banner_eclipse'] : kind === 'barbican' ? ['banner_crown', 'banner_sun'] : kind === 'killing' || kind === 'trench' ? ['banner_sun_torn', 'banner_crown_torn', 'banner_castle_torn'] : kind === 'towers' ? ['banner_sun', 'banner_chain_sun'] : kind === 'hall' ? ['banner_crown', 'banner_sun'] : kind === 'ritual' ? ['banner_cursed', 'banner_eclipse'] : kind === 'yard' ? ['banner_crown_torn', 'banner_sun_torn', 'banner_castle_torn'] : forge ? ['banner_forge', 'banner_chain_forge'] : kind === 'engine' ? ['banner_forge'] : ['banner_sun', 'banner_castle'];
+    const forge = n.num >= 34, BAN = kind === 'royal' ? ['banner_crown', 'banner_sun', 'banner_chain_crown'] : kind === 'barracks' ? ['banner_crown', 'banner_castle'] : kind === 'servants' ? ['banner_castle_torn', 'pennant_crown'] : kind === 'chapel' ? ['banner_cursed', 'banner_cursed_torn', 'banner_eclipse'] : kind === 'forge' || kind === 'chains' || kind === 'stairs' ? ['banner_forge', 'banner_chain_forge', 'banner_forge_torn'] : kind === 'banners' || kind === 'court' ? ['banner_cursed', 'banner_crown', 'banner_eclipse'] : kind === 'barbican' ? ['banner_crown', 'banner_sun'] : kind === 'killing' || kind === 'trench' ? ['banner_sun_torn', 'banner_crown_torn', 'banner_castle_torn'] : kind === 'towers' ? ['banner_sun', 'banner_chain_sun'] : kind === 'hall' ? ['banner_crown', 'banner_sun'] : kind === 'ritual' ? ['banner_cursed', 'banner_eclipse'] : kind === 'yard' ? ['banner_crown_torn', 'banner_sun_torn', 'banner_castle_torn'] : forge ? ['banner_forge', 'banner_chain_forge'] : kind === 'engine' ? ['banner_forge'] : ['banner_sun', 'banner_castle'];
     const fl = (x, y) => { const t = tile(x, y); return t !== WALL && t !== TID.void && !SOLID_TILES.has(t) && t !== TID.lava; }, wl = (x, y) => !fl(x, y);
     const road = m.castle && m.castle.roadTiles, clear = (x, y) => !(road && road.has(y * S + x)) && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y);
     const cx = Math.round(n.cx), cy = Math.round(n.cy), topY = (x) => { for (let y = n.y; y < n.y + n.h; y++) if (fl(x, y)) return y; return n.y; };
@@ -2045,6 +2046,52 @@ export function dungeon(seed, def) {
       for (const fx of [0.12, 0.88]) for (const fy of [0.2, 0.8]) O('castle_art/' + (fx < 0.5 ? 'brazier_purple' : 'brazier_gold'), ...F(fx, fy));
       { const gx = n.x + 1; for (const d of [-4, -3, 3, 4]) { W(gx, cy + d); W(gx + 1, cy + d); } O('castle_art/throne_chained', gx + 2, cy - 4); O('castle_art/throne_chained', gx + 2, cy + 4); O('castle_art/pedestal_crystal', gx + 3, cy - 2); O('castle_art/pedestal_crystal', gx + 3, cy + 2); }   // (the sealed gate's frame, chained kings guarding it)
     }
+    const kind = KEEP_KIND[n.key];
+    // ---- THE INNER KEEP (2026-11-02, the user's rebuild, 6: "DESIGN ROOMS BY THEIR PURPOSE ... Rooms should be visually
+    // identifiable from screenshots even without displaying their names")
+    if (kind === 'royal') {                                   // ROYAL HALLS: carpets, royal banners, pillars, statues, broken furniture, chandeliers, emblems
+      if (n.key === 'a33') {                                 // the Shattered Throne Gallery: a runner up to its broken throne, kings and queens either side
+        const [tx, ty] = F(0.3, 0.2); runnerNS(tx, ty + 2, n.y + n.h - 2, 'crown'); emblem(tx, Math.round((ty + n.y + n.h) / 2), 'sun');
+        for (const d of [-3, 3]) { O('castle_art/statue_king', tx + d, ty); O('castle_art/statue_queen', tx + d * 2, ty + 3); }
+      } else {                                               // the Ruptured Great Hall: kings at its head, its tables, chandeliers, its furniture broken by the rupture
+        for (const fx of [0.4, 0.6]) O('castle_art/statue_king', ...F(fx, 0.06)); emblem(...F(0.5, 0.5), 'crown');
+      }
+      for (const fx of [0.25, 0.5, 0.75]) O('castle_decor/chandelier', ...F(fx, 0.5), false);
+      for (const [fx, fy, sp] of [[0.2, 0.25, 'castle_decor/rubble'], [0.82, 0.78, 'castle_decor/collapsed_pillar'], [0.62, 0.3, 'castle_art/ruin_crowned_head'], [0.15, 0.8, 'keep_decor/keep_pillar'], [0.88, 0.22, 'keep_decor/keep_pillar']]) O(sp, ...F(fx, fy), !/rubble/.test(sp));
+    }
+    if (kind === 'barracks') {                                // BARRACKS: bunks in its bunk rooms, racks, armour stands, training dummies, the guard table
+      for (const fx of [0.13, 0.87]) for (const fy of [0.14, 0.34, 0.66, 0.86]) O('keep_decor/keep_bunk', ...F(fx, fy));
+      for (const fx of [0.44, 0.56]) O('keep_decor/keep_dummy', ...F(fx, 0.3));
+      O('castle_decor/table', ...F(0.5, 0.62)); for (const fx of [0.42, 0.58]) O('crate', ...F(fx, 0.62));
+      for (const fx of [0.42, 0.58]) O('keep_decor/keep_armor', ...F(fx, 0.88));
+      for (const fy of [0.45, 0.55]) { O('keep_decor/keep_rack', ...F(0.04, fy)); O('keep_decor/keep_rack', ...F(0.96, fy)); }
+      for (const [fx, fy] of [[0.2, 0.06], [0.8, 0.94], [0.25, 0.94]]) O(fx < 0.5 ? 'crate' : 'barrel', ...F(fx, fy));
+    }
+    if (kind === 'servants') {                                // THE SERVANTS' SPUR: its kitchen hearth, stores, tables and beds
+      O('keep_decor/keep_furnace', ...F(0.15, 0.08)); O('castle_decor/table', ...F(0.3, 0.2)); O('castle_decor/table', ...F(0.75, 0.82));
+      for (const [fx, fy] of [[0.08, 0.2], [0.1, 0.25], [0.88, 0.2], [0.92, 0.25], [0.55, 0.88], [0.6, 0.9]]) O(fx * 13 % 2 > 1 ? 'barrel' : 'crate', ...F(fx, fy));
+      for (const fx of [0.82, 0.92]) O('castle_decor/bed', ...F(fx, 0.5));
+    }
+    if (kind === 'chapel') {                                  // THE RUINED CHAPEL (and the Reliquary): pews (some broken), a cursed runner to its altar, hooded statues, purple fire
+      if (n.key === 'a31') {
+        const ax = Math.round(n.cx), ay = F(0, 0.22)[1];
+        O('castle_art/altar', ax, ay); for (const d of [-3, 3]) O('castle_art/' + (d < 0 ? 'statue_priest' : 'statue_monk'), ax + d, ay - 1); for (const d of [-5, 5]) O('castle_art/brazier_purple', ax + d, ay + 2);
+        runnerNS(ax, ay + 2, n.y + n.h - 2, 'cursed');
+        for (const fy of [0.42, 0.52, 0.62, 0.72, 0.82]) for (const fx of [0.36, 0.64]) O('keep_decor/' + (((fy * 50 | 0) + (fx > 0.5 ? 1 : 0)) % 3 === 0 ? 'keep_pew_broken' : 'keep_pew'), ...F(fx, fy));
+      } else { emblem(Math.round(n.cx), Math.round(n.cy) + 3, 'cursed'); O('castle_art/statue_priest', ...F(0.5, 0.1)); for (const fx of [0.3, 0.7]) O('castle_art/brazier_purple', ...F(fx, 0.12)); }
+    }
+    if (kind === 'forge') {                                   // THE FORGE DISTRICT: furnaces along its walls, anvils before them, iron pillars, lava basins, chains, a forge monument
+      const boss = n.key === 'a41';
+      let k = 0; for (let x = n.x + 3; x < n.x + n.w - 3; x++) { let y = n.y; while (y < n.y + n.h && !fl(x, y)) y++; if (fl(x, y) && !fl(x, y - 1) && k++ % 7 === 3 && !nearRd(x, y, 2)) { O('keep_decor/keep_furnace', x, y); O('keep_decor/keep_anvil', x, y + 2); } }
+      for (const [fx, fy] of boss ? [[0.12, 0.2], [0.88, 0.2], [0.12, 0.8], [0.88, 0.8]] : [[0.25, 0.3], [0.75, 0.3], [0.25, 0.7], [0.75, 0.7]]) O('keep_decor/keep_pillar_iron', ...F(fx, fy));
+      for (const [fx, fy] of boss ? [[0.06, 0.5], [0.94, 0.5]] : [[0.12, 0.5], [0.88, 0.5]]) O('keep_decor/keep_basin', ...F(fx, fy));
+      if (n.key === 'a38') O('castle_art/throne_orb', ...F(0.5, 0.08));
+    }
+    if (kind === 'chains') {                                  // THE CHAIN GALLERIES: chain anchors standing in its lava, winch drums above, levers at its walkways, stone supports
+      for (let y = n.y + 3; y < n.y + n.h - 3; y += 6) for (let x = n.x; x < n.x + n.w; x++) if (tile(x, y) === TID.lava && tile(x - 1, y) !== TID.lava) put(m, 'castle_decor/chain_anchor', x + 1, y, true);
+      for (const fx of [0.3, 0.7]) O('keep_decor/keep_winch', ...F(fx, 0.05)); for (const fy of [0.18, 0.5, 0.82]) { O('keep_decor/keep_lever', ...F(0.06, fy)); O('keep_decor/keep_pillar', ...F(0.94, fy)); }
+    }
+    if (kind === 'stairs') { O('castle_art/throne_orb', ...F(0.5, 0.06)); for (const fy of [0.3, 0.6]) { O('keep_decor/keep_pillar_iron', ...F(0.2, fy)); O('keep_decor/keep_pillar_iron', ...F(0.8, fy)); } }   // (THE GATE STAIRS: a forge monument at their head, iron pillars up them)
     if (n.key === 'a26') {                                   // THE HOLLOW JARLS' COURT: a royal defensive courtyard. A crown sigil at its heart; the runner leading in to it; the
       // Wizard's ritual platforms at his marks (src/bosses/jarl_wizard.js MARKS); kings in the corners; broken columns round its edge; its lanes kept open
       const at40 = (sx, sy) => [Math.round(n.x + (sx / 40) * n.w), Math.round(n.y + (sy / 34) * n.h)];
@@ -2059,7 +2106,7 @@ export function dungeon(seed, def) {
   };
   const castleDress = (n) => {
     if (n.region === 'outer' || n.region === 'inner') keepDress(n);
-    if (/^a2[0-6]$/.test(n.key)) outerKeep(n);
+    if (/^a(2[0-9]|3[0-9]|4[0-3])$/.test(n.key)) outerKeep(n);
     const at = (fx, fy) => [Math.round(n.x + fx * n.w), Math.round(n.y + fy * n.h)];
     const P = (sprite, fx, fy, solid = true) => { const [x, y] = at(fx, fy); put2(null, x, y, sprite, solid); };
     const wall = (fx0, fy0, fx1, fy1) => { const [x0, y0] = at(fx0, fy0), [x1, y1] = at(fx1, fy1); for (let y = Math.min(y0, y1); y <= Math.max(y0, y1); y++) for (let x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) if (isF(x, y)) set(x, y, TID.void); };   // (a wall inside an area: its rooms, its passages)
@@ -2127,7 +2174,7 @@ export function dungeon(seed, def) {
         row('weapon_rack', 0.08, 0.15, 0.85, 4); row('castle_decor/bed', 0.3, 0.1, 0.3, 2); row('castle_decor/bed', 0.3, 0.7, 0.9, 2); row('castle_decor/bed', 0.85, 0.1, 0.3, 2); row('castle_decor/bed', 0.85, 0.7, 0.9, 2); P('castle_decor/barricade', 0.5, 0.6); P('crate', 0.42, 0.5); P('barrel', 0.58, 0.5); break;   // (racks; the bunk rooms either side of the guard hall; its barricade)
       case 'a30': wall(0, 0.38, 0.62, 0.38); wall(0.38, 0.68, 1, 0.68); wall(0.2, 0.68, 0.2, 1);   // (crooked service passages round the store rooms)
         for (let k = 0; k < 8; k++) P(k % 2 ? 'barrel' : 'crate', 0.1 + k * 0.11, k % 3 ? 0.2 : 0.8); P('castle_decor/table', 0.3, 0.5); P('castle_decor/book_pile', 0.7, 0.5, false); P('anvil_block', 0.85, 0.5); break;   // (stores, a kitchen's table, its fire)
-      case 'a31': for (const fy of [0.45, 0.55, 0.65, 0.75]) { row('bench_h', fy, 0.35, 0.45, 2); row('bench_h', fy, 0.55, 0.65, 2); } P('statue_sun', 0.5, 0.18); P('castle_decor/window', 0.5, 0.04); P('castle_decor/glass_shards', 0.45, 0.3, false); P('castle_decor/glass_shards', 0.58, 0.36, false); P('castle_decor/window', 0.08, 0.4); P('castle_decor/window', 0.92, 0.4); break;   // (pews, the corrupted altar, the great window broken and its glass across the floor)
+      case 'a31': P('statue_sun', 0.5, 0.18); P('castle_decor/window', 0.5, 0.04); P('castle_decor/glass_shards', 0.45, 0.3, false); P('castle_decor/glass_shards', 0.58, 0.36, false); P('castle_decor/window', 0.08, 0.4); P('castle_decor/window', 0.92, 0.4); break;   // (pews, the corrupted altar, the great window broken and its glass across the floor)
       case 'a32': for (let a = 0; a < 6.28; a += 0.9) P('sarcophagus', 0.5 + Math.cos(a) * 0.35, 0.5 + Math.sin(a) * 0.32); for (const fx of [0.3, 0.7]) P('crypt_candle', fx, 0.5, false); break;
       case 'a33': row('castle_decor/mural', 0.06, 0.1, 0.6, 7, false); P('throne', 0.3, 0.2); P('castle_decor/rubble', 0.38, 0.25, false); row('castle_decor/shattered_statue', 0.8, 0.1, 0.55, 10); P('castle_decor/pipe', 0.8, 0.2); P('castle_decor/gear', 0.9, 0.5); P('castle_decor/pipe', 0.8, 0.8); break;   // (murals, the throne smashed; east, the royal stone gives way to the forge's pipes and gears)
       case 'a34': for (let k = 0; k < 4; k++) P('ember_vent', 0.15 + k * 0.23, 0.08, false); P('castle_decor/pipe', 0.08, 0.5); P('castle_decor/pipe', 0.92, 0.5); break;   // (the aqueduct's valves, its pipes)
@@ -2912,7 +2959,7 @@ export function dungeon(seed, def) {
     }
   }
   // ---- light: the dungeon is dark, and things that burn or glow light it (radius in tiles, colour, flickers)
-  const LIGHT = { brazier: [5, '#ff9a3a', 1], 'keep_decor/keep_pylon': [3.5, '#ff9a3a', 1], 'castle_art/brazier_gold': [5, '#ff9a3a', 1], 'castle_art/brazier_purple': [5, '#d050ff', 1], 'castle_art/pedestal_flame': [3.5, '#ff9a3a', 1], 'castle_art/ancient_lava_tree': [4, '#ff7a1a', 1], 'keep_decor/keep_brazier': [5, '#ff9a3a', 1], 'keep_decor/keep_bowl': [8, '#ff9a3a', 1], 'keep_decor/keep_ritual': [5, '#ff5af0', 1], crypt_candle: [3.5, '#9cff6a', 1], crucible: [4.5, '#ff8c1e', 1], furnace: [5.5, '#ff7a1a', 1], ember_vent: [3, '#ff6a1a', 1],
+  const LIGHT = { brazier: [5, '#ff9a3a', 1], 'keep_decor/keep_furnace': [5, '#ff8a2a', 1], 'keep_decor/keep_basin': [4, '#ff7a1a', 1], 'keep_decor/keep_pylon': [3.5, '#ff9a3a', 1], 'castle_art/brazier_gold': [5, '#ff9a3a', 1], 'castle_art/brazier_purple': [5, '#d050ff', 1], 'castle_art/pedestal_flame': [3.5, '#ff9a3a', 1], 'castle_art/ancient_lava_tree': [4, '#ff7a1a', 1], 'keep_decor/keep_brazier': [5, '#ff9a3a', 1], 'keep_decor/keep_bowl': [8, '#ff9a3a', 1], 'keep_decor/keep_ritual': [5, '#ff5af0', 1], crypt_candle: [3.5, '#9cff6a', 1], crucible: [4.5, '#ff8c1e', 1], furnace: [5.5, '#ff7a1a', 1], ember_vent: [3, '#ff6a1a', 1],
     fountain: [4.5, '#6ad8ff', 0], rune_pillar: [3.5, '#3befff', 0], throne: [6, '#ffd650', 0], statue_sun: [4.5, '#ffe89a', 0], mystery_altar: [3.5, '#b888ff', 0],
     journal: [2.5, '#fff6c8', 0], seal_gate: [3, '#ff4a5a', 0], lever_off: [2.2, '#ffd650', 0], lorestone: [3, '#8af0ff', 0], statue_anvil: [3, '#ff9a3a', 0],
     glow_larva: [4, '#ffd650', 1], honey_vat: [3, '#ffb830', 0], footlight: [3.5, '#fff0b0', 0], vanity_mirror: [3, '#fff6d8', 0], ticket_booth: [3, '#ffd650', 0],
