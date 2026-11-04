@@ -9,6 +9,8 @@
 # His new shots ('sol_shots/<name>', pointing right): orb (a solar orb), crescent (a dark-red crescent), fragment (a
 # great jagged solar shard), and, drawn rather than shot, sun (a miniature sun) and blacksun (a black sun).
 #   art/bundle/unstruck/solkhar.png, sol_shots.png + atlas_solkhar.json          py -I tools/build_solkhar.py
+# (2026-11-03: his frames are now hand-drawn, tools/build_solkhar2.py: run it after this one, or this one's shifted
+# and tinted frames come back. This one still makes his shots, sol_shots, and his older death and void frames)
 import json, math, os, random, sys
 here = os.path.dirname(os.path.abspath(__file__)); root = os.path.dirname(here)
 out = os.path.join(root, 'art', 'bundle', 'unstruck')
