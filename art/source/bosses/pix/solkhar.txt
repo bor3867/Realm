@@ -90,9 +90,109 @@ RYYYR.......JJJCXMcULaYTYOcPPPEYYYYAaUVCaCaS......TYYYa
 ..........................U............................
 
 # ---- drawn frames (tools/solkhar_frames.py writes everything below)
-frame idle0 from base
+frame base2 from base
+clear 20 5 22 6
+clear 32 4 34 4
+clear 17 10 18 11
+clear 38 10 39 11
+row 5 19 W
+row 6 23 W
+row 4 31 W
+row 4 35 W
+row 9 17 W
+row 12 17 W
+row 9 38 W
+row 12 38 W
 
-frame idle1 from base
+frame base3 from base2
+row 30 20 Z
+row 31 21 Z
+row 32 21 Z
+row 33 22 Z
+row 34 23 Z
+row 30 35 Z
+row 31 34 Z
+row 32 34 Z
+row 33 33 Z
+row 34 33 Z
+row 40 18 Z
+row 41 19 Z
+row 42 19 Z
+row 43 20 Z
+row 40 37 Z
+row 41 36 Z
+row 42 36 Z
+row 43 35 Z
+row 33 27 Z
+row 34 28 Z
+row 35 28 Z
+row 36 27 Z
+clear 25 4 26 5
+row 6 25 W
+
+frame base4
+...........................TL..........................
+...........................TL..........................
+...........................TL..........................
+.................L........TTLLYL......T................
+.................LLL..LU...TL..U....TTL................
+..................LL...YT..TL......TTL.................
+..................TL...TTLLTLYU.....LT.................
+...................UTTTL.........Y..Y..................
+.......L........U..TTL.............LL..U...............
+......TT........LYTTL..............UYYYU..L.....T......
+......TT.....L.....L.................Y....U.....LL.....
+......UT.....L.............YLYL......L..........TL.....
+.....LUU.....Y..TUL......LTTTTL.......T.........TU.....
+......UTYTTTTTTTLUY.....LLYTUYLLT.....TLTTTTTT..UU.....
+...L..LT....LLLLTTTYYYLUUYYTTTYYUU...TTLLTLL....TU.....
+...U..T.....Y...LL......LUYYYYY......YLT........T...T..
+..TU..T.....Y...LL.......UTYYYLY....LYTL....Y.......TL.
+...U.....LYYUYLYUL..L....YTYYYYY...TLYLY....Y.......TU.
+...T....TYYYYYULUU..LL..UUTYYYLYLYTLYYUYLUYYYYL.....UU.
+........T...YYYYLLLLYLTYYYYUUYYYYYTYYYYLYYYU..UL....T..
+.............YYYYYYYLYTYYYULTUYLYYTYYYYYYYYL...T.......
+.LYT.........LYYYYYTUYLYYTLTYLTLYYLTYUYYYY.............
+LYYY.L.....LTTYYYYTYYLLULIVMcOYIOYYUTYYYYYY............
+UYYYU.......LLLTTUUYYLYTYOcPPPEYYYYLLYTTLTLL......TYYYL
+.YYYU..L.....LYYULLTTTYLUcPWWPHKYUUTLTLYYYL........LYUU
+.UUYYYLLL......YLYYYTTUYUIPWWPIcYUUYYYLYYY.........UYYY
+...YYYYYYTL...UYYYYYYYUTUIIWPIHNZUYYYYYYYY....TLTYYYYY.
+....YYYYYLLYLLYYYUYUYYTLYZHHIIHLKTYYUUYYYY..TLTYTYYY...
+....LYYYYLLLYYUYYULUYYYUUZMIHcZIYYYYUUUYYYUYTLLYLYYU...
+......YYYLYLYYTYYUUYYYYUULYYUYTUYYYYUUUYYYYYYYLYYUU....
+......YYYLYLYYYYYUUYTYYYYUTYLTLYYYYTUUUUYYYYLYLYY......
+......YLYLLYYYYYYUUYYTYYYYLTLLYYYYTYLYUUUUYYYLLYY......
+......YLYLLYYYUUUUUYYTLLLUYLLYYYLLTUTYUUUUUYYLLYL......
+....UUY..LYYUUUUUUUYYLTLLUYTLYUULTLYUYUUUUUUUYLL.....Y.
+...UUUY..LYUUUUUUUULLYYTLUUYTUUULTYYYYUUUUUUUYLY.....Y.
+..UUUYY..LYUUUUUUULYYYLYYUUUTUUYYYYYYYTUTLUUUYYYY......
+.UUUU....UYUUUYUUULYYYTYYUUTUUUUYYLYYYTLYYYUUUYYY..T...
+.U.....YYUUUYYYYUTYYYTTYYUUULUUUYYYLYYTYYYYUUUUYY..L...
+.U...UYYYLU.YYYYYYYLLYYYYUUULUUUYYYYLLUYYYYL..UYY..L...
+.....UYYYL..YYYYYYYYYYTYYUUUULUUYYYYYYYYYYYY..ULY......
+....U..YT..YYYYYYYTYYUYYYUUUULLUYUYYYTYYYUYU..LLY......
+.......TT..UUYYYYYYTYLYUYUULLLULYUUUTYYYYUUUU..LL......
+.......LL..UUUYYYYYTYYYLYLUULUULUUTUTYYYYYUUU...L......
+.......T...UUUYYYYYYTYYTYLUULUULYUTTYLLYYYUUU......U...
+..........UUUUYYYYYYYYLYYLUULUULYULYYYYYYYUUUU......U..
+.........UUUUUYYYYYYYYUYYLUUUUULYUYYYYYYYYUUUU.........
+.........UUUUUYYYYYYYYLYYLUUUUULYTYYYYYYYYUUUUUUU......
+.......UUUUUUYYYYYYYLYYYYLLUUULTYYYYYYYYYUUUUUUUUU.....
+....UUUUUUUYUUYYYYYUTLYYYLLUULLYYYYULYYYYYUYYUUUUUU....
+...UUYUUUU..UUUYYYYLYYUYYLLLULLYYUYLTYYYYYUYYUYUYUUU...
+...U...UUU...YYYYYYTYYUYYLYLLLLYYUUYTLYYYYY...YU..UU...
+.......UU....YYYLLLYYUUYYYYLLYYYYYUUYYLLYYY...U....U...
+.......U....YYYLYYYYUUUYYYYYLYYYYYUUUYYYLYYY.......U...
+.......U...YYYYYYYYYUUUYYYYYLYYYYYU..UYYYLYYY..........
+..........Y...LYYU...LUYYYY...YYUY....YYY...YY.........
+..........Y....YUU....LYYYY...YU......UU.....Y.........
+................U.........Y...U........U.....Y.........
+..........................Y............................
+
+frame p1_idle0 from base
+
+frame p1_idle1 from base
 row 22 25 IVMPOYIO
 row 23 25 OPZNZEYY
 row 24 25 PZWWWZKY
@@ -103,7 +203,7 @@ row 9 48 W
 row 15 52 W
 row 3 27 W
 
-frame idle2 from base
+frame p1_idle2 from base
 row 22 25 IVPZPYIO
 row 23 25 PZNWNZYY
 row 24 25 ZWWWWWZY
@@ -115,7 +215,7 @@ row 0 27 W
 row 13 12 W
 row 4 37 W
 
-frame idle3 from base
+frame p1_idle3 from base
 row 23 25 OcHHHEYY
 row 24 25 cHPZPHKY
 row 25 25 IHZPHIcY
@@ -124,7 +224,7 @@ row 9 6 W
 row 16 52 W
 row 6 21 W
 
-frame hover0 from base
+frame p1_hover0 from base
 row 22 25 IVMPOYIO
 row 23 25 OPZNZEYY
 row 24 25 PZWWWZKY
@@ -151,7 +251,7 @@ row 52 52 d
 row 53 8 d
 row 53 52 d
 
-frame hover1 from base
+frame p1_hover1 from base
 row 54 0 ...........U..FYLO...AcLLLL...UUDY....LLY....GG........
 row 55 0 ............U...LOO...AYYUU....UD.......OO.....G.......
 row 56 0 ............U....O.........U....D........O......G......
@@ -169,7 +269,7 @@ row 52 52 d
 row 53 9 d
 row 53 52 d
 
-frame hover2 from base
+frame p1_hover2 from base
 row 23 25 OcHHHEYY
 row 24 25 cHPZPHKY
 row 25 25 IHZPHIcY
@@ -194,7 +294,7 @@ row 52 51 d
 row 53 7 d
 row 53 51 d
 
-frame hover3 from base
+frame p1_hover3 from base
 row 54 0 .........U....FYLO...AcLLLL...UUDY....LLY..GG..........
 row 55 0 .........U....LOO....AYYUU...UD......OO.....G..........
 row 56 0 ...............O.........U...D........O.....G..........
@@ -212,7 +312,7 @@ row 52 50 d
 row 53 6 d
 row 53 50 d
 
-frame hover4 from base
+frame p1_hover4 from base
 row 22 25 IVMPOYIO
 row 23 25 OPZNZEYY
 row 24 25 PZWWWZKY
@@ -239,7 +339,7 @@ row 52 50 d
 row 53 5 d
 row 53 50 d
 
-frame hover5 from base
+frame p1_hover5 from base
 row 0 27 W
 row 13 12 W
 row 4 37 W
@@ -260,7 +360,7 @@ row 52 51 d
 row 53 7 d
 row 53 51 d
 
-frame cast0 from base
+frame p1_cast0 from base
 row 22 25 IVMPOYIO
 row 23 25 OPZNZEYY
 row 24 25 PZWWWZKY
@@ -271,7 +371,7 @@ row 9 48 W
 row 15 52 W
 row 3 27 W
 
-frame cast1 from base
+frame p1_cast1 from base
 row 22 25 IVMPOYIO
 row 23 25 OPZNZEYY
 row 24 25 PZWWWZKY
@@ -291,7 +391,7 @@ LYYR......
 YYR.......
 YR........
 
-frame cast2 from base
+frame p1_cast2 from base
 grow 3
 row 25 25 IVPZPYIO
 row 26 25 PZNWNZYY
@@ -327,7 +427,7 @@ row 5 16 N
 row 6 39 W
 row 5 40 N
 
-frame cast3 from base
+frame p1_cast3 from base
 grow 3
 row 25 25 IVPZPYIO
 row 26 25 PZNWNZYY
@@ -363,7 +463,7 @@ row 5 16 N
 row 6 39 W
 row 5 40 N
 
-frame cast4 from base
+frame p1_cast4 from base
 row 22 25 IVMPOYIO
 row 23 25 OPZNZEYY
 row 24 25 PZWWWZKY
@@ -383,7 +483,7 @@ LYYR......
 YYR.......
 YR........
 
-frame cast5 from base
+frame p1_cast5 from base
 row 23 25 OcHHHEYY
 row 24 25 cHPZPHKY
 row 25 25 IHZPHIcY
@@ -392,7 +492,7 @@ row 9 6 W
 row 16 52 W
 row 6 21 W
 
-frame summon0 from base
+frame p1_summon0 from base
 row 22 25 IVMPOYIO
 row 23 25 OPZNZEYY
 row 24 25 PZWWWZKY
@@ -415,7 +515,7 @@ LYYR......
 YYR.......
 YR........
 
-frame summon1 from base
+frame p1_summon1 from base
 row 22 25 IVPZPYIO
 row 23 25 PZNWNZYY
 row 24 25 ZWWWWWZY
@@ -455,7 +555,7 @@ RRYYJ???
 ?????YYL
 ??????YL
 
-frame summon2 from base
+frame p1_summon2 from base
 grow 3
 row 25 25 IVPZPYIO
 row 26 25 PZNWNZYY
@@ -503,7 +603,7 @@ row 5 16 N
 row 6 39 W
 row 5 40 N
 
-frame summon3 from base
+frame p1_summon3 from base
 grow 3
 row 25 25 IVPZPYIO
 row 26 25 PZNWNZYY
@@ -551,7 +651,7 @@ row 5 16 N
 row 6 39 W
 row 5 40 N
 
-frame summon4 from base
+frame p1_summon4 from base
 row 22 25 IVMPOYIO
 row 23 25 OPZNZEYY
 row 24 25 PZWWWZKY
@@ -590,7 +690,7 @@ RRYYJ???
 ?????YYL
 ??????YL
 
-frame summon5 from base
+frame p1_summon5 from base
 row 22 25 IVMPOYIO
 row 23 25 OPZNZEYY
 row 24 25 PZWWWZKY
@@ -610,7 +710,7 @@ LYYR......
 YYR.......
 YR........
 
-frame stag0 from base
+frame p1_stag0 from base
 row 23 25 OcHHHEYY
 row 24 25 cHPZPHKY
 row 25 25 IHZPHIcY
@@ -626,7 +726,7 @@ row 7 28 Y
 row 11 24 Y
 row 12 25 Y
 
-frame stag1 from base
+frame p1_stag1 from base
 row 23 25 OcIIIEYY
 row 24 25 cIHHHIKY
 row 25 25 IIHHIIcY
@@ -659,7 +759,7 @@ row 7 28 Y
 row 11 24 Y
 row 12 25 Y
 
-frame stag2 from base
+frame p1_stag2 from base
 row 23 25 OcIIIEYY
 row 24 25 cIHHHIKY
 row 25 25 IIHHIIcY
@@ -692,7 +792,7 @@ row 7 28 Y
 row 11 24 Y
 row 12 25 Y
 
-frame stag3 from base
+frame p1_stag3 from base
 row 23 25 OcHHHEYY
 row 24 25 cHPZPHKY
 row 25 25 IHZPHIcY
@@ -708,8 +808,4085 @@ row 7 28 Y
 row 11 24 Y
 row 12 25 Y
 
-clip idle 5 idle0 idle1 idle2 idle3
-clip hover 7 hover0 hover1 hover2 hover3 hover4 hover5
-clip cast 10 cast0 cast1 cast2 cast3 cast4 cast5
-clip summon 8 summon0 summon1 summon2 summon3 summon4 summon5
-clip stagger 5 stag0 stag1 stag2 stag3
+frame p1_beam0 from base
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 14 15 N
+row 14 41 N
+row 35 15 N
+row 35 41 N
+row 14 28 N
+row 25 15 N
+row 25 41 N
+
+frame p1_beam1 from base
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+row 15 16 W
+row 15 39 W
+row 34 16 W
+row 34 39 W
+row 15 28 W
+row 25 16 W
+row 25 39 W
+
+frame p1_beam2 from base
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+clear 0 21 5 25
+at 0 14
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 16 17 N
+row 16 38 N
+row 33 17 N
+row 33 38 N
+row 16 28 N
+row 25 17 N
+row 25 38 N
+
+frame p1_beam3 from base
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 0 27 W
+row 13 12 W
+row 4 37 W
+clear 46 23 54 29
+at 44 14
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 21 5 25
+at 0 14
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 17 19 W
+row 17 36 W
+row 32 19 W
+row 32 36 W
+row 17 28 W
+row 25 19 W
+row 25 36 W
+
+frame p1_beam4 from base
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 12 42 W
+row 15 16 W
+row 20 53 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 24 5 28
+at 0 17
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+row 22 20 N
+row 22 35 N
+row 33 20 N
+row 33 35 N
+row 22 28 N
+row 28 20 N
+row 28 35 N
+
+frame p1_beam5 from base
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 6 38 W
+row 12 7 W
+row 12 48 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 24 5 28
+at 0 17
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+row 23 22 W
+row 23 34 W
+row 32 22 W
+row 32 34 W
+row 23 28 W
+row 28 22 W
+row 28 34 W
+
+frame p1_beam6 from base
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 12 48 W
+row 18 52 W
+row 6 27 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 24 5 28
+at 0 17
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+row 24 23 N
+row 24 32 N
+row 31 23 N
+row 31 32 N
+row 24 28 N
+row 28 23 N
+row 28 32 N
+
+frame p1_beam7 from base
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 6 W
+row 16 52 W
+row 6 21 W
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+
+frame p1_chase0 from base
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 9 48 W
+row 15 52 W
+row 3 27 W
+row 54 0 ...........U..FYLO...AcLLLL...UUDY....LLY....GG........
+row 55 0 ............U...LOO...AYYUU....UD.......OO.....G.......
+row 56 0 ............U....O.........U....D........O......G......
+row 57 0 ...........................U.....D.......O.............
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 9 d
+row 51 52 d
+row 52 9 d
+row 52 52 d
+row 53 9 d
+row 53 52 d
+
+frame p1_chase1 from base
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 9 42 W
+row 12 16 W
+row 17 53 W
+row 54 0 ...........U..FYLO...AcLLLL...UUDY....LLY....GG........
+row 55 0 ...........U....LOO...AYYUU....UD......OO.....G........
+row 56 0 .................O.........U....D........O.....G.......
+row 57 0 ...........................U...........................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 8 d
+row 51 52 d
+row 52 8 d
+row 52 52 d
+row 53 8 d
+row 53 52 d
+
+frame p1_chase2 from base
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 0 27 W
+row 13 12 W
+row 4 37 W
+row 54 0 ...........U..FYLO...AcLLLL...UUDY....LLY....GG........
+row 55 0 ............U...LOO...AYYUU....UD.......OO.....G.......
+row 56 0 ............U....O.........U....D........O......G......
+row 57 0 ...........................U.....D.......O.............
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 9 d
+row 51 52 d
+row 52 9 d
+row 52 52 d
+row 53 9 d
+row 53 52 d
+
+frame p1_chase3 from base
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 3 38 W
+row 9 7 W
+row 9 48 W
+row 54 0 .........U....FYLO...AcLLLL...UUDY....LLY..GG..........
+row 55 0 ........U....LOO....AYYUU...UD......OO.....G...........
+row 56 0 ........U.....O.........U...D........O.....G...........
+row 57 0 ........................U....D.......O.................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 5 d
+row 51 50 d
+row 52 5 d
+row 52 50 d
+row 53 5 d
+row 53 50 d
+
+frame p1_chase4 from base
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 9 6 W
+row 16 52 W
+row 6 21 W
+row 54 0 .........U....FYLO...AcLLLL...UUDY....LLY..GG..........
+row 55 0 .........U....LOO....AYYUU...UD......OO.....G..........
+row 56 0 ...............O.........U...D........O.....G..........
+row 57 0 .........................U.............................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 6 d
+row 51 50 d
+row 52 6 d
+row 52 50 d
+row 53 6 d
+row 53 50 d
+
+frame p1_chase5 from base
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+row 54 0 .........U....FYLO...AcLLLL...UUDY....LLY..GG..........
+row 55 0 ........U....LOO....AYYUU...UD......OO.....G...........
+row 56 0 ........U.....O.........U...D........O.....G...........
+row 57 0 ........................U....D.......O.................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 5 d
+row 51 50 d
+row 52 5 d
+row 52 50 d
+row 53 5 d
+row 53 50 d
+
+frame p2_idle0 from base2
+
+frame p2_idle1 from base2
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+
+frame p2_idle2 from base2
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 0 27 W
+row 13 12 W
+row 4 37 W
+
+frame p2_idle3 from base2
+row 23 25 OcHHHEYY
+row 24 25 cHPZPHKY
+row 25 25 IHZPHIcY
+row 26 25 IIPHIHNZ
+row 9 6 W
+row 16 52 W
+row 6 21 W
+
+frame p2_hover0 from base2
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+row 54 0 ...........U..FYLO...AcLLLL...UUDY....LLY....GG........
+row 55 0 ...........U....LOO...AYYUU....UD......OO.....G........
+row 56 0 .................O.........U....D........O.....G.......
+row 57 0 ...........................U...........................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 8 d
+row 51 52 d
+row 52 8 d
+row 52 52 d
+row 53 8 d
+row 53 52 d
+
+frame p2_hover1 from base2
+row 54 0 ...........U..FYLO...AcLLLL...UUDY....LLY....GG........
+row 55 0 ............U...LOO...AYYUU....UD.......OO.....G.......
+row 56 0 ............U....O.........U....D........O......G......
+row 57 0 ...........................U.....D.......O.............
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 9 d
+row 51 52 d
+row 52 9 d
+row 52 52 d
+row 53 9 d
+row 53 52 d
+
+frame p2_hover2 from base2
+row 23 25 OcHHHEYY
+row 24 25 cHPZPHKY
+row 25 25 IHZPHIcY
+row 26 25 IIPHIHNZ
+row 9 42 W
+row 12 16 W
+row 17 53 W
+row 54 0 ..........U...FYLO...AcLLLL...UUDY....LLY...GG.........
+row 55 0 ..........U....LO.....AYYU....UD......O......G.........
+row 56 0 ...............................D........O....G.........
+row 57 0 .......................................................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 7 d
+row 51 51 d
+row 52 7 d
+row 52 51 d
+row 53 7 d
+row 53 51 d
+
+frame p2_hover3 from base2
+row 54 0 .........U....FYLO...AcLLLL...UUDY....LLY..GG..........
+row 55 0 .........U....LOO....AYYUU...UD......OO.....G..........
+row 56 0 ...............O.........U...D........O.....G..........
+row 57 0 .........................U.............................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 6 d
+row 51 50 d
+row 52 6 d
+row 52 50 d
+row 53 6 d
+row 53 50 d
+
+frame p2_hover4 from base2
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 3 38 W
+row 9 7 W
+row 9 48 W
+row 54 0 .........U....FYLO...AcLLLL...UUDY....LLY..GG..........
+row 55 0 ........U....LOO....AYYUU...UD......OO.....G...........
+row 56 0 ........U.....O.........U...D........O.....G...........
+row 57 0 ........................U....D.......O.................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 5 d
+row 51 50 d
+row 52 5 d
+row 52 50 d
+row 53 5 d
+row 53 50 d
+
+frame p2_hover5 from base2
+row 0 27 W
+row 13 12 W
+row 4 37 W
+row 54 0 ..........U...FYLO...AcLLLL...UUDY....LLY...GG.........
+row 55 0 ..........U....LO.....AYYU....UD......O......G.........
+row 56 0 ...............................D........O....G.........
+row 57 0 .......................................................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 7 d
+row 51 51 d
+row 52 7 d
+row 52 51 d
+row 53 7 d
+row 53 51 d
+
+frame p2_cast0 from base2
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+
+frame p2_cast1 from base2
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+
+frame p2_cast2 from base2
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 3 27 W
+row 16 12 W
+row 7 37 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+
+frame p2_cast3 from base2
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 12 42 W
+row 15 16 W
+row 20 53 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+
+frame p2_cast4 from base2
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+
+frame p2_cast5 from base2
+row 23 25 OcHHHEYY
+row 24 25 cHPZPHKY
+row 25 25 IHZPHIcY
+row 26 25 IIPHIHNZ
+row 9 6 W
+row 16 52 W
+row 6 21 W
+
+frame p2_summon0 from base2
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+
+frame p2_summon1 from base2
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 0 27 W
+row 13 12 W
+row 4 37 W
+clear 46 23 54 29
+at 44 14
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 21 5 25
+at 0 14
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+
+frame p2_summon2 from base2
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 12 42 W
+row 15 16 W
+row 20 53 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 24 5 28
+at 0 17
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+
+frame p2_summon3 from base2
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 6 38 W
+row 12 7 W
+row 12 48 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 24 5 28
+at 0 17
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+
+frame p2_summon4 from base2
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+clear 46 23 54 29
+at 44 14
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 21 5 25
+at 0 14
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+
+frame p2_summon5 from base2
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+
+frame p2_stag0 from base2
+row 23 25 OcHHHEYY
+row 24 25 cHPZPHKY
+row 25 25 IHZPHIcY
+row 26 25 IIPHIHNZ
+row 3 0 .................A........XIJJYD......I................
+row 4 0 .................JAI..DM..YIJ..OOB..AIJ................
+row 5 0 ..................JIAYYYIIcYA......IAJ.................
+row 6 0 ..................XIOYIAYIIYAYD.....IX.................
+row 4 26 Y
+row 5 27 Y
+row 6 27 Y
+row 7 28 Y
+row 11 24 Y
+row 12 25 Y
+
+frame p2_stag1 from base2
+row 23 25 OcIIIEYY
+row 24 25 cIHHHIKY
+row 25 25 IIHHIIcY
+row 26 25 IIIIIHNZ
+row 27 25 ZIIIIHLK
+row 54 0 ..........U...FYLO...AcLLLL...UUDY....LLY...GG.........
+row 55 0 ..........U....LO.....AYYU....UD......O......G.........
+row 56 0 ...............................D........O....G.........
+row 57 0 .......................................................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 7 d
+row 51 51 d
+row 52 7 d
+row 52 51 d
+row 53 7 d
+row 53 51 d
+row 3 0 .................A........XIJJYD......I................
+row 4 0 .................JAI..DM..YIJ..OOB..AIJ................
+row 5 0 ..................JIAYYYIIcYA......IAJ.................
+row 6 0 ..................XIOYIAYIIYAYD.....IX.................
+row 4 26 Y
+row 5 27 Y
+row 6 27 Y
+row 7 28 Y
+row 11 24 Y
+row 12 25 Y
+
+frame p2_stag2 from base2
+row 23 25 OcIIIEYY
+row 24 25 cIHHHIKY
+row 25 25 IIHHIIcY
+row 26 25 IIIIIHNZ
+row 27 25 ZIIIIHLK
+row 54 0 ..........U...FYLO...AcLLLL...UUDY....LLY...GG.........
+row 55 0 ..........U....LO.....AYYU....UD......O......G.........
+row 56 0 ...............................D........O....G.........
+row 57 0 .......................................................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 7 d
+row 51 51 d
+row 52 7 d
+row 52 51 d
+row 53 7 d
+row 53 51 d
+row 3 0 .................A........XIJJYD......I................
+row 4 0 .................JAI..DM..YIJ..OOB..AIJ................
+row 5 0 ..................JIAYYYIIcYA......IAJ.................
+row 6 0 ..................XIOYIAYIIYAYD.....IX.................
+row 4 26 Y
+row 5 27 Y
+row 6 27 Y
+row 7 28 Y
+row 11 24 Y
+row 12 25 Y
+
+frame p2_stag3 from base2
+row 23 25 OcHHHEYY
+row 24 25 cHPZPHKY
+row 25 25 IHZPHIcY
+row 26 25 IIPHIHNZ
+row 3 0 .................A........XIJJYD......I................
+row 4 0 .................JAI..DM..YIJ..OOB..AIJ................
+row 5 0 ..................JIAYYYIIcYA......IAJ.................
+row 6 0 ..................XIOYIAYIIYAYD.....IX.................
+row 4 26 Y
+row 5 27 Y
+row 6 27 Y
+row 7 28 Y
+row 11 24 Y
+row 12 25 Y
+
+frame p2_beam0 from base2
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 14 15 N
+row 14 41 N
+row 35 15 N
+row 35 41 N
+row 14 28 N
+row 25 15 N
+row 25 41 N
+
+frame p2_beam1 from base2
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+row 15 16 W
+row 15 39 W
+row 34 16 W
+row 34 39 W
+row 15 28 W
+row 25 16 W
+row 25 39 W
+
+frame p2_beam2 from base2
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+clear 0 21 5 25
+at 0 14
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 16 17 N
+row 16 38 N
+row 33 17 N
+row 33 38 N
+row 16 28 N
+row 25 17 N
+row 25 38 N
+
+frame p2_beam3 from base2
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 0 27 W
+row 13 12 W
+row 4 37 W
+clear 46 23 54 29
+at 44 14
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 21 5 25
+at 0 14
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 17 19 W
+row 17 36 W
+row 32 19 W
+row 32 36 W
+row 17 28 W
+row 25 19 W
+row 25 36 W
+
+frame p2_beam4 from base2
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 12 42 W
+row 15 16 W
+row 20 53 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 24 5 28
+at 0 17
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+row 22 20 N
+row 22 35 N
+row 33 20 N
+row 33 35 N
+row 22 28 N
+row 28 20 N
+row 28 35 N
+
+frame p2_beam5 from base2
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 6 38 W
+row 12 7 W
+row 12 48 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 24 5 28
+at 0 17
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+row 23 22 W
+row 23 34 W
+row 32 22 W
+row 32 34 W
+row 23 28 W
+row 28 22 W
+row 28 34 W
+
+frame p2_beam6 from base2
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 12 48 W
+row 18 52 W
+row 6 27 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 24 5 28
+at 0 17
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+row 24 23 N
+row 24 32 N
+row 31 23 N
+row 31 32 N
+row 24 28 N
+row 28 23 N
+row 28 32 N
+
+frame p2_beam7 from base2
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 6 W
+row 16 52 W
+row 6 21 W
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+
+frame p2_chase0 from base2
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 9 48 W
+row 15 52 W
+row 3 27 W
+row 54 0 ...........U..FYLO...AcLLLL...UUDY....LLY....GG........
+row 55 0 ............U...LOO...AYYUU....UD.......OO.....G.......
+row 56 0 ............U....O.........U....D........O......G......
+row 57 0 ...........................U.....D.......O.............
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 9 d
+row 51 52 d
+row 52 9 d
+row 52 52 d
+row 53 9 d
+row 53 52 d
+
+frame p2_chase1 from base2
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 9 42 W
+row 12 16 W
+row 17 53 W
+row 54 0 ...........U..FYLO...AcLLLL...UUDY....LLY....GG........
+row 55 0 ...........U....LOO...AYYUU....UD......OO.....G........
+row 56 0 .................O.........U....D........O.....G.......
+row 57 0 ...........................U...........................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 8 d
+row 51 52 d
+row 52 8 d
+row 52 52 d
+row 53 8 d
+row 53 52 d
+
+frame p2_chase2 from base2
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 0 27 W
+row 13 12 W
+row 4 37 W
+row 54 0 ...........U..FYLO...AcLLLL...UUDY....LLY....GG........
+row 55 0 ............U...LOO...AYYUU....UD.......OO.....G.......
+row 56 0 ............U....O.........U....D........O......G......
+row 57 0 ...........................U.....D.......O.............
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 9 d
+row 51 52 d
+row 52 9 d
+row 52 52 d
+row 53 9 d
+row 53 52 d
+
+frame p2_chase3 from base2
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 3 38 W
+row 9 7 W
+row 9 48 W
+row 54 0 .........U....FYLO...AcLLLL...UUDY....LLY..GG..........
+row 55 0 ........U....LOO....AYYUU...UD......OO.....G...........
+row 56 0 ........U.....O.........U...D........O.....G...........
+row 57 0 ........................U....D.......O.................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 5 d
+row 51 50 d
+row 52 5 d
+row 52 50 d
+row 53 5 d
+row 53 50 d
+
+frame p2_chase4 from base2
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 9 6 W
+row 16 52 W
+row 6 21 W
+row 54 0 .........U....FYLO...AcLLLL...UUDY....LLY..GG..........
+row 55 0 .........U....LOO....AYYUU...UD......OO.....G..........
+row 56 0 ...............O.........U...D........O.....G..........
+row 57 0 .........................U.............................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 6 d
+row 51 50 d
+row 52 6 d
+row 52 50 d
+row 53 6 d
+row 53 50 d
+
+frame p2_chase5 from base2
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+row 54 0 .........U....FYLO...AcLLLL...UUDY....LLY..GG..........
+row 55 0 ........U....LOO....AYYUU...UD......OO.....G...........
+row 56 0 ........U.....O.........U...D........O.....G...........
+row 57 0 ........................U....D.......O.................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 5 d
+row 51 50 d
+row 52 5 d
+row 52 50 d
+row 53 5 d
+row 53 50 d
+
+frame p3_idle0 from base3
+
+frame p3_idle1 from base3
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+
+frame p3_idle2 from base3
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 0 27 W
+row 13 12 W
+row 4 37 W
+
+frame p3_idle3 from base3
+row 23 25 OcHHHEYY
+row 24 25 cHPZPHKY
+row 25 25 IHZPHIcY
+row 26 25 IIPHIHNZ
+row 9 6 W
+row 16 52 W
+row 6 21 W
+
+frame p3_hover0 from base3
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+row 54 0 ...........U..FYLO...AcLLLL...UUDY....LLY....GG........
+row 55 0 ...........U....LOO...AYYUU....UD......OO.....G........
+row 56 0 .................O.........U....D........O.....G.......
+row 57 0 ...........................U...........................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 8 d
+row 51 52 d
+row 52 8 d
+row 52 52 d
+row 53 8 d
+row 53 52 d
+
+frame p3_hover1 from base3
+row 54 0 ...........U..FYLO...AcLLLL...UUDY....LLY....GG........
+row 55 0 ............U...LOO...AYYUU....UD.......OO.....G.......
+row 56 0 ............U....O.........U....D........O......G......
+row 57 0 ...........................U.....D.......O.............
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 9 d
+row 51 52 d
+row 52 9 d
+row 52 52 d
+row 53 9 d
+row 53 52 d
+
+frame p3_hover2 from base3
+row 23 25 OcHHHEYY
+row 24 25 cHPZPHKY
+row 25 25 IHZPHIcY
+row 26 25 IIPHIHNZ
+row 9 42 W
+row 12 16 W
+row 17 53 W
+row 54 0 ..........U...FYLO...AcLLLL...UUDY....LLY...GG.........
+row 55 0 ..........U....LO.....AYYU....UD......O......G.........
+row 56 0 ...............................D........O....G.........
+row 57 0 .......................................................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 7 d
+row 51 51 d
+row 52 7 d
+row 52 51 d
+row 53 7 d
+row 53 51 d
+
+frame p3_hover3 from base3
+row 54 0 .........U....FYLO...AcLLLL...UUDY....LLY..GG..........
+row 55 0 .........U....LOO....AYYUU...UD......OO.....G..........
+row 56 0 ...............O.........U...D........O.....G..........
+row 57 0 .........................U.............................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 6 d
+row 51 50 d
+row 52 6 d
+row 52 50 d
+row 53 6 d
+row 53 50 d
+
+frame p3_hover4 from base3
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 3 38 W
+row 9 7 W
+row 9 48 W
+row 54 0 .........U....FYLO...AcLLLL...UUDY....LLY..GG..........
+row 55 0 ........U....LOO....AYYUU...UD......OO.....G...........
+row 56 0 ........U.....O.........U...D........O.....G...........
+row 57 0 ........................U....D.......O.................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 5 d
+row 51 50 d
+row 52 5 d
+row 52 50 d
+row 53 5 d
+row 53 50 d
+
+frame p3_hover5 from base3
+row 0 27 W
+row 13 12 W
+row 4 37 W
+row 54 0 ..........U...FYLO...AcLLLL...UUDY....LLY...GG.........
+row 55 0 ..........U....LO.....AYYU....UD......O......G.........
+row 56 0 ...............................D........O....G.........
+row 57 0 .......................................................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 7 d
+row 51 51 d
+row 52 7 d
+row 52 51 d
+row 53 7 d
+row 53 51 d
+
+frame p3_cast0 from base3
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+
+frame p3_cast1 from base3
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+
+frame p3_cast2 from base3
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 3 27 W
+row 16 12 W
+row 7 37 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+
+frame p3_cast3 from base3
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 12 42 W
+row 15 16 W
+row 20 53 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+
+frame p3_cast4 from base3
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+
+frame p3_cast5 from base3
+row 23 25 OcHHHEYY
+row 24 25 cHPZPHKY
+row 25 25 IHZPHIcY
+row 26 25 IIPHIHNZ
+row 9 6 W
+row 16 52 W
+row 6 21 W
+
+frame p3_summon0 from base3
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+
+frame p3_summon1 from base3
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 0 27 W
+row 13 12 W
+row 4 37 W
+clear 46 23 54 29
+at 44 14
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 21 5 25
+at 0 14
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+
+frame p3_summon2 from base3
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 12 42 W
+row 15 16 W
+row 20 53 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 24 5 28
+at 0 17
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+
+frame p3_summon3 from base3
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 6 38 W
+row 12 7 W
+row 12 48 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 24 5 28
+at 0 17
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+
+frame p3_summon4 from base3
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+clear 46 23 54 29
+at 44 14
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 21 5 25
+at 0 14
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+
+frame p3_summon5 from base3
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+
+frame p3_stag0 from base3
+row 23 25 OcHHHEYY
+row 24 25 cHPZPHKY
+row 25 25 IHZPHIcY
+row 26 25 IIPHIHNZ
+row 3 0 .................A........XIJJYD......I................
+row 4 0 .................JAI..DM..YIJ..OOB..AIJ................
+row 5 0 ..................JIAYYYIIcYA......IAJ.................
+row 6 0 ..................XIOYIAYIIYAYD.....IX.................
+row 4 26 Y
+row 5 27 Y
+row 6 27 Y
+row 7 28 Y
+row 11 24 Y
+row 12 25 Y
+
+frame p3_stag1 from base3
+row 23 25 OcIIIEYY
+row 24 25 cIHHHIKY
+row 25 25 IIHHIIcY
+row 26 25 IIIIIHNZ
+row 27 25 ZIIIIHLK
+row 54 0 ..........U...FYLO...AcLLLL...UUDY....LLY...GG.........
+row 55 0 ..........U....LO.....AYYU....UD......O......G.........
+row 56 0 ...............................D........O....G.........
+row 57 0 .......................................................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 7 d
+row 51 51 d
+row 52 7 d
+row 52 51 d
+row 53 7 d
+row 53 51 d
+row 3 0 .................A........XIJJYD......I................
+row 4 0 .................JAI..DM..YIJ..OOB..AIJ................
+row 5 0 ..................JIAYYYIIcYA......IAJ.................
+row 6 0 ..................XIOYIAYIIYAYD.....IX.................
+row 4 26 Y
+row 5 27 Y
+row 6 27 Y
+row 7 28 Y
+row 11 24 Y
+row 12 25 Y
+
+frame p3_stag2 from base3
+row 23 25 OcIIIEYY
+row 24 25 cIHHHIKY
+row 25 25 IIHHIIcY
+row 26 25 IIIIIHNZ
+row 27 25 ZIIIIHLK
+row 54 0 ..........U...FYLO...AcLLLL...UUDY....LLY...GG.........
+row 55 0 ..........U....LO.....AYYU....UD......O......G.........
+row 56 0 ...............................D........O....G.........
+row 57 0 .......................................................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 7 d
+row 51 51 d
+row 52 7 d
+row 52 51 d
+row 53 7 d
+row 53 51 d
+row 3 0 .................A........XIJJYD......I................
+row 4 0 .................JAI..DM..YIJ..OOB..AIJ................
+row 5 0 ..................JIAYYYIIcYA......IAJ.................
+row 6 0 ..................XIOYIAYIIYAYD.....IX.................
+row 4 26 Y
+row 5 27 Y
+row 6 27 Y
+row 7 28 Y
+row 11 24 Y
+row 12 25 Y
+
+frame p3_stag3 from base3
+row 23 25 OcHHHEYY
+row 24 25 cHPZPHKY
+row 25 25 IHZPHIcY
+row 26 25 IIPHIHNZ
+row 3 0 .................A........XIJJYD......I................
+row 4 0 .................JAI..DM..YIJ..OOB..AIJ................
+row 5 0 ..................JIAYYYIIcYA......IAJ.................
+row 6 0 ..................XIOYIAYIIYAYD.....IX.................
+row 4 26 Y
+row 5 27 Y
+row 6 27 Y
+row 7 28 Y
+row 11 24 Y
+row 12 25 Y
+
+frame p3_beam0 from base3
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 14 15 N
+row 14 41 N
+row 35 15 N
+row 35 41 N
+row 14 28 N
+row 25 15 N
+row 25 41 N
+
+frame p3_beam1 from base3
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+row 15 16 W
+row 15 39 W
+row 34 16 W
+row 34 39 W
+row 15 28 W
+row 25 16 W
+row 25 39 W
+
+frame p3_beam2 from base3
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+clear 0 21 5 25
+at 0 14
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 16 17 N
+row 16 38 N
+row 33 17 N
+row 33 38 N
+row 16 28 N
+row 25 17 N
+row 25 38 N
+
+frame p3_beam3 from base3
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 0 27 W
+row 13 12 W
+row 4 37 W
+clear 46 23 54 29
+at 44 14
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 21 5 25
+at 0 14
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 17 19 W
+row 17 36 W
+row 32 19 W
+row 32 36 W
+row 17 28 W
+row 25 19 W
+row 25 36 W
+
+frame p3_beam4 from base3
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 12 42 W
+row 15 16 W
+row 20 53 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 24 5 28
+at 0 17
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+row 22 20 N
+row 22 35 N
+row 33 20 N
+row 33 35 N
+row 22 28 N
+row 28 20 N
+row 28 35 N
+
+frame p3_beam5 from base3
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 6 38 W
+row 12 7 W
+row 12 48 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 24 5 28
+at 0 17
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+row 23 22 W
+row 23 34 W
+row 32 22 W
+row 32 34 W
+row 23 28 W
+row 28 22 W
+row 28 34 W
+
+frame p3_beam6 from base3
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 12 48 W
+row 18 52 W
+row 6 27 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 24 5 28
+at 0 17
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+row 24 23 N
+row 24 32 N
+row 31 23 N
+row 31 32 N
+row 24 28 N
+row 28 23 N
+row 28 32 N
+
+frame p3_beam7 from base3
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 6 W
+row 16 52 W
+row 6 21 W
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+
+frame p3_chase0 from base3
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 9 48 W
+row 15 52 W
+row 3 27 W
+row 54 0 ...........U..FYLO...AcLLLL...UUDY....LLY....GG........
+row 55 0 ............U...LOO...AYYUU....UD.......OO.....G.......
+row 56 0 ............U....O.........U....D........O......G......
+row 57 0 ...........................U.....D.......O.............
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 9 d
+row 51 52 d
+row 52 9 d
+row 52 52 d
+row 53 9 d
+row 53 52 d
+
+frame p3_chase1 from base3
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 9 42 W
+row 12 16 W
+row 17 53 W
+row 54 0 ...........U..FYLO...AcLLLL...UUDY....LLY....GG........
+row 55 0 ...........U....LOO...AYYUU....UD......OO.....G........
+row 56 0 .................O.........U....D........O.....G.......
+row 57 0 ...........................U...........................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 8 d
+row 51 52 d
+row 52 8 d
+row 52 52 d
+row 53 8 d
+row 53 52 d
+
+frame p3_chase2 from base3
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 0 27 W
+row 13 12 W
+row 4 37 W
+row 54 0 ...........U..FYLO...AcLLLL...UUDY....LLY....GG........
+row 55 0 ............U...LOO...AYYUU....UD.......OO.....G.......
+row 56 0 ............U....O.........U....D........O......G......
+row 57 0 ...........................U.....D.......O.............
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 9 d
+row 51 52 d
+row 52 9 d
+row 52 52 d
+row 53 9 d
+row 53 52 d
+
+frame p3_chase3 from base3
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 3 38 W
+row 9 7 W
+row 9 48 W
+row 54 0 .........U....FYLO...AcLLLL...UUDY....LLY..GG..........
+row 55 0 ........U....LOO....AYYUU...UD......OO.....G...........
+row 56 0 ........U.....O.........U...D........O.....G...........
+row 57 0 ........................U....D.......O.................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 5 d
+row 51 50 d
+row 52 5 d
+row 52 50 d
+row 53 5 d
+row 53 50 d
+
+frame p3_chase4 from base3
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 9 6 W
+row 16 52 W
+row 6 21 W
+row 54 0 .........U....FYLO...AcLLLL...UUDY....LLY..GG..........
+row 55 0 .........U....LOO....AYYUU...UD......OO.....G..........
+row 56 0 ...............O.........U...D........O.....G..........
+row 57 0 .........................U.............................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 6 d
+row 51 50 d
+row 52 6 d
+row 52 50 d
+row 53 6 d
+row 53 50 d
+
+frame p3_chase5 from base3
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+row 54 0 .........U....FYLO...AcLLLL...UUDY....LLY..GG..........
+row 55 0 ........U....LOO....AYYUU...UD......OO.....G...........
+row 56 0 ........U.....O.........U...D........O.....G...........
+row 57 0 ........................U....D.......O.................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 5 d
+row 51 50 d
+row 52 5 d
+row 52 50 d
+row 53 5 d
+row 53 50 d
+
+frame p4_idle0 from base4
+
+frame p4_idle1 from base4
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+
+frame p4_idle2 from base4
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 0 27 W
+row 13 12 W
+row 4 37 W
+
+frame p4_idle3 from base4
+row 23 25 OcHHHEYY
+row 24 25 cHPZPHKY
+row 25 25 IHZPHIcY
+row 26 25 IIPHIHNZ
+row 9 6 W
+row 16 52 W
+row 6 21 W
+
+frame p4_hover0 from base4
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+row 54 0 ...........U..FYLO...AcLLLL...UUDY....LLY....GG........
+row 55 0 ...........U....LOO...AYYUU....UD......OO.....G........
+row 56 0 .................O.........U....D........O.....G.......
+row 57 0 ...........................U...........................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 8 d
+row 51 52 d
+row 52 8 d
+row 52 52 d
+row 53 8 d
+row 53 52 d
+
+frame p4_hover1 from base4
+row 54 0 ...........U..FYLO...AcLLLL...UUDY....LLY....GG........
+row 55 0 ............U...LOO...AYYUU....UD.......OO.....G.......
+row 56 0 ............U....O.........U....D........O......G......
+row 57 0 ...........................U.....D.......O.............
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 9 d
+row 51 52 d
+row 52 9 d
+row 52 52 d
+row 53 9 d
+row 53 52 d
+
+frame p4_hover2 from base4
+row 23 25 OcHHHEYY
+row 24 25 cHPZPHKY
+row 25 25 IHZPHIcY
+row 26 25 IIPHIHNZ
+row 9 42 W
+row 12 16 W
+row 17 53 W
+row 54 0 ..........U...FYLO...AcLLLL...UUDY....LLY...GG.........
+row 55 0 ..........U....LO.....AYYU....UD......O......G.........
+row 56 0 ...............................D........O....G.........
+row 57 0 .......................................................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 7 d
+row 51 51 d
+row 52 7 d
+row 52 51 d
+row 53 7 d
+row 53 51 d
+
+frame p4_hover3 from base4
+row 54 0 .........U....FYLO...AcLLLL...UUDY....LLY..GG..........
+row 55 0 .........U....LOO....AYYUU...UD......OO.....G..........
+row 56 0 ...............O.........U...D........O.....G..........
+row 57 0 .........................U.............................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 6 d
+row 51 50 d
+row 52 6 d
+row 52 50 d
+row 53 6 d
+row 53 50 d
+
+frame p4_hover4 from base4
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 3 38 W
+row 9 7 W
+row 9 48 W
+row 54 0 .........U....FYLO...AcLLLL...UUDY....LLY..GG..........
+row 55 0 ........U....LOO....AYYUU...UD......OO.....G...........
+row 56 0 ........U.....O.........U...D........O.....G...........
+row 57 0 ........................U....D.......O.................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 5 d
+row 51 50 d
+row 52 5 d
+row 52 50 d
+row 53 5 d
+row 53 50 d
+
+frame p4_hover5 from base4
+row 0 27 W
+row 13 12 W
+row 4 37 W
+row 54 0 ..........U...FYLO...AcLLLL...UUDY....LLY...GG.........
+row 55 0 ..........U....LO.....AYYU....UD......O......G.........
+row 56 0 ...............................D........O....G.........
+row 57 0 .......................................................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 7 d
+row 51 51 d
+row 52 7 d
+row 52 51 d
+row 53 7 d
+row 53 51 d
+
+frame p4_cast0 from base4
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+
+frame p4_cast1 from base4
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+
+frame p4_cast2 from base4
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 3 27 W
+row 16 12 W
+row 7 37 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+
+frame p4_cast3 from base4
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 12 42 W
+row 15 16 W
+row 20 53 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+
+frame p4_cast4 from base4
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+
+frame p4_cast5 from base4
+row 23 25 OcHHHEYY
+row 24 25 cHPZPHKY
+row 25 25 IHZPHIcY
+row 26 25 IIPHIHNZ
+row 9 6 W
+row 16 52 W
+row 6 21 W
+
+frame p4_summon0 from base4
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+
+frame p4_summon1 from base4
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 0 27 W
+row 13 12 W
+row 4 37 W
+clear 46 23 54 29
+at 44 14
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 21 5 25
+at 0 14
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+
+frame p4_summon2 from base4
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 12 42 W
+row 15 16 W
+row 20 53 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 24 5 28
+at 0 17
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+
+frame p4_summon3 from base4
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 6 38 W
+row 12 7 W
+row 12 48 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 24 5 28
+at 0 17
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+
+frame p4_summon4 from base4
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+clear 46 23 54 29
+at 44 14
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 21 5 25
+at 0 14
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+
+frame p4_summon5 from base4
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+
+frame p4_stag0 from base4
+row 23 25 OcHHHEYY
+row 24 25 cHPZPHKY
+row 25 25 IHZPHIcY
+row 26 25 IIPHIHNZ
+row 3 0 .................A........XIJJYD......I................
+row 4 0 .................JAI..DM..YIJ..OOB..AIJ................
+row 5 0 ..................JIAYYYIIcYA......IAJ.................
+row 6 0 ..................XIOYIAYIIYAYD.....IX.................
+row 4 26 Y
+row 5 27 Y
+row 6 27 Y
+row 7 28 Y
+row 11 24 Y
+row 12 25 Y
+
+frame p4_stag1 from base4
+row 23 25 OcIIIEYY
+row 24 25 cIHHHIKY
+row 25 25 IIHHIIcY
+row 26 25 IIIIIHNZ
+row 27 25 ZIIIIHLK
+row 54 0 ..........U...FYLO...AcLLLL...UUDY....LLY...GG.........
+row 55 0 ..........U....LO.....AYYU....UD......O......G.........
+row 56 0 ...............................D........O....G.........
+row 57 0 .......................................................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 7 d
+row 51 51 d
+row 52 7 d
+row 52 51 d
+row 53 7 d
+row 53 51 d
+row 3 0 .................A........XIJJYD......I................
+row 4 0 .................JAI..DM..YIJ..OOB..AIJ................
+row 5 0 ..................JIAYYYIIcYA......IAJ.................
+row 6 0 ..................XIOYIAYIIYAYD.....IX.................
+row 4 26 Y
+row 5 27 Y
+row 6 27 Y
+row 7 28 Y
+row 11 24 Y
+row 12 25 Y
+
+frame p4_stag2 from base4
+row 23 25 OcIIIEYY
+row 24 25 cIHHHIKY
+row 25 25 IIHHIIcY
+row 26 25 IIIIIHNZ
+row 27 25 ZIIIIHLK
+row 54 0 ..........U...FYLO...AcLLLL...UUDY....LLY...GG.........
+row 55 0 ..........U....LO.....AYYU....UD......O......G.........
+row 56 0 ...............................D........O....G.........
+row 57 0 .......................................................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 7 d
+row 51 51 d
+row 52 7 d
+row 52 51 d
+row 53 7 d
+row 53 51 d
+row 3 0 .................A........XIJJYD......I................
+row 4 0 .................JAI..DM..YIJ..OOB..AIJ................
+row 5 0 ..................JIAYYYIIcYA......IAJ.................
+row 6 0 ..................XIOYIAYIIYAYD.....IX.................
+row 4 26 Y
+row 5 27 Y
+row 6 27 Y
+row 7 28 Y
+row 11 24 Y
+row 12 25 Y
+
+frame p4_stag3 from base4
+row 23 25 OcHHHEYY
+row 24 25 cHPZPHKY
+row 25 25 IHZPHIcY
+row 26 25 IIPHIHNZ
+row 3 0 .................A........XIJJYD......I................
+row 4 0 .................JAI..DM..YIJ..OOB..AIJ................
+row 5 0 ..................JIAYYYIIcYA......IAJ.................
+row 6 0 ..................XIOYIAYIIYAYD.....IX.................
+row 4 26 Y
+row 5 27 Y
+row 6 27 Y
+row 7 28 Y
+row 11 24 Y
+row 12 25 Y
+
+frame p4_beam0 from base4
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 14 15 N
+row 14 41 N
+row 35 15 N
+row 35 41 N
+row 14 28 N
+row 25 15 N
+row 25 41 N
+
+frame p4_beam1 from base4
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+row 15 16 W
+row 15 39 W
+row 34 16 W
+row 34 39 W
+row 15 28 W
+row 25 16 W
+row 25 39 W
+
+frame p4_beam2 from base4
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+clear 0 21 5 25
+at 0 14
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 16 17 N
+row 16 38 N
+row 33 17 N
+row 33 38 N
+row 16 28 N
+row 25 17 N
+row 25 38 N
+
+frame p4_beam3 from base4
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 0 27 W
+row 13 12 W
+row 4 37 W
+clear 46 23 54 29
+at 44 14
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 21 5 25
+at 0 14
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 17 19 W
+row 17 36 W
+row 32 19 W
+row 32 36 W
+row 17 28 W
+row 25 19 W
+row 25 36 W
+
+frame p4_beam4 from base4
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 12 42 W
+row 15 16 W
+row 20 53 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 24 5 28
+at 0 17
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+row 22 20 N
+row 22 35 N
+row 33 20 N
+row 33 35 N
+row 22 28 N
+row 28 20 N
+row 28 35 N
+
+frame p4_beam5 from base4
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 6 38 W
+row 12 7 W
+row 12 48 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 24 5 28
+at 0 17
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+row 23 22 W
+row 23 34 W
+row 32 22 W
+row 32 34 W
+row 23 28 W
+row 28 22 W
+row 28 34 W
+
+frame p4_beam6 from base4
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 12 48 W
+row 18 52 W
+row 6 27 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 24 5 28
+at 0 17
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+row 24 23 N
+row 24 32 N
+row 31 23 N
+row 31 32 N
+row 24 28 N
+row 28 23 N
+row 28 32 N
+
+frame p4_beam7 from base4
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 6 W
+row 16 52 W
+row 6 21 W
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+
+frame p4_chase0 from base4
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 9 48 W
+row 15 52 W
+row 3 27 W
+row 54 0 ...........U..FYLO...AcLLLL...UUDY....LLY....GG........
+row 55 0 ............U...LOO...AYYUU....UD.......OO.....G.......
+row 56 0 ............U....O.........U....D........O......G......
+row 57 0 ...........................U.....D.......O.............
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 9 d
+row 51 52 d
+row 52 9 d
+row 52 52 d
+row 53 9 d
+row 53 52 d
+
+frame p4_chase1 from base4
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 9 42 W
+row 12 16 W
+row 17 53 W
+row 54 0 ...........U..FYLO...AcLLLL...UUDY....LLY....GG........
+row 55 0 ...........U....LOO...AYYUU....UD......OO.....G........
+row 56 0 .................O.........U....D........O.....G.......
+row 57 0 ...........................U...........................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 8 d
+row 51 52 d
+row 52 8 d
+row 52 52 d
+row 53 8 d
+row 53 52 d
+
+frame p4_chase2 from base4
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 0 27 W
+row 13 12 W
+row 4 37 W
+row 54 0 ...........U..FYLO...AcLLLL...UUDY....LLY....GG........
+row 55 0 ............U...LOO...AYYUU....UD.......OO.....G.......
+row 56 0 ............U....O.........U....D........O......G......
+row 57 0 ...........................U.....D.......O.............
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 9 d
+row 51 52 d
+row 52 9 d
+row 52 52 d
+row 53 9 d
+row 53 52 d
+
+frame p4_chase3 from base4
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 3 38 W
+row 9 7 W
+row 9 48 W
+row 54 0 .........U....FYLO...AcLLLL...UUDY....LLY..GG..........
+row 55 0 ........U....LOO....AYYUU...UD......OO.....G...........
+row 56 0 ........U.....O.........U...D........O.....G...........
+row 57 0 ........................U....D.......O.................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 5 d
+row 51 50 d
+row 52 5 d
+row 52 50 d
+row 53 5 d
+row 53 50 d
+
+frame p4_chase4 from base4
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 9 6 W
+row 16 52 W
+row 6 21 W
+row 54 0 .........U....FYLO...AcLLLL...UUDY....LLY..GG..........
+row 55 0 .........U....LOO....AYYUU...UD......OO.....G..........
+row 56 0 ...............O.........U...D........O.....G..........
+row 57 0 .........................U.............................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 6 d
+row 51 50 d
+row 52 6 d
+row 52 50 d
+row 53 6 d
+row 53 50 d
+
+frame p4_chase5 from base4
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+row 54 0 .........U....FYLO...AcLLLL...UUDY....LLY..GG..........
+row 55 0 ........U....LOO....AYYUU...UD......OO.....G...........
+row 56 0 ........U.....O.........U...D........O.....G...........
+row 57 0 ........................U....D.......O.................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 5 d
+row 51 50 d
+row 52 5 d
+row 52 50 d
+row 53 5 d
+row 53 50 d
+
+frame death0 from base4
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 0 27 W
+row 13 12 W
+row 4 37 W
+
+frame death1 from base4
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 9 42 W
+row 12 16 W
+row 17 53 W
+
+frame death2 from death1
+row 30 20 W
+row 31 21 W
+row 32 21 W
+row 33 22 W
+row 34 23 W
+row 30 35 W
+row 31 34 W
+row 32 34 W
+row 33 33 W
+row 34 33 W
+row 40 18 W
+row 41 19 W
+row 42 19 W
+row 43 20 W
+row 40 37 W
+row 41 36 W
+row 42 36 W
+row 43 35 W
+row 33 27 W
+row 34 28 W
+row 35 28 W
+row 36 27 W
+
+frame death3 from death2
+row 30 20 N
+row 31 21 N
+row 32 21 N
+row 33 22 N
+row 34 23 N
+row 30 35 N
+row 31 34 N
+row 32 34 N
+row 33 33 N
+row 34 33 N
+row 40 18 N
+row 41 19 N
+row 42 19 N
+row 43 20 N
+row 40 37 N
+row 41 36 N
+row 42 36 N
+row 43 35 N
+row 33 27 N
+row 34 28 N
+row 35 28 N
+row 36 27 N
+row 3 0 .................A........XIJJYD......I................
+row 4 0 .................JAI..DM..YIJ..OOB..AIJ................
+row 5 0 ..................JIAYYYIIcYA......IAJ.................
+row 6 0 ..................XIOYIAYIIYAYD.....IX.................
+row 4 26 Y
+row 5 27 Y
+row 6 27 Y
+row 7 28 Y
+row 11 24 Y
+row 12 25 Y
+
+frame death4 from death3
+row 23 25 OcIIIEYY
+row 24 25 cIHHHIKY
+row 25 25 IIHHIIcY
+row 26 25 IIIIIHNZ
+
+frame death5 from death4
+clear 0 0 54 7
+row 8 0 ???????D????????D??DDG?????????????DG??G???????????????
+
+frame death6 from death5
+clear 0 0 54 14
+row 15 0 ???D??D?????D???DG??????DDGDDGD??????DGD????????D???D??
+
+frame death7 from death6
+clear 0 0 54 21
+row 22 0 DGDD?D?????DDGDDGDDGDDGDDGDDGDDGDDGDDGDDGDD????????????
+
+frame death8 from death7
+clear 0 0 54 29
+row 30 0 ??????GDDGDDGDDGDDGDDGDDGDDGDDGDDGDDGDDGDDGDDGDDG??????
+
+frame death9 from death8
+clear 0 0 54 37
+row 38 0 ?D???GDDGDD?DDGDDGDDGDDGDDGDDGDDGDDGDDGDDGDD??DGD??D???
+
+frame death10 from death9
+clear 0 0 54 44
+row 45 0 ?????????DGDDGDDGDDGDDGDDGDDGDDGDDGDDGDDGDDGDD?????????
+
+frame death11 from death10
+clear 0 0 54 50
+row 51 0 ???????DD????DDGDDGDDGDDGDDGDDGDDGDDGDDGDDG???D????G???
+
+frame void0
+...........................GU..........................
+...........................GU..........................
+...........................GU..........................
+.................U........GGUUYU......G................
+.................UUU..UL..YGU..LLU..GGU................
+..................UUUYYYGULGU......GGU.................
+..................GULYGGGUUGUYL.....UG.................
+...................LGGGU.........Y..Y..................
+.......U........L..GGU.............UU..L...............
+......GG........UYGGU..............LYYYL..U.....G......
+......GG.....U...GGU.................YL...L.....UU.....
+......LG.....U...LU........YUYU......UG.........GU.....
+.....ULL.....Y..GLU......UGGGGU.......G.........GL.....
+......LGYGGGGGGGULY.....UUYGLYUUG.....GUGGGGGG..LL.....
+...U..UG....UUUUGGGYYYULLYYGGGYYLL...GGUUGUU....GL.....
+...L..G.....Y...UU......ULYYYYY......YUG........G...G..
+..GL..G.....Y...UU.......LGYYYUY....UYGU....Y.......GU.
+...L.....UYYLYUYLU..U....YGYYYYY...GUYUY....Y.......GL.
+...G....GYYYYYLULL..UU..LLGYYYUYUYGUYYLYULYYYYU.....LL.
+........G...YYYYUUUUYUGYYYYLLYYYYYGYYYYUYYYL..LU....G..
+.............YYYYYYYUYGYYYLUGLYUYYGYYYYYYYYU...G.......
+.UYG.........UYYYYYGLYUYYGUGYUGUYYUGYLYYYY.............
+UYYY.U.....UGGYYYYGYYUULUUGLLLYULYYLGYYYYYY............
+LYYYL.......UUUGGLLYYUYGYLLGGGLYYYYUUYGGUGUU......GYYYU
+.YYYL..U.....UYYLUUGGGYULLGGGGGLYLLGUGUYYYU........UYLL
+.LLYYYUUU......YUYYYGGLYLUGGGGULYLLYYYUYYY.........LYYY
+...YYYYYYGU...LYYYYYYYLGLUUGGUGGGLYYYYYYYY....GUGYYYYY.
+....YYYYYUUYUUYYYLYLYYGUYGGGUUGYLGYYLLYYYY..GUGYGYYY...
+....UYYYYUUUYYLYYLULYYYLLGLUGLGUYYYYLLLYYYLYGUUYUYYL...
+......YYYUYUYYGYYLLYYYYLLUYYLYGLYYYYLLLYYYYYYYUYYLL....
+......YYYUYUYYYYYLLYYYYYYLGYUGUYYYYYLLLLYYYYUYUYY......
+......YUYUUYYYYYYLLYYYYYYYUGUUYYYYYYUYLLLLYYYUUYY......
+......YUYUUYYYLLLLLYYUUUULYUUYYYUUULGYLLLLLYYUUYU......
+....LLY..UYYLLLLLLLYYUUUULYLUYLLUUUYLYLLLLLLLYUU.....Y.
+...LLLY..UYLLLLLLLLUUYYYULLYULLLUYYYYYLLLLLLLYUY.....Y.
+..LLLYY..UYLLLLLLLUYYYUYYLLLYLLYYYYYYYGLGULLLYYYY......
+.LLLL....LYLLLYLLLUYYYGYYLLLLLLLYYUYYYGUYYYLLLYYY..G...
+.L.....YYLLLYYYYLGYYYGGYYLLLULLLYYYUYYGYYYYLLLLYY..U...
+.L...LYYYUL.YYYYYYYUUYYYYLLLULLLYYYYUULYYYYU..LYY..U...
+.....LYYYU..YYYYYYYYYYGYYLLLLULLYYYYYYYYYYYY..LUY......
+....L..YG..YYYYYYYYYYLYYYLLLLUULYLYYYYYYYLYL..UUY......
+.......GG..LLYYYYYYYYUYLYLLUUULUYLLLYYYYYLLLL..UU......
+.......UU..LLLYYYYYUYYYUYULLULLULLGLYYYYYYLLL...U......
+.......G...LLLYYYYYYYYYGYULLULLUYLGYYUUYYYLLL......L...
+..........LLLLYYYYYYYYUYYULLULLUYLUYYYYYYYLLLL......L..
+.........LLLLLYYYYYYYYLYYULLLLLUYLYYYYYYYYLLLL.........
+.........LLLLLYYYYYYYYUYYULLLLLUYGYYYYYYYYLLLLLLL......
+.......LLLLLLYYYYYYYUYYYYUULLLUGYYYYYYYYYLLLLLLLLL.....
+....LLLLLLLYLLYYYYYLGUYYYUULLUUYYYYLUYYYYYLYYLLLLLL....
+...LLYLLLL..LLLYYYYUYYLYYUUULUUYYLYUGYYYYYLYYLYLYLLL...
+...L...LLL...YYYYYYGYYLYYUYUUUUYYLLYGUYYYYY...YL..LL...
+.......LL....YYYUUUYYLLYYYYUUYYYYYLLYYUUYYY...L....L...
+.......L....YYYUYYYYLLLYYYYYUYYYYYLLLYYYUYYY.......L...
+.......L...YYYYYYYYYLLLYYYYYUYYYYYL..LYYYUYYY..........
+..........Y...UYYL...ULYYYY...YYLY....YYY...YY.........
+..........Y....YLL....UYYYY...YL......LL.....Y.........
+................L.........Y...L........L.....Y.........
+..........................Y............................
+row 23 25 YYYYYYYY
+row 24 25 YYYYYYYY
+row 25 25 YYYYYYYY
+row 26 25 YYYYYYYY
+row 27 25 YYYYYYYY
+
+frame void1 from void0
+row 23 25 YYYYYYYY
+row 24 25 YYYYYYYY
+row 25 25 YYYYYYYY
+row 26 25 YYYYYYYY
+row 27 25 YYYYYYYY
+row 0 27 B
+row 13 12 B
+row 4 37 B
+row 51 13 G
+row 42 26 G
+row 33 39 G
+row 24 12 G
+
+frame void2 from void0
+row 23 25 YYYYYYYY
+row 24 25 YYYYYYYY
+row 25 25 YYYYYYYY
+row 26 25 YYYYYYYY
+row 27 25 YYYYYYYY
+row 9 6 B
+row 16 52 B
+row 6 21 B
+row 52 18 G
+row 43 31 G
+row 34 44 G
+row 25 17 G
+
+frame void3 from void0
+row 23 25 YYYYYYYY
+row 24 25 YYYYYYYY
+row 25 25 YYYYYYYY
+row 26 25 YYYYYYYY
+row 27 25 YYYYYYYY
+row 9 42 B
+row 12 16 B
+row 17 53 B
+row 53 23 G
+row 44 36 G
+row 35 9 G
+row 26 22 G
+
+frame void4 from void0
+row 23 25 YYYYYYYY
+row 24 25 YYYYYYYY
+row 25 25 YYYYYYYY
+row 26 25 YYYYYYYY
+row 27 25 YYYYYYYY
+row 3 38 B
+row 9 7 B
+row 9 48 B
+row 54 28 G
+row 45 41 G
+row 36 14 G
+row 27 27 G
+
+frame void5 from void0
+row 23 25 YYYYYYYY
+row 24 25 YYYYYYYY
+row 25 25 YYYYYYYY
+row 26 25 YYYYYYYY
+row 27 25 YYYYYYYY
+row 9 48 B
+row 15 52 B
+row 3 27 B
+row 55 33 G
+row 46 46 G
+row 37 19 G
+row 28 32 G
+
+clip p1_idle 5 p1_idle0 p1_idle1 p1_idle2 p1_idle3
+clip p1_hover 7 p1_hover0 p1_hover1 p1_hover2 p1_hover3 p1_hover4 p1_hover5
+clip p1_cast 10 p1_cast0 p1_cast1 p1_cast2 p1_cast3 p1_cast4 p1_cast5
+clip p1_summon 8 p1_summon0 p1_summon1 p1_summon2 p1_summon3 p1_summon4 p1_summon5
+clip p1_stagger 5 p1_stag0 p1_stag1 p1_stag2 p1_stag3
+clip p1_beam 7 p1_beam0 p1_beam1 p1_beam2 p1_beam3 p1_beam4 p1_beam5 p1_beam6 p1_beam7
+clip p1_chase 12 p1_chase0 p1_chase1 p1_chase2 p1_chase3 p1_chase4 p1_chase5
+clip p2_idle 5 p2_idle0 p2_idle1 p2_idle2 p2_idle3
+clip p2_hover 7 p2_hover0 p2_hover1 p2_hover2 p2_hover3 p2_hover4 p2_hover5
+clip p2_cast 10 p2_cast0 p2_cast1 p2_cast2 p2_cast3 p2_cast4 p2_cast5
+clip p2_summon 8 p2_summon0 p2_summon1 p2_summon2 p2_summon3 p2_summon4 p2_summon5
+clip p2_stagger 5 p2_stag0 p2_stag1 p2_stag2 p2_stag3
+clip p2_beam 7 p2_beam0 p2_beam1 p2_beam2 p2_beam3 p2_beam4 p2_beam5 p2_beam6 p2_beam7
+clip p2_chase 12 p2_chase0 p2_chase1 p2_chase2 p2_chase3 p2_chase4 p2_chase5
+clip p3_idle 5 p3_idle0 p3_idle1 p3_idle2 p3_idle3
+clip p3_hover 7 p3_hover0 p3_hover1 p3_hover2 p3_hover3 p3_hover4 p3_hover5
+clip p3_cast 10 p3_cast0 p3_cast1 p3_cast2 p3_cast3 p3_cast4 p3_cast5
+clip p3_summon 8 p3_summon0 p3_summon1 p3_summon2 p3_summon3 p3_summon4 p3_summon5
+clip p3_stagger 5 p3_stag0 p3_stag1 p3_stag2 p3_stag3
+clip p3_beam 7 p3_beam0 p3_beam1 p3_beam2 p3_beam3 p3_beam4 p3_beam5 p3_beam6 p3_beam7
+clip p3_chase 12 p3_chase0 p3_chase1 p3_chase2 p3_chase3 p3_chase4 p3_chase5
+clip p4_idle 5 p4_idle0 p4_idle1 p4_idle2 p4_idle3
+clip p4_hover 7 p4_hover0 p4_hover1 p4_hover2 p4_hover3 p4_hover4 p4_hover5
+clip p4_cast 10 p4_cast0 p4_cast1 p4_cast2 p4_cast3 p4_cast4 p4_cast5
+clip p4_summon 8 p4_summon0 p4_summon1 p4_summon2 p4_summon3 p4_summon4 p4_summon5
+clip p4_stagger 5 p4_stag0 p4_stag1 p4_stag2 p4_stag3
+clip p4_beam 7 p4_beam0 p4_beam1 p4_beam2 p4_beam3 p4_beam4 p4_beam5 p4_beam6 p4_beam7
+clip p4_chase 12 p4_chase0 p4_chase1 p4_chase2 p4_chase3 p4_chase4 p4_chase5
+clip p2_enter 4 p1_cast0 p1_summon1 p1_summon2 p1_summon3 p1_summon4 p2_stag0 p2_stag1 p2_stag3 p2_summon2 p2_summon3 p2_idle2 p2_idle0
+clip p3_enter 4 p2_cast0 p2_summon1 p2_summon2 p2_summon3 p2_summon4 p3_stag0 p3_stag1 p3_stag3 p3_summon2 p3_summon3 p3_idle2 p3_idle0
+clip p4_enter 4 p3_cast0 p3_summon1 p3_summon2 p3_summon3 p3_summon4 p4_stag0 p4_stag1 p4_stag3 p4_summon2 p4_summon3 p4_idle2 p4_idle0
+clip death 3 death0 death1 death2 death3 death4 death5 death6 death7 death8 death9 death10 death11
+clip void 4 void0 void1 void2 void3 void4 void5

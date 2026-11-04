@@ -11,213 +11,1071 @@
    "sprites": {
     "solkhar": {
      "frames": {
-      "idle0": [
+      "p1_idle0": [
        0,
        0,
        67,
        64
       ],
-      "idle1": [
+      "p1_idle1": [
        67,
        0,
        67,
        64
       ],
-      "idle2": [
+      "p1_idle2": [
        134,
        0,
        67,
        64
       ],
-      "idle3": [
+      "p1_idle3": [
        201,
        0,
        67,
        64
       ],
-      "hover0": [
+      "p1_hover0": [
        268,
        0,
        67,
        64
       ],
-      "hover1": [
+      "p1_hover1": [
        335,
        0,
        67,
        64
       ],
-      "hover2": [
+      "p1_hover2": [
        402,
        0,
        67,
        64
       ],
-      "hover3": [
+      "p1_hover3": [
        469,
        0,
        67,
        64
       ],
-      "hover4": [
+      "p1_hover4": [
+       536,
+       0,
+       67,
+       64
+      ],
+      "p1_hover5": [
+       603,
+       0,
+       67,
+       64
+      ],
+      "p1_cast0": [
+       670,
+       0,
+       67,
+       64
+      ],
+      "p1_cast1": [
+       737,
+       0,
+       67,
+       64
+      ],
+      "p1_cast2": [
+       804,
+       0,
+       67,
+       64
+      ],
+      "p1_cast3": [
+       871,
+       0,
+       67,
+       64
+      ],
+      "p1_cast4": [
+       938,
+       0,
+       67,
+       64
+      ],
+      "p1_cast5": [
+       1005,
+       0,
+       67,
+       64
+      ],
+      "p1_summon0": [
        0,
        64,
        67,
        64
       ],
-      "hover5": [
+      "p1_summon1": [
        67,
        64,
        67,
        64
       ],
-      "cast0": [
+      "p1_summon2": [
        134,
        64,
        67,
        64
       ],
-      "cast1": [
+      "p1_summon3": [
        201,
        64,
        67,
        64
       ],
-      "cast2": [
+      "p1_summon4": [
        268,
        64,
        67,
        64
       ],
-      "cast3": [
+      "p1_summon5": [
        335,
        64,
        67,
        64
       ],
-      "cast4": [
+      "p1_stag0": [
        402,
        64,
        67,
        64
       ],
-      "cast5": [
+      "p1_stag1": [
        469,
        64,
        67,
        64
       ],
-      "summon0": [
+      "p1_stag2": [
+       536,
+       64,
+       67,
+       64
+      ],
+      "p1_stag3": [
+       603,
+       64,
+       67,
+       64
+      ],
+      "p1_beam0": [
+       670,
+       64,
+       67,
+       64
+      ],
+      "p1_beam1": [
+       737,
+       64,
+       67,
+       64
+      ],
+      "p1_beam2": [
+       804,
+       64,
+       67,
+       64
+      ],
+      "p1_beam3": [
+       871,
+       64,
+       67,
+       64
+      ],
+      "p1_beam4": [
+       938,
+       64,
+       67,
+       64
+      ],
+      "p1_beam5": [
+       1005,
+       64,
+       67,
+       64
+      ],
+      "p1_beam6": [
        0,
        128,
        67,
        64
       ],
-      "summon1": [
+      "p1_beam7": [
        67,
        128,
        67,
        64
       ],
-      "summon2": [
+      "p1_chase0": [
        134,
        128,
        67,
        64
       ],
-      "summon3": [
+      "p1_chase1": [
        201,
        128,
        67,
        64
       ],
-      "summon4": [
+      "p1_chase2": [
        268,
        128,
        67,
        64
       ],
-      "summon5": [
+      "p1_chase3": [
        335,
        128,
        67,
        64
       ],
-      "stag0": [
+      "p1_chase4": [
        402,
        128,
        67,
        64
       ],
-      "stag1": [
+      "p1_chase5": [
        469,
        128,
        67,
        64
       ],
-      "stag2": [
+      "p2_idle0": [
+       536,
+       128,
+       67,
+       64
+      ],
+      "p2_idle1": [
+       603,
+       128,
+       67,
+       64
+      ],
+      "p2_idle2": [
+       670,
+       128,
+       67,
+       64
+      ],
+      "p2_idle3": [
+       737,
+       128,
+       67,
+       64
+      ],
+      "p2_hover0": [
+       804,
+       128,
+       67,
+       64
+      ],
+      "p2_hover1": [
+       871,
+       128,
+       67,
+       64
+      ],
+      "p2_hover2": [
+       938,
+       128,
+       67,
+       64
+      ],
+      "p2_hover3": [
+       1005,
+       128,
+       67,
+       64
+      ],
+      "p2_hover4": [
        0,
        192,
        67,
        64
       ],
-      "stag3": [
+      "p2_hover5": [
        67,
        192,
        67,
        64
       ],
-      "old_d0": [
+      "p2_cast0": [
        134,
        192,
        67,
        64
       ],
-      "old_d1": [
+      "p2_cast1": [
        201,
        192,
        67,
        64
       ],
-      "old_d2": [
+      "p2_cast2": [
        268,
        192,
        67,
        64
       ],
-      "old_d3": [
+      "p2_cast3": [
        335,
        192,
        67,
        64
       ],
-      "old_d4": [
+      "p2_cast4": [
        402,
        192,
        67,
        64
       ],
-      "old_v0": [
+      "p2_cast5": [
        469,
        192,
        67,
        64
       ],
-      "old_v1": [
+      "p2_summon0": [
+       536,
+       192,
+       67,
+       64
+      ],
+      "p2_summon1": [
+       603,
+       192,
+       67,
+       64
+      ],
+      "p2_summon2": [
+       670,
+       192,
+       67,
+       64
+      ],
+      "p2_summon3": [
+       737,
+       192,
+       67,
+       64
+      ],
+      "p2_summon4": [
+       804,
+       192,
+       67,
+       64
+      ],
+      "p2_summon5": [
+       871,
+       192,
+       67,
+       64
+      ],
+      "p2_stag0": [
+       938,
+       192,
+       67,
+       64
+      ],
+      "p2_stag1": [
+       1005,
+       192,
+       67,
+       64
+      ],
+      "p2_stag2": [
        0,
        256,
        67,
        64
       ],
-      "old_v2": [
+      "p2_stag3": [
        67,
        256,
        67,
        64
       ],
-      "old_v3": [
+      "p2_beam0": [
        134,
        256,
+       67,
+       64
+      ],
+      "p2_beam1": [
+       201,
+       256,
+       67,
+       64
+      ],
+      "p2_beam2": [
+       268,
+       256,
+       67,
+       64
+      ],
+      "p2_beam3": [
+       335,
+       256,
+       67,
+       64
+      ],
+      "p2_beam4": [
+       402,
+       256,
+       67,
+       64
+      ],
+      "p2_beam5": [
+       469,
+       256,
+       67,
+       64
+      ],
+      "p2_beam6": [
+       536,
+       256,
+       67,
+       64
+      ],
+      "p2_beam7": [
+       603,
+       256,
+       67,
+       64
+      ],
+      "p2_chase0": [
+       670,
+       256,
+       67,
+       64
+      ],
+      "p2_chase1": [
+       737,
+       256,
+       67,
+       64
+      ],
+      "p2_chase2": [
+       804,
+       256,
+       67,
+       64
+      ],
+      "p2_chase3": [
+       871,
+       256,
+       67,
+       64
+      ],
+      "p2_chase4": [
+       938,
+       256,
+       67,
+       64
+      ],
+      "p2_chase5": [
+       1005,
+       256,
+       67,
+       64
+      ],
+      "p3_idle0": [
+       0,
+       320,
+       67,
+       64
+      ],
+      "p3_idle1": [
+       67,
+       320,
+       67,
+       64
+      ],
+      "p3_idle2": [
+       134,
+       320,
+       67,
+       64
+      ],
+      "p3_idle3": [
+       201,
+       320,
+       67,
+       64
+      ],
+      "p3_hover0": [
+       268,
+       320,
+       67,
+       64
+      ],
+      "p3_hover1": [
+       335,
+       320,
+       67,
+       64
+      ],
+      "p3_hover2": [
+       402,
+       320,
+       67,
+       64
+      ],
+      "p3_hover3": [
+       469,
+       320,
+       67,
+       64
+      ],
+      "p3_hover4": [
+       536,
+       320,
+       67,
+       64
+      ],
+      "p3_hover5": [
+       603,
+       320,
+       67,
+       64
+      ],
+      "p3_cast0": [
+       670,
+       320,
+       67,
+       64
+      ],
+      "p3_cast1": [
+       737,
+       320,
+       67,
+       64
+      ],
+      "p3_cast2": [
+       804,
+       320,
+       67,
+       64
+      ],
+      "p3_cast3": [
+       871,
+       320,
+       67,
+       64
+      ],
+      "p3_cast4": [
+       938,
+       320,
+       67,
+       64
+      ],
+      "p3_cast5": [
+       1005,
+       320,
+       67,
+       64
+      ],
+      "p3_summon0": [
+       0,
+       384,
+       67,
+       64
+      ],
+      "p3_summon1": [
+       67,
+       384,
+       67,
+       64
+      ],
+      "p3_summon2": [
+       134,
+       384,
+       67,
+       64
+      ],
+      "p3_summon3": [
+       201,
+       384,
+       67,
+       64
+      ],
+      "p3_summon4": [
+       268,
+       384,
+       67,
+       64
+      ],
+      "p3_summon5": [
+       335,
+       384,
+       67,
+       64
+      ],
+      "p3_stag0": [
+       402,
+       384,
+       67,
+       64
+      ],
+      "p3_stag1": [
+       469,
+       384,
+       67,
+       64
+      ],
+      "p3_stag2": [
+       536,
+       384,
+       67,
+       64
+      ],
+      "p3_stag3": [
+       603,
+       384,
+       67,
+       64
+      ],
+      "p3_beam0": [
+       670,
+       384,
+       67,
+       64
+      ],
+      "p3_beam1": [
+       737,
+       384,
+       67,
+       64
+      ],
+      "p3_beam2": [
+       804,
+       384,
+       67,
+       64
+      ],
+      "p3_beam3": [
+       871,
+       384,
+       67,
+       64
+      ],
+      "p3_beam4": [
+       938,
+       384,
+       67,
+       64
+      ],
+      "p3_beam5": [
+       1005,
+       384,
+       67,
+       64
+      ],
+      "p3_beam6": [
+       0,
+       448,
+       67,
+       64
+      ],
+      "p3_beam7": [
+       67,
+       448,
+       67,
+       64
+      ],
+      "p3_chase0": [
+       134,
+       448,
+       67,
+       64
+      ],
+      "p3_chase1": [
+       201,
+       448,
+       67,
+       64
+      ],
+      "p3_chase2": [
+       268,
+       448,
+       67,
+       64
+      ],
+      "p3_chase3": [
+       335,
+       448,
+       67,
+       64
+      ],
+      "p3_chase4": [
+       402,
+       448,
+       67,
+       64
+      ],
+      "p3_chase5": [
+       469,
+       448,
+       67,
+       64
+      ],
+      "p4_idle0": [
+       536,
+       448,
+       67,
+       64
+      ],
+      "p4_idle1": [
+       603,
+       448,
+       67,
+       64
+      ],
+      "p4_idle2": [
+       670,
+       448,
+       67,
+       64
+      ],
+      "p4_idle3": [
+       737,
+       448,
+       67,
+       64
+      ],
+      "p4_hover0": [
+       804,
+       448,
+       67,
+       64
+      ],
+      "p4_hover1": [
+       871,
+       448,
+       67,
+       64
+      ],
+      "p4_hover2": [
+       938,
+       448,
+       67,
+       64
+      ],
+      "p4_hover3": [
+       1005,
+       448,
+       67,
+       64
+      ],
+      "p4_hover4": [
+       0,
+       512,
+       67,
+       64
+      ],
+      "p4_hover5": [
+       67,
+       512,
+       67,
+       64
+      ],
+      "p4_cast0": [
+       134,
+       512,
+       67,
+       64
+      ],
+      "p4_cast1": [
+       201,
+       512,
+       67,
+       64
+      ],
+      "p4_cast2": [
+       268,
+       512,
+       67,
+       64
+      ],
+      "p4_cast3": [
+       335,
+       512,
+       67,
+       64
+      ],
+      "p4_cast4": [
+       402,
+       512,
+       67,
+       64
+      ],
+      "p4_cast5": [
+       469,
+       512,
+       67,
+       64
+      ],
+      "p4_summon0": [
+       536,
+       512,
+       67,
+       64
+      ],
+      "p4_summon1": [
+       603,
+       512,
+       67,
+       64
+      ],
+      "p4_summon2": [
+       670,
+       512,
+       67,
+       64
+      ],
+      "p4_summon3": [
+       737,
+       512,
+       67,
+       64
+      ],
+      "p4_summon4": [
+       804,
+       512,
+       67,
+       64
+      ],
+      "p4_summon5": [
+       871,
+       512,
+       67,
+       64
+      ],
+      "p4_stag0": [
+       938,
+       512,
+       67,
+       64
+      ],
+      "p4_stag1": [
+       1005,
+       512,
+       67,
+       64
+      ],
+      "p4_stag2": [
+       0,
+       576,
+       67,
+       64
+      ],
+      "p4_stag3": [
+       67,
+       576,
+       67,
+       64
+      ],
+      "p4_beam0": [
+       134,
+       576,
+       67,
+       64
+      ],
+      "p4_beam1": [
+       201,
+       576,
+       67,
+       64
+      ],
+      "p4_beam2": [
+       268,
+       576,
+       67,
+       64
+      ],
+      "p4_beam3": [
+       335,
+       576,
+       67,
+       64
+      ],
+      "p4_beam4": [
+       402,
+       576,
+       67,
+       64
+      ],
+      "p4_beam5": [
+       469,
+       576,
+       67,
+       64
+      ],
+      "p4_beam6": [
+       536,
+       576,
+       67,
+       64
+      ],
+      "p4_beam7": [
+       603,
+       576,
+       67,
+       64
+      ],
+      "p4_chase0": [
+       670,
+       576,
+       67,
+       64
+      ],
+      "p4_chase1": [
+       737,
+       576,
+       67,
+       64
+      ],
+      "p4_chase2": [
+       804,
+       576,
+       67,
+       64
+      ],
+      "p4_chase3": [
+       871,
+       576,
+       67,
+       64
+      ],
+      "p4_chase4": [
+       938,
+       576,
+       67,
+       64
+      ],
+      "p4_chase5": [
+       1005,
+       576,
+       67,
+       64
+      ],
+      "death0": [
+       0,
+       640,
+       67,
+       64
+      ],
+      "death1": [
+       67,
+       640,
+       67,
+       64
+      ],
+      "death2": [
+       134,
+       640,
+       67,
+       64
+      ],
+      "death3": [
+       201,
+       640,
+       67,
+       64
+      ],
+      "death4": [
+       268,
+       640,
+       67,
+       64
+      ],
+      "death5": [
+       335,
+       640,
+       67,
+       64
+      ],
+      "death6": [
+       402,
+       640,
+       67,
+       64
+      ],
+      "death7": [
+       469,
+       640,
+       67,
+       64
+      ],
+      "death8": [
+       536,
+       640,
+       67,
+       64
+      ],
+      "death9": [
+       603,
+       640,
+       67,
+       64
+      ],
+      "death10": [
+       670,
+       640,
+       67,
+       64
+      ],
+      "death11": [
+       737,
+       640,
+       67,
+       64
+      ],
+      "void0": [
+       804,
+       640,
+       67,
+       64
+      ],
+      "void1": [
+       871,
+       640,
+       67,
+       64
+      ],
+      "void2": [
+       938,
+       640,
+       67,
+       64
+      ],
+      "void3": [
+       1005,
+       640,
+       67,
+       64
+      ],
+      "void4": [
+       0,
+       704,
+       67,
+       64
+      ],
+      "void5": [
+       67,
+       704,
        67,
        64
       ]
@@ -225,293 +1083,442 @@
      "anims": {
       "idle1": {
        "frames": [
-        "idle0",
-        "idle1",
-        "idle2",
-        "idle3"
+        "p1_idle0",
+        "p1_idle1",
+        "p1_idle2",
+        "p1_idle3"
        ],
        "fps": 5.0,
        "loop": true
       },
       "walk1": {
        "frames": [
-        "hover0",
-        "hover1",
-        "hover2",
-        "hover3",
-        "hover4",
-        "hover5"
+        "p1_hover0",
+        "p1_hover1",
+        "p1_hover2",
+        "p1_hover3",
+        "p1_hover4",
+        "p1_hover5"
        ],
        "fps": 7.0,
        "loop": true
       },
       "charge1": {
        "frames": [
-        "hover0",
-        "hover1",
-        "hover2",
-        "hover3",
-        "hover4",
-        "hover5"
+        "p1_chase0",
+        "p1_chase1",
+        "p1_chase2",
+        "p1_chase3",
+        "p1_chase4",
+        "p1_chase5"
        ],
-       "fps": 12,
+       "fps": 12.0,
        "loop": true
       },
       "attack1": {
        "frames": [
-        "cast0",
-        "cast1",
-        "cast2",
-        "cast3",
-        "cast4",
-        "cast5"
+        "p1_cast0",
+        "p1_cast1",
+        "p1_cast2",
+        "p1_cast3",
+        "p1_cast4",
+        "p1_cast5"
        ],
        "fps": 10.0,
        "loop": false
       },
       "hurt1": {
        "frames": [
-        "stag0"
+        "p1_stag0"
        ],
        "fps": 5,
        "loop": false
       },
+      "summon1": {
+       "frames": [
+        "p1_summon0",
+        "p1_summon1",
+        "p1_summon2",
+        "p1_summon3",
+        "p1_summon4",
+        "p1_summon5"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "beam1": {
+       "frames": [
+        "p1_beam0",
+        "p1_beam1",
+        "p1_beam2",
+        "p1_beam3",
+        "p1_beam4",
+        "p1_beam5",
+        "p1_beam6",
+        "p1_beam7"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "stagger1": {
+       "frames": [
+        "p1_stag0",
+        "p1_stag1",
+        "p1_stag2",
+        "p1_stag3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
       "idle2": {
        "frames": [
-        "idle0",
-        "idle1",
-        "idle2",
-        "idle3"
+        "p2_idle0",
+        "p2_idle1",
+        "p2_idle2",
+        "p2_idle3"
        ],
        "fps": 5.0,
        "loop": true
       },
       "walk2": {
        "frames": [
-        "hover0",
-        "hover1",
-        "hover2",
-        "hover3",
-        "hover4",
-        "hover5"
+        "p2_hover0",
+        "p2_hover1",
+        "p2_hover2",
+        "p2_hover3",
+        "p2_hover4",
+        "p2_hover5"
        ],
        "fps": 7.0,
        "loop": true
       },
       "charge2": {
        "frames": [
-        "hover0",
-        "hover1",
-        "hover2",
-        "hover3",
-        "hover4",
-        "hover5"
+        "p2_chase0",
+        "p2_chase1",
+        "p2_chase2",
+        "p2_chase3",
+        "p2_chase4",
+        "p2_chase5"
        ],
-       "fps": 12,
+       "fps": 12.0,
        "loop": true
       },
       "attack2": {
        "frames": [
-        "cast0",
-        "cast1",
-        "cast2",
-        "cast3",
-        "cast4",
-        "cast5"
+        "p2_cast0",
+        "p2_cast1",
+        "p2_cast2",
+        "p2_cast3",
+        "p2_cast4",
+        "p2_cast5"
        ],
        "fps": 10.0,
        "loop": false
       },
       "hurt2": {
        "frames": [
-        "stag0"
+        "p2_stag0"
        ],
        "fps": 5,
        "loop": false
       },
+      "summon2": {
+       "frames": [
+        "p2_summon0",
+        "p2_summon1",
+        "p2_summon2",
+        "p2_summon3",
+        "p2_summon4",
+        "p2_summon5"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "beam2": {
+       "frames": [
+        "p2_beam0",
+        "p2_beam1",
+        "p2_beam2",
+        "p2_beam3",
+        "p2_beam4",
+        "p2_beam5",
+        "p2_beam6",
+        "p2_beam7"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "stagger2": {
+       "frames": [
+        "p2_stag0",
+        "p2_stag1",
+        "p2_stag2",
+        "p2_stag3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
       "enter2": {
        "frames": [
-        "summon0",
-        "summon1",
-        "summon2",
-        "summon3",
-        "summon4",
-        "summon5"
+        "p1_cast0",
+        "p1_summon1",
+        "p1_summon2",
+        "p1_summon3",
+        "p1_summon4",
+        "p2_stag0",
+        "p2_stag1",
+        "p2_stag3",
+        "p2_summon2",
+        "p2_summon3",
+        "p2_idle2",
+        "p2_idle0"
        ],
-       "fps": 4,
+       "fps": 4.0,
        "loop": false
       },
       "idle3": {
        "frames": [
-        "idle0",
-        "idle1",
-        "idle2",
-        "idle3"
+        "p3_idle0",
+        "p3_idle1",
+        "p3_idle2",
+        "p3_idle3"
        ],
        "fps": 5.0,
        "loop": true
       },
       "walk3": {
        "frames": [
-        "hover0",
-        "hover1",
-        "hover2",
-        "hover3",
-        "hover4",
-        "hover5"
+        "p3_hover0",
+        "p3_hover1",
+        "p3_hover2",
+        "p3_hover3",
+        "p3_hover4",
+        "p3_hover5"
        ],
        "fps": 7.0,
        "loop": true
       },
       "charge3": {
        "frames": [
-        "hover0",
-        "hover1",
-        "hover2",
-        "hover3",
-        "hover4",
-        "hover5"
+        "p3_chase0",
+        "p3_chase1",
+        "p3_chase2",
+        "p3_chase3",
+        "p3_chase4",
+        "p3_chase5"
        ],
-       "fps": 12,
+       "fps": 12.0,
        "loop": true
       },
       "attack3": {
        "frames": [
-        "cast0",
-        "cast1",
-        "cast2",
-        "cast3",
-        "cast4",
-        "cast5"
+        "p3_cast0",
+        "p3_cast1",
+        "p3_cast2",
+        "p3_cast3",
+        "p3_cast4",
+        "p3_cast5"
        ],
        "fps": 10.0,
        "loop": false
       },
       "hurt3": {
        "frames": [
-        "stag0"
+        "p3_stag0"
        ],
        "fps": 5,
        "loop": false
       },
+      "summon3": {
+       "frames": [
+        "p3_summon0",
+        "p3_summon1",
+        "p3_summon2",
+        "p3_summon3",
+        "p3_summon4",
+        "p3_summon5"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "beam3": {
+       "frames": [
+        "p3_beam0",
+        "p3_beam1",
+        "p3_beam2",
+        "p3_beam3",
+        "p3_beam4",
+        "p3_beam5",
+        "p3_beam6",
+        "p3_beam7"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "stagger3": {
+       "frames": [
+        "p3_stag0",
+        "p3_stag1",
+        "p3_stag2",
+        "p3_stag3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
       "enter3": {
        "frames": [
-        "summon0",
-        "summon1",
-        "summon2",
-        "summon3",
-        "summon4",
-        "summon5"
+        "p2_cast0",
+        "p2_summon1",
+        "p2_summon2",
+        "p2_summon3",
+        "p2_summon4",
+        "p3_stag0",
+        "p3_stag1",
+        "p3_stag3",
+        "p3_summon2",
+        "p3_summon3",
+        "p3_idle2",
+        "p3_idle0"
        ],
-       "fps": 4,
+       "fps": 4.0,
        "loop": false
       },
       "idle4": {
        "frames": [
-        "idle0",
-        "idle1",
-        "idle2",
-        "idle3"
+        "p4_idle0",
+        "p4_idle1",
+        "p4_idle2",
+        "p4_idle3"
        ],
        "fps": 5.0,
        "loop": true
       },
       "walk4": {
        "frames": [
-        "hover0",
-        "hover1",
-        "hover2",
-        "hover3",
-        "hover4",
-        "hover5"
+        "p4_hover0",
+        "p4_hover1",
+        "p4_hover2",
+        "p4_hover3",
+        "p4_hover4",
+        "p4_hover5"
        ],
        "fps": 7.0,
        "loop": true
       },
       "charge4": {
        "frames": [
-        "hover0",
-        "hover1",
-        "hover2",
-        "hover3",
-        "hover4",
-        "hover5"
+        "p4_chase0",
+        "p4_chase1",
+        "p4_chase2",
+        "p4_chase3",
+        "p4_chase4",
+        "p4_chase5"
        ],
-       "fps": 12,
+       "fps": 12.0,
        "loop": true
       },
       "attack4": {
        "frames": [
-        "cast0",
-        "cast1",
-        "cast2",
-        "cast3",
-        "cast4",
-        "cast5"
+        "p4_cast0",
+        "p4_cast1",
+        "p4_cast2",
+        "p4_cast3",
+        "p4_cast4",
+        "p4_cast5"
        ],
        "fps": 10.0,
        "loop": false
       },
       "hurt4": {
        "frames": [
-        "stag0"
+        "p4_stag0"
        ],
        "fps": 5,
        "loop": false
       },
-      "enter4": {
+      "summon4": {
        "frames": [
-        "summon0",
-        "summon1",
-        "summon2",
-        "summon3",
-        "summon4",
-        "summon5"
-       ],
-       "fps": 4,
-       "loop": false
-      },
-      "summon": {
-       "frames": [
-        "summon0",
-        "summon1",
-        "summon2",
-        "summon3",
-        "summon4",
-        "summon5"
+        "p4_summon0",
+        "p4_summon1",
+        "p4_summon2",
+        "p4_summon3",
+        "p4_summon4",
+        "p4_summon5"
        ],
        "fps": 8.0,
        "loop": false
       },
-      "stagger": {
+      "beam4": {
        "frames": [
-        "stag0",
-        "stag1",
-        "stag2",
-        "stag3"
+        "p4_beam0",
+        "p4_beam1",
+        "p4_beam2",
+        "p4_beam3",
+        "p4_beam4",
+        "p4_beam5",
+        "p4_beam6",
+        "p4_beam7"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "stagger4": {
+       "frames": [
+        "p4_stag0",
+        "p4_stag1",
+        "p4_stag2",
+        "p4_stag3"
        ],
        "fps": 5.0,
        "loop": true
       },
+      "enter4": {
+       "frames": [
+        "p3_cast0",
+        "p3_summon1",
+        "p3_summon2",
+        "p3_summon3",
+        "p3_summon4",
+        "p4_stag0",
+        "p4_stag1",
+        "p4_stag3",
+        "p4_summon2",
+        "p4_summon3",
+        "p4_idle2",
+        "p4_idle0"
+       ],
+       "fps": 4.0,
+       "loop": false
+      },
       "death": {
        "frames": [
-        "old_d0",
-        "old_d1",
-        "old_d2",
-        "old_d3",
-        "old_d4"
+        "death0",
+        "death1",
+        "death2",
+        "death3",
+        "death4",
+        "death5",
+        "death6",
+        "death7",
+        "death8",
+        "death9",
+        "death10",
+        "death11"
        ],
-       "fps": 1.6,
+       "fps": 3.0,
        "loop": false
       },
       "void": {
        "frames": [
-        "old_v0",
-        "old_v1",
-        "old_v2",
-        "old_v3"
+        "void0",
+        "void1",
+        "void2",
+        "void3",
+        "void4",
+        "void5"
        ],
-       "fps": 4,
+       "fps": 4.0,
        "loop": true
       }
      },

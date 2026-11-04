@@ -510,7 +510,7 @@ const CYCLE = {
 // their own clocks; g.player is the server's stand-in. The browser draws his marks on the server's clock: now())
 function eachPlayer(g, fn) { const keep = g.player; for (const q of players(g)) { g.player = q; try { fn(q, q.netId || 'me'); } finally { g.player = keep; } } }
 // his drawn clips (tools/solkhar_frames.py): the summoning when he calls up suns, the stagger while he's staggered
-const playClip = (e, name) => { const S = e.bx; if (S && S.anim && S.def.anims[name]) S.anim.play(name); };
+const playClip = (e, name) => { const S = e.bx; if (!S || !S.anim) return; const k = S.def.anims[name + S.phase] ? name + S.phase : name; if (S.def.anims[k]) S.anim.play(k); };   // (in his look for this phase)
 const now = (g, e) => g.t - ((e.bx && e.bx.netOff) || 0);
 const hide = (o, k, v) => Object.defineProperty(o, k, { value: v, writable: true, enumerable: false, configurable: true });   // (kept off the wire: logs, lists of shots)
 const SP = (e, sx, sy) => { const C = MID(e); return { x: C.x - sx, y: C.y - sy }; };
@@ -575,6 +575,7 @@ function v2PincFire(g, e, V) {
 // others 0.55 s before their own; each burns 0.35 s (190), 0.75 s apart. Recovery 1.15 s; cooldown 11 s. Survive it
 // untouched and he kneels 1.1 s.
 function v2Verdict(g, e) {
+  playClip(e, 'beam');
   const D = V2S(e), q = target(g, e), C = MID(e), vert = (D.vcount = (D.vcount || 0) + 1) % 2 === 1;
   if (g.banner) g.banner('SOLAR VERDICT', 1500);
   const base = vert ? q.x - C.x : q.y - C.y, cl = (v, m) => Math.max(-m, Math.min(m, v)), offs = [cl(base, 16), cl(cl(base, 16) + 4, 18), cl(cl(base, 16) - 4, 18)];
@@ -717,6 +718,7 @@ function devTick(g, e, dt) {
 // s, through where you stood; 190); a black sun flares in the middle 0.7 s and throws 12 crescents (6.5 s; 15 places, three
 // side by side left out; 5.4 t/s, 115); then 8.0-9.4 s he staggers (+25%, no attacks). Cooldown 19 s after.
 function v2Heaven(g, e) {
+  playClip(e, 'beam');
   const D = V2S(e); if (g.banner) g.banner('SOLKHAR BEGINS END OF HEAVEN.', 2400);
   const T0 = 1.1; D.heaven = { from: g.t, T0: g.t + T0 };
   for (const [k, t] of [[0, 0], [1, 0.75], [2, 1.5]]) later(e, T0 + t, 'v2HevRing', { k });
@@ -868,6 +870,7 @@ function v2PursuitFan(g, e) { const D = V2S(e); if (e.slDash) return; const [ox,
 // 0.8 s before. A lesser sun at the captive Sun's pedestal (shown from the start) fires at +0.35 and +1.45 a fan of 11 over
 // 100° toward the room, 4-6 left out (8 glints, 5.5 t/s, 75); it goes with the attack. Recovery 1 s, cooldown 12 s.
 function v2Loom(g, e) {
+  playClip(e, 'beam');
   const D = V2S(e); if (g.banner) g.banner('THE ASTRAL LOOM TURNS.', 1800);
   [[[-16, -16], [16, 16]], [[-16, 16], [16, -16]], [[-18, 0], [18, 0]]].forEach(([a, b], k) => {
     const A = SP(e, ...a), B = SP(e, ...b), on = g.t + 1.2 + k * 0.95;
@@ -1241,7 +1244,7 @@ export default {
         if (g.t >= V.emit) { V.emit += 0.4; for (let arm = 0; arm < 2; arm++) { const a = viseAt(V, g.t, arm), r = 9.5; shot(g, e, V.cx + Math.cos(a) * r, V.cy + Math.sin(a) * r, a + V.s * Math.PI / 2, { ...DOT, speed: 4.3, range: 12, dmg: D(100) }); } }
       }
     }
-    { const D2 = S.v2; if (S.anim && S.anim.clip === 'stagger' && !(D2 && (D2.stag > g.t || D2.kneel > g.t))) S.anim.play(S.def.phases[S.phase].idle); }
+    { const D2 = S.v2; if (S.anim && /^stagger/.test(S.anim.clip) && !(D2 && (D2.stag > g.t || D2.kneel > g.t))) S.anim.play(S.def.phases[S.phase].idle); }
     beamTick(g, e); sunsTick2(g, e); eclTick(g, e, dt); hourTick(g, e); p3Tick(g, e); psunsTick(g, e); p4Tick(g, e, dt);
     sunsTick(g, e, dt);
     for (const q of S.slMinions || []) if (!q.dead && g.t > q.slUntil) { q.noLoot = true; q.dead = true; q.deadT = 0; }
