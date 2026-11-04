@@ -99,3 +99,7 @@ lowlands: field_rat, burrow_mole, scarecrow, bramble_bear, rf_sewer_rat, rf_plag
 - [x] The Thornwood and the Greenmarch (11): bramble_wolf, briar_bee, spore_puff, thornwood_stag, spider_queen, bark_spider, bandit_archer, orc_warlord, hedge_goblin, goblin_shaman, wild_boar (30a56e1)
 - [x] Runeholt, the Steppe, the ember lands (10) (d3ba3c5); Godfall (5) and Ashfen (3): every one of the 37 matched enemies done (tools/realm_pix.py; one frames file a land)
 - [x] Landscapes placed by land (dddfdc8: tools/build_realm_scenery.py, src/world/maps.js STAND; camp chests by tier)
+
+## The user's second set (2026-11-03): every remaining realm monster
+
+Seven land sheets (art/source/castle3/sheet_land_<land>.png), cut by tools/land_cut.py. The shore's 18 hand-animated (4a2a3cb, tools/realm_frames_shore2.py); the other 102 (fen, Runeholt, Godfall, dunes, Thornwood, Steppe) animated pixel by pixel by tools/realm_frames_auto.py (835d8f5). The redesign list above is now empty; the steppe sheet's second storm gryphon is unused (Runeholt's is the storm_gryphon).
