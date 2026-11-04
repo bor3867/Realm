@@ -95,6 +95,6 @@ lowlands: field_rat, burrow_mole, scarecrow, bramble_bear, rf_sewer_rat, rf_plag
 ## Progress
 
 - [x] Sheets cut into native sprites (tools/sheet_crops.py)
-- [ ] Each replaced enemy: cleaned base, walk frames, attack frames (by land: shore, thornwood, lowlands, runeholt,
-      godfall, fen, steppe)
+- [x] The Drowned Shore (8): shore_crab, rf_coral_crab, driftwood_bandit, tide_herald, siren, conch_hermit, reef_golem, trap_hound (014a1a1)
+- [ ] The rest, by land: thornwood, lowlands, runeholt, godfall, fen, steppe (tools/realm_pix.py; one frames file a land)
 - [ ] Landscapes placed by land
