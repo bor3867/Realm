@@ -434,7 +434,7 @@ const ROTS = [0, 45, 90, 135];
 // Recovery 0.65 s, cooldown 5.5 s.
 function v2Sundial(g, e) {
   const D = V2S(e), q = target(g, e), [ox, oy] = FEET(g, e), toP = angleTo(ox, oy, q.x, q.y);
-  const a0 = toP + deg(D.rot) - deg(45) + deg(15);   // (the first gap's middle a turn from you by the cycle's rotation)
+  const a0 = toP + Math.PI + deg(D.rot) - deg(30);   // (the gap's middle, slot 1, behind him from you, turned by the cycle's rotation: you move round to it; a spear points at you)
   D.dial = { cx: ox, cy: oy, rings: [{ a0, from: g.t, at: g.t + 0.8, gap: [0, 1, 2] }] };
   later(e, 0.8, 'v2DialFly', { k: 0 });
   later(e, 1.25, 'v2DialForm', { a0: a0 + deg(45) });
@@ -496,7 +496,7 @@ function beamTick(g, e) {
   for (const B of Z.beams) {
     if (B.hit || g.t < B.on || g.t >= B.off || !p || p.dead) continue;
     const dx = B.x1 - B.x0, dy = B.y1 - B.y0, L = Math.hypot(dx, dy), u = ((p.x - B.x0) * dx + (p.y - B.y0) * dy) / (L * L), across = Math.abs((p.x - B.x0) * dy - (p.y - B.y0) * dx) / L;
-    if (u >= 0 && u <= 1 && across < B.w + 0.32) { B.hit = true; if (B.verdict) Z.vHit = true; g.hurtPlayer(g.bxDmg(e, D(B.dmg)), 'Solar Verdict'); }   // (its core against your body: one hit a beam)
+    if (u >= 0 && u <= 1 && across < B.w + 0.32) { B.hit = true; if (B.verdict) Z.vHit = true; g.hurtPlayer(g.bxDmg(e, D(B.dmg)), B.name || 'Solar Verdict'); }   // (its core against your body: one hit a beam)
   }
   Z.beams = Z.beams.filter((B) => g.t < B.off + 0.2);
 }
@@ -521,6 +521,156 @@ function choose1(g, e) {
   return { name: A0.name, special: 'v2Nop', windup: 0.45, recover: 0.3 };
 }
 function v2Nop() {}
+// ================================================================ v2 PHASE III: THE UNBOUND SUN (50-25%; till his finale
+// while Phase IV is unbuilt). "THE SKY ITSELF WILL BREAK." He comes down off the dais and hunts at 3.8 t/s (never within
+// 3 tiles of you, never through a wall).
+// ---- III-A CROWN OF ASH: 16 spears ring him (4.2 tiles); before release four in a row shatter (a 90° wedge out); 1.0 s,
+// then the other 12 fly outward (7 t/s, 125). The second ring 1.4 s later, its wedge turned 90°, shown 0.8 s. Recovery
+// 0.7 s, cooldown 8 s.
+function v2Ash(g, e) {
+  const D = V2S(e), q = target(g, e), [ox, oy] = FEET(g, e), a0 = angleTo(ox, oy, q.x, q.y) + Math.PI + deg(Math.round(D.rot / 22.5) * 22.5);   // (the wedge's middle behind him from you; a spear points at you)
+  D.ash = { cx: ox, cy: oy, rings: [{ a0, from: g.t, shatter: g.t + 0.55, at: g.t + 1.0 }, { a0: a0 + Math.PI / 2, from: g.t + 1.6, shatter: g.t + 1.6, at: g.t + 2.4 }] };
+  later(e, 1.0, 'v2AshFly', { k: 0 }); later(e, 2.4, 'v2AshFly', { k: 1 });
+}
+const ASH_GAP = [0, 1, 2, 3];
+function v2AshFly(g, e, V) {
+  const D = V2S(e), A = D.ash, R0 = A && A.rings[V.k]; if (!R0) return; let n = 0;
+  for (let i = 0; i < 16; i++) { if (ASH_GAP.includes(i)) continue; const a = ashAngle(R0, i); fire2(g, e, A.cx + Math.cos(a) * 4.2, A.cy + Math.sin(a) * 4.2, a, 'spear', 7, 125, { free: true }); n++; }
+  R0.done = true; D.counts.push(['ash', n]); g.sfx('zap'); if (V.k === 1) D.ash = null;
+}
+const ashAngle = (R0, i) => R0.a0 + (i / 16) * TAU - deg(22.5);   // (slots 0-3, the wedge, about a0; the others on the 22.5° grid through you: one points at you)
+// ---- III-B BLACK SUN IMPLOSION: a black sun at the middle (1.0 s). Of 24 angles 15° apart, the pairs 0-1, 6-7, 12-13,
+// 18-19 left out: 16 void shards from 18 tiles in toward it (3.6 t/s, 110; 5 s to arrive). Then it pulses 0.8 s, its 8
+// outward lines shown (12 angles, 0-1 and 6-7 out), and 8 comets fly out (6.5 t/s, 145). Recovery 1.2 s, cooldown 13 s.
+// Live through it and he staggers 1.2 s (+20%).
+const IN_OMIT = [0, 1, 6, 7, 12, 13, 18, 19], OUT_OMIT = [0, 1, 6, 7];
+function v2Implode(g, e) {
+  const D = V2S(e), rot = deg(D.rot);
+  D.imp = { from: g.t, inAt: g.t + 1.0, outAt: g.t + 6.8, end: g.t + 6.9, rot };
+  later(e, 1.0, 'v2ImpIn'); later(e, 6.8, 'v2ImpOut'); later(e, 8.0, 'v2ImpEnd');
+}
+function v2ImpIn(g, e) {
+  const D = V2S(e), I = D.imp; if (!I) return; const C = MID(e), pl = g.player; let n = 0;
+  for (let i = 0; i < 24; i++) { if (IN_OMIT.includes(i)) continue; const a = SANG(i * 15) + I.rot, x = C.x + Math.cos(a) * 18, y = C.y + Math.sin(a) * 18; if (pl && !pl.dead && Math.hypot(pl.x - x, pl.y - y) < 1.2) continue; fire2(g, e, x, y, a + Math.PI, 'void', 3.6, 110, { free: true, range: 18 }); n++; }
+  D.counts.push(['implode_in', n]);
+}
+function v2ImpOut(g, e) {
+  const D = V2S(e), I = D.imp; if (!I) return; const C = MID(e); let n = 0;
+  for (let i = 0; i < 12; i++) { if (OUT_OMIT.includes(i)) continue; fire2(g, e, C.x, C.y, SANG(i * 30) + I.rot, 'comet', 6.5, 145, { free: true }); n++; }
+  D.counts.push(['implode_out', n]); g.sfx('shatter');
+}
+function v2ImpEnd(g, e) { const D = V2S(e); D.imp = null; const pl = g.player; if (pl && !pl.dead) { D.stag = g.t + 1.2; if (g.banner) g.banner('SOLKHAR STAGGERED', 1200); g.sfx('shatter'); } }
+// ---- III-C SOLAR PURSUIT: a dashed route shows his first 5-tile burst (0.75 s); three dashes ~1.9 s apart (8.5 t/s, at
+// most 5 tiles, stopping 3 tiles short of you; each locked after its own 0.55 s tell; 165 if he runs into you); between
+// them Fan(7, 75°) of glints at you every 0.9 s (5.6 t/s, 85). Recovery 1.35 s, cooldown 16 s. No beams with it.
+function v2Pursuit(g, e) {
+  const D = V2S(e);
+  for (const [k, t] of [[0, 0.75], [1, 2.65], [2, 4.55]]) { later(e, t - (k ? 0.55 : 0.75), 'v2DashTell', { k, wait: k ? 0.55 : 0.75 }); }
+  for (const t of [1.5, 2.3, 3.45, 4.25, 5.3, 6.2]) later(e, t, 'v2PursuitFan');
+  // its two lesser suns (the spec allows them while the lanes stay open): at the room's sides, by turns every 1.4 s, a 0.3 s
+  // pulse, then three sunsparks at you; they go with the chase
+  D.psuns = { from: g.t, until: g.t + 6.2, next: g.t + 1.2, k: 0, at: [SP(e, 14, 6), SP(e, -14, 6)], lit: -1 };
+}
+function psunsTick(g, e) {
+  const D = e.bx.v2, Z = D && D.psuns; if (!Z) return; if (g.t > Z.until) { D.psuns = null; return; }
+  if (g.t >= Z.next - 0.3) Z.lit = Z.k % 2;
+  if (g.t >= Z.next) { const s0 = Z.at[Z.k % 2], b = bearing(g, e, s0.x, s0.y); for (const a of fan(b, 3, deg(24))) fire2(g, e, s0.x, s0.y, a, 'sunspark', 5, 90, { free: true }); D.counts.push(['pursuit_sun', 3]); Z.k++; Z.next += 1.4; Z.lit = -1; }
+}
+function v2DashTell(g, e, V) {
+  const D = V2S(e), q = target(g, e), d = Math.hypot(q.x - e.x, q.y - e.y), len = Math.max(0, Math.min(5, d - 3));
+  const a = angleTo(e.x, e.y, q.x, q.y), [x1, y1] = inDais(e, e.x + Math.cos(a) * len, e.y + Math.sin(a) * len, 3.5);
+  D.tell = { x0: e.x, y0: e.y, x1, y1, until: g.t + V.wait };
+  later(e, V.wait, 'v2DashGo', { x1, y1 });
+}
+function v2DashGo(g, e, V) {
+  const D = V2S(e), L = Math.hypot(V.x1 - e.x, V.y1 - e.y); D.tell = null;
+  if (L < 0.2) return;
+  e.slDash = { at: g.t, until: g.t + L / 8.5, x0: e.x, y0: e.y, x1: V.x1, y1: V.y1, hit: false, dmg: 165 };
+  D.counts.push(['dash', 1]);
+}
+function v2PursuitFan(g, e) { const D = V2S(e); if (e.slDash) return; const [ox, oy] = FEET(g, e), b = bearing(g, e, ox, oy); for (const a of fan(b, 7, deg(75))) fire2(g, e, ox, oy, a, 'glint', 5.6, 85); D.counts.push(['pursuit', 7]); }
+// ---- III-D THE ASTRAL LOOM: three lines light at once (1.2 s): A from (-16,-16) to (16,16), B from (-16,16) to (16,-16), C
+// across the middle (±18, 0); one tile wide; A burns at 0, B at +0.95, C at +1.9 (0.3 s each, 190), each shown at least
+// 0.8 s before. A lesser sun at the captive Sun's pedestal (shown from the start) fires at +0.35 and +1.45 a fan of 11 over
+// 100° toward the room, 4-6 left out (8 glints, 5.5 t/s, 75); it goes with the attack. Recovery 1 s, cooldown 12 s.
+function v2Loom(g, e) {
+  const D = V2S(e); if (g.banner) g.banner('THE ASTRAL LOOM TURNS.', 1800);
+  [[[-16, -16], [16, 16]], [[-16, 16], [16, -16]], [[-18, 0], [18, 0]]].forEach(([a, b], k) => {
+    const A = SP(e, ...a), B = SP(e, ...b), on = g.t + 1.2 + k * 0.95;
+    D.beams.push({ x0: A.x, y0: A.y, x1: B.x, y1: B.y, show: g.t, on, off: on + 0.3, w: 0.5, dmg: 190, hit: false, name: 'The Astral Loom' });
+  });
+  D.loomSun = { ...SP(e, 0, -17), from: g.t, until: g.t + 1.2 + 1.9 + 0.3 };
+  later(e, 1.2 + 0.35, 'v2LoomFan'); later(e, 1.2 + 1.45, 'v2LoomFan');
+}
+function v2LoomFan(g, e) { const D = V2S(e), L = D.loomSun; if (!L) return; let n = 0; const b = SANG(270); fan(b, 11, deg(100)).forEach((a, i) => { if (i >= 4 && i <= 6) return; fire2(g, e, L.x, L.y, a, 'glint', 5.5, 75, { free: true }); n++; }); D.counts.push(['loom_fan', n]); }
+// ---- III-E EVENT HORIZON: four halo fragments 15 tiles out from the middle, a quarter apart, turning counter-clockwise
+// 20°/s for 5 s (0.9 s shown first); at 0.85, 1.7, 2.55, 3.4, 4.25 s each fires a pair along its way forward (±8°; 5 t/s,
+// 100); a fragment passing through the spec's [225°, 315°) (by the door) stays dark: a sector kept open. Recovery 0.9 s,
+// cooldown 11 s.
+function v2Horizon(g, e) {
+  const D = V2S(e); D.hor = { from: g.t, at: g.t + 0.9, until: g.t + 5.9, th0: deg(D.rot) };
+  for (const t of [0.85, 1.7, 2.55, 3.4, 4.25]) later(e, 0.9 + t, 'v2HorFire', { t });
+}
+const horTheta = (H, i, el) => H.th0 + i * Math.PI / 2 + deg(20) * Math.max(0, el);   // (the spec's angle, counter-clockwise from its east)
+const horDark = (th) => { const d = ((th * 180 / Math.PI) % 360 + 360) % 360; return d >= 225 && d < 315; };
+function v2HorFire(g, e, V) {
+  const D = V2S(e), H = D.hor; if (!H) return; let n = 0;
+  for (let i = 0; i < 4; i++) {
+    const th = horTheta(H, i, V.t); if (horDark(th)) continue;
+    const sx = 15 * Math.cos(th), sy = -15 * Math.sin(th), w = SP(e, sx, sy), fwd = th * 180 / Math.PI + 90;
+    for (const o of [-8, 8]) { fire2(g, e, w.x, w.y, SANG(fwd + o), 'halo', 5, 100, { free: true }); n++; }
+  }
+  D.counts.push(['horizon', n]);
+}
+function p3Tick(g, e) { const D = e.bx.v2; if (!D) return; if (D.hor && g.t > D.hor.until + 0.3) D.hor = null; if (D.loomSun && g.t > D.loomSun.until) D.loomSun = null; if (D.tell && g.t > D.tell.until + 0.1) D.tell = null; }
+
+const P3 = {
+  ash: { id: 'crown_of_ash', name: 'Crown of Ash', start: v2Ash, total: 2.4 + 0.7, cd: 8 },
+  pursuit: { id: 'solar_pursuit', name: 'Solar Pursuit', start: v2Pursuit, total: 6.2 + 1.35, cd: 16 },
+  implode: { id: 'black_sun_implosion', name: 'Black Sun Implosion', start: v2Implode, total: 6.8 + 1.2, cd: 13 },
+  horizon: { id: 'event_horizon', name: 'Event Horizon', start: v2Horizon, total: 0.9 + 5.0 + 0.9, cd: 11 },
+  loom: { id: 'astral_loom', name: 'The Astral Loom', start: v2Loom, total: 1.2 + 2.2 + 1.0, cd: 12 },
+};
+const SEQ3 = ['ash', 'pursuit', 'implode', 'horizon', 'loom'];
+function choose3(g, e) {
+  const D = V2S(e); D.log = D.log || [];
+  if (g.t < D.busyUntil || g.t < (D.stag || 0)) return null;
+  const k = SEQ3[D.i % SEQ3.length], A0 = P3[k];
+  if (g.t < (D.ready[k] || 0) || g.t < D.lastEnd + GAP) return null;
+  D.i++; if (D.i % SEQ3.length === 0) { D.cycle = (D.cycle || 0) + 1; D.rot = ROTS[Math.floor(seeded(D) * 4)]; }
+  D.busyUntil = g.t + A0.total; D.lastEnd = D.busyUntil; D.ready[k] = D.busyUntil + A0.cd;
+  D.log.push([A0.id, +g.t.toFixed(2)]);
+  A0.start(g, e);
+  return { name: A0.name, special: 'v2Nop', windup: 0.45, recover: 0.3 };
+}
+function v2Ground3(r, g, e) {
+  const D = e.bx.v2; if (!D) return; const b = r.b;
+  const T = D.tell;
+  if (T) {                                                   // the dash's route: a dashed gold line and its head (a locked dash)
+    const [ax, ay] = r.proj(T.x0, T.y0), [bx2, by2] = r.proj(T.x1, T.y1); b.save(); b.globalAlpha = 0.9; b.strokeStyle = '#ffd650'; b.lineWidth = 2; b.setLineDash([6, 4]);
+    b.beginPath(); b.moveTo(ax, ay); b.lineTo(bx2, by2); b.stroke(); b.setLineDash([]); const a = Math.atan2(by2 - ay, bx2 - ax);
+    b.beginPath(); b.moveTo(bx2, by2); b.lineTo(bx2 - Math.cos(a - 0.5) * 8, by2 - Math.sin(a - 0.5) * 8); b.moveTo(bx2, by2); b.lineTo(bx2 - Math.cos(a + 0.5) * 8, by2 - Math.sin(a + 0.5) * 8); b.stroke(); b.restore();
+  }
+  const I = D.imp;
+  if (I && g.t > I.outAt - 0.8 && g.t < I.outAt + 0.1) {      // the implosion's outward lines (violet: void), shown through its pulse
+    const C = MID(e); b.save(); b.globalAlpha = 0.6; b.strokeStyle = '#b884ff'; b.lineWidth = 2; b.setLineDash([4, 4]);
+    for (let i = 0; i < 12; i++) { if (OUT_OMIT.includes(i)) continue; const a = SANG(i * 30) + I.rot, [ax, ay] = r.proj(C.x, C.y), [bx2, by2] = r.proj(C.x + Math.cos(a) * 10, C.y + Math.sin(a) * 10); b.beginPath(); b.moveTo(ax, ay); b.lineTo(bx2, by2); b.stroke(); }
+    b.restore();
+  }
+}
+function v2Air3(r, g, e, put, get) {
+  const D = e.bx.v2; if (!D) return;
+  const spear = get('sol2/spear'), black = get('sol_shots/blacksun'), sun = get('sol_shots/sun'), shard = get('sol2/halo');
+  const A = D.ash;
+  if (A && spear) for (const R0 of A.rings) { if (R0.done || g.t < R0.from) continue; for (let i = 0; i < 16; i++) { const gone2 = ASH_GAP.includes(i) && g.t >= R0.shatter, a = ashAngle(R0, i); if (gone2) continue; put(spear, A.cx + Math.cos(a) * 4.2, A.cy + Math.sin(a) * 4.2 + 1.2, { rot: a, alpha: Math.min(1, (g.t - R0.from) / 0.3) }); } }
+  const I = D.imp;
+  if (I && black) { const C = MID(e), k = Math.min(1, (g.t - I.from) / 1.0), pulse = g.t > I.outAt - 0.8 && g.t < I.outAt; put(black, C.x, C.y + 1.4, { scale: (0.5 + 1.3 * k) * (pulse ? 1.2 + 0.15 * Math.sin(g.t * 20) : 1) }); }
+  if (D.loomSun && sun) put(sun, D.loomSun.x, D.loomSun.y + 1.4, { scale: Math.min(1.3, (g.t - D.loomSun.from) / 0.6 + 0.3) });
+  if (D.psuns && sun) D.psuns.at.forEach((s0, i) => put(sun, s0.x, s0.y + 1.4, { scale: Math.min(1, (g.t - D.psuns.from) / 0.8) * (D.psuns.lit === i ? 1.3 : 1) }));
+  const H = D.hor;
+  if (H && shard) for (let i = 0; i < 4; i++) { const el = g.t - H.at, th = horTheta(H, i, el), w = SP(e, 15 * Math.cos(th), -15 * Math.sin(th)); put(shard, w.x, w.y + 1.2, { rot: SANG(th * 180 / Math.PI + 90), scale: 1.7 * Math.min(1, (g.t - H.from) / 0.9), alpha: horDark(th) ? 0.3 : 1 }); }
+}
+
 // ================================================================ v2 PHASE II: THE STOLEN LIGHT (75-50%). His sanctum
 // darkens over the change ("THE LIGHT IS NOT YOURS."); a support (the lesser suns, the eclipse floor) beside at most one
 // attack; Sundering Dawn never while a lesser sun lives.
@@ -629,7 +779,7 @@ const P2 = {
 function v2Combo(g, e, V) { const A0 = P1[V.k]; A0.start(g, e); const D = V2S(e); D.log.push([A0.id, +g.t.toFixed(2)]); }
 const SEQ2 = ['sunseed', 'halo', 'eclipse', 'hour', 'dawn'];
 const table = (P) => Object.fromEntries(Object.values(P).map((A0) => [A0.id, { name: A0.name, total_s: +A0.total.toFixed(2), cooldown_s: A0.cd }]));
-export const ATTACKS_V2 = { 1: { order: SEQ1, attacks: table(P1) }, 2: { order: SEQ2, attacks: table(P2) } };   // (the spec's 16.4: the implemented table, machine-readable)
+export const ATTACKS_V2 = { 1: { order: SEQ1, attacks: table(P1) }, 2: { order: SEQ2, attacks: table(P2) }, 3: { order: SEQ3, attacks: table(P3) } };   // (the spec's 16.4: the implemented table, machine-readable)
 function choose2(g, e) {
   const D = V2S(e); D.log = D.log || [];
   if (g.t < D.busyUntil || g.t < (D.stag || 0)) return null;
@@ -709,6 +859,7 @@ function choose(g, e) {
   const S = e.bx;
   if (S.phase === 1) return choose1(g, e);                  // (Phase I: the audited spec's)
   if (S.phase === 2) return choose2(g, e);                  // (Phase II: the audited spec's)
+  if (S.phase === 3) return choose3(g, e);                  // (Phase III: the audited spec's)
   if (S.slStagger > g.t) return null;                      // (staggered: his lenses broke)
   const C = S.slDir && S.slDir.ph === S.phase ? S.slDir : (S.slDir = { ph: S.phase, t0: g.t, i: 0, alt: 0, lastEnd: -99 });
   if (S.phase === 3 && e.hp / e.maxHp <= 0.15) {           // the Last Light; between, the Chase or the Return, till 18 s have passed
@@ -733,12 +884,16 @@ export default {
   phases: {
     1: { move: 'home', pressure: [], patterns: Object.values(AT) },   // (no filler: the spec's named attacks only)
     2: { move: 'home', pressure: [], patterns: Object.values(AT) },   // (the spec's II: no filler)
-    3: { move: 'hunt', pressure: [{ every: 1.2, special: 'solarVolley', delay: 1.5 }], patterns: Object.values(AT) },
+    3: { move: 'stalk', pressure: [], patterns: Object.values(AT) },   // (the spec's III: off the dais, hunting; no filler)
   },
-  specials: { v2Nop, v2Combo, v2HaloFire, v2HaloEnd, v2DawnFire, v2HourLit, v2HourFire, v2DialForm, v2DialFly, v2RebukeAim, v2RebukeFire, v2PincFire, v2VerdictEnd, solarVolley, sundial, sundialShow, sundialForm, sundialFly, corona, coronaGo, judgment, noonMark, noonDots, heralds, haloKnives, knifeFan, knifeWarn, knifeLances,
+  specials: { v2Nop, v2AshFly, v2ImpIn, v2ImpOut, v2ImpEnd, v2DashTell, v2DashGo, v2PursuitFan, v2LoomFan, v2HorFire, v2Combo, v2HaloFire, v2HaloEnd, v2DawnFire, v2HourLit, v2HourFire, v2DialForm, v2DialFly, v2RebukeAim, v2RebukeFire, v2PincFire, v2VerdictEnd, solarVolley, sundial, sundialShow, sundialForm, sundialFly, corona, coronaGo, judgment, noonMark, noonDots, heralds, haloKnives, knifeFan, knifeWarn, knifeLances,
     blackClock, pursuit, dashMark, dashLock, lenses, lensFans, lensEnd, vise, viseGo, blackReturn, returnIn, returnHold, returnOut, heavens, heavenMark, heavenDots, chase,
     lastLight, lastRing, lastCorridor, lastPortals, lastBeams, lastFlash, lastClear, lastFragments, lesserSuns },
   moves: {
+    stalk(g, e, dt) {                                       // III: after you at 3.8 t/s, keeping 5 tiles (never inside 3), held still while he dashes
+      if (e.slDash) return; const q = target(g, e), d = Math.hypot(q.x - e.x, q.y - e.y), want = d > 5.5 ? 1 : d < 3.5 ? -1 : 0;
+      if (want) { const st = 3.8 * dt * want, [x, y] = inDais(e, e.x + ((q.x - e.x) / d) * st, e.y + ((q.y - e.y) / d) * st, 3.5); g.moveCircle(e, x - e.x, y - e.y, 0.8); }
+    },
     home(g, e, dt) {                                        // I: he keeps near the spec's (0, -5), a slow sway about it
       const H = SP(e, Math.sin(g.t * 0.5) * 1.5, -5), d = Math.hypot(H.x - e.x, H.y - e.y);
       if (d > 0.1) g.moveCircle(e, ((H.x - e.x) / d) * Math.min(d, 2 * dt), ((H.y - e.y) / d) * Math.min(d, 2 * dt), 0.8);
@@ -767,7 +922,7 @@ export default {
     for (const q of S.slMinions || []) if (!q.dead) { q.noLoot = true; q.dead = true; q.deadT = 0; }
     S.wait = ph === 2 ? 1.5 : 1.8;
     if (ph === 2) { if (g.banner) g.banner('THE LIGHT IS NOT YOURS.', 2800); g.vx({ k: 'shake', amt: 4 }); g.vx({ k: 'burst', x: e.x, y: e.y - 3, n: 40, colors: SUNC }); g.sfx('shatter'); S.slLaw = null; if (g.map) g.map.ambBoss = [26, 12, 20, 0.45]; }   // (the chains snap; his sanctum darkens, eased, never black)
-    if (ph === 3) { if (g.banner) g.banner('THE SUNTHIEF UNBOUND', 2800); g.vx({ k: 'shake', amt: 12 }); g.vx({ k: 'burst', x: e.x, y: e.y - 3, n: 60, colors: [...SUNC, '#ff3a1a'] }); g.sfx('roar'); if (g.map) g.map.ambBoss = [12, 3, 8, 0.66]; }   // (his sanctum darker: src/castle.js eases into it)
+    if (ph === 3) { if (g.banner) g.banner('THE SKY ITSELF WILL BREAK.', 3000); g.vx({ k: 'shake', amt: 12 }); g.vx({ k: 'burst', x: e.x, y: e.y - 3, n: 60, colors: [...SUNC, '#ff3a1a'] }); g.sfx('roar'); if (g.map) g.map.ambBoss = [12, 3, 8, 0.66]; }   // (his sanctum darker: src/castle.js eases into it)
   },
   update(g, e, dt) {
     const S = e.bx;
@@ -775,7 +930,7 @@ export default {
     const Dh = e.slDash;                                    // a dash: once into you (205); spears after it when it's the Pursuit's
     if (Dh && g.t >= Dh.at) {
       if (g.t >= Dh.until) { e.slDash = null; if (Dh.trail) { const [ox, oy] = FEET(g, e), a = bearing(g, e, ox, oy); for (let k = 0; k < 5; k++) shot(g, e, ox, oy, a + (k / 4 - 0.5) * deg(40), { ...DOT, speed: 6.3, range: 16, dmg: D(115) }); } }
-      else { const k = (g.t - Dh.at) / (Dh.until - Dh.at); e.x = Dh.x0 + (Dh.x1 - Dh.x0) * k; e.y = Dh.y0 + (Dh.y1 - Dh.y0) * k; const p = g.player; if (!Dh.hit && p && !p.dead && Math.hypot(p.x - e.x, p.y - e.y) < e.D.r + 0.4) { Dh.hit = true; g.hurtPlayer(g.bxDmg(e, D(215)), e.D.name); } }
+      else { const k = (g.t - Dh.at) / (Dh.until - Dh.at); e.x = Dh.x0 + (Dh.x1 - Dh.x0) * k; e.y = Dh.y0 + (Dh.y1 - Dh.y0) * k; const p = g.player; if (!Dh.hit && p && !p.dead && Math.hypot(p.x - e.x, p.y - e.y) < e.D.r + 0.4) { Dh.hit = true; g.hurtPlayer(g.bxDmg(e, D(Dh.dmg || 215)), e.D.name); } }
     }
     const Ch = S.slChase;                                   // the Chase: the core's spears every 0.75 s
     if (Ch && g.t > Ch.from && g.t < Ch.until && (Ch.t -= dt) <= 0) { Ch.t = 0.75; const [ox, oy] = FEET(g, e), a = bearing(g, e, ox, oy); for (let k = 0; k < 4; k++) shot(g, e, ox, oy, a + (k / 3 - 0.5) * deg(35), { ...DOT, speed: 6.6, range: 16, dmg: D(120) }); }
@@ -798,11 +953,11 @@ export default {
         if (g.t >= V.emit) { V.emit += 0.4; for (let arm = 0; arm < 2; arm++) { const a = viseAt(V, g.t, arm), r = 9.5; shot(g, e, V.cx + Math.cos(a) * r, V.cy + Math.sin(a) * r, a + V.s * Math.PI / 2, { ...DOT, speed: 4.3, range: 12, dmg: D(100) }); } }
       }
     }
-    beamTick(g, e); sunsTick2(g, e); eclTick(g, e, dt); hourTick(g, e);
+    beamTick(g, e); sunsTick2(g, e); eclTick(g, e, dt); hourTick(g, e); p3Tick(g, e); psunsTick(g, e);
     sunsTick(g, e, dt);
     for (const q of S.slMinions || []) if (!q.dead && g.t > q.slUntil) { q.noLoot = true; q.dead = true; q.deadT = 0; }
     S.slMinions = (S.slMinions || []).filter((q) => !q.dead);
-    if (S.phase >= 3 && S.state !== 'morph') eclipseTick(g, e, dt);   // (the older Eclipse Law: the older Phase III only)
+
     if (S.slSpears && g.t > S.slSpears.until + 0.8) S.slSpears = null;
     if (S.slHalo && g.t > S.slHalo.until) S.slHalo = null;
     if (S.slCorona && g.t > S.slCorona.until) S.slCorona = null;
@@ -816,7 +971,7 @@ export default {
   },
   // the dais's marks: the Eclipse Law's quarters (gold-outlined suns, violet hatching), the corona's rings shown, the vise's path ahead
   drawGround(r, g, e) {
-    v2Ground(r, g, e); v2Ground2(r, g, e);
+    v2Ground(r, g, e); v2Ground2(r, g, e); v2Ground3(r, g, e);
     const S = e.bx, b = r.b, C = MID(e), R0 = RAD(e), L = S.slLaw;
     const Fn = S.slFin;
     if (Fn) {                                               // the sanctuary's lights: lit (gold, a bright rim), coming (a pulsing outline), fading
@@ -862,7 +1017,7 @@ export default {
     const get = (k) => { const M = r.objDefs || (r.objDefs = new Map()); let d = M.get(k); if (d === undefined) M.set(k, (d = R.resolve(k) || null)); return d; };
     const spear = get('sol_shots/sunlance'), blade = get('sol_shots/halo'), sun = get('sol_shots/sun'), black = get('sol_shots/blacksun'), frag = get('sol_shots/fragment');
     const put = (def, x, y, o) => { if (def) { const [sx, sy] = r.proj(x, y); r.drawDef(def, Object.keys(def.frames)[0], Math.round(sx), Math.round(sy) - 24, { center: true, ...o }); } };
-    v2Air2(r, g, e, put, get);
+    v2Air2(r, g, e, put, get); v2Air3(r, g, e, put, get);
     const Q = S.slSpears;
     if (Q) for (let i = 0; i < Q.n; i++) { const a = sundialAngle(Q, g, i), dk = Q.dark.includes(i) && g.t >= Q.darkAt; put(spear, Q.cx + Math.cos(a) * Q.r, Q.cy + Math.sin(a) * Q.r, { rot: a, alpha: dk ? 0.25 : 1 }); }
     const H = S.slHalo;
