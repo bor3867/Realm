@@ -25,7 +25,8 @@ for (const id of Object.keys(BX)) {
   g.maintainRealm = () => {}; g.eventClock = () => {};
   // its mechanic, played the simple way (as tools/bench_rebuilt_bosses.mjs does): a lens for Aurelia, a few seconds each;
   // the nightmare-self while the Sleeper dreams
-  const at = () => { if (id === 'prism_wyrm') { const o = g.map.objects.find((q) => q.pedestal === Math.floor(g.t / 4) % 3); if (o) return { x: o.x, y: o.y }; } const T = tgt(); return { x: T.x, y: T.y + 4 }; };
+  const at = () => { if (e.bx && e.bx.v2f && e.bx.v2f.sun) return e.bx.v2f.sun;   // (Solkhar's finale: in the freed Sun's light, then claiming it at the middle)
+    if (id === 'prism_wyrm') { const o = g.map.objects.find((q) => q.pedestal === Math.floor(g.t / 4) % 3); if (o) return { x: o.x, y: o.y }; } const T = tgt(); return { x: T.x, y: T.y + 4 }; };
   const tgt = () => (e.slNight && !e.slNight.dead && e.slShiftUntil > g.t ? e.slNight : e);
   let t = 0, imm = 0, states = [], last = '', clock = Date.now();
   const hp0 = e.maxHp || e.hp;

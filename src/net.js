@@ -445,11 +445,12 @@ const methods = {
       if (typeof w !== 'string') { S[name] = w; continue; }
       if (w === 'N') { S[name] = null; continue; }
       if (w[0] === 'S') { S[name] = w.slice(1); continue; }
-      let v; try { v = shift(JSON.parse(w.slice(1))); } catch { continue; }
+      let v; try { v = name === 'v2' || name === 'v2f' ? JSON.parse(w.slice(1)) : shift(JSON.parse(w.slice(1))); } catch { continue; }   // (Solkhar's: on the server's clock, drawn with S.netOff)
       const old = S[name];
       if (Array.isArray(v) && Array.isArray(old) && old.length === v.length) v.forEach((n, i) => glide(old[i], n)); else if (v && !Array.isArray(v)) glide(old, v);
       S[name] = v;
     }
+    S.netOff = off;
     if (s.bx_phase !== undefined) S.phase = s.bx_phase;
     if (s.bx_state !== undefined) S.state = s.bx_state;
     if (s.bx_leapZ !== undefined) S.leapZ = s.bx_leapZ;

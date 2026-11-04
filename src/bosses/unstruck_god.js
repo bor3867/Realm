@@ -20,7 +20,7 @@
 // it the void eats you, inside it void bolts and crescents still must be dodged; 46 s, then the sun is yours and he dies.
 // Art: tools/build_solkhar.py ('bx_solkhar', 'sol_shots/<name>': his solar shots, suns, void bolts and crescents).
 import { DUNGEON_BOSSES } from '../data/enemies.js';
-import { TAU, angleTo, target, ahead, running } from './kit.js';
+import { TAU, angleTo, target, ahead, running, players } from './kit.js';
 
 const D = (n) => n + 4;
 const deg = (d) => (d * Math.PI) / 180;
@@ -338,61 +338,150 @@ function reclaimLights(e) {                                // the whole plan of 
   return L;
 }
 const lightR = (L, T) => (L.r1 ? L.r + (L.r1 - L.r) * Math.max(0, Math.min(1, (T - L.from) / (L.to - L.from))) : L.r);
-const FINALE = {
-  name: 'Reclaim the Sun', say: 'STAY IN ITS LIGHT', at: 2e-6, dur: 46,   // (the bar: '... · RECLAIM THE SUN 31s', the countdown its objective)
-  start(g, e) {
-    const S = e.bx, [cx, cy] = CORE(g, e);
-    S.slSpears = S.slCorona = S.slHalo = S.slVise = S.slChase = S.slHeralds = S.slBlack = S.slLens = S.slSuns = null; e.slDash = null; S.slPause = g.t + 999;
-    for (const q of S.slMinions || []) if (!q.dead) { q.noLoot = true; q.dead = true; q.deadT = 0; }
-    S.slFin = { lights: reclaimLights(e), sunFrom: [cx, cy], home: P(e, 22, 6), x0: e.x, y0: e.y, tick: 0, fan: 0.6, volley: 1.4, port: 0.8, pk: 0, lance: 14, wall: 24.6, wk: 0, ring: 36 };
-    if (S.anim && S.def.anims.void) S.anim.play('void', { speed: 1 });   // (a dark, collapsing figure: the sun gone out of him, coming apart)
-    if (g.map) g.map.ambBoss = [6, 2, 12, 0.74];
-    g.vx({ k: 'burst', x: cx, y: cy, n: 70, colors: ['#ffffff', ...SUNC] }); g.fx.push({ kind: 'ring', x: e.x, y: e.y, t: 0, max: 12, color: '#ffd650' }); g.sfx('shatter');
-    if (g.banner) g.banner('THE STOLEN SUN TEARS FREE · RECLAIM IT', 3000);
+// ---- v2 TRUE FINALE: RECLAIM THE SUN (the audited spec, 8). At 1 Life nothing kills him and nothing he had is left
+// flying; the captive Sun tears free and comes down (3 s); he is a void shape at its empty pedestal, out of reach. Then 48 s
+// in four 12 s trials, the light a circle 6 tiles across its middle (5 in the last) that moves at walking pace between
+// A (0, 8), B (-5, 3), C (4, -2), D (0, -8) (the spec's, turned half round like all of it): its next place marked with an
+// arrow 2 s before it sets off ("FOLLOW THE LIGHT"), 4 s on the way. Outside it the void takes 40 straight off your Life
+// every 0.5 s (0.3 s grace on stepping out); inside, the trials' void shots still hit. At 48 s everything stops; the Sun
+// comes to the middle (1 s); from 49 s stand within 2.5 tiles of it 1.2 s and it is yours: it surges, he cracks to ash
+// over 3 s, and the castle's light comes back. Then, only then, his death and his rewards.
+const FIN_C = [[0, 8], [-5, 3], [4, -2], [0, -8]];
+const FIN_MOVE = [[8, 12, 0, 1], [20, 24, 1, 2], [32, 36, 2, 3]];
+function finLight(e, t) {                                   // the light's middle and radius at trial time t
+  let c = FIN_C[0];
+  for (const [t0, t1, i, j] of FIN_MOVE) { if (t >= t1) c = FIN_C[j]; else if (t >= t0) { const k = (t - t0) / (t1 - t0); c = [FIN_C[i][0] + (FIN_C[j][0] - FIN_C[i][0]) * k, FIN_C[i][1] + (FIN_C[j][1] - FIN_C[i][1]) * k]; break; } else { c = FIN_C[i]; break; } }
+  const w = SP(e, c[0], c[1]), r = t < 36 ? 6 : t < 39 ? 6 - (t - 36) / 3 : 5;
+  return { x: w.x, y: w.y, r };
+}
+const FIN_MARK = [[6, 1], [18, 2], [30, 3]];
+function finEvents(e) {                                     // every trial's events on the trial clock
+  const E = [];
+  const at = (t, f, V = {}) => E.push({ t, f, V });
+  at(0, 'say', { text: 'ASH CONSUMES THE FALSE PATH.' });
+  for (const [k, t] of [[0, 0], [1, 3], [2, 6], [3, 9]]) { at(t - 0.6, 'apShow', { side: k % 2 ? 1 : -1, kind: 'ash' }); for (let j = 0; j < 7; j++) at(t + j * 0.2, 'ashNeedle', { side: k % 2 ? 1 : -1, j }); }
+  at(12, 'say', { text: 'THE NIGHT HAS FOUND YOU.' });
+  [12, 15, 18, 21].forEach((t, r) => { at(t - 0.75, 'nightShow', { r, w: 0 }); at(t, 'nightWall', { r, w: 0 }); at(t + 0.85 - 0.75, 'nightShow', { r, w: 1 }); at(t + 0.85, 'nightWall', { r, w: 1 }); });
+  at(24, 'say', { text: 'ONLY THE TRUE SUN ENDURES.' });
+  for (const t of [24, 30]) { at(t, 'decoys', {}); for (let k = 0; k < 6; k++) at(t + 0.8 + k * 0.75, 'obelisk', { k }); }
+  at(36, 'say', { text: 'TAKE BACK WHAT WAS STOLEN.' });
+  [36, 39, 42, 45].forEach((t, n) => { for (let v = 0; v < 3; v++) { const ap = (n * 3 + v) % 3; at(t + v * 0.65 - 0.75, 'ninthShow', { ap, v }); if (t + v * 0.65 <= 46.5) at(t + v * 0.65, 'ninthFire', { ap, v }); } });
+  for (const t of [40, 44]) { at(t - 1.0, 'nightRay', { t, k: t === 40 ? 0 : 1 }); }
+  return E.sort((x, y) => x.t - y.t);
+}
+const FIN_AP = { ash: (e, side, L) => SP(e, -21 * side, Math.max(-6, Math.min(6, (MID(e).y - L.y)))) };
+const NINTH = [[-15, -15], [15, 15], [15, -15]];             // (the spec's NW, SE, NE by turns: one at a time)
+const OBEL = [[0, -21], [21, 0], [0, 21], [-21, 0]];
+const FIN = {
+  say(g, e, F, V) { if (g.banner) g.banner(V.text, 2400); },
+  apShow(g, e, F, V) { F.ap = { ...FIN_AP.ash(e, V.side, finLight(e, F.t)), until: F.t + 2.0 }; },
+  ashNeedle(g, e, F, V) {                                   // an aperture's needles, one by one, swept across the light
+    const L = finLight(e, F.t), A = FIN_AP.ash(e, V.side, L), b = angleTo(A.x, A.y, L.x, L.y) + (V.j / 6 - 0.5) * deg(36) * (V.side);
+    fire2(g, e, A.x, A.y, b, 'void', 5.5, 115, { free: true }); F.counts.push(['ash', 1]);
   },
-  update(g, e, dt, T) {
-    const S = e.bx, F = S.slFin; if (!F) return;
-    if (T >= FINALE.dur - 0.1) {                           // the sun is yours
-      g.bxClearBullets(e); S.slFin = null; if (g.map) g.map.ambBoss = [60, 40, 10, 0.14];
-      if (g.banner) g.banner('THE SUN IS RECLAIMED', 3200);
-      g.fx.push({ kind: 'ring', x: MID(e).x, y: MID(e).y, t: 0, max: 22, color: '#fff6c8' }); g.vx({ k: 'shake', amt: 12 });
-      e.invulnT = 0; g.bxDie(e); return;
-    }
-    const k = Math.min(1, T / 2.2); e.x = F.x0 + (F.home.x - F.x0) * k; e.y = F.y0 + (F.home.y - F.y0) * k;   // (he drifts to the dais's north edge)
-    if (Math.random() < 0.4) g.vx({ k: 'burst', x: e.x + (Math.random() - 0.5) * 3, y: e.y - Math.random() * 5, n: 1, colors: ['#3a1a4a', '#8a5ad8'] });   // (coming apart)
-    const C = MID(e), R0 = RAD(e), p = g.player, act = F.lights.filter((L) => T >= L.from && T < L.to), q = target(g, e);
-    if (p && !p.dead && T > 2.5 && !act.some((L) => Math.hypot(p.x - L.x, p.y - L.y) < lightR(L, T))) {   // the void, outside the light
-      if ((F.tick -= dt) <= 0) { F.tick = 0.5; g.hurtPlayer(g.bxDmg(e, D(70)), 'the void'); }
-    } else F.tick = Math.min(F.tick, 0.25);
-    const main = act[act.length - 1] || C, edge = (a) => [C.x + Math.cos(a) * (R0 - 0.5), C.y + Math.sin(a) * (R0 - 0.5)];
-    if (T > 2.5 && (F.fan -= dt) <= 0) {                   // void fans from the edge, through the light
-      F.fan = T < 13 ? 0.55 : T < 35 ? 1.2 : 0.8;
-      const [x, y] = edge(Math.random() * TAU), a = angleTo(x, y, main.x, main.y);
-      for (let j = 0; j < 5; j++) shot(g, e, x, y, a + (j / 4 - 0.5) * deg(36), { ...STAR, ...FREE, speed: 4.6, range: 30, dmg: D(105) });
-    }
-    if (T > 3 && (F.volley -= dt) <= 0) {                  // his crescents, from the dark figure
-      F.volley = T < 35 ? 1.4 : 1.0; const a = angleTo(e.x, e.y, q.x, q.y);
-      for (const o of [-1, 0, 1]) shot(g, e, e.x, e.y, a + o * deg(14), { ...CRESC, speed: 6, range: 30, dmg: D(115) });
-    }
-    if (T > 12 && (F.port -= dt) <= 0) {                   // two void portals circling the edge
-      F.port = 0.8; const i = F.pk++ % 2, [x, y] = edge(T * 0.35 + i * Math.PI), a = angleTo(x, y, q.x, q.y);
-      for (const o of [-1, 0, 1]) shot(g, e, x, y, a + o * deg(10), { ...STAR, ...FREE, speed: 5.4, range: 30, dmg: D(100) });
-    }
-    if (T > F.lance && (T < 24 || T > 35)) {               // a void lance across your light (telegraphed 1.2 s)
-      F.lance = T + 5; const a = Math.random() * Math.PI, R1 = R0 * 2;
-      g.fx.push({ kind: 'lane', x: main.x - Math.cos(a) * R0, y: main.y - Math.sin(a) * R0, a, len: R1, w: 1.1, delay: 1.2, t: 0, life: 1.6, every: 0.5, dmg: g.bxDmg(e, D(190)), by: e.D.name, hitT: 0, cols: VOIDC });
-    }
-    if (T > F.wall && T < 35) {                            // walls of eclipse crescents across the dais, a gap that moves
-      F.wall = T + 1.3; const dir = (F.wk % 4) * Math.PI / 2, gap = (F.wk * 3) % 13, k2 = F.wk++;
-      const ox = C.x - Math.cos(dir) * R0, oy = C.y - Math.sin(dir) * R0, nx = -Math.sin(dir), ny = Math.cos(dir);
-      for (let j = 0; j < 15; j++) { if (j >= gap && j < gap + 3) continue; const o = (j - 7) * 1.7; shot(g, e, ox + nx * o, oy + ny * o, dir, { ...CRESC, ...FREE, speed: 3.6 + (k2 % 2) * 0.4, range: R0 * 2, dmg: D(110) }); }
-    }
-    if (T > F.ring) {                                      // rings of void collapsing in from the edge
-      F.ring = T + 3; const g0 = Math.floor(Math.random() * 18);
-      for (let j = 0; j < 18; j++) { if ((j - g0 + 18) % 18 < 3) continue; const a = (j / 18) * TAU, [x, y] = edge(a); shot(g, e, x, y, a + Math.PI, { ...STAR, ...FREE, speed: 3.4, range: R0 * 2, dmg: D(110) }); }
-    }
+  nightShow(g, e, F, V) { F.night = { ...nightWall(e, F, V), until: F.t + 0.75 }; },
+  nightWall(g, e, F, V) {
+    const W0 = nightWall(e, F, V); let n = 0; const pl = g.player;
+    W0.pts.forEach(([x, y], i) => { if (W0.omit.includes(i) || (pl && !pl.dead && Math.hypot(pl.x - x, pl.y - y) < 1.2)) return; fire2(g, e, x, y, W0.dir, 'eclipse', 5, 120, { free: true, range: 30 }); n++; });
+    F.counts.push(['night', n]); F.night = null;
+  },
+  decoys(g, e, F) {                                         // two false lights (violet rims), never where the true one goes
+    const L = finLight(e, F.t), C = MID(e), out = [];
+    for (const a of [0.9, 2.6, 4.1, 5.5]) { const x = C.x + Math.cos(a) * 13, y = C.y + Math.sin(a) * 13; if (Math.hypot(x - L.x, y - L.y) > 13 && out.length < 2) out.push({ x, y }); }
+    F.decoys = { list: out, until: F.t + 2.5 };
+  },
+  obelisk(g, e, F, V) {                                     // four obelisks at the edge, by turns (never two in a second)
+    const o = SP(e, ...OBEL[V.k % 4]); F.obel = { k: V.k % 4, from: F.from || F.t, until: F.t + 0.8 };
+    const bb = bearing(g, e, o.x, o.y); for (const a2 of fan(bb, 5, deg(40))) fire2(g, e, o.x, o.y, a2, 'void', 6, 125, { free: true }); F.counts.push(['obelisk', 5]);
+  },
+  ninthShow(g, e, F, V) { F.ninth = { ap: V.ap, v: V.v, until: F.t + 0.75 }; },
+  ninthFire(g, e, F, V) {                                   // one aperture's volley: 16 places about it, 4-7 left out (12), turned 0°, 22.5°, 45°
+    const A = SP(e, ...NINTH[V.ap]), L = finLight(e, F.t), b0 = angleTo(A.x, A.y, L.x, L.y) + deg(22.5 * V.v); let n = 0;
+    for (let i = 0; i < 16; i++) { if (i >= 4 && i <= 7) continue; fire2(g, e, A.x, A.y, b0 + (i / 16) * TAU, 'void', 6, 125, { free: true }); n++; }
+    F.counts.push(['ninth', n]); F.ninth = null;
+  },
+  nightRay(g, e, F, V) {                                    // a thin violet ray through the light (1 s shown; 205 straight off, 0.3 s)
+    const L = finLight(e, F.t + 1), C = MID(e), D0 = e.bx.v2 || V2S(e), vert = V.k === 0, o = vert ? L.x - C.x + 2.5 : L.y - C.y - 2.5, half = Math.sqrt(Math.max(1, 24 * 24 - o * o)), on = g.t + 1.0;
+    D0.beams.push(vert ? { x0: C.x + o, y0: C.y - half, x1: C.x + o, y1: C.y + half, show: g.t, on, off: on + 0.3, w: 0.5, dmg: 205, pierce: true, col: 'void', hit: false, name: 'the Night Ray' } : { x0: C.x - half, y0: C.y + o, x1: C.x + half, y1: C.y + o, show: g.t, on, off: on + 0.3, w: 0.5, dmg: 205, pierce: true, col: 'void', hit: false, name: 'the Night Ray' });
   },
 };
+function nightWall(e, F, V) {                               // a wall of 13 across the light, coming in on a diagonal; its gap moved each time
+  const L = finLight(e, F.t + 0.75), dir = V.w ? deg(135) + (V.r % 2 ? Math.PI : 0) : deg(45) + (V.r % 2 ? Math.PI : 0), ox = L.x - Math.cos(dir) * 13, oy = L.y - Math.sin(dir) * 13, nx = -Math.sin(dir), ny = Math.cos(dir);
+  const sh = [0, 2, -2, 1][V.r % 4], omit = [5, 6, 7, 8].map((i) => i + sh);
+  return { dir, omit, pts: Array.from({ length: 13 }, (_, i) => [ox + nx * (i - 6) * 1.6, oy + ny * (i - 6) * 1.6]) };
+}
+const FINALE = {
+  name: 'Reclaim the Sun', say: 'THE SUN IS FREE. STAND IN ITS LIGHT.', at: 2e-6, dur: 999,
+  start(g, e) {
+    const S = e.bx;
+    S.slSpears = S.slCorona = S.slHalo = S.slVise = S.slChase = S.slHeralds = S.slBlack = S.slLens = S.slSuns = S.slFin = null; e.slDash = null; S.slPause = g.t + 999;
+    for (const q of S.slMinions || []) if (!q.dead) { q.noLoot = true; q.dead = true; q.deadT = 0; }
+    S.v2 = null; e.invulnT = 999;                           // (out of reach: a void shape)
+    const ped = SP(e, 0, -17);
+    S.v2f = { stage: 'release', t: -3, ei: 0, x0: e.x, y0: e.y, ped, claim: 0, sun: { x: ped.x, y: ped.y } }; hide(S.v2f, 'ev', finEvents(e)); hide(S.v2f, 'counts', []); hide(S.v2f, 'expo', {});
+    if (S.anim && S.def.anims.void) S.anim.play('void', { speed: 1 });
+    if (g.map) g.map.ambBoss = [6, 2, 12, 0.76];
+    g.vx({ k: 'burst', x: ped.x, y: ped.y, n: 70, colors: ['#ffffff', ...SUNC] }); g.sfx('shatter');
+  },
+  update(g, e, dt, T) {
+    const S = e.bx, F = S.v2f; if (!F) return;
+    beamTick(g, e);                                         // (its Night Rays: the boss's own update rests during a finale)
+    const t = (F.t = T - 3), C = MID(e), p = g.player;
+    const k0 = Math.min(1, T / 2.2); e.x = F.x0 + (F.ped.x - F.x0) * k0; e.y = F.y0 + (F.ped.y - 1.5 - F.y0) * k0;   // (he drifts to the empty pedestal)
+    if (Math.random() < 0.3) g.vx({ k: 'burst', x: e.x + (Math.random() - 0.5) * 3, y: e.y - Math.random() * 5, n: 1, colors: ['#3a1a4a', '#8a5ad8'] });
+    if (T < 3) {                                            // the release: the Sun from its pedestal down to the middle, then to A
+      const k = T / 3, A0 = finLight(e, 0), mid = k < 0.66 ? k / 0.66 : 1, k2 = k < 0.66 ? 0 : (k - 0.66) / 0.34;
+      F.sun = { x: F.ped.x + (C.x - F.ped.x) * mid + (A0.x - C.x) * k2, y: F.ped.y + (C.y - F.ped.y) * mid + (A0.y - C.y) * k2 };
+      return;
+    }
+    if (t < 48) {
+      const L = finLight(e, t); F.sun = { x: L.x, y: L.y };
+      while (F.ei < F.ev.length && F.ev[F.ei].t <= t) { const E0 = F.ev[F.ei++]; if (t <= 46.5 || E0.f === 'say') FIN[E0.f](g, e, F, E0.V); }
+      for (const [tm, j] of FIN_MARK) if (t >= tm && t < tm + 0.05 && !F['m' + j]) { F['m' + j] = true; if (g.banner) g.banner('FOLLOW THE LIGHT', 1800); }
+      if (t >= 47 && !F.faded) { F.faded = true; g.bxClearBullets(e); if (e.bx.v2) e.bx.v2.beams = []; }   // (what's still flying fades, harmless)
+      eachPlayer(g, (q, id) => {                             // the void, outside the light: 0.3 s grace stepping out, then 40 every 0.5 s (each player)
+        const X = F.expo[id] || (F.expo[id] = { out: 0, tick: 0 });
+        if (Math.hypot(q.x - L.x, q.y - L.y) < L.r) { X.out = 0; X.tick = 0; }
+        else { X.out += dt; if (X.out >= 0.3 && (X.tick -= dt) <= 0) { X.tick = 0.5; g.hurtPlayer(40, 'the void', true); F.counts.push(['exposure', 1]); } }
+      });
+      return;
+    }
+    if (t < 49) { const L = finLight(e, 47.99), k = t - 48; F.sun = { x: L.x + (C.x - L.x) * k, y: L.y + (C.y - L.y) * k }; if (!F.said) { F.said = true; if (g.banner) g.banner('THE SUN IS YOURS. TAKE IT.', 2600); } return; }
+    F.sun = { x: C.x, y: C.y };
+    if (F.stage === 'release') {                           // hold within 2.5 tiles of it 1.2 s
+      if (players(g).some((q) => Math.hypot(q.x - C.x, q.y - C.y) < 2.5)) F.claim += dt; else F.claim = 0;   // (any living player)
+      if (F.claim >= 1.2) { F.stage = 'claimed'; F.claimT = T; if (g.banner) g.banner('THE SUN IS RECLAIMED', 3200); g.fx.push({ kind: 'ring', x: C.x, y: C.y, t: 0, max: 24, color: '#fff6c8' }); g.vx({ k: 'shake', amt: 8 }); g.sfx('levelup'); if (g.map) g.map.ambBoss = [60, 40, 10, 0.14]; }
+      return;
+    }
+    if (T - F.claimT >= 3) { S.v2f = null; e.invulnT = 0; g.bxDie(e); }   // (he cracks to ash: then, only then, he dies and gives up the rewards)
+  },
+};
+function finGround(r, g, e) {
+  const gt = now(g, e);
+  const F = e.bx.v2f; if (!F) return; const b = r.b, t = F.t;
+  const [o0x] = r.proj(0, 0), [o1x] = r.proj(1, 0), ts = Math.max(4, Math.abs(o1x - o0x));
+  const circ = (x, y, R, fill, stroke, a1, a2, dash) => { const [sx, sy] = r.proj(x, y); b.save(); if (fill) { b.globalAlpha = a1; b.fillStyle = fill; b.beginPath(); b.ellipse(sx, sy, R * ts, R * ts, 0, 0, TAU); b.fill(); } b.globalAlpha = a2; b.strokeStyle = stroke; b.lineWidth = 2; if (dash) b.setLineDash(dash); b.beginPath(); b.ellipse(sx, sy, R * ts, R * ts, 0, 0, TAU); b.stroke(); b.restore(); };
+  if (t >= 0 && t < 48) {
+    const L = finLight(e, t); circ(L.x, L.y, L.r, '#ffd650', '#fff6c8', 0.2, 0.95);
+    for (const [tm, j] of FIN_MARK) if (t >= tm && t < tm + 6) {   // the next place: a dashed gold ring, an arrow to it
+      const w = SP(e, ...FIN_C[j]); circ(w.x, w.y, j === 3 ? 5 : 6, null, '#ffd650', 0, 0.5 + 0.4 * Math.sin(gt * 8), [6, 5]);
+      const [ax, ay] = r.proj(L.x, L.y), [bx2, by2] = r.proj(w.x, w.y), an = Math.atan2(by2 - ay, bx2 - ax); b.save(); b.globalAlpha = 0.85; b.strokeStyle = '#ffd650'; b.lineWidth = 2; b.beginPath(); b.moveTo(ax, ay); b.lineTo(bx2, by2); b.moveTo(bx2, by2); b.lineTo(bx2 - Math.cos(an - 0.5) * 9, by2 - Math.sin(an - 0.5) * 9); b.moveTo(bx2, by2); b.lineTo(bx2 - Math.cos(an + 0.5) * 9, by2 - Math.sin(an + 0.5) * 9); b.stroke(); b.restore();
+    }
+    if (F.decoys && t < F.decoys.until) for (const d of F.decoys.list) circ(d.x, d.y, 6, '#3a1a4a', '#b884ff', 0.12, 0.5 + 0.5 * Math.sin(gt * 10), [3, 3]);   // (false lights: violet rims, pulsing)
+    if (F.night && t < F.night.until) F.night.pts.forEach(([x, y], i) => { const om = F.night.omit.includes(i), [sx, sy] = r.proj(x, y); b.globalAlpha = om ? 0.3 : 0.9; b.fillStyle = om ? '#2a1040' : '#b884ff'; b.fillRect(Math.round(sx) - 2, Math.round(sy) - 2, om ? 2 : 5, om ? 2 : 5); });
+  }
+  if (t >= 49 && F.stage === 'release') { const C = MID(e); circ(C.x, C.y, 2.5, '#fff6c8', '#ffffff', 0.25, 0.9); if (F.claim > 0) { const [sx, sy] = r.proj(C.x, C.y); b.save(); b.strokeStyle = '#ffd650'; b.lineWidth = 3; b.beginPath(); b.arc(sx, sy, 2.5 * ts + 4, -Math.PI / 2, -Math.PI / 2 + TAU * Math.min(1, F.claim / 1.2)); b.stroke(); b.restore(); } }
+  b.globalAlpha = 1;
+}
+function finAir(r, g, e, put, get) {
+  const gt = now(g, e);
+  const F = e.bx.v2f; if (!F) return; const sun = get('sol_shots/sun'), black = get('sol_shots/blacksun'), t = F.t;
+  if (sun && F.sun) put(sun, F.sun.x, F.sun.y + 1.4, { scale: F.stage === 'claimed' ? 3 + Math.sin(gt * 6) * 0.3 : 2.2 + 0.1 * Math.sin(gt * 3) });
+  if (!black) return;
+  if (t >= -0.6 && t < 12 && F.ap && t < F.ap.until) put(black, F.ap.x, F.ap.y + 1.4, { scale: 1.3 + 0.1 * Math.sin(gt * 9) });   // (an aperture, open)
+  if (t >= 24 && t < 36) OBEL.forEach((o, k) => { const w = SP(e, ...o); put(black, w.x, w.y + 1.4, { scale: F.obel && F.obel.k === k && t < F.obel.until ? 1.5 : 1.0, alpha: F.obel && F.obel.k === k && t < F.obel.until ? 1 : 0.55 }); });
+  if (t >= 35.2 && t < 47) NINTH.forEach((o, k) => { const w = SP(e, ...o), on = F.ninth && F.ninth.ap === k; put(black, w.x, w.y + 1.4, { scale: on ? 1.5 : 1.0, alpha: on ? 1 : 0.45 }); });   // (the others dim till their turn)
+}
 
 // ================================================================ the director: the spec's cycles
 const A = (name, special, recover, o = {}) => ({ name, special, windup: 0.45, recover, ...o });
@@ -417,6 +506,11 @@ const CYCLE = {
 // Every attack keeps the spec's own clock (t = 0 when its first warning starts), its recovery, and its cooldown from its
 // end; the order is the spec's, repeated with the safe sectors turned by a seeded {0, 45, 90, 135}. No filler: between
 // attacks he hovers (never more than ~3 s idle when something is ready). Damage: the spec's effective numbers through D().
+// (online the fight is the server's: a floor that hurts, a beam, the claim are judged for each player there, each with
+// their own clocks; g.player is the server's stand-in. The browser draws his marks on the server's clock: now())
+function eachPlayer(g, fn) { const keep = g.player; for (const q of players(g)) { g.player = q; try { fn(q, q.netId || 'me'); } finally { g.player = keep; } } }
+const now = (g, e) => g.t - ((e.bx && e.bx.netOff) || 0);
+const hide = (o, k, v) => Object.defineProperty(o, k, { value: v, writable: true, enumerable: false, configurable: true });   // (kept off the wire: logs, lists of shots)
 const SP = (e, sx, sy) => { const C = MID(e); return { x: C.x - sx, y: C.y - sy }; };
 const SANG = (d) => Math.PI - deg(d);
 const SHOT2 = { glint: { sprite: 'sol2/glint', size: 0.3 }, spear: { sprite: 'sol2/spear', size: 0.28 }, ember: { sprite: 'sol2/ember', size: 0.28 }, halo: { sprite: 'sol2/halo', size: 0.32 },
@@ -425,7 +519,7 @@ function edgeDist(e, x, y, a) { const C = MID(e), dx = x - C.x, dy = y - C.y, c 
 // a shot of the library: its life the distance to the wall at its speed + 0.3 s, at most 10 s (the spec, 14)
 function fire2(g, e, x, y, a, kind, speed, dmg, o = {}) { const range = o.range || Math.min(edgeDist(e, x, y, a) + 0.3 * speed, 10 * speed); const b = shot(g, e, x, y, a, { ...SHOT2[kind], speed, range, dmg: D(dmg), free: !!o.free }); if (o.phase && b) b.phase = true; return b; }   // (free: from a source of its own, a sun or a shard, not his feet; phase: born behind the wall)
 const fan = (b, n, arc) => Array.from({ length: n }, (_, i) => (n === 1 ? b : b + (i / (n - 1) - 0.5) * arc));
-const V2S = (e) => e.bx.v2 || (e.bx.v2 = { i: 0, ready: {}, busyUntil: 0, rot: 0, seed: 7331, beams: [], dial: null, pinc: null, kneel: 0, lastEnd: 0, counts: [] });
+const V2S = (e) => { if (e.bx.v2) return e.bx.v2; const D = (e.bx.v2 = { i: 0, ready: {}, busyUntil: 0, rot: 0, seed: 7331, beams: [], dial: null, pinc: null, kneel: 0, lastEnd: 0 }); hide(D, 'counts', []); hide(D, 'log', []); return D; };
 const seeded = (D) => { D.seed = (D.seed * 1103515245 + 12345) & 0x7fffffff; return D.seed / 0x7fffffff; };
 const ROTS = [0, 45, 90, 135];
 
@@ -492,12 +586,14 @@ function v2Verdict(g, e) {
 }
 function v2VerdictEnd(g, e) { const D = V2S(e); D.counts.push(['verdict', 3]); if (!D.vHit) { D.kneel = g.t + 1.1; if (g.banner) g.banner('SOLKHAR STAGGERED', 1100); g.sfx('shatter'); } }
 function beamTick(g, e) {
-  const Z = e.bx.v2; if (!Z) return; const p = g.player;
-  for (const B of Z.beams) {
-    if (B.hit || g.t < B.on || g.t >= B.off || !p || p.dead) continue;
+  const Z = e.bx.v2; if (!Z) return;
+  eachPlayer(g, (p, id) => { for (const B of Z.beams) {
+    if (!B.hitBy) hide(B, 'hitBy', new Set());
+    if (B.hitBy.has(id) || g.t < B.on || g.t >= B.off) continue;
     const dx = B.x1 - B.x0, dy = B.y1 - B.y0, L = Math.hypot(dx, dy), u = ((p.x - B.x0) * dx + (p.y - B.y0) * dy) / (L * L), across = Math.abs((p.x - B.x0) * dy - (p.y - B.y0) * dx) / L;
-    if (u >= 0 && u <= 1 && across < B.w + 0.32) { B.hit = true; if (B.verdict) Z.vHit = true; g.hurtPlayer(g.bxDmg(e, D(B.dmg)), B.name || 'Solar Verdict'); }   // (its core against your body: one hit a beam)
+    if (u >= 0 && u <= 1 && across < B.w + 0.32) { B.hitBy.add(id); if (B.verdict) Z.vHit = true; if (B.pierce) g.hurtPlayer(B.dmg, B.name, true); else g.hurtPlayer(g.bxDmg(e, D(B.dmg)), B.name || 'Solar Verdict'); }   // (its core against your body: one hit a beam)
   }
+  });
   Z.beams = Z.beams.filter((B) => g.t < B.off + 0.2);
 }
 
@@ -565,7 +661,7 @@ function dsunsTick(g, e) {
 // ---- IV-C DUSK REVERSAL: a black-gold ring opens at his feet (0.9 s); two rings of 12 crescents with three side by side
 // left out (the first 4.2 t/s, the second 0.6 s later at 6.2 t/s; 120). Each flies out 2 s, stops and pulses (white,
 // 0.55 s), and comes back along its own line at 5.2 t/s, gone at its start or 4 s after turning. Recovery 1.2 s, cooldown 11 s.
-function v2Dusk(g, e) { const D = V2S(e), [ox, oy] = FEET(g, e); D.dusk = { ox, oy, from: g.t, list: [] }; later(e, 0.9, 'v2DuskFire', { k: 0 }); later(e, 1.5, 'v2DuskFire', { k: 1 }); }
+function v2Dusk(g, e) { const D = V2S(e), [ox, oy] = FEET(g, e); D.dusk = { ox, oy, from: g.t }; hide(D.dusk, 'list', []); later(e, 0.9, 'v2DuskFire', { k: 0 }); later(e, 1.5, 'v2DuskFire', { k: 1 }); }
 function v2DuskFire(g, e, V) {
   const D = V2S(e), Q = D.dusk; if (!Q) return; const omit = V.k ? [6, 7, 8] : [0, 1, 2], sp = V.k ? 6.2 : 4.2, r0 = deg(D.rot) + (V.k ? deg(15) : 0); let n = 0;
   for (let i = 0; i < 12; i++) { if (omit.includes(i)) continue; const a = r0 + (i / 12) * TAU, b = fire2(g, e, Q.ox, Q.oy, a, 'eclipse', sp, 120, { range: sp * 30 }); if (b && !b.dead) { b.life = 99; Q.list.push({ b, a, x0: Q.ox, y0: Q.oy, stop: g.t + 2.0, back: g.t + 2.55, gone: g.t + 2.55 + 4 }); n++; } }
@@ -597,17 +693,20 @@ function v2DevFade(g, e) {
   const D = V2S(e), V0 = D.dev; if (!V0) return; const pl = g.player, lit = V0.isles.filter((I) => !I.fade);
   if (lit.length < 2) return;
   const reach = 4.0 * 3.4;                                   // (walking 4 t/s, its 1.4 s mark and 2 s fade)
-  const can = lit.filter((I) => { if (!pl || pl.dead || Math.hypot(pl.x - I.x, pl.y - I.y) > 5) return true; return lit.some((J) => J !== I && Math.hypot(pl.x - J.x, pl.y - J.y) - 4.5 <= reach); });
+  const can = lit.filter((I) => players(g).every((q) => Math.hypot(q.x - I.x, q.y - I.y) > 5 || lit.some((J) => J !== I && Math.hypot(q.x - J.x, q.y - J.y) - 4.5 <= reach)));
   if (!can.length) return;
-  const I = can.find((I2) => !pl || Math.hypot(pl.x - I2.x, pl.y - I2.y) > 5) || can[0];   // (rather one you're not standing in)
+  const I = can.find((I2) => players(g).every((q) => Math.hypot(q.x - I2.x, q.y - I2.y) > 5)) || can[0];   // (rather one no one is standing in)
   I.fade = true; I.mark = g.t;
 }
 function v2DevFan(g, e) { const D = V2S(e); if (!D.dev) return; const [ox, oy] = FEET(g, e), b = bearing(g, e, ox, oy); for (const a of fan(b, 9, deg(90))) fire2(g, e, ox, oy, a, 'void', 6, 115); D.counts.push(['devour', 9]); }
 function devTick(g, e, dt) {
   const D = e.bx.v2, V0 = D && D.dev; if (!V0) return; if (g.t > V0.off + 0.3) { D.dev = null; return; }
-  const p = g.player; if (!p || p.dead || g.t < V0.on || g.t >= V0.off) return;
-  const inside = V0.isles.some((I) => Math.hypot(p.x - I.x, p.y - I.y) < isleR(I, g.t));
-  if (!inside) { if ((V0.tick -= dt) <= 0) { if (V0.tick > -0.4) { V0.tick = 0.5; g.hurtPlayer(35, 'the devouring eclipse', true); } else V0.tick = 0.3; } } else V0.tick = -1;
+  if (g.t < V0.on || g.t >= V0.off) return;
+  if (!V0.ticks) hide(V0, 'ticks', {});
+  eachPlayer(g, (p, id) => { let t2 = V0.ticks[id] ?? -1;
+    const inside = V0.isles.some((I) => Math.hypot(p.x - I.x, p.y - I.y) < isleR(I, g.t));
+    if (!inside) { if ((t2 -= dt) <= 0) { if (t2 > -0.4 - dt) { t2 = 0.5; g.hurtPlayer(35, 'the devouring eclipse', true); } else t2 = 0.3; } } else t2 = -1;
+    V0.ticks[id] = t2; });
 }
 // ---- IV-E END OF HEAVEN: "SOLKHAR BEGINS END OF HEAVEN." 1.1 s; from the first shot: three rings of 16 glints (0, 0.75,
 // 1.5 s; four side by side left out, moved round each ring; 5.5 t/s, 75); two pairs of opposing spear walls (2.2 s east and
@@ -662,31 +761,33 @@ function choose4(g, e) {
   return { name: A0.name, special: 'v2Nop', windup: 0.45, recover: 0.3 };
 }
 function v2Ground4(r, g, e) {
+  const gt = now(g, e);
   const D = e.bx.v2; if (!D) return; const b = r.b;
   const [o0x] = r.proj(0, 0), [o1x] = r.proj(1, 0), ts = Math.max(4, Math.abs(o1x - o0x));
   const dot = (x, y, c, a, sz) => { const [sx, sy] = r.proj(x, y); b.globalAlpha = a; b.fillStyle = c; b.fillRect(Math.round(sx) - (sz >> 1), Math.round(sy) - (sz >> 1), sz, sz); };
   if (D.guil) for (const W0 of D.guil.vols) {                 // the guillotine's bands: a gold mark at every lane of the next volley, none in its gap
-    if (W0.done || g.t < W0.at - 0.65) continue;
-    for (let i = 0; i < 11; i++) { const w = SP(e, guilX(i), 18 * W0.side), om = W0.omit.includes(i); dot(w.x, w.y, om ? '#3a2410' : '#ffe680', om ? 0.4 : 0.6 + 0.4 * Math.sin(g.t * 16), om ? 2 : 5); }
+    if (W0.done || gt < W0.at - 0.65) continue;
+    for (let i = 0; i < 11; i++) { const w = SP(e, guilX(i), 18 * W0.side), om = W0.omit.includes(i); dot(w.x, w.y, om ? '#3a2410' : '#ffe680', om ? 0.4 : 0.6 + 0.4 * Math.sin(gt * 16), om ? 2 : 5); }
   }
   if (D.hwall) hevSlots(D.hwall.k).forEach((pair, i) => pair.forEach(([sx, sy]) => { const w = SP(e, sx, sy), om = i >= 6 && i <= 9; dot(w.x, w.y, om ? '#3a2410' : '#ffe680', om ? 0.4 : 0.8, om ? 2 : 5); }));
   const V0 = D.dev;
   if (V0) {                                                  // the islands of light (gold rims; a fading one's rim dashed and pulsing), the void about them shaded violet
-    const C = MID(e), dark = g.t >= V0.on && g.t < V0.off;
-    if (dark) for (let ty = Math.floor(C.y - 24); ty <= C.y + 24; ty += 2) for (let tx = Math.floor(C.x - 24); tx <= C.x + 24; tx += 2) { const cx = tx + 1, cy = ty + 1; if (Math.hypot(cx - C.x, cy - C.y) > 24 || V0.isles.some((I) => Math.hypot(cx - I.x, cy - I.y) < isleR(I, g.t))) continue; const [x, y] = r.proj(cx, cy); b.globalAlpha = 0.22; b.fillStyle = '#2a0a40'; b.fillRect(Math.round(x - ts), Math.round(y - ts), ts * 2, ts * 2); if ((tx + ty) % 4 === 0) { b.globalAlpha = 0.5; b.fillStyle = '#6a2ab0'; b.fillRect(Math.round(x) - 1, Math.round(y) - 1, 2, 2); } }
-    for (const I of V0.isles) { const R = isleR(I, g.t) * ts; if (R <= 0) continue; const [x, y] = r.proj(I.x, I.y); b.save(); b.globalAlpha = 0.18; b.fillStyle = '#ffd650'; b.beginPath(); b.ellipse(x, y, R, R, 0, 0, TAU); b.fill(); b.globalAlpha = I.fade ? 0.5 + 0.5 * Math.sin(g.t * 12) : 0.9; b.strokeStyle = '#fff0a0'; b.lineWidth = 2; if (I.fade) b.setLineDash([5, 4]); b.beginPath(); b.ellipse(x, y, R, R, 0, 0, TAU); b.stroke(); b.restore(); }
+    const C = MID(e), dark = gt >= V0.on && gt < V0.off;
+    if (dark) for (let ty = Math.floor(C.y - 24); ty <= C.y + 24; ty += 2) for (let tx = Math.floor(C.x - 24); tx <= C.x + 24; tx += 2) { const cx = tx + 1, cy = ty + 1; if (Math.hypot(cx - C.x, cy - C.y) > 24 || V0.isles.some((I) => Math.hypot(cx - I.x, cy - I.y) < isleR(I, gt))) continue; const [x, y] = r.proj(cx, cy); b.globalAlpha = 0.22; b.fillStyle = '#2a0a40'; b.fillRect(Math.round(x - ts), Math.round(y - ts), ts * 2, ts * 2); if ((tx + ty) % 4 === 0) { b.globalAlpha = 0.5; b.fillStyle = '#6a2ab0'; b.fillRect(Math.round(x) - 1, Math.round(y) - 1, 2, 2); } }
+    for (const I of V0.isles) { const R = isleR(I, gt) * ts; if (R <= 0) continue; const [x, y] = r.proj(I.x, I.y); b.save(); b.globalAlpha = 0.18; b.fillStyle = '#ffd650'; b.beginPath(); b.ellipse(x, y, R, R, 0, 0, TAU); b.fill(); b.globalAlpha = I.fade ? 0.5 + 0.5 * Math.sin(gt * 12) : 0.9; b.strokeStyle = '#fff0a0'; b.lineWidth = 2; if (I.fade) b.setLineDash([5, 4]); b.beginPath(); b.ellipse(x, y, R, R, 0, 0, TAU); b.stroke(); b.restore(); }
   }
   const Q = D.dusk;
-  if (Q) for (const it of Q.list) if (!it.done && g.t >= it.stop && g.t < it.back) { const k = (g.t - it.stop) / 0.55; dot(it.b.x, it.b.y, k % 0.2 < 0.1 ? '#ffffff' : '#b884ff', 0.8, 9); }   // (white pulse: about to turn back)
+  if (Q) for (const it of Q.list) if (!it.done && gt >= it.stop && gt < it.back) { const k = (gt - it.stop) / 0.55; dot(it.b.x, it.b.y, k % 0.2 < 0.1 ? '#ffffff' : '#b884ff', 0.8, 9); }   // (white pulse: about to turn back)
   b.globalAlpha = 1;
 }
 function v2Air4(r, g, e, put, get) {
+  const gt = now(g, e);
   const D = e.bx.v2; if (!D) return; const sun = get('sol_shots/sun'), black = get('sol_shots/blacksun');
   const bar = (q) => { if (q.dead || q.hp >= q.maxHp) return; const [sx, sy] = r.proj(q.x, q.y); r.hpBar(sx, sy + 3, q.hp / q.maxHp, 14); };
   const Z = D.dsuns;
-  if (Z && sun) for (const s0 of Z.list) { if (gone(s0.q)) continue; const k = Math.min(1, (g.t - Z.born) / 1.2), x = s0.x0 + (s0.q.x - s0.x0) * k, y = s0.y0 + (s0.q.y - s0.y0) * k; put(sun, x, y + 1.4 + Math.sin(k * Math.PI) * 1.5, { scale: (0.6 + 0.6 * k) * (g.t - s0.pulse < 0.35 ? 1.3 : 1) }); if (k >= 1) bar(s0.q); }
-  if (D.dusk && black && g.t - D.dusk.from < 1.6) put(black, D.dusk.ox, D.dusk.oy + 1.4, { scale: Math.min(1.4, (g.t - D.dusk.from) / 0.9 * 1.4), alpha: 0.85 });
-  if (D.hsun && black) { const C = MID(e); put(black, C.x, C.y + 1.4, { scale: 1.6 + 0.3 * Math.sin(g.t * 24) }); }
+  if (Z && sun) for (const s0 of Z.list) { if (gone(s0.q)) continue; const k = Math.min(1, (gt - Z.born) / 1.2), x = s0.x0 + (s0.q.x - s0.x0) * k, y = s0.y0 + (s0.q.y - s0.y0) * k; put(sun, x, y + 1.4 + Math.sin(k * Math.PI) * 1.5, { scale: (0.6 + 0.6 * k) * (gt - s0.pulse < 0.35 ? 1.3 : 1) }); if (k >= 1) bar(s0.q); }
+  if (D.dusk && black && gt - D.dusk.from < 1.6) put(black, D.dusk.ox, D.dusk.oy + 1.4, { scale: Math.min(1.4, (gt - D.dusk.from) / 0.9 * 1.4), alpha: 0.85 });
+  if (D.hsun && black) { const C = MID(e); put(black, C.x, C.y + 1.4, { scale: 1.6 + 0.3 * Math.sin(gt * 24) }); }
 }
 
 // ================================================================ v2 PHASE III: THE UNBOUND SUN (50-25%; till his finale
@@ -815,6 +916,7 @@ function choose3(g, e) {
   return { name: A0.name, special: 'v2Nop', windup: 0.45, recover: 0.3 };
 }
 function v2Ground3(r, g, e) {
+  const gt = now(g, e);
   const D = e.bx.v2; if (!D) return; const b = r.b;
   const T = D.tell;
   if (T) {                                                   // the dash's route: a dashed gold line and its head (a locked dash)
@@ -823,23 +925,24 @@ function v2Ground3(r, g, e) {
     b.beginPath(); b.moveTo(bx2, by2); b.lineTo(bx2 - Math.cos(a - 0.5) * 8, by2 - Math.sin(a - 0.5) * 8); b.moveTo(bx2, by2); b.lineTo(bx2 - Math.cos(a + 0.5) * 8, by2 - Math.sin(a + 0.5) * 8); b.stroke(); b.restore();
   }
   const I = D.imp;
-  if (I && g.t > I.outAt - 0.8 && g.t < I.outAt + 0.1) {      // the implosion's outward lines (violet: void), shown through its pulse
+  if (I && gt > I.outAt - 0.8 && gt < I.outAt + 0.1) {      // the implosion's outward lines (violet: void), shown through its pulse
     const C = MID(e); b.save(); b.globalAlpha = 0.6; b.strokeStyle = '#b884ff'; b.lineWidth = 2; b.setLineDash([4, 4]);
     for (let i = 0; i < 12; i++) { if (OUT_OMIT.includes(i)) continue; const a = SANG(i * 30) + I.rot, [ax, ay] = r.proj(C.x, C.y), [bx2, by2] = r.proj(C.x + Math.cos(a) * 10, C.y + Math.sin(a) * 10); b.beginPath(); b.moveTo(ax, ay); b.lineTo(bx2, by2); b.stroke(); }
     b.restore();
   }
 }
 function v2Air3(r, g, e, put, get) {
+  const gt = now(g, e);
   const D = e.bx.v2; if (!D) return;
   const spear = get('sol2/spear'), black = get('sol_shots/blacksun'), sun = get('sol_shots/sun'), shard = get('sol2/halo');
   const A = D.ash;
-  if (A && spear) for (const R0 of A.rings) { if (R0.done || g.t < R0.from) continue; for (let i = 0; i < 16; i++) { const gone2 = ASH_GAP.includes(i) && g.t >= R0.shatter, a = ashAngle(R0, i); if (gone2) continue; put(spear, A.cx + Math.cos(a) * 4.2, A.cy + Math.sin(a) * 4.2 + 1.2, { rot: a, alpha: Math.min(1, (g.t - R0.from) / 0.3) }); } }
+  if (A && spear) for (const R0 of A.rings) { if (R0.done || gt < R0.from) continue; for (let i = 0; i < 16; i++) { const gone2 = ASH_GAP.includes(i) && gt >= R0.shatter, a = ashAngle(R0, i); if (gone2) continue; put(spear, A.cx + Math.cos(a) * 4.2, A.cy + Math.sin(a) * 4.2 + 1.2, { rot: a, alpha: Math.min(1, (gt - R0.from) / 0.3) }); } }
   const I = D.imp;
-  if (I && black) { const C = MID(e), k = Math.min(1, (g.t - I.from) / 1.0), pulse = g.t > I.outAt - 0.8 && g.t < I.outAt; put(black, C.x, C.y + 1.4, { scale: (0.5 + 1.3 * k) * (pulse ? 1.2 + 0.15 * Math.sin(g.t * 20) : 1) }); }
-  if (D.loomSun && sun) put(sun, D.loomSun.x, D.loomSun.y + 1.4, { scale: Math.min(1.3, (g.t - D.loomSun.from) / 0.6 + 0.3) });
-  if (D.psuns && sun) D.psuns.at.forEach((s0, i) => put(sun, s0.x, s0.y + 1.4, { scale: Math.min(1, (g.t - D.psuns.from) / 0.8) * (D.psuns.lit === i ? 1.3 : 1) }));
+  if (I && black) { const C = MID(e), k = Math.min(1, (gt - I.from) / 1.0), pulse = gt > I.outAt - 0.8 && gt < I.outAt; put(black, C.x, C.y + 1.4, { scale: (0.5 + 1.3 * k) * (pulse ? 1.2 + 0.15 * Math.sin(gt * 20) : 1) }); }
+  if (D.loomSun && sun) put(sun, D.loomSun.x, D.loomSun.y + 1.4, { scale: Math.min(1.3, (gt - D.loomSun.from) / 0.6 + 0.3) });
+  if (D.psuns && sun) D.psuns.at.forEach((s0, i) => put(sun, s0.x, s0.y + 1.4, { scale: Math.min(1, (gt - D.psuns.from) / 0.8) * (D.psuns.lit === i ? 1.3 : 1) }));
   const H = D.hor;
-  if (H && shard) for (let i = 0; i < 4; i++) { const el = g.t - H.at, th = horTheta(H, i, el), w = SP(e, HOR_R * Math.cos(th), -HOR_R * Math.sin(th)); put(shard, w.x, w.y + 1.2, { rot: SANG(th * 180 / Math.PI + 90), scale: 1.7 * Math.min(1, (g.t - H.from) / 0.9), alpha: horDark(th) ? 0.3 : 1 }); }
+  if (H && shard) for (let i = 0; i < 4; i++) { const el = gt - H.at, th = horTheta(H, i, el), w = SP(e, HOR_R * Math.cos(th), -HOR_R * Math.sin(th)); put(shard, w.x, w.y + 1.2, { rot: SANG(th * 180 / Math.PI + 90), scale: 1.7 * Math.min(1, (gt - H.from) / 0.9), alpha: horDark(th) ? 0.3 : 1 }); }
 }
 
 // ================================================================ v2 PHASE II: THE STOLEN LIGHT (75-50%). His sanctum
@@ -904,9 +1007,11 @@ function inEclipse(e, Ec, x, y) {
 function eclTick(g, e, dt) {
   const D = e.bx.v2, Ec = D && D.ecl; if (!Ec) return;
   if (g.t > Ec.end) { D.ecl = null; return; }
-  const p = g.player; if (!p || p.dead || g.t < Ec.on || g.t >= Ec.off) return;
-  if (inEclipse(e, Ec, p.x, p.y)) { if ((Ec.tick -= dt) <= 0) { if (Ec.tick > -0.4) { Ec.tick = 0.5; g.hurtPlayer(32, Ec.solar ? 'the solar floor' : 'the eclipse', true); } else Ec.tick = 0.25; } }   // (on entering, a breath first: never two in a frame)
-  else Ec.tick = -1;
+  if (g.t < Ec.on || g.t >= Ec.off) return;
+  if (!Ec.ticks) hide(Ec, 'ticks', {});
+  eachPlayer(g, (p, id) => { const k = Ec.ticks[id] ?? -1; let t2 = k;
+    if (inEclipse(e, Ec, p.x, p.y)) { if ((t2 -= dt) <= 0) { if (t2 > -0.4 - dt) { t2 = 0.5; g.hurtPlayer(32, Ec.solar ? 'the solar floor' : 'the eclipse', true); } else t2 = 0.25; } } else t2 = -1;
+    Ec.ticks[id] = t2; });
 }
 // ---- II-D SUNDERING DAWN: a wall of comets forms along the south edge (the spec's y = -19, its 17 lanes the spec's
 // spacing drawn in to the round floor), three in a row missing (7-9); 1.25 s, then it marches across at 3.4 t/s, every
@@ -966,11 +1071,12 @@ function choose2(g, e) {
   return { name: A0.name, special: 'v2Nop', windup: 0.45, recover: 0.3 };
 }
 function v2Ground2(r, g, e) {
+  const gt = now(g, e);
   const D = e.bx.v2; if (!D) return; const b = r.b;
   const [o0x] = r.proj(0, 0), [o1x] = r.proj(1, 0), ts = Math.max(4, Math.round(Math.abs(o1x - o0x)));
   const Ec = D.ecl;
   if (Ec) {                                                  // the eclipse floor: its sigils (a sun's dot, or violet hatching: never colour alone), pulsing while it's a warning
-    const C = MID(e), warn = g.t < Ec.on, end = g.t >= Ec.off, a0 = end ? 0.08 : warn ? 0.12 + 0.12 * Math.sin(g.t * 10) : 0.3;
+    const C = MID(e), warn = gt < Ec.on, end = gt >= Ec.off, a0 = end ? 0.08 : warn ? 0.12 + 0.12 * Math.sin(gt * 10) : 0.3;
     for (let ty = Math.floor(C.y - 24); ty <= C.y + 24; ty++) for (let tx = Math.floor(C.x - 24); tx <= C.x + 24; tx++) {
       if (!inEclipse(e, Ec, tx + 0.5, ty + 0.5)) continue;
       const [x, y] = r.proj(tx + 0.5, ty + 0.5);
@@ -981,47 +1087,50 @@ function v2Ground2(r, g, e) {
   }
   const Dw = D.dawn;
   if (Dw) for (const W0 of Dw.waves) {                       // the dawn's wall forming: a gold mark at every lane that will fire, nothing in its gap
-    if (W0.done || g.t < W0.from) continue;
-    for (let i = 0; i < 17; i++) { const w = SP(e, DAWN_X(i), -19), om = W0.omit.includes(i), [x, y] = r.proj(w.x, w.y); b.globalAlpha = om ? 0.35 : 0.6 + 0.4 * Math.sin(g.t * 14); b.fillStyle = om ? '#3a2410' : '#fff0a0'; b.fillRect(Math.round(x) - 2, Math.round(y) - 2, om ? 2 : 5, om ? 2 : 5); }
+    if (W0.done || gt < W0.from) continue;
+    for (let i = 0; i < 17; i++) { const w = SP(e, DAWN_X(i), -19), om = W0.omit.includes(i), [x, y] = r.proj(w.x, w.y); b.globalAlpha = om ? 0.35 : 0.6 + 0.4 * Math.sin(gt * 14); b.fillStyle = om ? '#3a2410' : '#fff0a0'; b.fillRect(Math.round(x) - 2, Math.round(y) - 2, om ? 2 : 5, om ? 2 : 5); }
     const [ax, ay] = r.proj(SP(e, DAWN_X(0), -19).x, SP(e, 0, -19).y), [bx2] = r.proj(SP(e, DAWN_X(16), -19).x, 0); b.globalAlpha = 0.5; b.fillStyle = '#ffd650';   // (an arrow-mark of its drift)
     const mx = (ax + bx2) / 2 + W0.dir * -18; for (let k = 0; k < 4; k++) b.fillRect(Math.round(mx + W0.dir * -k * 4), Math.round(ay) - 8 + (k % 2), 3, 1);
   }
   b.globalAlpha = 1;
 }
 function v2Air2(r, g, e, put, get) {
+  const gt = now(g, e);
   const D = e.bx.v2; if (!D) return;
   const sun = get('sol_shots/sun'), black = get('sol_shots/blacksun'), shard = get('sol2/halo');
   const bar = (q) => { if (q.dead || q.hp >= q.maxHp) return; const [sx, sy] = r.proj(q.x, q.y); r.hpBar(sx, sy + 3, q.hp / q.maxHp, 14); };
   const Z = D.suns;
   if (Z && sun) for (const s of Z.list) {                    // the lesser suns: rising from the pedestal along their trails, then burning where they stop; brighter in their pulse
-    if (gone(s.q)) continue; const k = Math.min(1, (g.t - Z.born) / 1.2), x = s.x0 + (s.q.x - s.x0) * k, y = s.y0 + (s.q.y - s.y0) * k;
-    put(sun, x, y + 1.4 + Math.sin(k * Math.PI) * 1.5, { scale: (0.6 + 0.6 * k) * (g.t - s.pulse < 0.3 ? 1.25 : 1) });
+    if (gone(s.q)) continue; const k = Math.min(1, (gt - Z.born) / 1.2), x = s.x0 + (s.q.x - s.x0) * k, y = s.y0 + (s.q.y - s.y0) * k;
+    put(sun, x, y + 1.4 + Math.sin(k * Math.PI) * 1.5, { scale: (0.6 + 0.6 * k) * (gt - s.pulse < 0.3 ? 1.25 : 1) });
     if (k >= 1) bar(s.q);
   }
   const H = D.halo;
-  if (H && shard) for (let i = 0; i < 4; i++) { const k = Math.min(3, H.k || 0), a = shardAt(H, k, i), dark = k === 1 && Math.abs(Math.atan2(Math.sin(a - H.dark), Math.cos(a - H.dark))) < deg(35); put(shard, H.cx + Math.cos(a) * 4, H.cy + Math.sin(a) * 4 + 1.2, { rot: a, scale: 1.6, alpha: dark ? 0.3 : Math.min(1, (g.t - H.from) / 0.75) }); }
+  if (H && shard) for (let i = 0; i < 4; i++) { const k = Math.min(3, H.k || 0), a = shardAt(H, k, i), dark = k === 1 && Math.abs(Math.atan2(Math.sin(a - H.dark), Math.cos(a - H.dark))) < deg(35); put(shard, H.cx + Math.cos(a) * 4, H.cy + Math.sin(a) * 4 + 1.2, { rot: a, scale: 1.6, alpha: dark ? 0.3 : Math.min(1, (gt - H.from) / 0.75) }); }
   const Hr = D.hour;
-  if (Hr && black) Hr.stars.forEach((st, i) => put(black, st.x, st.y + 1.4, { scale: (Math.min(1, (g.t - Hr.from) / 0.95)) * (Hr.lit === i ? 1.45 : 1.05), alpha: Hr.lit === i ? 1 : 0.8 }));
+  if (Hr && black) Hr.stars.forEach((st, i) => put(black, st.x, st.y + 1.4, { scale: (Math.min(1, (gt - Hr.from) / 0.95)) * (Hr.lit === i ? 1.45 : 1.05), alpha: Hr.lit === i ? 1 : 0.8 }));
 }
 
 
 function v2Ground(r, g, e) {
+  const gt = now(g, e);
   const D = e.bx.v2; if (!D) return; const b = r.b;
   const [o0x] = r.proj(0, 0), [o1x] = r.proj(1, 0), ts = Math.max(4, Math.abs(o1x - o0x));
   const dot = (x, y, c, a, sz = 2) => { const [sx, sy] = r.proj(x, y); b.globalAlpha = a; b.fillStyle = c; b.fillRect(Math.round(sx) - (sz >> 1), Math.round(sy) - (sz >> 1), sz, sz); };
   if (D.dial) for (const R0 of D.dial.rings) {                // the sundial's 12 points; its dark sector dim (a safe sector, dim/off)
-    if (R0.done) continue; const k = Math.min(1, (g.t - R0.from) / 0.3);
-    for (let i = 0; i < 12; i++) { const a = R0.a0 + (i / 12) * TAU, x = D.dial.cx + Math.cos(a) * 3, y = D.dial.cy + Math.sin(a) * 3, dark = R0.gap.includes(i) && g.t > R0.from + 0.25; dot(x, y, dark ? '#4a2a10' : '#ffe680', dark ? 0.5 : k, dark ? 2 : 4); }
+    if (R0.done) continue; const k = Math.min(1, (gt - R0.from) / 0.3);
+    for (let i = 0; i < 12; i++) { const a = R0.a0 + (i / 12) * TAU, x = D.dial.cx + Math.cos(a) * 3, y = D.dial.cy + Math.sin(a) * 3, dark = R0.gap.includes(i) && gt > R0.from + 0.25; dot(x, y, dark ? '#4a2a10' : '#ffe680', dark ? 0.5 : k, dark ? 2 : 4); }
   }
   if (D.pinc) {                                             // the pincer's source lines, a bright mark at each slot that will fire, none where the gap is
-    const P0 = D.pinc, nxt = P0.at.findIndex((t) => g.t < t); if (nxt < 0 && g.t > P0.at[1] + 0.3) D.pinc = null;
-    else if (nxt >= 0) for (const side of [-1, 1]) pincSlots(e).forEach(([sx, sy], i) => { const w = SP(e, side * sx, sy), om = P0.sets[nxt].includes(i); dot(w.x, w.y, om ? '#3a2410' : '#ffb030', om ? 0.4 : 0.6 + 0.4 * Math.sin(g.t * 14), om ? 2 : 4); });
+    const P0 = D.pinc, nxt = P0.at.findIndex((t) => gt < t); if (nxt < 0 && gt > P0.at[1] + 0.3) D.pinc = null;
+    else if (nxt >= 0) for (const side of [-1, 1]) pincSlots(e).forEach(([sx, sy], i) => { const w = SP(e, side * sx, sy), om = P0.sets[nxt].includes(i); dot(w.x, w.y, om ? '#3a2410' : '#ffb030', om ? 0.4 : 0.6 + 0.4 * Math.sin(gt * 14), om ? 2 : 4); });
   }
   for (const B of D.beams) {                                // the verdict's pillars: gold floor lines while they're coming, the light itself while they burn
-    if (g.t < B.show) continue; const on = g.t >= B.on && g.t < B.off, [ax, ay] = r.proj(B.x0, B.y0), [bx, by] = r.proj(B.x1, B.y1), wpx = B.w * 2 * ts;
+    if (gt < B.show) continue; const on = gt >= B.on && gt < B.off, [ax, ay] = r.proj(B.x0, B.y0), [bx, by] = r.proj(B.x1, B.y1), wpx = B.w * 2 * ts;
     b.save(); b.lineCap = 'butt';
-    if (on) { b.globalAlpha = 0.85; b.strokeStyle = '#ffd650'; b.lineWidth = wpx; b.beginPath(); b.moveTo(ax, ay); b.lineTo(bx, by); b.stroke(); b.strokeStyle = '#ffffff'; b.lineWidth = Math.max(2, wpx * 0.35); b.beginPath(); b.moveTo(ax, ay); b.lineTo(bx, by); b.stroke(); }
-    else if (g.t < B.on) { const k = (g.t - B.show) / Math.max(0.01, B.on - B.show); b.globalAlpha = 0.18 + 0.2 * k; b.fillStyle = '#ffb030'; b.strokeStyle = '#ffd650'; b.lineWidth = wpx; b.beginPath(); b.moveTo(ax, ay); b.lineTo(bx, by); b.stroke(); b.globalAlpha = 0.9; b.lineWidth = 1; b.setLineDash([5, 4]); const nx = (by - ay), ny = -(bx - ax), L = Math.hypot(nx, ny) || 1, ox = (nx / L) * wpx / 2, oy = (ny / L) * wpx / 2; for (const s2 of [-1, 1]) { b.beginPath(); b.moveTo(ax + ox * s2, ay + oy * s2); b.lineTo(bx + ox * s2, by + oy * s2); b.stroke(); } }
+    const vi = B.col === 'void';
+    if (on) { b.globalAlpha = 0.85; b.strokeStyle = vi ? '#8a3ad8' : '#ffd650'; b.lineWidth = wpx; b.beginPath(); b.moveTo(ax, ay); b.lineTo(bx, by); b.stroke(); b.strokeStyle = vi ? '#e0c0ff' : '#ffffff'; b.lineWidth = Math.max(2, wpx * 0.35); b.beginPath(); b.moveTo(ax, ay); b.lineTo(bx, by); b.stroke(); }
+    else if (gt < B.on) { const k = (gt - B.show) / Math.max(0.01, B.on - B.show); b.globalAlpha = 0.18 + 0.2 * k; b.fillStyle = vi ? '#6a2ab0' : '#ffb030'; b.strokeStyle = vi ? '#b884ff' : '#ffd650'; b.lineWidth = wpx; b.beginPath(); b.moveTo(ax, ay); b.lineTo(bx, by); b.stroke(); b.globalAlpha = 0.9; b.lineWidth = 1; b.setLineDash([5, 4]); const nx = (by - ay), ny = -(bx - ax), L = Math.hypot(nx, ny) || 1, ox = (nx / L) * wpx / 2, oy = (ny / L) * wpx / 2; for (const s2 of [-1, 1]) { b.beginPath(); b.moveTo(ax + ox * s2, ay + oy * s2); b.lineTo(bx + ox * s2, by + oy * s2); b.stroke(); } }
     b.restore();
   }
   b.globalAlpha = 1;
@@ -1145,7 +1254,7 @@ export default {
   },
   // the dais's marks: the Eclipse Law's quarters (gold-outlined suns, violet hatching), the corona's rings shown, the vise's path ahead
   drawGround(r, g, e) {
-    v2Ground(r, g, e); v2Ground2(r, g, e); v2Ground3(r, g, e); v2Ground4(r, g, e);
+    finGround(r, g, e); v2Ground(r, g, e); v2Ground2(r, g, e); v2Ground3(r, g, e); v2Ground4(r, g, e);
     const S = e.bx, b = r.b, C = MID(e), R0 = RAD(e), L = S.slLaw;
     const Fn = S.slFin;
     if (Fn) {                                               // the sanctuary's lights: lit (gold, a bright rim), coming (a pulsing outline), fading
@@ -1191,7 +1300,7 @@ export default {
     const get = (k) => { const M = r.objDefs || (r.objDefs = new Map()); let d = M.get(k); if (d === undefined) M.set(k, (d = R.resolve(k) || null)); return d; };
     const spear = get('sol_shots/sunlance'), blade = get('sol_shots/halo'), sun = get('sol_shots/sun'), black = get('sol_shots/blacksun'), frag = get('sol_shots/fragment');
     const put = (def, x, y, o) => { if (def) { const [sx, sy] = r.proj(x, y); r.drawDef(def, Object.keys(def.frames)[0], Math.round(sx), Math.round(sy) - 24, { center: true, ...o }); } };
-    v2Air2(r, g, e, put, get); v2Air3(r, g, e, put, get); v2Air4(r, g, e, put, get);
+    finAir(r, g, e, put, get); v2Air2(r, g, e, put, get); v2Air3(r, g, e, put, get); v2Air4(r, g, e, put, get);
     const Q = S.slSpears;
     if (Q) for (let i = 0; i < Q.n; i++) { const a = sundialAngle(Q, g, i), dk = Q.dark.includes(i) && g.t >= Q.darkAt; put(spear, Q.cx + Math.cos(a) * Q.r, Q.cy + Math.sin(a) * Q.r, { rot: a, alpha: dk ? 0.25 : 1 }); }
     const H = S.slHalo;
@@ -1220,6 +1329,7 @@ export default {
   },
   lights(g, e) {
     const S = e.bx, ph = S.phase || 1, F = S.slFin, out = [];
+    if (S.v2f) { const Fv = S.v2f, Lr = Fv.t >= 0 && Fv.t < 48 ? finLight(e, Fv.t).r : 3; if (Fv.sun) out.push({ x: Fv.sun.x, y: Fv.sun.y, h: 0.5, r: Lr * 16 + 14, col: '#ffd650', fire: true }); return out; }   // (the freed Sun's light; he is dark)
     if (F) { const T = S.finT || 0; for (const Q of F.lights) if (T >= Q.from - 0.3 && T < Q.to) out.push({ x: Q.x, y: Q.y, h: 0.5, r: lightR(Q, T) * 16 + 12, col: '#ffd650', fire: true }); return out; }   // (the sanctuary's light; he is dark)
     out.push({ x: e.x, y: e.y, h: 4.2, r: ph === 3 ? 140 : 110, col: '#ffd650', fire: true });
     if (S.slSuns) for (const s of S.slSuns.list) if (!gone(s.q) && g.t > s.born + 0.5) out.push({ x: s.q.x, y: s.q.y, h: 0.3, r: 40, col: '#ffb030', fire: true });
