@@ -289,6 +289,7 @@ export class Renderer {
     for (const v of m.villagers || []) add(v.x, v.y, (sx, sy) => this.villager(g, v, sx, sy));
     for (const v of m.penPets || []) add(v.x, v.y, (sx, sy) => this.villager(g, v, sx, sy));        // pets in the Pet Yard
     if (g.pet && !g.player.dead) add(g.pet.x, g.pet.y, (sx, sy) => this.villager(g, g.pet, sx, sy)); // your companion
+    if (m.castle) for (const o of m.objects) if (o.castleMech && o.mechProg > 0) add(o.x, o.y + 0.6, (sx, sy) => this.mechBar(o, sx, sy));   // a castle mechanism turning: its progress bar over it
     if (g.hatching) add(g.hatching.x, g.hatching.y, (sx, sy) => this.hatchEgg(g, g.hatching, sx, sy));   // an egg hatching at your feet
     if (m.belts) this.beltFx(g, m.belts);
     if (g.arena) this.arenaFx(g, g.arena);
@@ -1714,6 +1715,14 @@ export class Renderer {
     if (st.armored) pip('#a6acc4', 2);
     if (st.kintsugi) pip('#f2c14e', 3);
     if (p.aegisUp) { b.fillStyle = Math.floor(g.t * 2) % 2 ? '#f2c14e' : '#fff6c8'; b.fillRect(Math.round(sx) - 1, cy - 9, 3, 1); b.fillRect(Math.round(sx), cy - 10, 1, 3); }
+  }
+  // a mechanism's progress (2026-11-03, the user: "a progress bar instead of 30 messages"): a gold bar over it, framed
+  mechBar(o, sx, sy) {
+    const b = this.b, w = 30, x = Math.round(sx - w / 2), y = Math.round(sy - 52), f = Math.max(0, Math.min(1, o.mechProg));
+    b.fillStyle = '#1a1220'; b.fillRect(x - 1, y - 1, w + 2, 6);
+    b.fillStyle = '#4a3a30'; b.fillRect(x, y, w, 4);
+    b.fillStyle = '#ffd650'; b.fillRect(x, y, Math.max(1, Math.round(w * f)), 4);
+    b.fillStyle = '#fff6c8'; b.fillRect(x, y, Math.max(1, Math.round(w * f)), 1);
   }
   hpBar(sx, sy, f, w) {
     const b = this.b, x = Math.round(sx - w / 2), y = Math.round(sy);

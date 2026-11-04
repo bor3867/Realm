@@ -160,6 +160,20 @@ row 26 14 ALHHLA
 row 27 14 ALHHLA
 row 28 14 ALHHLA
 row 29 14 ALHHLA
+clear 7 40 21 49
+clear 7 50 17 62
+row 28 12 ADDDDDDA
+row 29 12 ADNNNNDA
+row 30 12 ADDDDDDA
+row 31 13 AAPPPPAA
+row 32 14 ADDDDDA
+row 33 15 ADDNDDA
+row 34 16 ADDNDDA
+row 35 17 ADDNDDA
+row 36 18 ADDNDDA
+row 37 19 ADDNDDA
+row 38 20 ADDDDA
+row 39 21 AADDA
 
 frame smash1 from smash0
 row 6 9 I
@@ -197,6 +211,14 @@ row 63 30 I
 row 52 1 Q
 row 50 5 O
 row 66 22 O
+row 41 25 ADDDA
+row 42 25 ADNDA
+row 43 25 ADDDA
+row 44 26 AHA
+row 45 25 AHA
+row 46 24 AHA
+row 47 23 AHA
+row 48 22 AHA
 frame smash3 from smash2
 row 60 26 .
 row 57 28 .

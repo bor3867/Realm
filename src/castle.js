@@ -159,13 +159,14 @@ const methods = {
       if (M.done) continue;
       const rm = Object.values(Rm).find((q) => q.num === M.num), near = who.some((q) => Math.hypot(q.x - M.x - 0.5, q.y - M.y - 0.5) < 2.4);
       const look = (k) => { if (!M.o) return; if (M.sprite.endsWith('pyre')) { if (k === '_done') M.o.unlit = true; return; } M.o.sprite = M.sprite + k; };   // (a signal fire: burning, then out, dark and still)   // (its art: still, turning, turned: castle_decor/winch, _turn, _done)
-      if (!near) { M.prog = Math.max(0, (M.prog || 0) - dt * 0.5); look(''); continue; }
+      const keep = () => { if (M.o) M.o.mechProg = Math.round((M.prog || 0) * 40) / 40; };   // (its progress on its own object: drawn as a bar over it, for everyone online)
+      if (!near) { M.prog = Math.max(0, (M.prog || 0) - dt * 0.5); keep(); look(''); continue; }
       if (rm && this.enemies.some((e) => !e.dead && (e.D.kin || e.rb) && inR(rm, e.x, e.y))) { if (!(M.toldT > this.t)) { M.toldT = this.t + 4; this.banner(`${M.name}: ITS DEFENDERS STILL HOLD IT`, 2200); } look(''); continue; }
-      M.prog = (M.prog || 0) + dt / 3; look('_turn');
-      if (!(M.sayT > this.t)) { M.sayT = this.t + 0.5; this.banner(`${M.verb} · ${Math.min(100, Math.round(M.prog * 100))}%`, 700); }
+      M.prog = (M.prog || 0) + dt / 3; keep(); look('_turn');
+      if (!M.saidStart) { M.saidStart = true; this.banner(M.verb, 1600); }   // (2026-11-03, the user: a progress bar, not thirty messages: said once, the bar shows the rest)
       if (Math.random() < 0.3) this.vx({ k: 'burst', x: M.x + 0.5, y: M.y, n: 2, colors: M.key === 'winch' ? ['#a39bb2', '#ff8a1f'] : ['#ffd650', '#fff6c8'] });
       if (M.prog >= 1) {
-        M.done = true; look('_done'); this.sfx('chain'); this.vx({ k: 'shake', amt: 5 }); this.vx({ k: 'burst', x: M.x + 0.5, y: M.y, n: 24, colors: ['#ffd650', '#ff8a1f', '#ffffff'] });
+        M.done = true; M.prog = 1; if (M.o) M.o.mechProg = 0; look('_done'); this.sfx('chain'); this.vx({ k: 'shake', amt: 5 }); this.vx({ k: 'burst', x: M.x + 0.5, y: M.y, n: 24, colors: ['#ffd650', '#ff8a1f', '#ffffff'] });
         this.banner(`${M.name} · DONE`, 2400);
       }
     }

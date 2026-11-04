@@ -66,9 +66,22 @@ frame base
 ......AAAAAAA...........AAAAAAA................
 ...............................................
 
-# ---- the march (drawn): his boots in turn, lifted and set down; the lava in his mace's seams breathing
+# ---- the march (drawn): his boots in turn, lifted and set down, his plume and cape swinging with the stride (2026-11-03); the lava in his mace's seams breathing
 frame step0 from base
 frame step1 from base
+at 7 2
+..AA..
+.ASSAA
+ASSAAI
+ASISSS
+.ASSSS
+..ASSA
+...AA.
+at 0 33
+.ASSSSA
+.ASSSSA
+.ASSSSA
+..AAAA.
 clear 5 38 14 41
 row 37 6 ATRRIAAA
 row 38 5 ADDCCCCIA
@@ -76,9 +89,30 @@ row 39 5 ADDCCCCCA
 row 40 6 AAAAAAA
 row 9 44 J
 frame step2 from base
+at 7 2
+..AA..
+.ASSAA
+ASSAAI
+ASISSS
+.ASSSS
+..ASSA
+...AA.
 row 10 41 U
 row 13 38 J
 frame step3 from base
+at 7 2
+......
+...AAA
+..ASAI
+.ASISS
+.ASSSS
+.ASSSA
+.AAAA.
+at 0 33
+...ASSA
+...ASSA
+...ASSA
+....AA.
 clear 23 38 32 41
 row 37 24 AAARTRA
 row 38 23 AIICDDDCA
@@ -89,6 +123,19 @@ row 9 44 G
 # ---- the smash (drawn): the mace hauled up high, its seams blazing; brought down before him, a shockwave and fire out
 # of the ground; the follow-through, embers dying
 frame smash0 from base
+at 7 2
+..AA..
+.ASSAA
+ASSAAI
+ASISSS
+.ASSSS
+..ASSA
+...AA.
+at 0 33
+.ASSSSA
+.ASSSSA
+.ASSSSA
+..AAAA.
 clear 31 3 46 21
 row 0 33 ????????A???????
 row 1 33 ???????ALA??????
@@ -115,6 +162,19 @@ row 8 40 Q
 row 9 36 P
 row 5 42 L
 frame smash2 from base
+at 7 2
+......
+...AAA
+..ASAI
+.ASISS
+.ASSSS
+.ASSSA
+.AAAA.
+at 0 33
+...ASSA
+...ASSA
+...ASSA
+....AA.
 clear 31 3 46 21
 row 22 33 ????????A???????
 row 23 33 ???????ALA??????
@@ -149,6 +209,14 @@ row 40 33 E
 row 40 47 E
 row 40 40 J
 frame smash3 from base
+at 7 2
+......
+...AAA
+..ASAI
+.ASISS
+.ASSSS
+.ASSSA
+.AAAA.
 clear 31 3 46 21
 row 21 33 ????????A???????
 row 22 33 ???????ALA??????
@@ -176,6 +244,19 @@ row 38 40 U
 # ---- Molten Upheaval (drawn, 2026-11-02): the mace hauled up over his head; swung round and down; driven into the ground
 # before him, the earth bursting up, rock and molten fire; the spray flying out as the dust settles
 frame slam0 from base
+at 7 12
+..AA..
+.ASSAA
+ASSAAI
+ASISSS
+.ASSSS
+..ASSA
+...AA.
+at 0 43
+.ASSSSA
+.ASSSSA
+.ASSSSA
+..AAAA.
 grow 10
 clear 31 14 46 31
 row 0 22 ????????A???????
@@ -219,6 +300,19 @@ row 2 24 P
 row 1 35 L
 row 6 21 J
 frame slam1 from base
+at 7 12
+..AA..
+.ASSAA
+ASSAAI
+ASISSS
+.ASSSS
+..ASSA
+...AA.
+at 0 43
+.ASSSSA
+.ASSSSA
+.ASSSSA
+..AAAA.
 grow 10
 clear 31 14 46 31
 row 8 34 ????????A???????
@@ -249,6 +343,19 @@ row 5 44 J
 row 8 47 L
 row 12 49 J
 frame slam2 from base
+at 7 12
+......
+...AAA
+..ASAI
+.ASISS
+.ASSSS
+.ASSSA
+.AAAA.
+at 0 43
+...ASSA
+...ASSA
+...ASSA
+....AA.
 grow 10
 clear 31 14 46 31
 row 36 33 ????????A???????

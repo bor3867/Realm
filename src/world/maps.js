@@ -2006,8 +2006,12 @@ export function dungeon(seed, def) {
       // sun's emblem in the middle, runners out to the four quarters, braziers at the dais's corners (walk-through), pillars
       // near the wall. Nothing solid within 19 tiles of the middle (the finale's lights and every pattern's lanes kept clear)
       const R = 24, cx = Math.round(n.cx), cy = Math.round(n.cy);
+      // (the ways in: every road tile at the room's edge; a corridor 5 wide from each straight to the floor, never walled. The
+      // ring once walled the way from the north shut, 2026-11-03)
+      const ins = []; for (const i of road) { const x = i % S, y = (i / S) | 0; if (x >= n.x - 2 && x <= n.x + n.w + 1 && y >= n.y - 2 && y <= n.y + n.h + 1 && Math.hypot(x + 0.5 - n.cx, y + 0.5 - n.cy) > R) ins.push([x + 0.5, y + 0.5]); }
+      const inWay = (x, y) => ins.some(([ex, ey]) => { const dx = n.cx - ex, dy = n.cy - ey, L2 = dx * dx + dy * dy, t = Math.max(0, Math.min(1, ((x + 0.5 - ex) * dx + (y + 0.5 - ey) * dy) / L2)); return Math.hypot(x + 0.5 - ex - t * dx, y + 0.5 - ey - t * dy) < 2.6; });
       for (let y = n.y - 1; y <= n.y + n.h; y++) for (let x = n.x - 1; x <= n.x + n.w; x++) {
-        const d = Math.hypot(x + 0.5 - n.cx, y + 0.5 - n.cy); if (d <= R + 0.5 || !fl(x, y) || nearRd(x, y, 2)) continue;   // (the way in kept open)
+        const d = Math.hypot(x + 0.5 - n.cx, y + 0.5 - n.cy); if (d <= R + 0.5 || !fl(x, y) || nearRd(x, y, 2) || inWay(x, y)) continue;   // (the way in kept open)
         const a = Math.atan2(y + 0.5 - n.cy, x + 0.5 - n.cx), fall = d > R + 2.5 && d < R + 7 && Math.abs(Math.abs(a + Math.PI / 2) - 0.8) < 0.25;
         set(x, y, fall ? TID.lava : TID.kpwall);
       }
@@ -2835,6 +2839,9 @@ export function dungeon(seed, def) {
   if (def.style === 'islands') for (let i = 0; i < m.tiles.length; i++) if (m.tiles[i] === TID.void) m.tiles[i] = TID.starvoid;
 
   // ---- the sealed gate: every way into the boss's hall is barred until the seals break
+  // (2026-11-03, the user could not reach Solkhar: the castle has its own locks on every way; its seal rooms are the old
+  // dungeon's puzzle and lever rooms, which the castle never builds, so their seals never broke. No seal gate in the castle)
+  if (m.castle) seals = 0;
   if (seals > 0) {
     for (let x = boss.x - 1; x <= boss.x + boss.w; x++) for (let y = boss.y - 1; y <= boss.y + boss.h; y++) {
       if (x >= boss.x && x < boss.x + boss.w && y >= boss.y && y < boss.y + boss.h) continue;

@@ -908,7 +908,7 @@ export class Game {
           const b = this.spawnRealmBoss(id, { x: rm.x + (spots[id][0] / 40) * rm.w, y: rm.y + (spots[id][1] / 34) * rm.h }, bxEnemyDef(id));
           b.state = 'sleep'; b.room = rm; b.midBoss = true; b.warden = true; (m.wardens = m.wardens || []).push(b); return b;
         });
-        if (L.length === 2) { joinCourt(L[0], L[1]); m.seals = (m.seals || 0) + 1; m.sealsLeft = (m.sealsLeft || 0) + 1; }   // (two Jarls, two seals)
+        if (L.length === 2) { joinCourt(L[0], L[1]); if (!m.castle) { m.seals = (m.seals || 0) + 1; m.sealsLeft = (m.sealsLeft || 0) + 1; } }   // (two Jarls, two seals; the castle's own locks instead)
         return;
       }
       if (rm.role === 'warden') { spawn(def.compose ? def.compose(rm, r, (rm.dep || 0) / maxDep).map((id) => [id, ...spot(rm)]) : fill(rm, r.int(2, 4), false)); warden(rm); return; }
@@ -931,7 +931,7 @@ export class Game {
     if (gr) {                                           // a guardian on the way (the Throne's Gatekeeper): asleep in its hall till you come in; its death is the gate's last seal
       const b = this.spawnRealmBoss(def.guardian, { x: gr.x + (19 / 38) * gr.w, y: gr.y + (11 / 34) * gr.h }, bxEnemyDef(def.guardian));   // (the spec's (19, 11) of his 38x34 hall)
       b.state = 'sleep'; b.room = gr; b.midBoss = true; b.warden = true;
-      (m.wardens = m.wardens || []).push(b); m.seals = (m.seals || 0) + 1; m.sealsLeft = (m.sealsLeft || 0) + 1;
+      (m.wardens = m.wardens || []).push(b); if (!m.castle) { m.seals = (m.seals || 0) + 1; m.sealsLeft = (m.sealsLeft || 0) + 1; }   // (the castle's own locks instead)
     }
     const eng = def.engineer && m.rooms.find((q) => q.key === 'a23');
     if (eng) {                                          // the Drawbridge Technician in his engine (asleep till you come in; its doors lock till he falls)
