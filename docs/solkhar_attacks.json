@@ -1,0 +1,181 @@
+{
+ "boss": "unstruck_god",
+ "hp": 850000,
+ "thresholds": [
+  0.75,
+  0.5,
+  0.25
+ ],
+ "finale": {
+  "at_hp": 1,
+  "trials_s": 48,
+  "release_s": 3,
+  "claim_hold_s": 1.2,
+  "light_centers_spec": [
+   [
+    0,
+    8
+   ],
+   [
+    -5,
+    3
+   ],
+   [
+    4,
+    -2
+   ],
+   [
+    0,
+    -8
+   ]
+  ],
+  "exposure": {
+   "dmg": 40,
+   "every_s": 0.5,
+   "grace_s": 0.3,
+   "piercing": true
+  }
+ },
+ "phases": {
+  "1": {
+   "order": [
+    "rebuke",
+    "sundial",
+    "rebuke",
+    "pincer",
+    "sundial",
+    "verdict"
+   ],
+   "attacks": {
+    "crowns_rebuke": {
+     "name": "Crown's Rebuke",
+     "total_s": 2.1,
+     "cooldown_s": 3.3
+    },
+    "royal_sundial": {
+     "name": "Royal Sundial",
+     "total_s": 2.7,
+     "cooldown_s": 5.5
+    },
+    "corona_pincer": {
+     "name": "Corona Pincer",
+     "total_s": 2.65,
+     "cooldown_s": 9
+    },
+    "solar_verdict": {
+     "name": "Solar Verdict",
+     "total_s": 4.2,
+     "cooldown_s": 11
+    }
+   }
+  },
+  "2": {
+   "order": [
+    "sunseed",
+    "halo",
+    "eclipse",
+    "hour",
+    "dawn"
+   ],
+   "attacks": {
+    "sunseed_summoning": {
+     "name": "Sunseed Summoning",
+     "total_s": 3.6,
+     "cooldown_s": 0
+    },
+    "halo_fracture": {
+     "name": "Halo Fracture",
+     "total_s": 2.95,
+     "cooldown_s": 8
+    },
+    "eclipse_exchange": {
+     "name": "Eclipse Exchange",
+     "total_s": 9.2,
+     "cooldown_s": 0
+    },
+    "stolen_hour": {
+     "name": "Stolen Hour",
+     "total_s": 7.25,
+     "cooldown_s": 13
+    },
+    "sundering_dawn": {
+     "name": "Sundering Dawn",
+     "total_s": 9.55,
+     "cooldown_s": 19
+    }
+   }
+  },
+  "3": {
+   "order": [
+    "ash",
+    "pursuit",
+    "implode",
+    "horizon",
+    "loom"
+   ],
+   "attacks": {
+    "crown_of_ash": {
+     "name": "Crown of Ash",
+     "total_s": 3.1,
+     "cooldown_s": 8
+    },
+    "solar_pursuit": {
+     "name": "Solar Pursuit",
+     "total_s": 7.55,
+     "cooldown_s": 16
+    },
+    "black_sun_implosion": {
+     "name": "Black Sun Implosion",
+     "total_s": 8,
+     "cooldown_s": 13
+    },
+    "event_horizon": {
+     "name": "Event Horizon",
+     "total_s": 6.8,
+     "cooldown_s": 11
+    },
+    "astral_loom": {
+     "name": "The Astral Loom",
+     "total_s": 4.4,
+     "cooldown_s": 12
+    }
+   }
+  },
+  "4": {
+   "order": [
+    "guillotine",
+    "deadsuns",
+    "dusk",
+    "devour",
+    "heaven"
+   ],
+   "attacks": {
+    "solar_guillotine": {
+     "name": "Solar Guillotine",
+     "total_s": 3.75,
+     "cooldown_s": 9.5
+    },
+    "four_dead_suns": {
+     "name": "Four Dead Suns",
+     "total_s": 10,
+     "cooldown_s": 0
+    },
+    "dusk_reversal": {
+     "name": "Dusk Reversal",
+     "total_s": 5.25,
+     "cooldown_s": 11
+    },
+    "devouring_eclipse": {
+     "name": "Devouring Eclipse",
+     "total_s": 12.1,
+     "cooldown_s": 17
+    },
+    "end_of_heaven": {
+     "name": "End of Heaven",
+     "total_s": 10.5,
+     "cooldown_s": 19
+    }
+   }
+  }
+ }
+}
