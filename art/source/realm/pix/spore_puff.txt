@@ -1,0 +1,67 @@
+# spore_puff: 13x11, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #321a2d
+D #e42f20
+E #693d48
+F #e21c29
+G #8c645e
+H #fae59c
+I #c79b80
+J #423139
+K #9c2b3e
+L #87163e
+M #dd140c
+N #e0b67f
+O #d6a684
+P #7b1b47
+Q #421f00
+R #8f2700
+S #a87e71
+T #df613a
+U #b70e15
+V #a41a35
+frame base
+.....AAA.....
+...AAFDMAA...
+..AMLVDLPUA..
+.ARHDPKPLHTA.
+AFFMMVVKUUFA.
+APCCBEJJAACVA
+.AAAEGGSCAAA.
+...AOOOIGA...
+..AJNAOANQA..
+..AJAACAAQA..
+...A..A..A...
+
+# ---- drawn frames (tools/realm_frames_thorn.py writes everything below)
+frame walk1 from base
+at 0 8
+..AJNAOANQA..
+.AJA.ACA.AQA.
+.A....A....A.
+
+frame walk3 from base
+at 0 8
+..AJNAOANQA..
+...AJACAQA...
+....A.A.A....
+
+frame atk0 from base
+at 2 0
+H..AAA..H
+
+frame atk1 from base
+at 1 0
+.H.HAAAH.H.
+at 3 2
+H
+at 9 2
+H
+
+frame atk2 from base
+at 0 0
+H....AAA....H
+
+clip move 6 base walk1 base walk3
+clip shoot 7 atk0 atk1 atk2 base

@@ -1,0 +1,93 @@
+# orc_warlord: 28x33, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #c5a398
+D #b42a3d
+E #431c28
+F #f6d7c8
+G #d27b49
+H #9e7a84
+I #643849
+J #7a4151
+K #443247
+L #af2b29
+M #7f1329
+N #8b646a
+O #725967
+P #801e2d
+Q #c63829
+R #a07063
+S #9a1c2e
+T #953a44
+U #9c5333
+V #e57925
+frame base
+................AA..........
+...............AFNA.........
+...............AOKA.........
+............A..AAEA....A....
+...........ANAAAEEA.A.AEA...
+..........AFFUGJKKHACAEOAA..
+..........AFAAAAAKPAPJEEEGA.
+...........ARA.AEAMMAAEAAAMA
+...........AGA.AKAIMMPPMAAMA
+....AA.....ARA.AIAAPPSSSPMMA
+...AFFA....ARA.ANAASPSSSPSSA
+..AHFA.....AHA.ARAASDVAQPMSA
+..AFCA.....ACA.AIAIPQEEEGMSA
+..ANFA.AAAAKCA.AEAJMMGABPMSA
+..AHCCAOHNCFOA..AKSPMMEEPMA.
+...AENFIHHNOA..AQESPMMEEMPEA
+....AKHKNNOA...AEADPMMMPMPDA
+...AAAKKJAAAA..ANADAPPEPMMA.
+.AAHCAEKNNOONA.AEATAAPEPAA..
+ANNHHCAKOIOANHAAEAA.APEPA...
+ACCHNKEAAAIEKNOAIA..ASMMA...
+AOFOIIAJEIETHEAAKA..AEPA....
+AKKAAAAJLQQTEAAAIA...AMA....
+AIKAAAAJJTVTIAKKNHA...A.....
+ANKIAEEKEIQIKAKKOOA.........
+AKAA.AEAKKPIIAAAKOA.........
+ANKA.AAEMBAEPAAAEA..........
+AJKA..APSMEEA..AEA..........
+ANOA.AEEAMEEMA.AEA..........
+AOAJAKKIAMSPSMAAEA..........
+.A.AIIJJAMSMSLTAEA..........
+...AEEJAAMSSSLAAIA..........
+....AAAA.AAAAA..A...........
+
+# ---- drawn frames (tools/realm_frames_thorn.py writes everything below)
+frame walk1 from base
+at 0 31
+...AEEJA.AMSSSLAIA..........
+...AAAA..AAAAA..A...........
+
+frame walk3 from base
+at 0 31
+....AEEJAAMSSSLAIA..........
+.....AAAA.AAAAA.A...........
+
+frame atk0 from base
+at 16 1
+FF
+
+frame atk1 from base
+at 16 0
+FF
+at 16 1
+FF
+at 16 2
+FF
+at 21 12
+VVV
+at 22 13
+V
+
+frame atk2 from base
+at 16 1
+FF
+at 21 12
+V
+
+clip move 6 base walk1 base walk3
+clip shoot 7 atk0 atk1 atk2 base

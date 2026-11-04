@@ -624,6 +624,853 @@
       }
      },
      "meta": {}
+    },
+    "bramble_wolf": {
+     "frames": {
+      "bramble_wolf_base": [
+       0,
+       211,
+       50,
+       25
+      ],
+      "bramble_wolf_walk1": [
+       50,
+       211,
+       50,
+       25
+      ],
+      "bramble_wolf_walk3": [
+       100,
+       211,
+       50,
+       25
+      ],
+      "bramble_wolf_atk0": [
+       150,
+       211,
+       50,
+       25
+      ],
+      "bramble_wolf_atk1": [
+       200,
+       211,
+       50,
+       25
+      ],
+      "bramble_wolf_atk2": [
+       250,
+       211,
+       50,
+       25
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "bramble_wolf_base",
+        "bramble_wolf_walk1",
+        "bramble_wolf_base",
+        "bramble_wolf_walk3"
+       ],
+       "fps": 9.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "bramble_wolf_atk0",
+        "bramble_wolf_atk1",
+        "bramble_wolf_atk2",
+        "bramble_wolf_base"
+       ],
+       "fps": 9.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "bramble_wolf_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "bramble_wolf_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "briar_bee": {
+     "frames": {
+      "briar_bee_base": [
+       0,
+       236,
+       29,
+       19
+      ],
+      "briar_bee_walk1": [
+       29,
+       236,
+       29,
+       19
+      ],
+      "briar_bee_walk3": [
+       58,
+       236,
+       29,
+       19
+      ],
+      "briar_bee_atk0": [
+       87,
+       236,
+       29,
+       19
+      ],
+      "briar_bee_atk1": [
+       116,
+       236,
+       29,
+       19
+      ],
+      "briar_bee_atk2": [
+       145,
+       236,
+       29,
+       19
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "briar_bee_base",
+        "briar_bee_walk1",
+        "briar_bee_base",
+        "briar_bee_walk3"
+       ],
+       "fps": 12.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "briar_bee_atk0",
+        "briar_bee_atk1",
+        "briar_bee_atk2",
+        "briar_bee_base"
+       ],
+       "fps": 10.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "briar_bee_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "briar_bee_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "spore_puff": {
+     "frames": {
+      "spore_puff_base": [
+       0,
+       255,
+       29,
+       19
+      ],
+      "spore_puff_walk1": [
+       29,
+       255,
+       29,
+       19
+      ],
+      "spore_puff_walk3": [
+       58,
+       255,
+       29,
+       19
+      ],
+      "spore_puff_atk0": [
+       87,
+       255,
+       29,
+       19
+      ],
+      "spore_puff_atk1": [
+       116,
+       255,
+       29,
+       19
+      ],
+      "spore_puff_atk2": [
+       145,
+       255,
+       29,
+       19
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "spore_puff_base",
+        "spore_puff_walk1",
+        "spore_puff_base",
+        "spore_puff_walk3"
+       ],
+       "fps": 6.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "spore_puff_atk0",
+        "spore_puff_atk1",
+        "spore_puff_atk2",
+        "spore_puff_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "spore_puff_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "spore_puff_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "thornwood_stag": {
+     "frames": {
+      "thornwood_stag_base": [
+       0,
+       274,
+       45,
+       36
+      ],
+      "thornwood_stag_walk1": [
+       45,
+       274,
+       45,
+       36
+      ],
+      "thornwood_stag_walk3": [
+       90,
+       274,
+       45,
+       36
+      ],
+      "thornwood_stag_atk0": [
+       135,
+       274,
+       45,
+       36
+      ],
+      "thornwood_stag_atk1": [
+       180,
+       274,
+       45,
+       36
+      ],
+      "thornwood_stag_atk2": [
+       225,
+       274,
+       45,
+       36
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "thornwood_stag_base",
+        "thornwood_stag_walk1",
+        "thornwood_stag_base",
+        "thornwood_stag_walk3"
+       ],
+       "fps": 8.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "thornwood_stag_atk0",
+        "thornwood_stag_atk1",
+        "thornwood_stag_atk2",
+        "thornwood_stag_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "thornwood_stag_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "thornwood_stag_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "spider_queen": {
+     "frames": {
+      "spider_queen_base": [
+       0,
+       310,
+       51,
+       30
+      ],
+      "spider_queen_walk1": [
+       51,
+       310,
+       51,
+       30
+      ],
+      "spider_queen_walk3": [
+       102,
+       310,
+       51,
+       30
+      ],
+      "spider_queen_atk0": [
+       153,
+       310,
+       51,
+       30
+      ],
+      "spider_queen_atk1": [
+       204,
+       310,
+       51,
+       30
+      ],
+      "spider_queen_atk2": [
+       255,
+       310,
+       51,
+       30
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "spider_queen_base",
+        "spider_queen_walk1",
+        "spider_queen_base",
+        "spider_queen_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "spider_queen_atk0",
+        "spider_queen_atk1",
+        "spider_queen_atk2",
+        "spider_queen_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "spider_queen_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "spider_queen_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "bark_spider": {
+     "frames": {
+      "bark_spider_base": [
+       0,
+       340,
+       32,
+       18
+      ],
+      "bark_spider_walk1": [
+       32,
+       340,
+       32,
+       18
+      ],
+      "bark_spider_walk3": [
+       64,
+       340,
+       32,
+       18
+      ],
+      "bark_spider_atk0": [
+       96,
+       340,
+       32,
+       18
+      ],
+      "bark_spider_atk1": [
+       128,
+       340,
+       32,
+       18
+      ],
+      "bark_spider_atk2": [
+       160,
+       340,
+       32,
+       18
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "bark_spider_base",
+        "bark_spider_walk1",
+        "bark_spider_base",
+        "bark_spider_walk3"
+       ],
+       "fps": 10.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "bark_spider_atk0",
+        "bark_spider_atk1",
+        "bark_spider_atk2",
+        "bark_spider_base"
+       ],
+       "fps": 9.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "bark_spider_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "bark_spider_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "bandit_archer": {
+     "frames": {
+      "bandit_archer_base": [
+       0,
+       358,
+       35,
+       29
+      ],
+      "bandit_archer_walk1": [
+       35,
+       358,
+       35,
+       29
+      ],
+      "bandit_archer_walk3": [
+       70,
+       358,
+       35,
+       29
+      ],
+      "bandit_archer_atk0": [
+       105,
+       358,
+       35,
+       29
+      ],
+      "bandit_archer_atk1": [
+       140,
+       358,
+       35,
+       29
+      ],
+      "bandit_archer_atk2": [
+       175,
+       358,
+       35,
+       29
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "bandit_archer_base",
+        "bandit_archer_walk1",
+        "bandit_archer_base",
+        "bandit_archer_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "bandit_archer_atk0",
+        "bandit_archer_atk1",
+        "bandit_archer_atk2",
+        "bandit_archer_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "bandit_archer_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "bandit_archer_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "orc_warlord": {
+     "frames": {
+      "orc_warlord_base": [
+       0,
+       387,
+       44,
+       41
+      ],
+      "orc_warlord_walk1": [
+       44,
+       387,
+       44,
+       41
+      ],
+      "orc_warlord_walk3": [
+       88,
+       387,
+       44,
+       41
+      ],
+      "orc_warlord_atk0": [
+       132,
+       387,
+       44,
+       41
+      ],
+      "orc_warlord_atk1": [
+       176,
+       387,
+       44,
+       41
+      ],
+      "orc_warlord_atk2": [
+       220,
+       387,
+       44,
+       41
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "orc_warlord_base",
+        "orc_warlord_walk1",
+        "orc_warlord_base",
+        "orc_warlord_walk3"
+       ],
+       "fps": 6.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "orc_warlord_atk0",
+        "orc_warlord_atk1",
+        "orc_warlord_atk2",
+        "orc_warlord_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "orc_warlord_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "orc_warlord_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "hedge_goblin": {
+     "frames": {
+      "hedge_goblin_base": [
+       0,
+       428,
+       40,
+       27
+      ],
+      "hedge_goblin_walk1": [
+       40,
+       428,
+       40,
+       27
+      ],
+      "hedge_goblin_walk3": [
+       80,
+       428,
+       40,
+       27
+      ],
+      "hedge_goblin_atk0": [
+       120,
+       428,
+       40,
+       27
+      ],
+      "hedge_goblin_atk1": [
+       160,
+       428,
+       40,
+       27
+      ],
+      "hedge_goblin_atk2": [
+       200,
+       428,
+       40,
+       27
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "hedge_goblin_base",
+        "hedge_goblin_walk1",
+        "hedge_goblin_base",
+        "hedge_goblin_walk3"
+       ],
+       "fps": 8.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "hedge_goblin_atk0",
+        "hedge_goblin_atk1",
+        "hedge_goblin_atk2",
+        "hedge_goblin_base"
+       ],
+       "fps": 9.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "hedge_goblin_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hedge_goblin_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "goblin_shaman": {
+     "frames": {
+      "goblin_shaman_base": [
+       0,
+       455,
+       40,
+       28
+      ],
+      "goblin_shaman_walk1": [
+       40,
+       455,
+       40,
+       28
+      ],
+      "goblin_shaman_walk3": [
+       80,
+       455,
+       40,
+       28
+      ],
+      "goblin_shaman_atk0": [
+       120,
+       455,
+       40,
+       28
+      ],
+      "goblin_shaman_atk1": [
+       160,
+       455,
+       40,
+       28
+      ],
+      "goblin_shaman_atk2": [
+       200,
+       455,
+       40,
+       28
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "goblin_shaman_base",
+        "goblin_shaman_walk1",
+        "goblin_shaman_base",
+        "goblin_shaman_walk3"
+       ],
+       "fps": 6.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "goblin_shaman_atk0",
+        "goblin_shaman_atk1",
+        "goblin_shaman_atk2",
+        "goblin_shaman_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "goblin_shaman_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "goblin_shaman_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "wild_boar": {
+     "frames": {
+      "wild_boar_base": [
+       0,
+       483,
+       46,
+       26
+      ],
+      "wild_boar_walk1": [
+       46,
+       483,
+       46,
+       26
+      ],
+      "wild_boar_walk3": [
+       92,
+       483,
+       46,
+       26
+      ],
+      "wild_boar_atk0": [
+       138,
+       483,
+       46,
+       26
+      ],
+      "wild_boar_atk1": [
+       184,
+       483,
+       46,
+       26
+      ],
+      "wild_boar_atk2": [
+       230,
+       483,
+       46,
+       26
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "wild_boar_base",
+        "wild_boar_walk1",
+        "wild_boar_base",
+        "wild_boar_walk3"
+       ],
+       "fps": 8.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "wild_boar_atk0",
+        "wild_boar_atk1",
+        "wild_boar_atk2",
+        "wild_boar_base"
+       ],
+       "fps": 9.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "wild_boar_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "wild_boar_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
     }
    }
   }

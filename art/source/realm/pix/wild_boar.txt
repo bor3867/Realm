@@ -1,0 +1,76 @@
+# wild_boar: 30x18, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #ac4732
+D #de6e4d
+E #692e23
+F #955641
+G #3f2020
+H #e6b87f
+I #b92120
+J #7b453f
+K #4c3039
+L #853436
+M #c2805a
+N #af2f34
+O #9f5e45
+P #8d493a
+Q #69383c
+R #b16d4e
+S #934a3d
+T #bc6f48
+U #f6dfa1
+V #f8eebe
+frame base
+...................A..........
+...............AA.ASA.........
+............AAASAAAFOAAA......
+..........AAJSPEJKKFFFPOA.....
+.........AGEOFSPQMQQFOQORA....
+.......AAEPPSJFJQQKFFOOFFA..A.
+......AJPSPJJNSPJGKJEOOFORAAGA
+....AAQQSNILIQQQKJJJAEELPVAAGA
+.A.AJKQQQKLNLELQGQJPFBIPFVAAVA
+AFAFAAQIQQJQQLILQAQJJPQFEVAUVA
+.AJLAALIJQQQKGINJJGQQHQBHGEHUA
+..AA.ASPJFAAKACINKAAAKHHMENPKA
+....AKJPTEAAAAKCCPAAAAAAECCDA.
+....AJPFAAGGA.ASSPAAAAA.AAAA..
+...AQFPA.AKKA..AOOAAGKAA......
+....ATPA.AKQKA.ATMGAAKKA......
+....AMGJA.ASGA..AEGEAAAKA.....
+.....AAA...AA....AAA...A......
+
+# ---- drawn frames (tools/realm_frames_thorn.py writes everything below)
+frame walk1 from base
+at 0 16
+...AMGJA..ASGA.AEGEA.AAKA.....
+...AAA.....AA...AAA..A........
+
+frame walk3 from base
+at 0 16
+.....AMGJAASGA...AEGEAAAKA....
+......AAA..AA.....AAA..A......
+
+frame atk0 from base
+at 26 9
+VV
+
+frame atk1 from base
+at 25 8
+VV
+at 27 9
+VV
+at 28 10
+V
+at 0 15
+A.
+at 1 16
+A
+
+frame atk2 from base
+at 26 9
+VV
+
+clip move 8 base walk1 base walk3
+clip shoot 9 atk0 atk1 atk2 base

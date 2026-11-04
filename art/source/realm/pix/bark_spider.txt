@@ -1,0 +1,62 @@
+# bark_spider: 16x10, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #ac7989
+D #937586
+E #b39aa7
+F #715f6c
+G #836376
+H #61434b
+I #321b2a
+J #a68098
+K #c091a4
+L #af1b24
+M #d1262b
+N #ff806b
+O #740914
+P #712c3c
+Q #9d453e
+R #d00d00
+S #d21429
+T #a78694
+U #342232
+V #4c3245
+frame base
+.......AA.A.....
+....AAAEGADA....
+..AAHEJLCJEAA...
+.AFAVJJCTTHATA..
+.AJGBHAOCRBKIA..
+.ADAKAAABNABGTA.
+AJAACAPAQAADADUA
+AVAADASAAMAGAAUA
+.A..A.A..AAFA.A.
+...........A....
+
+# ---- drawn frames (tools/realm_frames_thorn.py writes everything below)
+frame walk1 from base
+at 0 8
+A...A.A..AAFA..A
+
+frame walk3 from base
+at 0 8
+.A.A...A.AAF.AA.
+
+frame atk0 from base
+at 6 4
+AN
+
+frame atk1 from base
+at 6 4
+NN
+at 9 5
+N
+at 7 6
+N
+
+frame atk2 from base
+at 6 4
+AN
+
+clip move 10 base walk1 base walk3
+clip shoot 9 atk0 atk1 atk2 base

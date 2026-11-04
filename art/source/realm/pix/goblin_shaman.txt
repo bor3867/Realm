@@ -1,0 +1,82 @@
+# goblin_shaman: 24x20, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #ae3a34
+D #59632d
+E #fbe466
+F #67a00c
+G #49492b
+H #7d8427
+I #2f321c
+J #87d10a
+K #d4e032
+L #8c7a3e
+M #754240
+N #dd853d
+O #9aa119
+P #a59743
+Q #e2a56f
+R #c7e802
+S #697324
+T #8c8b0d
+U #57501d
+V #664442
+frame base
+........AAAAA.....A.A...
+......AAGSGGGA...AFAJA..
+.....ADDSSSHHIA...AFJJA.
+......ADDSSHSTGA.AIJKJFA
+......AGDSOAIIGAADJRERFA
+.....AIGDPIAACGA.AIKERFA
+.....ATDSBAAQAA...AOIJA.
+....AIIIHBCMCNA..AAAAA..
+..AADUIIBIAAAIGAAPMLA...
+.ATSPHAIIPIIIGGSHIIQA...
+..AIIIAIIHCCGAIUSAVA....
+...AMVQGGTNIGAAAAAVA....
+...AQAQGUUAAOA..AVVA....
+...AAAGDOAIASDA.AIVA....
+..AGBGGDIAAAUSA.AMA.....
+..AGIDDDA...ATIAAMA.....
+.ASDDDSPA...AUIA.A......
+ADASSAHPA..AVULVA.......
+.A.AAASHA...AAAA........
+......AA................
+
+# ---- drawn frames (tools/realm_frames_thorn.py writes everything below)
+frame walk1 from base
+at 0 17
+ADASSAHPA.AVULVA........
+.A.AAASHA..AAAA.........
+.....AA.................
+
+frame walk3 from base
+at 0 17
+.ADASSAHPA..AVULVA......
+..A.AAASHA....AAAA......
+........AA..............
+
+frame atk0 from base
+at 18 3
+K
+at 21 3
+K
+
+frame atk1 from base
+at 17 0
+.AKEKA
+at 17 1
+AKEEEK
+at 18 2
+KEEK
+at 15 0
+E
+at 23 1
+E
+
+frame atk2 from base
+at 18 3
+K
+
+clip move 6 base walk1 base walk3
+clip shoot 8 atk0 atk1 atk2 base

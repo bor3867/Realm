@@ -1,0 +1,89 @@
+# spider_queen: 35x22, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #be9fa4
+D #9f455b
+E #8a6e7a
+F #751526
+G #372432
+H #e8221e
+I #e87b72
+J #785250
+K #ba958f
+L #c7424b
+M #c82831
+N #5c4755
+O #a7808a
+P #a07577
+Q #553952
+R #543643
+S #af847b
+T #c98079
+U #684c67
+V #805972
+frame base
+...............AAAAA...............
+...........A.AAGOKTGA..............
+..........AEARVJOOLTGAAA...........
+..........AKKRCKEOLMDOCCA..........
+.......AAAKVOKEKOOTHTKJOA..........
+......AROCGONGPNCOCKLCOVNA.........
+.....AAANKEVRSSCJCEOPKEAVA.AAA.....
+....ACVVAVEOAKKPPOCECCCAKAAKCDA....
+...AJKQKSAAURQVPOAGKOCCAUAOONKEA...
+..ARPRGNPOQGGAUVOAMROKGAGEEGAEKCA..
+.ACPVAAAQNBGAAAGEAHHAFIHAAAAAUOSJA.
+.AOVUA..AACEVRKOAEAAAAAASKA..AASPA.
+AGVAA...ACKGUEEVGUDAVDAGUSAA..AUEOA
+ACUA....AKEGAKVAAALARRMAAUKRA..AUOA
+AEA....AKOQAAKVA..A.AAFAANECA...AOA
+AUA....AKVAAESA.......A..AEKA...AVA
+ARA....AKQAAACA..........AUA.....A.
+.A.....AEA..AOA..........AQA.....A.
+.AA....ANA..AGA..........AUA....ARA
+AGCA...ANA...A............A....AACA
+AKAKA...A.....................ACAEA
+.A.A...........................A.A.
+
+# ---- drawn frames (tools/realm_frames_thorn.py writes everything below)
+frame walk1 from base
+at 0 18
+.AA....AA...AGA...........A.....ARA
+AGCA.........A.................AACA
+AKAKA.........................ACAEA
+
+frame walk3 from base
+at 0 18
+..A....ANA..AA...........AUA....AA.
+.GA....ANA................A....AA..
+.A......A..........................
+...................................
+
+frame atk0 from base
+at 19 9
+I
+at 14 8
+I
+at 17 8
+I
+
+frame atk1 from base
+at 19 9
+I
+at 14 8
+I
+at 17 8
+I
+at 19 14
+I
+at 21 15
+I
+at 18 16
+I
+
+frame atk2 from base
+at 14 8
+I
+
+clip move 7 base walk1 base walk3
+clip shoot 7 atk0 atk1 atk2 base

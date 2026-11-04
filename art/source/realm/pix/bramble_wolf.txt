@@ -1,0 +1,75 @@
+# bramble_wolf: 34x17, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #6e546b
+D #d3af8d
+E #edcfab
+F #bc948b
+G #aa2f4c
+H #724364
+I #3b2a40
+J #ba0d1d
+K #725b7d
+L #d4ad9e
+M #441210
+N #5f4567
+O #513c5a
+P #2a1b29
+Q #b7283e
+R #4d3626
+S #d82b21
+T #372736
+U #8c687e
+V #9e7e82
+frame base
+..................AAA.A...A.......
+...............AAAIKNAFA.ACA......
+............AAAKNNNNCOFFAACOA.....
+..........AAONCKCKCNOONUVKKKKA....
+........AANNNCCKSKCCONTCNKKKUQAAA.
+.......AONNHGNCQHGCCONUUKCBSOCKCTA
+.....AATCCHGCGGHCHGCOPOCFCCUUFVFIA
+....ACNINNQHNONNNCQQOOBIVFFDAADEEA
+...AKNNAIHHNPVVUOVCGCIBOARFMRARAA.
+..AKKKOAOQNNRAAAAAUHHKIA.APFJAA...
+.AUKVVAACKUDATTTA.ALCCAPAAAADDEA..
+.AVLFAATUUDFATOOA.AFCCOATIAAUCA...
+APFEA.AUUEAAAINA...AUKKAOOA.AA....
+AVFA.AHUAA..AONA....APUKAOOA......
+AVA..ACVA....ANNAA...AOUOBOA......
+.A...ALFLA...AIUHOA...AAVFDA......
+......AAA.....AAAA......AAA.......
+
+# ---- drawn frames (tools/realm_frames_thorn.py writes everything below)
+frame walk1 from base
+at 0 14
+AVA.ACVA......ANNAA..AOUOBOA......
+.A.ALFLA.......AIUHOAAAVFDA.......
+...AAA..........AAAA...AAA........
+
+frame walk3 from base
+at 0 14
+AVA...ACVA..ANNAA.....AOUOBOA.....
+.A....ALFLA.AIUHOA.....AAVFDA.....
+.......AAA...AAAA.......AAA.......
+
+frame atk0 from base
+at 28 8
+?A..AA
+at 28 9
+AEEEA.
+
+frame atk1 from base
+at 29 7
+EEEEA
+at 28 8
+AEEAA.
+at 28 9
+.AA...
+
+frame atk2 from base
+at 29 7
+DEEEA
+
+clip move 9 base walk1 base walk3
+clip shoot 9 atk0 atk1 atk2 base

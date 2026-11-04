@@ -1,0 +1,71 @@
+# briar_bee: 13x11, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #9f3207
+D #a56900
+E #e9a834
+F #51352a
+G #f7c108
+H #cfc5d2
+I #b4aab8
+J #281e2e
+K #a59cab
+L #d7a701
+M #cc1007
+N #fa980a
+O #65464c
+P #74020e
+Q #c29054
+R #7d1400
+S #fdb647
+T #e1bb7b
+U #2f2633
+V #4b393f
+frame base
+.AAA.....AAA.
+AIIIA...AUIHA
+.AIKIAAAAHHA.
+..AKJAELLSAA.
+.AAJEDBCGGAUA
+AOTOESDMMAPA.
+.AAFAAGRSEA..
+...AAGAAAAQA.
+...AGGNA.ALA.
+...AFDA...A..
+....AA.......
+
+# ---- drawn frames (tools/realm_frames_thorn.py writes everything below)
+frame walk1 from base
+at 0 0
+.............
+.AAA.....AAA.
+AIIKAAAAAHIHA
+
+frame walk3 from base
+at 0 0
+AA.......AA..
+AIIA....AUIA.
+.AIKIAAAAHHA.
+
+frame atk0 from base
+at 3 8
+AGGNA
+AFDA.
+.AA..
+
+frame atk1 from base
+at 3 8
+AGGNA
+.AFDA
+..AGA
+at 5 10
+S
+
+frame atk2 from base
+at 3 8
+AGGNA
+.AFDA
+..AA.
+
+clip move 12 base walk1 base walk3
+clip shoot 10 atk0 atk1 atk2 base
