@@ -87,7 +87,7 @@ def cut(land, cell=None):
         if k >= len(names): print('  extra sprite at', b); continue
         if names[k] in BOTTOM: b = (b[0], b[1], b[2], BOTTOM[names[k]])
         C = cell or CELL                                    # (the sheets' art: about five screen pixels to its pixel)
-        g = trim(keep_biggest(outline(sample(px, bg, b, C))) if land not in JOIN else outline(sample(px, bg, b, C)))
+        g = trim(keep_biggest(outline(sample(px, bg, b, C))) if land not in JOIN else outline(sample(px, bg, b, C)))   # (a joined sprite keeps every piece: its smoke, its shards; the jackal's specks taken off by hand)
         write_png(os.path.join(od, names[k] + '.png'), g); out.append((names[k], g)); print(f'  {names[k]:24s} {len(g[0])}x{len(g)} cell {C} box {b}')
     S = 3; cw = max(len(g[0]) for _, g in out) * S + 6; ch = max(len(g) for _, g in out) * S + 6; cols = 6; nr = (len(out) + cols - 1) // cols
     sh = [[(40, 36, 48, 255)] * (cw * cols) for _ in range(ch * nr)]

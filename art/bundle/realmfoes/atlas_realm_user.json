@@ -4243,6 +4243,7860 @@
       }
      },
      "meta": {}
+    },
+    "bell_taken": {
+     "frames": {
+      "bell_taken_base": [
+       0,
+       1716,
+       48,
+       35
+      ],
+      "bell_taken_walk1": [
+       48,
+       1716,
+       48,
+       35
+      ],
+      "bell_taken_walk3": [
+       96,
+       1716,
+       48,
+       35
+      ],
+      "bell_taken_atk0": [
+       144,
+       1716,
+       48,
+       35
+      ],
+      "bell_taken_atk1": [
+       192,
+       1716,
+       48,
+       35
+      ],
+      "bell_taken_atk2": [
+       240,
+       1716,
+       48,
+       35
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "bell_taken_base",
+        "bell_taken_walk1",
+        "bell_taken_base",
+        "bell_taken_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "bell_taken_atk0",
+        "bell_taken_atk1",
+        "bell_taken_atk2",
+        "bell_taken_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "bell_taken_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "bell_taken_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "peat_saint": {
+     "frames": {
+      "peat_saint_base": [
+       0,
+       1751,
+       43,
+       40
+      ],
+      "peat_saint_walk1": [
+       43,
+       1751,
+       43,
+       40
+      ],
+      "peat_saint_walk3": [
+       86,
+       1751,
+       43,
+       40
+      ],
+      "peat_saint_atk0": [
+       129,
+       1751,
+       43,
+       40
+      ],
+      "peat_saint_atk1": [
+       172,
+       1751,
+       43,
+       40
+      ],
+      "peat_saint_atk2": [
+       215,
+       1751,
+       43,
+       40
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "peat_saint_base",
+        "peat_saint_walk1",
+        "peat_saint_base",
+        "peat_saint_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "peat_saint_atk0",
+        "peat_saint_atk1",
+        "peat_saint_atk2",
+        "peat_saint_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "peat_saint_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "peat_saint_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "mire_choir": {
+     "frames": {
+      "mire_choir_base": [
+       0,
+       1791,
+       48,
+       38
+      ],
+      "mire_choir_walk1": [
+       48,
+       1791,
+       48,
+       38
+      ],
+      "mire_choir_walk3": [
+       96,
+       1791,
+       48,
+       38
+      ],
+      "mire_choir_atk0": [
+       144,
+       1791,
+       48,
+       38
+      ],
+      "mire_choir_atk1": [
+       192,
+       1791,
+       48,
+       38
+      ],
+      "mire_choir_atk2": [
+       240,
+       1791,
+       48,
+       38
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "mire_choir_base",
+        "mire_choir_walk1",
+        "mire_choir_base",
+        "mire_choir_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "mire_choir_atk0",
+        "mire_choir_atk1",
+        "mire_choir_atk2",
+        "mire_choir_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "mire_choir_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "mire_choir_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "lantern_heron": {
+     "frames": {
+      "lantern_heron_base": [
+       0,
+       1829,
+       48,
+       35
+      ],
+      "lantern_heron_walk1": [
+       48,
+       1829,
+       48,
+       35
+      ],
+      "lantern_heron_walk3": [
+       96,
+       1829,
+       48,
+       35
+      ],
+      "lantern_heron_atk0": [
+       144,
+       1829,
+       48,
+       35
+      ],
+      "lantern_heron_atk1": [
+       192,
+       1829,
+       48,
+       35
+      ],
+      "lantern_heron_atk2": [
+       240,
+       1829,
+       48,
+       35
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "lantern_heron_base",
+        "lantern_heron_walk1",
+        "lantern_heron_base",
+        "lantern_heron_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "lantern_heron_atk0",
+        "lantern_heron_atk1",
+        "lantern_heron_atk2",
+        "lantern_heron_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "lantern_heron_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "lantern_heron_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "candle_mite": {
+     "frames": {
+      "candle_mite_base": [
+       0,
+       1864,
+       43,
+       29
+      ],
+      "candle_mite_walk1": [
+       43,
+       1864,
+       43,
+       29
+      ],
+      "candle_mite_walk3": [
+       86,
+       1864,
+       43,
+       29
+      ],
+      "candle_mite_atk0": [
+       129,
+       1864,
+       43,
+       29
+      ],
+      "candle_mite_atk1": [
+       172,
+       1864,
+       43,
+       29
+      ],
+      "candle_mite_atk2": [
+       215,
+       1864,
+       43,
+       29
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "candle_mite_base",
+        "candle_mite_walk1",
+        "candle_mite_base",
+        "candle_mite_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "candle_mite_atk0",
+        "candle_mite_atk1",
+        "candle_mite_atk2",
+        "candle_mite_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "candle_mite_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "candle_mite_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "bog_abbess": {
+     "frames": {
+      "bog_abbess_base": [
+       0,
+       1893,
+       44,
+       39
+      ],
+      "bog_abbess_walk1": [
+       44,
+       1893,
+       44,
+       39
+      ],
+      "bog_abbess_walk3": [
+       88,
+       1893,
+       44,
+       39
+      ],
+      "bog_abbess_atk0": [
+       132,
+       1893,
+       44,
+       39
+      ],
+      "bog_abbess_atk1": [
+       176,
+       1893,
+       44,
+       39
+      ],
+      "bog_abbess_atk2": [
+       220,
+       1893,
+       44,
+       39
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "bog_abbess_base",
+        "bog_abbess_walk1",
+        "bog_abbess_base",
+        "bog_abbess_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "bog_abbess_atk0",
+        "bog_abbess_atk1",
+        "bog_abbess_atk2",
+        "bog_abbess_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "bog_abbess_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "bog_abbess_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "bog_bellringer": {
+     "frames": {
+      "bog_bellringer_base": [
+       0,
+       1932,
+       50,
+       35
+      ],
+      "bog_bellringer_walk1": [
+       50,
+       1932,
+       50,
+       35
+      ],
+      "bog_bellringer_walk3": [
+       100,
+       1932,
+       50,
+       35
+      ],
+      "bog_bellringer_atk0": [
+       150,
+       1932,
+       50,
+       35
+      ],
+      "bog_bellringer_atk1": [
+       200,
+       1932,
+       50,
+       35
+      ],
+      "bog_bellringer_atk2": [
+       250,
+       1932,
+       50,
+       35
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "bog_bellringer_base",
+        "bog_bellringer_walk1",
+        "bog_bellringer_base",
+        "bog_bellringer_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "bog_bellringer_atk0",
+        "bog_bellringer_atk1",
+        "bog_bellringer_atk2",
+        "bog_bellringer_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "bog_bellringer_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "bog_bellringer_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "mourning_willow": {
+     "frames": {
+      "mourning_willow_base": [
+       0,
+       1967,
+       53,
+       37
+      ],
+      "mourning_willow_walk1": [
+       53,
+       1967,
+       53,
+       37
+      ],
+      "mourning_willow_walk3": [
+       106,
+       1967,
+       53,
+       37
+      ],
+      "mourning_willow_atk0": [
+       159,
+       1967,
+       53,
+       37
+      ],
+      "mourning_willow_atk1": [
+       212,
+       1967,
+       53,
+       37
+      ],
+      "mourning_willow_atk2": [
+       265,
+       1967,
+       53,
+       37
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "mourning_willow_base",
+        "mourning_willow_walk1",
+        "mourning_willow_base",
+        "mourning_willow_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "mourning_willow_atk0",
+        "mourning_willow_atk1",
+        "mourning_willow_atk2",
+        "mourning_willow_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "mourning_willow_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "mourning_willow_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "grave_leech": {
+     "frames": {
+      "grave_leech_base": [
+       0,
+       2004,
+       46,
+       30
+      ],
+      "grave_leech_walk1": [
+       46,
+       2004,
+       46,
+       30
+      ],
+      "grave_leech_walk3": [
+       92,
+       2004,
+       46,
+       30
+      ],
+      "grave_leech_atk0": [
+       138,
+       2004,
+       46,
+       30
+      ],
+      "grave_leech_atk1": [
+       184,
+       2004,
+       46,
+       30
+      ],
+      "grave_leech_atk2": [
+       230,
+       2004,
+       46,
+       30
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "grave_leech_base",
+        "grave_leech_walk1",
+        "grave_leech_base",
+        "grave_leech_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "grave_leech_atk0",
+        "grave_leech_atk1",
+        "grave_leech_atk2",
+        "grave_leech_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "grave_leech_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "grave_leech_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "great_bell": {
+     "frames": {
+      "great_bell_base": [
+       0,
+       2034,
+       75,
+       40
+      ],
+      "great_bell_walk1": [
+       75,
+       2034,
+       75,
+       40
+      ],
+      "great_bell_walk3": [
+       150,
+       2034,
+       75,
+       40
+      ],
+      "great_bell_atk0": [
+       225,
+       2034,
+       75,
+       40
+      ],
+      "great_bell_atk1": [
+       300,
+       2034,
+       75,
+       40
+      ],
+      "great_bell_atk2": [
+       375,
+       2034,
+       75,
+       40
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "great_bell_base",
+        "great_bell_walk1",
+        "great_bell_base",
+        "great_bell_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "great_bell_atk0",
+        "great_bell_atk1",
+        "great_bell_atk2",
+        "great_bell_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "great_bell_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "great_bell_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "peat_martyr": {
+     "frames": {
+      "peat_martyr_base": [
+       0,
+       2074,
+       54,
+       37
+      ],
+      "peat_martyr_walk1": [
+       54,
+       2074,
+       54,
+       37
+      ],
+      "peat_martyr_walk3": [
+       108,
+       2074,
+       54,
+       37
+      ],
+      "peat_martyr_atk0": [
+       162,
+       2074,
+       54,
+       37
+      ],
+      "peat_martyr_atk1": [
+       216,
+       2074,
+       54,
+       37
+      ],
+      "peat_martyr_atk2": [
+       270,
+       2074,
+       54,
+       37
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "peat_martyr_base",
+        "peat_martyr_walk1",
+        "peat_martyr_base",
+        "peat_martyr_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "peat_martyr_atk0",
+        "peat_martyr_atk1",
+        "peat_martyr_atk2",
+        "peat_martyr_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "peat_martyr_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "peat_martyr_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "mire_chorus": {
+     "frames": {
+      "mire_chorus_base": [
+       0,
+       2111,
+       55,
+       34
+      ],
+      "mire_chorus_walk1": [
+       55,
+       2111,
+       55,
+       34
+      ],
+      "mire_chorus_walk3": [
+       110,
+       2111,
+       55,
+       34
+      ],
+      "mire_chorus_atk0": [
+       165,
+       2111,
+       55,
+       34
+      ],
+      "mire_chorus_atk1": [
+       220,
+       2111,
+       55,
+       34
+      ],
+      "mire_chorus_atk2": [
+       275,
+       2111,
+       55,
+       34
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "mire_chorus_base",
+        "mire_chorus_walk1",
+        "mire_chorus_base",
+        "mire_chorus_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "mire_chorus_atk0",
+        "mire_chorus_atk1",
+        "mire_chorus_atk2",
+        "mire_chorus_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "mire_chorus_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "mire_chorus_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "twin_lamp_heron": {
+     "frames": {
+      "twin_lamp_heron_base": [
+       0,
+       2145,
+       66,
+       34
+      ],
+      "twin_lamp_heron_walk1": [
+       66,
+       2145,
+       66,
+       34
+      ],
+      "twin_lamp_heron_walk3": [
+       132,
+       2145,
+       66,
+       34
+      ],
+      "twin_lamp_heron_atk0": [
+       198,
+       2145,
+       66,
+       34
+      ],
+      "twin_lamp_heron_atk1": [
+       264,
+       2145,
+       66,
+       34
+      ],
+      "twin_lamp_heron_atk2": [
+       330,
+       2145,
+       66,
+       34
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "twin_lamp_heron_base",
+        "twin_lamp_heron_walk1",
+        "twin_lamp_heron_base",
+        "twin_lamp_heron_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "twin_lamp_heron_atk0",
+        "twin_lamp_heron_atk1",
+        "twin_lamp_heron_atk2",
+        "twin_lamp_heron_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "twin_lamp_heron_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "twin_lamp_heron_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "tallow_matron": {
+     "frames": {
+      "tallow_matron_base": [
+       0,
+       2179,
+       63,
+       38
+      ],
+      "tallow_matron_walk1": [
+       63,
+       2179,
+       63,
+       38
+      ],
+      "tallow_matron_walk3": [
+       126,
+       2179,
+       63,
+       38
+      ],
+      "tallow_matron_atk0": [
+       189,
+       2179,
+       63,
+       38
+      ],
+      "tallow_matron_atk1": [
+       252,
+       2179,
+       63,
+       38
+      ],
+      "tallow_matron_atk2": [
+       315,
+       2179,
+       63,
+       38
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "tallow_matron_base",
+        "tallow_matron_walk1",
+        "tallow_matron_base",
+        "tallow_matron_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "tallow_matron_atk0",
+        "tallow_matron_atk1",
+        "tallow_matron_atk2",
+        "tallow_matron_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "tallow_matron_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "tallow_matron_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "leech_prime": {
+     "frames": {
+      "leech_prime_base": [
+       0,
+       2217,
+       49,
+       40
+      ],
+      "leech_prime_walk1": [
+       49,
+       2217,
+       49,
+       40
+      ],
+      "leech_prime_walk3": [
+       98,
+       2217,
+       49,
+       40
+      ],
+      "leech_prime_atk0": [
+       147,
+       2217,
+       49,
+       40
+      ],
+      "leech_prime_atk1": [
+       196,
+       2217,
+       49,
+       40
+      ],
+      "leech_prime_atk2": [
+       245,
+       2217,
+       49,
+       40
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "leech_prime_base",
+        "leech_prime_walk1",
+        "leech_prime_base",
+        "leech_prime_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "leech_prime_atk0",
+        "leech_prime_atk1",
+        "leech_prime_atk2",
+        "leech_prime_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "leech_prime_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "leech_prime_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "bog_toad": {
+     "frames": {
+      "bog_toad_base": [
+       0,
+       2257,
+       46,
+       30
+      ],
+      "bog_toad_walk1": [
+       46,
+       2257,
+       46,
+       30
+      ],
+      "bog_toad_walk3": [
+       92,
+       2257,
+       46,
+       30
+      ],
+      "bog_toad_atk0": [
+       138,
+       2257,
+       46,
+       30
+      ],
+      "bog_toad_atk1": [
+       184,
+       2257,
+       46,
+       30
+      ],
+      "bog_toad_atk2": [
+       230,
+       2257,
+       46,
+       30
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "bog_toad_base",
+        "bog_toad_walk1",
+        "bog_toad_base",
+        "bog_toad_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "bog_toad_atk0",
+        "bog_toad_atk1",
+        "bog_toad_atk2",
+        "bog_toad_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "bog_toad_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "bog_toad_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "gas_bloat": {
+     "frames": {
+      "gas_bloat_base": [
+       0,
+       2287,
+       46,
+       39
+      ],
+      "gas_bloat_walk1": [
+       46,
+       2287,
+       46,
+       39
+      ],
+      "gas_bloat_walk3": [
+       92,
+       2287,
+       46,
+       39
+      ],
+      "gas_bloat_atk0": [
+       138,
+       2287,
+       46,
+       39
+      ],
+      "gas_bloat_atk1": [
+       184,
+       2287,
+       46,
+       39
+      ],
+      "gas_bloat_atk2": [
+       230,
+       2287,
+       46,
+       39
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "gas_bloat_base",
+        "gas_bloat_walk1",
+        "gas_bloat_base",
+        "gas_bloat_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "gas_bloat_atk0",
+        "gas_bloat_atk1",
+        "gas_bloat_atk2",
+        "gas_bloat_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "gas_bloat_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "gas_bloat_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_gravekeeper": {
+     "frames": {
+      "rf_gravekeeper_base": [
+       0,
+       2326,
+       63,
+       42
+      ],
+      "rf_gravekeeper_walk1": [
+       63,
+       2326,
+       63,
+       42
+      ],
+      "rf_gravekeeper_walk3": [
+       126,
+       2326,
+       63,
+       42
+      ],
+      "rf_gravekeeper_atk0": [
+       189,
+       2326,
+       63,
+       42
+      ],
+      "rf_gravekeeper_atk1": [
+       252,
+       2326,
+       63,
+       42
+      ],
+      "rf_gravekeeper_atk2": [
+       315,
+       2326,
+       63,
+       42
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_gravekeeper_base",
+        "rf_gravekeeper_walk1",
+        "rf_gravekeeper_base",
+        "rf_gravekeeper_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_gravekeeper_atk0",
+        "rf_gravekeeper_atk1",
+        "rf_gravekeeper_atk2",
+        "rf_gravekeeper_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_gravekeeper_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_gravekeeper_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "frozen_executioner": {
+     "frames": {
+      "frozen_executioner_base": [
+       0,
+       2368,
+       49,
+       33
+      ],
+      "frozen_executioner_walk1": [
+       49,
+       2368,
+       49,
+       33
+      ],
+      "frozen_executioner_walk3": [
+       98,
+       2368,
+       49,
+       33
+      ],
+      "frozen_executioner_atk0": [
+       147,
+       2368,
+       49,
+       33
+      ],
+      "frozen_executioner_atk1": [
+       196,
+       2368,
+       49,
+       33
+      ],
+      "frozen_executioner_atk2": [
+       245,
+       2368,
+       49,
+       33
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "frozen_executioner_base",
+        "frozen_executioner_walk1",
+        "frozen_executioner_base",
+        "frozen_executioner_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "frozen_executioner_atk0",
+        "frozen_executioner_atk1",
+        "frozen_executioner_atk2",
+        "frozen_executioner_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "frozen_executioner_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "frozen_executioner_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "prayer_monk": {
+     "frames": {
+      "prayer_monk_base": [
+       0,
+       2401,
+       36,
+       37
+      ],
+      "prayer_monk_walk1": [
+       36,
+       2401,
+       36,
+       37
+      ],
+      "prayer_monk_walk3": [
+       72,
+       2401,
+       36,
+       37
+      ],
+      "prayer_monk_atk0": [
+       108,
+       2401,
+       36,
+       37
+      ],
+      "prayer_monk_atk1": [
+       144,
+       2401,
+       36,
+       37
+      ],
+      "prayer_monk_atk2": [
+       180,
+       2401,
+       36,
+       37
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "prayer_monk_base",
+        "prayer_monk_walk1",
+        "prayer_monk_base",
+        "prayer_monk_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "prayer_monk_atk0",
+        "prayer_monk_atk1",
+        "prayer_monk_atk2",
+        "prayer_monk_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "prayer_monk_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "prayer_monk_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "antlered_hush": {
+     "frames": {
+      "antlered_hush_base": [
+       0,
+       2438,
+       45,
+       35
+      ],
+      "antlered_hush_walk1": [
+       45,
+       2438,
+       45,
+       35
+      ],
+      "antlered_hush_walk3": [
+       90,
+       2438,
+       45,
+       35
+      ],
+      "antlered_hush_atk0": [
+       135,
+       2438,
+       45,
+       35
+      ],
+      "antlered_hush_atk1": [
+       180,
+       2438,
+       45,
+       35
+      ],
+      "antlered_hush_atk2": [
+       225,
+       2438,
+       45,
+       35
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "antlered_hush_base",
+        "antlered_hush_walk1",
+        "antlered_hush_base",
+        "antlered_hush_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "antlered_hush_atk0",
+        "antlered_hush_atk1",
+        "antlered_hush_atk2",
+        "antlered_hush_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "antlered_hush_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "antlered_hush_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rune_warden": {
+     "frames": {
+      "rune_warden_base": [
+       0,
+       2473,
+       50,
+       36
+      ],
+      "rune_warden_walk1": [
+       50,
+       2473,
+       50,
+       36
+      ],
+      "rune_warden_walk3": [
+       100,
+       2473,
+       50,
+       36
+      ],
+      "rune_warden_atk0": [
+       150,
+       2473,
+       50,
+       36
+      ],
+      "rune_warden_atk1": [
+       200,
+       2473,
+       50,
+       36
+      ],
+      "rune_warden_atk2": [
+       250,
+       2473,
+       50,
+       36
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rune_warden_base",
+        "rune_warden_walk1",
+        "rune_warden_base",
+        "rune_warden_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rune_warden_atk0",
+        "rune_warden_atk1",
+        "rune_warden_atk2",
+        "rune_warden_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rune_warden_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rune_warden_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "saga_singer": {
+     "frames": {
+      "saga_singer_base": [
+       0,
+       2509,
+       45,
+       32
+      ],
+      "saga_singer_walk1": [
+       45,
+       2509,
+       45,
+       32
+      ],
+      "saga_singer_walk3": [
+       90,
+       2509,
+       45,
+       32
+      ],
+      "saga_singer_atk0": [
+       135,
+       2509,
+       45,
+       32
+      ],
+      "saga_singer_atk1": [
+       180,
+       2509,
+       45,
+       32
+      ],
+      "saga_singer_atk2": [
+       225,
+       2509,
+       45,
+       32
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "saga_singer_base",
+        "saga_singer_walk1",
+        "saga_singer_base",
+        "saga_singer_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "saga_singer_atk0",
+        "saga_singer_atk1",
+        "saga_singer_atk2",
+        "saga_singer_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "saga_singer_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "saga_singer_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "shieldwall_pack": {
+     "frames": {
+      "shieldwall_pack_base": [
+       0,
+       2541,
+       49,
+       33
+      ],
+      "shieldwall_pack_walk1": [
+       49,
+       2541,
+       49,
+       33
+      ],
+      "shieldwall_pack_walk3": [
+       98,
+       2541,
+       49,
+       33
+      ],
+      "shieldwall_pack_atk0": [
+       147,
+       2541,
+       49,
+       33
+      ],
+      "shieldwall_pack_atk1": [
+       196,
+       2541,
+       49,
+       33
+      ],
+      "shieldwall_pack_atk2": [
+       245,
+       2541,
+       49,
+       33
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "shieldwall_pack_base",
+        "shieldwall_pack_walk1",
+        "shieldwall_pack_base",
+        "shieldwall_pack_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "shieldwall_pack_atk0",
+        "shieldwall_pack_atk1",
+        "shieldwall_pack_atk2",
+        "shieldwall_pack_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "shieldwall_pack_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "shieldwall_pack_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "frost_wraith": {
+     "frames": {
+      "frost_wraith_base": [
+       0,
+       2574,
+       43,
+       32
+      ],
+      "frost_wraith_walk1": [
+       43,
+       2574,
+       43,
+       32
+      ],
+      "frost_wraith_walk3": [
+       86,
+       2574,
+       43,
+       32
+      ],
+      "frost_wraith_atk0": [
+       129,
+       2574,
+       43,
+       32
+      ],
+      "frost_wraith_atk1": [
+       172,
+       2574,
+       43,
+       32
+      ],
+      "frost_wraith_atk2": [
+       215,
+       2574,
+       43,
+       32
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "frost_wraith_base",
+        "frost_wraith_walk1",
+        "frost_wraith_base",
+        "frost_wraith_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "frost_wraith_atk0",
+        "frost_wraith_atk1",
+        "frost_wraith_atk2",
+        "frost_wraith_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "frost_wraith_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "frost_wraith_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "cairn_mender": {
+     "frames": {
+      "cairn_mender_base": [
+       0,
+       2606,
+       53,
+       34
+      ],
+      "cairn_mender_walk1": [
+       53,
+       2606,
+       53,
+       34
+      ],
+      "cairn_mender_walk3": [
+       106,
+       2606,
+       53,
+       34
+      ],
+      "cairn_mender_atk0": [
+       159,
+       2606,
+       53,
+       34
+      ],
+      "cairn_mender_atk1": [
+       212,
+       2606,
+       53,
+       34
+      ],
+      "cairn_mender_atk2": [
+       265,
+       2606,
+       53,
+       34
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "cairn_mender_base",
+        "cairn_mender_walk1",
+        "cairn_mender_base",
+        "cairn_mender_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "cairn_mender_atk0",
+        "cairn_mender_atk1",
+        "cairn_mender_atk2",
+        "cairn_mender_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "cairn_mender_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "cairn_mender_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "stone_harpy": {
+     "frames": {
+      "stone_harpy_base": [
+       0,
+       2640,
+       51,
+       31
+      ],
+      "stone_harpy_walk1": [
+       51,
+       2640,
+       51,
+       31
+      ],
+      "stone_harpy_walk3": [
+       102,
+       2640,
+       51,
+       31
+      ],
+      "stone_harpy_atk0": [
+       153,
+       2640,
+       51,
+       31
+      ],
+      "stone_harpy_atk1": [
+       204,
+       2640,
+       51,
+       31
+      ],
+      "stone_harpy_atk2": [
+       255,
+       2640,
+       51,
+       31
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "stone_harpy_base",
+        "stone_harpy_walk1",
+        "stone_harpy_base",
+        "stone_harpy_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "stone_harpy_atk0",
+        "stone_harpy_atk1",
+        "stone_harpy_atk2",
+        "stone_harpy_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "stone_harpy_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "stone_harpy_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "mountain_ram": {
+     "frames": {
+      "mountain_ram_base": [
+       0,
+       2671,
+       42,
+       31
+      ],
+      "mountain_ram_walk1": [
+       42,
+       2671,
+       42,
+       31
+      ],
+      "mountain_ram_walk3": [
+       84,
+       2671,
+       42,
+       31
+      ],
+      "mountain_ram_atk0": [
+       126,
+       2671,
+       42,
+       31
+      ],
+      "mountain_ram_atk1": [
+       168,
+       2671,
+       42,
+       31
+      ],
+      "mountain_ram_atk2": [
+       210,
+       2671,
+       42,
+       31
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "mountain_ram_base",
+        "mountain_ram_walk1",
+        "mountain_ram_base",
+        "mountain_ram_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "mountain_ram_atk0",
+        "mountain_ram_atk1",
+        "mountain_ram_atk2",
+        "mountain_ram_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "mountain_ram_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "mountain_ram_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "crag_ogre": {
+     "frames": {
+      "crag_ogre_base": [
+       0,
+       2702,
+       56,
+       33
+      ],
+      "crag_ogre_walk1": [
+       56,
+       2702,
+       56,
+       33
+      ],
+      "crag_ogre_walk3": [
+       112,
+       2702,
+       56,
+       33
+      ],
+      "crag_ogre_atk0": [
+       168,
+       2702,
+       56,
+       33
+      ],
+      "crag_ogre_atk1": [
+       224,
+       2702,
+       56,
+       33
+      ],
+      "crag_ogre_atk2": [
+       280,
+       2702,
+       56,
+       33
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "crag_ogre_base",
+        "crag_ogre_walk1",
+        "crag_ogre_base",
+        "crag_ogre_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "crag_ogre_atk0",
+        "crag_ogre_atk1",
+        "crag_ogre_atk2",
+        "crag_ogre_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "crag_ogre_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "crag_ogre_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "cave_bat": {
+     "frames": {
+      "cave_bat_base": [
+       0,
+       2735,
+       51,
+       24
+      ],
+      "cave_bat_walk1": [
+       51,
+       2735,
+       51,
+       24
+      ],
+      "cave_bat_walk3": [
+       102,
+       2735,
+       51,
+       24
+      ],
+      "cave_bat_atk0": [
+       153,
+       2735,
+       51,
+       24
+      ],
+      "cave_bat_atk1": [
+       204,
+       2735,
+       51,
+       24
+      ],
+      "cave_bat_atk2": [
+       255,
+       2735,
+       51,
+       24
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "cave_bat_base",
+        "cave_bat_walk1",
+        "cave_bat_base",
+        "cave_bat_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "cave_bat_atk0",
+        "cave_bat_atk1",
+        "cave_bat_atk2",
+        "cave_bat_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "cave_bat_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "cave_bat_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "storm_gryphon": {
+     "frames": {
+      "storm_gryphon_base": [
+       0,
+       2759,
+       54,
+       32
+      ],
+      "storm_gryphon_walk1": [
+       54,
+       2759,
+       54,
+       32
+      ],
+      "storm_gryphon_walk3": [
+       108,
+       2759,
+       54,
+       32
+      ],
+      "storm_gryphon_atk0": [
+       162,
+       2759,
+       54,
+       32
+      ],
+      "storm_gryphon_atk1": [
+       216,
+       2759,
+       54,
+       32
+      ],
+      "storm_gryphon_atk2": [
+       270,
+       2759,
+       54,
+       32
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "storm_gryphon_base",
+        "storm_gryphon_walk1",
+        "storm_gryphon_base",
+        "storm_gryphon_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "storm_gryphon_atk0",
+        "storm_gryphon_atk1",
+        "storm_gryphon_atk2",
+        "storm_gryphon_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "storm_gryphon_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "storm_gryphon_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_smelter_imp": {
+     "frames": {
+      "rf_smelter_imp_base": [
+       0,
+       2791,
+       43,
+       35
+      ],
+      "rf_smelter_imp_walk1": [
+       43,
+       2791,
+       43,
+       35
+      ],
+      "rf_smelter_imp_walk3": [
+       86,
+       2791,
+       43,
+       35
+      ],
+      "rf_smelter_imp_atk0": [
+       129,
+       2791,
+       43,
+       35
+      ],
+      "rf_smelter_imp_atk1": [
+       172,
+       2791,
+       43,
+       35
+      ],
+      "rf_smelter_imp_atk2": [
+       215,
+       2791,
+       43,
+       35
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_smelter_imp_base",
+        "rf_smelter_imp_walk1",
+        "rf_smelter_imp_base",
+        "rf_smelter_imp_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_smelter_imp_atk0",
+        "rf_smelter_imp_atk1",
+        "rf_smelter_imp_atk2",
+        "rf_smelter_imp_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_smelter_imp_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_smelter_imp_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_frost_wraith": {
+     "frames": {
+      "rf_frost_wraith_base": [
+       0,
+       2826,
+       47,
+       32
+      ],
+      "rf_frost_wraith_walk1": [
+       47,
+       2826,
+       47,
+       32
+      ],
+      "rf_frost_wraith_walk3": [
+       94,
+       2826,
+       47,
+       32
+      ],
+      "rf_frost_wraith_atk0": [
+       141,
+       2826,
+       47,
+       32
+      ],
+      "rf_frost_wraith_atk1": [
+       188,
+       2826,
+       47,
+       32
+      ],
+      "rf_frost_wraith_atk2": [
+       235,
+       2826,
+       47,
+       32
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_frost_wraith_base",
+        "rf_frost_wraith_walk1",
+        "rf_frost_wraith_base",
+        "rf_frost_wraith_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_frost_wraith_atk0",
+        "rf_frost_wraith_atk1",
+        "rf_frost_wraith_atk2",
+        "rf_frost_wraith_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_frost_wraith_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_frost_wraith_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_ice_golem": {
+     "frames": {
+      "rf_ice_golem_base": [
+       0,
+       2858,
+       49,
+       32
+      ],
+      "rf_ice_golem_walk1": [
+       49,
+       2858,
+       49,
+       32
+      ],
+      "rf_ice_golem_walk3": [
+       98,
+       2858,
+       49,
+       32
+      ],
+      "rf_ice_golem_atk0": [
+       147,
+       2858,
+       49,
+       32
+      ],
+      "rf_ice_golem_atk1": [
+       196,
+       2858,
+       49,
+       32
+      ],
+      "rf_ice_golem_atk2": [
+       245,
+       2858,
+       49,
+       32
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_ice_golem_base",
+        "rf_ice_golem_walk1",
+        "rf_ice_golem_base",
+        "rf_ice_golem_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_ice_golem_atk0",
+        "rf_ice_golem_atk1",
+        "rf_ice_golem_atk2",
+        "rf_ice_golem_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_ice_golem_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_ice_golem_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_ashen_acolyte": {
+     "frames": {
+      "rf_ashen_acolyte_base": [
+       0,
+       2890,
+       42,
+       31
+      ],
+      "rf_ashen_acolyte_walk1": [
+       42,
+       2890,
+       42,
+       31
+      ],
+      "rf_ashen_acolyte_walk3": [
+       84,
+       2890,
+       42,
+       31
+      ],
+      "rf_ashen_acolyte_atk0": [
+       126,
+       2890,
+       42,
+       31
+      ],
+      "rf_ashen_acolyte_atk1": [
+       168,
+       2890,
+       42,
+       31
+      ],
+      "rf_ashen_acolyte_atk2": [
+       210,
+       2890,
+       42,
+       31
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_ashen_acolyte_base",
+        "rf_ashen_acolyte_walk1",
+        "rf_ashen_acolyte_base",
+        "rf_ashen_acolyte_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_ashen_acolyte_atk0",
+        "rf_ashen_acolyte_atk1",
+        "rf_ashen_acolyte_atk2",
+        "rf_ashen_acolyte_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_ashen_acolyte_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_ashen_acolyte_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_penitent_wraith": {
+     "frames": {
+      "rf_penitent_wraith_base": [
+       0,
+       2921,
+       43,
+       33
+      ],
+      "rf_penitent_wraith_walk1": [
+       43,
+       2921,
+       43,
+       33
+      ],
+      "rf_penitent_wraith_walk3": [
+       86,
+       2921,
+       43,
+       33
+      ],
+      "rf_penitent_wraith_atk0": [
+       129,
+       2921,
+       43,
+       33
+      ],
+      "rf_penitent_wraith_atk1": [
+       172,
+       2921,
+       43,
+       33
+      ],
+      "rf_penitent_wraith_atk2": [
+       215,
+       2921,
+       43,
+       33
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_penitent_wraith_base",
+        "rf_penitent_wraith_walk1",
+        "rf_penitent_wraith_base",
+        "rf_penitent_wraith_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_penitent_wraith_atk0",
+        "rf_penitent_wraith_atk1",
+        "rf_penitent_wraith_atk2",
+        "rf_penitent_wraith_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_penitent_wraith_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_penitent_wraith_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_bailiff_automaton": {
+     "frames": {
+      "rf_bailiff_automaton_base": [
+       0,
+       2954,
+       47,
+       33
+      ],
+      "rf_bailiff_automaton_walk1": [
+       47,
+       2954,
+       47,
+       33
+      ],
+      "rf_bailiff_automaton_walk3": [
+       94,
+       2954,
+       47,
+       33
+      ],
+      "rf_bailiff_automaton_atk0": [
+       141,
+       2954,
+       47,
+       33
+      ],
+      "rf_bailiff_automaton_atk1": [
+       188,
+       2954,
+       47,
+       33
+      ],
+      "rf_bailiff_automaton_atk2": [
+       235,
+       2954,
+       47,
+       33
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_bailiff_automaton_base",
+        "rf_bailiff_automaton_walk1",
+        "rf_bailiff_automaton_base",
+        "rf_bailiff_automaton_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_bailiff_automaton_atk0",
+        "rf_bailiff_automaton_atk1",
+        "rf_bailiff_automaton_atk2",
+        "rf_bailiff_automaton_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_bailiff_automaton_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_bailiff_automaton_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_clockwork_clerk": {
+     "frames": {
+      "rf_clockwork_clerk_base": [
+       0,
+       2987,
+       46,
+       31
+      ],
+      "rf_clockwork_clerk_walk1": [
+       46,
+       2987,
+       46,
+       31
+      ],
+      "rf_clockwork_clerk_walk3": [
+       92,
+       2987,
+       46,
+       31
+      ],
+      "rf_clockwork_clerk_atk0": [
+       138,
+       2987,
+       46,
+       31
+      ],
+      "rf_clockwork_clerk_atk1": [
+       184,
+       2987,
+       46,
+       31
+      ],
+      "rf_clockwork_clerk_atk2": [
+       230,
+       2987,
+       46,
+       31
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_clockwork_clerk_base",
+        "rf_clockwork_clerk_walk1",
+        "rf_clockwork_clerk_base",
+        "rf_clockwork_clerk_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_clockwork_clerk_atk0",
+        "rf_clockwork_clerk_atk1",
+        "rf_clockwork_clerk_atk2",
+        "rf_clockwork_clerk_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_clockwork_clerk_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_clockwork_clerk_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_glass_wraith": {
+     "frames": {
+      "rf_glass_wraith_base": [
+       0,
+       3018,
+       54,
+       37
+      ],
+      "rf_glass_wraith_walk1": [
+       54,
+       3018,
+       54,
+       37
+      ],
+      "rf_glass_wraith_walk3": [
+       108,
+       3018,
+       54,
+       37
+      ],
+      "rf_glass_wraith_atk0": [
+       162,
+       3018,
+       54,
+       37
+      ],
+      "rf_glass_wraith_atk1": [
+       216,
+       3018,
+       54,
+       37
+      ],
+      "rf_glass_wraith_atk2": [
+       270,
+       3018,
+       54,
+       37
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_glass_wraith_base",
+        "rf_glass_wraith_walk1",
+        "rf_glass_wraith_base",
+        "rf_glass_wraith_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_glass_wraith_atk0",
+        "rf_glass_wraith_atk1",
+        "rf_glass_wraith_atk2",
+        "rf_glass_wraith_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_glass_wraith_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_glass_wraith_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_prism_sentinel": {
+     "frames": {
+      "rf_prism_sentinel_base": [
+       0,
+       3055,
+       70,
+       43
+      ],
+      "rf_prism_sentinel_walk1": [
+       70,
+       3055,
+       70,
+       43
+      ],
+      "rf_prism_sentinel_walk3": [
+       140,
+       3055,
+       70,
+       43
+      ],
+      "rf_prism_sentinel_atk0": [
+       210,
+       3055,
+       70,
+       43
+      ],
+      "rf_prism_sentinel_atk1": [
+       280,
+       3055,
+       70,
+       43
+      ],
+      "rf_prism_sentinel_atk2": [
+       350,
+       3055,
+       70,
+       43
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_prism_sentinel_base",
+        "rf_prism_sentinel_walk1",
+        "rf_prism_sentinel_base",
+        "rf_prism_sentinel_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_prism_sentinel_atk0",
+        "rf_prism_sentinel_atk1",
+        "rf_prism_sentinel_atk2",
+        "rf_prism_sentinel_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_prism_sentinel_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_prism_sentinel_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "hollow_thane": {
+     "frames": {
+      "hollow_thane_base": [
+       0,
+       3098,
+       45,
+       36
+      ],
+      "hollow_thane_walk1": [
+       45,
+       3098,
+       45,
+       36
+      ],
+      "hollow_thane_walk3": [
+       90,
+       3098,
+       45,
+       36
+      ],
+      "hollow_thane_atk0": [
+       135,
+       3098,
+       45,
+       36
+      ],
+      "hollow_thane_atk1": [
+       180,
+       3098,
+       45,
+       36
+      ],
+      "hollow_thane_atk2": [
+       225,
+       3098,
+       45,
+       36
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "hollow_thane_base",
+        "hollow_thane_walk1",
+        "hollow_thane_base",
+        "hollow_thane_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "hollow_thane_atk0",
+        "hollow_thane_atk1",
+        "hollow_thane_atk2",
+        "hollow_thane_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "hollow_thane_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hollow_thane_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "censer_magistrate": {
+     "frames": {
+      "censer_magistrate_base": [
+       0,
+       3134,
+       42,
+       36
+      ],
+      "censer_magistrate_walk1": [
+       42,
+       3134,
+       42,
+       36
+      ],
+      "censer_magistrate_walk3": [
+       84,
+       3134,
+       42,
+       36
+      ],
+      "censer_magistrate_atk0": [
+       126,
+       3134,
+       42,
+       36
+      ],
+      "censer_magistrate_atk1": [
+       168,
+       3134,
+       42,
+       36
+      ],
+      "censer_magistrate_atk2": [
+       210,
+       3134,
+       42,
+       36
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "censer_magistrate_base",
+        "censer_magistrate_walk1",
+        "censer_magistrate_base",
+        "censer_magistrate_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "censer_magistrate_atk0",
+        "censer_magistrate_atk1",
+        "censer_magistrate_atk2",
+        "censer_magistrate_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "censer_magistrate_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "censer_magistrate_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "halo_eater": {
+     "frames": {
+      "halo_eater_base": [
+       0,
+       3170,
+       45,
+       35
+      ],
+      "halo_eater_walk1": [
+       45,
+       3170,
+       45,
+       35
+      ],
+      "halo_eater_walk3": [
+       90,
+       3170,
+       45,
+       35
+      ],
+      "halo_eater_atk0": [
+       135,
+       3170,
+       45,
+       35
+      ],
+      "halo_eater_atk1": [
+       180,
+       3170,
+       45,
+       35
+      ],
+      "halo_eater_atk2": [
+       225,
+       3170,
+       45,
+       35
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "halo_eater_base",
+        "halo_eater_walk1",
+        "halo_eater_base",
+        "halo_eater_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "halo_eater_atk0",
+        "halo_eater_atk1",
+        "halo_eater_atk2",
+        "halo_eater_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "halo_eater_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "halo_eater_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "choir_engine": {
+     "frames": {
+      "choir_engine_base": [
+       0,
+       3205,
+       47,
+       36
+      ],
+      "choir_engine_walk1": [
+       47,
+       3205,
+       47,
+       36
+      ],
+      "choir_engine_walk3": [
+       94,
+       3205,
+       47,
+       36
+      ],
+      "choir_engine_atk0": [
+       141,
+       3205,
+       47,
+       36
+      ],
+      "choir_engine_atk1": [
+       188,
+       3205,
+       47,
+       36
+      ],
+      "choir_engine_atk2": [
+       235,
+       3205,
+       47,
+       36
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "choir_engine_base",
+        "choir_engine_walk1",
+        "choir_engine_base",
+        "choir_engine_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "choir_engine_atk0",
+        "choir_engine_atk1",
+        "choir_engine_atk2",
+        "choir_engine_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "choir_engine_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "choir_engine_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "fallen_choirmaster": {
+     "frames": {
+      "fallen_choirmaster_base": [
+       0,
+       3241,
+       44,
+       37
+      ],
+      "fallen_choirmaster_walk1": [
+       44,
+       3241,
+       44,
+       37
+      ],
+      "fallen_choirmaster_walk3": [
+       88,
+       3241,
+       44,
+       37
+      ],
+      "fallen_choirmaster_atk0": [
+       132,
+       3241,
+       44,
+       37
+      ],
+      "fallen_choirmaster_atk1": [
+       176,
+       3241,
+       44,
+       37
+      ],
+      "fallen_choirmaster_atk2": [
+       220,
+       3241,
+       44,
+       37
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "fallen_choirmaster_base",
+        "fallen_choirmaster_walk1",
+        "fallen_choirmaster_base",
+        "fallen_choirmaster_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "fallen_choirmaster_atk0",
+        "fallen_choirmaster_atk1",
+        "fallen_choirmaster_atk2",
+        "fallen_choirmaster_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "fallen_choirmaster_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "fallen_choirmaster_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "gilded_penitent": {
+     "frames": {
+      "gilded_penitent_base": [
+       0,
+       3278,
+       42,
+       33
+      ],
+      "gilded_penitent_walk1": [
+       42,
+       3278,
+       42,
+       33
+      ],
+      "gilded_penitent_walk3": [
+       84,
+       3278,
+       42,
+       33
+      ],
+      "gilded_penitent_atk0": [
+       126,
+       3278,
+       42,
+       33
+      ],
+      "gilded_penitent_atk1": [
+       168,
+       3278,
+       42,
+       33
+      ],
+      "gilded_penitent_atk2": [
+       210,
+       3278,
+       42,
+       33
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "gilded_penitent_base",
+        "gilded_penitent_walk1",
+        "gilded_penitent_base",
+        "gilded_penitent_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "gilded_penitent_atk0",
+        "gilded_penitent_atk1",
+        "gilded_penitent_atk2",
+        "gilded_penitent_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "gilded_penitent_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "gilded_penitent_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "cherub_husk": {
+     "frames": {
+      "cherub_husk_base": [
+       0,
+       3311,
+       44,
+       28
+      ],
+      "cherub_husk_walk1": [
+       44,
+       3311,
+       44,
+       28
+      ],
+      "cherub_husk_walk3": [
+       88,
+       3311,
+       44,
+       28
+      ],
+      "cherub_husk_atk0": [
+       132,
+       3311,
+       44,
+       28
+      ],
+      "cherub_husk_atk1": [
+       176,
+       3311,
+       44,
+       28
+      ],
+      "cherub_husk_atk2": [
+       220,
+       3311,
+       44,
+       28
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "cherub_husk_base",
+        "cherub_husk_walk1",
+        "cherub_husk_base",
+        "cherub_husk_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "cherub_husk_atk0",
+        "cherub_husk_atk1",
+        "cherub_husk_atk2",
+        "cherub_husk_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "cherub_husk_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "cherub_husk_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "reliquary_spider": {
+     "frames": {
+      "reliquary_spider_base": [
+       0,
+       3339,
+       47,
+       33
+      ],
+      "reliquary_spider_walk1": [
+       47,
+       3339,
+       47,
+       33
+      ],
+      "reliquary_spider_walk3": [
+       94,
+       3339,
+       47,
+       33
+      ],
+      "reliquary_spider_atk0": [
+       141,
+       3339,
+       47,
+       33
+      ],
+      "reliquary_spider_atk1": [
+       188,
+       3339,
+       47,
+       33
+      ],
+      "reliquary_spider_atk2": [
+       235,
+       3339,
+       47,
+       33
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "reliquary_spider_base",
+        "reliquary_spider_walk1",
+        "reliquary_spider_base",
+        "reliquary_spider_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "reliquary_spider_atk0",
+        "reliquary_spider_atk1",
+        "reliquary_spider_atk2",
+        "reliquary_spider_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "reliquary_spider_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "reliquary_spider_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "hollow_jarl": {
+     "frames": {
+      "hollow_jarl_base": [
+       0,
+       3372,
+       48,
+       34
+      ],
+      "hollow_jarl_walk1": [
+       48,
+       3372,
+       48,
+       34
+      ],
+      "hollow_jarl_walk3": [
+       96,
+       3372,
+       48,
+       34
+      ],
+      "hollow_jarl_atk0": [
+       144,
+       3372,
+       48,
+       34
+      ],
+      "hollow_jarl_atk1": [
+       192,
+       3372,
+       48,
+       34
+      ],
+      "hollow_jarl_atk2": [
+       240,
+       3372,
+       48,
+       34
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "hollow_jarl_base",
+        "hollow_jarl_walk1",
+        "hollow_jarl_base",
+        "hollow_jarl_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "hollow_jarl_atk0",
+        "hollow_jarl_atk1",
+        "hollow_jarl_atk2",
+        "hollow_jarl_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "hollow_jarl_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "hollow_jarl_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "halo_glutton": {
+     "frames": {
+      "halo_glutton_base": [
+       0,
+       3406,
+       43,
+       35
+      ],
+      "halo_glutton_walk1": [
+       43,
+       3406,
+       43,
+       35
+      ],
+      "halo_glutton_walk3": [
+       86,
+       3406,
+       43,
+       35
+      ],
+      "halo_glutton_atk0": [
+       129,
+       3406,
+       43,
+       35
+      ],
+      "halo_glutton_atk1": [
+       172,
+       3406,
+       43,
+       35
+      ],
+      "halo_glutton_atk2": [
+       215,
+       3406,
+       43,
+       35
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "halo_glutton_base",
+        "halo_glutton_walk1",
+        "halo_glutton_base",
+        "halo_glutton_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "halo_glutton_atk0",
+        "halo_glutton_atk1",
+        "halo_glutton_atk2",
+        "halo_glutton_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "halo_glutton_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "halo_glutton_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "cathedral_engine": {
+     "frames": {
+      "cathedral_engine_base": [
+       0,
+       3441,
+       48,
+       35
+      ],
+      "cathedral_engine_walk1": [
+       48,
+       3441,
+       48,
+       35
+      ],
+      "cathedral_engine_walk3": [
+       96,
+       3441,
+       48,
+       35
+      ],
+      "cathedral_engine_atk0": [
+       144,
+       3441,
+       48,
+       35
+      ],
+      "cathedral_engine_atk1": [
+       192,
+       3441,
+       48,
+       35
+      ],
+      "cathedral_engine_atk2": [
+       240,
+       3441,
+       48,
+       35
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "cathedral_engine_base",
+        "cathedral_engine_walk1",
+        "cathedral_engine_base",
+        "cathedral_engine_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "cathedral_engine_atk0",
+        "cathedral_engine_atk1",
+        "cathedral_engine_atk2",
+        "cathedral_engine_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "cathedral_engine_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "cathedral_engine_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "seraph_husk": {
+     "frames": {
+      "seraph_husk_base": [
+       0,
+       3476,
+       46,
+       34
+      ],
+      "seraph_husk_walk1": [
+       46,
+       3476,
+       46,
+       34
+      ],
+      "seraph_husk_walk3": [
+       92,
+       3476,
+       46,
+       34
+      ],
+      "seraph_husk_atk0": [
+       138,
+       3476,
+       46,
+       34
+      ],
+      "seraph_husk_atk1": [
+       184,
+       3476,
+       46,
+       34
+      ],
+      "seraph_husk_atk2": [
+       230,
+       3476,
+       46,
+       34
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "seraph_husk_base",
+        "seraph_husk_walk1",
+        "seraph_husk_base",
+        "seraph_husk_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "seraph_husk_atk0",
+        "seraph_husk_atk1",
+        "seraph_husk_atk2",
+        "seraph_husk_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "seraph_husk_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "seraph_husk_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "broodmother": {
+     "frames": {
+      "broodmother_base": [
+       0,
+       3510,
+       50,
+       31
+      ],
+      "broodmother_walk1": [
+       50,
+       3510,
+       50,
+       31
+      ],
+      "broodmother_walk3": [
+       100,
+       3510,
+       50,
+       31
+      ],
+      "broodmother_atk0": [
+       150,
+       3510,
+       50,
+       31
+      ],
+      "broodmother_atk1": [
+       200,
+       3510,
+       50,
+       31
+      ],
+      "broodmother_atk2": [
+       250,
+       3510,
+       50,
+       31
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "broodmother_base",
+        "broodmother_walk1",
+        "broodmother_base",
+        "broodmother_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "broodmother_atk0",
+        "broodmother_atk1",
+        "broodmother_atk2",
+        "broodmother_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "broodmother_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "broodmother_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "ash_harpy": {
+     "frames": {
+      "ash_harpy_base": [
+       0,
+       3541,
+       44,
+       32
+      ],
+      "ash_harpy_walk1": [
+       44,
+       3541,
+       44,
+       32
+      ],
+      "ash_harpy_walk3": [
+       88,
+       3541,
+       44,
+       32
+      ],
+      "ash_harpy_atk0": [
+       132,
+       3541,
+       44,
+       32
+      ],
+      "ash_harpy_atk1": [
+       176,
+       3541,
+       44,
+       32
+      ],
+      "ash_harpy_atk2": [
+       220,
+       3541,
+       44,
+       32
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "ash_harpy_base",
+        "ash_harpy_walk1",
+        "ash_harpy_base",
+        "ash_harpy_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "ash_harpy_atk0",
+        "ash_harpy_atk1",
+        "ash_harpy_atk2",
+        "ash_harpy_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "ash_harpy_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "ash_harpy_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rift_wraith": {
+     "frames": {
+      "rift_wraith_base": [
+       0,
+       3573,
+       45,
+       34
+      ],
+      "rift_wraith_walk1": [
+       45,
+       3573,
+       45,
+       34
+      ],
+      "rift_wraith_walk3": [
+       90,
+       3573,
+       45,
+       34
+      ],
+      "rift_wraith_atk0": [
+       135,
+       3573,
+       45,
+       34
+      ],
+      "rift_wraith_atk1": [
+       180,
+       3573,
+       45,
+       34
+      ],
+      "rift_wraith_atk2": [
+       225,
+       3573,
+       45,
+       34
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rift_wraith_base",
+        "rift_wraith_walk1",
+        "rift_wraith_base",
+        "rift_wraith_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rift_wraith_atk0",
+        "rift_wraith_atk1",
+        "rift_wraith_atk2",
+        "rift_wraith_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rift_wraith_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rift_wraith_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "blood_maw": {
+     "frames": {
+      "blood_maw_base": [
+       0,
+       3607,
+       43,
+       31
+      ],
+      "blood_maw_walk1": [
+       43,
+       3607,
+       43,
+       31
+      ],
+      "blood_maw_walk3": [
+       86,
+       3607,
+       43,
+       31
+      ],
+      "blood_maw_atk0": [
+       129,
+       3607,
+       43,
+       31
+      ],
+      "blood_maw_atk1": [
+       172,
+       3607,
+       43,
+       31
+      ],
+      "blood_maw_atk2": [
+       215,
+       3607,
+       43,
+       31
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "blood_maw_base",
+        "blood_maw_walk1",
+        "blood_maw_base",
+        "blood_maw_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "blood_maw_atk0",
+        "blood_maw_atk1",
+        "blood_maw_atk2",
+        "blood_maw_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "blood_maw_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "blood_maw_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "gazer": {
+     "frames": {
+      "gazer_base": [
+       0,
+       3638,
+       41,
+       32
+      ],
+      "gazer_walk1": [
+       41,
+       3638,
+       41,
+       32
+      ],
+      "gazer_walk3": [
+       82,
+       3638,
+       41,
+       32
+      ],
+      "gazer_atk0": [
+       123,
+       3638,
+       41,
+       32
+      ],
+      "gazer_atk1": [
+       164,
+       3638,
+       41,
+       32
+      ],
+      "gazer_atk2": [
+       205,
+       3638,
+       41,
+       32
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "gazer_base",
+        "gazer_walk1",
+        "gazer_base",
+        "gazer_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "gazer_atk0",
+        "gazer_atk1",
+        "gazer_atk2",
+        "gazer_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "gazer_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "gazer_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "obsidian_scorpion": {
+     "frames": {
+      "obsidian_scorpion_base": [
+       0,
+       3670,
+       45,
+       31
+      ],
+      "obsidian_scorpion_walk1": [
+       45,
+       3670,
+       45,
+       31
+      ],
+      "obsidian_scorpion_walk3": [
+       90,
+       3670,
+       45,
+       31
+      ],
+      "obsidian_scorpion_atk0": [
+       135,
+       3670,
+       45,
+       31
+      ],
+      "obsidian_scorpion_atk1": [
+       180,
+       3670,
+       45,
+       31
+      ],
+      "obsidian_scorpion_atk2": [
+       225,
+       3670,
+       45,
+       31
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "obsidian_scorpion_base",
+        "obsidian_scorpion_walk1",
+        "obsidian_scorpion_base",
+        "obsidian_scorpion_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "obsidian_scorpion_atk0",
+        "obsidian_scorpion_atk1",
+        "obsidian_scorpion_atk2",
+        "obsidian_scorpion_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "obsidian_scorpion_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "obsidian_scorpion_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "void_seer": {
+     "frames": {
+      "void_seer_base": [
+       0,
+       3701,
+       47,
+       34
+      ],
+      "void_seer_walk1": [
+       47,
+       3701,
+       47,
+       34
+      ],
+      "void_seer_walk3": [
+       94,
+       3701,
+       47,
+       34
+      ],
+      "void_seer_atk0": [
+       141,
+       3701,
+       47,
+       34
+      ],
+      "void_seer_atk1": [
+       188,
+       3701,
+       47,
+       34
+      ],
+      "void_seer_atk2": [
+       235,
+       3701,
+       47,
+       34
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "void_seer_base",
+        "void_seer_walk1",
+        "void_seer_base",
+        "void_seer_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "void_seer_atk0",
+        "void_seer_atk1",
+        "void_seer_atk2",
+        "void_seer_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "void_seer_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "void_seer_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_star_wisp": {
+     "frames": {
+      "rf_star_wisp_base": [
+       0,
+       3735,
+       39,
+       32
+      ],
+      "rf_star_wisp_walk1": [
+       39,
+       3735,
+       39,
+       32
+      ],
+      "rf_star_wisp_walk3": [
+       78,
+       3735,
+       39,
+       32
+      ],
+      "rf_star_wisp_atk0": [
+       117,
+       3735,
+       39,
+       32
+      ],
+      "rf_star_wisp_atk1": [
+       156,
+       3735,
+       39,
+       32
+      ],
+      "rf_star_wisp_atk2": [
+       195,
+       3735,
+       39,
+       32
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_star_wisp_base",
+        "rf_star_wisp_walk1",
+        "rf_star_wisp_base",
+        "rf_star_wisp_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_star_wisp_atk0",
+        "rf_star_wisp_atk1",
+        "rf_star_wisp_atk2",
+        "rf_star_wisp_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_star_wisp_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_star_wisp_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_crater_crawler": {
+     "frames": {
+      "rf_crater_crawler_base": [
+       0,
+       3767,
+       48,
+       28
+      ],
+      "rf_crater_crawler_walk1": [
+       48,
+       3767,
+       48,
+       28
+      ],
+      "rf_crater_crawler_walk3": [
+       96,
+       3767,
+       48,
+       28
+      ],
+      "rf_crater_crawler_atk0": [
+       144,
+       3767,
+       48,
+       28
+      ],
+      "rf_crater_crawler_atk1": [
+       192,
+       3767,
+       48,
+       28
+      ],
+      "rf_crater_crawler_atk2": [
+       240,
+       3767,
+       48,
+       28
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_crater_crawler_base",
+        "rf_crater_crawler_walk1",
+        "rf_crater_crawler_base",
+        "rf_crater_crawler_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_crater_crawler_atk0",
+        "rf_crater_crawler_atk1",
+        "rf_crater_crawler_atk2",
+        "rf_crater_crawler_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_crater_crawler_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_crater_crawler_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_sun_acolyte": {
+     "frames": {
+      "rf_sun_acolyte_base": [
+       0,
+       3795,
+       43,
+       33
+      ],
+      "rf_sun_acolyte_walk1": [
+       43,
+       3795,
+       43,
+       33
+      ],
+      "rf_sun_acolyte_walk3": [
+       86,
+       3795,
+       43,
+       33
+      ],
+      "rf_sun_acolyte_atk0": [
+       129,
+       3795,
+       43,
+       33
+      ],
+      "rf_sun_acolyte_atk1": [
+       172,
+       3795,
+       43,
+       33
+      ],
+      "rf_sun_acolyte_atk2": [
+       215,
+       3795,
+       43,
+       33
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_sun_acolyte_base",
+        "rf_sun_acolyte_walk1",
+        "rf_sun_acolyte_base",
+        "rf_sun_acolyte_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_sun_acolyte_atk0",
+        "rf_sun_acolyte_atk1",
+        "rf_sun_acolyte_atk2",
+        "rf_sun_acolyte_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_sun_acolyte_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_sun_acolyte_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_moon_acolyte": {
+     "frames": {
+      "rf_moon_acolyte_base": [
+       0,
+       3828,
+       42,
+       33
+      ],
+      "rf_moon_acolyte_walk1": [
+       42,
+       3828,
+       42,
+       33
+      ],
+      "rf_moon_acolyte_walk3": [
+       84,
+       3828,
+       42,
+       33
+      ],
+      "rf_moon_acolyte_atk0": [
+       126,
+       3828,
+       42,
+       33
+      ],
+      "rf_moon_acolyte_atk1": [
+       168,
+       3828,
+       42,
+       33
+      ],
+      "rf_moon_acolyte_atk2": [
+       210,
+       3828,
+       42,
+       33
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_moon_acolyte_base",
+        "rf_moon_acolyte_walk1",
+        "rf_moon_acolyte_base",
+        "rf_moon_acolyte_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_moon_acolyte_atk0",
+        "rf_moon_acolyte_atk1",
+        "rf_moon_acolyte_atk2",
+        "rf_moon_acolyte_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_moon_acolyte_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_moon_acolyte_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_the_unmaker_s_eye": {
+     "frames": {
+      "rf_the_unmaker_s_eye_base": [
+       0,
+       3861,
+       51,
+       31
+      ],
+      "rf_the_unmaker_s_eye_walk1": [
+       51,
+       3861,
+       51,
+       31
+      ],
+      "rf_the_unmaker_s_eye_walk3": [
+       102,
+       3861,
+       51,
+       31
+      ],
+      "rf_the_unmaker_s_eye_atk0": [
+       153,
+       3861,
+       51,
+       31
+      ],
+      "rf_the_unmaker_s_eye_atk1": [
+       204,
+       3861,
+       51,
+       31
+      ],
+      "rf_the_unmaker_s_eye_atk2": [
+       255,
+       3861,
+       51,
+       31
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_the_unmaker_s_eye_base",
+        "rf_the_unmaker_s_eye_walk1",
+        "rf_the_unmaker_s_eye_base",
+        "rf_the_unmaker_s_eye_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_the_unmaker_s_eye_atk0",
+        "rf_the_unmaker_s_eye_atk1",
+        "rf_the_unmaker_s_eye_atk2",
+        "rf_the_unmaker_s_eye_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_the_unmaker_s_eye_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_the_unmaker_s_eye_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_ember_drake": {
+     "frames": {
+      "rf_ember_drake_base": [
+       0,
+       3892,
+       46,
+       29
+      ],
+      "rf_ember_drake_walk1": [
+       46,
+       3892,
+       46,
+       29
+      ],
+      "rf_ember_drake_walk3": [
+       92,
+       3892,
+       46,
+       29
+      ],
+      "rf_ember_drake_atk0": [
+       138,
+       3892,
+       46,
+       29
+      ],
+      "rf_ember_drake_atk1": [
+       184,
+       3892,
+       46,
+       29
+      ],
+      "rf_ember_drake_atk2": [
+       230,
+       3892,
+       46,
+       29
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_ember_drake_base",
+        "rf_ember_drake_walk1",
+        "rf_ember_drake_base",
+        "rf_ember_drake_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_ember_drake_atk0",
+        "rf_ember_drake_atk1",
+        "rf_ember_drake_atk2",
+        "rf_ember_drake_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_ember_drake_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_ember_drake_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_cinder_imp": {
+     "frames": {
+      "rf_cinder_imp_base": [
+       0,
+       3921,
+       40,
+       29
+      ],
+      "rf_cinder_imp_walk1": [
+       40,
+       3921,
+       40,
+       29
+      ],
+      "rf_cinder_imp_walk3": [
+       80,
+       3921,
+       40,
+       29
+      ],
+      "rf_cinder_imp_atk0": [
+       120,
+       3921,
+       40,
+       29
+      ],
+      "rf_cinder_imp_atk1": [
+       160,
+       3921,
+       40,
+       29
+      ],
+      "rf_cinder_imp_atk2": [
+       200,
+       3921,
+       40,
+       29
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_cinder_imp_base",
+        "rf_cinder_imp_walk1",
+        "rf_cinder_imp_base",
+        "rf_cinder_imp_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_cinder_imp_atk0",
+        "rf_cinder_imp_atk1",
+        "rf_cinder_imp_atk2",
+        "rf_cinder_imp_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_cinder_imp_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_cinder_imp_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_hollow_knight": {
+     "frames": {
+      "rf_hollow_knight_base": [
+       0,
+       3950,
+       41,
+       34
+      ],
+      "rf_hollow_knight_walk1": [
+       41,
+       3950,
+       41,
+       34
+      ],
+      "rf_hollow_knight_walk3": [
+       82,
+       3950,
+       41,
+       34
+      ],
+      "rf_hollow_knight_atk0": [
+       123,
+       3950,
+       41,
+       34
+      ],
+      "rf_hollow_knight_atk1": [
+       164,
+       3950,
+       41,
+       34
+      ],
+      "rf_hollow_knight_atk2": [
+       205,
+       3950,
+       41,
+       34
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_hollow_knight_base",
+        "rf_hollow_knight_walk1",
+        "rf_hollow_knight_base",
+        "rf_hollow_knight_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_hollow_knight_atk0",
+        "rf_hollow_knight_atk1",
+        "rf_hollow_knight_atk2",
+        "rf_hollow_knight_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_hollow_knight_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_hollow_knight_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_crownless_wraith": {
+     "frames": {
+      "rf_crownless_wraith_base": [
+       0,
+       3984,
+       44,
+       32
+      ],
+      "rf_crownless_wraith_walk1": [
+       44,
+       3984,
+       44,
+       32
+      ],
+      "rf_crownless_wraith_walk3": [
+       88,
+       3984,
+       44,
+       32
+      ],
+      "rf_crownless_wraith_atk0": [
+       132,
+       3984,
+       44,
+       32
+      ],
+      "rf_crownless_wraith_atk1": [
+       176,
+       3984,
+       44,
+       32
+      ],
+      "rf_crownless_wraith_atk2": [
+       220,
+       3984,
+       44,
+       32
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_crownless_wraith_base",
+        "rf_crownless_wraith_walk1",
+        "rf_crownless_wraith_base",
+        "rf_crownless_wraith_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_crownless_wraith_atk0",
+        "rf_crownless_wraith_atk1",
+        "rf_crownless_wraith_atk2",
+        "rf_crownless_wraith_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_crownless_wraith_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_crownless_wraith_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_stagehand_shade": {
+     "frames": {
+      "rf_stagehand_shade_base": [
+       0,
+       4016,
+       45,
+       32
+      ],
+      "rf_stagehand_shade_walk1": [
+       45,
+       4016,
+       45,
+       32
+      ],
+      "rf_stagehand_shade_walk3": [
+       90,
+       4016,
+       45,
+       32
+      ],
+      "rf_stagehand_shade_atk0": [
+       135,
+       4016,
+       45,
+       32
+      ],
+      "rf_stagehand_shade_atk1": [
+       180,
+       4016,
+       45,
+       32
+      ],
+      "rf_stagehand_shade_atk2": [
+       225,
+       4016,
+       45,
+       32
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_stagehand_shade_base",
+        "rf_stagehand_shade_walk1",
+        "rf_stagehand_shade_base",
+        "rf_stagehand_shade_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_stagehand_shade_atk0",
+        "rf_stagehand_shade_atk1",
+        "rf_stagehand_shade_atk2",
+        "rf_stagehand_shade_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_stagehand_shade_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_stagehand_shade_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_phantom_usher": {
+     "frames": {
+      "rf_phantom_usher_base": [
+       0,
+       4048,
+       45,
+       31
+      ],
+      "rf_phantom_usher_walk1": [
+       45,
+       4048,
+       45,
+       31
+      ],
+      "rf_phantom_usher_walk3": [
+       90,
+       4048,
+       45,
+       31
+      ],
+      "rf_phantom_usher_atk0": [
+       135,
+       4048,
+       45,
+       31
+      ],
+      "rf_phantom_usher_atk1": [
+       180,
+       4048,
+       45,
+       31
+      ],
+      "rf_phantom_usher_atk2": [
+       225,
+       4048,
+       45,
+       31
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_phantom_usher_base",
+        "rf_phantom_usher_walk1",
+        "rf_phantom_usher_base",
+        "rf_phantom_usher_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_phantom_usher_atk0",
+        "rf_phantom_usher_atk1",
+        "rf_phantom_usher_atk2",
+        "rf_phantom_usher_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_phantom_usher_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_phantom_usher_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "glass_scarab": {
+     "frames": {
+      "glass_scarab_base": [
+       0,
+       4079,
+       55,
+       35
+      ],
+      "glass_scarab_walk1": [
+       55,
+       4079,
+       55,
+       35
+      ],
+      "glass_scarab_walk3": [
+       110,
+       4079,
+       55,
+       35
+      ],
+      "glass_scarab_atk0": [
+       165,
+       4079,
+       55,
+       35
+      ],
+      "glass_scarab_atk1": [
+       220,
+       4079,
+       55,
+       35
+      ],
+      "glass_scarab_atk2": [
+       275,
+       4079,
+       55,
+       35
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "glass_scarab_base",
+        "glass_scarab_walk1",
+        "glass_scarab_base",
+        "glass_scarab_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "glass_scarab_atk0",
+        "glass_scarab_atk1",
+        "glass_scarab_atk2",
+        "glass_scarab_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "glass_scarab_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "glass_scarab_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "dune_lurker": {
+     "frames": {
+      "dune_lurker_base": [
+       0,
+       4114,
+       65,
+       37
+      ],
+      "dune_lurker_walk1": [
+       65,
+       4114,
+       65,
+       37
+      ],
+      "dune_lurker_walk3": [
+       130,
+       4114,
+       65,
+       37
+      ],
+      "dune_lurker_atk0": [
+       195,
+       4114,
+       65,
+       37
+      ],
+      "dune_lurker_atk1": [
+       260,
+       4114,
+       65,
+       37
+      ],
+      "dune_lurker_atk2": [
+       325,
+       4114,
+       65,
+       37
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "dune_lurker_base",
+        "dune_lurker_walk1",
+        "dune_lurker_base",
+        "dune_lurker_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "dune_lurker_atk0",
+        "dune_lurker_atk1",
+        "dune_lurker_atk2",
+        "dune_lurker_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "dune_lurker_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "dune_lurker_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "salt_mummy": {
+     "frames": {
+      "salt_mummy_base": [
+       0,
+       4151,
+       55,
+       41
+      ],
+      "salt_mummy_walk1": [
+       55,
+       4151,
+       55,
+       41
+      ],
+      "salt_mummy_walk3": [
+       110,
+       4151,
+       55,
+       41
+      ],
+      "salt_mummy_atk0": [
+       165,
+       4151,
+       55,
+       41
+      ],
+      "salt_mummy_atk1": [
+       220,
+       4151,
+       55,
+       41
+      ],
+      "salt_mummy_atk2": [
+       275,
+       4151,
+       55,
+       41
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "salt_mummy_base",
+        "salt_mummy_walk1",
+        "salt_mummy_base",
+        "salt_mummy_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "salt_mummy_atk0",
+        "salt_mummy_atk1",
+        "salt_mummy_atk2",
+        "salt_mummy_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "salt_mummy_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "salt_mummy_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "sand_skimmer": {
+     "frames": {
+      "sand_skimmer_base": [
+       0,
+       4192,
+       71,
+       36
+      ],
+      "sand_skimmer_walk1": [
+       71,
+       4192,
+       71,
+       36
+      ],
+      "sand_skimmer_walk3": [
+       142,
+       4192,
+       71,
+       36
+      ],
+      "sand_skimmer_atk0": [
+       213,
+       4192,
+       71,
+       36
+      ],
+      "sand_skimmer_atk1": [
+       284,
+       4192,
+       71,
+       36
+      ],
+      "sand_skimmer_atk2": [
+       355,
+       4192,
+       71,
+       36
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "sand_skimmer_base",
+        "sand_skimmer_walk1",
+        "sand_skimmer_base",
+        "sand_skimmer_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "sand_skimmer_atk0",
+        "sand_skimmer_atk1",
+        "sand_skimmer_atk2",
+        "sand_skimmer_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "sand_skimmer_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "sand_skimmer_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "glass_sphinx": {
+     "frames": {
+      "glass_sphinx_base": [
+       0,
+       4228,
+       62,
+       44
+      ],
+      "glass_sphinx_walk1": [
+       62,
+       4228,
+       62,
+       44
+      ],
+      "glass_sphinx_walk3": [
+       124,
+       4228,
+       62,
+       44
+      ],
+      "glass_sphinx_atk0": [
+       186,
+       4228,
+       62,
+       44
+      ],
+      "glass_sphinx_atk1": [
+       248,
+       4228,
+       62,
+       44
+      ],
+      "glass_sphinx_atk2": [
+       310,
+       4228,
+       62,
+       44
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "glass_sphinx_base",
+        "glass_sphinx_walk1",
+        "glass_sphinx_base",
+        "glass_sphinx_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "glass_sphinx_atk0",
+        "glass_sphinx_atk1",
+        "glass_sphinx_atk2",
+        "glass_sphinx_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "glass_sphinx_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "glass_sphinx_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "mirage_caller": {
+     "frames": {
+      "mirage_caller_base": [
+       0,
+       4272,
+       63,
+       48
+      ],
+      "mirage_caller_walk1": [
+       63,
+       4272,
+       63,
+       48
+      ],
+      "mirage_caller_walk3": [
+       126,
+       4272,
+       63,
+       48
+      ],
+      "mirage_caller_atk0": [
+       189,
+       4272,
+       63,
+       48
+      ],
+      "mirage_caller_atk1": [
+       252,
+       4272,
+       63,
+       48
+      ],
+      "mirage_caller_atk2": [
+       315,
+       4272,
+       63,
+       48
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "mirage_caller_base",
+        "mirage_caller_walk1",
+        "mirage_caller_base",
+        "mirage_caller_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "mirage_caller_atk0",
+        "mirage_caller_atk1",
+        "mirage_caller_atk2",
+        "mirage_caller_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "mirage_caller_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "mirage_caller_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_dune_stalker": {
+     "frames": {
+      "rf_dune_stalker_base": [
+       0,
+       4320,
+       61,
+       47
+      ],
+      "rf_dune_stalker_walk1": [
+       61,
+       4320,
+       61,
+       47
+      ],
+      "rf_dune_stalker_walk3": [
+       122,
+       4320,
+       61,
+       47
+      ],
+      "rf_dune_stalker_atk0": [
+       183,
+       4320,
+       61,
+       47
+      ],
+      "rf_dune_stalker_atk1": [
+       244,
+       4320,
+       61,
+       47
+      ],
+      "rf_dune_stalker_atk2": [
+       305,
+       4320,
+       61,
+       47
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_dune_stalker_base",
+        "rf_dune_stalker_walk1",
+        "rf_dune_stalker_base",
+        "rf_dune_stalker_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_dune_stalker_atk0",
+        "rf_dune_stalker_atk1",
+        "rf_dune_stalker_atk2",
+        "rf_dune_stalker_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_dune_stalker_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_dune_stalker_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_sand_scarab": {
+     "frames": {
+      "rf_sand_scarab_base": [
+       0,
+       4367,
+       73,
+       49
+      ],
+      "rf_sand_scarab_walk1": [
+       73,
+       4367,
+       73,
+       49
+      ],
+      "rf_sand_scarab_walk3": [
+       146,
+       4367,
+       73,
+       49
+      ],
+      "rf_sand_scarab_atk0": [
+       219,
+       4367,
+       73,
+       49
+      ],
+      "rf_sand_scarab_atk1": [
+       292,
+       4367,
+       73,
+       49
+      ],
+      "rf_sand_scarab_atk2": [
+       365,
+       4367,
+       73,
+       49
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_sand_scarab_base",
+        "rf_sand_scarab_walk1",
+        "rf_sand_scarab_base",
+        "rf_sand_scarab_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_sand_scarab_atk0",
+        "rf_sand_scarab_atk1",
+        "rf_sand_scarab_atk2",
+        "rf_sand_scarab_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_sand_scarab_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_sand_scarab_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "thorn_sprite": {
+     "frames": {
+      "thorn_sprite_base": [
+       0,
+       4416,
+       46,
+       45
+      ],
+      "thorn_sprite_walk1": [
+       46,
+       4416,
+       46,
+       45
+      ],
+      "thorn_sprite_walk3": [
+       92,
+       4416,
+       46,
+       45
+      ],
+      "thorn_sprite_atk0": [
+       138,
+       4416,
+       46,
+       45
+      ],
+      "thorn_sprite_atk1": [
+       184,
+       4416,
+       46,
+       45
+      ],
+      "thorn_sprite_atk2": [
+       230,
+       4416,
+       46,
+       45
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "thorn_sprite_base",
+        "thorn_sprite_walk1",
+        "thorn_sprite_base",
+        "thorn_sprite_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "thorn_sprite_atk0",
+        "thorn_sprite_atk1",
+        "thorn_sprite_atk2",
+        "thorn_sprite_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "thorn_sprite_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "thorn_sprite_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "witch_of_briars": {
+     "frames": {
+      "witch_of_briars_base": [
+       0,
+       4461,
+       60,
+       54
+      ],
+      "witch_of_briars_walk1": [
+       60,
+       4461,
+       60,
+       54
+      ],
+      "witch_of_briars_walk3": [
+       120,
+       4461,
+       60,
+       54
+      ],
+      "witch_of_briars_atk0": [
+       180,
+       4461,
+       60,
+       54
+      ],
+      "witch_of_briars_atk1": [
+       240,
+       4461,
+       60,
+       54
+      ],
+      "witch_of_briars_atk2": [
+       300,
+       4461,
+       60,
+       54
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "witch_of_briars_base",
+        "witch_of_briars_walk1",
+        "witch_of_briars_base",
+        "witch_of_briars_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "witch_of_briars_atk0",
+        "witch_of_briars_atk1",
+        "witch_of_briars_atk2",
+        "witch_of_briars_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "witch_of_briars_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "witch_of_briars_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "orc_brute": {
+     "frames": {
+      "orc_brute_base": [
+       0,
+       4515,
+       64,
+       46
+      ],
+      "orc_brute_walk1": [
+       64,
+       4515,
+       64,
+       46
+      ],
+      "orc_brute_walk3": [
+       128,
+       4515,
+       64,
+       46
+      ],
+      "orc_brute_atk0": [
+       192,
+       4515,
+       64,
+       46
+      ],
+      "orc_brute_atk1": [
+       256,
+       4515,
+       64,
+       46
+      ],
+      "orc_brute_atk2": [
+       320,
+       4515,
+       64,
+       46
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "orc_brute_base",
+        "orc_brute_walk1",
+        "orc_brute_base",
+        "orc_brute_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "orc_brute_atk0",
+        "orc_brute_atk1",
+        "orc_brute_atk2",
+        "orc_brute_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "orc_brute_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "orc_brute_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "forest_druid": {
+     "frames": {
+      "forest_druid_base": [
+       0,
+       4561,
+       61,
+       52
+      ],
+      "forest_druid_walk1": [
+       61,
+       4561,
+       61,
+       52
+      ],
+      "forest_druid_walk3": [
+       122,
+       4561,
+       61,
+       52
+      ],
+      "forest_druid_atk0": [
+       183,
+       4561,
+       61,
+       52
+      ],
+      "forest_druid_atk1": [
+       244,
+       4561,
+       61,
+       52
+      ],
+      "forest_druid_atk2": [
+       305,
+       4561,
+       61,
+       52
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "forest_druid_base",
+        "forest_druid_walk1",
+        "forest_druid_base",
+        "forest_druid_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "forest_druid_atk0",
+        "forest_druid_atk1",
+        "forest_druid_atk2",
+        "forest_druid_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "forest_druid_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "forest_druid_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "mossback_turtle": {
+     "frames": {
+      "mossback_turtle_base": [
+       0,
+       4613,
+       70,
+       49
+      ],
+      "mossback_turtle_walk1": [
+       70,
+       4613,
+       70,
+       49
+      ],
+      "mossback_turtle_walk3": [
+       140,
+       4613,
+       70,
+       49
+      ],
+      "mossback_turtle_atk0": [
+       210,
+       4613,
+       70,
+       49
+      ],
+      "mossback_turtle_atk1": [
+       280,
+       4613,
+       70,
+       49
+      ],
+      "mossback_turtle_atk2": [
+       350,
+       4613,
+       70,
+       49
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "mossback_turtle_base",
+        "mossback_turtle_walk1",
+        "mossback_turtle_base",
+        "mossback_turtle_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "mossback_turtle_atk0",
+        "mossback_turtle_atk1",
+        "mossback_turtle_atk2",
+        "mossback_turtle_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "mossback_turtle_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "mossback_turtle_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_dusk_moth": {
+     "frames": {
+      "rf_dusk_moth_base": [
+       0,
+       4662,
+       78,
+       46
+      ],
+      "rf_dusk_moth_walk1": [
+       78,
+       4662,
+       78,
+       46
+      ],
+      "rf_dusk_moth_walk3": [
+       156,
+       4662,
+       78,
+       46
+      ],
+      "rf_dusk_moth_atk0": [
+       234,
+       4662,
+       78,
+       46
+      ],
+      "rf_dusk_moth_atk1": [
+       312,
+       4662,
+       78,
+       46
+      ],
+      "rf_dusk_moth_atk2": [
+       390,
+       4662,
+       78,
+       46
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_dusk_moth_base",
+        "rf_dusk_moth_walk1",
+        "rf_dusk_moth_base",
+        "rf_dusk_moth_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_dusk_moth_atk0",
+        "rf_dusk_moth_atk1",
+        "rf_dusk_moth_atk2",
+        "rf_dusk_moth_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_dusk_moth_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_dusk_moth_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_pale_sprite": {
+     "frames": {
+      "rf_pale_sprite_base": [
+       0,
+       4708,
+       53,
+       48
+      ],
+      "rf_pale_sprite_walk1": [
+       53,
+       4708,
+       53,
+       48
+      ],
+      "rf_pale_sprite_walk3": [
+       106,
+       4708,
+       53,
+       48
+      ],
+      "rf_pale_sprite_atk0": [
+       159,
+       4708,
+       53,
+       48
+      ],
+      "rf_pale_sprite_atk1": [
+       212,
+       4708,
+       53,
+       48
+      ],
+      "rf_pale_sprite_atk2": [
+       265,
+       4708,
+       53,
+       48
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_pale_sprite_base",
+        "rf_pale_sprite_walk1",
+        "rf_pale_sprite_base",
+        "rf_pale_sprite_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_pale_sprite_atk0",
+        "rf_pale_sprite_atk1",
+        "rf_pale_sprite_atk2",
+        "rf_pale_sprite_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_pale_sprite_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_pale_sprite_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "prism_hawk": {
+     "frames": {
+      "prism_hawk_base": [
+       0,
+       4756,
+       49,
+       34
+      ],
+      "prism_hawk_walk1": [
+       49,
+       4756,
+       49,
+       34
+      ],
+      "prism_hawk_walk3": [
+       98,
+       4756,
+       49,
+       34
+      ],
+      "prism_hawk_atk0": [
+       147,
+       4756,
+       49,
+       34
+      ],
+      "prism_hawk_atk1": [
+       196,
+       4756,
+       49,
+       34
+      ],
+      "prism_hawk_atk2": [
+       245,
+       4756,
+       49,
+       34
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "prism_hawk_base",
+        "prism_hawk_walk1",
+        "prism_hawk_base",
+        "prism_hawk_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "prism_hawk_atk0",
+        "prism_hawk_atk1",
+        "prism_hawk_atk2",
+        "prism_hawk_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "prism_hawk_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "prism_hawk_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "shard_crawler": {
+     "frames": {
+      "shard_crawler_base": [
+       0,
+       4790,
+       46,
+       31
+      ],
+      "shard_crawler_walk1": [
+       46,
+       4790,
+       46,
+       31
+      ],
+      "shard_crawler_walk3": [
+       92,
+       4790,
+       46,
+       31
+      ],
+      "shard_crawler_atk0": [
+       138,
+       4790,
+       46,
+       31
+      ],
+      "shard_crawler_atk1": [
+       184,
+       4790,
+       46,
+       31
+      ],
+      "shard_crawler_atk2": [
+       230,
+       4790,
+       46,
+       31
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "shard_crawler_base",
+        "shard_crawler_walk1",
+        "shard_crawler_base",
+        "shard_crawler_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "shard_crawler_atk0",
+        "shard_crawler_atk1",
+        "shard_crawler_atk2",
+        "shard_crawler_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "shard_crawler_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "shard_crawler_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "quartz_jackal": {
+     "frames": {
+      "quartz_jackal_base": [
+       0,
+       4821,
+       49,
+       33
+      ],
+      "quartz_jackal_walk1": [
+       49,
+       4821,
+       49,
+       33
+      ],
+      "quartz_jackal_walk3": [
+       98,
+       4821,
+       49,
+       33
+      ],
+      "quartz_jackal_atk0": [
+       147,
+       4821,
+       49,
+       33
+      ],
+      "quartz_jackal_atk1": [
+       196,
+       4821,
+       49,
+       33
+      ],
+      "quartz_jackal_atk2": [
+       245,
+       4821,
+       49,
+       33
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "quartz_jackal_base",
+        "quartz_jackal_walk1",
+        "quartz_jackal_base",
+        "quartz_jackal_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "quartz_jackal_atk0",
+        "quartz_jackal_atk1",
+        "quartz_jackal_atk2",
+        "quartz_jackal_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "quartz_jackal_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "quartz_jackal_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "geode_titan": {
+     "frames": {
+      "geode_titan_base": [
+       0,
+       4854,
+       57,
+       35
+      ],
+      "geode_titan_walk1": [
+       57,
+       4854,
+       57,
+       35
+      ],
+      "geode_titan_walk3": [
+       114,
+       4854,
+       57,
+       35
+      ],
+      "geode_titan_atk0": [
+       171,
+       4854,
+       57,
+       35
+      ],
+      "geode_titan_atk1": [
+       228,
+       4854,
+       57,
+       35
+      ],
+      "geode_titan_atk2": [
+       285,
+       4854,
+       57,
+       35
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "geode_titan_base",
+        "geode_titan_walk1",
+        "geode_titan_base",
+        "geode_titan_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "geode_titan_atk0",
+        "geode_titan_atk1",
+        "geode_titan_atk2",
+        "geode_titan_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "geode_titan_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "geode_titan_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "skyglass_seer": {
+     "frames": {
+      "skyglass_seer_base": [
+       0,
+       4889,
+       53,
+       36
+      ],
+      "skyglass_seer_walk1": [
+       53,
+       4889,
+       53,
+       36
+      ],
+      "skyglass_seer_walk3": [
+       106,
+       4889,
+       53,
+       36
+      ],
+      "skyglass_seer_atk0": [
+       159,
+       4889,
+       53,
+       36
+      ],
+      "skyglass_seer_atk1": [
+       212,
+       4889,
+       53,
+       36
+      ],
+      "skyglass_seer_atk2": [
+       265,
+       4889,
+       53,
+       36
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "skyglass_seer_base",
+        "skyglass_seer_walk1",
+        "skyglass_seer_base",
+        "skyglass_seer_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "skyglass_seer_atk0",
+        "skyglass_seer_atk1",
+        "skyglass_seer_atk2",
+        "skyglass_seer_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "skyglass_seer_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "skyglass_seer_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_gale_harpy": {
+     "frames": {
+      "rf_gale_harpy_base": [
+       0,
+       4925,
+       54,
+       32
+      ],
+      "rf_gale_harpy_walk1": [
+       54,
+       4925,
+       54,
+       32
+      ],
+      "rf_gale_harpy_walk3": [
+       108,
+       4925,
+       54,
+       32
+      ],
+      "rf_gale_harpy_atk0": [
+       162,
+       4925,
+       54,
+       32
+      ],
+      "rf_gale_harpy_atk1": [
+       216,
+       4925,
+       54,
+       32
+      ],
+      "rf_gale_harpy_atk2": [
+       270,
+       4925,
+       54,
+       32
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_gale_harpy_base",
+        "rf_gale_harpy_walk1",
+        "rf_gale_harpy_base",
+        "rf_gale_harpy_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_gale_harpy_atk0",
+        "rf_gale_harpy_atk1",
+        "rf_gale_harpy_atk2",
+        "rf_gale_harpy_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_gale_harpy_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_gale_harpy_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_thunder_hawk": {
+     "frames": {
+      "rf_thunder_hawk_base": [
+       0,
+       4957,
+       55,
+       33
+      ],
+      "rf_thunder_hawk_walk1": [
+       55,
+       4957,
+       55,
+       33
+      ],
+      "rf_thunder_hawk_walk3": [
+       110,
+       4957,
+       55,
+       33
+      ],
+      "rf_thunder_hawk_atk0": [
+       165,
+       4957,
+       55,
+       33
+      ],
+      "rf_thunder_hawk_atk1": [
+       220,
+       4957,
+       55,
+       33
+      ],
+      "rf_thunder_hawk_atk2": [
+       275,
+       4957,
+       55,
+       33
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_thunder_hawk_base",
+        "rf_thunder_hawk_walk1",
+        "rf_thunder_hawk_base",
+        "rf_thunder_hawk_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_thunder_hawk_atk0",
+        "rf_thunder_hawk_atk1",
+        "rf_thunder_hawk_atk2",
+        "rf_thunder_hawk_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_thunder_hawk_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_thunder_hawk_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_weightless_monk": {
+     "frames": {
+      "rf_weightless_monk_base": [
+       0,
+       4990,
+       50,
+       33
+      ],
+      "rf_weightless_monk_walk1": [
+       50,
+       4990,
+       50,
+       33
+      ],
+      "rf_weightless_monk_walk3": [
+       100,
+       4990,
+       50,
+       33
+      ],
+      "rf_weightless_monk_atk0": [
+       150,
+       4990,
+       50,
+       33
+      ],
+      "rf_weightless_monk_atk1": [
+       200,
+       4990,
+       50,
+       33
+      ],
+      "rf_weightless_monk_atk2": [
+       250,
+       4990,
+       50,
+       33
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_weightless_monk_base",
+        "rf_weightless_monk_walk1",
+        "rf_weightless_monk_base",
+        "rf_weightless_monk_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_weightless_monk_atk0",
+        "rf_weightless_monk_atk1",
+        "rf_weightless_monk_atk2",
+        "rf_weightless_monk_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_weightless_monk_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_weightless_monk_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_drifting_bell": {
+     "frames": {
+      "rf_drifting_bell_base": [
+       0,
+       5023,
+       44,
+       36
+      ],
+      "rf_drifting_bell_walk1": [
+       44,
+       5023,
+       44,
+       36
+      ],
+      "rf_drifting_bell_walk3": [
+       88,
+       5023,
+       44,
+       36
+      ],
+      "rf_drifting_bell_atk0": [
+       132,
+       5023,
+       44,
+       36
+      ],
+      "rf_drifting_bell_atk1": [
+       176,
+       5023,
+       44,
+       36
+      ],
+      "rf_drifting_bell_atk2": [
+       220,
+       5023,
+       44,
+       36
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_drifting_bell_base",
+        "rf_drifting_bell_walk1",
+        "rf_drifting_bell_base",
+        "rf_drifting_bell_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_drifting_bell_atk0",
+        "rf_drifting_bell_atk1",
+        "rf_drifting_bell_atk2",
+        "rf_drifting_bell_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_drifting_bell_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_drifting_bell_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_hour_warden": {
+     "frames": {
+      "rf_hour_warden_base": [
+       0,
+       5059,
+       53,
+       32
+      ],
+      "rf_hour_warden_walk1": [
+       53,
+       5059,
+       53,
+       32
+      ],
+      "rf_hour_warden_walk3": [
+       106,
+       5059,
+       53,
+       32
+      ],
+      "rf_hour_warden_atk0": [
+       159,
+       5059,
+       53,
+       32
+      ],
+      "rf_hour_warden_atk1": [
+       212,
+       5059,
+       53,
+       32
+      ],
+      "rf_hour_warden_atk2": [
+       265,
+       5059,
+       53,
+       32
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_hour_warden_base",
+        "rf_hour_warden_walk1",
+        "rf_hour_warden_base",
+        "rf_hour_warden_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_hour_warden_atk0",
+        "rf_hour_warden_atk1",
+        "rf_hour_warden_atk2",
+        "rf_hour_warden_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_hour_warden_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_hour_warden_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_sand_wisp": {
+     "frames": {
+      "rf_sand_wisp_base": [
+       0,
+       5091,
+       47,
+       32
+      ],
+      "rf_sand_wisp_walk1": [
+       47,
+       5091,
+       47,
+       32
+      ],
+      "rf_sand_wisp_walk3": [
+       94,
+       5091,
+       47,
+       32
+      ],
+      "rf_sand_wisp_atk0": [
+       141,
+       5091,
+       47,
+       32
+      ],
+      "rf_sand_wisp_atk1": [
+       188,
+       5091,
+       47,
+       32
+      ],
+      "rf_sand_wisp_atk2": [
+       235,
+       5091,
+       47,
+       32
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_sand_wisp_base",
+        "rf_sand_wisp_walk1",
+        "rf_sand_wisp_base",
+        "rf_sand_wisp_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_sand_wisp_atk0",
+        "rf_sand_wisp_atk1",
+        "rf_sand_wisp_atk2",
+        "rf_sand_wisp_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_sand_wisp_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_sand_wisp_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_star_cartographer": {
+     "frames": {
+      "rf_star_cartographer_base": [
+       0,
+       5123,
+       53,
+       35
+      ],
+      "rf_star_cartographer_walk1": [
+       53,
+       5123,
+       53,
+       35
+      ],
+      "rf_star_cartographer_walk3": [
+       106,
+       5123,
+       53,
+       35
+      ],
+      "rf_star_cartographer_atk0": [
+       159,
+       5123,
+       53,
+       35
+      ],
+      "rf_star_cartographer_atk1": [
+       212,
+       5123,
+       53,
+       35
+      ],
+      "rf_star_cartographer_atk2": [
+       265,
+       5123,
+       53,
+       35
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_star_cartographer_base",
+        "rf_star_cartographer_walk1",
+        "rf_star_cartographer_base",
+        "rf_star_cartographer_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_star_cartographer_atk0",
+        "rf_star_cartographer_atk1",
+        "rf_star_cartographer_atk2",
+        "rf_star_cartographer_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_star_cartographer_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_star_cartographer_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_comet_hound": {
+     "frames": {
+      "rf_comet_hound_base": [
+       0,
+       5158,
+       55,
+       32
+      ],
+      "rf_comet_hound_walk1": [
+       55,
+       5158,
+       55,
+       32
+      ],
+      "rf_comet_hound_walk3": [
+       110,
+       5158,
+       55,
+       32
+      ],
+      "rf_comet_hound_atk0": [
+       165,
+       5158,
+       55,
+       32
+      ],
+      "rf_comet_hound_atk1": [
+       220,
+       5158,
+       55,
+       32
+      ],
+      "rf_comet_hound_atk2": [
+       275,
+       5158,
+       55,
+       32
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_comet_hound_base",
+        "rf_comet_hound_walk1",
+        "rf_comet_hound_base",
+        "rf_comet_hound_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_comet_hound_atk0",
+        "rf_comet_hound_atk1",
+        "rf_comet_hound_atk2",
+        "rf_comet_hound_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_comet_hound_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_comet_hound_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_vine_creeper": {
+     "frames": {
+      "rf_vine_creeper_base": [
+       0,
+       5190,
+       52,
+       31
+      ],
+      "rf_vine_creeper_walk1": [
+       52,
+       5190,
+       52,
+       31
+      ],
+      "rf_vine_creeper_walk3": [
+       104,
+       5190,
+       52,
+       31
+      ],
+      "rf_vine_creeper_atk0": [
+       156,
+       5190,
+       52,
+       31
+      ],
+      "rf_vine_creeper_atk1": [
+       208,
+       5190,
+       52,
+       31
+      ],
+      "rf_vine_creeper_atk2": [
+       260,
+       5190,
+       52,
+       31
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_vine_creeper_base",
+        "rf_vine_creeper_walk1",
+        "rf_vine_creeper_base",
+        "rf_vine_creeper_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_vine_creeper_atk0",
+        "rf_vine_creeper_atk1",
+        "rf_vine_creeper_atk2",
+        "rf_vine_creeper_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_vine_creeper_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_vine_creeper_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_lantern_jack": {
+     "frames": {
+      "rf_lantern_jack_base": [
+       0,
+       5221,
+       51,
+       35
+      ],
+      "rf_lantern_jack_walk1": [
+       51,
+       5221,
+       51,
+       35
+      ],
+      "rf_lantern_jack_walk3": [
+       102,
+       5221,
+       51,
+       35
+      ],
+      "rf_lantern_jack_atk0": [
+       153,
+       5221,
+       51,
+       35
+      ],
+      "rf_lantern_jack_atk1": [
+       204,
+       5221,
+       51,
+       35
+      ],
+      "rf_lantern_jack_atk2": [
+       255,
+       5221,
+       51,
+       35
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_lantern_jack_base",
+        "rf_lantern_jack_walk1",
+        "rf_lantern_jack_base",
+        "rf_lantern_jack_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_lantern_jack_atk0",
+        "rf_lantern_jack_atk1",
+        "rf_lantern_jack_atk2",
+        "rf_lantern_jack_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_lantern_jack_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_lantern_jack_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_ink_wraith": {
+     "frames": {
+      "rf_ink_wraith_base": [
+       0,
+       5256,
+       52,
+       36
+      ],
+      "rf_ink_wraith_walk1": [
+       52,
+       5256,
+       52,
+       36
+      ],
+      "rf_ink_wraith_walk3": [
+       104,
+       5256,
+       52,
+       36
+      ],
+      "rf_ink_wraith_atk0": [
+       156,
+       5256,
+       52,
+       36
+      ],
+      "rf_ink_wraith_atk1": [
+       208,
+       5256,
+       52,
+       36
+      ],
+      "rf_ink_wraith_atk2": [
+       260,
+       5256,
+       52,
+       36
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_ink_wraith_base",
+        "rf_ink_wraith_walk1",
+        "rf_ink_wraith_base",
+        "rf_ink_wraith_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_ink_wraith_atk0",
+        "rf_ink_wraith_atk1",
+        "rf_ink_wraith_atk2",
+        "rf_ink_wraith_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_ink_wraith_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_ink_wraith_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_paper_crane": {
+     "frames": {
+      "rf_paper_crane_base": [
+       0,
+       5292,
+       56,
+       33
+      ],
+      "rf_paper_crane_walk1": [
+       56,
+       5292,
+       56,
+       33
+      ],
+      "rf_paper_crane_walk3": [
+       112,
+       5292,
+       56,
+       33
+      ],
+      "rf_paper_crane_atk0": [
+       168,
+       5292,
+       56,
+       33
+      ],
+      "rf_paper_crane_atk1": [
+       224,
+       5292,
+       56,
+       33
+      ],
+      "rf_paper_crane_atk2": [
+       280,
+       5292,
+       56,
+       33
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_paper_crane_base",
+        "rf_paper_crane_walk1",
+        "rf_paper_crane_base",
+        "rf_paper_crane_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_paper_crane_atk0",
+        "rf_paper_crane_atk1",
+        "rf_paper_crane_atk2",
+        "rf_paper_crane_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_paper_crane_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_paper_crane_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
     }
    }
   }
