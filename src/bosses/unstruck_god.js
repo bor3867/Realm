@@ -742,7 +742,7 @@ function v2Pursuit(g, e) {
 function psunsTick(g, e) {
   const D = e.bx.v2, Z = D && D.psuns; if (!Z) return; if (g.t > Z.until) { D.psuns = null; return; }
   if (g.t >= Z.next - 0.3) Z.lit = Z.k % 2;
-  if (g.t >= Z.next) { const s0 = Z.at[Z.k % 2], b = bearing(g, e, s0.x, s0.y); for (const a of fan(b, 3, deg(24))) fire2(g, e, s0.x, s0.y, a, 'sunspark', 5, 90, { free: true }); D.counts.push(['pursuit_sun', 3]); Z.k++; Z.next += 1.4; Z.lit = -1; }
+  if (g.t >= Z.next) { const s0 = Z.at[Z.k % 2], b = leadBearing(g, e, s0.x, s0.y, 5); for (const a of fan(b, 3, deg(24))) fire2(g, e, s0.x, s0.y, a, 'sunspark', 5, 90, { free: true }); D.counts.push(['pursuit_sun', 3]); Z.k++; Z.next += 1.4; Z.lit = -1; }
 }
 function v2DashTell(g, e, V) {
   const D = V2S(e), q = target(g, e), d = Math.hypot(q.x - e.x, q.y - e.y), len = Math.max(0, Math.min(5, d - 3));
@@ -756,7 +756,9 @@ function v2DashGo(g, e, V) {
   e.slDash = { at: g.t, until: g.t + L / 8.5, x0: e.x, y0: e.y, x1: V.x1, y1: V.y1, hit: false, dmg: 165 };
   D.counts.push(['dash', 1]);
 }
-function v2PursuitFan(g, e) { const D = V2S(e); if (e.slDash) return; const [ox, oy] = FEET(g, e), b = bearing(g, e, ox, oy); for (const a of fan(b, 7, deg(75))) fire2(g, e, ox, oy, a, 'glint', 5.6, 85); D.counts.push(['pursuit', 7]); }
+// where you will be when a shot from (x, y) at this speed gets there (twice refined); the user's call against the wall-runner
+function leadBearing(g, e, x, y, sp) { const q = target(g, e); let T = Math.hypot(q.x - x, q.y - y) / sp; for (let k = 0; k < 2; k++) { const [ax, ay] = ahead(g, e, T); T = Math.hypot(ax - x, ay - y) / sp; } const [ax, ay] = ahead(g, e, T); return angleTo(x, y, ax, ay); }
+function v2PursuitFan(g, e) { const D = V2S(e); if (e.slDash) return; const [ox, oy] = FEET(g, e), b = leadBearing(g, e, ox, oy, 5.6); for (const a of fan(b, 7, deg(75))) fire2(g, e, ox, oy, a, 'glint', 5.6, 85); D.counts.push(['pursuit', 7]); }   // (led)
 // ---- III-D THE ASTRAL LOOM: three lines light at once (1.2 s): A from (-16,-16) to (16,16), B from (-16,16) to (16,-16), C
 // across the middle (±18, 0); one tile wide; A burns at 0, B at +0.95, C at +1.9 (0.3 s each, 190), each shown at least
 // 0.8 s before. A lesser sun at the captive Sun's pedestal (shown from the start) fires at +0.35 and +1.45 a fan of 11 over
@@ -771,7 +773,7 @@ function v2Loom(g, e) {
   later(e, 1.2 + 0.35, 'v2LoomFan'); later(e, 1.2 + 1.45, 'v2LoomFan');
 }
 function v2LoomFan(g, e) { const D = V2S(e), L = D.loomSun; if (!L) return; let n = 0; const b = SANG(270); fan(b, 11, deg(100)).forEach((a, i) => { if (i >= 4 && i <= 6) return; fire2(g, e, L.x, L.y, a, 'glint', 5.5, 75, { free: true }); n++; }); D.counts.push(['loom_fan', n]); }
-// ---- III-E EVENT HORIZON: four halo fragments 15 tiles out from the middle, a quarter apart, turning counter-clockwise
+// ---- III-E EVENT HORIZON (its fragments at 20 tiles, out by the wall: the user's call 2026-11-03; the spec's 15 left a wall-runner untouched): four halo fragments 15 tiles out from the middle, a quarter apart, turning counter-clockwise
 // 20°/s for 5 s (0.9 s shown first); at 0.85, 1.7, 2.55, 3.4, 4.25 s each fires a pair along its way forward (±8°; 5 t/s,
 // 100); a fragment passing through the spec's [225°, 315°) (by the door) stays dark: a sector kept open. Recovery 0.9 s,
 // cooldown 11 s.
@@ -780,12 +782,13 @@ function v2Horizon(g, e) {
   for (const t of [0.85, 1.7, 2.55, 3.4, 4.25]) later(e, 0.9 + t, 'v2HorFire', { t });
 }
 const horTheta = (H, i, el) => H.th0 + i * Math.PI / 2 + deg(20) * Math.max(0, el);   // (the spec's angle, counter-clockwise from its east)
+const HOR_R = 20;
 const horDark = (th) => { const d = ((th * 180 / Math.PI) % 360 + 360) % 360; return d >= 225 && d < 315; };
 function v2HorFire(g, e, V) {
   const D = V2S(e), H = D.hor; if (!H) return; let n = 0;
   for (let i = 0; i < 4; i++) {
     const th = horTheta(H, i, V.t); if (horDark(th)) continue;
-    const sx = 15 * Math.cos(th), sy = -15 * Math.sin(th), w = SP(e, sx, sy), fwd = th * 180 / Math.PI + 90;
+    const sx = HOR_R * Math.cos(th), sy = -HOR_R * Math.sin(th), w = SP(e, sx, sy), fwd = th * 180 / Math.PI + 90;
     for (const o of [-8, 8]) { fire2(g, e, w.x, w.y, SANG(fwd + o), 'halo', 5, 100, { free: true }); n++; }
   }
   D.counts.push(['horizon', n]);
@@ -836,7 +839,7 @@ function v2Air3(r, g, e, put, get) {
   if (D.loomSun && sun) put(sun, D.loomSun.x, D.loomSun.y + 1.4, { scale: Math.min(1.3, (g.t - D.loomSun.from) / 0.6 + 0.3) });
   if (D.psuns && sun) D.psuns.at.forEach((s0, i) => put(sun, s0.x, s0.y + 1.4, { scale: Math.min(1, (g.t - D.psuns.from) / 0.8) * (D.psuns.lit === i ? 1.3 : 1) }));
   const H = D.hor;
-  if (H && shard) for (let i = 0; i < 4; i++) { const el = g.t - H.at, th = horTheta(H, i, el), w = SP(e, 15 * Math.cos(th), -15 * Math.sin(th)); put(shard, w.x, w.y + 1.2, { rot: SANG(th * 180 / Math.PI + 90), scale: 1.7 * Math.min(1, (g.t - H.from) / 0.9), alpha: horDark(th) ? 0.3 : 1 }); }
+  if (H && shard) for (let i = 0; i < 4; i++) { const el = g.t - H.at, th = horTheta(H, i, el), w = SP(e, HOR_R * Math.cos(th), -HOR_R * Math.sin(th)); put(shard, w.x, w.y + 1.2, { rot: SANG(th * 180 / Math.PI + 90), scale: 1.7 * Math.min(1, (g.t - H.from) / 0.9), alpha: horDark(th) ? 0.3 : 1 }); }
 }
 
 // ================================================================ v2 PHASE II: THE STOLEN LIGHT (75-50%). His sanctum
