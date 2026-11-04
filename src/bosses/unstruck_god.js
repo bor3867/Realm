@@ -423,7 +423,7 @@ const SHOT2 = { glint: { sprite: 'sol2/glint', size: 0.3 }, spear: { sprite: 'so
   eclipse: { sprite: 'sol2/eclipse', size: 0.32 }, void: { sprite: 'sol2/void', size: 0.26 }, comet: { sprite: 'sol2/comet', size: 0.32 }, sunspark: { sprite: 'sol2/sunspark', size: 0.3 } };
 function edgeDist(e, x, y, a) { const C = MID(e), dx = x - C.x, dy = y - C.y, c = Math.cos(a), s = Math.sin(a), b = dx * c + dy * s, q = dx * dx + dy * dy - 24 * 24, disc = b * b - q; return disc > 0 ? Math.max(0.5, -b + Math.sqrt(disc)) : 0.5; }
 // a shot of the library: its life the distance to the wall at its speed + 0.3 s, at most 10 s (the spec, 14)
-function fire2(g, e, x, y, a, kind, speed, dmg) { const range = Math.min(edgeDist(e, x, y, a) + 0.3 * speed, 10 * speed); return shot(g, e, x, y, a, { ...SHOT2[kind], speed, range, dmg: D(dmg) }); }
+function fire2(g, e, x, y, a, kind, speed, dmg, o = {}) { const range = o.range || Math.min(edgeDist(e, x, y, a) + 0.3 * speed, 10 * speed); const b = shot(g, e, x, y, a, { ...SHOT2[kind], speed, range, dmg: D(dmg), free: !!o.free }); if (o.phase && b) b.phase = true; return b; }   // (free: from a source of its own, a sun or a shard, not his feet; phase: born behind the wall)
 const fan = (b, n, arc) => Array.from({ length: n }, (_, i) => (n === 1 ? b : b + (i / (n - 1) - 0.5) * arc));
 const V2S = (e) => e.bx.v2 || (e.bx.v2 = { i: 0, ready: {}, busyUntil: 0, rot: 0, seed: 7331, beams: [], dial: null, pinc: null, kneel: 0, lastEnd: 0, counts: [] });
 const seeded = (D) => { D.seed = (D.seed * 1103515245 + 12345) & 0x7fffffff; return D.seed / 0x7fffffff; };
@@ -521,7 +521,169 @@ function choose1(g, e) {
   return { name: A0.name, special: 'v2Nop', windup: 0.45, recover: 0.3 };
 }
 function v2Nop() {}
-export const ATTACKS_V2 = { 1: Object.fromEntries(Object.entries(P1).map(([k, A0]) => [A0.id, { name: A0.name, total_s: A0.total, cooldown_s: A0.cd }])) };
+// ================================================================ v2 PHASE II: THE STOLEN LIGHT (75-50%). His sanctum
+// darkens over the change ("THE LIGHT IS NOT YOURS."); a support (the lesser suns, the eclipse floor) beside at most one
+// attack; Sundering Dawn never while a lesser sun lives.
+// ---- II-A SUNSEED SUMMONING: two lesser suns rise from the captive Sun's pedestal (1.2 s, on their trails) to (±13, -2);
+// 18,000 Life, 8 s each; by turns every 0.95 s, a 0.3 s pulse, then Fan(5, 55°) of sunsparks at you (5 t/s, 90). Break
+// both inside 5 s and he staggers 1.4 s (+20%). Cooldown 14 s after both are gone.
+function v2Sunseed(g, e) {
+  const D = V2S(e), from = SP(e, 0, -17), at = g.t + 1.2;
+  D.suns = { born: g.t, at, until: at + 8, k: 0, next: at + 0.3, list: [[13, -2], [-13, -2]].map(([sx, sy], i) => { const w = SP(e, sx, sy), q = minion(g, e, 'sol_herald', w.x, w.y, 9.2); q.hp = q.maxHp = 18000; return { q, i, x0: from.x, y0: from.y, pulse: -9 }; }) };
+}
+function sunsTick2(g, e) {
+  const D = e.bx.v2, Z = D && D.suns; if (!Z) return;
+  const alive = Z.list.filter((s) => !gone(s.q));
+  if (!alive.length || g.t > Z.until) {
+    if (!alive.length && !Z.judged && g.t < Z.at + 5) { Z.judged = true; D.stag = g.t + 1.4; if (g.banner) g.banner('SOLKHAR STAGGERED', 1400); g.sfx('shatter'); }
+    for (const s of Z.list) if (!gone(s.q)) { s.q.noLoot = true; s.q.dead = true; s.q.deadT = 0; }
+    D.ready.sunseed = g.t + 14; D.suns = null; return;
+  }
+  if (g.t < Z.at) return;
+  if (g.t >= Z.next - 0.3 && !Z.lit) { Z.lit = true; const s = Z.list[Z.k % 2]; s.pulse = g.t; }   // (the pulse before it fires)
+  if (g.t >= Z.next) {
+    const s = Z.list[Z.k % 2]; Z.k++; Z.next += 0.95; Z.lit = false;
+    if (!gone(s.q)) { const b = bearing(g, e, s.q.x, s.q.y); for (const a of fan(b, 5, deg(55))) fire2(g, e, s.q.x, s.q.y, a, 'sunspark', 5, 90, { free: true }); D.counts.push(['sunseed', 5]); }
+  }
+}
+// ---- II-B HALO FRACTURE: four shards of his halo settle round him (4 tiles, the quarters; 0.75 s); each fires Fan(3, 24°)
+// outward (5 t/s, 100) at +0, +0.5, +1.0, +1.5 s, the shards turning 22.5° a time; in the second the shard in a 70° sector
+// stays dark (a way out). Recovery 0.7 s, cooldown 8 s.
+function v2Halo(g, e) {
+  const D = V2S(e), [ox, oy] = FEET(g, e), q = target(g, e);
+  D.halo = { cx: ox, cy: oy, a0: deg(D.rot) + Math.PI / 4, from: g.t, dark: angleTo(ox, oy, q.x, q.y) + Math.PI };   // (the dark sector away from you: you run through it)
+  for (let k = 0; k < 4; k++) later(e, 0.75 + k * 0.5, 'v2HaloFire', { k });
+  later(e, 0.75 + 1.5 + 0.3, 'v2HaloEnd');
+}
+const shardAt = (H, k, i) => H.a0 + k * deg(22.5) + i * Math.PI / 2;
+function v2HaloFire(g, e, V) {
+  const D = V2S(e), H = D.halo; if (!H) return; let n = 0;
+  for (let i = 0; i < 4; i++) {
+    const a = shardAt(H, V.k, i); if (V.k === 1 && Math.abs(Math.atan2(Math.sin(a - H.dark), Math.cos(a - H.dark))) < deg(35)) continue;
+    const x = H.cx + Math.cos(a) * 4, y = H.cy + Math.sin(a) * 4; for (const b of fan(a, 3, deg(24))) { fire2(g, e, x, y, b, 'halo', 5, 100, { free: true }); n++; }
+  }
+  D.counts.push(['halo', n]); H.k = V.k + 1;
+}
+function v2HaloEnd(g, e) { const D = V2S(e); D.halo = null; }
+// ---- II-C ECLIPSE EXCHANGE: floor sigils mark two opposite quarters (solar: north-east and south-west gold; eclipse:
+// north-west and south-east violet; by turns cast to cast); a 2-tile cross along the axes stays neutral. 2.0 s to walk
+// out (the sigils from its start), then 6 s burning (32 straight off your Life every 0.5 s while you stand in them), then
+// 1.2 s neutral. Never with Sundering Dawn or the beams.
+function v2Eclipse(g, e) {
+  const D = V2S(e), solar = !((D.ecount = (D.ecount || 0) + 1) % 2 === 0);
+  if (g.banner) g.banner('ECLIPSE SHIFT — SEEK THE UNMARKED STONE.', 2200);
+  D.ecl = { solar, from: g.t, on: g.t + 2.0, off: g.t + 8.0, end: g.t + 9.2, tick: 0 };
+}
+function inEclipse(e, Ec, x, y) {
+  const C = MID(e), sx = C.x - x, sy = C.y - y;                // (back into the spec's frame)
+  if (Math.abs(sx) < 1 || Math.abs(sy) < 1 || Math.hypot(sx, sy) > 24.5) return false;
+  const ne = sx > 0 && sy < 0, sw = sx < 0 && sy > 0;
+  return Ec.solar ? ne || sw : !(ne || sw);
+}
+function eclTick(g, e, dt) {
+  const D = e.bx.v2, Ec = D && D.ecl; if (!Ec) return;
+  if (g.t > Ec.end) { D.ecl = null; return; }
+  const p = g.player; if (!p || p.dead || g.t < Ec.on || g.t >= Ec.off) return;
+  if (inEclipse(e, Ec, p.x, p.y)) { if ((Ec.tick -= dt) <= 0) { if (Ec.tick > -0.4) { Ec.tick = 0.5; g.hurtPlayer(32, Ec.solar ? 'the solar floor' : 'the eclipse', true); } else Ec.tick = 0.25; } }   // (on entering, a breath first: never two in a frame)
+  else Ec.tick = -1;
+}
+// ---- II-D SUNDERING DAWN: a wall of comets forms along the south edge (the spec's y = -19, its 17 lanes the spec's
+// spacing drawn in to the round floor), three in a row missing (7-9); 1.25 s, then it marches across at 3.4 t/s, every
+// comet drifting sideways together at 0.8 t/s so the gap moves (125). 2.6 s after it sets off the second forms, its own
+// 1.25 s, gap 4-6, drifting the other way. Cooldown 12 s after both are spent.
+const DAWN_X = (i) => (-20 + i * 2.5) * 0.8;
+function v2Dawn(g, e) {
+  const D = V2S(e), dir = seeded(D) < 0.5 ? 1 : -1;
+  D.dawn = { waves: [{ omit: [7, 8, 9], from: g.t, at: g.t + 1.25, dir }, { omit: [4, 5, 6], from: g.t + 1.25 + 2.6 - 1.25, at: g.t + 1.25 + 2.6, dir: -dir }] };
+  later(e, 1.25, 'v2DawnFire', { k: 0 }); later(e, 1.25 + 2.6, 'v2DawnFire', { k: 1 });
+}
+function v2DawnFire(g, e, V) {
+  const D = V2S(e), W0 = D.dawn && D.dawn.waves[V.k]; if (!W0) return; let n = 0;
+  const vx = 0.8 * W0.dir, vy = 3.4, sp = Math.hypot(vx, vy), pl = g.player;
+  for (let i = 0; i < 17; i++) {
+    if (W0.omit.includes(i)) continue;
+    const w = SP(e, DAWN_X(i), -19); if (pl && !pl.dead && Math.hypot(pl.x - w.x, pl.y - w.y) < 1.2) continue;
+    const a = Math.atan2(-vy, -vx);                           // (the spec's +Y, south, is north here; its +X west)
+    fire2(g, e, w.x, w.y, a, 'comet', sp, 125, { free: true, phase: true, range: (39 / 3.4) * sp }); n++;
+  }
+  W0.done = true; D.counts.push(['dawn', n]); if (V.k === 1) D.dawnEnd = g.t + 39 / 3.4;
+}
+// ---- II-E STOLEN HOUR: four black-gold stars at the diagonals (±11, ±11), 0.95 s, then 5.5 s still; by turns clockwise
+// every 0.55 s, each brightening 0.35 s first, a Fan(5, 48°) of eclipse crescents at you (5 t/s, 105). They are sources,
+// not bodies. Cooldown 13 s.
+function v2Hour(g, e) {
+  const D = V2S(e); D.hour = { from: g.t, at: g.t + 0.95, until: g.t + 0.95 + 5.5, stars: [[11, -11], [11, 11], [-11, 11], [-11, -11]].map(([sx, sy]) => SP(e, sx, sy)), k: 0, lit: -1 };   // (the spec's NE, SE, SW, NW: clockwise)
+  for (let k = 0; k < 10; k++) { later(e, 0.95 + k * 0.55 - 0.35, 'v2HourLit', { k }); later(e, 0.95 + k * 0.55, 'v2HourFire', { k }); }
+}
+function v2HourLit(g, e, V) { const D = V2S(e); if (D.hour) D.hour.lit = V.k % 4; }
+function v2HourFire(g, e, V) { const D = V2S(e), H = D.hour; if (!H) return; const st = H.stars[V.k % 4], b = bearing(g, e, st.x, st.y); for (const a of fan(b, 5, deg(48))) fire2(g, e, st.x, st.y, a, 'eclipse', 5, 105, { free: true }); D.counts.push(['hour', 5]); H.lit = -1; if (V.k === 9) D.hourEnd = g.t + 0.4; }
+function hourTick(g, e) { const D = e.bx.v2; if (D && D.hour && g.t > D.hour.until + 0.5) D.hour = null; if (D && D.dawn && D.dawnEnd && g.t > D.dawnEnd) { D.dawn = null; D.dawnEnd = 0; } }
+
+const P2 = {
+  sunseed: { id: 'sunseed_summoning', name: 'Sunseed Summoning', start: (g, e) => { v2Sunseed(g, e); later(e, 1.5, 'v2Combo', { k: 'rebuke' }); }, total: 1.5 + P1.rebuke.total, cd: 0, support: true },   // (with Crown's Rebuke; its cooldown runs from the suns' end)
+  halo: { id: 'halo_fracture', name: 'Halo Fracture', start: v2Halo, total: 0.75 + 1.5 + 0.7, cd: 8 },
+  eclipse: { id: 'eclipse_exchange', name: 'Eclipse Exchange', start: (g, e) => { v2Eclipse(g, e); later(e, 2.4, 'v2Combo', { k: 'sundial' }); }, total: 9.2, cd: 0 },   // (with Royal Sundial, its gaps radial)
+  hour: { id: 'stolen_hour', name: 'Stolen Hour', start: v2Hour, total: 0.95 + 5.5 + 0.8, cd: 13 },
+  dawn: { id: 'sundering_dawn', name: 'Sundering Dawn', start: v2Dawn, total: 1.25 + 2.6 + 4.5 + 1.2, cd: 12 + 7 },   // (alone, then a breath; its cooldown 12 s from the second wall's end, ~7 s after it sets off)
+};
+function v2Combo(g, e, V) { const A0 = P1[V.k]; A0.start(g, e); const D = V2S(e); D.log.push([A0.id, +g.t.toFixed(2)]); }
+const SEQ2 = ['sunseed', 'halo', 'eclipse', 'hour', 'dawn'];
+const table = (P) => Object.fromEntries(Object.values(P).map((A0) => [A0.id, { name: A0.name, total_s: +A0.total.toFixed(2), cooldown_s: A0.cd }]));
+export const ATTACKS_V2 = { 1: { order: SEQ1, attacks: table(P1) }, 2: { order: SEQ2, attacks: table(P2) } };   // (the spec's 16.4: the implemented table, machine-readable)
+function choose2(g, e) {
+  const D = V2S(e); D.log = D.log || [];
+  if (g.t < D.busyUntil || g.t < (D.stag || 0)) return null;
+  const k = SEQ2[D.i % SEQ2.length], A0 = P2[k];
+  if (g.t < (D.ready[k] || 0) || g.t < D.lastEnd + GAP) return null;
+  if (k === 'sunseed' && D.suns) return null;
+  if (k === 'dawn' && D.suns) return null;                   // (never Sundering Dawn while a lesser sun lives)
+  if (k === 'eclipse' && D.ecl) return null;
+  D.i++; if (D.i % SEQ2.length === 0) { D.cycle = (D.cycle || 0) + 1; D.rot = ROTS[Math.floor(seeded(D) * 4)]; }
+  D.busyUntil = g.t + A0.total; D.lastEnd = D.busyUntil; if (A0.cd) D.ready[k] = D.busyUntil + A0.cd; if (k === 'eclipse') D.ready.eclipse = g.t + 9.2 + 1.2;
+  D.log.push([A0.id, +g.t.toFixed(2)]);
+  A0.start(g, e);
+  return { name: A0.name, special: 'v2Nop', windup: 0.45, recover: 0.3 };
+}
+function v2Ground2(r, g, e) {
+  const D = e.bx.v2; if (!D) return; const b = r.b;
+  const [o0x] = r.proj(0, 0), [o1x] = r.proj(1, 0), ts = Math.max(4, Math.round(Math.abs(o1x - o0x)));
+  const Ec = D.ecl;
+  if (Ec) {                                                  // the eclipse floor: its sigils (a sun's dot, or violet hatching: never colour alone), pulsing while it's a warning
+    const C = MID(e), warn = g.t < Ec.on, end = g.t >= Ec.off, a0 = end ? 0.08 : warn ? 0.12 + 0.12 * Math.sin(g.t * 10) : 0.3;
+    for (let ty = Math.floor(C.y - 24); ty <= C.y + 24; ty++) for (let tx = Math.floor(C.x - 24); tx <= C.x + 24; tx++) {
+      if (!inEclipse(e, Ec, tx + 0.5, ty + 0.5)) continue;
+      const [x, y] = r.proj(tx + 0.5, ty + 0.5);
+      b.globalAlpha = a0; b.fillStyle = Ec.solar ? '#ffb030' : '#6a2ab0'; b.fillRect(Math.round(x - ts / 2), Math.round(y - ts / 2), ts, ts);
+      b.globalAlpha = Math.min(1, a0 + 0.3); b.fillStyle = Ec.solar ? '#fff0a0' : '#2a1040';
+      if (Ec.solar) b.fillRect(Math.round(x) - 1, Math.round(y) - 1, 2, 2); else for (let i = 0; i < ts; i += 4) b.fillRect(Math.round(x - ts / 2 + i), Math.round(y - ts / 2 + i), 2, 1);
+    }
+  }
+  const Dw = D.dawn;
+  if (Dw) for (const W0 of Dw.waves) {                       // the dawn's wall forming: a gold mark at every lane that will fire, nothing in its gap
+    if (W0.done || g.t < W0.from) continue;
+    for (let i = 0; i < 17; i++) { const w = SP(e, DAWN_X(i), -19), om = W0.omit.includes(i), [x, y] = r.proj(w.x, w.y); b.globalAlpha = om ? 0.35 : 0.6 + 0.4 * Math.sin(g.t * 14); b.fillStyle = om ? '#3a2410' : '#fff0a0'; b.fillRect(Math.round(x) - 2, Math.round(y) - 2, om ? 2 : 5, om ? 2 : 5); }
+    const [ax, ay] = r.proj(SP(e, DAWN_X(0), -19).x, SP(e, 0, -19).y), [bx2] = r.proj(SP(e, DAWN_X(16), -19).x, 0); b.globalAlpha = 0.5; b.fillStyle = '#ffd650';   // (an arrow-mark of its drift)
+    const mx = (ax + bx2) / 2 + W0.dir * -18; for (let k = 0; k < 4; k++) b.fillRect(Math.round(mx + W0.dir * -k * 4), Math.round(ay) - 8 + (k % 2), 3, 1);
+  }
+  b.globalAlpha = 1;
+}
+function v2Air2(r, g, e, put, get) {
+  const D = e.bx.v2; if (!D) return;
+  const sun = get('sol_shots/sun'), black = get('sol_shots/blacksun'), shard = get('sol2/halo');
+  const bar = (q) => { if (q.dead || q.hp >= q.maxHp) return; const [sx, sy] = r.proj(q.x, q.y); r.hpBar(sx, sy + 3, q.hp / q.maxHp, 14); };
+  const Z = D.suns;
+  if (Z && sun) for (const s of Z.list) {                    // the lesser suns: rising from the pedestal along their trails, then burning where they stop; brighter in their pulse
+    if (gone(s.q)) continue; const k = Math.min(1, (g.t - Z.born) / 1.2), x = s.x0 + (s.q.x - s.x0) * k, y = s.y0 + (s.q.y - s.y0) * k;
+    put(sun, x, y + 1.4 + Math.sin(k * Math.PI) * 1.5, { scale: (0.6 + 0.6 * k) * (g.t - s.pulse < 0.3 ? 1.25 : 1) });
+    if (k >= 1) bar(s.q);
+  }
+  const H = D.halo;
+  if (H && shard) for (let i = 0; i < 4; i++) { const k = Math.min(3, H.k || 0), a = shardAt(H, k, i), dark = k === 1 && Math.abs(Math.atan2(Math.sin(a - H.dark), Math.cos(a - H.dark))) < deg(35); put(shard, H.cx + Math.cos(a) * 4, H.cy + Math.sin(a) * 4 + 1.2, { rot: a, scale: 1.6, alpha: dark ? 0.3 : Math.min(1, (g.t - H.from) / 0.75) }); }
+  const Hr = D.hour;
+  if (Hr && black) Hr.stars.forEach((st, i) => put(black, st.x, st.y + 1.4, { scale: (Math.min(1, (g.t - Hr.from) / 0.95)) * (Hr.lit === i ? 1.45 : 1.05), alpha: Hr.lit === i ? 1 : 0.8 }));
+}
+
+
 function v2Ground(r, g, e) {
   const D = e.bx.v2; if (!D) return; const b = r.b;
   const [o0x] = r.proj(0, 0), [o1x] = r.proj(1, 0), ts = Math.max(4, Math.abs(o1x - o0x));
@@ -546,6 +708,7 @@ function v2Ground(r, g, e) {
 function choose(g, e) {
   const S = e.bx;
   if (S.phase === 1) return choose1(g, e);                  // (Phase I: the audited spec's)
+  if (S.phase === 2) return choose2(g, e);                  // (Phase II: the audited spec's)
   if (S.slStagger > g.t) return null;                      // (staggered: his lenses broke)
   const C = S.slDir && S.slDir.ph === S.phase ? S.slDir : (S.slDir = { ph: S.phase, t0: g.t, i: 0, alt: 0, lastEnd: -99 });
   if (S.phase === 3 && e.hp / e.maxHp <= 0.15) {           // the Last Light; between, the Chase or the Return, till 18 s have passed
@@ -562,17 +725,17 @@ function choose(g, e) {
 
 export default {
   id: 'unstruck_god', art: 'solkhar', shotSheet: 'ug_shots', name: 'Solkhar, the Sunthief', biome: 'dungeon', hp: 850000, def: 34, xp: 30000,
-  r: 2.2, speed: 2, keep: 5, faces: false, spawnCentre: true, tempo: 1, dmgScale: 1, thresholds: [0.75, 0.35], choose,   // (Phase I to 75%, the spec's; the older II and III after it until theirs are built)
+  r: 2.2, speed: 2, keep: 5, faces: false, spawnCentre: true, tempo: 1, dmgScale: 1, thresholds: [0.75, 0.5], choose,   // (Phases I and II to the spec's 75% and 50%; the older III after them until III and IV are built)
   finale: FINALE,                                           // (at 1 Life: Stealing Back the Sun, his true end)
-  dmgMult: (g, e) => (e.bx.slStagger > g.t ? 1.3 : 1),     // (staggered: his lenses or his lesser suns broken; open to you)
+  dmgMult: (g, e) => (e.bx.v2 && e.bx.v2.stag > g.t ? 1.2 : e.bx.slStagger > g.t ? 1.3 : 1),   // (the spec's II stagger: +20%)     // (staggered: his lenses or his lesser suns broken; open to you)
   walkPace: 2.5, charging: (g, e) => !!(e.slDash && g.t >= e.slDash.at),   // (his glide at his pace; his dashes)
   death: { hold: 1 },                                      // (4 s in all, the spec's: the 3 s clip, then held while the sun goes out)
   phases: {
     1: { move: 'home', pressure: [], patterns: Object.values(AT) },   // (no filler: the spec's named attacks only)
-    2: { move: 'roam', pressure: [{ every: 1.35, special: 'solarVolley', delay: 1.5 }], patterns: Object.values(AT) },
+    2: { move: 'home', pressure: [], patterns: Object.values(AT) },   // (the spec's II: no filler)
     3: { move: 'hunt', pressure: [{ every: 1.2, special: 'solarVolley', delay: 1.5 }], patterns: Object.values(AT) },
   },
-  specials: { v2Nop, v2DialForm, v2DialFly, v2RebukeAim, v2RebukeFire, v2PincFire, v2VerdictEnd, solarVolley, sundial, sundialShow, sundialForm, sundialFly, corona, coronaGo, judgment, noonMark, noonDots, heralds, haloKnives, knifeFan, knifeWarn, knifeLances,
+  specials: { v2Nop, v2Combo, v2HaloFire, v2HaloEnd, v2DawnFire, v2HourLit, v2HourFire, v2DialForm, v2DialFly, v2RebukeAim, v2RebukeFire, v2PincFire, v2VerdictEnd, solarVolley, sundial, sundialShow, sundialForm, sundialFly, corona, coronaGo, judgment, noonMark, noonDots, heralds, haloKnives, knifeFan, knifeWarn, knifeLances,
     blackClock, pursuit, dashMark, dashLock, lenses, lensFans, lensEnd, vise, viseGo, blackReturn, returnIn, returnHold, returnOut, heavens, heavenMark, heavenDots, chase,
     lastLight, lastRing, lastCorridor, lastPortals, lastBeams, lastFlash, lastClear, lastFragments, lesserSuns },
   moves: {
@@ -603,7 +766,7 @@ export default {
     const S = e.bx; S.v2 = null;                            // (the old phase's every timeline, beam and mark gone with it) S.slSpears = S.slCorona = S.slHalo = S.slVise = S.slChase = S.slHeralds = S.slBlack = S.slLens = S.slSuns = null; e.slDash = null;
     for (const q of S.slMinions || []) if (!q.dead) { q.noLoot = true; q.dead = true; q.deadT = 0; }
     S.wait = ph === 2 ? 1.5 : 1.8;
-    if (ph === 2) { if (g.banner) g.banner('LIGHT IS STOLEN', 2600); g.vx({ k: 'shake', amt: 8 }); g.vx({ k: 'burst', x: e.x, y: e.y - 3, n: 40, colors: SUNC }); g.sfx('shatter'); S.slLaw = null; }
+    if (ph === 2) { if (g.banner) g.banner('THE LIGHT IS NOT YOURS.', 2800); g.vx({ k: 'shake', amt: 4 }); g.vx({ k: 'burst', x: e.x, y: e.y - 3, n: 40, colors: SUNC }); g.sfx('shatter'); S.slLaw = null; if (g.map) g.map.ambBoss = [26, 12, 20, 0.45]; }   // (the chains snap; his sanctum darkens, eased, never black)
     if (ph === 3) { if (g.banner) g.banner('THE SUNTHIEF UNBOUND', 2800); g.vx({ k: 'shake', amt: 12 }); g.vx({ k: 'burst', x: e.x, y: e.y - 3, n: 60, colors: [...SUNC, '#ff3a1a'] }); g.sfx('roar'); if (g.map) g.map.ambBoss = [12, 3, 8, 0.66]; }   // (his sanctum darker: src/castle.js eases into it)
   },
   update(g, e, dt) {
@@ -635,11 +798,11 @@ export default {
         if (g.t >= V.emit) { V.emit += 0.4; for (let arm = 0; arm < 2; arm++) { const a = viseAt(V, g.t, arm), r = 9.5; shot(g, e, V.cx + Math.cos(a) * r, V.cy + Math.sin(a) * r, a + V.s * Math.PI / 2, { ...DOT, speed: 4.3, range: 12, dmg: D(100) }); } }
       }
     }
-    beamTick(g, e);
+    beamTick(g, e); sunsTick2(g, e); eclTick(g, e, dt); hourTick(g, e);
     sunsTick(g, e, dt);
     for (const q of S.slMinions || []) if (!q.dead && g.t > q.slUntil) { q.noLoot = true; q.dead = true; q.deadT = 0; }
     S.slMinions = (S.slMinions || []).filter((q) => !q.dead);
-    if (S.phase >= 2 && S.state !== 'morph') eclipseTick(g, e, dt);
+    if (S.phase >= 3 && S.state !== 'morph') eclipseTick(g, e, dt);   // (the older Eclipse Law: the older Phase III only)
     if (S.slSpears && g.t > S.slSpears.until + 0.8) S.slSpears = null;
     if (S.slHalo && g.t > S.slHalo.until) S.slHalo = null;
     if (S.slCorona && g.t > S.slCorona.until) S.slCorona = null;
@@ -653,7 +816,7 @@ export default {
   },
   // the dais's marks: the Eclipse Law's quarters (gold-outlined suns, violet hatching), the corona's rings shown, the vise's path ahead
   drawGround(r, g, e) {
-    v2Ground(r, g, e);
+    v2Ground(r, g, e); v2Ground2(r, g, e);
     const S = e.bx, b = r.b, C = MID(e), R0 = RAD(e), L = S.slLaw;
     const Fn = S.slFin;
     if (Fn) {                                               // the sanctuary's lights: lit (gold, a bright rim), coming (a pulsing outline), fading
@@ -699,6 +862,7 @@ export default {
     const get = (k) => { const M = r.objDefs || (r.objDefs = new Map()); let d = M.get(k); if (d === undefined) M.set(k, (d = R.resolve(k) || null)); return d; };
     const spear = get('sol_shots/sunlance'), blade = get('sol_shots/halo'), sun = get('sol_shots/sun'), black = get('sol_shots/blacksun'), frag = get('sol_shots/fragment');
     const put = (def, x, y, o) => { if (def) { const [sx, sy] = r.proj(x, y); r.drawDef(def, Object.keys(def.frames)[0], Math.round(sx), Math.round(sy) - 24, { center: true, ...o }); } };
+    v2Air2(r, g, e, put, get);
     const Q = S.slSpears;
     if (Q) for (let i = 0; i < Q.n; i++) { const a = sundialAngle(Q, g, i), dk = Q.dark.includes(i) && g.t >= Q.darkAt; put(spear, Q.cx + Math.cos(a) * Q.r, Q.cy + Math.sin(a) * Q.r, { rot: a, alpha: dk ? 0.25 : 1 }); }
     const H = S.slHalo;
