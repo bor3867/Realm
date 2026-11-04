@@ -342,7 +342,7 @@ export const BXF = {
     if (S.B.dmgMult) d = Math.round(d * S.B.dmgMult(this, e));       // a boss's own weak moments (the Ringmaster's lantern eyes)
     if (S.broken) d = Math.round(d * 1.5);                          // after its finale it is broken
     const F = S.B.finale;
-    if (F && S.phase === 3 && !S.finaleDone && e.hp - d <= e.maxHp * F.at) { const keep = e.hp - e.maxHp * F.at; this.bxStartFinale(e); return Math.max(0, keep); }
+    if (F && S.phase === (S.B.finalePhase || 3) && !S.finaleDone && e.hp - d <= e.maxHp * F.at) { const keep = e.hp - e.maxHp * F.at; this.bxStartFinale(e); return Math.max(0, keep); }
     const F2 = S.B.finale2;
     if (F2 && S.finaleDone && !S.finale2Done && S.state !== 'finale' && e.hp - d <= e.maxHp * F2.at) { const keep = e.hp - e.maxHp * F2.at; this.bxStartFinale(e, F2); return Math.max(0, keep); }
     const th = this.bxThresholds(e), next = th[S.phase - 1];

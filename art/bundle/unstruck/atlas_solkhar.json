@@ -546,7 +546,7 @@
      },
      "phases": {
       "1": {
-       "name": "The Golden Tyrant",
+       "name": "The Crown Awakens",
        "idle": "idle1",
        "attack": "attack1",
        "walk": "walk1",
@@ -554,7 +554,7 @@
        "hurt": "hurt1"
       },
       "2": {
-       "name": "The Broken Sun",
+       "name": "The Stolen Light",
        "idle": "idle2",
        "attack": "attack2",
        "walk": "walk2",
@@ -563,7 +563,16 @@
        "enter": "enter2"
       },
       "3": {
-       "name": "The Sunthief Unbound",
+       "name": "The Unbound Sun",
+       "idle": "idle3",
+       "attack": "attack3",
+       "walk": "walk3",
+       "charge": "charge3",
+       "hurt": "hurt3",
+       "enter": "enter3"
+      },
+      "4": {
+       "name": "The Ninth Ascension",
        "idle": "idle3",
        "attack": "attack3",
        "walk": "walk3",

@@ -235,7 +235,7 @@ def pack(name, entries, W, H, cols=6):
 
 
 if __name__ == '__main__':
-    BID, NAMES = 'solkhar', {1: 'The Golden Tyrant', 2: 'The Broken Sun', 3: 'The Sunthief Unbound'}
+    BID, NAMES = 'solkhar', {1: 'The Crown Awakens', 2: 'The Stolen Light', 3: 'The Unbound Sun', 4: 'The Ninth Ascension'}   # (the audited spec's four, 2026-11-03)
     frames = []
     for act in (1, 2, 3):
         frames += [(f'i{act}_{k}', base(act, k)) for k in range(4)] + [(f'a{act}_{k}', strike(act, k)) for k in range(3)]
@@ -256,7 +256,7 @@ if __name__ == '__main__':
     sfr, _ = pack('sol_shots', [(k, [list(r) for r in g]) for k, g in SHOTS.items()], 9, 9)
     sheets = {
         f'bx_{BID}': {'image': f'{BID}.png', 'kind': 'boss', 'sprites': {BID: {'frames': fr, 'anims': anims,
-                      'phases': {str(a): {'name': NAMES[a], 'idle': f'idle{a}', 'attack': f'attack{a}', 'walk': f'walk{a}', 'charge': f'charge{a}', 'hurt': f'hurt{a}', **({'enter': f'enter{a}'} if a > 1 else {})} for a in (1, 2, 3)}, 'death': 'death', 'meta': {}}}},
+                      'phases': {str(a): {'name': NAMES[a], 'idle': f'idle{min(a, 3)}', 'attack': f'attack{min(a, 3)}', 'walk': f'walk{min(a, 3)}', 'charge': f'charge{min(a, 3)}', 'hurt': f'hurt{min(a, 3)}', **({'enter': f'enter{min(a, 3)}'} if a > 1 else {})} for a in (1, 2, 3, 4)}, 'death': 'death', 'meta': {}}}},
         'sol_shots': {'image': 'sol_shots.png', 'kind': 'shot', 'sprites': {k: {'frames': {'0': v}, 'meta': {}} for k, v in sfr.items()}},
     }
     json.dump({'rf': True, 'meta': {'name': 'Solkhar, the Sunthief (the user\'s sprite)', 'version': 1}, 'sheets': sheets},
