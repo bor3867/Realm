@@ -1829,5 +1829,6 @@ for (const [id, k] of [['dream_eater', 1.6], ['ash_harpy', 1.5]]) { const D = EN
 export const REALM_USER = ['shore_crab', 'rf_coral_crab', 'driftwood_bandit', 'tide_herald', 'siren', 'conch_hermit', 'reef_golem', 'trap_hound',
   'bramble_wolf', 'briar_bee', 'spore_puff', 'thornwood_stag', 'spider_queen', 'bark_spider', 'bandit_archer', 'orc_warlord', 'hedge_goblin', 'goblin_shaman', 'wild_boar',
   'rock_troll', 'crag_dwarf', 'crystal_golem', 'cairn_crawler', 'rf_ash_golem', 'glacier_headsman', 'wolf_shield', 'rime_herald', 'frost_skald', 'cinder_golem',
-  'fallen_knight', 'gilded_lancer', 'abyss_hound', 'rf_grove_warden', 'rf_sproutling', 'rf_bog_witch', 'rf_marsh_lurker', 'elder_willow'];
+  'fallen_knight', 'gilded_lancer', 'abyss_hound', 'rf_grove_warden', 'rf_sproutling', 'rf_bog_witch', 'rf_marsh_lurker', 'elder_willow',
+  'brine_pilgrim', 'lantern_jelly', 'salt_widow', 'pilgrim_elder', 'anchor_bearer', 'lens_moth', 'lighthouse_jelly', 'salt_matriarch', 'trap_hound_alpha', 'anchor_titan', 'moth_queen', 'reef_eel', 'brine_slime', 'brine_slimelet', 'tide_slime', 'gull', 'rf_drowned_chorister', 'kraken_tentacle'];
 for (const id of REALM_USER) { const D = ENEMIES[id]; if (!D) continue; D.regSrc = D.reg; D.reg = `realm_user/${id}`; D.scale = 0.5; }

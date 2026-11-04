@@ -1,0 +1,67 @@
+# brine_slimelet: 17x11, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #572537
+D #9f0002
+E #232334
+F #5a9fa3
+G #4e707a
+H #fafbf0
+I #6fafb1
+J #e81402
+K #80c2bb
+L #465456
+M #e8f4f8
+N #9c000b
+O #c20107
+P #f15c0b
+Q #94d3d5
+R #d12532
+S #ae1d35
+T #99607f
+U #37494f
+V #30676f
+frame base
+......AAAAA......
+.....AKKKKKAA....
+....AIMHGIIIAA...
+...AIKMHVVGIIA...
+..ABFFIIFIIFGGA..
+..AKIGBUIVCEGIA..
+..AFFADNEEONLFA..
+.AAFFBPJEJHJAFAA.
+AKIFFVRSGUONVFIKA
+AQLULUEEEUTGUFLLA
+.AAAAAAAAAAAAAAA.
+
+# ---- drawn frames (tools/realm_frames_shore2.py writes everything below)
+frame walk1 from base
+at 4 2
+H
+at 13 8
+F
+
+frame walk3 from base
+at 9 3
+H
+at 2 8
+F
+
+frame atk0 from base
+at 7 5
+H
+
+frame atk1 from base
+at 6 5
+HH
+at 9 5
+H
+at 8 0
+H
+
+frame atk2 from base
+at 7 5
+H
+
+clip move 5 base walk1 base walk3
+clip shoot 8 atk0 atk1 atk2 base

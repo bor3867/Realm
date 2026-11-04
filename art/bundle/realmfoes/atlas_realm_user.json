@@ -2857,6 +2857,1392 @@
       }
      },
      "meta": {}
+    },
+    "brine_pilgrim": {
+     "frames": {
+      "brine_pilgrim_base": [
+       0,
+       1112,
+       42,
+       36
+      ],
+      "brine_pilgrim_walk1": [
+       42,
+       1112,
+       42,
+       36
+      ],
+      "brine_pilgrim_walk3": [
+       84,
+       1112,
+       42,
+       36
+      ],
+      "brine_pilgrim_atk0": [
+       126,
+       1112,
+       42,
+       36
+      ],
+      "brine_pilgrim_atk1": [
+       168,
+       1112,
+       42,
+       36
+      ],
+      "brine_pilgrim_atk2": [
+       210,
+       1112,
+       42,
+       36
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "brine_pilgrim_base",
+        "brine_pilgrim_walk1",
+        "brine_pilgrim_base",
+        "brine_pilgrim_walk3"
+       ],
+       "fps": 6.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "brine_pilgrim_atk0",
+        "brine_pilgrim_atk1",
+        "brine_pilgrim_atk2",
+        "brine_pilgrim_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "brine_pilgrim_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "brine_pilgrim_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "lantern_jelly": {
+     "frames": {
+      "lantern_jelly_base": [
+       0,
+       1148,
+       38,
+       30
+      ],
+      "lantern_jelly_walk1": [
+       38,
+       1148,
+       38,
+       30
+      ],
+      "lantern_jelly_walk3": [
+       76,
+       1148,
+       38,
+       30
+      ],
+      "lantern_jelly_atk0": [
+       114,
+       1148,
+       38,
+       30
+      ],
+      "lantern_jelly_atk1": [
+       152,
+       1148,
+       38,
+       30
+      ],
+      "lantern_jelly_atk2": [
+       190,
+       1148,
+       38,
+       30
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "lantern_jelly_base",
+        "lantern_jelly_walk1",
+        "lantern_jelly_base",
+        "lantern_jelly_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "lantern_jelly_atk0",
+        "lantern_jelly_atk1",
+        "lantern_jelly_atk2",
+        "lantern_jelly_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "lantern_jelly_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "lantern_jelly_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "salt_widow": {
+     "frames": {
+      "salt_widow_base": [
+       0,
+       1178,
+       46,
+       31
+      ],
+      "salt_widow_walk1": [
+       46,
+       1178,
+       46,
+       31
+      ],
+      "salt_widow_walk3": [
+       92,
+       1178,
+       46,
+       31
+      ],
+      "salt_widow_atk0": [
+       138,
+       1178,
+       46,
+       31
+      ],
+      "salt_widow_atk1": [
+       184,
+       1178,
+       46,
+       31
+      ],
+      "salt_widow_atk2": [
+       230,
+       1178,
+       46,
+       31
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "salt_widow_base",
+        "salt_widow_walk1",
+        "salt_widow_base",
+        "salt_widow_walk3"
+       ],
+       "fps": 8.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "salt_widow_atk0",
+        "salt_widow_atk1",
+        "salt_widow_atk2",
+        "salt_widow_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "salt_widow_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "salt_widow_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "pilgrim_elder": {
+     "frames": {
+      "pilgrim_elder_base": [
+       0,
+       1209,
+       50,
+       39
+      ],
+      "pilgrim_elder_walk1": [
+       50,
+       1209,
+       50,
+       39
+      ],
+      "pilgrim_elder_walk3": [
+       100,
+       1209,
+       50,
+       39
+      ],
+      "pilgrim_elder_atk0": [
+       150,
+       1209,
+       50,
+       39
+      ],
+      "pilgrim_elder_atk1": [
+       200,
+       1209,
+       50,
+       39
+      ],
+      "pilgrim_elder_atk2": [
+       250,
+       1209,
+       50,
+       39
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "pilgrim_elder_base",
+        "pilgrim_elder_walk1",
+        "pilgrim_elder_base",
+        "pilgrim_elder_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "pilgrim_elder_atk0",
+        "pilgrim_elder_atk1",
+        "pilgrim_elder_atk2",
+        "pilgrim_elder_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "pilgrim_elder_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "pilgrim_elder_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "anchor_bearer": {
+     "frames": {
+      "anchor_bearer_base": [
+       0,
+       1248,
+       50,
+       32
+      ],
+      "anchor_bearer_walk1": [
+       50,
+       1248,
+       50,
+       32
+      ],
+      "anchor_bearer_walk3": [
+       100,
+       1248,
+       50,
+       32
+      ],
+      "anchor_bearer_atk0": [
+       150,
+       1248,
+       50,
+       32
+      ],
+      "anchor_bearer_atk1": [
+       200,
+       1248,
+       50,
+       32
+      ],
+      "anchor_bearer_atk2": [
+       250,
+       1248,
+       50,
+       32
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "anchor_bearer_base",
+        "anchor_bearer_walk1",
+        "anchor_bearer_base",
+        "anchor_bearer_walk3"
+       ],
+       "fps": 6.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "anchor_bearer_atk0",
+        "anchor_bearer_atk1",
+        "anchor_bearer_atk2",
+        "anchor_bearer_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "anchor_bearer_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "anchor_bearer_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "lens_moth": {
+     "frames": {
+      "lens_moth_base": [
+       0,
+       1280,
+       49,
+       25
+      ],
+      "lens_moth_walk1": [
+       49,
+       1280,
+       49,
+       25
+      ],
+      "lens_moth_walk3": [
+       98,
+       1280,
+       49,
+       25
+      ],
+      "lens_moth_atk0": [
+       147,
+       1280,
+       49,
+       25
+      ],
+      "lens_moth_atk1": [
+       196,
+       1280,
+       49,
+       25
+      ],
+      "lens_moth_atk2": [
+       245,
+       1280,
+       49,
+       25
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "lens_moth_base",
+        "lens_moth_walk1",
+        "lens_moth_base",
+        "lens_moth_walk3"
+       ],
+       "fps": 10.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "lens_moth_atk0",
+        "lens_moth_atk1",
+        "lens_moth_atk2",
+        "lens_moth_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "lens_moth_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "lens_moth_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "lighthouse_jelly": {
+     "frames": {
+      "lighthouse_jelly_base": [
+       0,
+       1305,
+       38,
+       38
+      ],
+      "lighthouse_jelly_walk1": [
+       38,
+       1305,
+       38,
+       38
+      ],
+      "lighthouse_jelly_walk3": [
+       76,
+       1305,
+       38,
+       38
+      ],
+      "lighthouse_jelly_atk0": [
+       114,
+       1305,
+       38,
+       38
+      ],
+      "lighthouse_jelly_atk1": [
+       152,
+       1305,
+       38,
+       38
+      ],
+      "lighthouse_jelly_atk2": [
+       190,
+       1305,
+       38,
+       38
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "lighthouse_jelly_base",
+        "lighthouse_jelly_walk1",
+        "lighthouse_jelly_base",
+        "lighthouse_jelly_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "lighthouse_jelly_atk0",
+        "lighthouse_jelly_atk1",
+        "lighthouse_jelly_atk2",
+        "lighthouse_jelly_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "lighthouse_jelly_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "lighthouse_jelly_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "salt_matriarch": {
+     "frames": {
+      "salt_matriarch_base": [
+       0,
+       1343,
+       57,
+       36
+      ],
+      "salt_matriarch_walk1": [
+       57,
+       1343,
+       57,
+       36
+      ],
+      "salt_matriarch_walk3": [
+       114,
+       1343,
+       57,
+       36
+      ],
+      "salt_matriarch_atk0": [
+       171,
+       1343,
+       57,
+       36
+      ],
+      "salt_matriarch_atk1": [
+       228,
+       1343,
+       57,
+       36
+      ],
+      "salt_matriarch_atk2": [
+       285,
+       1343,
+       57,
+       36
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "salt_matriarch_base",
+        "salt_matriarch_walk1",
+        "salt_matriarch_base",
+        "salt_matriarch_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "salt_matriarch_atk0",
+        "salt_matriarch_atk1",
+        "salt_matriarch_atk2",
+        "salt_matriarch_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "salt_matriarch_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "salt_matriarch_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "trap_hound_alpha": {
+     "frames": {
+      "trap_hound_alpha_base": [
+       0,
+       1379,
+       51,
+       29
+      ],
+      "trap_hound_alpha_walk1": [
+       51,
+       1379,
+       51,
+       29
+      ],
+      "trap_hound_alpha_walk3": [
+       102,
+       1379,
+       51,
+       29
+      ],
+      "trap_hound_alpha_atk0": [
+       153,
+       1379,
+       51,
+       29
+      ],
+      "trap_hound_alpha_atk1": [
+       204,
+       1379,
+       51,
+       29
+      ],
+      "trap_hound_alpha_atk2": [
+       255,
+       1379,
+       51,
+       29
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "trap_hound_alpha_base",
+        "trap_hound_alpha_walk1",
+        "trap_hound_alpha_base",
+        "trap_hound_alpha_walk3"
+       ],
+       "fps": 9.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "trap_hound_alpha_atk0",
+        "trap_hound_alpha_atk1",
+        "trap_hound_alpha_atk2",
+        "trap_hound_alpha_base"
+       ],
+       "fps": 9.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "trap_hound_alpha_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "trap_hound_alpha_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "anchor_titan": {
+     "frames": {
+      "anchor_titan_base": [
+       0,
+       1408,
+       66,
+       41
+      ],
+      "anchor_titan_walk1": [
+       66,
+       1408,
+       66,
+       41
+      ],
+      "anchor_titan_walk3": [
+       132,
+       1408,
+       66,
+       41
+      ],
+      "anchor_titan_atk0": [
+       198,
+       1408,
+       66,
+       41
+      ],
+      "anchor_titan_atk1": [
+       264,
+       1408,
+       66,
+       41
+      ],
+      "anchor_titan_atk2": [
+       330,
+       1408,
+       66,
+       41
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "anchor_titan_base",
+        "anchor_titan_walk1",
+        "anchor_titan_base",
+        "anchor_titan_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "anchor_titan_atk0",
+        "anchor_titan_atk1",
+        "anchor_titan_atk2",
+        "anchor_titan_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "anchor_titan_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "anchor_titan_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "moth_queen": {
+     "frames": {
+      "moth_queen_base": [
+       0,
+       1449,
+       77,
+       38
+      ],
+      "moth_queen_walk1": [
+       77,
+       1449,
+       77,
+       38
+      ],
+      "moth_queen_walk3": [
+       154,
+       1449,
+       77,
+       38
+      ],
+      "moth_queen_atk0": [
+       231,
+       1449,
+       77,
+       38
+      ],
+      "moth_queen_atk1": [
+       308,
+       1449,
+       77,
+       38
+      ],
+      "moth_queen_atk2": [
+       385,
+       1449,
+       77,
+       38
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "moth_queen_base",
+        "moth_queen_walk1",
+        "moth_queen_base",
+        "moth_queen_walk3"
+       ],
+       "fps": 8.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "moth_queen_atk0",
+        "moth_queen_atk1",
+        "moth_queen_atk2",
+        "moth_queen_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "moth_queen_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "moth_queen_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "reef_eel": {
+     "frames": {
+      "reef_eel_base": [
+       0,
+       1487,
+       53,
+       33
+      ],
+      "reef_eel_walk1": [
+       53,
+       1487,
+       53,
+       33
+      ],
+      "reef_eel_walk3": [
+       106,
+       1487,
+       53,
+       33
+      ],
+      "reef_eel_atk0": [
+       159,
+       1487,
+       53,
+       33
+      ],
+      "reef_eel_atk1": [
+       212,
+       1487,
+       53,
+       33
+      ],
+      "reef_eel_atk2": [
+       265,
+       1487,
+       53,
+       33
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "reef_eel_base",
+        "reef_eel_walk1",
+        "reef_eel_base",
+        "reef_eel_walk3"
+       ],
+       "fps": 6.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "reef_eel_atk0",
+        "reef_eel_atk1",
+        "reef_eel_atk2",
+        "reef_eel_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "reef_eel_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "reef_eel_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "brine_slime": {
+     "frames": {
+      "brine_slime_base": [
+       0,
+       1520,
+       44,
+       24
+      ],
+      "brine_slime_walk1": [
+       44,
+       1520,
+       44,
+       24
+      ],
+      "brine_slime_walk3": [
+       88,
+       1520,
+       44,
+       24
+      ],
+      "brine_slime_atk0": [
+       132,
+       1520,
+       44,
+       24
+      ],
+      "brine_slime_atk1": [
+       176,
+       1520,
+       44,
+       24
+      ],
+      "brine_slime_atk2": [
+       220,
+       1520,
+       44,
+       24
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "brine_slime_base",
+        "brine_slime_walk1",
+        "brine_slime_base",
+        "brine_slime_walk3"
+       ],
+       "fps": 4.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "brine_slime_atk0",
+        "brine_slime_atk1",
+        "brine_slime_atk2",
+        "brine_slime_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "brine_slime_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "brine_slime_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "brine_slimelet": {
+     "frames": {
+      "brine_slimelet_base": [
+       0,
+       1544,
+       33,
+       19
+      ],
+      "brine_slimelet_walk1": [
+       33,
+       1544,
+       33,
+       19
+      ],
+      "brine_slimelet_walk3": [
+       66,
+       1544,
+       33,
+       19
+      ],
+      "brine_slimelet_atk0": [
+       99,
+       1544,
+       33,
+       19
+      ],
+      "brine_slimelet_atk1": [
+       132,
+       1544,
+       33,
+       19
+      ],
+      "brine_slimelet_atk2": [
+       165,
+       1544,
+       33,
+       19
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "brine_slimelet_base",
+        "brine_slimelet_walk1",
+        "brine_slimelet_base",
+        "brine_slimelet_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "brine_slimelet_atk0",
+        "brine_slimelet_atk1",
+        "brine_slimelet_atk2",
+        "brine_slimelet_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "brine_slimelet_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "brine_slimelet_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "tide_slime": {
+     "frames": {
+      "tide_slime_base": [
+       0,
+       1563,
+       54,
+       32
+      ],
+      "tide_slime_walk1": [
+       54,
+       1563,
+       54,
+       32
+      ],
+      "tide_slime_walk3": [
+       108,
+       1563,
+       54,
+       32
+      ],
+      "tide_slime_atk0": [
+       162,
+       1563,
+       54,
+       32
+      ],
+      "tide_slime_atk1": [
+       216,
+       1563,
+       54,
+       32
+      ],
+      "tide_slime_atk2": [
+       270,
+       1563,
+       54,
+       32
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "tide_slime_base",
+        "tide_slime_walk1",
+        "tide_slime_base",
+        "tide_slime_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "tide_slime_atk0",
+        "tide_slime_atk1",
+        "tide_slime_atk2",
+        "tide_slime_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "tide_slime_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "tide_slime_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "gull": {
+     "frames": {
+      "gull_base": [
+       0,
+       1595,
+       43,
+       28
+      ],
+      "gull_walk1": [
+       43,
+       1595,
+       43,
+       28
+      ],
+      "gull_walk3": [
+       86,
+       1595,
+       43,
+       28
+      ],
+      "gull_atk0": [
+       129,
+       1595,
+       43,
+       28
+      ],
+      "gull_atk1": [
+       172,
+       1595,
+       43,
+       28
+      ],
+      "gull_atk2": [
+       215,
+       1595,
+       43,
+       28
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "gull_base",
+        "gull_walk1",
+        "gull_base",
+        "gull_walk3"
+       ],
+       "fps": 8.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "gull_atk0",
+        "gull_atk1",
+        "gull_atk2",
+        "gull_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "gull_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "gull_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_drowned_chorister": {
+     "frames": {
+      "rf_drowned_chorister_base": [
+       0,
+       1623,
+       55,
+       47
+      ],
+      "rf_drowned_chorister_walk1": [
+       55,
+       1623,
+       55,
+       47
+      ],
+      "rf_drowned_chorister_walk3": [
+       110,
+       1623,
+       55,
+       47
+      ],
+      "rf_drowned_chorister_atk0": [
+       165,
+       1623,
+       55,
+       47
+      ],
+      "rf_drowned_chorister_atk1": [
+       220,
+       1623,
+       55,
+       47
+      ],
+      "rf_drowned_chorister_atk2": [
+       275,
+       1623,
+       55,
+       47
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_drowned_chorister_base",
+        "rf_drowned_chorister_walk1",
+        "rf_drowned_chorister_base",
+        "rf_drowned_chorister_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_drowned_chorister_atk0",
+        "rf_drowned_chorister_atk1",
+        "rf_drowned_chorister_atk2",
+        "rf_drowned_chorister_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_drowned_chorister_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_drowned_chorister_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "kraken_tentacle": {
+     "frames": {
+      "kraken_tentacle_base": [
+       0,
+       1670,
+       68,
+       46
+      ],
+      "kraken_tentacle_walk1": [
+       68,
+       1670,
+       68,
+       46
+      ],
+      "kraken_tentacle_walk3": [
+       136,
+       1670,
+       68,
+       46
+      ],
+      "kraken_tentacle_atk0": [
+       204,
+       1670,
+       68,
+       46
+      ],
+      "kraken_tentacle_atk1": [
+       272,
+       1670,
+       68,
+       46
+      ],
+      "kraken_tentacle_atk2": [
+       340,
+       1670,
+       68,
+       46
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "kraken_tentacle_base",
+        "kraken_tentacle_walk1",
+        "kraken_tentacle_base",
+        "kraken_tentacle_walk3"
+       ],
+       "fps": 4.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "kraken_tentacle_atk0",
+        "kraken_tentacle_atk1",
+        "kraken_tentacle_atk2",
+        "kraken_tentacle_base"
+       ],
+       "fps": 6.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "kraken_tentacle_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "kraken_tentacle_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
     }
    }
   }

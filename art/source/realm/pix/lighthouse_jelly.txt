@@ -1,0 +1,94 @@
+# lighthouse_jelly: 22x30, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #b86527
+D #cba79b
+E #9773a6
+F #584e69
+G #f5ca53
+H #653a6e
+I #6e5f95
+J #983959
+K #8e5a6d
+L #88bbbe
+M #f88249
+N #f3ebe9
+O #acadd7
+P #f9bf08
+Q #e33727
+R #f28719
+S #bb2c10
+T #e3730b
+U #33253b
+V #4a3468
+frame base
+.........AAA..........
+........AINOA.........
+........AVEIAA........
+.......AIEIHIIA.......
+......AOEEOEEEOA......
+......AIFEIIFEEA......
+......AJBBJPUTA.......
+......AUTSPPQTA.......
+......AUPQNNQPA.......
+.....AAURSNNSPAA......
+....AKAMDSERSMDKA.....
+....ADDDKIKIVIDDDA....
+....AFHUUUUUUUUVVA....
+..AAEHOHVFJJHHIFIEA...
+.AUAEOOHHHQPJJIFVEA...
+.AVOHIHHQQGPMQHVVVEAA.
+AOOIVVKKQQNNTQKHVVIEEA
+AOOIIEMMMTPPRRMMHIIEOA
+AOOIDMTGGHNDHGMMGEIEEA
+.AADHAGGHVHHHHGGAKDAA.
+..AIHAAVHAHVVAVAAVHA..
+.AALUA.AKAEHUAHAAFLA..
+AILLA.ADDAFEDAEA.ALLA.
+AILA.AILA.ADUALLA.ALA.
+ALLAALLLA.ALLALLLAALIA
+.AA.ALLA.ALLA.ALLA.AA.
+....ALLAAFLA..ALLA....
+.....ALAAULA...AA.....
+......A.AFLA..........
+.........AA...........
+
+# ---- drawn frames (tools/realm_frames_shore2.py writes everything below)
+frame walk1 from base
+at 0 25
+.AA..ALLA.ALLA.ALLA.A.
+.....ALLAAFLA..ALLA...
+......ALAAULA...AA....
+.......A.AFLA.........
+..........AA..........
+
+frame walk3 from base
+at 0 25
+AA.ALLA.ALLA.ALLA.AA..
+...ALLAAFLA..ALLA.....
+....ALAAULA...AA......
+.....A.AFLA...........
+........AA............
+
+frame atk0 from base
+at 9 8
+NN
+
+frame atk1 from base
+at 8 7
+NNNN
+at 8 8
+NNNN
+at 9 1
+N
+at 4 3
+G
+at 16 3
+G
+
+frame atk2 from base
+at 9 8
+N
+
+clip move 5 base walk1 base walk3
+clip shoot 7 atk0 atk1 atk2 base

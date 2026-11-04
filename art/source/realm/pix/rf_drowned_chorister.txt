@@ -1,0 +1,99 @@
+# rf_drowned_chorister: 39x39, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #ce8837
+D #f5c85f
+E #734866
+F #555073
+G #452439
+H #af4c69
+I #8b1e3a
+J #92423a
+K #7d8490
+L #ca3533
+M #efdcc7
+N #f39b20
+O #8b9eaa
+P #b7918b
+Q #cb6723
+R #f4a243
+S #d1b1af
+T #b89198
+U #a990a3
+V #a3adb1
+frame base
+....................AA.................
+...................AMGA................
+..................AADDA................
+.................AMDDDPA...............
+...............A.APDDDDA...............
+..............AMA.AARCA.AA.............
+.............AJDA..ARCAABPA............
+.............ARRAAADCNQAANA............
+............AAGRCDDRRNRQCCAA...........
+...........ADQRRCRRBLJRQQNARA..........
+...........ADQCRAAQLLLLAANQRA..........
+............AAGNAJNQNQNAANAA...........
+.............AGNAJMNMNMAANA............
+.............AGNAEMNMNMAANA............
+.............AAQAJRNNNRAGJA............
+.A..AA.......ACNRRRQCCCCCJGA.....AA....
+ASAAMMAA....AHCQEKUMMMSEEJQA....AMMAAA.
+ASSAKMMEA....AAAKKSAAAATKAJA...AEMMAEMA
+ASSPMSMMA....AFFUUSA..ASUFA...ASMSMMSSA
+.AATUUUTAAA.AGTTUSBIAALAUUA.AAAATUUUAA.
+..AGKAGAMMMAAATTSSGLAILAUUAAKMSSEAEEA..
+...AFAAASMMSSUUASSAA.AAAUAVUMSUSAAFGA..
+...AKA.AOOOSOUFFAFUAAAA.AKVVSVOOAAKOA..
+...AKA.AOOOOOKKFAKEUUUKAAFKOVKKOAAMKA..
+...AMA.AKAFOOFKFAAASTSUAAFFOOAKA.AKA...
+...AMA.AGAOOKAFAGGGAPGAGAAFOOAGGA.AA...
+...AVA.AGGGKA.AAGFKAGGFGGAAAAAGGAAKGA..
+....A..AJEEAA..AFFTAGGGGGAGAAEJGAAVOA..
+.......ALIEGGA.AGPSAGIIFFAAGGEHGAAVKA..
+.......ALJHEGAAUPPKAIIIFFAGEEJLGAAMKA..
+........AIHJAAATSTAGJJIFFFAIELAA..AA...
+........AHHHAAGEGFAGJJJEFFAIELA........
+........AIHAAFFFFFAEHJIIKKAAALA........
+.........AAAKKKKOOAHJLLIEKKA.A.........
+...........AKKOKOKAHIJHIEKKAA..........
+.........AAKOOOKOGILAHHHHGKKKA.........
+........AGVVOFFVKGIAAHHAAAFOOOA........
+........AFVVOGGVKIIAAIHAGAFKKOA........
+.........AAAAAAAAAA..AA.A.AAAA.........
+
+# ---- drawn frames (tools/realm_frames_shore2.py writes everything below)
+frame walk1 from base
+at 0 36
+.......AGVVOFFVKGIAA
+........AFVVOGGVKIIA
+..........AAAAAAAAA.
+
+frame walk3 from base
+at 0 36
+.........AGVVOFFVKGI
+.........AFVVOGGVKII
+.........AAAAAAAAAA.
+
+frame atk0 from base
+at 20 2
+D
+
+frame atk1 from base
+at 19 2
+DD
+at 19 3
+MDDD
+at 20 0
+M
+at 2 17
+M
+at 36 17
+M
+
+frame atk2 from base
+at 20 3
+D
+
+clip move 5 base walk1 base walk3
+clip shoot 7 atk0 atk1 atk2 base

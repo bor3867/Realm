@@ -1,0 +1,80 @@
+# anchor_bearer: 34x24, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #7b5146
+D #d5a380
+E #766185
+F #cd8050
+G #cb0103
+H #c7a3a6
+I #51271c
+J #a5859b
+K #2a1f1c
+L #c6a7bb
+M #e6c7bd
+N #53455a
+O #b56741
+P #9d5036
+Q #b05c46
+R #aa0000
+S #a3445b
+T #f70706
+U #362a50
+V #4a334b
+frame base
+..............AAAA................
+.............AVHMMAA..............
+.........AAAANJJHHEVA.............
+........AMNMAEJJMMMHA.............
+.......AALMMAEEJHAAAHA............
+......AHMJJJHNEHA..AJA............
+......AAAAHMHENARAARHA............
+.....AMMEAKHJENATAATSA............
+.....AHMMJEVJENVAAAAAA............
+......AAAJJAEAAENNJANEA...AAA.....
+.....AENAAVUAAAAAAAAEVA..AMLLA....
+.....AJHJEAUAAAPKIIUEA....AELLA...
+....AAAEENAAAICCOCOUUVA...AEEJNA..
+...AMFAHHJAAAQQOCCINJJKA...AEELAA.
+..AFOOAHHHIFFPAICCANEJEA....AEELHA
+..AFAAANHJICPFDODAAAAAA.....AEELJA
+..AFOCAAAAAAIOPFFFFMMJKAAA.AEEEHJA
+...AFCA.ANUUAAAAQQILJJHAMLAAAEELJA
+.AADAA.AAEEEAUUNAAAEJJJAMMEHEEELJA
+AHDOFCAKEHHEANNEUEUAAAAAJJNEEEELJA
+AFDAOCAKDJHNANEANEKA....AAAEEEJAA.
+AFFAFFAAONNAANEANNA.....AAAEEELA..
+.AKFAAAEJHJA.AAAEJJA...AJJJJJVA...
+..AA...AAAA.....AAA.....AAAAAA....
+
+# ---- drawn frames (tools/realm_frames_shore2.py writes everything below)
+frame walk1 from base
+at 0 22
+.AKFAA.AEJHJA.AAEJJA
+..AA....AAAA.....AAA
+
+frame walk3 from base
+at 0 22
+.AKFAAAEJHJA..AAAEJJ
+..AA...AAAA....AAA..
+
+frame atk0 from base
+at 27 10
+M
+
+frame atk1 from base
+at 26 10
+MM
+at 29 14
+M
+at 31 19
+M
+at 28 22
+MM
+
+frame atk2 from base
+at 29 14
+M
+
+clip move 6 base walk1 base walk3
+clip shoot 8 atk0 atk1 atk2 base

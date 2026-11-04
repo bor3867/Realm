@@ -1,0 +1,86 @@
+# tide_slime: 38x24, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #b32f50
+D #ffcc57
+E #652952
+F #3b375c
+G #4a868c
+H #68abac
+I #e62a21
+J #202c46
+K #234956
+L #3c7880
+M #667a81
+N #f0e2ef
+O #9ab8d1
+P #ce211b
+Q #fdf974
+R #868088
+S #ec0609
+T #872149
+U #b4bace
+V #d1d2e7
+frame base
+...............AAAAAAA................
+............AAANUNUUUUA...............
+..........AAOONNNNNVUUMAAA............
+.........AUNNNNNNOOOOONNVNA...........
+........ANNNNNNUUOOOUUNVNNMA..........
+........ANNONNVKLONNNNUOOOOA..........
+........ANAAUVAAFNNKKNNNOOOAAAA.......
+........ANAAHOAAFNNKKJNNOOUMRNRA......
+.........A.AOOA.AAGLJJNNOOONNNVAA.....
+...........AOVA..AGLJJJJONNNOOOVRA....
+...........AUVA..AGGJKJFUNNOOOOOUA....
+............AA..AAHHJKJVNNUJJFNOOVA...
+...............AAKHHJJJJNJJJJKKUUUA...
+...............AHHHJJFJJNJJJKKKMUOA...
+.......AAA....AHHHGKJFFJJJKKKKLAAOA...
+......AVVOAAAAHHHGJJJFFFJJKKKKGAAVA...
+.....AGNNHHHHHHHGJJEEFFEJJFKKKGA.A....
+.....AHHUKKHHHGLJJFTPETTEJFKKLGA......
+....AAHKKKKKJJJJJFPQSESQPEFJLLLA......
+...AJHHKKKJJBAJFJEPDSTSQITHJGKLLAA....
+.AAOGGOGGKJOOOFFFFOIIMREEFOHKKKGGHAAA.
+AHHGLHLOOHHHLLOGVOHLLOGGOHLKLHHLLGHHHA
+.AFAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJAAAA.
+..A.............................A.....
+
+# ---- drawn frames (tools/realm_frames_shore2.py writes everything below)
+frame walk1 from base
+at 12 1
+NNN
+at 9 3
+N
+at 2 21
+L
+
+frame walk3 from base
+at 20 2
+NN
+at 24 4
+N
+at 30 21
+L
+
+frame atk0 from base
+at 19 18
+Q
+
+frame atk1 from base
+at 18 18
+QQ
+at 21 18
+QQ
+at 17 0
+N
+at 27 2
+N
+
+frame atk2 from base
+at 19 18
+Q
+
+clip move 5 base walk1 base walk3
+clip shoot 7 atk0 atk1 atk2 base

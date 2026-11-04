@@ -1,0 +1,88 @@
+# brine_pilgrim: 26x28, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #f29e0d
+D #633824
+E #7b8487
+F #efdbda
+G #ca2107
+H #625f7b
+I #9c7073
+J #ccb0ab
+K #f1dd89
+L #ecac5d
+M #974421
+N #d29374
+O #2a273b
+P #ae98bc
+Q #eac6a1
+R #b89689
+S #da8d40
+T #5a8c98
+U #ac613c
+V #db6518
+frame base
+..................AA......
+.................AHFA.....
+.................AHFA.....
+................AEFFAA....
+................AEFPFFA...
+...............AFFFEPPA...
+...............AFPPHPPA...
+........AAAA...AOFHHPAA...
+.......AQQJJA...AAHHAA....
+......AOIRJJRA..ADLMAA....
+.....AEIRRQQRJA.ASLUSIA...
+....ADIIRRDQQREAASIAAMLA..
+...AJQKIRJAAAAA.ASDAADUA..
+...AJIQIQAA..AEASUUAAMMAA.
+...ARQHIIGGAAGAAUUAACCCVMA
+...AAAAIOGA..A.AUMAAMMGMDA
+..ARFRAAAAAAAOAAUA.AVCCCSA
+.AKJQRRIARIIHIAQQIAACKFCCA
+.AQJQPAAAJQRHIAQJA.ACCKCCA
+.AJAAAOOAAQQAEARRIAAVVVVMA
+..AOOOHTHHOHAAAMUA..ACCAA.
+..AOHHTTHHIHA.AUDA...AA...
+.AABTTTHBRIIAAUUDA........
+.ATTTTTAIJEIAAUUIA........
+ATTTTTA.AAAA.ASUA.........
+ATTTAHA.AOHDAASUA.........
+.AAAAEA..AEPAADIA.........
+.....A....AA..AA..........
+
+# ---- drawn frames (tools/realm_frames_shore2.py writes everything below)
+frame walk1 from base
+at 8 26
+AEPA.
+.AA..
+at 0 26
+AAAA.EA
+
+frame walk3 from base
+at 8 26
+..AEP
+...AA
+at 0 26
+..AAAEA
+
+frame atk0 from base
+at 21 16
+KK
+
+frame atk1 from base
+at 20 15
+KKKK
+at 21 16
+FFF
+at 21 17
+KFK
+at 18 1
+F
+
+frame atk2 from base
+at 21 16
+K
+
+clip move 6 base walk1 base walk3
+clip shoot 8 atk0 atk1 atk2 base

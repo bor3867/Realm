@@ -1,0 +1,89 @@
+# pilgrim_elder: 34x31, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #bc5940
+D #f0cdac
+E #432531
+F #5d757e
+G #862d36
+H #ffdc54
+I #414364
+J #825067
+K #b8836a
+L #a09298
+M #f79f0c
+N #9b5843
+O #e79951
+P #f58c09
+Q #e18f57
+R #c9ab9b
+S #5c9197
+T #eea45e
+U #c23022
+V #bc3c57
+frame base
+..........................AAAA....
+........................AATOOTA...
+.......................AQCNNNCQA..
+......................AEOJAJNNTRA.
+.....................AKQNA.AAJNQA.
+......................ACA...AENCA.
+.............AAAA.....ANEAA.ABNA..
+...........AADDDDA....ANOONA.AA...
+..........AERRRRRRA....AQNEA......
+.........AAERLRRRLEA...AGNNA.AAA..
+........AEEJJLDDRDRA..AGNGA.AEOOA.
+........ARDRJLDDDDRJA.ANCA.AOOCUEA
+.......AKRDDJRDAAAADA.AQCA.AMMPPPA
+.......AJDDJJRAA.AARA.AQQA.AUUUUUA
+.......AAAAAFAUUAUUEA.AKQA.AMPHPPA
+......ADDJLEAEAA.AAEAAAECA.AMMDMPA
+.....AADDDKREFA.AAALABDEDA.AMPHPPA
+....ADDDDDDDDLIALJJRAADDRA.APMMMCA
+....AKDADAADRKLKJLLAIALRDA..AAPAA.
+.....AAEIIIAAEDKKLAEIALJRA....A...
+.....AIIIIIIAIDDDDAIIAEGA.........
+.....AIIFIFSAEAAAEEIIANQA.........
+....AIIFSFFSAGEAEEEAIANQA.........
+...ASSFSSIFIAGEGEJGAAAQNA.........
+...ASFFSSIIAEVEGGVGA.AQGA.........
+..AAFFFSAAFAEVEVJVGA.AQA..........
+.AASFFSAIIAEGVEVJVVEAAOA..........
+.AFSFAAIIIEGVAEVAVVJAANA..........
+AFSFAAEIIIVVQAEVAAVGAACA..........
+.AAA.AEIIAJVKAAVAAVA.ACA..........
+......AAA.AAA..A..A...A...........
+
+# ---- drawn frames (tools/realm_frames_shore2.py writes everything below)
+frame walk1 from base
+at 0 29
+.AAA.AEIIAJVKAAVA.VA.ACA
+.....AAA..AAA.A...A...A.
+
+frame walk3 from base
+at 0 29
+.AAA..AEIIAJVKAVAAVA.ACA
+.......AAA.AA...A..A..A.
+
+frame atk0 from base
+at 29 12
+HH
+
+frame atk1 from base
+at 28 12
+HHHH
+at 28 13
+HHHH
+at 29 14
+HH
+at 33 11
+H
+at 26 1
+H
+
+frame atk2 from base
+at 29 12
+H
+
+clip move 5 base walk1 base walk3
+clip shoot 7 atk0 atk1 atk2 base

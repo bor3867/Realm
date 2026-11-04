@@ -1,0 +1,86 @@
+# lantern_jelly: 22x22, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #6d4773
+D #8c80bd
+E #c4a5b0
+F #a7567b
+G #fbd71f
+H #ed9731
+I #e5af69
+J #4d456e
+K #68599a
+L #90a9c8
+M #2c273a
+N #80b6b8
+O #adbedf
+P #54366b
+Q #fde9a7
+R #e49104
+S #fdf8ec
+T #503162
+U #e5522d
+V #f5793c
+frame base
+........AAAAAAA.......
+.....AAALODDLLLAA.....
+....ALDOKJJCKKDDLA....
+...ALJDDKKCUKKKKKKA...
+...ADJCKKKUGFKKKKDA...
+..ALTJJPURSSGUPCTTDA..
+.ADDTPPPURSSGUCCTPDKA.
+ADDKTPPPCCRGRCCCCPKDDA
+ALLKFFFFVVRGVIEFFKKDDA
+ALLDIHIIIIQQQHIVVIDDDA
+ADDDTIIIICEMTIIHHTMDMA
+.AAAPCAAAPAACAAATTAAA.
+...AJFFAAFAAFA.AFFA...
+..AANDFAAFAAFA.AFNA...
+.AMNNNA.AIAAEA..ANNA..
+.AMNAA.ANNAANNA..ANNA.
+.AJOA.ANNNAANNKA.ANMA.
+..AA..ANNA..ANNA.ANA..
+......ANA..AANNA..A...
+.....AKNA.AMNNA.......
+......AA...AOA........
+............A.........
+
+# ---- drawn frames (tools/realm_frames_shore2.py writes everything below)
+frame walk1 from base
+at 0 18
+.....ANA...AANNA...A..
+....AKNA..AMNNA.......
+.....AA....AOA........
+...........A..........
+
+frame walk3 from base
+at 0 18
+.......ANA..AANNA.A...
+......AKNA..AMNNA.....
+.......AA....AOA......
+.............A........
+
+frame atk0 from base
+at 9 5
+SSSS
+
+frame atk1 from base
+at 8 4
+QSSQ
+at 9 5
+SSSS
+at 9 6
+SSSS
+at 10 7
+SS
+at 3 1
+Q
+at 18 1
+Q
+
+frame atk2 from base
+at 10 6
+S
+
+clip move 5 base walk1 base walk3
+clip shoot 7 atk0 atk1 atk2 base

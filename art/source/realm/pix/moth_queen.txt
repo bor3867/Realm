@@ -1,0 +1,106 @@
+# moth_queen: 61x30, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #a14949
+D #a78086
+E #f9cd19
+F #df4a1e
+G #f7d5ac
+H #a7acbd
+I #e2a325
+J #492b3f
+K #955f88
+L #673d6d
+M #934d6d
+N #c29087
+O #dea483
+P #f58f0e
+Q #f0bb8b
+R #d99976
+S #dda591
+T #ac7e9c
+U #d7a59d
+V #e4ccae
+frame base
+.........................AAA.......AA........................
+........................AGGGA.....AGGAA......................
+.......................AGGJA.......AGGJA.....................
+......................ANGGA.........AGGVA....................
+......AAAAAA..........ANGA..AA...AA..AGQA........A.AAAAA.....
+....AAAAAGJAAA........ANQA.AVGA.AVGA.AGQA.......AQAAAAAAA....
+...AUDGGGGGQQQAAAA....ASQQAVVA..ALGVAGGQA....AAAJQQQGGGGNAA..
+..AJGGVSLLLLLLQVUDAA...ABQAGJA...AQGAGLA...AAVQQLLLLLLOGGVNA.
+.AJGNSLLLKMMLLLLLNNUAA..AARQVA.A.AQQCAA..AAUUNLLLLMMMLLLSQGA.
+AGONKLLDNKKMFFFLLLKTTTA...AAOGAUAQQAA..AATTJLLLFFFKKNNNLLKNGA
+.AAADTQROMMPPPPCLLJJKTTAA..AJVJLMQA...AJLTLJLLPEEEPLNQSDKTAA.
+...ADDSQOMMPEGEFMLLLJTTJAA..AUDKNTA..ALKTJLLLMPEGEPMSQOSKKA..
+...AGQOSSMMPEEPCLLLLLLKTKKAAKJKKKTAAAKKTLJLLLLPEEEFMSOOQGGA..
+....AQQQSMNCPFPCNKKKKLLJTKKKBFALJFLLKKJLLLKTTDCFFCOUTGQQAA...
+....AJUUMOQQQCSSDDDDTKKLLJLJJQFAFFAKLLLLKTTTDSSSDQQQDDUUA....
+....AKAAAQQQQQSSQQVJTALAAJAJLFAAAFAAJJLMAKDSQUSSQQQQVAAAA....
+....AHAAJAGGQAGQOAAAAAAAAAKKKAALAKKLLAAAAAAARGQSAGGQA.AHKA...
+....AHAAJAAAA.AAAALLLLLLKKKKHHALHTAKKKJLLLJAAAAA.AAAJAAVA....
+....AHAAAA.....AKKKKKLLKKKLALHAAHTALLKLLKMMKKAA....AJAAJA....
+.....A.ALA...AAKKFFMKLKKLLLATAAJATAALTTTLKFFKKKA...ALA.A.....
+.......AHA..AANTCEQFFTTAALLATALJAMALLATDNFQEFRDNA..AHA.......
+.......AHA.ADDNNFEGIFTTAAJLATJLALMAJLATTTFQQFRDNNA.AHAA......
+.......AVA.AUNNQCCPFKTA.AFFAAKAAMAAJFAAMUMPPMQQNNA.AVHA......
+........A..ARQQQSMMDSA.AFPPFAACACAFFFFAAJSCMKQQQRRA.AA.......
+...........AGGQAGQQGSA.APGGIA.A.AAJEGPAAJOQQQCAQQGA..........
+...........AGGA.AANSA..APEPPA....AIPGPA.AARCAA.AGGA..........
+...........AGGA..AKA...AFFFPA....AAPPFA..ADA....AGA..........
+...........AGLA..AUA....APJA......AIPA...AVA...ABGA..........
+............AA...AGGA....AA........AA....AGA....AA...........
+..................AA......................A..................
+
+# ---- drawn frames (tools/realm_frames_shore2.py writes everything below)
+frame walk1 from base
+at 0 4
+..............
+.......AAAAAAA
+.....AAUDGGGQQ
+....AJGGVSLLLL
+..AAJGNSLLKMML
+.AGONKLLDNKKMF
+at 47 4
+..............
+AAAAAAA.......
+QQQGGGNAA.....
+LLLLLLOGGVNA..
+LMMMLLLSQGAA..
+FFKKNNNLLKNGA.
+
+frame walk3 from base
+at 0 4
+..............
+......AAAAAA..
+....AAUDGGGQQQ
+at 47 4
+..............
+...AAAAAA.....
+AJQQQGGGGNAA..
+
+frame atk0 from base
+at 9 12
+E
+at 50 12
+E
+
+frame atk1 from base
+at 9 12
+EE
+at 50 12
+EE
+at 16 20
+E
+at 43 20
+E
+at 30 2
+G
+
+frame atk2 from base
+at 50 12
+E
+
+clip move 8 base walk1 base walk3
+clip shoot 7 atk0 atk1 atk2 base

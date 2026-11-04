@@ -1,0 +1,86 @@
+# salt_matriarch: 41x28, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #f01713
+D #2d232e
+E #ac627b
+F #d94a5d
+G #ad8b9c
+H #e6bba2
+I #5d283d
+J #c7989a
+K #a0334d
+L #e8c4b7
+M #523d64
+N #765274
+O #a1436d
+P #f8ddc3
+Q #403439
+R #cb374c
+S #e84552
+T #a37490
+U #8f5579
+V #93728e
+frame base
+..............AA.........................
+...........AAASSA........................
+..........ASOARSSA......AA...............
+..........ASAASSRAAA...APPA..............
+........A.ARSSRIAAJPA.APHHHA.A...........
+.....A.ARAARRRKRAAPPPAAPJHTAAGA..........
+....AIAASSAAIRKA.ATHPLNJJJTANPPA.........
+....ASKFKSFAARKAAAGGLJJNVGNNPPJA.........
+.....ASSKSSAFOAAPPHNJJNLPNNPJJJA.........
+......AAIRRRKKAAJGHMUUPHLJNJLLVAAA.......
+......AAARFKAAANJJUMTHHLLJUHNNNHHPA......
+.....ASFFKOFAQPUNNPPTHHPLJNHLMLJJJA......
+......AAAADRAQTVLMHPNLPHAMLHHMJJJA.......
+......AAAAAMAUTGTNHLTAAAAAHHJNJIA........
+...AAAQGBDAAMQAHLTNAAADMMAAAVJHGAAAAA....
+..AGGAEEJJEAMMQBJJNACCCAACCAAUQAQODQPA...
+..APPOOOFEUAAAADADQACCCAACCADDAQUOKHPA...
+.AAHHJJINMDDJJAAAAAQACAAACBMAAANNIHHHGAA.
+AMNHJJHINAMIJOUAQQAMDQADADVMADQMNQJJJGNMA
+APPGJTNAAPUIKUNAPPAAJLMNMJJAAJLTAAGGGHPPA
+AHHJVAAAAHHJAMAAHJUAJGQQAGGAAJJJA.AAGGLHA
+AJGGVAAQPJTTAAHPHJUAGGAAAGGANVJLPA.AGGJJA
+AJVVA.AQPLGDAAQLGAAAVGA.AGA.AAGHPA..AVVJA
+AJVVA.AQPGGA.ADPTA..ANA.AA...AGHHA..AVVJA
+AJGVA.ADJGGA.ADJTGA..AKAKA...AGJJA..AVGJA
+AJTA..ADJAA..ADJAA....AOA.....AQJA...AAJA
+AJVA..ADJA...ADJA......A......AJJA...AJJA
+.AA....AA.....AA...............AA.....AA.
+
+# ---- drawn frames (tools/realm_frames_shore2.py writes everything below)
+frame walk1 from base
+at 0 26
+AJVA...ADJA...ADJA.....A.....AJJA...AJJA
+.AA.....AA.....AA.............AA.....AA.
+
+frame walk3 from base
+at 0 26
+.AJVA.ADJA..ADJA.......A.......AJJA.AJJA
+..AA...AA....AA.................AA..AA.
+
+frame atk0 from base
+at 14 1
+P
+
+frame atk1 from base
+at 14 1
+PP
+at 11 2
+P
+at 5 6
+P
+at 30 5
+P
+at 25 3
+P
+
+frame atk2 from base
+at 11 2
+P
+
+clip move 7 base walk1 base walk3
+clip shoot 7 atk0 atk1 atk2 base

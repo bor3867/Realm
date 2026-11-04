@@ -1,0 +1,78 @@
+# brine_slime: 28x16, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #b9dedb
+D #3f7a81
+E #2f3458
+F #92a6a2
+G #1a253d
+H #696581
+I #ec1915
+J #95caca
+K #6baaaa
+L #d80b22
+M #7cbebb
+N #5ca2a2
+O #682341
+P #5d939a
+Q #722c52
+R #e99a08
+S #fcc212
+T #ffb678
+U #b33a51
+V #7f6a7a
+frame base
+............AAAAA...........
+..........AACFJJPA..........
+.........APCCJJJMAAA........
+........ADCCMDDDDDNPAA......
+........ACJCPDDDDPPPKPA.....
+.......AADDDDMMMMMPPPNA.....
+......ACCDDDMKGGPKBKPPA.....
+.....AJFCPNPMKGGDGGGNKKA....
+.....AMFFPPGMKGGPAGGKKNA....
+....ACEEDPGGGEEEPEEEGANA....
+...AGJPEEGGEEELOEGLQGGNAA...
+...AGNPEEGEEEITIOUCIGGPEFA..
+.AANMCDEEFJJHIRIOUSLEEENKAA.
+AJJPDMDGGDJDHFIHQHQEGJDPKDDA
+AJMPDDMJMDDDMMDMMMHDPMMDDKKA
+.AAAAAAAAAAAAAAAAAAAAAAAAAA.
+
+# ---- drawn frames (tools/realm_frames_shore2.py writes everything below)
+frame walk1 from base
+at 2 12
+N
+at 10 1
+C
+at 24 13
+D
+
+frame walk3 from base
+at 20 4
+C
+at 6 12
+N
+at 3 13
+D
+
+frame atk0 from base
+at 13 11
+T
+
+frame atk1 from base
+at 12 11
+TT
+at 16 11
+TT
+at 13 0
+C
+at 11 0
+A
+
+frame atk2 from base
+at 13 11
+T
+
+clip move 4 base walk1 base walk3
+clip shoot 7 atk0 atk1 atk2 base

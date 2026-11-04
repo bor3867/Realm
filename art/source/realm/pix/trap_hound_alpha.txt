@@ -1,0 +1,79 @@
+# trap_hound_alpha: 35x21, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #b57f92
+D #a0496b
+E #9e1619
+F #714976
+G #937085
+H #673860
+I #3e2a3c
+J #ad3042
+K #d9b6a5
+L #d84856
+M #efd9c4
+N #c3a0a2
+O #dd4049
+P #9e7796
+Q #791823
+R #755144
+S #d5b6b3
+T #572c51
+U #e32921
+V #e74246
+frame base
+.....................A.............
+................AAA.AVAA...........
+...............AEEJA.AVJA..A.......
+...............AVVOJAAVVA.AQA......
+................AJOVAAQLLAAVRA.....
+.............AAA.AJOOQJJLOAJVA.....
+......AA.AA.ALLVAAJOOMSJOOAJVA.....
+.....AMIAMMA.AAOLJJJJGNKCCCPJAA....
+.....AMKAKNRAAAALLSNSFGNFPKNCNSAA..
+...AARCKCPCKALLLFSGSSNPGFFNNNNSRRA.
+..AMPGCCGFFGQOLDGIFBSGKNFFTFPEBGGSA
+.AAKCTHHAAAADNNNNNNFTAINSFTCBEQGGKA
+ARRPFAAA.ACCMKSGPDDHHGTICPNNNNCNNSA
+ACCPA....AICFKSFTHHHFCCHIAFGAEEAUA.
+ACCA....AAIDDPPAAAHAICCFAAFPAAA.A..
+ACPA...AKKKCPAAATAAINPGA..APCPUA...
+ANCA..ANSCPAGAHHTAAICCIA...ATGLA...
+.AA...AGNAA.ATHFA..AANKCA...AAA....
+.....ANNPA...AHFA...ANMGAA.........
+.....ANNPA...AIFFA...ASKFFA........
+......AAA.....AAA.....AAAA.........
+
+# ---- drawn frames (tools/realm_frames_shore2.py writes everything below)
+frame walk1 from base
+at 0 19
+....ANNPA....AIFFA..ASKFFA.
+.....AAA......AAA....AAAA..
+
+frame walk3 from base
+at 0 19
+......ANNPA..AIFFA....ASKFFA
+.......AAA....AAA......AAAA.
+
+frame atk0 from base
+at 22 2
+M
+
+frame atk1 from base
+at 21 0
+M
+at 22 2
+M
+at 28 3
+M
+at 17 2
+M
+at 32 9
+M
+
+frame atk2 from base
+at 28 3
+M
+
+clip move 9 base walk1 base walk3
+clip shoot 9 atk0 atk1 atk2 base

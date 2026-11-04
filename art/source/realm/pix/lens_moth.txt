@@ -1,0 +1,85 @@
+# lens_moth: 33x17, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #edcfb7
+D #472523
+E #e4b796
+F #e1a381
+G #d8664d
+H #d64624
+I #ad7a99
+J #ffd041
+K #2c2120
+L #916991
+M #e60a09
+N #da6a09
+O #c69ab3
+P #fee511
+Q #dc8f6a
+R #f0b403
+S #eb551f
+T #e4977b
+U #483b4e
+V #745770
+frame base
+.AAAAAA....................AAAAA.
+AEOEOOIAA....AA....AA...AAAOEEEKA
+AKCCIOIKUA..AVCA..ACVA.AUUOOFEEFA
+.AALIIOOIAA.AOOA..AOOAAAOOOILLAA.
+..AFFFQNHIOAAVIOAAOOKAUISSSFFFA..
+...AESNJRLLIAAIIAAOAALLGNPPHFA...
+...AKSJCRLLIAALLAALAALLINCPHKA...
+...ADENRSTIIVVAIOOIALTTTHSHEKA...
+....AACECEEFILAAIILAITFEECCAA....
+......AAAAAAAAAMAAMAAAAAAAA......
+...........AQKAMAMCADA...........
+..........AAFQAMAADAQAA..........
+.........ACEEAVAUALATECA.........
+.........ACFAALAUALIAECCA........
+........ACCVAAOAAAIOAACCA........
+........ACCA.AOA.ALA.AUCA........
+.........AA...A...A...AA.........
+
+# ---- drawn frames (tools/realm_frames_shore2.py writes everything below)
+frame walk1 from base
+at 0 0
+...........
+...AAAAA...
+..AEOOIKAA.
+.AAKCIOOIAA
+at 22 0
+...........
+...AAAAA...
+.AAKIOOEA..
+AAIOOICKAA.
+
+frame walk3 from base
+at 0 0
+...........
+.AAAAAA....
+AEOEOOIKA..
+
+frame atk0 from base
+at 5 5
+P
+at 27 5
+P
+
+frame atk1 from base
+at 4 5
+PP
+at 26 5
+PP
+at 5 6
+P
+at 27 6
+P
+at 16 8
+J
+
+frame atk2 from base
+at 5 5
+P
+
+clip move 10 base walk1 base walk3
+clip shoot 8 atk0 atk1 atk2 base

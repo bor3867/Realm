@@ -1,0 +1,81 @@
+# salt_widow: 30x23, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #ce3340
+D #36252f
+E #5e2d3c
+F #d66971
+G #8e1e24
+H #995973
+I #ae4865
+J #8f4155
+K #e5bba3
+L #735666
+M #c2928e
+N #cf4359
+O #bc95a0
+P #f5d8b6
+Q #ae7d8d
+R #a0768c
+S #ef0707
+T #ea474b
+U #58335b
+V #7d2f64
+frame base
+....................AAA.......
+................AAAACTEA......
+...............ACTDACTA.AA....
+................AATGTCAACTA...
+...........AAA...ACCTAATTTA...
+..........APPOA...AGTTATGA....
+........A.AAKPPA..AACNNCA.....
+......AAPADAKPKPAAQAANNNAAAA..
+.....ADPPKDAOKKKDMQAAJIITTTTA.
+......AAMMMLOOQRRKKQAIIICCAA..
+....AAAAAMKKUUKPPPPQOEJAAA....
+...AKJHMARQMUMKPPPPKOEVAEMAA..
+..APKMIIVAAHDEAAAAAALALVJPMPA.
+.AAPMKVVAAAAAASSAASSAAAHQMPKA.
+AKKMMHAADKMHAASSAASSAPAAAQQOPA
+APPOOA.ADPMQDDQADAAAHPDAARQQPA
+AKPOA.APPQQAAOQAUAOAQOPPAAROKA
+AMMRA.APQQA.ALMAAAOAAQKEA.ADOA
+AMMA..AOQQA.AOOA..A..AOOA.AOOA
+AOMA..AOODA.ALLA.....AOOA.AOLA
+AKKA..AMAA...AA......AOOA..AA.
+.AA...AMLA............AA......
+.......AA.....................
+
+# ---- drawn frames (tools/realm_frames_shore2.py writes everything below)
+frame walk1 from base
+at 0 20
+.AKKA..AMA....AA.....AOOA.AA..
+..AA....AA............AA......
+..............................
+
+frame walk3 from base
+at 0 20
+AKKA...AMAA..AA.....AOOA...AA.
+.AA....AMLA..........AA.......
+........AA....................
+
+frame atk0 from base
+at 21 1
+P
+
+frame atk1 from base
+at 21 1
+P
+at 25 3
+P
+at 18 2
+P
+at 23 4
+P
+
+frame atk2 from base
+at 25 3
+P
+
+clip move 8 base walk1 base walk3
+clip shoot 8 atk0 atk1 atk2 base

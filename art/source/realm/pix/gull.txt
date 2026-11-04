@@ -1,0 +1,84 @@
+# gull: 27x20, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #b8673b
+D #645372
+E #4a3f47
+F #cdb2c7
+G #f5a10d
+H #be5a2c
+I #eeb570
+J #e3bf3e
+K #f2dee6
+L #704600
+M #826a94
+N #b193b8
+O #95769c
+P #b594a7
+Q #2b1e29
+R #ed9626
+S #ed8303
+T #d8150e
+U #906745
+V #a17484
+frame base
+.AAAAAAAA..................
+ANNNKKKKDAA.............AA.
+ANNNKKKKKKKA.........AAAENA
+.AAMDDDFKKKAA.....AAAPKKNNA
+...ADDDDKKKFDA...AQPOKOOOA.
+..AMOOOMMDKKKA...AOPKOOMA..
+...AAPPPNMMKKA..ANNFFOMA...
+....APFPPMMKKQA.ANNKOQMA...
+.....AAPPPMKKKAAEMMDMAA....
+......APPPPMMKKEKKKPA......
+.......AVPPOMMKKKAADKAAA...
+........AAPOMMKKKATIIJLLA..
+........AANFNKKKKKCRRGJJA..
+......AAEFFKKKFFFVHAAAAA...
+.....ADEFFFKFFFFKACCA......
+....AEFNNNMPNNPAA.AA.......
+.....AAAAAAUUASLA..........
+.........AGSSASGA..........
+.........ARAAARA...........
+..........A...A............
+
+# ---- drawn frames (tools/realm_frames_shore2.py writes everything below)
+frame walk1 from base
+at 0 0
+.........
+.........
+.........
+at 0 3
+.AAAMD
+ANNNKK
+.AANKKK
+at 21 1
+....AA
+......
+at 23 4
+ANN
+
+frame walk3 from base
+at 0 0
+AAAAAAAA.
+ANNNKKKKD
+
+frame atk0 from base
+at 23 11
+I
+
+frame atk1 from base
+at 22 11
+II
+at 25 11
+L
+at 18 9
+K
+
+frame atk2 from base
+at 23 11
+I
+
+clip move 8 base walk1 base walk3
+clip shoot 8 atk0 atk1 atk2 base

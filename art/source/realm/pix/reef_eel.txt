@@ -1,0 +1,87 @@
+# reef_eel: 37x25, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #518890
+D #6facab
+E #922c3c
+F #3e202e
+G #ad4a5b
+H #dd2e35
+I #93bdbc
+J #ca3f52
+K #be7379
+L #3a2d56
+M #424e74
+N #34385f
+O #923b64
+P #733668
+Q #463563
+R #ef5158
+S #e44b52
+T #86a1a4
+U #b6191f
+V #bf3443
+frame base
+..................AAAA...AA..........
+.................AEESRA.ARAA.........
+.............AAAAASSSRAAASRA.........
+............ASSSSAAAVJJSAAUSA........
+.............AASVVAAPGGEOFOJGA.......
+.........AAAAAAVVJOGPPPPPQQOGAAA.....
+........AFRSJJJPPNQQMMMNNQLNDDIIA....
+.......AVRJVEGPQQCIITDDDDCMNCDDIIAAA.
+......AFEKOEEGQQMCIIMIDDDMDICAHFMIICA
+......AJOAAEPMNCDICCMCCCCMCCCAUUMCICA
+.......AA.APOMNCDCCCMCCCCMMMCDTTDDICA
+.........ASPPNDCDMMAAAAAAMCCCAAUAHAA.
+........AREPPLCCMAA......ACCIFUA.A...
+........ASAQQLDDCA.A......AAIIUHA....
+.........A.AQLDDDCAAA.......AITEA....
+....AA....AQQQMCDCCCMAAA.....AIIA....
+...AEUA..A.AAQLMMDIIIIDLA....ACIA....
+...AEVEAAVA.ALLNMQIIIICIDA....AA.....
+.AAAEVJAASA..ALQQNMMMCIIDAA..........
+AJJAAEVAOJA.AAAAALLLQNCCDMMA.........
+AJJAAQOJJPAAMCCMAAAAAQNCCMMA.........
+.AEJKCMMSSODCDDCCMAAAMCCDMMA.........
+..AAAAAALQMCCCCDDMCMDDCCMAA..........
+........AAMDCCNMCCCCDDCCMA...........
+..........AAAAAAAAAAAAAAA............
+
+# ---- drawn frames (tools/realm_frames_shore2.py writes everything below)
+frame walk1 from base
+at 17 0
+.AAAA.
+at 24 0
+..AA.
+at 0 19
+AJJA.AEV
+
+frame walk3 from base
+at 17 0
+AAAA..
+at 24 0
+AA...
+at 0 19
+.AJJAAEV
+
+frame atk0 from base
+at 32 9
+I
+
+frame atk1 from base
+at 33 9
+..
+at 32 10
+I.
+at 31 8
+I
+at 35 7
+I
+
+frame atk2 from base
+at 32 9
+I
+
+clip move 6 base walk1 base walk3
+clip shoot 8 atk0 atk1 atk2 base
