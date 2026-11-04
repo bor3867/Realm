@@ -1,0 +1,91 @@
+# gilded_lancer: 21x31, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #33242d
+D #f3e1df
+E #bf623d
+F #e6c33a
+G #731c22
+H #be9a94
+I #82666a
+J #d8bfc5
+K #a45340
+L #9e252b
+M #65484d
+N #cb8565
+O #5d4c60
+P #423648
+Q #926c71
+R #dc703c
+S #a18482
+T #e27e33
+U #c8aea5
+V #e9c4a5
+frame base
+..................A..
+.................ADA.
+.................ADA.
+.................ADJA
+.................ADDA
+.................ADJA
+.................AHJA
+................AOJJA
+................APJDA
+.........AAAA....AIA.
+........APQVCA...AQA.
+.......APSSHUA...AOA.
+.......APOHVSA...AMA.
+......AACOAAA....AEA.
+.....AQJDOVHIAA..AA..
+....AUJDJMHBPOOAAIA..
+...ASMJUJIBBPBOAAAA..
+...AOUVUUBNMIMCPHJIA.
+....AAAAAOIROPBPPAHA.
+...ACPAACPOIOCCCA.A..
+.AAGOIA.AACNCAAA.....
+AFFVCVA.AABBRA...A...
+ALLAMMKACPKGGAA.ANA..
+ALGAAPAAOPRGGAPAANA..
+ALKA.AAPOARGLAOA.A...
+ALLA.AOIQATGLAPA.....
+ALLA.APOPAAAAAOA.....
+ALLA.APAA....APA.....
+.ACA.ANA.....APA.....
+..A.ASMMA....APOA....
+.....AAA......AA.....
+
+# ---- drawn frames (tools/realm_frames_godfen.py writes everything below)
+frame walk1 from base
+at 4 27
+.APAA...APA..
+..ANA...APA..
+..ASMMA.APOA.
+..AAA....AA..
+
+frame walk3 from base
+at 4 27
+.APAA.....APA
+.ANA......APA
+ASMMA.....APO
+.AAA.......AA
+
+frame atk0 from base
+at 18 1
+D
+
+frame atk1 from base
+at 17 0
+ADA
+at 18 1
+D
+at 18 2
+D
+at 19 3
+D
+
+frame atk2 from base
+at 18 1
+D
+
+clip move 7 base walk1 base walk3
+clip shoot 8 atk0 atk1 atk2 base

@@ -1,0 +1,79 @@
+# rf_marsh_lurker: 46x21, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #6a553d
+D #5c543b
+E #a5a244
+F #b39a7b
+G #3e3530
+H #bd414b
+I #bebb37
+J #7b7a35
+K #7a7344
+L #cdc84e
+M #ab9550
+N #9c9861
+O #9c9733
+P #c19b64
+Q #e3cc95
+R #7e7a50
+S #d4ce66
+T #f9f2e2
+U #872848
+V #82583b
+frame base
+.........................AAAAAA...............
+.....................AA.AFILGPIAAAAAAAA.......
+..............AAAAAAALLAISDGIGDOCRLSINEA.AAAA.
+..........AAAASGLJKJCDGGOGGGGGDBJJGDKDEEALLGGA
+.........APIFBGGDRRRJIEEKCOGOEDEOOOJEEIIELBJKA
+.......AAAKDPJJIGDCCKCRKKKDGCGOOOEOEEIIIEEJKRA
+.....AAOGRFKDKJDGJEIGDKKKDGGDGEOOJEILDLGIBAAA.
+...AAJIGDKJJGCKDGOOOIBDJDGIIJAARCHGAAGADATAA..
+..AJLGGEGCDDGKGGGDOOONGDGECESRGOJRHAAGAA.AA...
+..ADRRDDGDMHAMDCDDDJKFBDBORJDAAGKRMAUUAUA.....
+.ALGDKGDGHHVGVGCGDDRJBGVBOOODAUUAKKCQHHUAA....
+.AIDKDGHVAAAAAAAAADKJJUUCOOEGGGAAAAMMUHHANA...
+ARDKRCAAA.......ACCCCAAAAEJDAAAAAGGACFTHHVA...
+ARLDDA.........AKKGCAAGAADKOJA..AGGGAAPSFHTA..
+AKJGGA.........ACKDAGGGA.ADJJA..AADCA.AMQUTA..
+AKGLAAA........ACCDAGGGA.ADKKA...ACCA..AMPLA..
+ADKKRLRA.......AKCKKGGGGAAGKKAA..ACDCA..AAA...
+.ACKKCODA......AKAVABAVGCAGEJOEA..AMOOA.......
+.AGCDDRNNAA.A...A.A.A.AAA.ALORLA...AAA........
+..AAGDDDCKOAQA.............AAAA...............
+....AAAAAAA.A.................................
+
+# ---- drawn frames (tools/realm_frames_godfen.py writes everything below)
+frame walk1 from base
+at 33 16
+.ACDCA...
+.AMOOA...
+..AAA....
+
+frame walk3 from base
+at 33 16
+...ACDCA.
+...AMOOA.
+....AAA..
+
+frame atk0 from base
+at 44 5
+T
+
+frame atk1 from base
+at 40 12
+TT
+at 41 13
+TT
+at 42 14
+T
+at 44 5
+T
+
+frame atk2 from base
+at 41 13
+T
+
+clip move 6 base walk1 base walk3
+clip shoot 8 atk0 atk1 atk2 base

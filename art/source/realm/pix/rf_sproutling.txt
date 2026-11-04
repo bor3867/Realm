@@ -1,0 +1,68 @@
+# rf_sproutling: 12x14, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #766e30
+D #5a3f2e
+E #474c18
+F #787648
+G #3e1d19
+H #945c47
+I #a06b48
+J #958d27
+K #f72d03
+L #b0c807
+M #733631
+N #8ea60b
+O #80594c
+P #9b604c
+Q #364602
+R #81a105
+S #a65b48
+T #aa725f
+U #577700
+V #6e8705
+frame base
+.AAAA.......
+AQLCEA..AA..
+.AFRNRAALNA.
+..AAUNARRQA.
+.AVAFJEJUA..
+..ADIIIHOA..
+...AAIIOMA..
+....AKBKMA..
+.AAAHBPBMAA.
+AGTPSBHMMHPA
+AIHATGAHGASA
+ATAATA.AAADA
+.A.AOA....A.
+....A.......
+
+# ---- drawn frames (tools/realm_frames_godfen.py writes everything below)
+frame walk1 from base
+at 0 12
+.A..AOA...A.
+.....A......
+
+frame walk3 from base
+at 0 12
+.A.AOA.....A
+...A........
+
+frame atk0 from base
+at 2 1
+L
+
+frame atk1 from base
+at 2 1
+LL
+at 9 2
+L
+at 1 0
+L
+
+frame atk2 from base
+at 9 2
+L
+
+clip move 8 base walk1 base walk3
+clip shoot 8 atk0 atk1 atk2 base

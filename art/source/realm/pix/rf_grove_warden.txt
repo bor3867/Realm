@@ -1,0 +1,87 @@
+# rf_grove_warden: 30x27, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #949d2c
+D #ca362c
+E #6f533f
+F #b71f25
+G #612422
+H #485c0d
+I #3f3d18
+J #89463d
+K #8ba808
+L #9a5845
+M #5d3139
+N #a6654b
+O #984c3c
+P #773d36
+Q #6b8814
+R #ad4239
+S #633c43
+T #643b29
+U #332115
+V #422635
+frame base
+......AAAAA..AAAA.....A.......
+.....AEKHUHAAIKKKA...AKA......
+...AA.AKKCCAAIBNA.AAAKUAA.....
+..AHHAAAAHQAAQQLSAQQIKKCIAAAA.
+.ACCKKCAAANGAAAJLAAUNJAUAAESEA
+.AQKEIQENNLLLLAJNNAAJPAATCQQA.
+AUAAAKHMTVPLLLEPNNONPAARJTAUQA
+.A.AQKHAAAAVVLNNONLLPUGTTQUAA.
+....AAA....AASJNNLNNLJAAAAHA..
+........AAAAAVEBULLLNA....A...
+......AALJJMAVEFDBJUDA........
+.....APLLPLTVVEUJBBGFGAA......
+.....ANDRRPMMAJLAOLLULVJA.A...
+....APFDPMMAAAVLALLLUBMPLAMA..
+...AJRGTAAAAVMULALAAAVMJONLA..
+...AJFJJA..ASSVAAVAANAVJOFNA..
+...ARFOA...AMOSEMVA.A.AMOOOA..
+...ALLJOA.AEJPSPSMA....APJJOA.
+..ALOAAPAASORMMOPSVA...AJAALAA
+..ANAVLAATJRPSLPEVPJA.AUAJALLA
+..ALAVA.AGRPOUVVAVJNNA.AALAGLA
+..APAAA.AMDPRGAA.ASJOTA.ALAUOA
+..AMAAPAAFDPOA...AVPPGA..AAVA.
+...A..A.AJJJSA....AMPPA....A..
+........AMLJPA....AMMPJA......
+.......AJVLPPJA...AVLAJLA.....
+........AAAAAA.....AA.AA......
+
+# ---- drawn frames (tools/realm_frames_godfen.py writes everything below)
+frame walk1 from base
+at 0 24
+........AMLJPA.....AMMPJA.....
+.......AJVLPPJA.....AVLAJLA...
+........AAAAAA.......AA.AA....
+
+frame walk3 from base
+at 0 24
+.........AMLJPA...AMMPJA......
+........AJVLPPJA..AVLAJLA.....
+.........AAAAAA....AA.AA......
+
+frame atk0 from base
+at 13 1
+K
+
+frame atk1 from base
+at 13 1
+KK
+at 21 1
+K
+at 1 4
+K
+at 28 5
+K
+at 8 0
+K
+
+frame atk2 from base
+at 21 1
+K
+
+clip move 5 base walk1 base walk3
+clip shoot 7 atk0 atk1 atk2 base

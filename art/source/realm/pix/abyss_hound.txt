@@ -1,0 +1,80 @@
+# abyss_hound: 24x20, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #362a49
+D #91586a
+E #592036
+F #8e2032
+G #e9d9d6
+H #7c3652
+I #c12b39
+J #c9a099
+K #6f526b
+L #57486e
+M #55355a
+N #d05764
+O #685274
+P #7d6b86
+Q #b55e68
+R #786683
+S #6d5f7e
+T #7d6e8f
+U #886a7f
+V #d26a7d
+frame base
+.............A..........
+............AQA.........
+.........A..AAIA....A...
+........AIAAEAIIAA.AJA..
+.....A.AECILLLFOEIAIA...
+....AEAAMMIMLORCNELHHA..
+.....AIIHHFMKKLCISOLMA..
+.....ALOLLLLSLLCSRSOSQA.
+....AHLCCCLLLLLLOSJASRA.
+...AMLLOLPCCLTLCCOSLTPQA
+...AMAMOOPCMBLOAAAAKGJIA
+...AMAMLOSACBMMCAVNAAAGA
+..AMMAMMLOACAMMCAAQIAAA.
+.AAMEEAMLMAAAUOA.AEQFGA.
+.AHCAAMLLAEAAKOAAAAAAA..
+AAEA.AOOAAEA.ALA.ACA....
+AFEA.ALLAAEA.AOA.ACMA...
+AACA.AKMAAMEAAOCAACCA...
+.AA..AKEKAAA.AKKA.AA....
+......AAA.....AA........
+
+# ---- drawn frames (tools/realm_frames_godfen.py writes everything below)
+frame walk1 from base
+at 0 16
+AFEA.ALLAAEA..AOA.ACMA..
+AACA..AKMAAMEAAOCAACCA..
+.AA...AKEKAAA.AKKA.AA...
+.......AAA.....AA.......
+
+frame walk3 from base
+at 0 16
+AFEA..ALLAAEAAOA..ACMA..
+AACA.AKMA.AMEAAOCA.ACCA.
+.AA..AKEKA.AA.AKKA..AA..
+......AAA......AA.......
+
+frame atk0 from base
+at 19 9
+G
+
+frame atk1 from base
+at 19 9
+GG
+at 21 10
+G
+at 22 13
+G
+at 20 12
+G
+
+frame atk2 from base
+at 19 9
+G
+
+clip move 9 base walk1 base walk3
+clip shoot 9 atk0 atk1 atk2 base

@@ -1,0 +1,82 @@
+# rf_bog_witch: 23x26, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #5c4529
+D #a47c4a
+E #2d2429
+F #463728
+G #d2d723
+H #af9f62
+I #e2cf5c
+J #a89f1f
+K #957a2c
+L #7b6e4c
+M #d0a96c
+N #d0d706
+O #dabf7e
+P #796b1c
+Q #a69d43
+R #534844
+S #877469
+T #665f4d
+U #646120
+V #61593e
+frame base
+..................A....
+................AAEA...
+...............AAAEA.A.
+...............AHBNAAJA
+.......AAA.....AAGGNAA.
+.....AAKKQA...AJENGGBUA
+....AASLDQHA...ABNINJGA
+.....AFTTQIHA..ABEGPAA.
+.....ARVTAAAA..AGAKAEA.
+...AARTTKTQAHA..AAPAA..
+..AQORVHAAA.A....ADA...
+.AOMDOFFAA.ACA..APCA...
+ACMMOHFPFBAQA...AMFA...
+.AAAFBMBFCEFA...ADA....
+..AFRVEAFREFRAAATMA....
+..ATQLBFVEFAVVLLRPA....
+.AVKQAFVHUFARTTFESA....
+ALCUPERREEUAAVRAAA.....
+ATHKAERTBEPA.AA........
+AVTQAARREEPA...........
+ALDMHFRRAESFA..........
+.AMEBEROEESVA..........
+.AEAERRMERFVA..........
+AEREFRUOAARRA..........
+.ARFTAEA.ARARA.........
+..AAA.A...A.A..........
+
+# ---- drawn frames (tools/realm_frames_godfen.py writes everything below)
+frame walk1 from base
+at 0 24
+ARFTAEA..ARARA
+.AAA..A....A.A
+
+frame walk3 from base
+at 0 24
+..ARFTAEAARARA
+...AAA.A..A.A.
+
+frame atk0 from base
+at 18 2
+I
+
+frame atk1 from base
+at 17 0
+.I.I
+at 18 2
+II
+at 22 1
+I
+at 15 1
+I
+
+frame atk2 from base
+at 18 2
+I
+
+clip move 6 base walk1 base walk3
+clip shoot 8 atk0 atk1 atk2 base

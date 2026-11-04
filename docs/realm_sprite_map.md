@@ -97,5 +97,5 @@ lowlands: field_rat, burrow_mole, scarecrow, bramble_bear, rf_sewer_rat, rf_plag
 - [x] Sheets cut into native sprites (tools/sheet_crops.py)
 - [x] The Drowned Shore (8): shore_crab, rf_coral_crab, driftwood_bandit, tide_herald, siren, conch_hermit, reef_golem, trap_hound (014a1a1)
 - [x] The Thornwood and the Greenmarch (11): bramble_wolf, briar_bee, spore_puff, thornwood_stag, spider_queen, bark_spider, bandit_archer, orc_warlord, hedge_goblin, goblin_shaman, wild_boar (30a56e1)
-- [ ] The rest, by land: runeholt + steppe + ember (10), godfall (5), fen (3) (tools/realm_pix.py; one frames file a land)
+- [x] Runeholt, the Steppe, the ember lands (10) (d3ba3c5); Godfall (5) and Ashfen (3): every one of the 37 matched enemies done (tools/realm_pix.py; one frames file a land)
 - [ ] Landscapes placed by land

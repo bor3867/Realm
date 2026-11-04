@@ -12,7 +12,8 @@ C.SRC = os.path.join(root, 'art', 'source', 'realm'); C.PIX = os.path.join(C.SRC
 C.SHEET, C.TITLE = 'realm_user', "The realm's monsters, the user's art, hand-animated"
 C.IDS = ['shore_crab', 'rf_coral_crab', 'driftwood_bandit', 'tide_herald', 'siren', 'conch_hermit', 'reef_golem', 'trap_hound',
   'bramble_wolf', 'briar_bee', 'spore_puff', 'thornwood_stag', 'spider_queen', 'bark_spider', 'bandit_archer', 'orc_warlord', 'hedge_goblin', 'goblin_shaman', 'wild_boar',
-  'rock_troll', 'crag_dwarf', 'crystal_golem', 'cairn_crawler', 'rf_ash_golem', 'glacier_headsman', 'wolf_shield', 'rime_herald', 'frost_skald', 'cinder_golem']   # (by land as each is drawn)
+  'rock_troll', 'crag_dwarf', 'crystal_golem', 'cairn_crawler', 'rf_ash_golem', 'glacier_headsman', 'wolf_shield', 'rime_herald', 'frost_skald', 'cinder_golem',
+  'fallen_knight', 'gilded_lancer', 'abyss_hound', 'rf_grove_warden', 'rf_sproutling', 'rf_bog_witch', 'rf_marsh_lurker', 'elder_willow']   # (by land as each is drawn)
 
 if __name__ == '__main__':
     if sys.argv[1] == 'dump': [C.dump(i) for i in sys.argv[2:]]

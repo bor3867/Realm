@@ -1,0 +1,80 @@
+# fallen_knight: 30x20, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #521421
+D #dc8b4e
+E #ab3a39
+F #c7c0da
+G #9d92af
+H #403953
+I #ac7666
+J #d78c86
+K #837999
+L #696187
+M #d81923
+N #ebc29e
+O #594f6a
+P #261e31
+Q #de232c
+R #b11932
+S #b1a8c2
+T #b9b1c8
+U #96060d
+V #8d1a38
+frame base
+...........AAAAAAA....A.A.AAA.
+.........AAQQMQQQMA..ATAGAGKFA
+........ACMRVVAACTFA.ATLGKKLFA
+.........AAAAALKGGSOAAGLKKKFFA
+.........AKKAAOLGLGOA.AALAAFA.
+........ATSGSAOPEFFCA..AEAKA..
+.......AHGFGKAOKBGBUGA.ADAA...
+......ASFKKKKLASBLLPPAAOIA....
+......AHHGHTPOKHAAAPHKGIGIA...
+.....AAGGKAAHLGOHPAAOKGIIIA...
+....ARAPKKAAHAACAA..AAAAEA....
+...AMRVHNNCAOAAUAHA....AIA....
+..AERVCHJNPOLAJJULLA...ADA....
+..AMRVCCAAOLOAMMUOPOA..ADA....
+.AQMRCVCAASPA.AAAATSA..ADA....
+AQUARVACALOPA....ALLA..ADA....
+.AAARA.AKKKA....AOKKA..ADA....
+....A..ASKKA....AOONSA.ADA....
+........APPA.....AAAA...A.....
+.........AA...................
+
+# ---- drawn frames (tools/realm_frames_godfen.py writes everything below)
+frame walk1 from base
+at 0 16
+.AAARA.AKKKA.....AOKKA.
+....A...ASKKA...AOONSA
+.........APPA....AAAA.
+..........AA..........
+
+frame walk3 from base
+at 0 16
+.AAARA.AKKKA...AOKKA...
+....A.ASKKA...AOONSA...
+.......APPA....AAAA....
+........AA.............
+
+frame atk0 from base
+at 27 1
+N
+
+frame atk1 from base
+at 27 1
+NN
+at 28 2
+N
+at 25 3
+N
+at 22 0
+N
+
+frame atk2 from base
+at 28 2
+N
+
+clip move 7 base walk1 base walk3
+clip shoot 8 atk0 atk1 atk2 base
