@@ -1008,7 +1008,7 @@ export class Game {
     for (const o of m.objects) {
       if (!o.opened || o.openedAt === undefined || o.openedAt === null || this.t - o.openedAt < 180) continue;
       if ((this.netTargets || [this.player]).some((q) => q && Math.hypot(o.x - q.x, o.y - q.y) < 10)) continue;   // (never under anyone's nose)
-      o.opened = false; o.openedAt = null; o.sprite = 'chest'; o.hidden = false; o.solid = true; o.hp = o.maxHp || o.hp; o.netHit = null;
+      o.opened = false; o.openedAt = null; o.sprite = o.closedSprite || 'chest'; o.hidden = false; o.solid = true; o.hp = o.maxHp || o.hp; o.netHit = null;
       if (m.solid) m.solid[Math.floor(o.y) * m.w + Math.floor(o.x)] = 1;
       m.ogridDirty = true;
       const c = (m.camps || []).find((q) => Math.abs(o.x - q.x) < 0.1 && Math.abs(o.y - q.y) < 0.1);
