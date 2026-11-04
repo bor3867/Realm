@@ -10,6 +10,7 @@ Type commands in chat (`/` or Enter). Ids use underscores. Regenerate with `node
 | `/teleport NAME` | Teleport to another player in the same place (anyone; every 10 s). Clicking their name or minimap dot does it too |
 | `/w NAME message` | Whisper to one player (anyone; also /whisper, /tell, /msg). Shown in blue, their name in [] |
 | `/r message` | Reply to whoever last whispered to you (anyone; also /reply) |
+| `/lag` | Where lag comes from (anyone; also /fps, /ping): this computer frames and drawing time, the ping to the server, and how hard the server is working |
 | `/cleardeaths` | Forget your own fallen heroes, off your account and the Hall of Legends (asks you to type /cleardeaths confirm; also a button in the Hall of Legends). Fame and achievements stay |
 | `/rift` | The void opens under the realm now: Solkhar speaks as it widens, it swallows everyone in it into a shared Throne of Solkhar, and a new realm rises (online: the shared realm; it also opens on its own every 30 minutes) |
 | `/admin` | Equip the admin kit (old gear goes to your backpack) |

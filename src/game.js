@@ -4527,14 +4527,21 @@ export class Game {
     const say = (t) => this.say(t, '#7ad0a8');
     const near = (d = 4) => { const a = R() * TAU; return { x: p.x + Math.cos(a) * d, y: p.y + Math.sin(a) * d }; };
     const n = (v, dflt) => (v === undefined || isNaN(+v) ? dflt : +v);
-    if (!['help', 'dance', 'teleport', 'w', 'whisper', 'tell', 'msg', 'r', 'reply'].includes((cmd || '').toLowerCase()) && !this.adminOk()) {
+    if (!['help', 'dance', 'teleport', 'w', 'whisper', 'tell', 'msg', 'r', 'reply', 'lag', 'fps', 'ping'].includes((cmd || '').toLowerCase()) && !this.adminOk()) {
       say(this.account && this.account.online ? 'That command is for admins.' : 'That command is for admins: sign in to your online admin account (this is an offline one).'); return;
     }
     // in a shared place the monsters are the server's: commands that make or end them run there, for everyone (src/net.js)
     if (this.map && this.map.netWorld && this.netWorldCmd && this.netWorldCmd(line, (cmd || '').toLowerCase(), args)) { say('(sent to the server: everyone here sees it)'); return; }
     switch ((cmd || '').toLowerCase()) {
+      case 'lag': case 'fps': case 'ping': {                 // where the time goes: this computer's frames, the connection, the server
+        const P = this.perf || { upd: 0, draw: 0, gap: 16, worst: 0 }, N = this.net;
+        say(`This computer: ${Math.round(1000 / Math.max(1, P.gap))} frames a second (the game's step ${P.upd.toFixed(1)} ms, drawing ${P.draw.toFixed(1)} ms, the slowest lately ${P.worst.toFixed(0)} ms; under 16 ms is smooth).`);
+        if (N && N.open && N.ws) { const t0 = performance.now(); N.pingAt = t0; N.ws.send(JSON.stringify({ t: 'ping', at: t0 })); say('Asking the server...'); }
+        else say('Not connected to the server (playing offline).');
+        break;
+      }
       case 'help':
-        say('Player: /w NAME message (a whisper)  /r message (reply)  /teleport NAME (to someone here)  /dance  · Enter to chat, Esc for settings and your keys.');
+        say('Player: /w NAME message (a whisper)  /r message (reply)  /teleport NAME (to someone here)  /dance  /lag (frames, ping, server)  · Enter to chat, Esc for settings and your keys.');
         if (!this.adminOk()) break;
         say('/cleardeaths (forget your fallen heroes, off the Hall of Legends too)  /rift (the void opens under the realm now: everyone in it to the Throne, a new realm)  /admin  /ascend (top level, stats maxed; a priest gets the Hosanna set)  /backpack  /maxlevel  /level N  /maxstats  /heal  /god  /give ITEM [N]  /give dungeon ID (its whole loot set)  /items TEXT  /spawn ID [N] (any monster, elite or boss; /spawn chicken N, /spawn pigeon N: up to 100 XP birds)  /boss ID  ' +
             '/bx BOSS (a three-phase boss beside you)  /kraken  /treant  /melon  /event BIOME  /adminchest [N] (best loot)  /armory [TIER] (the Mad God Armory)  /keys [dungeon N] (dungeon keys)  /pet [kind rarity max]  /star (a falling star in Godfall)  /seals (open a dungeon boss gate)  /progress BIOME N  /gold N  /essence N  /bosses  /tp LAND|nexus|realm|DUNGEON (lands: shore fen runeholt godfall dunes thornwood steppe lowlands)  /killall  /clearbags  /fame N  /portal DUNGEON  (all ids: ADMIN_REFERENCE.md; final boss: /portal throne)');

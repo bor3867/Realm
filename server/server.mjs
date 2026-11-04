@@ -107,6 +107,7 @@ const str = (v, n) => (typeof v === 'string' ? v.replace(/[\u0000-\u001f\u007f]/
 function onMessage(c, text) {
   let m; try { m = JSON.parse(text); } catch { return; }
   if (!m || typeof m !== 'object') return;
+  if (m.t === 'ping') { send(c, { t: 'pong', at: +m.at || 0, tick: +(tickAvg.toFixed(1)), slow: Math.round(lateShare * 100), players: clients.size, worlds: 1 + (nexusWorld ? 1 : 0) + [...dungeons.values()].filter((d) => d.world).length }); return; }   // (/lag)
   if (m.t === 'hi') {
     c.name = str(m.name, LIMIT.name).trim() || `Player ${c.id}`;
     c.cls = CLASSES.has(m.cls) ? m.cls : 'priest';
@@ -388,6 +389,7 @@ server.on('upgrade', (req, sock) => {
 if (process.env.RENDER_EXTERNAL_URL) setInterval(() => { if (clients.size) fetch(process.env.RENDER_EXTERNAL_URL).catch(() => {}); }, 5 * 60 * 1000);
 setInterval(() => { const ping = Buffer.from([0x89, 0]); for (const c of clients.values()) if (!c.sock.destroyed) c.sock.write(ping); }, 25000);
 // the world's clock: 20 steps a second, the monsters' news 10 times a second
+let tickAvg = 0, lateShare = 0, last0 = 0;                // (for /lag: a step's average cost, and how often a step ran late or long)
 if (world) { let n = 0, slow = 0; setInterval(() => { const t0 = performance.now(); const now = true; ++n;
   try { world.tick(0.1, now); } catch (err) { console.error('world tick', err); }
   try { if (nexusWorld) nexusWorld.tick(0.1, now); } catch (err) { console.error('nexus tick', err); }
@@ -395,7 +397,8 @@ if (world) { let n = 0, slow = 0; setInterval(() => { const t0 = performance.now
     if (d.world) { try { d.world.tick(0.1, now); } catch (err) { console.error('dungeon tick', d.to, err); } }
     const idle = d.world ? d.world.idleMs : ([...clients.values()].some((c) => c.room === room) ? (d.idleSince = Date.now(), 0) : Date.now() - d.idleSince);
     if (Date.now() > d.until && idle > 120000) dungeons.delete(room);     // empty, its portal long gone: closed
-  } const ms = performance.now() - t0; if (ms > 90 && ++slow % 50 === 1) console.warn(`world tick slow: ${ms.toFixed(0)} ms`); }, 100); }
+  } const ms = performance.now() - t0; tickAvg += (ms - tickAvg) * 0.05; const lateNow = last0 ? Math.max(0, t0 - last0 - 100) > 25 : false; last0 = t0; lateShare += ((lateNow || ms > 90 ? 1 : 0) - lateShare) * 0.02;
+  if (ms > 90 && ++slow % 50 === 1) console.warn(`world tick slow: ${ms.toFixed(0)} ms`); }, 100); }
 server.listen(PORT, () => console.log(`Melon Realms server on :${PORT}, realm seed ${SEED}`));
 // shutting down (Render stops the old server on every deploy): write every save still waiting, then go
 let closing = false;

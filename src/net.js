@@ -49,6 +49,11 @@ const methods = {
   },
   netOn(m) {
     const N = this.net;
+    if (m.t === 'pong') {                                   // /lag's answer: the round trip, and how the server's clock is keeping up
+      const rtt = performance.now() - (+m.at || 0);
+      this.say(`Ping ${Math.round(rtt)} ms (under 100 is good, over 250 feels laggy). Server: each step ${m.tick} ms of its 100 ms (${m.slow}% of steps late lately), ${m.players} playing, ${m.worlds} worlds running.`, '#7ad0a8');
+      return;
+    }
     if (m.t === 'welcome') {
       N.id = m.id; N.online = m.online; N.world = !!m.world; N.nexusWorld = !!m.nexus; N.db = !!m.db;
       for (const f of N.waiters || []) f(true); N.waiters = [];

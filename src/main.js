@@ -212,8 +212,9 @@ async function boot() {
       // E turns the view right, Q turns it left (flip with "invert rotation")
       const turn = ((I.rotL || 0) - (I.rotR || 0)) * (settings.invertRotation ? -1 : 1);
       if (turn) game.rotateCam(turn * settings.rotSpeed / 1.9, dt);
-      game.update(dt);
-      rnd.draw(game);
+      const t0 = performance.now(); game.update(dt); const t1 = performance.now(); rnd.draw(game); const t2 = performance.now();
+      const P = game.perf || (game.perf = { upd: 0, draw: 0, gap: 16, worst: 0, n: 0 }), k = 0.05;   // (for /lag: where a slow frame's time goes)
+      P.upd += (t1 - t0 - P.upd) * k; P.draw += (t2 - t1 - P.draw) * k; P.gap += (dt * 1000 - P.gap) * k; P.worst = Math.max(P.worst * 0.995, t2 - t0); P.n++;
     }
     for (const [n, a] of game.sfxq.splice(0)) sfx.play(n, a);
     ui.tick(dt);
