@@ -69,6 +69,13 @@ const methods = {
     // the locks (src/world/castle_plan.js LOCKS): each way's gate opens when what holds it is done
     for (const L of C.locks || []) if (!L.open && this.castleCond(L.cond, Rm)) { L.open = true; this.castleOpen(L.name); this.banner(L.say, 3000); }
     C.goal = n ? this.castleGoal(n, Rm, S) : null;
+    // the way on, pointed to once the area's goal is done (2026-11-03, the user: "ensure that players know how to complete
+    // rooms"): the gate this area held, open now; an arrow from you to it until you reach it
+    C.exit = null;
+    if (n && !C.goal) {
+      const L = (C.locks || []).find((q) => q.a === n.num && q.open), W = L && C.plan && C.plan.ways[L.name];
+      if (W && !(S.passed || (S.passed = {}))[L.name]) { const [x, y] = W.mid; if (Math.hypot(p.x - x - 0.5, p.y - y - 0.5) < 3) S.passed[L.name] = true; else C.exit = { x: x + 0.5, y: y + 0.5 }; }
+    }
     this.castleMechs(dt, Rm, S);
     if (this.castleLater) this.castleLater = this.castleLater.filter((q) => { if (this.t < q.t) return true; q.f(); return false; });
     if (!m.netWorld) { this.castleWaves(Rm, S); this.castleGeysers(dt, S); if (n && n.form) this.castleHazard(dt, n, S); }

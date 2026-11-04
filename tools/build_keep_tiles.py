@@ -31,8 +31,8 @@ T = {
   'keep_grate': ['IIIIIIII', 'IkkIkkIk', 'IkkIkkIk', 'IIIIIIII', 'IkkIkkIk', 'IkkIkkIk', 'IIIIIIII', 'iiiiiiii'],
   # stained glass (2026-11-03, the user: "stained glass windows (we can raise the castle walls to fix this)"): a wall face
   # of glass between stone mullions, lead between its panes; it tiles up the wall, so the raised wall is one tall lancet
-  'keep_wall_glass_a': ['BkRRGGkB', 'BkRYYRkB', 'BkkkkkkB', 'BkGGRRkB', 'BkGYYGkB', 'BkRGGRkB', 'BkkkkkkB', 'BkRRGGkB'],
-  'keep_wall_glass_b': ['BkaabbkB', 'BkaPPakB', 'BkkkkkkB', 'BkbbaakB', 'BkbPPbkB', 'BkabbakB', 'BkkkkkkB', 'BkaabbkB'],
+  'keep_wall_glass_a': ['BkfFYfkB', 'BkFwYFkB', 'BkkkkkkB', 'BkYfFYkB', 'BkfwwfkB', 'BkFYfFkB', 'BkkkkkkB', 'BkfFYfkB'],   # (brighter: lit from behind)
+  'keep_wall_glass_b': ['BkpPapkB', 'BkPWPpkB', 'BkkkkkkB', 'BkapPpkB', 'BkPWWPkB', 'BkpPapkB', 'BkkkkkkB', 'BkpPapkB'],
   'keep_carpet': ['gRrrrrRg', 'gRrqrrRg', 'gRrrrrRg', 'gRrrqrRg', 'gRrrrrRg', 'gRqrrrRg', 'gRrrrrRg', 'gRrrrqRg'],
 }
 grid = lambda rows: [[(*PAL[c], 255) if PAL[c] else (0, 0, 0, 0) for c in r] for r in rows]

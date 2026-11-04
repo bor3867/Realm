@@ -290,6 +290,7 @@ export class Renderer {
     for (const v of m.penPets || []) add(v.x, v.y, (sx, sy) => this.villager(g, v, sx, sy));        // pets in the Pet Yard
     if (g.pet && !g.player.dead) add(g.pet.x, g.pet.y, (sx, sy) => this.villager(g, g.pet, sx, sy)); // your companion
     if (m.castle) for (const o of m.objects) if (o.castleMech && o.mechProg > 0) add(o.x, o.y + 0.6, (sx, sy) => this.mechBar(o, sx, sy));   // a castle mechanism turning: its progress bar over it
+    if (m.castle && m.castle.exit && !g.player.dead) { const X = m.castle.exit; add(g.player.x, g.player.y + 0.02, (sx, sy) => this.wayOn(g, X, sx, sy)); add(X.x, X.y, (sx, sy) => this.wayMark(g, sx, sy)); }   // the way on (src/castle.js): an arrow at your feet, a marker over the gate
     if (g.hatching) add(g.hatching.x, g.hatching.y, (sx, sy) => this.hatchEgg(g, g.hatching, sx, sy));   // an egg hatching at your feet
     if (m.belts) this.beltFx(g, m.belts);
     if (g.arena) this.arenaFx(g, g.arena);
@@ -1717,6 +1718,20 @@ export class Renderer {
     if (p.aegisUp) { b.fillStyle = Math.floor(g.t * 2) % 2 ? '#f2c14e' : '#fff6c8'; b.fillRect(Math.round(sx) - 1, cy - 9, 3, 1); b.fillRect(Math.round(sx), cy - 10, 1, 3); }
   }
   // a mechanism's progress (2026-11-03, the user: "a progress bar instead of 30 messages"): a gold bar over it, framed
+  // the way on: a gold arrow circling you, pointing to the open gate (whatever way the camera has turned)
+  wayOn(g, X, sx, sy) {
+    const b = this.b, [tx, ty] = this.proj(X.x, X.y), [px, py] = this.proj(g.player.x, g.player.y), a = Math.atan2(ty - py, tx - px);
+    const r = 20 + Math.sin(g.t * 5) * 2, cx = sx + Math.cos(a) * r, cy = sy - 10 + Math.sin(a) * r;
+    b.save(); b.translate(Math.round(cx), Math.round(cy)); b.rotate(a);
+    b.fillStyle = '#1a1220'; b.beginPath(); b.moveTo(8, 0); b.lineTo(-5, -6); b.lineTo(-2, 0); b.lineTo(-5, 6); b.closePath(); b.fill();
+    b.fillStyle = '#ffd650'; b.beginPath(); b.moveTo(6, 0); b.lineTo(-4, -4.5); b.lineTo(-1.5, 0); b.lineTo(-4, 4.5); b.closePath(); b.fill();
+    b.restore();
+  }
+  wayMark(g, sx, sy) {                                             // (over the gate: a gold chevron bobbing, pointing down at it)
+    const b = this.b, y = Math.round(sy - 30 + Math.sin(g.t * 4) * 3), x = Math.round(sx);
+    b.fillStyle = '#1a1220'; b.beginPath(); b.moveTo(x - 7, y - 6); b.lineTo(x + 7, y - 6); b.lineTo(x, y + 4); b.closePath(); b.fill();
+    b.fillStyle = '#ffd650'; b.beginPath(); b.moveTo(x - 5, y - 5); b.lineTo(x + 5, y - 5); b.lineTo(x, y + 2); b.closePath(); b.fill();
+  }
   mechBar(o, sx, sy) {
     const b = this.b, w = 30, x = Math.round(sx - w / 2), y = Math.round(sy - 52), f = Math.max(0, Math.min(1, o.mechProg));
     b.fillStyle = '#1a1220'; b.fillRect(x - 1, y - 1, w + 2, 6);
@@ -2748,7 +2763,8 @@ export class Renderer {
       L.forEach((q, k) => this.bossWidget(g, { e: q, name: q.D.name, sub: k === L.length - 1 ? (C.surv ? 'ONE CROWN REMAINS' : 'THE HOLLOW COURT · ' + A) : '', f: q.hp / q.maxHp, hot: (q.bx && q.bx.phase) > 1, pips: [0.66, 0.30] }, k * 52));
     } else if (bar) { const L = [bar, ...also]; L.forEach((q, k) => this.bossWidget(g, k < L.length - 1 ? { ...q, sub: '' } : q, k * 52)); }   // (stacked: the phase line only under the last, as the Jarls')
     const goal = g.map.castle && g.map.castle.goal;          // the castle: what holds the way on (src/castle.js castleGoal)
-    if (goal) { ctx.textAlign = 'center'; platedLabel(ctx, goal, Math.round(this.c.width / 2), this.c.height - 28, 16, '#ffd650'); }   // (at the view's foot: clear of the boss bars and the banners)
+    if (goal) { ctx.textAlign = 'center'; platedLabel(ctx, goal, Math.round(this.c.width / 2), this.c.height - 28, 16, '#ffd650'); }
+    else if (g.map.castle && g.map.castle.exit) { ctx.textAlign = 'center'; platedLabel(ctx, 'THE WAY ON IS OPEN · FOLLOW THE ARROW', Math.round(this.c.width / 2), this.c.height - 28, 16, '#ffd650'); }   // (at the view's foot: clear of the boss bars and the banners)
   }
   // the boss's health, RotMG's way (2026-10-21): a compact pill at the top right of the view, its Life in numbers on the
   // bar, phase ticks, the boss's own likeness in a diamond badge at its end, its name and phase in small type under it
