@@ -2000,6 +2000,30 @@ export function dungeon(seed, def) {
     const junction = (cx, cy, style, shape) => { for (let j = 0; j < 3; j++) for (let i = 0; i < 3; i++) { const x = cx - 1 + i, y = cy - 1 + j; if (!fl(x, y)) continue; set(x, y, TID.kpcarpet); skin(x, y, `${style}_j${shape}_${j * 3 + i}`); } };
     const emblem = (cx, cy, style) => { for (let j = 0; j < 5; j++) for (let k = 0; k < 5; k++) if (fl(cx - 2 + k, cy - 2 + j)) { if (tile(cx - 2 + k, cy - 2 + j) === TID.kpcarpet) set(cx - 2 + k, cy - 2 + j, FLOOR); skin(cx - 2 + k, cy - 2 + j, `emblem_${style}_${j * 5 + k}`); } };   // (an emblem lies over a runner: its tiles floor again)
     const dais = (cx, cy, w2, h2) => { for (let dy = -h2; dy <= h2; dy++) for (let dx = -w2; dx <= w2; dx++) if (fl(cx + dx, cy + dy)) skin(cx + dx, cy + dy, Math.abs(dx) === w2 || Math.abs(dy) === h2 ? 'keep_step' : 'keep_dais'); };
+    if (n.key === 'a52') {                                   // SOLKHAR'S SANCTUM (2026-11-03, the user's room art and the audited spec, 1):
+      // a round hall, its floor 24 tiles from the middle to the wall (the spec's arena, tile for tile); walled beyond, lava
+      // falling behind the wall either side of the way in. The spec draws its entrance south and the captive Sun north; here
+      // the way comes in from the north, so the whole encounter is turned half round (src/bosses/unstruck_god.js SP()):
+      // the Sun's pedestal 17 tiles south of the middle, hooded statues keeping it, banners round the wall, a dais with the
+      // sun's emblem in the middle, runners out to the four quarters, braziers at the dais's corners (walk-through), pillars
+      // near the wall. Nothing solid within 19 tiles of the middle (the finale's lights and every pattern's lanes kept clear)
+      const R = 24, cx = Math.round(n.cx), cy = Math.round(n.cy);
+      for (let y = n.y - 1; y <= n.y + n.h; y++) for (let x = n.x - 1; x <= n.x + n.w; x++) {
+        const d = Math.hypot(x + 0.5 - n.cx, y + 0.5 - n.cy); if (d <= R + 0.5 || !fl(x, y) || nearRd(x, y, 2)) continue;   // (the way in kept open)
+        const a = Math.atan2(y + 0.5 - n.cy, x + 0.5 - n.cx), fall = d > R + 2.5 && d < R + 7 && Math.abs(Math.abs(a + Math.PI / 2) - 0.8) < 0.25;
+        set(x, y, fall ? TID.lava : TID.kpwall);
+      }
+      for (let y = cy - 8; y <= cy + 8; y++) for (let x = cx - 8; x <= cx + 8; x++) { const d = Math.hypot(x - cx, y - cy); if (d < 6.5) skin(x, y, 'keep_dais'); else if (d < 7.6) skin(x, y, 'keep_step'); }
+      runnerNS(cx, cy - 22, cy - 9, 'sun', true, true); runnerNS(cx, cy + 9, cy + 14, 'sun', true, true);
+      runnerEW(cy, cx - 22, cx - 9, 'sun', true, true); runnerEW(cy, cx + 9, cx + 22, 'sun', true, true);
+      emblem(cx, cy, 'sun');
+      O('castle_art/throne_orb', cx, cy + 17); for (const d of [-2, 2]) O('castle_decor/chain_post', cx + d, cy + 17, false);   // (the captive Sun's pedestal, its chains)
+      for (const d of [-6, 6]) { O('castle_art/statue_priest', cx + d, cy + 20); O('castle_art/brazier_gold', cx + d, cy + 16, false); }
+      for (const [dx, dy] of [[-6, -6], [6, -6], [-6, 6], [6, 6]]) O('castle_art/brazier_gold', cx + dx, cy + dy, false);
+      for (let k = 0; k < 12; k++) { const a = (k / 12) * Math.PI * 2 + Math.PI / 12; if (Math.abs(Math.sin(a) + 1) < 0.15) continue; const x = Math.round(n.cx + Math.cos(a) * 23), y = Math.round(n.cy + Math.sin(a) * 23); O(k % 3 === 1 ? 'castle_art/banner_chain_sun' : 'castle_art/banner_sun', x, y, false); }
+      for (const a of [0.25, 0.75, 1.25, 1.75]) { const x = Math.round(n.cx + Math.cos(a * Math.PI) * 20.5), y = Math.round(n.cy + Math.sin(a * Math.PI) * 20.5); O('keep_decor/keep_pillar', x, y); O('castle_decor/rubble', x + 1, y + 1, false); }
+      for (const [dx, dy] of [[-13, -9], [12, -12], [-15, 8], [14, 10], [-4, -15], [5, 13]]) O('castle_decor/lava_crack', cx + dx, cy + dy, false);   // (the floor cracked by the stolen sun: marks, never a hazard)
+    }
     if (n.key === 'a20') {                                   // THE KILLING GROUND: the exposed approach. Walls down both flanks (broken by the siege),
       // two burning trenches across it, the wreck of the assault everywhere, guard posts, and the castle's great gate ahead
       for (const fy of [0.1, 0.9]) for (let x = n.x + 3; x < n.x + n.w - 3; x++) { const y = F(0, fy)[1]; if (Math.sin(x * 0.9 + fy * 7) < 0.75) { W(x, y); W(x, y + (fy < 0.5 ? 1 : -1)); } }
@@ -2116,7 +2140,7 @@ export function dungeon(seed, def) {
   };
   const castleDress = (n) => {
     if (n.region === 'outer' || n.region === 'inner') keepDress(n);
-    if (/^a(2[0-9]|3[0-9]|4[0-3])$/.test(n.key)) outerKeep(n);
+    if (/^a(2[0-9]|3[0-9]|4[0-3]|52)$/.test(n.key)) outerKeep(n);
     const at = (fx, fy) => [Math.round(n.x + fx * n.w), Math.round(n.y + fy * n.h)];
     const P = (sprite, fx, fy, solid = true) => { const [x, y] = at(fx, fy); put2(null, x, y, sprite, solid); };
     const wall = (fx0, fy0, fx1, fy1) => { const [x0, y0] = at(fx0, fy0), [x1, y1] = at(fx1, fy1); for (let y = Math.min(y0, y1); y <= Math.max(y0, y1); y++) for (let x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) if (isF(x, y)) set(x, y, TID.void); };   // (a wall inside an area: its rooms, its passages)
@@ -2212,7 +2236,7 @@ export function dungeon(seed, def) {
         m.castle.orbs = [0, 1, 2, 3].map((i) => { put(m, 'castle_decor/orb', n.cx, n.cy, false, { orb: i }); return m.objects[m.objects.length - 1]; });
         break;
       }
-      case 'a52': for (let a = 0; a < 6.28; a += 0.785) P('castle_decor/celestial_pillar', 0.5 + Math.cos(a) * 0.46, 0.5 + Math.sin(a) * 0.46); break;   // Solkhar's sanctum: its celestial pillars round the rim
+      case 'a52': break;   // (Solkhar's sanctum: outerKeep)
 
     }
     if (n.region === 'forest') forestWild(n, at, nearRoad, treeAt);
@@ -2554,8 +2578,7 @@ export function dungeon(seed, def) {
         put2(null, n.x + 4, n.y + 1, 'banner'); put2(null, n.x + n.w - 5, n.y + 1, 'banner');
       } else if (n.kind === 'treasury') {
         put2(null, n.x + 1, n.y + 1, 'brazier'); put2(null, n.x + n.w - 2, n.y + 1, 'brazier'); put2(null, n.x + 2, n.y + n.h - 2, 'ingot_pile');
-      } else if (n.kind === 'throneroom') {                             // the Stolen Sun's dais: his throne at its north edge
-        put2(null, n.cx, n.y + 3, 'throne');
+      } else if (n.kind === 'throneroom') {                             // (the Stolen Sun's sanctum: outerKeep)
       } else if (n.kind === 'ashforest' || n.kind === 'outpost') {      // the Ashen Forest: dead trees standing in the ash, its dead, its fires; the outpost's camp
         const R = (k) => ((k * 2654435761) >>> 0) % 1000 / 1000;
         for (let k = 0; k < (n.kind === 'outpost' ? 6 : 46); k++) { const x = n.x + 2 + Math.floor(R(k * 3 + 1) * (n.w - 4)), y = n.y + 2 + Math.floor(R(k * 7 + 2) * (n.h - 4)); if (Math.abs(x - n.cx) + Math.abs(y - n.cy) > 5) put2(n, x, y, k % 5 === 4 ? 'castle_decor/burning_debris' : 'dead_tree', k % 5 !== 4); }

@@ -1,0 +1,103 @@
+{
+ "rf": true,
+ "meta": {
+  "name": "Solkhar's shot library",
+  "version": 2
+ },
+ "sheets": {
+  "sol2": {
+   "image": "sol2_shots.png",
+   "kind": "shot",
+   "sprites": {
+    "glint": {
+     "frames": {
+      "0": [
+       0,
+       0,
+       7,
+       7
+      ]
+     },
+     "meta": {}
+    },
+    "spear": {
+     "frames": {
+      "0": [
+       9,
+       0,
+       9,
+       3
+      ]
+     },
+     "meta": {}
+    },
+    "ember": {
+     "frames": {
+      "0": [
+       20,
+       0,
+       5,
+       5
+      ]
+     },
+     "meta": {}
+    },
+    "halo": {
+     "frames": {
+      "0": [
+       27,
+       0,
+       7,
+       6
+      ]
+     },
+     "meta": {}
+    },
+    "eclipse": {
+     "frames": {
+      "0": [
+       36,
+       0,
+       6,
+       6
+      ]
+     },
+     "meta": {}
+    },
+    "void": {
+     "frames": {
+      "0": [
+       44,
+       0,
+       6,
+       4
+      ]
+     },
+     "meta": {}
+    },
+    "comet": {
+     "frames": {
+      "0": [
+       52,
+       0,
+       7,
+       5
+      ]
+     },
+     "meta": {}
+    },
+    "sunspark": {
+     "frames": {
+      "0": [
+       61,
+       0,
+       7,
+       7
+      ]
+     },
+     "meta": {}
+    }
+   }
+  }
+ }
+}
