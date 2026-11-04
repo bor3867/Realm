@@ -2,7 +2,7 @@
  "rf": true,
  "meta": {
   "name": "Solkhar, the Sunthief (the user's sprite)",
-  "version": 1
+  "version": 2
  },
  "sheets": {
   "bx_solkhar": {
@@ -11,357 +11,213 @@
    "sprites": {
     "solkhar": {
      "frames": {
-      "i1_0": [
+      "idle0": [
        0,
        0,
        67,
        64
       ],
-      "i1_1": [
+      "idle1": [
        67,
        0,
        67,
        64
       ],
-      "i1_2": [
+      "idle2": [
        134,
        0,
        67,
        64
       ],
-      "i1_3": [
+      "idle3": [
        201,
        0,
        67,
        64
       ],
-      "a1_0": [
+      "hover0": [
        268,
        0,
        67,
        64
       ],
-      "a1_1": [
+      "hover1": [
        335,
        0,
        67,
        64
       ],
-      "a1_2": [
+      "hover2": [
+       402,
+       0,
+       67,
+       64
+      ],
+      "hover3": [
+       469,
+       0,
+       67,
+       64
+      ],
+      "hover4": [
        0,
        64,
        67,
        64
       ],
-      "w1_0": [
+      "hover5": [
        67,
        64,
        67,
        64
       ],
-      "w1_1": [
+      "cast0": [
        134,
        64,
        67,
        64
       ],
-      "w1_2": [
+      "cast1": [
        201,
        64,
        67,
        64
       ],
-      "w1_3": [
+      "cast2": [
        268,
        64,
        67,
        64
       ],
-      "c1_0": [
+      "cast3": [
        335,
        64,
        67,
        64
       ],
-      "c1_1": [
+      "cast4": [
+       402,
+       64,
+       67,
+       64
+      ],
+      "cast5": [
+       469,
+       64,
+       67,
+       64
+      ],
+      "summon0": [
        0,
        128,
        67,
        64
       ],
-      "h1": [
+      "summon1": [
        67,
        128,
        67,
        64
       ],
-      "i2_0": [
+      "summon2": [
        134,
        128,
        67,
        64
       ],
-      "i2_1": [
+      "summon3": [
        201,
        128,
        67,
        64
       ],
-      "i2_2": [
+      "summon4": [
        268,
        128,
        67,
        64
       ],
-      "i2_3": [
+      "summon5": [
        335,
        128,
        67,
        64
       ],
-      "a2_0": [
+      "stag0": [
+       402,
+       128,
+       67,
+       64
+      ],
+      "stag1": [
+       469,
+       128,
+       67,
+       64
+      ],
+      "stag2": [
        0,
        192,
        67,
        64
       ],
-      "a2_1": [
+      "stag3": [
        67,
        192,
        67,
        64
       ],
-      "a2_2": [
+      "old_d0": [
        134,
        192,
        67,
        64
       ],
-      "w2_0": [
+      "old_d1": [
        201,
        192,
        67,
        64
       ],
-      "w2_1": [
+      "old_d2": [
        268,
        192,
        67,
        64
       ],
-      "w2_2": [
+      "old_d3": [
        335,
        192,
        67,
        64
       ],
-      "w2_3": [
+      "old_d4": [
+       402,
+       192,
+       67,
+       64
+      ],
+      "old_v0": [
+       469,
+       192,
+       67,
+       64
+      ],
+      "old_v1": [
        0,
        256,
        67,
        64
       ],
-      "c2_0": [
+      "old_v2": [
        67,
        256,
        67,
        64
       ],
-      "c2_1": [
+      "old_v3": [
        134,
        256,
-       67,
-       64
-      ],
-      "h2": [
-       201,
-       256,
-       67,
-       64
-      ],
-      "e2_0": [
-       268,
-       256,
-       67,
-       64
-      ],
-      "e2_1": [
-       335,
-       256,
-       67,
-       64
-      ],
-      "e2_2": [
-       0,
-       320,
-       67,
-       64
-      ],
-      "e2_3": [
-       67,
-       320,
-       67,
-       64
-      ],
-      "i3_0": [
-       134,
-       320,
-       67,
-       64
-      ],
-      "i3_1": [
-       201,
-       320,
-       67,
-       64
-      ],
-      "i3_2": [
-       268,
-       320,
-       67,
-       64
-      ],
-      "i3_3": [
-       335,
-       320,
-       67,
-       64
-      ],
-      "a3_0": [
-       0,
-       384,
-       67,
-       64
-      ],
-      "a3_1": [
-       67,
-       384,
-       67,
-       64
-      ],
-      "a3_2": [
-       134,
-       384,
-       67,
-       64
-      ],
-      "w3_0": [
-       201,
-       384,
-       67,
-       64
-      ],
-      "w3_1": [
-       268,
-       384,
-       67,
-       64
-      ],
-      "w3_2": [
-       335,
-       384,
-       67,
-       64
-      ],
-      "w3_3": [
-       0,
-       448,
-       67,
-       64
-      ],
-      "c3_0": [
-       67,
-       448,
-       67,
-       64
-      ],
-      "c3_1": [
-       134,
-       448,
-       67,
-       64
-      ],
-      "h3": [
-       201,
-       448,
-       67,
-       64
-      ],
-      "e3_0": [
-       268,
-       448,
-       67,
-       64
-      ],
-      "e3_1": [
-       335,
-       448,
-       67,
-       64
-      ],
-      "e3_2": [
-       0,
-       512,
-       67,
-       64
-      ],
-      "e3_3": [
-       67,
-       512,
-       67,
-       64
-      ],
-      "d0": [
-       134,
-       512,
-       67,
-       64
-      ],
-      "d1": [
-       201,
-       512,
-       67,
-       64
-      ],
-      "d2": [
-       268,
-       512,
-       67,
-       64
-      ],
-      "d3": [
-       335,
-       512,
-       67,
-       64
-      ],
-      "d4": [
-       0,
-       576,
-       67,
-       64
-      ],
-      "v0": [
-       67,
-       576,
-       67,
-       64
-      ],
-      "v1": [
-       134,
-       576,
-       67,
-       64
-      ],
-      "v2": [
-       201,
-       576,
-       67,
-       64
-      ],
-      "v3": [
-       268,
-       576,
        67,
        64
       ]
@@ -369,176 +225,291 @@
      "anims": {
       "idle1": {
        "frames": [
-        "i1_0",
-        "i1_1",
-        "i1_2",
-        "i1_3"
+        "idle0",
+        "idle1",
+        "idle2",
+        "idle3"
        ],
-       "fps": 6,
+       "fps": 5.0,
        "loop": true
-      },
-      "attack1": {
-       "frames": [
-        "a1_0",
-        "a1_1",
-        "a1_2",
-        "a1_2"
-       ],
-       "fps": 8,
-       "loop": false
       },
       "walk1": {
        "frames": [
-        "w1_0",
-        "w1_1",
-        "w1_2",
-        "w1_3"
+        "hover0",
+        "hover1",
+        "hover2",
+        "hover3",
+        "hover4",
+        "hover5"
        ],
-       "fps": 5,
+       "fps": 7.0,
        "loop": true
       },
       "charge1": {
        "frames": [
-        "c1_0",
-        "c1_1"
+        "hover0",
+        "hover1",
+        "hover2",
+        "hover3",
+        "hover4",
+        "hover5"
        ],
-       "fps": 10,
+       "fps": 12,
        "loop": true
+      },
+      "attack1": {
+       "frames": [
+        "cast0",
+        "cast1",
+        "cast2",
+        "cast3",
+        "cast4",
+        "cast5"
+       ],
+       "fps": 10.0,
+       "loop": false
       },
       "hurt1": {
        "frames": [
-        "h1"
+        "stag0"
        ],
        "fps": 5,
        "loop": false
       },
       "idle2": {
        "frames": [
-        "i2_0",
-        "i2_1",
-        "i2_2",
-        "i2_3"
+        "idle0",
+        "idle1",
+        "idle2",
+        "idle3"
        ],
-       "fps": 6,
+       "fps": 5.0,
        "loop": true
-      },
-      "attack2": {
-       "frames": [
-        "a2_0",
-        "a2_1",
-        "a2_2",
-        "a2_2"
-       ],
-       "fps": 8,
-       "loop": false
       },
       "walk2": {
        "frames": [
-        "w2_0",
-        "w2_1",
-        "w2_2",
-        "w2_3"
+        "hover0",
+        "hover1",
+        "hover2",
+        "hover3",
+        "hover4",
+        "hover5"
        ],
-       "fps": 5,
+       "fps": 7.0,
        "loop": true
       },
       "charge2": {
        "frames": [
-        "c2_0",
-        "c2_1"
+        "hover0",
+        "hover1",
+        "hover2",
+        "hover3",
+        "hover4",
+        "hover5"
        ],
-       "fps": 10,
+       "fps": 12,
        "loop": true
+      },
+      "attack2": {
+       "frames": [
+        "cast0",
+        "cast1",
+        "cast2",
+        "cast3",
+        "cast4",
+        "cast5"
+       ],
+       "fps": 10.0,
+       "loop": false
       },
       "hurt2": {
        "frames": [
-        "h2"
+        "stag0"
        ],
        "fps": 5,
        "loop": false
       },
       "enter2": {
        "frames": [
-        "e2_0",
-        "e2_1",
-        "e2_2",
-        "e2_3"
+        "summon0",
+        "summon1",
+        "summon2",
+        "summon3",
+        "summon4",
+        "summon5"
        ],
-       "fps": 3,
+       "fps": 4,
        "loop": false
       },
       "idle3": {
        "frames": [
-        "i3_0",
-        "i3_1",
-        "i3_2",
-        "i3_3"
+        "idle0",
+        "idle1",
+        "idle2",
+        "idle3"
        ],
-       "fps": 6,
+       "fps": 5.0,
        "loop": true
-      },
-      "attack3": {
-       "frames": [
-        "a3_0",
-        "a3_1",
-        "a3_2",
-        "a3_2"
-       ],
-       "fps": 8,
-       "loop": false
       },
       "walk3": {
        "frames": [
-        "w3_0",
-        "w3_1",
-        "w3_2",
-        "w3_3"
+        "hover0",
+        "hover1",
+        "hover2",
+        "hover3",
+        "hover4",
+        "hover5"
        ],
-       "fps": 5,
+       "fps": 7.0,
        "loop": true
       },
       "charge3": {
        "frames": [
-        "c3_0",
-        "c3_1"
+        "hover0",
+        "hover1",
+        "hover2",
+        "hover3",
+        "hover4",
+        "hover5"
        ],
-       "fps": 10,
+       "fps": 12,
        "loop": true
+      },
+      "attack3": {
+       "frames": [
+        "cast0",
+        "cast1",
+        "cast2",
+        "cast3",
+        "cast4",
+        "cast5"
+       ],
+       "fps": 10.0,
+       "loop": false
       },
       "hurt3": {
        "frames": [
-        "h3"
+        "stag0"
        ],
        "fps": 5,
        "loop": false
       },
       "enter3": {
        "frames": [
-        "e3_0",
-        "e3_1",
-        "e3_2",
-        "e3_3"
+        "summon0",
+        "summon1",
+        "summon2",
+        "summon3",
+        "summon4",
+        "summon5"
        ],
-       "fps": 3,
+       "fps": 4,
        "loop": false
+      },
+      "idle4": {
+       "frames": [
+        "idle0",
+        "idle1",
+        "idle2",
+        "idle3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "walk4": {
+       "frames": [
+        "hover0",
+        "hover1",
+        "hover2",
+        "hover3",
+        "hover4",
+        "hover5"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "charge4": {
+       "frames": [
+        "hover0",
+        "hover1",
+        "hover2",
+        "hover3",
+        "hover4",
+        "hover5"
+       ],
+       "fps": 12,
+       "loop": true
+      },
+      "attack4": {
+       "frames": [
+        "cast0",
+        "cast1",
+        "cast2",
+        "cast3",
+        "cast4",
+        "cast5"
+       ],
+       "fps": 10.0,
+       "loop": false
+      },
+      "hurt4": {
+       "frames": [
+        "stag0"
+       ],
+       "fps": 5,
+       "loop": false
+      },
+      "enter4": {
+       "frames": [
+        "summon0",
+        "summon1",
+        "summon2",
+        "summon3",
+        "summon4",
+        "summon5"
+       ],
+       "fps": 4,
+       "loop": false
+      },
+      "summon": {
+       "frames": [
+        "summon0",
+        "summon1",
+        "summon2",
+        "summon3",
+        "summon4",
+        "summon5"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "stagger": {
+       "frames": [
+        "stag0",
+        "stag1",
+        "stag2",
+        "stag3"
+       ],
+       "fps": 5.0,
+       "loop": true
       },
       "death": {
        "frames": [
-        "d0",
-        "d1",
-        "d2",
-        "d3",
-        "d4"
+        "old_d0",
+        "old_d1",
+        "old_d2",
+        "old_d3",
+        "old_d4"
        ],
        "fps": 1.6,
        "loop": false
       },
       "void": {
        "frames": [
-        "v0",
-        "v1",
-        "v2",
-        "v3"
+        "old_v0",
+        "old_v1",
+        "old_v2",
+        "old_v3"
        ],
        "fps": 4,
        "loop": true
@@ -573,12 +544,12 @@
       },
       "4": {
        "name": "The Ninth Ascension",
-       "idle": "idle3",
-       "attack": "attack3",
-       "walk": "walk3",
-       "charge": "charge3",
-       "hurt": "hurt3",
-       "enter": "enter3"
+       "idle": "idle4",
+       "attack": "attack4",
+       "walk": "walk4",
+       "charge": "charge4",
+       "hurt": "hurt4",
+       "enter": "enter4"
       }
      },
      "death": "death",

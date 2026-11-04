@@ -24,9 +24,10 @@ for (const id of Object.keys(BX)) {
   if (!e) { console.log(id, 'did not spawn'); fail++; continue; }
   const seen = [], shotNames = new Set(), patterns = new Set();
   let morphHits = 0, morphCleared = true, t = 0, diedAt = null, bagAt = null;
-  for (let f = 0; f < 60 * 240 && !bagAt; f++) {
+  for (let f = 0; f < 60 * 300 && !bagAt; f++) {   // (300 s: Solkhar's finale alone is 56 s)
     t += 1 / 60;
     p.x = e.x + Math.cos(t * 0.7) * 6; p.y = e.y + Math.sin(t * 0.7) * 5; p.moving = true;
+    if (e.bx && e.bx.v2f && e.bx.v2f.sun) { p.x = e.bx.v2f.sun.x; p.y = e.bx.v2f.sun.y; }   // (Solkhar's finale: in the freed Sun's light, then claiming it)
     g.update(1 / 60);
     const S = e.bx;
     if (!S) continue;

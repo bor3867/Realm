@@ -509,6 +509,8 @@ const CYCLE = {
 // (online the fight is the server's: a floor that hurts, a beam, the claim are judged for each player there, each with
 // their own clocks; g.player is the server's stand-in. The browser draws his marks on the server's clock: now())
 function eachPlayer(g, fn) { const keep = g.player; for (const q of players(g)) { g.player = q; try { fn(q, q.netId || 'me'); } finally { g.player = keep; } } }
+// his drawn clips (tools/solkhar_frames.py): the summoning when he calls up suns, the stagger while he's staggered
+const playClip = (e, name) => { const S = e.bx; if (S && S.anim && S.def.anims[name]) S.anim.play(name); };
 const now = (g, e) => g.t - ((e.bx && e.bx.netOff) || 0);
 const hide = (o, k, v) => Object.defineProperty(o, k, { value: v, writable: true, enumerable: false, configurable: true });   // (kept off the wire: logs, lists of shots)
 const SP = (e, sx, sy) => { const C = MID(e); return { x: C.x - sx, y: C.y - sy }; };
@@ -584,7 +586,7 @@ function v2Verdict(g, e) {
   });
   later(e, 1.2 + 1.5 + 0.35, 'v2VerdictEnd');
 }
-function v2VerdictEnd(g, e) { const D = V2S(e); D.counts.push(['verdict', 3]); if (!D.vHit) { D.kneel = g.t + 1.1; if (g.banner) g.banner('SOLKHAR STAGGERED', 1100); g.sfx('shatter'); } }
+function v2VerdictEnd(g, e) { const D = V2S(e); D.counts.push(['verdict', 3]); if (!D.vHit) { D.kneel = g.t + 1.1; playClip(e, 'stagger'); if (g.banner) g.banner('SOLKHAR STAGGERED', 1100); g.sfx('shatter'); } }
 function beamTick(g, e) {
   const Z = e.bx.v2; if (!Z) return;
   eachPlayer(g, (p, id) => { for (const B of Z.beams) {
@@ -642,6 +644,7 @@ function v2GuilFire(g, e, V) {
 // Fan(7, 65°) of sunsparks (5.4 t/s, 100). A broken sun's turn passes. He keeps to Crown's Rebuke. Cooldown 17 s after the
 // last is gone.
 function v2DeadSuns(g, e) {
+  playClip(e, 'summon');
   const D = V2S(e), from = SP(e, 0, -17), at = g.t + 1.2;
   D.dsuns = { born: g.t, at, until: at + 8, list: [[-13, -10], [13, -10], [13, 10], [-13, 10]].map(([sx, sy], i) => { const w = SP(e, sx, sy), q = minion(g, e, 'sol_herald', w.x, w.y, 9.3); q.hp = q.maxHp = 22000; return { q, i, x0: from.x, y0: from.y, pulse: -9, aim: 0 }; }), slot: 0, next: at + 0.4 };
   later(e, 2.6, 'v2Combo', { k: 'rebuke' }); later(e, 6.0, 'v2Combo', { k: 'rebuke' });
@@ -737,7 +740,7 @@ function v2HevBeam(g, e, V) {
 }
 function v2HevSun(g, e) { const D = V2S(e); D.hsun = { from: g.t, until: g.t + 0.9 }; }
 function v2HevCres(g, e) { const D = V2S(e), C = MID(e), g0 = Math.floor(seeded(D) * 15); let n = 0; for (let i = 0; i < 15; i++) { if ((i - g0 + 15) % 15 < 3) continue; fire2(g, e, C.x, C.y, (i / 15) * TAU, 'eclipse', 5.4, 115, { free: true }); n++; } D.counts.push(['heaven_crescents', n]); g.sfx('shatter'); }
-function v2HevStagger(g, e) { const D = V2S(e); D.stag = g.t + 1.4; D.stagK = 1.25; D.heaven = null; if (g.banner) g.banner('SOLKHAR STAGGERED', 1400); g.sfx('shatter'); }
+function v2HevStagger(g, e) { const D = V2S(e); D.stag = g.t + 1.4; playClip(e, 'stagger'); D.stagK = 1.25; D.heaven = null; if (g.banner) g.banner('SOLKHAR STAGGERED', 1400); g.sfx('shatter'); }
 function p4Tick(g, e, dt) { dsunsTick(g, e); duskTick(g, e); devTick(g, e, dt); const D = e.bx.v2; if (D) { if (D.guil && D.guilEnd && g.t > D.guilEnd) { D.guil = null; D.guilEnd = 0; } if (D.hsun && g.t > D.hsun.until) D.hsun = null; if (D.hwall && g.t > D.hwall.until + 0.1) D.hwall = null; if (D.stagK && !(D.stag > g.t)) D.stagK = 0; } }
 
 const P4 = {
@@ -828,7 +831,7 @@ function v2ImpOut(g, e) {
   for (let i = 0; i < 12; i++) { if (OUT_OMIT.includes(i)) continue; fire2(g, e, C.x, C.y, SANG(i * 30) + I.rot, 'comet', 6.5, 145, { free: true }); n++; }
   D.counts.push(['implode_out', n]); g.sfx('shatter');
 }
-function v2ImpEnd(g, e) { const D = V2S(e); D.imp = null; const pl = g.player; if (pl && !pl.dead) { D.stag = g.t + 1.2; if (g.banner) g.banner('SOLKHAR STAGGERED', 1200); g.sfx('shatter'); } }
+function v2ImpEnd(g, e) { const D = V2S(e); D.imp = null; const pl = g.player; if (pl && !pl.dead) { D.stag = g.t + 1.2; playClip(e, 'stagger'); if (g.banner) g.banner('SOLKHAR STAGGERED', 1200); g.sfx('shatter'); } }
 // ---- III-C SOLAR PURSUIT: a dashed route shows his first 5-tile burst (0.75 s); three dashes ~1.9 s apart (8.5 t/s, at
 // most 5 tiles, stopping 3 tiles short of you; each locked after its own 0.55 s tell; 165 if he runs into you); between
 // them Fan(7, 75°) of glints at you every 0.9 s (5.6 t/s, 85). Recovery 1.35 s, cooldown 16 s. No beams with it.
@@ -952,6 +955,7 @@ function v2Air3(r, g, e, put, get) {
 // 18,000 Life, 8 s each; by turns every 0.95 s, a 0.3 s pulse, then Fan(5, 55°) of sunsparks at you (5 t/s, 90). Break
 // both inside 5 s and he staggers 1.4 s (+20%). Cooldown 14 s after both are gone.
 function v2Sunseed(g, e) {
+  playClip(e, 'summon');
   const D = V2S(e), from = SP(e, 0, -17), at = g.t + 1.2;
   D.suns = { born: g.t, at, until: at + 8, k: 0, next: at + 0.3, list: [[13, -2], [-13, -2]].map(([sx, sy], i) => { const w = SP(e, sx, sy), q = minion(g, e, 'sol_herald', w.x, w.y, 9.2); q.hp = q.maxHp = 18000; return { q, i, x0: from.x, y0: from.y, pulse: -9 }; }) };
 }
@@ -959,7 +963,7 @@ function sunsTick2(g, e) {
   const D = e.bx.v2, Z = D && D.suns; if (!Z) return;
   const alive = Z.list.filter((s) => !gone(s.q));
   if (!alive.length || g.t > Z.until) {
-    if (!alive.length && !Z.judged && g.t < Z.at + 5) { Z.judged = true; D.stag = g.t + 1.4; if (g.banner) g.banner('SOLKHAR STAGGERED', 1400); g.sfx('shatter'); }
+    if (!alive.length && !Z.judged && g.t < Z.at + 5) { Z.judged = true; D.stag = g.t + 1.4; playClip(e, 'stagger'); if (g.banner) g.banner('SOLKHAR STAGGERED', 1400); g.sfx('shatter'); }
     for (const s of Z.list) if (!gone(s.q)) { s.q.noLoot = true; s.q.dead = true; s.q.deadT = 0; }
     D.ready.sunseed = g.t + 14; D.suns = null; return;
   }
@@ -1038,6 +1042,7 @@ function v2DawnFire(g, e, V) {
 // every 0.55 s, each brightening 0.35 s first, a Fan(5, 48°) of eclipse crescents at you (5 t/s, 105). They are sources,
 // not bodies. Cooldown 13 s.
 function v2Hour(g, e) {
+  playClip(e, 'summon');
   const D = V2S(e); D.hour = { from: g.t, at: g.t + 0.95, until: g.t + 0.95 + 5.5, stars: [[11, -11], [11, 11], [-11, 11], [-11, -11]].map(([sx, sy]) => SP(e, sx, sy)), k: 0, lit: -1 };   // (the spec's NE, SE, SW, NW: clockwise)
   for (let k = 0; k < 10; k++) { later(e, 0.95 + k * 0.55 - 0.35, 'v2HourLit', { k }); later(e, 0.95 + k * 0.55, 'v2HourFire', { k }); }
 }
@@ -1236,6 +1241,7 @@ export default {
         if (g.t >= V.emit) { V.emit += 0.4; for (let arm = 0; arm < 2; arm++) { const a = viseAt(V, g.t, arm), r = 9.5; shot(g, e, V.cx + Math.cos(a) * r, V.cy + Math.sin(a) * r, a + V.s * Math.PI / 2, { ...DOT, speed: 4.3, range: 12, dmg: D(100) }); } }
       }
     }
+    { const D2 = S.v2; if (S.anim && S.anim.clip === 'stagger' && !(D2 && (D2.stag > g.t || D2.kneel > g.t))) S.anim.play(S.def.phases[S.phase].idle); }
     beamTick(g, e); sunsTick2(g, e); eclTick(g, e, dt); hourTick(g, e); p3Tick(g, e); psunsTick(g, e); p4Tick(g, e, dt);
     sunsTick(g, e, dt);
     for (const q of S.slMinions || []) if (!q.dead && g.t > q.slUntil) { q.noLoot = true; q.dead = true; q.deadT = 0; }

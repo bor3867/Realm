@@ -1,0 +1,715 @@
+# solkhar: 55x58, the user's sprite; every frame below is drawn by hand from it (tools/build_solkhar2.py)
+A #ee882d
+B #f6b9a4
+C #f9ad4f
+D #602e36
+E #8c1d2b
+F #b86657
+G #7e4263
+H #fbb620
+I #e26824
+J #b25831
+K #b02934
+L #321528
+M #771a28
+N #fdf9ba
+O #61162a
+P #fce026
+Q #e99259
+R #9b2b35
+S #dc7d4f
+T #fcc75d
+U #522c4e
+V #fbe169
+W #fefce0
+X #f7a436
+Y #120a12
+Z #fdf28c
+a #f4954c
+b #fcdbb9
+c #d73021
+d #c2303c
+frame base
+...........................VA..........................
+...........................VA..........................
+...........................ZI..........................
+.................A........XXJJYb......V................
+.................JAI..bM..YVI..OOB..CVJ................
+..................JIAYYYWIcVA......XWJ.................
+..................XIOYNWWIIHAYD.....IX.................
+...................OXNXI.........G..Y..................
+.......a........D..NNI.............BF..D...............
+......VX........JYTWA..............ELGYD..a.....Z......
+......CC.....J...TNA.................YO...D.....SS.....
+......DC.....A...OI........LSYJ......AW.........VF.....
+.....AOR.....Y..TOA......JVTXCJ.......Z.........NO.....
+......MXYXTTZWNVIMY.....aSYTcLSJV.....XJNNZVVV..OM.....
+...S..AX....IIIIHPTYGYJDRYYTTCYYOR...TPAJXAI....XM.....
+...D..P.....Y...AI......JDYYYYG......YAH........X...V..
+..CD..P.....G...IA.......DZYYYQY....aYTA....U.......ZS.
+...c.....aYUDYbYMI..S....UTYYYUU...CSYJY....U.......ZD.
+...P....CGYLUYObMM..Ja..DDTYYYFUFYNSUYMYbDYUUYQ.....EE.
+........X...LYLUbbbAUaVYYYYOELYGYYTLGUGBLUYD..RS....T..
+.............YYLGGUUFLCYYYOSCMLaYYCUGUULLYYJ...X.......
+.aYZ.........BUULUUHdUaLYZSVYAVILYaCUOULLG.............
+JYYY.a.....AVCLLUUPUUaaOAIVMcOYIOYYECUULLUL............
+RYYYR.......JJJCXMcULaYTYOcPPPEYYYYAaUVCaCaS......TYYYa
+.LYLR..a.....JYYDIaCXXLAOcPWWPHKYOMXaCJYYLJ........JYRR
+.OOLLLaSa......LAYYYCTMYKIPWWPIcYOOYYYSLLY.........RLLY
+...YYYYGYNB...EYYLYYYYOVMIIWPIHNZOLYLLYLUU....NSZGLYLL.
+....YYYYYFQLQSYYYKLOYYXIYZHHIIHLKCYYOMYYYU..NQNYVLYY...
+....JLYYYSFaGUdYYKIMYYYOcZMIHcZIYYYYEKOYYYOGCaaUJYYR...
+......YYYFUaLLHYYEOYYYYMOILLOLCMYYYYKOOYYGGLGGFYYRR....
+......YYYSUaLULYYdKYYYYLYMVYSZJYYLYYcKdKYLULaGJYY......
+......YFYaaYLLLYYOdYYYYLYYJTJJYYYYYYAYKKKKLLYSSYY......
+......YSYaaYYYKEMMdYYFQaSOYaaYLLFFFRXYKEEKKYYaaYJ......
+....EEY..aYLMMMMOKcYGQaQQOYRSLEOQaaGDYEEEMMKOYaS.....U.
+...EOOY..aLOMEEMMEcJFYLYaOEYSOKMaYLYYYMEKKMEKLaY.....U.
+..KEEYY..aLOKEEEdEIYYLFYYMKOYMMYYYGULYXECAMdKYYYY......
+.cKEE....RYEEEYcdKALUGVYYEKEOKMKYYaGULXAYYYEdKYYY..C...
+.E.....YYREdYYYYdXYLUVVYYEEEaKMKYLYaGLXYYYYKdcDYY..J...
+.K...OYYYFd.YYYYYYYaSYLLYEEEaMEKYLLYJSRYYYYA..MYY..J...
+.....OYYYF..YYYYYYYYLYHLYEMMMaMKYLLLLYYYYLYY..RQY......
+....c..LC..YLYYYYYLUGcLUYKEEMaadYOULLLLYYOLO..JJY......
+.......CC..OOLYYYULGYIUEYdMaaaMILOOOGGLYYOOOO..Ja......
+.......aa..OOOYYULGFYUUAYIEMaMMIOOZcYGGUYLOOE...J......
+.......C...OOMYYUGYYLUUHYSEMaMMaYOHUYJFUYYEOE......E...
+..........OOKEYYYYYUUUIYYSMMaMMaYMIULLYYYYKKOE......K..
+.........OOdEdYYYYLGUGcYYaMMMMMaYOGGULYYYYddOK.........
+.........MOKEcYYYLYUUGAYYQMMMMMaYPGGULUYYLOddKKEE......
+.......OMOKccLLYYULGFGYYYQQMMMaCYYYGGUGYLOOdccEMME.....
+....ddKMEOKYKdLLLULOXILYYQaMMJaYYLYOIGGLLLOYYcdKKEd....
+...ddYKEMM..OOOULGUAYYOYYQaQMQaYLOLaCGUGUUOYYcYdYcdd...
+...M...dMK...YLUGGUXYYMYYaYQaaaLLOOYCaUGLUU...Yd..cd...
+.......dd....LLUFFFYYEEYLYYaQYYLLLOOYYSSLUG...d....d...
+.......d....UULJYYYYOEdYLYYYaYLUYYKdOYYYFUGG.......d...
+.......d...UULGYYYYYddcLLLYYaYLUUYd..OYYGFGGG..........
+..........U...FYLO...AcLLLL...UUDY....LLY...GG.........
+..........U....LOO....AYYUU...UD......OO.....G.........
+................O.........U...D........O.....G.........
+..........................U............................
+
+# ---- drawn frames (tools/solkhar_frames.py writes everything below)
+frame idle0 from base
+
+frame idle1 from base
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+
+frame idle2 from base
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 0 27 W
+row 13 12 W
+row 4 37 W
+
+frame idle3 from base
+row 23 25 OcHHHEYY
+row 24 25 cHPZPHKY
+row 25 25 IHZPHIcY
+row 26 25 IIPHIHNZ
+row 9 6 W
+row 16 52 W
+row 6 21 W
+
+frame hover0 from base
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+row 54 0 ...........U..FYLO...AcLLLL...UUDY....LLY....GG........
+row 55 0 ...........U....LOO...AYYUU....UD......OO.....G........
+row 56 0 .................O.........U....D........O.....G.......
+row 57 0 ...........................U...........................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 8 d
+row 51 52 d
+row 52 8 d
+row 52 52 d
+row 53 8 d
+row 53 52 d
+
+frame hover1 from base
+row 54 0 ...........U..FYLO...AcLLLL...UUDY....LLY....GG........
+row 55 0 ............U...LOO...AYYUU....UD.......OO.....G.......
+row 56 0 ............U....O.........U....D........O......G......
+row 57 0 ...........................U.....D.......O.............
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 9 d
+row 51 52 d
+row 52 9 d
+row 52 52 d
+row 53 9 d
+row 53 52 d
+
+frame hover2 from base
+row 23 25 OcHHHEYY
+row 24 25 cHPZPHKY
+row 25 25 IHZPHIcY
+row 26 25 IIPHIHNZ
+row 9 42 W
+row 12 16 W
+row 17 53 W
+row 54 0 ..........U...FYLO...AcLLLL...UUDY....LLY...GG.........
+row 55 0 ..........U....LO.....AYYU....UD......O......G.........
+row 56 0 ...............................D........O....G.........
+row 57 0 .......................................................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 7 d
+row 51 51 d
+row 52 7 d
+row 52 51 d
+row 53 7 d
+row 53 51 d
+
+frame hover3 from base
+row 54 0 .........U....FYLO...AcLLLL...UUDY....LLY..GG..........
+row 55 0 .........U....LOO....AYYUU...UD......OO.....G..........
+row 56 0 ...............O.........U...D........O.....G..........
+row 57 0 .........................U.............................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 6 d
+row 51 50 d
+row 52 6 d
+row 52 50 d
+row 53 6 d
+row 53 50 d
+
+frame hover4 from base
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 3 38 W
+row 9 7 W
+row 9 48 W
+row 54 0 .........U....FYLO...AcLLLL...UUDY....LLY..GG..........
+row 55 0 ........U....LOO....AYYUU...UD......OO.....G...........
+row 56 0 ........U.....O.........U...D........O.....G...........
+row 57 0 ........................U....D.......O.................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 5 d
+row 51 50 d
+row 52 5 d
+row 52 50 d
+row 53 5 d
+row 53 50 d
+
+frame hover5 from base
+row 0 27 W
+row 13 12 W
+row 4 37 W
+row 54 0 ..........U...FYLO...AcLLLL...UUDY....LLY...GG.........
+row 55 0 ..........U....LO.....AYYU....UD......O......G.........
+row 56 0 ...............................D........O....G.........
+row 57 0 .......................................................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 7 d
+row 51 51 d
+row 52 7 d
+row 52 51 d
+row 53 7 d
+row 53 51 d
+
+frame cast0 from base
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+
+frame cast1 from base
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+
+frame cast2 from base
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 3 27 W
+row 16 12 W
+row 7 37 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+
+frame cast3 from base
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 12 42 W
+row 15 16 W
+row 20 53 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+
+frame cast4 from base
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+
+frame cast5 from base
+row 23 25 OcHHHEYY
+row 24 25 cHPZPHKY
+row 25 25 IHZPHIcY
+row 26 25 IIPHIHNZ
+row 9 6 W
+row 16 52 W
+row 6 21 W
+
+frame summon0 from base
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+
+frame summon1 from base
+row 22 25 IVPZPYIO
+row 23 25 PZNWNZYY
+row 24 25 ZWWWWWZY
+row 25 25 ZWWWWWZY
+row 26 25 PZWWNZNZ
+row 27 25 ZHZNZHLK
+row 28 25 ZMPHPZIY
+row 0 27 W
+row 13 12 W
+row 4 37 W
+clear 46 23 54 29
+at 44 14
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 21 5 25
+at 0 14
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+
+frame summon2 from base
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 12 42 W
+row 15 16 W
+row 20 53 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 24 5 28
+at 0 17
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+
+frame summon3 from base
+grow 3
+row 25 25 IVPZPYIO
+row 26 25 PZNWNZYY
+row 27 25 ZWWWWWZY
+row 28 25 ZWWWWWZY
+row 29 25 PZWWNZNZ
+row 30 25 ZHZNZHLK
+row 31 25 ZMPHPZIY
+row 6 38 W
+row 12 7 W
+row 12 48 W
+clear 46 26 54 32
+at 44 17
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 24 5 28
+at 0 17
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+row 0 27 N.
+row 1 27 ZV
+row 2 27 VA
+row 6 16 W
+row 5 16 N
+row 6 39 W
+row 5 40 N
+
+frame summon4 from base
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+row 9 48 W
+row 15 52 W
+row 3 27 W
+clear 46 23 54 29
+at 44 14
+??????.NW.
+?????.TZZT
+?????TYYYa
+?????JYYRR
+????.RLLY.
+????LYLR..
+???LYLY...
+??.LYL....
+?.LYY.....
+.GLY......
+GLYR......
+LYYR......
+YYR.......
+YR........
+clear 0 21 5 25
+at 0 14
+??WN????
+?TZZT???
+aYYYT???
+RRYYJ???
+?YLLR???
+??RLYL??
+???YLYL?
+????LYL?
+?????YYL
+??????YL
+
+frame summon5 from base
+row 22 25 IVMPOYIO
+row 23 25 OPZNZEYY
+row 24 25 PZWWWZKY
+row 25 25 IZWWWZcY
+row 26 25 IPWNZHNZ
+row 27 25 ZHPZPHLK
+clear 46 23 54 29
+at 44 20
+?????TZZT.
+????.TYYYa
+???..JYYRR
+??..RLLYY.
+?.LYLRY...
+.LYLY.....
+GLYY......
+LYYR......
+YYR.......
+YR........
+
+frame stag0 from base
+row 23 25 OcHHHEYY
+row 24 25 cHPZPHKY
+row 25 25 IHZPHIcY
+row 26 25 IIPHIHNZ
+row 3 0 .................A........XIJJYD......I................
+row 4 0 .................JAI..DM..YIJ..OOB..AIJ................
+row 5 0 ..................JIAYYYIIcYA......IAJ.................
+row 6 0 ..................XIOYIAYIIYAYD.....IX.................
+row 4 26 Y
+row 5 27 Y
+row 6 27 Y
+row 7 28 Y
+row 11 24 Y
+row 12 25 Y
+
+frame stag1 from base
+row 23 25 OcIIIEYY
+row 24 25 cIHHHIKY
+row 25 25 IIHHIIcY
+row 26 25 IIIIIHNZ
+row 27 25 ZIIIIHLK
+row 54 0 ..........U...FYLO...AcLLLL...UUDY....LLY...GG.........
+row 55 0 ..........U....LO.....AYYU....UD......O......G.........
+row 56 0 ...............................D........O....G.........
+row 57 0 .......................................................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 7 d
+row 51 51 d
+row 52 7 d
+row 52 51 d
+row 53 7 d
+row 53 51 d
+row 3 0 .................A........XIJJYD......I................
+row 4 0 .................JAI..DM..YIJ..OOB..AIJ................
+row 5 0 ..................JIAYYYIIcYA......IAJ.................
+row 6 0 ..................XIOYIAYIIYAYD.....IX.................
+row 4 26 Y
+row 5 27 Y
+row 6 27 Y
+row 7 28 Y
+row 11 24 Y
+row 12 25 Y
+
+frame stag2 from base
+row 23 25 OcIIIEYY
+row 24 25 cIHHHIKY
+row 25 25 IIHHIIcY
+row 26 25 IIIIIHNZ
+row 27 25 ZIIIIHLK
+row 54 0 ..........U...FYLO...AcLLLL...UUDY....LLY...GG.........
+row 55 0 ..........U....LO.....AYYU....UD......O......G.........
+row 56 0 ...............................D........O....G.........
+row 57 0 .......................................................
+row 51 4 ....
+row 51 49 ....
+row 52 4 ....
+row 52 49 ....
+row 53 4 ....
+row 53 49 ....
+row 51 7 d
+row 51 51 d
+row 52 7 d
+row 52 51 d
+row 53 7 d
+row 53 51 d
+row 3 0 .................A........XIJJYD......I................
+row 4 0 .................JAI..DM..YIJ..OOB..AIJ................
+row 5 0 ..................JIAYYYIIcYA......IAJ.................
+row 6 0 ..................XIOYIAYIIYAYD.....IX.................
+row 4 26 Y
+row 5 27 Y
+row 6 27 Y
+row 7 28 Y
+row 11 24 Y
+row 12 25 Y
+
+frame stag3 from base
+row 23 25 OcHHHEYY
+row 24 25 cHPZPHKY
+row 25 25 IHZPHIcY
+row 26 25 IIPHIHNZ
+row 3 0 .................A........XIJJYD......I................
+row 4 0 .................JAI..DM..YIJ..OOB..AIJ................
+row 5 0 ..................JIAYYYIIcYA......IAJ.................
+row 6 0 ..................XIOYIAYIIYAYD.....IX.................
+row 4 26 Y
+row 5 27 Y
+row 6 27 Y
+row 7 28 Y
+row 11 24 Y
+row 12 25 Y
+
+clip idle 5 idle0 idle1 idle2 idle3
+clip hover 7 hover0 hover1 hover2 hover3 hover4 hover5
+clip cast 10 cast0 cast1 cast2 cast3 cast4 cast5
+clip summon 8 summon0 summon1 summon2 summon3 summon4 summon5
+clip stagger 5 stag0 stag1 stag2 stag3
