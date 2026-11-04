@@ -1,0 +1,109 @@
+# siren: 28x20, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #093f45
+D #3d241d
+E #0c9e9d
+F #248384
+G #332f3b
+H #32444b
+I #0a8a85
+J #0c5c6d
+K #b2764b
+L #f1eefb
+M #d78e5f
+N #4f8d89
+O #908ca3
+P #83a177
+Q #21aca5
+R #b2aec5
+S #796750
+T #ecb57f
+U #1d5f67
+V #407970
+frame base
+............AAAA............
+...........AEQQEA...........
+..........AEQQQQEA........A.
+........AACEEVQHHFA......ALA
+.......AQEFJFKJPMCA.....ARLA
+......ACEECIICSMAA.....AORLA
+......AEJCIIBMMKMA.....AOLA.
+......AIJJIBSAAAA....AAOLA..
+..AA...AGACMNMKPCA..AGORA...
+.AJCA...AMAAFNUUCMAADOLA....
+.ACINA..AA.AAJJAADMTTDHA....
+AHAJECAAGMAAPMKA.AAGMAA.....
+.A.AEEA.AAAEEFNVA..AA.......
+..AEECA...AQQNPEVA..........
+..AEAA....AJIEQEIA..........
+.AEFA...AAAANIQIEA..........
+.AJEEAAAIFJUCEUIUA..........
+.ACJIFIIIIJUUUCUA...........
+..AACCCIJJUUCAAA............
+....AAAAAAAAA.A.............
+
+# ---- drawn frames (tools/realm_frames_shore.py writes everything below)
+frame walk1 from base
+at 0 13
+...AEECA...
+...AEAA....
+..AEFA...AA
+..AJEEAAAIF
+.ACJIFIIIIJ
+..AACCCIJJU
+....AAAAAAA
+
+frame walk3 from base
+at 0 13
+.AEECA.....
+.AEAA......
+AEFA....AAA
+AJEEAAAAIFJ
+ACJIFIIIIJU
+.AACCCIJJUU
+...AAAAAAAA
+
+frame atk0 from base
+at 19 0
+.........
+.........
+.......A.
+......ALA
+.....ARLA
+....AORLA
+....AOLA.
+..AAOLA..
+.AGORA...
+ADOLA....
+
+frame atk1 from base
+at 19 0
+.........
+.........
+.........
+.........
+.........
+.....AA..
+...AAOLLA
+.AAGOLLLA
+AGORLLA..
+DOLA.....
+at 27 5
+L
+
+frame atk2 from base
+at 19 0
+.........
+.........
+........A
+.......LA
+......RLA
+.....ORLA
+....AOLA.
+..AAOLA..
+.AGORA...
+ADOLA....
+
+clip move 6 base walk1 base walk3
+clip shoot 9 atk0 atk1 atk2 base

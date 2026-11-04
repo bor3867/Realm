@@ -19,6 +19,7 @@ from pixlib import write_png  # noqa: E402
 from reduce import read_png  # noqa: E402
 SRC = os.path.join(root, 'art', 'source', 'castle2'); PIX = os.path.join(SRC, 'pix'); OUT = os.path.join(root, 'art', 'bundle', 'throne')
 SYM = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789#%&*+=@$'
+SHEET, TITLE = 'castle_user', "Sunthief's Castle's defenders, the user's art, hand-animated"   # (tools/realm_pix.py sets its own)
 IDS = ['infernal_hound', 'cinder_archer', 'sunbound_knight', 'solar_acolyte', 'cinder_elemental', 'lava_slime', 'lava_guard', 'sun_cultist', 'cinder_bat', 'forge_golem']
 
 
@@ -128,12 +129,12 @@ def build(prev=None):
         if 'shoot' in A: A.setdefault('attack', {'frames': [A['shoot']['frames'][len(A['shoot']['frames']) // 2]], 'fps': 1, 'loop': False})
         A.setdefault('hurt', {'frames': [A['move']['frames'][0]], 'fps': 1, 'loop': False})
         sprites[id_] = {'frames': fr, 'anims': A, 'meta': {}}
-    write_png(os.path.join(OUT, 'castle_user.png'), sheet)
+    write_png(os.path.join(OUT, SHEET + '.png'), sheet)
     if prev:
         S = 4; write_png(prev, [[sheet[y // S][x // S] if sheet[y // S][x // S][3] else (70, 66, 80, 255) for x in range(sheetW * S)] for y in range(y0 * S)])
-    json.dump({'rf': True, 'meta': {'name': "Sunthief's Castle's defenders, the user's art, hand-animated", 'version': 2}, 'sheets': {'castle_user': {'image': 'castle_user.png', 'kind': 'enemy', 'sprites': sprites}}},
-              open(os.path.join(OUT, 'atlas_castle_user.json'), 'w', encoding='utf8', newline='\n'), indent=1)
-    print('castle_user:', len(blocks), 'defenders')
+    json.dump({'rf': True, 'meta': {'name': TITLE, 'version': 2}, 'sheets': {SHEET: {'image': SHEET + '.png', 'kind': 'enemy', 'sprites': sprites}}},
+              open(os.path.join(OUT, 'atlas_' + SHEET + '.json'), 'w', encoding='utf8', newline='\n'), indent=1)
+    print(SHEET + ':', len(blocks), 'sprites')
 
 
 if __name__ == '__main__':

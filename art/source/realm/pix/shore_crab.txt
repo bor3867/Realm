@@ -1,0 +1,102 @@
+# shore_crab: 22x16, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #991f2d
+D #94132a
+E #521729
+F #d74c42
+G #912d39
+H #915660
+I #640b0f
+J #d33e38
+K #653c49
+L #bd1e2c
+M #390f12
+N #d62128
+O #f3593f
+P #f03a2b
+Q #f84c35
+R #452531
+S #ac6f86
+T #ffcb43
+U #cd2f2d
+V #e53230
+frame base
+.................A....
+...AAA..........AIAA..
+..AQQPAA........AOPUA.
+.AJPOAAAAA.....A.APPHA
+AENVAARLAKA..AAJAAPVVA
+AMNNNALAAKA.AHAALAVVVA
+AMLNNIA.ASAAASA.ANVLLA
+.AEECCAAJUULLLAADDDCCA
+..AARDDAAVUUUVAACDAAA.
+.AVVLAAAATIMIGMIEAENA.
+ARNCLCAEHBMAIIGAADDCUA
+ARGAAUNKAFA.AGAANAAALA
+ARDAANAA.A..AKAALNAARA
+.AA.ACA......A..ALA.A.
+....ADA.........AGA...
+.....A...........A....
+
+# ---- drawn frames (tools/realm_frames_shore.py writes everything below)
+frame walk1 from base
+at 0 11
+ARGAAUNK
+.ARDANAA
+..AAACA.
+...ADA..
+........
+at 14 11
+AANAAALA
+AALNAARA
+.ALA...A
+AGA....A
+A.......
+
+frame walk3 from base
+at 0 11
+ARGAAUNK
+ARDAANAA
+AA..ACA.
+A....ADA
+......A.
+at 14 11
+AANAAALA
+AALNADA.
+.ACAAA..
+..ADA...
+........
+
+frame atk0 from base
+at 0 0
+...AAA..
+..AQQPA.
+.A....AA
+at 14 0
+..AIAA..
+.A....A.
+..AOPUA.
+
+frame atk1 from base
+at 0 1
+...AAA..
+..AOOPAA
+at 14 1
+..AIAA..
+..AOOUA.
+at 9 0
+T
+at 12 0
+T
+
+frame atk2 from base
+at 0 1
+...AAA..
+..AQOPAA
+at 14 1
+..AIAA..
+..AOPUA.
+
+clip move 6 base walk1 base walk3
+clip shoot 8 atk0 atk1 atk2 base

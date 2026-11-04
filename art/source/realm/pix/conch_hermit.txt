@@ -1,0 +1,93 @@
+# conch_hermit: 27x20, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #5b1319
+D #9e5649
+E #dc3d2a
+F #f0c37b
+G #674742
+H #623027
+I #bb8c73
+J #946958
+K #c01119
+L #704d2b
+M #c78f5f
+N #982026
+O #2c191d
+P #d49e71
+Q #a96b4d
+R #f26e44
+S #ba7568
+T #b2754c
+U #eba15f
+V #f0b768
+frame base
+............A..............
+...........AIAA............
+........AAA.AVIA...........
+.......ASVPAAHPGA.AA.......
+........APPILQIUSAHOA......
+....AAAAHMPMMJIPPAHPA......
+...AHFUPSIPMMDJJQSGSAA.....
+....AAPUMIGLJPQTPGIQGGA....
+....AJGPPHPTDPMUVUTPQIA....
+...AUMQCMPMPPHVFFFFVJIPA...
+..AJVGGJMMPPPANOOOAAAAPA...
+..AEOECAODLACHKFCOHECAAAA..
+.AVECKNCAAREOLOKAAACQCERLA.
+AVVVAAAAAJUEAOUAQQJUAKEEVA.
+AFVAAHDDAVURAAEASATGACAEUFA
+AFA.AFSAAFUA.AHAA.ACAA.AUFA
+AFA.AVMAAFUA..A....A...ATFA
+AFA.AOA.AFOA............AFA
+.A...A...AA.............ALA
+.........................A.
+
+# ---- drawn frames (tools/realm_frames_shore.py writes everything below)
+frame walk1 from base
+at 0 14
+AFVAAHDDAVURAAEASATGACAEUFA
+AFA.AFSAAFUA.AHAA.ACAA.AUFA
+.FA..AVMA.AFU..A...A...ATFA
+.AA...AOA.AFO..........AFA
+..A....A..AA............ALA
+.........................A.
+
+frame walk3 from base
+at 0 14
+AFVAAHDDAVURAAEASATGACAEUFA
+AFA.AFSAAFUA.AHAA.ACAA.AUFA
+AFA.AVMAAFUA..A....A...AFA.
+AFA.AOA.AFOA..........AFA..
+A.A..A...AA...........ALA..
+.A.....................A...
+
+frame atk0 from base
+at 11 0
+.AFA
+AIAA
+at 7 2
+AFAA
+at 18 3
+AFA
+
+frame atk1 from base
+at 11 0
+AFFA
+AIFA
+at 7 2
+FAFA
+at 18 3
+FFA
+at 22 6
+AF
+at 2 5
+FA
+
+frame atk2 from base
+at 11 0
+.AFA
+AIAA
+
+clip move 5 base walk1 base walk3
+clip shoot 8 atk0 atk1 atk2 base

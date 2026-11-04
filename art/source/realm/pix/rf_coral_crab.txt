@@ -1,0 +1,84 @@
+# rf_coral_crab: 32x20, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #ed4c3c
+D #e03229
+E #98121a
+F #cf232a
+G #9e1733
+H #6a0b13
+I #421219
+J #a72936
+K #aa7381
+L #812743
+M #794e5d
+N #ed3e21
+O #811734
+P #a6494c
+Q #eb422b
+R #f5442e
+S #f2462d
+T #eb9302
+U #442032
+V #602539
+frame base
+.......................AAA......
+......AAA.............ANSDAA....
+....AAPPPA..........A..AFNNNA...
+...ACRRAA..........AFAA.AAFDDA..
+..ARDCA..AA....A....AFVA.AUDFNA.
+.ARRDA..AQIA..AAA...AFDFA.AQDDA.
+APFDRAAACGA.A.AMA....AFFFADDFFDA
+ACDDGCHGGIAAUAAKMAA...AHEFFFDGFA
+AFFFJDFHEA.AKAAMMAKA...AHFFDEGJA
+.AGGOFFHA..AJPFJFFKVAA.AJIGGEGA.
+..AOOAFDVAAFFQFDDFFFEHAFFJAAAA..
+...AAAAGOOIICCNNNFFHBGEGGAAAEA..
+..ADEDAAAAIUBIINNBTBUUVAAFFAFA..
+.ADGUOOOAAUVBHOBVHHEVVJAHGOHGFA.
+ADDLAHAERFFICAPMLJBCAEDNAAAUODDA
+ADGA.AEQSHGAHAAAAAHIAJEDNA.AAOFA
+AJA..AHDHAA.A....AHA.AAFDDA.AOJA
+AFA..AHFA.........A....AFDA..ALA
+AIA...AA...............AFA...AVA
+.A......................A.....A.
+
+# ---- drawn frames (tools/realm_frames_shore.py writes everything below)
+frame walk1 from base
+at 0 17
+AFA...AHA.........A.....AFDA.ALA
+.A.....A.................AFA.AVA
+..........................A...A.
+
+frame walk3 from base
+at 0 17
+AFA..AHFA.........A...AFDA...ALA
+AIA...AHA.............AFA....AA.
+AA.....A..............A.........
+
+frame atk0 from base
+at 6 3
+..
+at 24 3
+..
+at 6 0
+ATA
+at 23 0
+ATTA
+
+frame atk1 from base
+at 4 2
+ATTTA
+at 22 1
+ATTTTA
+at 14 0
+T.T
+
+frame atk2 from base
+at 4 2
+APTPA
+at 22 1
+ANTSDA
+
+clip move 6 base walk1 base walk3
+clip shoot 8 atk0 atk1 atk2 base

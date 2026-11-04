@@ -1,0 +1,631 @@
+{
+ "rf": true,
+ "meta": {
+  "name": "The realm's monsters, the user's art, hand-animated",
+  "version": 2
+ },
+ "sheets": {
+  "realm_user": {
+   "image": "realm_user.png",
+   "kind": "enemy",
+   "sprites": {
+    "shore_crab": {
+     "frames": {
+      "shore_crab_base": [
+       0,
+       0,
+       38,
+       24
+      ],
+      "shore_crab_walk1": [
+       38,
+       0,
+       38,
+       24
+      ],
+      "shore_crab_walk3": [
+       76,
+       0,
+       38,
+       24
+      ],
+      "shore_crab_atk0": [
+       114,
+       0,
+       38,
+       24
+      ],
+      "shore_crab_atk1": [
+       152,
+       0,
+       38,
+       24
+      ],
+      "shore_crab_atk2": [
+       190,
+       0,
+       38,
+       24
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "shore_crab_base",
+        "shore_crab_walk1",
+        "shore_crab_base",
+        "shore_crab_walk3"
+       ],
+       "fps": 6.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "shore_crab_atk0",
+        "shore_crab_atk1",
+        "shore_crab_atk2",
+        "shore_crab_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "shore_crab_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "shore_crab_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_coral_crab": {
+     "frames": {
+      "rf_coral_crab_base": [
+       0,
+       24,
+       48,
+       28
+      ],
+      "rf_coral_crab_walk1": [
+       48,
+       24,
+       48,
+       28
+      ],
+      "rf_coral_crab_walk3": [
+       96,
+       24,
+       48,
+       28
+      ],
+      "rf_coral_crab_atk0": [
+       144,
+       24,
+       48,
+       28
+      ],
+      "rf_coral_crab_atk1": [
+       192,
+       24,
+       48,
+       28
+      ],
+      "rf_coral_crab_atk2": [
+       240,
+       24,
+       48,
+       28
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_coral_crab_base",
+        "rf_coral_crab_walk1",
+        "rf_coral_crab_base",
+        "rf_coral_crab_walk3"
+       ],
+       "fps": 6.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_coral_crab_atk0",
+        "rf_coral_crab_atk1",
+        "rf_coral_crab_atk2",
+        "rf_coral_crab_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_coral_crab_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_coral_crab_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "driftwood_bandit": {
+     "frames": {
+      "driftwood_bandit_base": [
+       0,
+       52,
+       39,
+       27
+      ],
+      "driftwood_bandit_walk1": [
+       39,
+       52,
+       39,
+       27
+      ],
+      "driftwood_bandit_walk3": [
+       78,
+       52,
+       39,
+       27
+      ],
+      "driftwood_bandit_atk0": [
+       117,
+       52,
+       39,
+       27
+      ],
+      "driftwood_bandit_atk1": [
+       156,
+       52,
+       39,
+       27
+      ],
+      "driftwood_bandit_atk2": [
+       195,
+       52,
+       39,
+       27
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "driftwood_bandit_base",
+        "driftwood_bandit_walk1",
+        "driftwood_bandit_base",
+        "driftwood_bandit_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "driftwood_bandit_atk0",
+        "driftwood_bandit_atk1",
+        "driftwood_bandit_atk2",
+        "driftwood_bandit_base"
+       ],
+       "fps": 9.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "driftwood_bandit_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "driftwood_bandit_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "tide_herald": {
+     "frames": {
+      "tide_herald_base": [
+       0,
+       79,
+       40,
+       28
+      ],
+      "tide_herald_walk1": [
+       40,
+       79,
+       40,
+       28
+      ],
+      "tide_herald_walk3": [
+       80,
+       79,
+       40,
+       28
+      ],
+      "tide_herald_atk0": [
+       120,
+       79,
+       40,
+       28
+      ],
+      "tide_herald_atk1": [
+       160,
+       79,
+       40,
+       28
+      ],
+      "tide_herald_atk2": [
+       200,
+       79,
+       40,
+       28
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "tide_herald_base",
+        "tide_herald_walk1",
+        "tide_herald_base",
+        "tide_herald_walk3"
+       ],
+       "fps": 6.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "tide_herald_atk0",
+        "tide_herald_atk1",
+        "tide_herald_atk2",
+        "tide_herald_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "tide_herald_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "tide_herald_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "siren": {
+     "frames": {
+      "siren_base": [
+       0,
+       107,
+       44,
+       28
+      ],
+      "siren_walk1": [
+       44,
+       107,
+       44,
+       28
+      ],
+      "siren_walk3": [
+       88,
+       107,
+       44,
+       28
+      ],
+      "siren_atk0": [
+       132,
+       107,
+       44,
+       28
+      ],
+      "siren_atk1": [
+       176,
+       107,
+       44,
+       28
+      ],
+      "siren_atk2": [
+       220,
+       107,
+       44,
+       28
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "siren_base",
+        "siren_walk1",
+        "siren_base",
+        "siren_walk3"
+       ],
+       "fps": 6.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "siren_atk0",
+        "siren_atk1",
+        "siren_atk2",
+        "siren_base"
+       ],
+       "fps": 9.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "siren_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "siren_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "conch_hermit": {
+     "frames": {
+      "conch_hermit_base": [
+       0,
+       135,
+       43,
+       28
+      ],
+      "conch_hermit_walk1": [
+       43,
+       135,
+       43,
+       28
+      ],
+      "conch_hermit_walk3": [
+       86,
+       135,
+       43,
+       28
+      ],
+      "conch_hermit_atk0": [
+       129,
+       135,
+       43,
+       28
+      ],
+      "conch_hermit_atk1": [
+       172,
+       135,
+       43,
+       28
+      ],
+      "conch_hermit_atk2": [
+       215,
+       135,
+       43,
+       28
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "conch_hermit_base",
+        "conch_hermit_walk1",
+        "conch_hermit_base",
+        "conch_hermit_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "conch_hermit_atk0",
+        "conch_hermit_atk1",
+        "conch_hermit_atk2",
+        "conch_hermit_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "conch_hermit_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "conch_hermit_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "reef_golem": {
+     "frames": {
+      "reef_golem_base": [
+       0,
+       163,
+       54,
+       28
+      ],
+      "reef_golem_walk1": [
+       54,
+       163,
+       54,
+       28
+      ],
+      "reef_golem_walk3": [
+       108,
+       163,
+       54,
+       28
+      ],
+      "reef_golem_atk0": [
+       162,
+       163,
+       54,
+       28
+      ],
+      "reef_golem_atk1": [
+       216,
+       163,
+       54,
+       28
+      ],
+      "reef_golem_atk2": [
+       270,
+       163,
+       54,
+       28
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "reef_golem_base",
+        "reef_golem_walk1",
+        "reef_golem_base",
+        "reef_golem_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "reef_golem_atk0",
+        "reef_golem_atk1",
+        "reef_golem_atk2",
+        "reef_golem_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "reef_golem_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "reef_golem_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "trap_hound": {
+     "frames": {
+      "trap_hound_base": [
+       0,
+       191,
+       35,
+       20
+      ],
+      "trap_hound_walk1": [
+       35,
+       191,
+       35,
+       20
+      ],
+      "trap_hound_walk3": [
+       70,
+       191,
+       35,
+       20
+      ],
+      "trap_hound_atk0": [
+       105,
+       191,
+       35,
+       20
+      ],
+      "trap_hound_atk1": [
+       140,
+       191,
+       35,
+       20
+      ],
+      "trap_hound_atk2": [
+       175,
+       191,
+       35,
+       20
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "trap_hound_base",
+        "trap_hound_walk1",
+        "trap_hound_base",
+        "trap_hound_walk3"
+       ],
+       "fps": 9.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "trap_hound_atk0",
+        "trap_hound_atk1",
+        "trap_hound_atk2",
+        "trap_hound_base"
+       ],
+       "fps": 9.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "trap_hound_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "trap_hound_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    }
+   }
+  }
+ }
+}

@@ -15,7 +15,7 @@ const KIND = {
   pt2_pets: 'pet', pt2_eggs: 'egg', mx_giant_watermelon: 'object',
 };
 // unoutlined by design: tiles, the floor rune decal, the ground shadow
-const NO_OUTLINE = (def) => def.kind === 'tile' || /rune_circle|ground_shadow/.test(def.name) || def.sheet === 'bx_drawbridge_technician' || def.sheet === 'castle_user' || def.sheet === 'sol2';   // (Solkhar's v2 shots carry their own one-pixel rim, 2026-11-03)   // (the Technician's edges are drawn in his own shades: no rim, 2026-11-02)
+const NO_OUTLINE = (def) => def.kind === 'tile' || /rune_circle|ground_shadow/.test(def.name) || def.sheet === 'bx_drawbridge_technician' || def.sheet === 'castle_user' || def.sheet === 'sol2' || def.sheet === 'realm_user';   // (Solkhar's v2 shots carry their own one-pixel rim, 2026-11-03)   // (the Technician's edges are drawn in his own shades: no rim, 2026-11-02)
 // the Sunthief's Castle's monsters, bosses and shots: a thin rim in their own colours darkened, not the black one
 const SOFT_RIM = (def) => (def.pack === 'throne' || /^(bx_solkhar|sol_shots)$/.test(def.sheet)) && !['item', 'tile'].includes(def.kind);   // (its scenery too, 2026-11-02)
 

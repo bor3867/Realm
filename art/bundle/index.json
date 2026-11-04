@@ -44,7 +44,8 @@
   "throne/atlas_castle_art.json",
   "throne/atlas_castle_carpet.json",
   "throne/atlas_forge_overseer.json",
-  "unstruck/atlas_sol2.json"
+  "unstruck/atlas_sol2.json",
+  "realmfoes/atlas_realm_user.json"
  ],
  "hover": "HOVER.json",
  "manifest": "MANIFEST.json"

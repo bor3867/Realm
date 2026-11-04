@@ -1824,3 +1824,7 @@ for (const [id, [life, k]] of Object.entries({ tide_herald: [60000, 1.6], bog_be
 // ---- sized to their weight (2026-10-31, the polish pass: tools/audit_enemy_sizes.mjs): two tough monsters drawn barely
 // half a tile tall, smaller than a slime; drawn up, their bodies with them
 for (const [id, k] of [['dream_eater', 1.6], ['ash_harpy', 1.5]]) { const D = ENEMIES[id]; if (D && !D.scale) { D.scale = k; D.r = +(D.r * Math.sqrt(k)).toFixed(2); } }
+// ---- the realm's monsters in the user's own sprites (2026-11-03, docs/realm_sprite_map.md; hand-animated, tools/realm_pix.py):
+// drawn at half their pixels, as the castle's are. Land by land as each is drawn
+export const REALM_USER = ['shore_crab', 'rf_coral_crab', 'driftwood_bandit', 'tide_herald', 'siren', 'conch_hermit', 'reef_golem', 'trap_hound'];
+for (const id of REALM_USER) { const D = ENEMIES[id]; if (!D) continue; D.regSrc = D.reg; D.reg = `realm_user/${id}`; D.scale = 0.5; }

@@ -1,0 +1,102 @@
+# reef_golem: 38x20, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #be2634
+D #5764a1
+E #3e3a65
+F #7277b0
+G #e82822
+H #8b2d42
+I #810909
+J #ab436d
+K #e32e3a
+L #7f4c73
+M #1e1f3b
+N #7690cb
+O #8aa4db
+P #7e97cf
+Q #8196d0
+R #92aadf
+S #98abd0
+T #ffcb91
+U #4f151f
+V #38294b
+frame base
+.........A...AA.....AAA....A...A......
+........AIA.AKKAA..AIKKAA.ACA.ACA.....
+.....A.AAKKA.AKKGA.AAKKCCAAGAAGKA.....
+....AHAIAAGKAKKCAAAEAKJGAAGGAIGA......
+....AGGIAAGKHAUJKVEEEJLAAAKGKGIA.A....
+.....AAGAHAALLBLJLVECLCEEULCCCAJAHA...
+.....AIKCHVADVLLJLLFLLDEEJLEACAGHGA...
+......AAAHJLVAAFDFLDFJDDELDAAKCBUA....
+....AA..AMHJHVAADFDFDHDFFNEEEEVAAA....
+...ANFAAAAAVVMAMAAUNDDFDCAAMMAAEMLA...
+.AANPNEEDAAAAAAMACTIDMIGGA.AAADDDNPA..
+AFNNQDMEVVEFPAAMEBCGAAAIIMAMSAVEENFNA.
+APPPDDAAAVPNFEEADFALEEEMFAEDFQAAEEDNDA
+APFDAA..ARPDAVAAAFAEAAEVDAAEDQPAAADFOA
+APDA...APQDA.ADDAMAA..AVMDAAAFFNAAVFQA
+AQNA...APFDA.ADDAA.....ADDA.AMFNA.AFNA
+APA....AQNA..ADA.......ADDA..AFA...APA
+AOA....AMFA...A.........AA...ANA...ANA
+AEA.....AVA..................AEA...ADA
+.A.......A....................A.....A.
+
+# ---- drawn frames (tools/realm_frames_shore.py writes everything below)
+frame walk1 from base
+at 0 14
+APDA...APQDA.ADDAMAA..AVMDAAAFFNAAVFQA
+.QNA...APFDA.ADDAA.....ADDA.AMFNA.AFNA
+.PA.....AQNA..ADA.......ADDA..AFA..APA
+.OA.....AMFA...A........AA....ANA..ANA
+..A......AVA..................AEA..ADA
+..........A.....................A....A
+
+frame walk3 from base
+at 0 14
+APDA...APQDA.ADDAMAA..AVMDAAAFFNAAVFQA
+AQNA...APFDA.ADDAA.....ADDA.AMFNA.AFNA
+APA...AQNA..ADA.......ADDA..AFA....APA
+AOA...AMFA...A.........AA...ANA....AN.
+AEA...AVA....................AEA...AD.
+.A.....A......................A.....A.
+
+frame atk0 from base
+at 9 0
+A
+at 13 0
+AA
+at 20 0
+ATA
+at 27 0
+A
+at 31 0
+A
+
+frame atk1 from base
+at 8 0
+ATA
+at 13 0
+TT
+at 20 0
+TTT
+at 26 0
+ATA
+at 30 0
+ATA
+at 17 9
+TT
+at 21 9
+T
+
+frame atk2 from base
+at 9 0
+T
+at 20 0
+ATA
+at 31 0
+T
+
+clip move 5 base walk1 base walk3
+clip shoot 7 atk0 atk1 atk2 base

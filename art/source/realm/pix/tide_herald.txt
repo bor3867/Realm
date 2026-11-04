@@ -1,0 +1,91 @@
+# tide_herald: 24x20, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #272134
+D #4e5c9a
+E #315f88
+F #9a848c
+G #77564b
+H #5f4052
+I #e8904b
+J #b05639
+K #2c325c
+L #24bbc8
+M #bf814f
+N #6a1b16
+O #e3b074
+P #19dfe5
+Q #a72b13
+R #394179
+S #445ea4
+T #ba6f44
+U #69648d
+V #5e73bc
+frame base
+...............AAA..AA..
+........AAAA..ALPPAAPPA.
+.......ACDVRA..APACEAPA.
+......AKDDSSKAAVPAAALLEA
+.....ARDDSDVDA.AAEFMTAA.
+....AKKDSVVVVSA..AGGA...
+.....AKRDKAVAAA.AHFA....
+....ARKRAGAAIAKA.AGFA...
+....AVSRANQNAARA.AGA....
+...AAKCARANA..AAACQA....
+..ACRKACBGKHAAKEVHOBA...
+..AHDKACCBJAAACDRNMBA...
+.AOOIAAKUTBBKAAAAAJA....
+ADFVFAARRCKBKA...ATA....
+AUKSKACROCCNDA...AIA....
+ADAAAKKDOAAAGRA..AIA....
+.A..AKDRGA.AMKA..AIA....
+...ARRDOA..ATHA..AIA....
+..ADRAATA..AHUHA.AMA....
+...AA..A....AAA...A.....
+
+# ---- drawn frames (tools/realm_frames_shore.py writes everything below)
+frame walk1 from base
+at 1 16
+A..AKDRGA.AMKA
+..ARRDOA...ATHA
+.ADRAATA...AHUHA
+..AA..A.....AAA.
+
+frame walk3 from base
+at 1 16
+A...AKDRGAAMKA.
+...ARRDOAATHA..
+..ADRAATAAHUHA.
+...AA..A..AAA..
+
+frame atk0 from base
+at 14 0
+.AAA..AA..
+ALPPAAPPA.
+.APACEAPA.
+AVPAAALLEA
+at 17 9
+ACQA
+
+frame atk1 from base
+at 14 0
+ALPLA.ALPA
+LPPPLLPPPL
+.APLPLAPLA
+AVPLPALLEA
+at 12 0
+P
+at 23 2
+P
+at 19 4
+P
+
+frame atk2 from base
+at 14 0
+.ALA..AL..
+ALPPAAPPA.
+.APACEAPA.
+AVPAAALLEA
+
+clip move 6 base walk1 base walk3
+clip shoot 8 atk0 atk1 atk2 base
