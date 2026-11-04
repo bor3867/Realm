@@ -1,0 +1,89 @@
+# rf_ash_golem: 35x28, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #834d39
+D #d4854f
+E #c29281
+F #612829
+G #f9af16
+H #37202f
+I #ec6f1d
+J #d82a15
+K #422f44
+L #a26c5d
+M #a72b20
+N #842a1d
+O #b85133
+P #5d4964
+Q #805866
+R #7f333b
+S #5d364b
+T #b97c59
+U #f88a10
+V #f58e39
+frame base
+...........AAA.....AAAAA...........
+..........AQHAA...AMPPPPA..........
+.........AKHQQPAAAFMRPPPPAAAAA.....
+.....AAAAKOKQQPJFFMJSSPPPPKKLFA....
+....APPPQHJKKPKHJJIJSOKPPPKKKKA....
+...AKKKQQSJKKPPCJUUJJNKPPPMSKSKA...
+...AKKSKPSFJLKPKJGUUGFHHKKNMNIOA...
+....AKHKGVUVKCSHJJGGMKKEONMUIFKA...
+...AKQKKTKKJHKKKIJFHHKHKKKKSFHKA...
+....AHFKKHHNHKKKCMVHHHHSCNKKNHA....
+...APFAAAHHMIHHHSRIFHAHKCHKHBHA....
+..APSOKHABKRAAAHSFNFHHBKSAAHKSRA...
+..ASSFKFSHAAAAAKSKRVOHABHAAKKSFAA..
+.AKSGNFHHQAAAHHHFFAHVHHHA..AHHGPRA.
+APPPRGMFRA..AAHABHBADAAA..AFJMFSRPA
+APHHKSUMA...AHAHHFFNFRKA...AHHFKKHA
+AKKHKFIFA...AAASFHHHHAAA...AKKOKKKA
+AHHKKFUNA..AKKHHHHMHKAHKA..AKNOIKKA
+AKSKSLFOIAAKKPSKAHHSAAHSSA.AOMRIIKA
+AKKKMRFOIAAHKSPSAKKKAHSSSSAACARMIOA
+AMNRRCASOAAHEVSKAAAAAHSHLLAAFAARHMA
+.AFFROAAA.AKHOKA.....AHHPKA.AAPSHA.
+.ARANRMA.AKKHHA......ASHSA...ASPA..
+..A.AAA.AHKKKHA......AHCHKA...AA...
+........AAHKHHA......AHKKSA........
+.........ACHLLCA.....AKHLLCA.......
+........AFTHLSLA....AETHTHLA.......
+.........AAAAAA......AAAAAA........
+
+# ---- drawn frames (tools/realm_frames_rune.py writes everything below)
+frame walk1 from base
+at 0 26
+........AFTHLSLA.....AKHLLCA......
+.........AAAAAA.....AETHTHLA.......
+
+frame walk3 from base
+at 0 25
+.........ACHLLCA.....AETHTHLA......
+........ACHLLCA......AAAAAA........
+.......AFTHLSLA....................
+
+frame atk0 from base
+at 16 5
+GUUG
+at 17 6
+UGGU
+
+frame atk1 from base
+at 16 4
+GGGG
+at 16 5
+GUUG
+at 17 6
+UGGU
+at 28 18
+GG
+at 4 19
+GG
+
+frame atk2 from base
+at 17 6
+UGGU
+
+clip move 5 base walk1 base walk3
+clip shoot 7 atk0 atk1 atk2 base

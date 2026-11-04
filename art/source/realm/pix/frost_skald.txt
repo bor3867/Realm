@@ -1,0 +1,82 @@
+# frost_skald: 31x24, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #6e5773
+D #542027
+E #c95b32
+F #28a4d2
+G #75484b
+H #312640
+I #d3b4af
+J #dda480
+K #eaeceb
+L #b32523
+M #574468
+N #a64d37
+O #f6ddc4
+P #a8898b
+Q #7d1215
+R #4e3b58
+S #30c3e6
+T #941722
+U #4ad0e9
+V #6ad9f4
+frame base
+............AAA...........A....
+..........AACPPAA........AKA...
+.........AMMCCPPPA........A.AA.
+.........AAAMMPKKKA......ASAHVA
+..........ARRCIAAPA.....AVSFVA.
+........AARMMPA..ACA....AUKFHA.
+......AACPHMOAA..AKA...AUUKSSVA
+.....AOOPPPAIHDA.ACA....AUUSBA.
+......AAOIIRHGDDAPA....AKAUAA..
+......ARHCHHBBQBRARA..AAIAAA...
+...AAAMCMMMBHHGDHHMHAAPCHA.....
+.AAAMCCCMIPRRRDDNHMMMIMRA......
+AKROICCCOAAAMPQQDAARRIAA.......
+AAMMRJPIA.AHMHETJHAHHPA........
+AROIIJAHHAARMHTLJAAAHA.........
+AIOOAARRHAHMRDNTJRA.APA........
+AOAA..AAAHRCRJTTJRA.APA........
+.A.....ARRCCRJTTNHRA.A.........
+.....AAHHCMHRJTTERRHA..........
+....AHHHMMMRMOTTTIMRA..........
+....AHDBJGMRJBTLQDGRRA.........
+...ADADQAPGRJQLQAAAQPA.........
+....AADAAAGIQAAA...AA..........
+......AA..AAA..................
+
+# ---- drawn frames (tools/realm_frames_rune.py writes everything below)
+frame walk1 from base
+at 0 21
+..ADADQAPGRJQLQAAAQPA
+...AADAAAGIQAAA..AA..
+.....AA...AAA........
+
+frame walk3 from base
+at 0 21
+....ADADQAPGRJQLQAAQPA
+.....AADAAAGIQAAAA....
+.......AA..AAA........
+
+frame atk0 from base
+at 25 3
+VV
+
+frame atk1 from base
+at 24 1
+.V.V.
+at 23 3
+VKKV
+at 29 0
+V
+at 30 5
+V
+
+frame atk2 from base
+at 25 3
+KV
+
+clip move 6 base walk1 base walk3
+clip shoot 8 atk0 atk1 atk2 base

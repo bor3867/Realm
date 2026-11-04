@@ -1471,6 +1471,776 @@
       }
      },
      "meta": {}
+    },
+    "rock_troll": {
+     "frames": {
+      "rock_troll_base": [
+       0,
+       509,
+       52,
+       27
+      ],
+      "rock_troll_walk1": [
+       52,
+       509,
+       52,
+       27
+      ],
+      "rock_troll_walk3": [
+       104,
+       509,
+       52,
+       27
+      ],
+      "rock_troll_atk0": [
+       156,
+       509,
+       52,
+       27
+      ],
+      "rock_troll_atk1": [
+       208,
+       509,
+       52,
+       27
+      ],
+      "rock_troll_atk2": [
+       260,
+       509,
+       52,
+       27
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rock_troll_base",
+        "rock_troll_walk1",
+        "rock_troll_base",
+        "rock_troll_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rock_troll_atk0",
+        "rock_troll_atk1",
+        "rock_troll_atk2",
+        "rock_troll_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rock_troll_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rock_troll_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "crag_dwarf": {
+     "frames": {
+      "crag_dwarf_base": [
+       0,
+       536,
+       35,
+       25
+      ],
+      "crag_dwarf_walk1": [
+       35,
+       536,
+       35,
+       25
+      ],
+      "crag_dwarf_walk3": [
+       70,
+       536,
+       35,
+       25
+      ],
+      "crag_dwarf_atk0": [
+       105,
+       536,
+       35,
+       25
+      ],
+      "crag_dwarf_atk1": [
+       140,
+       536,
+       35,
+       25
+      ],
+      "crag_dwarf_atk2": [
+       175,
+       536,
+       35,
+       25
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "crag_dwarf_base",
+        "crag_dwarf_walk1",
+        "crag_dwarf_base",
+        "crag_dwarf_walk3"
+       ],
+       "fps": 8.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "crag_dwarf_atk0",
+        "crag_dwarf_atk1",
+        "crag_dwarf_atk2",
+        "crag_dwarf_base"
+       ],
+       "fps": 9.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "crag_dwarf_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "crag_dwarf_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "crystal_golem": {
+     "frames": {
+      "crystal_golem_base": [
+       0,
+       561,
+       46,
+       39
+      ],
+      "crystal_golem_walk1": [
+       46,
+       561,
+       46,
+       39
+      ],
+      "crystal_golem_walk3": [
+       92,
+       561,
+       46,
+       39
+      ],
+      "crystal_golem_atk0": [
+       138,
+       561,
+       46,
+       39
+      ],
+      "crystal_golem_atk1": [
+       184,
+       561,
+       46,
+       39
+      ],
+      "crystal_golem_atk2": [
+       230,
+       561,
+       46,
+       39
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "crystal_golem_base",
+        "crystal_golem_walk1",
+        "crystal_golem_base",
+        "crystal_golem_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "crystal_golem_atk0",
+        "crystal_golem_atk1",
+        "crystal_golem_atk2",
+        "crystal_golem_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "crystal_golem_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "crystal_golem_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "cairn_crawler": {
+     "frames": {
+      "cairn_crawler_base": [
+       0,
+       600,
+       48,
+       38
+      ],
+      "cairn_crawler_walk1": [
+       48,
+       600,
+       48,
+       38
+      ],
+      "cairn_crawler_walk3": [
+       96,
+       600,
+       48,
+       38
+      ],
+      "cairn_crawler_atk0": [
+       144,
+       600,
+       48,
+       38
+      ],
+      "cairn_crawler_atk1": [
+       192,
+       600,
+       48,
+       38
+      ],
+      "cairn_crawler_atk2": [
+       240,
+       600,
+       48,
+       38
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "cairn_crawler_base",
+        "cairn_crawler_walk1",
+        "cairn_crawler_base",
+        "cairn_crawler_walk3"
+       ],
+       "fps": 8.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "cairn_crawler_atk0",
+        "cairn_crawler_atk1",
+        "cairn_crawler_atk2",
+        "cairn_crawler_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "cairn_crawler_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "cairn_crawler_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rf_ash_golem": {
+     "frames": {
+      "rf_ash_golem_base": [
+       0,
+       638,
+       51,
+       36
+      ],
+      "rf_ash_golem_walk1": [
+       51,
+       638,
+       51,
+       36
+      ],
+      "rf_ash_golem_walk3": [
+       102,
+       638,
+       51,
+       36
+      ],
+      "rf_ash_golem_atk0": [
+       153,
+       638,
+       51,
+       36
+      ],
+      "rf_ash_golem_atk1": [
+       204,
+       638,
+       51,
+       36
+      ],
+      "rf_ash_golem_atk2": [
+       255,
+       638,
+       51,
+       36
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rf_ash_golem_base",
+        "rf_ash_golem_walk1",
+        "rf_ash_golem_base",
+        "rf_ash_golem_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rf_ash_golem_atk0",
+        "rf_ash_golem_atk1",
+        "rf_ash_golem_atk2",
+        "rf_ash_golem_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rf_ash_golem_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rf_ash_golem_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "glacier_headsman": {
+     "frames": {
+      "glacier_headsman_base": [
+       0,
+       674,
+       49,
+       42
+      ],
+      "glacier_headsman_walk1": [
+       49,
+       674,
+       49,
+       42
+      ],
+      "glacier_headsman_walk3": [
+       98,
+       674,
+       49,
+       42
+      ],
+      "glacier_headsman_atk0": [
+       147,
+       674,
+       49,
+       42
+      ],
+      "glacier_headsman_atk1": [
+       196,
+       674,
+       49,
+       42
+      ],
+      "glacier_headsman_atk2": [
+       245,
+       674,
+       49,
+       42
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "glacier_headsman_base",
+        "glacier_headsman_walk1",
+        "glacier_headsman_base",
+        "glacier_headsman_walk3"
+       ],
+       "fps": 6.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "glacier_headsman_atk0",
+        "glacier_headsman_atk1",
+        "glacier_headsman_atk2",
+        "glacier_headsman_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "glacier_headsman_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "glacier_headsman_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "wolf_shield": {
+     "frames": {
+      "wolf_shield_base": [
+       0,
+       716,
+       34,
+       28
+      ],
+      "wolf_shield_walk1": [
+       34,
+       716,
+       34,
+       28
+      ],
+      "wolf_shield_walk3": [
+       68,
+       716,
+       34,
+       28
+      ],
+      "wolf_shield_atk0": [
+       102,
+       716,
+       34,
+       28
+      ],
+      "wolf_shield_atk1": [
+       136,
+       716,
+       34,
+       28
+      ],
+      "wolf_shield_atk2": [
+       170,
+       716,
+       34,
+       28
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "wolf_shield_base",
+        "wolf_shield_walk1",
+        "wolf_shield_base",
+        "wolf_shield_walk3"
+       ],
+       "fps": 7.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "wolf_shield_atk0",
+        "wolf_shield_atk1",
+        "wolf_shield_atk2",
+        "wolf_shield_base"
+       ],
+       "fps": 9.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "wolf_shield_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "wolf_shield_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "rime_herald": {
+     "frames": {
+      "rime_herald_base": [
+       0,
+       744,
+       37,
+       32
+      ],
+      "rime_herald_walk1": [
+       37,
+       744,
+       37,
+       32
+      ],
+      "rime_herald_walk3": [
+       74,
+       744,
+       37,
+       32
+      ],
+      "rime_herald_atk0": [
+       111,
+       744,
+       37,
+       32
+      ],
+      "rime_herald_atk1": [
+       148,
+       744,
+       37,
+       32
+      ],
+      "rime_herald_atk2": [
+       185,
+       744,
+       37,
+       32
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "rime_herald_base",
+        "rime_herald_walk1",
+        "rime_herald_base",
+        "rime_herald_walk3"
+       ],
+       "fps": 6.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "rime_herald_atk0",
+        "rime_herald_atk1",
+        "rime_herald_atk2",
+        "rime_herald_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "rime_herald_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "rime_herald_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "frost_skald": {
+     "frames": {
+      "frost_skald_base": [
+       0,
+       776,
+       47,
+       32
+      ],
+      "frost_skald_walk1": [
+       47,
+       776,
+       47,
+       32
+      ],
+      "frost_skald_walk3": [
+       94,
+       776,
+       47,
+       32
+      ],
+      "frost_skald_atk0": [
+       141,
+       776,
+       47,
+       32
+      ],
+      "frost_skald_atk1": [
+       188,
+       776,
+       47,
+       32
+      ],
+      "frost_skald_atk2": [
+       235,
+       776,
+       47,
+       32
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "frost_skald_base",
+        "frost_skald_walk1",
+        "frost_skald_base",
+        "frost_skald_walk3"
+       ],
+       "fps": 6.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "frost_skald_atk0",
+        "frost_skald_atk1",
+        "frost_skald_atk2",
+        "frost_skald_base"
+       ],
+       "fps": 8.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "frost_skald_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "frost_skald_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
+    },
+    "cinder_golem": {
+     "frames": {
+      "cinder_golem_base": [
+       0,
+       808,
+       48,
+       39
+      ],
+      "cinder_golem_walk1": [
+       48,
+       808,
+       48,
+       39
+      ],
+      "cinder_golem_walk3": [
+       96,
+       808,
+       48,
+       39
+      ],
+      "cinder_golem_atk0": [
+       144,
+       808,
+       48,
+       39
+      ],
+      "cinder_golem_atk1": [
+       192,
+       808,
+       48,
+       39
+      ],
+      "cinder_golem_atk2": [
+       240,
+       808,
+       48,
+       39
+      ]
+     },
+     "anims": {
+      "move": {
+       "frames": [
+        "cinder_golem_base",
+        "cinder_golem_walk1",
+        "cinder_golem_base",
+        "cinder_golem_walk3"
+       ],
+       "fps": 5.0,
+       "loop": true
+      },
+      "shoot": {
+       "frames": [
+        "cinder_golem_atk0",
+        "cinder_golem_atk1",
+        "cinder_golem_atk2",
+        "cinder_golem_base"
+       ],
+       "fps": 7.0,
+       "loop": false
+      },
+      "attack": {
+       "frames": [
+        "cinder_golem_atk2"
+       ],
+       "fps": 1,
+       "loop": false
+      },
+      "hurt": {
+       "frames": [
+        "cinder_golem_base"
+       ],
+       "fps": 1,
+       "loop": false
+      }
+     },
+     "meta": {}
     }
    }
   }

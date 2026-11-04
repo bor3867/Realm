@@ -1,0 +1,82 @@
+# rime_herald: 21x24, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #43668c
+D #c3a5a7
+E #efd4bd
+F #92889a
+G #3880bd
+H #ba6f53
+I #262138
+J #ba7c7d
+K #f4efeb
+L #413345
+M #453b59
+N #644960
+O #b8cede
+P #937381
+Q #966056
+R #d6c8a8
+S #544367
+T #629ac4
+U #785f6a
+V #766d80
+frame base
+.................A...
+................ALA..
+................AKA..
+................AOTA.
+...............AKTKA.
+.....AAAAA.....APGOA.
+....ALPPFUA...AKTGIKA
+...AISSFEKEA.ALTTGOKA
+....ASSVKAAA..AAIBCTA
+....ASSRA.AFA..AJJAVA
+..AASSKA...A...AHA.A.
+.AKEDLAAA.ALA..AQA...
+AKLRENEILALA....A....
+.AAAAFANIIILA.AAQA...
+..ASSIBMAAIMLAVOA....
+.ASSVAIMAGGIMVMSA....
+.ASSFALRAAGAINAQA....
+ANUQAALQAAMAAAAHA....
+ANDRRLMPAAMLA.AJA....
+APQMAMMA.ALRA.AIA....
+.AJAALMA..AMA.AHA....
+..ALLLNA.ALMA.AUA....
+..AUNJJA.ALNPAANA....
+...AAAA...AAA..A.....
+
+# ---- drawn frames (tools/realm_frames_rune.py writes everything below)
+frame walk1 from base
+at 0 21
+.ALLLNA..ALMA
+.AUNJJA..ALNP
+..AAAA....AAA
+
+frame walk3 from base
+at 0 21
+...ALLLNAALMA
+...AUNJJAALNP
+....AAAA.AAA.
+
+frame atk0 from base
+at 17 1
+K
+
+frame atk1 from base
+at 16 0
+.K.K
+at 17 2
+K
+at 19 4
+K
+at 15 3
+K
+
+frame atk2 from base
+at 17 2
+K
+
+clip move 6 base walk1 base walk3
+clip shoot 8 atk0 atk1 atk2 base

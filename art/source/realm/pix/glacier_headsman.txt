@@ -1,0 +1,92 @@
+# glacier_headsman: 33x34, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #b98582
+D #382234
+E #814a4f
+F #951f1f
+G #e8c8c0
+H #f4e2d4
+I #ae5352
+J #c24535
+K #6b1825
+L #593c42
+M #911f31
+N #cda196
+O #664a59
+P #64233b
+Q #e6beae
+R #ae785e
+S #f59423
+T #ca7f55
+U #776270
+V #976f72
+frame base
+........................AA.......
+.....................A.ADOA......
+....................AAAAUA.......
+...................AHGNVDAA..A...
+..........A....A....ACAADDJAANA..
+.........AHA..AHA...AVAALAKFALA..
+........AHVA..AOPA...AAOEAAAMOA..
+........ACHAAAAOLA....AOEAFPPPMA.
+........ACHDGUAQGA....ARAAFPJPPMA
+........ACCNCNNCDA....ARAAPKFMMMA
+.........AOCDNOAA.....ARAKKKSMMA.
+.......AA.AAPVUAAA...ATEKMKSKKMA.
+.....AAUGADDLFALDVA..ATAAMKSFKMA.
+....AQCNGRBDVDOLCNQA.ADA.APSKKLA.
+...AAGNHHQQBLLADGGNA.AEA.ADIKMA..
+..ANHCQGVRQHAAAAQQCNAKKA.AKFKFA..
+...AVCLGGGNNMADAGCQVAEA..AMKAMA..
+....AAAVAGADTITJDAAAAEA.AJFAADA..
+....ALLLAABOEJHELADAORDAAJFA.A...
+...AKEILADAOOOFOLADPADVAAFEA.....
+..AMURDAADDDOLMOLAADAUUAAFLA.....
+..AMLLOA.AAAALPAA..AAAA.AFA......
+..APDLOA.ADKKRTKA...AEA.AFA......
+.ALKDOEEAAOLBDBDAA..ADA..A.......
+.AFMDOOAADOLBDDDVLA.ADA..........
+.AMFAAA.ADOVBLLJDEAADDA..........
+.AFFA.A.ADOLAPPFBIAADTA..........
+AFFFAADALRNLAPPPDNDAEA...........
+.AFMDDDDLUOAAMPPAUDAEA...........
+..APAAADLDA.AKMADDAAEA...........
+...A..ADDDA..AAADDAAEA...........
+......ADLDA....ADDLAOA...........
+......ANVNVA...ADOVAVA...........
+.......AAAA.....AAA.A............
+
+# ---- drawn frames (tools/realm_frames_rune.py writes everything below)
+frame walk1 from base
+at 0 31
+....ADLDA....
+....ANVNVA...
+.....AAAA....
+
+frame walk3 from base
+at 0 31
+.......ADLDA.
+.......ANVNVA
+........AAAA.
+
+frame atk0 from base
+at 29 3
+H
+
+frame atk1 from base
+at 29 3
+HH
+at 30 4
+HH
+at 31 7
+H
+at 28 8
+H
+
+frame atk2 from base
+at 30 4
+H
+
+clip move 6 base walk1 base walk3
+clip shoot 7 atk0 atk1 atk2 base

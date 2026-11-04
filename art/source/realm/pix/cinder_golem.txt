@@ -1,0 +1,91 @@
+# cinder_golem: 32x31, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #8f3640
+D #a3262f
+E #d02422
+F #ae8787
+G #633044
+H #7e273b
+I #d8aea3
+J #674d5f
+K #463550
+L #fc970d
+M #b37c70
+N #b06d5d
+O #946d72
+P #8c5f65
+Q #ae7e79
+R #81535c
+S #c4938b
+T #7f5c68
+U #281e32
+V #3e283b
+frame base
+.............A..................
+............AIAAAAA.............
+............AUISSSFA............
+.............AKSSSSA............
+.............AKKSQQQAAAA........
+........AAAAAVUKJFFSAJJIA.......
+.......AKOOSVVVKKIOOTJJSA.......
+......AKKKSSSUVVJOTPTKJSSA......
+.....AAKKKISSIVVVAAAAVVQQA......
+....AQQOTKISTTAVKMMQVBUSOUA.....
+...AKKFSIOUSTTAAKOBPOKUJVJA.....
+...AKKKOQOUFRNAAKOTJOAUJVKJA....
+...AJKKQOJUJSNKJAAAAAUAOUJJA....
+...AGHUSKJUVJAKJUVAUUKAQKJAGA...
+..AGCGHVUJKKAAKKHDDCJJVBKAUHA...
+..AGGGDGVVAAAUJJJDEDRJKKAAVDDA..
+.ATOJIDHHAAUUUKJHELLEGKAAHDVQSA.
+AOOKKMOSA..AUUUBBDLEVUKAAGVVPTPA
+AKVKKOOQJA..AUUVVGEHGGA..AVVVTTA
+AKKKKOOQGA..AAUKKCCGVGA..AUUJPTA
+AKVVJSFUAA.AKVVBVKVKVUKA.AUUBSSA
+AVVVJAQMSGAAKJJUVVKKUVJVAAJFTRSA
+AJOVBFMAQAAUUJJJAVVVUJJJAARAVRPA
+.AJGGMMAA.AVJQGJAAAAUUUNAAUAAPVA
+.ATRJVMA..AVKOJA....AUUJJAAAJGA.
+..AAAAA..AKJVUA......AAKKA..AA..
+.........AVKKVA.....AUKKKA......
+.........AKKKKA.....AUVKUA......
+.........AMKSOA.....AVKOOA......
+.........AFPPUOA.....AJOGA......
+..........AAAAA.......AAA.......
+
+# ---- drawn frames (tools/realm_frames_rune.py writes everything below)
+frame walk1 from base
+at 0 28
+.........AMKSOA.....AVKOOA......
+.........AFPPUOA.....AAA........
+..........AAAAA.................
+
+frame walk3 from base
+at 0 28
+.........AMKSOA.....AVKOOA......
+..........AAA.......AJOGA.......
+....................AAA.........
+
+frame atk0 from base
+at 17 16
+LLLL
+
+frame atk1 from base
+at 16 15
+LLLLL
+at 17 16
+LLLL
+at 18 17
+LL
+at 2 20
+L
+at 29 20
+L
+
+frame atk2 from base
+at 17 16
+LL
+
+clip move 5 base walk1 base walk3
+clip shoot 7 atk0 atk1 atk2 base

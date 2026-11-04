@@ -1,0 +1,95 @@
+# crystal_golem: 30x31, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #3d92d1
+D #1b3d72
+E #3e3d66
+F #2c243e
+G #b3dcee
+H #3b7fb6
+I #7c6378
+J #8e9ab2
+K #594a66
+L #355ea6
+M #ad909b
+N #2060a8
+O #84c1e8
+P #66bae5
+Q #669cd0
+R #506c9e
+S #5490c8
+T #559cd5
+U #e0e7f3
+V #e9fafa
+frame base
+.........................AAA..
+..............AA........AVVVA.
+.............AFKA......AVUUEA.
+.............AOVA.....AVGUSPA.
+........A....ATVA..A..AGOVQOA.
+.......AUA...APGCAAVAAVOVHQA..
+.......AGHA..ATUPOJVAOOPVCDA..
+.......APUNAAACUHDQVOSSRHHA...
+.......APGPPNHNCNDOVOHTLLQA...
+......AAHCCCLNNODPGHPDGLHAA...
+.....AJFDTTCFRSNOPGNTDLLFLPA..
+.....AIGMDPHRBCHSPGNSDLLELQA..
+.....AIMMIJMMAENNHONNDTFKSMMA.
+...A.AKIIIMKMAENGNHLNPOAEIEMA.
+..AVAAFIIIKKEAIDVVPNPGIAFIIIA.
+..AGVEIFFFFFAFIJDOPPPEIAKKKA..
+..APUUIEFFFBFFMIDFGPPKAAAAAA..
+..APOOIIFAFFFFIIIDGPRKFFFKKA..
+.AECCTDFA.AFAEEFFFEEAAAFFIKA..
+.AGCOSDEA..AFEEERKKEA.AAFFGCA.
+ADSHTTNA...AEFKKUEEEA..ADDQNCA
+ADPNONLA..ANLLFKKIFEA..AHHCOCA
+ANHPGHCA..ANHHFKKIDHCA.ACLHGTA
+ALOPOHNJAANHSRAEEEDTSA.AQACPPA
+ARGHGPDOAALGGEAAAADHHSAASATGOA
+.AGHUAAA.ALTGHA..ADEETA.AAQDA.
+..ARGOA.AKRFCA....AAENA..ATA..
+..AFOOA.ADLLRA....ADDLA..AGA..
+...AAA..ALNQRA....ADLTA...A...
+........ATOTCA....ALPCA.......
+.........AAAA......AAA........
+
+# ---- drawn frames (tools/realm_frames_rune.py writes everything below)
+frame walk1 from base
+at 0 28
+...AAA..ALNQRA....ALPCA...A...
+........ATOTCA.....AAA........
+.........AAAA.................
+
+frame walk3 from base
+at 0 28
+...AAA..ATOTCA....ADLTA...A...
+.........AAAA.....ALPCA.......
+...................AAA........
+
+frame atk0 from base
+at 25 1
+VVV
+at 14 1
+VV
+
+frame atk1 from base
+at 25 1
+VVV
+at 14 1
+VV
+at 19 5
+V
+at 12 0
+V
+at 29 3
+V
+at 9 4
+V
+
+frame atk2 from base
+at 25 1
+VUV
+
+clip move 5 base walk1 base walk3
+clip shoot 7 atk0 atk1 atk2 base

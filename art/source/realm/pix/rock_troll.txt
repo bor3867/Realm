@@ -1,0 +1,83 @@
+# rock_troll: 36x19, hand-drawn frames below the base
+A #1e1426
+B #1a1220
+C #3b2b2e
+D #da8f64
+E #947e6a
+F #af9290
+G #9d906b
+H #70624d
+I #98b111
+J #573f54
+K #735c68
+L #987b87
+M #907269
+N #92a030
+O #8e6e7b
+P #940000
+Q #a78a7b
+R #87646b
+S #ab8c7e
+T #ad927e
+U #59671d
+V #758c0e
+frame base
+........AAAAAAAAAAAAAAAAAAAA........
+.......AUIVIVCUIIUUVNUIIIVIUA.......
+......ALJUUIIUIIINIINHCVIUHKA.......
+.....AFLFJEUNAVUTFTNSLEAKRRKA.......
+.....ALFTJQQHAJKFFFEFLEAJHKKAAAA....
+...AAAFLGKMOHAJKJFQLLLFAJKJAFFFJA...
+..ACCAKMMOHKJAJJPDHLLQAAJJAATTFFA...
+.AFLFOJALJKJAAJJABPAAPA.AAAKELFLAA..
+.ALLEEKAAAAAACCAJAOLOOLA..AOGLRJIIA.
+.ALNNKJA.....ACAAAAAJAOA...AHKCNIVVA
+ACVMEFKA...AAACJCCCCCAAAA...AACHHIKA
+AHTFFFQA..AFLKKAJRJJCJJHCA..ATTFLKCA
+ASFFFKKKAALTFQKCAAAAJJFFFA.ALKHQSHHA
+AJJJJAORAAOLOMKA....ALQQQA.AJLOACCA.
+AEJTSAACAANEHHA......AHEKA.AJLAASKA.
+ARJFLCJAAFEJFKA.....ACHQKOA.AAAKKCA.
+.AJAKKAAJLOLLKA.....ARRLAFOA...AAA..
+..AAAA.AJLOARJA.....AKKLAERA........
+........AAA.AA.......AAA.AA.........
+
+# ---- drawn frames (tools/realm_frames_rune.py writes everything below)
+frame walk1 from base
+at 0 17
+..AAAA.AJLOARJA.....AKKLAERA........
+........AAAAAA......................
+
+frame walk3 from base
+at 0 17
+..AAAA.AJLOARJ......AKKLAERA........
+....................AAAAAA..........
+
+frame atk0 from base
+at 2 10
+II
+at 32 9
+II
+
+frame atk1 from base
+at 2 10
+II
+at 32 9
+II
+at 0 17
+I.A.I
+at 30 17
+I.A.I
+at 5 18
+A.I
+at 27 18
+I.A
+
+frame atk2 from base
+at 0 17
+..A..
+at 30 17
+..A..
+
+clip move 5 base walk1 base walk3
+clip shoot 7 atk0 atk1 atk2 base
