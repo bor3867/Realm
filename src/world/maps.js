@@ -2,6 +2,7 @@
 import { keyParen } from '../settings.js';
 import { rng, noise2, dist } from '../util.js';
 import { AREAS, WAYS, LOCKS, MECHS, GEYSERS } from './castle_plan.js';
+import { ROOMS } from './castle_rooms.js';
 
 export const TILE_NAMES = ['water', 'deep', 'sand', 'fen', 'mud', 'snow', 'runefloor', 'runeglyph',
   'ash', 'obsidian', 'marble', 'forge', 'forgewall', 'lava', 'void', 'chapelfloor', 'chapelwall', 'goldvein', 'ribwall',
@@ -1472,6 +1473,8 @@ export function dungeon(seed, def) {
       for (const [num, key, title, region, cx, cy, w, h, shape, ex = {}] of AREAS) {
         const n = room(Math.round(cx - w / 2), Math.round(cy - h / 2), w, h, { kind: KIND[key] || 'area', key, title, num, region, form: shape, sect: SECT[region], shape: 'maze', dep: num, ...ex });
         if (ex.opt) n.leaf = true;
+        const T = ROOMS[key];                                           // (a room laid out from the user's page: its own size, its own place: src/world/castle_rooms.js)
+        if (T) { const [ax, ay] = T.at || [cx, cy]; n.w = T.w; n.h = T.h; n.x = Math.round(ax - T.w / 2); n.y = Math.round(ay - T.h / 2); n.cx = n.x + (T.w >> 1); n.cy = n.y + (T.h >> 1); n.tpl = T; }
         A[num] = n; R0[key] = n;
       }
       const ell = (cx, cy, rx, ry, t = FLOOR) => { for (let y = Math.floor(cy - ry); y <= cy + ry; y++) for (let x = Math.floor(cx - rx); x <= cx + rx; x++) if (((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1) set(x, y, t); };
@@ -1480,6 +1483,13 @@ export function dungeon(seed, def) {
       const BR = TID.stageboards;                                       // (wooden bridges and boards)
       for (const n of rooms) {
         const { x, y, w, h, cx, cy, num } = n, s = num * 7.3;
+        if (n.tpl) {                                                    // its page: floor, the blocks standing in it, lava beside
+          const T = n.tpl;
+          for (const [a, b, c, d] of T.floor) carve(x + a, y + b, x + c, y + d);
+          for (const [a, b, c, d] of T.cut || []) carve(x + a, y + b, x + c, y + d, TID.void);
+          for (const [a, b, c, d] of T.lava || []) carve(x + a, y + b, x + c, y + d, TID.lava);
+          continue;
+        }
         switch (n.form) {
           case 'clearing': {                                          // a ragged round of woodland floor, a pocket or two off it
             const f = (a) => 0.84 + 0.1 * Math.sin(a * 3 + s) + 0.06 * Math.sin(a * 5 + s * 2);
@@ -1591,8 +1601,43 @@ export function dungeon(seed, def) {
       // the ways: a road between the two areas' nearest floor, winding; a lock's gate across its middle
       const floorNear = (n, tx, ty) => { let best = null, bd = 1e9; for (let yy = n.y; yy < n.y + n.h; yy++) for (let xx = n.x; xx < n.x + n.w; xx++) { const t = tile(xx, yy); if (t === FLOOR || t === BR) { const d = Math.hypot(xx - tx, yy - ty); if (d < bd) { bd = d; best = [xx, yy]; } } } return best || [n.cx, n.cy]; };
       const ways = {}, halls = [], HALLR = new Set(['outer', 'inner', 'ashkar']);
+      const SIDE = { N: [0, -1], S: [0, 1], E: [1, 0], W: [-1, 0] };
+      const route = (s0, t0, pass) => {                                 // the fewest turns round every other room (a grid search, a turn costing six steps)
+        const x0 = Math.max(2, Math.min(s0[0], t0[0]) - 60), x1 = Math.min(S - 3, Math.max(s0[0], t0[0]) + 60), y0 = Math.max(2, Math.min(s0[1], t0[1]) - 60), y1 = Math.min(S - 3, Math.max(s0[1], t0[1]) + 60);
+        const W2 = x1 - x0 + 1, H2 = y1 - y0 + 1, blk = new Uint8Array(W2 * H2);
+        for (const R of rooms) if (!pass.includes(R)) for (let yy = Math.max(y0, R.y - 3); yy <= Math.min(y1, R.y + R.h + 2); yy++) for (let xx = Math.max(x0, R.x - 3); xx <= Math.min(x1, R.x + R.w + 2); xx++) blk[(yy - y0) * W2 + xx - x0] = 1;
+        const at = (q) => (q[1] - y0) * W2 + q[0] - x0, si = at(s0), ti = at(t0); blk[si] = blk[ti] = 0;
+        const D = new Float32Array(W2 * H2 * 4).fill(1e9), prev = new Int32Array(W2 * H2 * 4).fill(-1), hp = [], DX = [1, 0, -1, 0], DY = [0, 1, 0, -1];
+        const push = (c, st) => { hp.push([c, st]); let i = hp.length - 1; while (i) { const j = (i - 1) >> 1; if (hp[j][0] <= hp[i][0]) break; [hp[i], hp[j]] = [hp[j], hp[i]]; i = j; } };
+        const pop = () => { const top = hp[0], last = hp.pop(); if (hp.length) { hp[0] = last; let i = 0; for (;;) { const l = 2 * i + 1, r2 = l + 1; let k = i; if (l < hp.length && hp[l][0] < hp[k][0]) k = l; if (r2 < hp.length && hp[r2][0] < hp[k][0]) k = r2; if (k === i) break; [hp[i], hp[k]] = [hp[k], hp[i]]; i = k; } } return top; };
+        for (let d = 0; d < 4; d++) { D[si * 4 + d] = 0; push(0, si * 4 + d); }
+        let end = -1;
+        while (hp.length) {
+          const [c, st] = pop(); if (c > D[st]) continue; const ci = st >> 2, d0 = st & 3; if (ci === ti) { end = st; break; }
+          const cx2 = ci % W2, cy2 = (ci / W2) | 0;
+          for (let d = 0; d < 4; d++) { const nx = cx2 + DX[d], ny = cy2 + DY[d]; if (nx < 0 || ny < 0 || nx >= W2 || ny >= H2) continue; const ni = ny * W2 + nx; if (blk[ni]) continue; const nc = c + 1 + (d !== d0 ? 6 : 0), ns = ni * 4 + d; if (nc < D[ns]) { D[ns] = nc; prev[ns] = st; push(nc, ns); } }
+        }
+        if (end < 0) return [s0, [t0[0], s0[1]], t0];                    // (no way round: one turn, as before)
+        const cells = []; for (let st = end; st >= 0; st = prev[st]) cells.push([(st >> 2) % W2 + x0, (((st >> 2) / W2) | 0) + y0]);
+        cells.reverse();
+        const pts = [cells[0]]; for (let i = 1; i < cells.length - 1; i++) { const a2 = cells[i - 1], b2 = cells[i], c2 = cells[i + 1]; if ((b2[0] - a2[0]) !== (c2[0] - b2[0]) || (b2[1] - a2[1]) !== (c2[1] - b2[1])) pts.push(b2); }
+        pts.push(cells[cells.length - 1]); return pts;
+      };
       for (const [a, b, opt] of WAYS) {
-        const P = U(a), Q = U(b), pa = floorNear(P, Q.cx, Q.cy);
+        const P = U(a), Q = U(b);
+        const dA = P.tpl && P.tpl.doors[b], dB = Q.tpl && Q.tpl.doors[a];
+        if (dA || dB) {                                                 // (to or from a room laid out from its page: through the page's door)
+          const end2 = (R, d, o) => { if (!d) { const q = floorNear(R, ...o); return { p: q, o: q }; } const [dx, dy] = SIDE[d[2]], q = [R.x + d[0], R.y + d[1]]; return { p: q, o: [q[0] + dx * 4, q[1] + dy * 4] }; };
+          const eA = end2(P, dA, [Q.cx, Q.cy]), eB = end2(Q, dB, eA.o);
+          const mid0 = route(eA.o, eB.o, [P, Q].filter((R) => !R.tpl));
+          const pts = [eA.p, ...mid0, eB.p].filter((q, i, L) => i === 0 || q[0] !== L[i - 1][0] || q[1] !== L[i - 1][1]);
+          poly(pts, 2, FLOOR); markPath(pts);
+          let long = [pts[0], pts[1]]; for (let i = 1; i < pts.length; i++) { const u = pts[i - 1], v = pts[i]; if (Math.hypot(v[0] - u[0], v[1] - u[1]) > Math.hypot(long[1][0] - long[0][0], long[1][1] - long[0][1])) long = [u, v]; if (u[0] === v[0] || u[1] === v[1]) halls.push({ u, v, climb: P.region !== Q.region }); }
+          const mid = [Math.round((long[0][0] + long[1][0]) / 2), Math.round((long[0][1] + long[1][1]) / 2)];
+          ways[a + '-' + b] = { a, b, mid, w: 2, dir: Math.atan2(long[1][1] - long[0][1], long[1][0] - long[0][0]), opt: !!opt, hall: true };
+          link(P, Q); continue;
+        }
+        const pa = floorNear(P, Q.cx, Q.cy);
         // (the Twin Lava Bridges: in at the west landing's foot, out from the east landing's middle, so a bridge must be crossed)
         const pb = Q.form === 'twin' ? [Q.x + 2, Q.y + Q.h - 2] : floorNear(Q, ...pa), pa2 = P.form === 'twin' ? [P.x + P.w - 3, P.cy] : floorNear(P, ...pb);
         const mx = (pa2[0] + pb[0]) / 2, my = (pa2[1] + pb[1]) / 2, L = Math.hypot(pb[0] - pa2[0], pb[1] - pa2[1]) || 1, jog = Math.min(4, L / 4) * (hash(a * 31 + b) < 0.5 ? -1 : 1);
@@ -1863,6 +1908,7 @@ export function dungeon(seed, def) {
     a31: 'chapel', a32: 'chapel', a37: 'ritual', a23: 'engine' };
   m.keepKind = KEEP_KIND; m.keepSkin = m.keepSkin || new Map();
   const keepDress = (n) => {
+    if (n.tpl) return;                                                // (a room from its page is dressed as its page has it: outerKeep)
     const kind = KEEP_KIND[n.key], skin = (x, y, name) => m.keepSkin.set(y * S + x, name);
     // its banners by what the room is (the user's banner rules, 2026-11-02): crown in halls of state, sun on the defences,
     // forge in the forges, cursed purple in ritual rooms, torn where the battle went through
@@ -2011,6 +2057,13 @@ export function dungeon(seed, def) {
     const junction = (cx, cy, style, shape) => { for (let j = 0; j < 3; j++) for (let i = 0; i < 3; i++) { const x = cx - 1 + i, y = cy - 1 + j; if (!fl(x, y)) continue; set(x, y, TID.kpcarpet); skin(x, y, `${style}_j${shape}_${j * 3 + i}`); } };
     const emblem = (cx, cy, style) => { for (let j = 0; j < 5; j++) for (let k = 0; k < 5; k++) if (fl(cx - 2 + k, cy - 2 + j)) { if (tile(cx - 2 + k, cy - 2 + j) === TID.kpcarpet) set(cx - 2 + k, cy - 2 + j, FLOOR); skin(cx - 2 + k, cy - 2 + j, `emblem_${style}_${j * 5 + k}`); } };   // (an emblem lies over a runner: its tiles floor again)
     const dais = (cx, cy, w2, h2) => { for (let dy = -h2; dy <= h2; dy++) for (let dx = -w2; dx <= w2; dx++) if (fl(cx + dx, cy + dy)) skin(cx + dx, cy + dy, Math.abs(dx) === w2 || Math.abs(dy) === h2 ? 'keep_step' : 'keep_dais'); };
+    if (n.tpl) {                                             // A ROOM FROM ITS PAGE (src/world/castle_rooms.js): its runners, its emblems, its props where the page has them
+      const T = n.tpl;
+      for (const [d, at, a0, a1, st] of T.runners || []) { if (d === 'ns') runnerNS(n.x + at, n.y + a0, n.y + a1, st); else runnerEW(n.y + at, n.x + a0, n.x + a1, st); }
+      for (const [x, y, st] of T.emblems || []) emblem(n.x + x, n.y + y, st);
+      for (const [sp, x, y, solid = true] of T.props || []) if (free(n.x + x, n.y + y)) put(m, sp, n.x + x, n.y + y, solid);
+      return;
+    }
     if (n.key === 'a52') {                                   // SOLKHAR'S SANCTUM (2026-11-03, the user's room art and the audited spec, 1):
       // a round hall, its floor 24 tiles from the middle to the wall (the spec's arena, tile for tile); walled beyond, lava
       // falling behind the wall either side of the way in. The spec draws its entrance south and the captive Sun north; here
@@ -3234,7 +3287,8 @@ export function dungeon(seed, def) {
     }
     // the mechanisms: on the floor nearest the area's middle (below the Furnace Control's housing)
     m.castle.mechs = MECHS.map(([key, num, name, verb, sprite, fx, fy]) => {
-      const n = rooms.find((q) => q.num === num), ty = fy !== undefined ? n.y + fy * n.h : n.form === 'u' ? n.y + Math.floor(n.h * 0.55) + 2 : n.cy, tx = fx !== undefined ? n.x + fx * n.w : n.cx;
+      const n = rooms.find((q) => q.num === num); if (n.tpl && n.tpl.mechs && n.tpl.mechs[key]) return { key, num, name, verb, sprite, x: n.x + n.tpl.mechs[key][0], y: n.y + n.tpl.mechs[key][1] };
+      const ty = fy !== undefined ? n.y + fy * n.h : n.form === 'u' ? n.y + Math.floor(n.h * 0.55) + 2 : n.cy, tx = fx !== undefined ? n.x + fx * n.w : n.cx;
       let best = [n.cx, ty], bdist = 1e9;
       for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) { if (m.tiles[idx(m, x, y)] === TID.void || SOLID_TILES.has(m.tiles[idx(m, x, y)]) || m.tiles[idx(m, x, y)] === TID.lava || m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) continue; const d = Math.hypot(x - tx, y - ty); if (d < bdist) { bdist = d; best = [x, y]; } }
       return { key, num, name, verb, sprite: sprite.replace('castle_decor/', 'castle_decor/'), x: best[0], y: best[1] };
