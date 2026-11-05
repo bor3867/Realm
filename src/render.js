@@ -2212,6 +2212,21 @@ export class Renderer {
   laneFx(f, g) {
     const b = this.b, live = f.t >= f.delay, L = f.len, n = Math.ceil(L * 2);
     if (f.spin) f.a = f.a0 + f.spin * Math.max(0, f.t - f.delay);   // (a turning lane)
+    if (f.tell && !live) {                                  // a charge's tell (2026-11-04, the user: "ground mark, cone, line, or effect showing the locked charge direction"): a band its own width, brightening as it comes, its edges crisp, chevrons running down it the way he will go
+      const C = f.cols || ['#ff3a1a'], k = Math.min(1, f.t / Math.max(0.05, f.delay)), ca = Math.cos(f.a), sa = Math.sin(f.a), nx = -sa * f.w / 2, ny = ca * f.w / 2;
+      const P = (d, o) => this.proj(f.x + ca * d + nx * o, f.y + sa * d + ny * o);
+      const q = [P(0, -1), P(L, -1), P(L, 1), P(0, 1)];
+      b.save(); b.globalAlpha = 0.14 + 0.3 * k; b.fillStyle = C[0];
+      b.beginPath(); b.moveTo(Math.round(q[0][0]), Math.round(q[0][1])); for (let i = 1; i < 4; i++) b.lineTo(Math.round(q[i][0]), Math.round(q[i][1])); b.closePath(); b.fill();
+      b.globalAlpha = 0.55 + 0.4 * k; b.strokeStyle = C[0]; b.lineWidth = 1;
+      for (const [u, v] of [[q[0], q[1]], [q[3], q[2]]]) { b.beginPath(); b.moveTo(Math.round(u[0]) + 0.5, Math.round(u[1]) + 0.5); b.lineTo(Math.round(v[0]) + 0.5, Math.round(v[1]) + 0.5); b.stroke(); }
+      b.strokeStyle = C[3] || '#ffffff'; b.globalAlpha = 0.5 + 0.5 * k;
+      for (let d = (g.t * 7) % 1.6; d < L - 0.4; d += 1.6) {   // (chevrons, running the way he will go)
+        const tip = P(d + 0.5, 0), l = P(d, -0.6), r = P(d, 0.6);
+        b.beginPath(); b.moveTo(Math.round(l[0]) + 0.5, Math.round(l[1]) + 0.5); b.lineTo(Math.round(tip[0]) + 0.5, Math.round(tip[1]) + 0.5); b.lineTo(Math.round(r[0]) + 0.5, Math.round(r[1]) + 0.5); b.stroke();
+      }
+      b.restore(); return;
+    }
     for (let j = 0; j < n; j++) {
       const d = (j / n) * L, x = f.x + Math.cos(f.a) * d, y = f.y + Math.sin(f.a) * d, [sx, sy] = this.proj(x, y);
       const C = f.cols || ['#ff8c1e', '#ffd84a', '#ff8c1e', '#fff6c8'];   // (warning, two flickers, core: a lane may bring its own, the sea's blue)
@@ -2983,6 +2998,20 @@ export class Renderer {
     const pins = [], seen = new Set();
     for (const e of g.enemies) if (!e.dead && !e.noLoot && (e.rb || (e.D && e.D.bx) || e.rfBossP)) { pins.push({ x: e.x, y: e.y, id: e.id, biome: e.D && e.D.biome, key: e.nid ?? e }); if (e.nid !== undefined) seen.add(e.nid); }
     if (m.netWorld && g.net && g.net.bossPins && g.net.bossPinsMap === m) for (const q of g.net.bossPins) if (q.tag === 'b' && !seen.has(q.nid)) pins.push({ ...q, key: q.nid });
+    // Sunthief's Castle: one boss marked at a time, the next one the way on asks for (2026-11-04, the user: "Only display ONE
+    // active boss icon at a time ... Use actual encounter-completion flags"): the Hollow Jarls until their gate north has
+    // opened, then Ashkar until the Great Sun Gate has, then Solkhar once you have come through to the Eclipse Walk;
+    // a miniboss only while you stand in its own area (it is then what you are doing). Each castle its own (its locks)
+    if (m.castle && m.castle.locks && m.castle.rooms) {
+      const C = m.castle, Rm = C.rooms, done = (nm) => { const L = C.locks.find((q) => q.name === nm); return !!L && (L.open || ((C.gates[nm] || []).length > 0 && C.gates[nm].every((o) => !o.solid))); };
+      const inBox = (n, q) => n && q.x >= n.x && q.y >= n.y && q.x < n.x + n.w && q.y < n.y + n.h;
+      const here = Object.values(Rm).find((n) => inBox(n, p)), MAIN = ['a26', 'a46', 'a52'];
+      const said = (C.st && C.st.said) || {}, eclipse = Object.values(Rm).some((n) => (n.region === 'eclipse' || n.region === 'sanctum') && said[n.key]) || (here && (here.region === 'eclipse' || here.region === 'sanctum'));
+      let want = here && !MAIN.includes(here.key) && pins.some((q) => inBox(here, q)) ? here : null;
+      if (!want) want = !done('26-27') ? Rm.a26 : !done('46-47') ? Rm.a46 : eclipse ? Rm.a52 : null;
+      const keep = pins.filter((q) => inBox(want, q)); pins.length = 0;
+      if (keep.length) pins.push({ ...keep[0], x: keep.reduce((t, q) => t + q.x, 0) / keep.length, y: keep.reduce((t, q) => t + q.y, 0) / keep.length, key: 'castle:' + want.key });   // (an encounter of two, the Jarls: one mark between them)
+    }
     // each boss marked loudly: a ring that pulses round it, and when it first appears, a ping spreading out (3 s)
     const born = (this.pinBorn = this.pinBorn || new Map()), now2 = performance.now() / 1000;
     const ring = (x, y, r, col, a) => { const px = Math.round((x - x0) * k), py = Math.round((y - y0) * k); mc.globalAlpha = a; mc.strokeStyle = col; mc.lineWidth = 2; mc.beginPath(); mc.arc(px, py, r, 0, Math.PI * 2); mc.stroke(); mc.globalAlpha = 1; };

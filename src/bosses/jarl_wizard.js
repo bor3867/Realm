@@ -67,6 +67,20 @@ function portal(g, e, key, life, hp) {
   (e.bx.jzPortals = e.bx.jzPortals || []).push(q);
   return q;
 }
+// a portal anywhere, its colour what it does (2026-11-04, the user: "Use different portal colors ... to distinguish
+// behavior/patterns"): violet his old gateways, gold the Revolving Gate, cyan the Portal Tide, crimson the Pentagram
+const GOLD = '#ffd650', CYAN = '#5ad8ff', CRIM = '#ff5a7a';
+function portalAt(g, e, x, y, life, hp, col) {
+  const p = g.player, C = court(e);
+  if (p && !p.dead && Math.hypot(p.x - x, p.y - y) < 2.5) { const d = Math.hypot(x - p.x, y - p.y) || 1; x += ((x - p.x) / d) * 2.5; y += ((y - p.y) / d) * 2.5; }
+  x = Math.max(C.x + 1.5, Math.min(C.x + C.w - 1.5, x)); y = Math.max(C.y + 1.5, Math.min(C.y + C.h - 1.5, y));
+  const q = g.addEnemy('wiz_portal', x, y);
+  q.noLoot = true; q.seen = true; q.jzUntil = g.t + life; q.jzCol = col; if (hp) q.hp = q.maxHp = hp;
+  g.vx({ k: 'burst', x, y, n: 14, colors: [col, '#ffffff', col] });
+  (e.bx.jzPortals = e.bx.jzPortals || []).push(q);
+  return q;
+}
+const callWarrior = (e) => { const W = partner(e); if (W && W.bx && !W.dead) W.bx.jwCall = true; };   // (the Warrior charges with it)
 const closePortals = (e) => { for (const q of e.bx.jzPortals || []) if (!q.dead) { q.noLoot = true; q.dead = true; q.deadT = 0; } e.bx.jzPortals = []; };
 const live = (q) => q && !q.dead;
 const opening = (g, e, keys, delay) => { for (const k of keys) { const s = at40(e, ...SPOT[k]); circle(g, e, s.x, s.y, 1.1, delay, 0); } g.sfx('portal'); };
@@ -119,6 +133,66 @@ function judgeFire(g, e, V) {
   g.sfx('zap');
 }
 
+// ================================================================ the portals' new patterns (2026-11-04, the user: "rotating portal
+// patterns, staggered crossfire, portal waves, temporary portal formations, different firing rhythms")
+// REVOLVING GATE (gold): four portals (five in III) round the court's middle, turning about it for 7 s, each throwing two
+// bolts in across the court every 0.24 s (the spokes turn with them: 85) and a lance at you every 1.3 s (110)
+function orbit(g, e) {
+  const C = court(e), cx = C.x + C.w / 2, cy = C.y + C.h / 2, R = Math.min(C.w, C.h) * 0.34, a0 = Math.random() * TAU, n = (e.bx.phase || 1) >= 3 ? 5 : 4;
+  for (let i = 0; i < n; i++) { const a = a0 + (i / n) * TAU; circle(g, e, cx + Math.cos(a) * R, cy + Math.sin(a) * R, 1.1, 0.8, 0); }
+  g.sfx('portal'); if (g.banner) g.banner('THE GATE TURNS.', 1100);
+  later(e, 0.8, 'orbitOpen', { cx, cy, R, a0, n }); e.bx.jzBusy = g.t + 8.2; callWarrior(e);
+}
+function orbitOpen(g, e, V) {
+  const S = e.bx, dir = (S.jzOd = -(S.jzOd || 1));
+  S.jzOrbit = { ps: Array.from({ length: V.n }, (_, i) => { const a = V.a0 + (i / V.n) * TAU; return portalAt(g, e, V.cx + Math.cos(a) * V.R, V.cy + Math.sin(a) * V.R, 7.4, 7000, GOLD); }),
+    cx: V.cx, cy: V.cy, R: V.R, a0: V.a0, dir, t0: g.t, until: g.t + 7, next: g.t + 0.3, aim: g.t + 1.2 };
+}
+function orbitTick(g, e, O) {
+  const T = g.t - O.t0, n = O.ps.length, at = (i) => O.a0 + O.dir * 0.55 * T + (i / n) * TAU;
+  O.ps.forEach((q, i) => { if (live(q)) { q.x = O.cx + Math.cos(at(i)) * O.R; q.y = O.cy + Math.sin(at(i)) * O.R; } });
+  if (g.t >= O.next) { O.next += 0.24; O.ps.forEach((q, i) => { if (!live(q)) return; const a = at(i) + Math.PI + O.dir * deg(20); for (const o of [-deg(24), deg(24)]) shot(g, e, q.x, q.y, a + o, { ...BOLT, speed: 4.2, range: 2 * O.R + 2, dmg: D(85), free: true }); }); }
+  if (g.t >= O.aim) { O.aim += 1.3; const p = target(g, e); O.ps.forEach((q) => { if (live(q)) shot(g, e, q.x, q.y, angleTo(q.x, q.y, p.x, p.y), { ...LANCE, speed: 6.5, range: 26, dmg: D(110), free: true }); }); g.sfx('zap'); }
+}
+// PORTAL TIDE (cyan): five portals open along one wall one after another, each firing three across the court every
+// 0.45 s, one of them silent each time (the opening walks along the wall: 90); 3.2 s on the far wall opens the same,
+// the two tides crossing for a moment
+function tide(g, e) { const side = Math.floor(Math.random() * 4); later(e, 0, 'tideSide', { side }); later(e, 3.2, 'tideSide', { side: (side + 2) % 4 }); e.bx.jzBusy = g.t + 7.4; callWarrior(e); if (g.banner) g.banner('THE TIDE RISES.', 1100); }
+function tideSide(g, e, V) {
+  const C = court(e), pts = [];
+  for (let i = 0; i < 5; i++) {
+    const f = (i + 0.5) / 5, P0 = V.side === 0 ? [C.x + C.w * f, C.y + 2, Math.PI / 2] : V.side === 1 ? [C.x + C.w - 2, C.y + C.h * f, Math.PI] : V.side === 2 ? [C.x + C.w * f, C.y + C.h - 2, -Math.PI / 2] : [C.x + 2, C.y + C.h * f, 0];
+    pts.push(P0); circle(g, e, P0[0], P0[1], 1.0, 0.5 + i * 0.18, 0);
+  }
+  g.sfx('portal'); later(e, 0.5, 'tideOpen', { pts });
+}
+function tideOpen(g, e, V) {
+  const T = { ps: V.pts.map(([x, y, a], i) => { const q = portalAt(g, e, x, y, 4.4, 6000, CYAN); q.jzA = a; q.jzT = g.t + i * 0.18; return q; }), k: 0, next: g.t + 0.25 };
+  (e.bx.jzTides = e.bx.jzTides || []).push(T);
+}
+function tideTick(g, e, T) {
+  if (g.t < T.next) return; T.next += 0.45;
+  const gap = T.k++ % T.ps.length;
+  T.ps.forEach((q, i) => { if (!live(q) || i === gap || g.t < q.jzT) return; for (const o of [-deg(10), 0, deg(10)]) shot(g, e, q.x, q.y, q.jzA + o, { ...BOLT, speed: 5, range: 34, dmg: D(90), free: true }); });
+}
+// PENTAGRAM (crimson): five portals in a star round you, its lines shown 0.9 s, then lances down every line three times
+// 0.35 s apart (115): step out of the star, or into one of its points
+function star(g, e) {
+  const p = target(g, e), a0 = Math.random() * TAU, pts = [];
+  for (let i = 0; i < 5; i++) { const a = a0 + (i / 5) * TAU; pts.push([p.x + Math.cos(a) * 6, p.y + Math.sin(a) * 6]); circle(g, e, pts[i][0], pts[i][1], 0.9, 0.6, 0); }
+  later(e, 0.6, 'starOpen', { pts }); e.bx.jzBusy = g.t + 4.4; g.sfx('portal');
+}
+function starOpen(g, e, V) {
+  const ps = V.pts.map(([x, y]) => portalAt(g, e, x, y, 3.4, 6000, CRIM));
+  ps.forEach((q, i) => { const r = ps[(i + 2) % 5]; show(g, e, q.x, q.y, angleTo(q.x, q.y, r.x, r.y), Math.hypot(r.x - q.x, r.y - q.y), 0.9, 0.7); });
+  e.bx.jzStar = { ps, fire: g.t + 0.9, n: 0 }; g.sfx('zap');
+}
+function starTick(g, e, Z) {
+  if (g.t < Z.fire || Z.n >= 3) return; Z.fire += 0.35; Z.n++;
+  Z.ps.forEach((q, i) => { const r = Z.ps[(i + 2) % 5]; if (live(q) && live(r)) shot(g, e, q.x, q.y, angleTo(q.x, q.y, r.x, r.y), { ...LANCE, speed: 8, range: Math.hypot(r.x - q.x, r.y - q.y), dmg: D(115), free: true }); });
+  g.sfx('zap');
+}
+
 // ================================================================ stage 2
 // the throne shatters (from the court, when the Warrior falls; or at once, a Wizard on his own)
 function unbind(g, e) {
@@ -146,6 +220,9 @@ function blink(g, e) {
 function blinkGo(g, e, V) {
   e.x = V.x; e.y = V.y; e.bx.jzFormed = g.t;
   g.fx.push({ kind: 'ring', x: e.x, y: e.y, t: 0, max: 2.6, color: '#e6c8ff' });
+  const n = (e.bx.phase || 1) >= 3 ? 14 : 10, a0 = Math.random() * TAU;   // (2026-11-04, the user: "Do not make it feel like he just disappears and reappears with no weight": he comes out of the rift in a nova)
+  for (let k = 0; k < n; k++) shot(g, e, e.x, e.y, a0 + (k / n) * TAU, { ...BOLT, speed: 3.4, range: 9, dmg: D(85) });
+  g.vx({ k: 'shake', amt: 3 });
   for (let k = 0; k < 10; k++) { const a = (k / 10) * TAU; g.vx({ k: 'burst', x: e.x + Math.cos(a) * 1.6, y: e.y - 1 + Math.sin(a) * 1.2, n: 3, colors: SPIRIT }); }
   g.sfx('portal'); e.bx.jzTravel = null;
 }
@@ -267,11 +344,12 @@ const AT = {
   blink: P('Blink', 'blink', 0.7, { windup: 0.3 }), wheel: P('Runic Wheel', 'wheel', 5.0), wheelUnder: P('Runic Wheel', 'wheel', 1.6), crossfire: P('Crossfire', 'crossfire', 4.4),
   converge: P('Converging Sigils', 'converge', 2.6), royalty: P('Returning Royalty', 'royalty', 3.6), inquisition: P('Lance Inquisition', 'inquisition', 2.9),
   anchors: P('Ritual Anchors', 'anchors', 1.4), prison: P('Spectral Prison', 'prison', 3.2), unmaking: P('The Unmaking', 'unmaking', 1.3, { move: 'hold' }),
+  orbit: P('Revolving Gate', 'orbit', 1.0), tide: P('Portal Tide', 'tide', 1.0), star: P('Pentagram', 'star', 1.2),
 };
-const ORDER = {
-  1: ['spreads', 'condemn', 'crossing', 'condemn', 'streams'],   // (on his throne)
-  2: ['blink', 'wheel', 'prison', 'blink', 'crossfire', 'inquisition', 'blink', 'converge', 'royalty', 'blink', 'anchors'],
-  3: ['blink', 'unmaking', 'blink', 'prison', 'wheelUnder', 'blink', 'crossfire', 'anchors', 'blink', 'converge', 'royalty'],
+const ORDER = {   // (2026-11-04, the user: "too repetitive ... teleport, shoot": portals worked into every stretch, a step every three, each step its own attack)
+  1: ['spreads', 'orbit', 'condemn', 'crossing', 'tide', 'streams', 'star'],   // (on his throne)
+  2: ['blink', 'wheel', 'orbit', 'blink', 'prison', 'tide', 'blink', 'crossfire', 'star', 'inquisition', 'blink', 'converge', 'royalty', 'blink', 'anchors'],
+  3: ['blink', 'unmaking', 'orbit', 'blink', 'tide', 'prison', 'blink', 'star', 'wheelUnder', 'crossfire', 'blink', 'anchors', 'converge', 'royalty'],
 };
 function choose(g, e) {
   const S = e.bx, C = courtTick(g, e);
@@ -298,7 +376,8 @@ export default {
   morphGrace: 1.2,
   phases: { 1: { move: 'throne', pressure: [{ every: 1.3, special: 'mageVolley', delay: 3 }], patterns: Object.values(AT) }, 2: { move: 'hover', pressure: [{ every: 1.1, special: 'mageVolley', delay: 2 }], patterns: Object.values(AT) }, 3: { move: 'hover', pressure: [{ every: 0.9, special: 'mageVolley', delay: 1 }], patterns: Object.values(AT) } },
   specials: { mageVolley, spreads, crossing, streams, judgement, seqOpen, judgeLock, judgeFire, blink, blinkGo, wheel, crossfire, crossOpen, converge, convRing, convFire,
-    royalty, royalOut, royalHold, royalBack, inquisition, lanceAim, lanceFire, anchors, condemn, condemnSet, prison, prisonFire, unmaking, unmakingSpent },
+    royalty, royalOut, royalHold, royalBack, inquisition, lanceAim, lanceFire, anchors, condemn, condemnSet, prison, prisonFire, unmaking, unmakingSpent,
+    orbit, orbitOpen, tide, tideSide, tideOpen, star, starOpen },
   moves: {
     throne(g, e, dt) {                                      // to his throne, and there
       const T = THRONE(e), d = Math.hypot(T.x - e.x, T.y - e.y), sp = 4 * dt;
@@ -312,7 +391,7 @@ export default {
   },
   onWake(g, e) { courtOf(e); if (g.banner) g.banner(partner(e) ? 'THE HOLLOW COURT · "BEND THE KNEE."' : '"THEN BURN THE SOUL."', 2600); },
   onPhase(g, e, ph) {
-    const S = e.bx; S.jzSeq = S.jzCross = S.jzWheel = null; S.jzConv = []; S.jzStag = 0;
+    const S = e.bx; S.jzSeq = S.jzCross = S.jzWheel = S.jzOrbit = S.jzStar = null; S.jzTides = []; S.jzConv = []; S.jzStag = 0;
     if (S.jzAnch) { for (const q of S.jzAnch.ps) if (live(q)) { q.noLoot = true; q.dead = true; q.deadT = 0; } S.jzAnch = null; }
     closePortals(e); S.wait = Math.min(S.wait || 0, 1.2);
     if (ph === 3) S.tempoK = 0.8;                           // (III: shorter rests)
@@ -341,11 +420,14 @@ export default {
       }
     }
     if (S.jzAnch) anchorsTick(g, e, S.jzAnch);
+    if (S.jzOrbit) { if (g.t > S.jzOrbit.until) S.jzOrbit = null; else orbitTick(g, e, S.jzOrbit); }
+    if (S.jzTides && S.jzTides.length) { S.jzTides = S.jzTides.filter((T) => T.ps.some(live)); for (const T of S.jzTides) tideTick(g, e, T); }
+    if (S.jzStar) { if (S.jzStar.n >= 3 || !S.jzStar.ps.some(live)) S.jzStar = null; else starTick(g, e, S.jzStar); }
     if (S.jzConv && S.jzConv.length && S.jzConv.every((R) => g.t > R.gone)) S.jzConv = [];
     if (S.jzPrison && g.t > S.jzPrison.t0 + S.jzPrison.dur + 1.5) S.jzPrison = null;
     if (S.jzTravel && g.t > S.jzTravel.t1 + 0.05) blinkGo(g, e, S.jzTravel);   // (a step is always finished, whatever cleared his queue: a falter, a change of form)
   },
-  onDeath(g, e) { const S = e.bx; S.jzSeq = S.jzCross = S.jzWheel = S.jzAnch = null; S.jzConv = []; closePortals(e); g.vx({ k: 'burst', x: e.x, y: e.y - 2, n: 40, colors: SPIRIT }); },
+  onDeath(g, e) { const S = e.bx; S.jzSeq = S.jzCross = S.jzWheel = S.jzAnch = S.jzOrbit = S.jzStar = null; S.jzTides = []; S.jzConv = []; closePortals(e); g.vx({ k: 'burst', x: e.x, y: e.y - 2, n: 40, colors: SPIRIT }); },
   // his afterimage, where he stood as he broke apart, fading
   draw(r, g, e) {
     const T = e.bx.jzSeenGo; if (!T || !T.fr || !e.bx.def) return;
@@ -376,6 +458,21 @@ export default {
         b.save(); b.globalAlpha = here ? 0.6 : 0.25; b.strokeStyle = '#b884cc'; b.lineWidth = 2;
         b.beginPath(); b.ellipse(Math.round(mx), Math.round(my), 14, 7, 0, 0, TAU); b.stroke(); b.restore();
       }
+    }
+    for (const q of g.enemies) if (!q.dead && q.id === 'wiz_portal' && Math.hypot(q.x - e.x, q.y - e.y) < 40) {   // each portal's ring on the floor, in its colour
+      const [px, py] = r.proj(q.x, q.y), R = 11 + Math.sin(g.t * 6 + q.x) * 1.5;
+      b.save(); b.globalAlpha = 0.55; b.strokeStyle = q.jzCol || '#b884cc'; b.lineWidth = 2; b.beginPath(); b.ellipse(Math.round(px), Math.round(py), R, R * 0.5, 0, 0, TAU); b.stroke();
+      b.globalAlpha = 0.2; b.fillStyle = q.jzCol || '#b884cc'; b.beginPath(); b.ellipse(Math.round(px), Math.round(py), R - 3, (R - 3) * 0.5, 0, 0, TAU); b.fill(); b.restore();
+    }
+    const TV = S.jzTravel;
+    if (TV && (!S.jzRift || S.jzRift.of !== TV.t0)) S.jzRift = { of: TV.t0, t: g.t };   // (timed by this copy's own clock: online the step's times are the server's)
+    if (TV && g.t - S.jzRift.t < 0.9) {                       // the rift he will come out of: opening, its runes turning, brighter as he comes
+      const k = Math.max(0, Math.min(1, (g.t - S.jzRift.t) / 0.8)), [rx, ry] = r.proj(TV.x, TV.y), R = 6 + 14 * k;
+      b.save(); b.globalAlpha = 0.35 + 0.5 * k; b.strokeStyle = '#e6c8ff'; b.lineWidth = 2; b.beginPath(); b.ellipse(Math.round(rx), Math.round(ry), R, R * 0.5, 0, 0, TAU); b.stroke();
+      b.strokeStyle = '#8e4ca8'; b.beginPath(); b.ellipse(Math.round(rx), Math.round(ry), R * 0.6, R * 0.3, 0, 0, TAU); b.stroke();
+      for (let i = 0; i < 6; i++) { const a = g.t * 3 + (i / 6) * TAU; b.fillStyle = i % 2 ? '#e6c8ff' : '#c88aff'; b.fillRect(Math.round(rx + Math.cos(a) * R) - 2, Math.round(ry + Math.sin(a) * R * 0.5) - 2, 4, 4); }
+      b.globalAlpha = 0.25 * k; b.fillStyle = '#c88aff'; b.fillRect(Math.round(rx) - 3, Math.round(ry) - 40 * k, 6, 40 * k);   // (a shaft of light rising from it)
+      b.restore();
     }
     const PR = S.jzPrison;
     if (PR && g.t < PR.t0 + PR.dur + 1.5) {                 // the prison's runes, closing
