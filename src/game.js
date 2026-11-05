@@ -868,6 +868,10 @@ export class Game {
         const x = rm.x + 1.5 + r() * (rm.w - 3), y = rm.y + 1.5 + r() * (rm.h - 3);
         if (!isSolid(m, x, y) && m.tiles[Math.floor(y) * m.w + Math.floor(x)] !== TID.lava && m.tiles[Math.floor(y) * m.w + Math.floor(x)] !== TID.emberlava && (!reach || reach.has(Math.floor(y) * m.w + Math.floor(x)))) return [x, y];
       }
+      if (reach) {                                         // (none found by chance: one of its reachable tiles, never its middle, which may be an island in the lava)
+        const L = []; for (const i of reach) { const x = i % m.w, y = (i / m.w) | 0; if (x > rm.x && y > rm.y && x < rm.x + rm.w - 1 && y < rm.y + rm.h - 1 && !isSolid(m, x + 0.5, y + 0.5) && m.tiles[i] !== TID.lava && m.tiles[i] !== TID.emberlava) L.push(i); }
+        if (L.length) { const i = L[Math.floor(r() * L.length)]; return [(i % m.w) + 0.5, ((i / m.w) | 0) + 0.5]; }
+      }
       return [rm.cx, rm.cy];
     };
     const fill = (rm, n, elite) => {
@@ -4730,7 +4734,7 @@ export class Game {
       }
       case 'area': {                                       // /area N: to that area of Sunthief's Castle (its middle, or the nearest floor)
         const C = this.map && this.map.castle, n = C && C.rooms['a' + String(+args[0] || 1).padStart(2, '0')];
-        if (!n) { say(C ? 'No such area (1-53).' : "Not in Sunthief's Castle (/boss god takes you there)."); break; }
+        if (!n) { say(C ? 'No such area (1-58).' : "Not in Sunthief's Castle (/boss god takes you there)."); break; }
         let best = null; for (let r0 = 0; r0 < 30 && !best; r0++) for (let dy = -r0; dy <= r0 && !best; dy++) for (let dx = -r0; dx <= r0; dx++) { const x = Math.floor(n.cx) + dx, y = Math.floor(n.cy) + dy; if (!this.blockedAt(x + 0.5, y + 0.5)) { best = [x + 0.5, y + 0.5]; break; } }
         if (best) { p.x = best[0]; p.y = best[1]; }
         say(`Area ${n.num}: ${n.title || n.key}.`); break;

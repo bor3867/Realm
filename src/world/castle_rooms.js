@@ -143,8 +143,8 @@ export const ROOMS = {
   // fallen masonry east, a brazier at the foot; in from the west, out east
   a21: {
     page: 'rooms/22_broken_rampart.png', w: 36, h: 28, at: [518, 404],
-    floor: [[4, 3, 9, 5], [25, 3, 31, 5], [3, 6, 32, 23], [0, 7, 2, 11], [33, 14, 35, 18]],
-    doors: { 20: [0, 9, 'W'], 22: [35, 16, 'E'] },
+    floor: [[4, 3, 9, 5], [25, 3, 31, 5], [3, 6, 32, 23], [0, 7, 2, 11], [33, 14, 35, 18], [15, 24, 20, 27]],
+    doors: { 20: [0, 9, 'W'], 22: [35, 16, 'E'], 57: [17, 27, 'S'] },
     props: [
       ['castle_decor/rubble', 10, 6, false], ['castle_decor/rock', 12, 6], ['castle_decor/rubble', 14, 7, false], ['castle_decor/rock', 17, 6], ['castle_decor/rubble', 20, 6, false], ['castle_decor/rock', 23, 7], ['castle_decor/rubble', 25, 5, false],
       ['castle_decor/rock', 25, 12], ['castle_decor/rock', 27, 11], ['castle_decor/rock', 28, 13], ['castle_decor/rubble', 26, 14, false], ['castle_decor/rubble', 29, 10, false],
@@ -188,7 +188,7 @@ export const ROOMS = {
     page: 'rooms/19_garden_cloister.png', w: 34, h: 26, at: [386, 346],
     floor: [[3, 3, 30, 21], [14, 22, 19, 25], [0, 7, 2, 11], [31, 7, 33, 11]],
     grass: [[3, 3, 13, 21], [20, 3, 30, 21], [14, 3, 19, 9]],
-    doors: { 29: [33, 9, 'E'], 31: [0, 9, 'W'] },
+    doors: { 29: [33, 9, 'E'], 31: [0, 9, 'W'], 56: [16, 25, 'S'] },
     props: [
       ['castle_art/deadwood_big', 16, 6], ['castle_art/ember_bloom', 12, 8, false], ['castle_art/ember_bloom', 21, 9, false],
       ['keep_decor/keep_pillar', 6, 6], ['keep_decor/keep_pillar', 27, 6], ['castle_decor/collapsed_pillar', 6, 15], ['castle_decor/collapsed_pillar', 27, 15],
@@ -215,8 +215,8 @@ export const ROOMS = {
   // the slender windows; the runner from the foot; doors west and east
   a33: {
     page: 'rooms/23_chancel.png', w: 40, h: 31, at: [386, 254],
-    floor: [[3, 3, 36, 25], [17, 26, 22, 30], [0, 13, 2, 17], [37, 13, 39, 17]],
-    doors: { 32: [0, 15, 'W'], 34: [39, 15, 'E'] },
+    floor: [[3, 3, 36, 25], [17, 26, 22, 30], [0, 13, 2, 17], [37, 13, 39, 17], [18, 0, 21, 2]],
+    doors: { 32: [0, 15, 'W'], 34: [39, 15, 'E'], 55: [19, 0, 'N'] },
     dais: [[13, 5, 26, 12]],
     stairs: [[15, 13, 24, 14]],
     runners: [['ns', 19, 15, 30, 'crown']],
@@ -246,6 +246,62 @@ export const ROOMS = {
       ['castle_art/banner_crown', 12, 30, false], ['castle_art/banner_crown', 27, 30, false], ['keep_decor/keep_pylon', 16, 32], ['keep_decor/keep_pylon', 23, 32],
     ],
   },
+  // A3 THE TWIN HALL: two long red runners with the sun on them down either side, the great pillar with the sun-crystal
+  // on its dais between, candles in the side walls, pillars either side of the niche at its head; in from the west
+  a54: {
+    page: 'rooms/12_twin_hall.png', w: 34, h: 28,
+    floor: [[3, 3, 30, 24], [14, 0, 19, 2], [14, 25, 19, 27], [0, 8, 2, 12], [31, 8, 33, 12]],
+    doors: { 38: [0, 10, 'W'] },
+    dais: [[12, 8, 21, 20]],
+    runners: [['ns', 7, 3, 24, 'sun'], ['ns', 26, 3, 24, 'sun']],
+    emblems: [[7, 14, 'sun'], [26, 14, 'sun']],
+    props: [['keep_decor/keep_pillar', 16, 14], ['castle_art/pedestal_crystal', 16, 11], ['castle_art/pedestal_flame', 4, 9], ['castle_art/pedestal_flame', 29, 9], ['keep_decor/keep_pillar', 12, 3], ['keep_decor/keep_pillar', 21, 3], ['castle_art/banner_sun', 16, 3, false]],
+  },
+  // A8 THE SANCTUM ANTECHAMBER: a hooded statue on its plinth either side, red banners by the stair up at its head, the
+  // great compass worn into the floor, a brazier in each south corner; in from the west
+  a55: {
+    page: 'rooms/17_sanctum_antechamber.png', w: 34, h: 28,
+    floor: [[13, 0, 20, 7], [3, 3, 30, 23], [6, 24, 27, 25], [0, 11, 2, 15], [31, 11, 33, 15]],
+    doors: { 33: [0, 13, 'W'] },
+    stairs: [[13, 0, 20, 7]],
+    dais: [[3, 6, 8, 12], [25, 6, 30, 12]],
+    rings: [[16, 16]],
+    props: [['castle_art/statue_monk', 5, 9], ['castle_art/statue_monk', 28, 9], ['castle_art/banner_sun', 10, 3, false], ['castle_art/banner_sun', 23, 3, false], ['castle_art/brazier_gold', 6, 21], ['castle_art/brazier_gold', 27, 21]],
+  },
+  // A2 THE BROKEN GALLERY: its north windows broken open to the sky (the way in from the garden between them), its roof
+  // fallen in heaps along the west side, columns standing and broken, candles in the south corners
+  a56: {
+    page: 'rooms/11_broken_gallery.png', w: 34, h: 26,
+    floor: [[3, 4, 30, 22], [15, 0, 18, 3], [0, 9, 2, 13], [31, 9, 33, 13]],
+    doors: { 30: [16, 0, 'N'] },
+    props: [
+      ['castle_decor/rock', 6, 8], ['castle_decor/rubble', 8, 9, false], ['castle_decor/rock', 9, 11], ['castle_decor/rubble', 6, 12, false], ['castle_decor/rubble', 11, 17, false], ['castle_decor/rubble', 13, 6, false], ['castle_props/ash_shrub', 22, 6, false],
+      ['castle_decor/collapsed_pillar', 19, 10], ['castle_decor/collapsed_pillar', 23, 12], ['keep_decor/keep_pillar', 8, 18], ['keep_decor/keep_pillar', 24, 18],
+      ['castle_art/pedestal_flame', 4, 21], ['castle_art/pedestal_flame', 29, 21],
+    ],
+  },
+  // A1 THE SIDE CLOISTER: the great sun banner at its head over the runner down from it, the runner across at the foot
+  // meeting it at the sun; columns with candles at their feet, small banners, braziers at the foot; in from the north
+  a57: {
+    page: 'rooms/10_side_cloister.png', w: 32, h: 24,
+    floor: [[3, 3, 28, 20], [21, 0, 25, 2], [14, 21, 17, 23], [0, 8, 2, 12], [29, 8, 31, 12]],
+    doors: { 21: [23, 0, 'N'] },
+    runners: [['ns', 15, 4, 14, 'sun'], ['ew', 16, 3, 28, 'sun']],
+    emblems: [[15, 16, 'sun']],
+    props: [['castle_art/banner_sun', 15, 3, false], ['keep_decor/keep_pillar', 9, 5], ['keep_decor/keep_pillar', 21, 5], ['castle_art/pedestal_flame', 9, 8], ['castle_art/pedestal_flame', 21, 8],
+      ['castle_art/banner_sun_torn', 6, 3, false], ['castle_art/banner_sun_torn', 26, 3, false], ['castle_art/pedestal_flame', 4, 9], ['castle_art/pedestal_flame', 27, 9], ['castle_art/brazier_gold', 7, 19], ['castle_art/brazier_gold', 24, 19]],
+  },
+  // A5 THE HANGING BRIDGE: two ledges either side of a chasm, a plank bridge on ropes across it between its rope posts;
+  // sun banners, candles, braziers on each ledge; in from the west
+  a58: {
+    page: 'rooms/14_hanging_bridge.png', w: 36, h: 26,
+    floor: [[2, 4, 11, 22], [24, 4, 33, 22], [0, 11, 1, 15], [34, 11, 35, 15]],
+    chasm: [[12, 1, 23, 24]],
+    boards: [[12, 11, 23, 14]],
+    doors: { 45: [0, 13, 'W'] },
+    props: [['castle_art/banner_sun', 5, 4, false], ['castle_art/banner_sun', 30, 4, false], ['castle_decor/chain_post', 11, 10], ['castle_decor/chain_post', 11, 15], ['castle_decor/chain_post', 24, 10], ['castle_decor/chain_post', 24, 15],
+      ['castle_art/pedestal_flame', 3, 9], ['castle_art/pedestal_flame', 32, 9], ['castle_art/brazier_gold', 5, 19], ['castle_art/brazier_gold', 30, 19]],
+  },
   // A9 THE SCRIPTORIUM: bookshelves along the north wall either side of its dark alcove, writing desks in pairs west and
   // east heaped with books and candles, the great red rug with the sun on it in the middle; doors west and east
   a37: {
@@ -269,7 +325,7 @@ export const ROOMS = {
   a38: {
     page: 'rooms/21_crowned_crossing.png', w: 40, h: 32, at: [604, 208],
     floor: [[3, 2, 36, 28], [16, 0, 22, 1], [16, 29, 22, 31], [0, 13, 2, 17], [37, 13, 39, 17]],
-    doors: { 37: [19, 31, 'S'], 39: [0, 15, 'W'], 41: [19, 0, 'N'] },
+    doors: { 37: [19, 31, 'S'], 39: [0, 15, 'W'], 41: [19, 0, 'N'], 54: [39, 15, 'E'] },
     runners: [['ns', 19, 0, 31, 'crown'], ['ew', 15, 0, 17, 'crown'], ['ew', 15, 21, 39, 'crown']],
     emblems: [[19, 15, 'sun']],
     props: [
@@ -292,8 +348,8 @@ export const ROOMS = {
   // a sigil worn into the floor, braziers at the foot; doors west (to Ashkar) and east
   a45: {
     page: 'rooms/20_bell_hall.png', w: 40, h: 30, at: [402, 92],
-    floor: [[3, 3, 36, 24], [13, 25, 26, 26], [0, 7, 2, 11], [37, 7, 39, 11]],
-    doors: { 46: [0, 9, 'W'], 44: [39, 9, 'E'] },
+    floor: [[3, 3, 36, 24], [13, 25, 26, 26], [16, 27, 23, 29], [0, 7, 2, 11], [37, 7, 39, 11]],
+    doors: { 46: [0, 9, 'W'], 44: [39, 9, 'E'], 58: [19, 29, 'S'] },
     rings: [[19, 17]],
     mechs: { seal45: [19, 11] },
     props: [

@@ -1488,6 +1488,7 @@ export function dungeon(seed, def) {
           for (const [a, b, c, d] of T.floor) carve(x + a, y + b, x + c, y + d);
           for (const [a, b, c, d] of T.cut || []) carve(x + a, y + b, x + c, y + d, TID.void);
           for (const [a, b, c, d] of T.lava || []) carve(x + a, y + b, x + c, y + d, TID.lava);
+          for (const [a, b, c, d] of T.chasm || []) carve(x + a, y + b, x + c, y + d, TID.nxchasm);   // (a chasm: the dark below, never walked)
           for (const [a, b, c, d] of T.boards || []) carve(x + a, y + b, x + c, y + d, BR);
           for (const [a, b, c, d] of T.grass || []) carve(x + a, y + b, x + c, y + d, TID.grass);
           continue;
@@ -2268,7 +2269,7 @@ export function dungeon(seed, def) {
   };
   const castleDress = (n) => {
     if (n.region === 'outer' || n.region === 'inner') keepDress(n);
-    if (/^a(2[0-9]|3[0-9]|4[0-3]|45|47|52|53)$/.test(n.key)) outerKeep(n);
+    if (/^a(2[0-9]|3[0-9]|4[0-3]|45|47|5[2-8])$/.test(n.key)) outerKeep(n);
     const at = (fx, fy) => [Math.round(n.x + fx * n.w), Math.round(n.y + fy * n.h)];
     const P = (sprite, fx, fy, solid = true) => { const [x, y] = at(fx, fy); put2(null, x, y, sprite, solid); };
     const wall = (fx0, fy0, fx1, fy1) => { const [x0, y0] = at(fx0, fy0), [x1, y1] = at(fx1, fy1); for (let y = Math.min(y0, y1); y <= Math.max(y0, y1); y++) for (let x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) if (isF(x, y)) set(x, y, TID.void); };   // (a wall inside an area: its rooms, its passages)
@@ -3280,7 +3281,7 @@ export function dungeon(seed, def) {
     }
     m.keepSkin = null;
     for (const n of rooms) {                                          // the sun in the floor of each great hall
-      if (!n.region || !KEEP.has(REG.indexOf(n.region) + 1) || n.w < 16 || n.h < 14 || (m.keepKind && m.keepKind[n.key] && m.keepKind[n.key] !== 'hall')) continue;
+      if (n.tpl || !n.region || !KEEP.has(REG.indexOf(n.region) + 1) || n.w < 16 || n.h < 14 || (m.keepKind && m.keepKind[n.key] && m.keepKind[n.key] !== 'hall')) continue;
       const x0 = Math.round(n.cx) - 2, y0 = Math.round(n.cy) - 2; let ok = true;
       for (let j = 0; j < 5 && ok; j++) for (let k = 0; k < 5; k++) if (m.tiles[(y0 + j) * S + x0 + k] !== TID.kpfloor) { ok = false; break; }
       const em = m.keepKind && m.keepKind[n.key] === 'hall' ? 'crown' : n.num >= 34 ? 'forge' : 'sun';   // (the user's floor emblems: crown in the halls of state, the anvil in the forges, the sun elsewhere)
