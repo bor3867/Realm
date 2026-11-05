@@ -3337,7 +3337,11 @@ export function dungeon(seed, def) {
       for (let y = Math.floor(W.mid[1] - R); y <= W.mid[1] + R; y++) for (let x = Math.floor(W.mid[0] - R); x <= W.mid[0] + R; x++) { const t = tile(x, y); if (Math.hypot(x - W.mid[0], y - W.mid[1]) <= R && t !== TID.void && !SOLID_TILES.has(t)) gate(x, y, name); }
       {                                                             // its look across the way: a piece every two tiles, square to the road
         const look = { '7-8': 'gate_roots', '19-20': 'gate_rock', '26-27': 'portcullis', '43-44': 'portcullis', '46-47': 'portcullis' }[name] || (name === '23-24' ? null : 'gate_seal');
-        if (look) {
+        if (name === '26-27') {                                     // (the keep gate: the Jarls' court's sealed double gate, the user's page; one great piece across the way)
+          (m.castle.gateLooks = m.castle.gateLooks || {})[name] = [];
+          put(m, 'castle_props/double_gate', Math.round(W.mid[0]), Math.round(W.mid[1]), false, { gateLook: name, look: 'double_gate' }); m.castle.gateLooks[name].push(m.objects[m.objects.length - 1]);
+          if (W.hall) for (const sd of [-1, 1]) { const nx = -Math.sin(W.dir), ny = Math.cos(W.dir), x = Math.round(W.mid[0] + nx * sd * (W.w + 3)), y = Math.round(W.mid[1] + ny * sd * (W.w + 3)); put(m, 'keep_decor/keep_pylon', x, y, true, { gatehouse: name }); }
+        } else if (look) {
           const nx = -Math.sin(W.dir), ny = Math.cos(W.dir), half = W.w + 1.5; (m.castle.gateLooks = m.castle.gateLooks || {})[name] = [];
           for (let o = -half; o <= half + 0.01; o += 2) { const x = Math.round(W.mid[0] + nx * o), y = Math.round(W.mid[1] + ny * o); put(m, 'castle_decor/' + look, x, y, false, { gateLook: name, look }); m.castle.gateLooks[name].push(m.objects[m.objects.length - 1]); }
           if (W.hall) for (const sd of [-1, 1]) { const x = Math.round(W.mid[0] + nx * sd * (half + 1.5)), y = Math.round(W.mid[1] + ny * sd * (half + 1.5)); put(m, 'keep_decor/keep_pylon', x, y, true, { gatehouse: name }); }   // (the gatehouse: a tower each side)
