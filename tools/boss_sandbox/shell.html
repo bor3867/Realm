@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Boss Sandbox</title>
+<!--
+=======================================================================================================================
+MELON REALMS — BOSS SANDBOX  (built by tools/build_boss_sandbox.mjs from the game's own code and art; __BUILT__)
+
+WHAT THIS IS
+  A self-contained copy of the game's boss engine (src/bossx.js) and of the parts of the game a boss fight touches, with
+  the Hollow Court (the Jarls' Court room, the real layout) and the two Hollow Jarls running on their real code. Design
+  and test boss fights here; whatever runs here drops into the game unchanged. Edit only the BOSS CODE section below
+  (each boss is one block: "BOSS: <id>"). Everything else is the engine copy: leave it as it is.
+
+THE CONTRACT (what a boss is)
+  A boss is an object (the game's src/bosses/<id>.js, its `export default`) with:
+    id, name, hp, def, r (body radius, tiles), thresholds [0.66, 0.30] (life fractions where phases 2 and 3 begin)
+    phases: { 1: { move, patterns: [] }, 2: {...}, 3: {...} }    (move: the name of one of its own moves, below)
+    choose(g, e)            the engine asks for the next pattern; return null to let a DIRECTOR (in update) run the fight
+    update(g, e, dt)        every frame (its director: state, combos, timers). Keep its state in e.bx (e.g. e.bx.wd)
+    moves: { name(g, e, dt) }   movement, called every frame with the phase's move
+    specials: { name(g, e, V) } functions the timed queue may call: later(e, t, 'name', V) runs specials[name] t s on
+    onWake, onPhase(g, e, ph), onDeath, posing(g,e) (true: it drives its own clip), charging(g,e) (true: its charge
+    clip), immune(g,e), dmgMult(g,e), alpha(g,e), drawGround(r, g, e), draw(r, g, e), lights
+  Its state: e.bx = { phase, state ('sleep'|'intro'|'fight'|'windup'|'release'|'recover'|'morph'|'grace'|'death'),
+    vol (the timed queue), pvx/pvy (your velocity, smoothed), anim, def, dbg (what /bossdebug shows), leapZ (lift) }
+
+THE CALLS A BOSS MAKES (g)
+  g.bxShot(e, x, y, angle, V)  a shot. V: { sprite: 'sheet/name', size (hit radius, tiles), speed (tiles/s), range
+                               (tiles), dmg, free (true: it leaves from (x,y) even inside the boss's body; otherwise
+                               shots from the body start at its feet), life, mv: { hold, accel, max, curve, brake, re,
+                               boomer, wave: {amp, freq}, split: {at, n, speed, range} } }
+                               (mv rides with the shot and works online; NO homing: there are no seeking shots)
+  g.fx.push({ kind: 'lane', x, y, a, len, w (half-width), delay, t: 0, life, dmg, every, spin, a0, tell, cols, by })
+                               a line on the floor: told until delay, then it hurts while you stand in it (every s)
+            { kind: 'zone', x, y, r, delay, t: 0, life, dmg, done: !dmg, colors, by }   a circle: told, then one blow
+            { kind: 'cleave', x, y, a, r, spread, delay, t: 0, life, dmg, by }            a wedge: told, then one blow
+            { kind: 'ring', x, y, t: 0, max, color }                                     a ring spreading (looks only)
+  g.bxDmg(e, n)  its damage scaled;  g.hurtPlayer(dmg, by)  a blow that is no shot (a charge's body)
+  g.float(x, y, text, color), g.banner(text, ms), g.vx({ k: 'burst'|'shake', ... }), g.sfx(name)
+  g.addEnemy(id, x, y)  (its portals: 'wiz_portal');  g.moveCircle(e, dx, dy, r) moves round walls; isSolid(g.map, x, y)
+  g.bxClearBullets(e), g.bxMorph(e), g.bxLog(e, ev, info), g.t (seconds), g.player, g.projectiles, g.enemies
+  The shared helpers (src/bosses/kit.js): TAU, angleTo, target(g, e) (the nearest player), ahead(g, e, T), players(g),
+  ring, fan, open. The court's (src/bosses/jarl_court.js): courtOf, courtTick, partner, enthroned, joinCourt.
+
+RULES THE GAME HOLDS YOU TO (break them and it will not port)
+  1. ONLINE the server runs the fight and sends what it makes. A shot cannot change course after it is fired except by
+     its own V.mv (a returning shot: mv.boomer, or two shots). A telegraph that moves (a lane that follows you) must be
+     drawn from the boss's own state (drawGround reading e.bx...), not by changing an fx after it was pushed.
+  2. Timing in seconds, distance in tiles (16 screen px; a sprite pixel is 2 screen px). Damage: D(n) = n + 4, the
+     numbers set against an endgame character (Defense 4 here, 750 Life). A player moves 7.6 tiles/s (speed 40).
+  3. ONE tell per attack: one long, readable charge-up and one notification, then the attack. Never a second warning
+     at the lock, never twitchy speeds (the Warrior charges at 11 tiles/s; 0.7 s between charges in a chain).
+  4. Every attack dodgeable with the game's real movement and hitbox (your body: a capsule 0.26 to 0.66 tiles above
+     your feet, radius 0.29). No untold damage, no pattern that closes every way out.
+  5. Each boss its own director: its own movement, its own pools by phase, its own mechanics. Phases must change at
+     least two things (movement, arena control, geometry, sources, hazards, summons, positioning, stagger...).
+  6. No white hit-flash on the boss, no screen flash when you are hit. Small, crisp pixel art; nothing oversized.
+  7. Shots leave from the boss's feet (V.free only for a source of its own: a portal, a rune, a sun).
+  8. No seeking / homing shots.
+
+HOW TO TEST HERE
+  WASD to move, the mouse to aim (you fire while the mouse is held, or with Auto-fire on). The buttons: restart the
+  court, either Jarl alone, kill the Warrior (the Mage comes down), skip to the next phase, God mode, slow motion.
+  The debug panel shows each boss's phase, state, combination, movement and timers; the log shows its choices.
+  The 'measure' readout counts damage you took in the last minute and how much of the time the boss moves.
+=======================================================================================================================
+-->
+<style>
+  :root { --bg: #0d0a12; --panel: #17121f; --line: #3a2f4a; --text: #e6dff0; --dim: #a69bb8; --gold: #ffd650; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 13px/1.4 system-ui, sans-serif; display: flex; gap: 12px; padding: 12px; flex-wrap: wrap; }
+  #wrap { position: relative; }
+  canvas { display: block; background: #08060c; image-rendering: pixelated; border: 1px solid var(--line); cursor: crosshair; }
+  #side { width: 360px; max-width: 100%; display: flex; flex-direction: column; gap: 8px; }
+  .box { background: var(--panel); border: 1px solid var(--line); padding: 8px; border-radius: 4px; }
+  .box h3 { margin: 0 0 6px; font-size: 12px; color: var(--gold); letter-spacing: .05em; text-transform: uppercase; }
+  button, select, input { background: #241c30; color: var(--text); border: 1px solid var(--line); border-radius: 3px; padding: 4px 8px; font: inherit; cursor: pointer; }
+  button:hover { border-color: var(--gold); }
+  .row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  #log { height: 220px; overflow: auto; font: 11px/1.35 ui-monospace, monospace; color: var(--dim); white-space: pre; }
+  #dbg { font: 11px/1.4 ui-monospace, monospace; white-space: pre; }
+  label { color: var(--dim); }
+  details summary { cursor: pointer; color: var(--gold); }
+  #rules { font: 11px/1.45 ui-monospace, monospace; white-space: pre-wrap; color: var(--dim); max-height: 300px; overflow: auto; }
+</style>
+</head>
+<body>
+<div id="wrap"><canvas id="c"></canvas></div>
+<div id="side">
+  <div class="box"><h3>Fight</h3>
+    <div class="row">
+      <button id="bCourt">Restart court (both)</button><button id="bW">Warrior alone</button><button id="bZ">Mage alone</button>
+    </div>
+    <div class="row" style="margin-top:6px">
+      <button id="bKillW">Kill Warrior</button><button id="bNext">Next phase</button><button id="bPause">Pause</button>
+    </div>
+    <div class="row" style="margin-top:6px">
+      <label><input type="checkbox" id="god"> God mode</label>
+      <label><input type="checkbox" id="auto" checked> Auto-fire</label>
+      <label><input type="checkbox" id="hb"> Hitboxes</label>
+    </div>
+    <div class="row" style="margin-top:6px">
+      <label>Speed <select id="spd"><option value="1">1x</option><option value="0.5">0.5x</option><option value="0.25">0.25x</option></select></label>
+      <label>Your DPS <input id="dps" type="number" value="2600" style="width:80px"></label>
+    </div>
+  </div>
+  <div class="box"><h3>Bosses</h3><div id="dbg"></div></div>
+  <div class="box"><h3>Log</h3><div id="log"></div></div>
+  <div class="box"><details><summary>Rules &amp; the contract</summary><div id="rules"></div></details></div>
+</div>
+<script>
+/*__ENGINE__*/
+// ===================================================================================================================
+// BOSS CODE (the game's own files: edit here; each block is one file of src/bosses/)
+// ===================================================================================================================
+/*__BOSSCODE__*/
+// ===================================================================================================================
+// ASSETS AND THE ROOM (the game's own atlases and the Jarls' Court as the castle builds it)
+// ===================================================================================================================
+const ATLASES = /*__ATLASES__*/;
+const ROOM = /*__ROOM__*/;
+const ENEMY_DEFS = { wiz_portal: { name: 'Hollow Portal', reg: 'wiz_kin/portal', hp: 6000, def: 8, r: 0.6 } };
+// ===================================================================================================================
+// THE PAGE: the court, you, your shots, drawing, the controls
+// ===================================================================================================================
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+let G = null, paused = false, keys = {}, mouse = { x: 0, y: 0, down: false };
+const VIEW = { w: ROOM.w * TS, h: ROOM.h * TS };
+function fit() { const s = Math.max(0.5, Math.min(1.5, Math.min((innerWidth - 400) / VIEW.w, (innerHeight - 24) / VIEW.h))); cv.width = VIEW.w; cv.height = VIEW.h; cv.style.width = Math.round(VIEW.w * s) + 'px'; cv.style.height = Math.round(VIEW.h * s) + 'px'; }
+addEventListener('resize', fit);
+function makeMap() { return { w: ROOM.w, h: ROOM.h, solid: Uint8Array.from(ROOM.solid.join('').split(''), (c) => (c === '#' ? 1 : 0)), floor: ROOM.solid } }
+function spawnBoss(g, id, x, y) {
+  const B = BOSSES[id], e = { id, D: { name: B.name, bx: id, def: B.def || 0, r: B.r || 1.2, keep: B.keep, speed: B.speed }, x, y, hp: B.hp, maxHp: B.hp, r: B.r || 1.2, dead: false, room: { ...ROOM.room }, state: 'sleep' };
+  g.enemies.push(e); g.notable.push(e); return e;
+}
+function start(which) {
+  G = new Game({ map: makeMap(), start: ROOM.start, room: ROOM.room });
+  const C = ROOM.room, cx = C.x + C.w / 2, cy = C.y + C.h / 2;
+  if (which !== 'Z') G.W = spawnBoss(G, 'jarl_warrior', cx, cy);
+  if (which !== 'W') G.Z = spawnBoss(G, 'jarl_wizard', cx, C.y + C.h * 0.15);
+  if (G.W && G.Z) joinCourt(G.W, G.Z);
+  G.god = document.getElementById('god').checked;
+  G.banner(which === 'both' ? 'THE HOLLOW COURT · walk in to wake them' : 'walk in to wake it', 2500);
+}
+// ---- input
+addEventListener('keydown', (ev) => { keys[ev.key.toLowerCase()] = true; if (ev.key === ' ') { paused = !paused; ev.preventDefault(); } });
+addEventListener('keyup', (ev) => { keys[ev.key.toLowerCase()] = false; });
+cv.addEventListener('mousemove', (ev) => { const r = cv.getBoundingClientRect(); mouse.x = ((ev.clientX - r.left) / r.width) * cv.width / TS; mouse.y = ((ev.clientY - r.top) / r.height) * cv.height / TS; });
+cv.addEventListener('mousedown', () => (mouse.down = true)); addEventListener('mouseup', () => (mouse.down = false));
+const $ = (id) => document.getElementById(id);
+$('bCourt').onclick = () => start('both'); $('bW').onclick = () => start('W'); $('bZ').onclick = () => start('Z');
+$('bKillW').onclick = () => { const W = G && G.enemies.find((e) => e.id === 'jarl_warrior' && !e.dead); if (W && W.bx) { W.hp = 1; G.bxDie(W); } };
+$('bNext').onclick = () => { for (const e of G.notable) if (!e.dead && e.bx && e.bx.state !== 'sleep' && !(e.bx.B.immune && e.bx.B.immune(G, e))) { const th = G.bxThresholds(e)[e.bx.phase - 1]; G.damageEnemy(e, th !== undefined ? e.hp - e.maxHp * th + 1 : e.hp); } };
+$('bPause').onclick = () => (paused = !paused);
+$('god').onchange = (ev) => { if (G) G.god = ev.target.checked; };
+// ---- you
+let fireT = 0;
+function playerStep(g, dt) {
+  const p = g.player; if (p.dead) return;
+  let mx = (keys.d || keys.arrowright ? 1 : 0) - (keys.a || keys.arrowleft ? 1 : 0), my = (keys.s || keys.arrowdown ? 1 : 0) - (keys.w || keys.arrowup ? 1 : 0);
+  const L = Math.hypot(mx, my); if (L) { const sp = moveSpeed(p.spd) * dt; g.moveCircle(p, (mx / L) * sp, (my / L) * sp, 0.4); }
+  if ((fireT -= dt) <= 0 && (mouse.down || $('auto').checked)) {
+    fireT = 0.2; const dps = +$('dps').value || 0, a = Math.atan2(mouse.y - (p.y - 0.4), mouse.x - p.x);
+    g.projectiles.push({ from: 'p', x: p.x, y: p.y - 0.4, vx: Math.cos(a) * 15, vy: Math.sin(a) * 15, a, life: 10 / 15, dmg: Math.round(dps * 0.2), r: 0.3 });
+  }
+}
+// ---- drawing (r: what a boss's draw / drawGround get)
+const RENDER = {
+  get b() { return ctx; },
+  proj(x, y) { return [x * TS, y * TS]; },
+  laneFx(f, g) {                                     // (src/render.js laneFx: a told lane, then a live one; a charge's tell a band with chevrons)
+    const b = ctx, live = f.t >= f.delay, L = f.len, n = Math.ceil(L * 2);
+    if (f.spin) f.a = f.a0 + f.spin * Math.max(0, f.t - f.delay);
+    if (f.tell && !live) {
+      const C = f.cols || ['#ff3a1a'], k = Math.min(1, f.t / Math.max(0.05, f.delay)), ca = Math.cos(f.a), sa = Math.sin(f.a), nx = -sa * f.w / 2, ny = ca * f.w / 2;
+      const P = (d, o) => this.proj(f.x + ca * d + nx * o, f.y + sa * d + ny * o), q = [P(0, -1), P(L, -1), P(L, 1), P(0, 1)];
+      b.save(); b.globalAlpha = 0.14 + 0.3 * k; b.fillStyle = C[0]; b.beginPath(); b.moveTo(q[0][0], q[0][1]); for (let i = 1; i < 4; i++) b.lineTo(q[i][0], q[i][1]); b.closePath(); b.fill();
+      b.globalAlpha = 0.55 + 0.4 * k; b.strokeStyle = C[0]; b.lineWidth = 1; for (const [u, v] of [[q[0], q[1]], [q[3], q[2]]]) { b.beginPath(); b.moveTo(u[0], u[1]); b.lineTo(v[0], v[1]); b.stroke(); }
+      b.strokeStyle = C[3] || '#fff'; for (let d = (g.t * 7) % 1.6; d < L - 0.4; d += 1.6) { const tip = P(d + 0.5, 0), l = P(d, -0.6), r2 = P(d, 0.6); b.beginPath(); b.moveTo(l[0], l[1]); b.lineTo(tip[0], tip[1]); b.lineTo(r2[0], r2[1]); b.stroke(); }
+      b.restore(); return;
+    }
+    const C = f.cols || ['#ff8c1e', '#ffd84a', '#ff8c1e', '#fff6c8'];
+    for (let j = 0; j < n; j++) {
+      const d = (j / n) * L, [sx, sy] = this.proj(f.x + Math.cos(f.a) * d, f.y + Math.sin(f.a) * d);
+      if (!live) { if ((j + Math.floor(g.t * 12)) % 3 === 0) { b.fillStyle = C[0]; b.fillRect(Math.round(sx) - 1, Math.round(sy) - 1, 2, 2); } continue; }
+      b.fillStyle = (j + Math.floor(g.t * 20)) % 2 ? C[1] : C[2]; b.fillRect(Math.round(sx) - 3, Math.round(sy) - 3, 6, 6); b.fillStyle = C[3]; b.fillRect(Math.round(sx) - 1, Math.round(sy) - 1, 2, 2);
+    }
+  },
+  drawDef(def, fr, x, y, o = {}) {                   // a sprite frame, its feet at (x, y)
+    const f = def.frames[fr] || Object.values(def.frames)[0], K = 2 * (o.scale || 1); if (!f) return;
+    ctx.save(); ctx.globalAlpha = o.alpha ?? 1; ctx.translate(Math.round(x), Math.round(y)); if (o.flip) ctx.scale(-1, 1);
+    ctx.drawImage(def.img, f[0], f[1], f[2], f[3], -Math.round(def.foot[0] * K), -Math.round(def.foot[1] * K), f[2] * K, f[3] * K); ctx.restore();
+  },
+};
+function drawFloor() {
+  for (let y = 0; y < ROOM.h; y++) for (let x = 0; x < ROOM.w; x++) {
+    const s = ROOM.solid[y][x] === '#';
+    ctx.fillStyle = s ? '#120d18' : (x + y) % 2 ? '#2a2433' : '#2e2738'; ctx.fillRect(x * TS, y * TS, TS, TS);
+    if (s && y + 1 < ROOM.h && ROOM.solid[y + 1][x] !== '#') { ctx.fillStyle = '#3d3350'; ctx.fillRect(x * TS, y * TS + TS - 4, TS, 4); }
+  }
+}
+function drawFx(g) {
+  for (const f of g.fx) {
+    if (f.kind === 'lane') RENDER.laneFx(f, g);
+    else if (f.kind === 'zone') {                    // told: a ring and a fill that grows; struck: a flash
+      const [x, y] = RENDER.proj(f.x, f.y), k = Math.min(1, f.t / Math.max(0.05, f.delay)), col = (f.colors || ['#ff8a1f'])[0];
+      ctx.save(); ctx.strokeStyle = col; ctx.lineWidth = 1; ctx.globalAlpha = 0.8; ctx.beginPath(); ctx.ellipse(x, y, f.r * TS, f.r * TS * 0.7, 0, 0, TAU_); ctx.stroke();
+      ctx.globalAlpha = f.t < f.delay ? 0.12 + 0.25 * k : 0.5; ctx.fillStyle = col; ctx.beginPath(); ctx.ellipse(x, y, f.r * TS * (f.t < f.delay ? k : 1), f.r * TS * 0.7 * (f.t < f.delay ? k : 1), 0, 0, TAU_); ctx.fill(); ctx.restore();
+    } else if (f.kind === 'cleave') {
+      const [x, y] = RENDER.proj(f.x, f.y), k = Math.min(1, f.t / Math.max(0.05, f.delay));
+      ctx.save(); ctx.globalAlpha = f.t < f.delay ? 0.15 + 0.3 * k : 0.55; ctx.fillStyle = '#ff6a1c'; ctx.beginPath(); ctx.moveTo(x, y); ctx.arc(x, y, f.r * TS, f.a - f.spread / 2, f.a + f.spread / 2); ctx.closePath(); ctx.fill(); ctx.restore();
+    } else if (f.kind === 'ring') { const [x, y] = RENDER.proj(f.x, f.y), k = f.t / 0.6; ctx.save(); ctx.globalAlpha = Math.max(0, 1 - k); ctx.strokeStyle = f.color || '#fff'; ctx.beginPath(); ctx.ellipse(x, y, (f.max || 3) * TS * k, (f.max || 3) * TS * 0.7 * k, 0, 0, TAU_); ctx.stroke(); ctx.restore(); }
+  }
+}
+function drawShot(b) {
+  const D = b.sprite && SPRITES[b.sprite], [x, y] = RENDER.proj(b.x, b.y);
+  if (D) { const f = Object.values(D.frames)[0]; ctx.save(); ctx.translate(Math.round(x), Math.round(y)); ctx.rotate(b.a || 0); ctx.drawImage(D.img, f[0], f[1], f[2], f[3], -f[2], -f[3], f[2] * 2, f[3] * 2); ctx.restore(); }
+  else { ctx.fillStyle = b.from === 'p' ? '#7ad7ff' : '#ff5a8a'; ctx.beginPath(); ctx.arc(x, y, (b.r || 0.3) * TS, 0, TAU_); ctx.fill(); }
+  if ($('hb').checked && b.from === 'e') { ctx.strokeStyle = '#00ff88'; ctx.beginPath(); ctx.arc(x, y, b.r * TS, 0, TAU_); ctx.stroke(); }
+}
+function draw(g) {
+  const sh = g.shake > 0.3 ? [(Math.random() - 0.5) * g.shake, (Math.random() - 0.5) * g.shake] : [0, 0]; g.shake = Math.max(0, g.shake - 0.6);
+  ctx.save(); ctx.translate(sh[0], sh[1]); drawFloor();
+  for (const e of g.notable) if (!e.dead && e.bx && e.bx.B.drawGround) e.bx.B.drawGround(RENDER, g, e);
+  drawFx(g);
+  const L = [...g.enemies.filter((e) => !e.dead), g.player].sort((a, b) => a.y - b.y);
+  for (const e of L) {
+    const [x, y] = RENDER.proj(e.x, e.y);
+    if (e === g.player) { ctx.fillStyle = '#000'; ctx.fillRect(x - 5, y - 15, 10, 15); ctx.fillStyle = g.player.dead ? '#555' : '#ffe9a8'; ctx.fillRect(x - 4, y - 14, 8, 13);
+      if ($('hb').checked) { ctx.strokeStyle = '#00ff88'; ctx.beginPath(); ctx.arc(x, y - HITBOX.foot * TS, HITBOX.r * TS, 0, TAU_); ctx.arc(x, y - HITBOX.head * TS, HITBOX.r * TS, 0, TAU_); ctx.stroke(); } continue; }
+    if (e.bx && e.bx.def) {
+      const S = e.bx, a = S.B.alpha ? S.B.alpha(g, e) : 1; ctx.fillStyle = 'rgba(0,0,0,0.35)'; ctx.beginPath(); ctx.ellipse(x, y, 18, 6, 0, 0, TAU_); ctx.fill();
+      if (a > 0) RENDER.drawDef(S.def, S.anim ? S.anim.frame : null, x, y - (S.leapZ || 0), { alpha: a, flip: !!e.face, scale: S.drawK || 1 });
+      if (S.B.draw) S.B.draw(RENDER, g, e);
+    } else { const D = SPRITES[(ENEMY_DEFS[e.id] || {}).reg]; if (D) RENDER.drawDef(D, Object.keys(D.frames)[0], x, y + 8, {}); }
+  }
+  for (const b of g.projectiles) drawShot(b);
+  for (const q of g.parts) { const [x, y] = RENDER.proj(q.x, q.y); ctx.fillStyle = q.c; ctx.fillRect(Math.round(x) - 1, Math.round(y) - 1, 2, 2); }
+  ctx.font = 'bold 11px monospace'; ctx.textAlign = 'center';
+  for (const f of g.floats) { const [x, y] = RENDER.proj(f.x, f.y - f.t * 1.2); ctx.globalAlpha = Math.max(0, 1 - f.t); ctx.fillStyle = '#000'; ctx.fillText(f.text, x + 1, y + 1); ctx.fillStyle = f.color; ctx.fillText(f.text, x, y); } ctx.globalAlpha = 1;
+  ctx.restore();
+  // bars, banners
+  let by = 8; for (const e of g.notable) { if (e.dead) continue; ctx.fillStyle = '#000'; ctx.fillRect(cv.width / 2 - 160, by, 320, 12); ctx.fillStyle = e.bx && e.bx.B.immune && e.bx.B.immune(g, e) ? '#8d88a0' : '#e8463a'; ctx.fillRect(cv.width / 2 - 158, by + 2, 316 * Math.max(0, e.hp / e.maxHp), 8); ctx.fillStyle = '#fff'; ctx.font = '10px monospace'; ctx.fillText(e.D.name + '  ' + Math.ceil(e.hp), cv.width / 2, by + 10); by += 16; }
+  const p = g.player; ctx.fillStyle = '#000'; ctx.fillRect(8, cv.height - 18, 160, 10); ctx.fillStyle = '#3ac85a'; ctx.fillRect(9, cv.height - 17, 158 * (p.hp / p.maxHp), 8);
+  const now = performance.now(); g.bannerList = g.bannerList.filter((q) => q.until > now);
+  ctx.font = 'bold 15px monospace'; g.bannerList.forEach((q, k) => { ctx.fillStyle = '#000'; ctx.fillText(q.text, cv.width / 2 + 1, 70 + k * 20 + 1); ctx.fillStyle = '#ffd650'; ctx.fillText(q.text, cv.width / 2, 70 + k * 20); });
+  if (paused) { ctx.fillStyle = '#fff'; ctx.fillText('PAUSED (space)', cv.width / 2, cv.height / 2); }
+}
+// ---- the panel: each boss's state, the log, the measure
+let moved = [], lastPos = new Map();
+function panel(g) {
+  const lines = [], dmg = g.dmgTaken.filter(([t]) => t > g.t - 60).reduce((a, [, d]) => a + d, 0);
+  for (const e of g.notable) {
+    if (e.dead || !e.bx) { lines.push(e.D.name + '  ' + (e.dead ? 'dead' : 'asleep')); continue; }
+    const S = e.bx, d = S.dbg || {}, mv = moved.filter((q) => q[0] === e), mp = mv.length ? Math.round((mv.filter((q) => q[1]).length / mv.length) * 100) : 0;
+    lines.push(`${e.D.name}\n  phase ${S.phase} ${d.phase || ''}  engine ${S.state}\n  state ${d.st || '-'}  combo ${d.combo || (S.pat && S.pat.name) || '-'}\n  move ${d.move || '-'}  next ${d.next ?? '-'}s  moving ${mp}% (last 20 s)\n  hp ${Math.round((e.hp / e.maxHp) * 100)}%  its shots ${g.projectiles.filter((b) => b.bxOf === e).length}`);
+  }
+  lines.push(`\nportals ${g.enemies.filter((q) => !q.dead && q.id === 'wiz_portal').length}  all shots ${g.projectiles.length}\ndamage you took, last 60 s: ${dmg}`);
+  $('dbg').textContent = lines.join('\n');
+  $('log').textContent = g.bxLogs.slice(-60).map((L) => `${L.t.toFixed(1).padStart(6)} ${L.boss.split(',').pop().trim().padEnd(7)} p${L.phase} ${L.ev.padEnd(8)} ${L.info ?? ''} [${L.dir || L.state}/${L.move || ''}]`).join('\n');
+  const el = $('log'); el.scrollTop = el.scrollHeight;
+}
+// ---- the loop
+let acc = 0, last = performance.now(), pt = 0;
+function frame(now) {
+  const real = Math.min(0.1, (now - last) / 1000); last = now;
+  if (G && !paused) {
+    acc += real * +$('spd').value; const dt = 1 / 60;
+    while (acc >= dt) {
+      acc -= dt; G.t += dt; playerStep(G, dt);
+      for (const e of [...G.enemies]) if (!e.dead && e.D.bx) G.updateBx(e, dt);
+      G.updateShots(dt); G.updateFx(dt);
+      for (const q of G.parts) { q.t += dt; q.x += q.vx * dt; q.y += q.vy * dt; } G.parts = G.parts.filter((q) => q.t < q.life);
+      for (const f of G.floats) f.t += dt; G.floats = G.floats.filter((f) => f.t < 1);
+      for (const e of G.notable) { const L0 = lastPos.get(e) || [e.x, e.y]; moved.push([e, Math.hypot(e.x - L0[0], e.y - L0[1]) / dt > 0.4, G.t]); lastPos.set(e, [e.x, e.y]); }
+      moved = moved.filter((q) => q[2] > G.t - 20);
+      G.enemies = G.enemies.filter((e) => !e.dead || e.D.bx);
+    }
+  }
+  if (G) { draw(G); if ((pt += real) > 0.25) { pt = 0; panel(G); } }
+  requestAnimationFrame(frame);
+}
+$('rules').textContent = document.documentElement.innerHTML.match(/<!--([\s\S]*?)-->/)[1].trim();
+fit(); loadSprites(ATLASES).then(() => { start('both'); requestAnimationFrame(frame); });
+</script>
+</body>
+</html>
