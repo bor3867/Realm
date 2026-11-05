@@ -2069,6 +2069,10 @@ export function dungeon(seed, def) {
       for (const q of T.dais || []) rect(q, (X, Y, x, y) => skin(X, Y, x === q[0] || x === q[2] || y === q[1] || y === q[3] ? 'keep_step' : 'keep_dais'));
       for (const q of T.stairs || []) rect(q, (X, Y) => skin(X, Y, 'keep_stair'));
       for (const q of T.skins || []) rect(q, (X, Y) => skin(X, Y, q[4]));
+      if (T.spiral) {                                         // (a spiral stair: steps round a well, a landing in its middle, a gap where it starts)
+        const [sx, sy, r0, r1] = T.spiral;
+        for (let y = sy - r1; y <= sy + r1; y++) for (let x = sx - r1; x <= sx + r1; x++) { const d = Math.hypot(x - sx, y - sy), X = n.x + x, Y = n.y + y; if (!fl(X, Y)) continue; if (d <= r0) skin(X, Y, d > r0 - 1 ? 'keep_step' : 'keep_dais'); else if (d <= r1) { const a = Math.atan2(y - sy, x - sx); skin(X, Y, (Math.floor(((a + Math.PI) / (2 * Math.PI)) * 24 + d * 0.9) % 2) ? 'keep_stair' : 'keep_step'); } }
+      }
       for (const [x, y] of T.rings || []) for (let j = 0; j < 5; j++) for (let k = 0; k < 5; k++) { const X = n.x + x - 2 + k, Y = n.y + y - 2 + j; if (fl(X, Y)) { if (tile(X, Y) === TID.kpcarpet) set(X, Y, FLOOR); skin(X, Y, 'keep_ritual_' + (j * 5 + k)); } }
       const free2 = (X, Y) => (tile(X, Y) === TID.grass || fl(X, Y)) && !m.objects.some((o) => Math.floor(o.x) === X && Math.floor(o.y) === Y);   // (a lawn's things stand on its grass)
       for (const [sp, x, y, solid = true] of T.props || []) if (free2(n.x + x, n.y + y)) put(m, sp, n.x + x, n.y + y, solid);
@@ -3224,7 +3228,7 @@ export function dungeon(seed, def) {
       const t = tile(x, y); if (t === TID.void) continue;
       const n = areaAt(x, y); if (!n) continue; regionOf[y * S + x] = REG.indexOf(n.region) + 1;
       // (dressed stone where the mountain is built on: the viaduct, the Final Rampart's yard, the fortified causeway; the Broken Span bare rock)
-      const paved = bd(n, x, y) === 0 && (n.pave || (n.region === 'mountain' && n.form === 'viaduct') || (n.form === 'twin' && y > n.spanY + 3 && x > n.x + 5 && x < n.x + n.w - 6));
+      const paved = bd(n, x, y) === 0 && (n.tpl || n.pave || (n.region === 'mountain' && n.form === 'viaduct') || (n.form === 'twin' && y > n.spanY + 3 && x > n.x + 5 && x < n.x + n.w - 6));
       if (t === FLOOR) set(x, y, paved ? TID.kpfloor : AREA_FL[n.key] && bd(n, x, y) === 0 ? AREA_FL[n.key] : FL[n.region](x, y, n));
     }
     for (let y = 3; y < S - 3; y++) for (let x = 3; x < S - 3; x++) {          // the edges: woods (thorn), cliffs, or the star-void; the keep's stay its walls

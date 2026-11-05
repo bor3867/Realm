@@ -225,6 +225,75 @@ export const ROOMS = {
       ['castle_art/pedestal_flame', 7, 10], ['castle_art/pedestal_flame', 32, 10], ['castle_decor/rubble', 6, 21, false], ['castle_decor/rubble', 33, 19, false],
     ],
   },
+  // A9 THE SCRIPTORIUM: bookshelves along the north wall either side of its dark alcove, writing desks in pairs west and
+  // east heaped with books and candles, the great red rug with the sun on it in the middle; doors west and east
+  a37: {
+    page: 'rooms/18_scriptorium.png', w: 40, h: 30, at: [596, 256],
+    floor: [[3, 3, 36, 26], [15, 1, 24, 2], [0, 8, 2, 12], [37, 8, 39, 12]],
+    doors: { 36: [0, 10, 'W'], 38: [39, 10, 'E'] },
+    runners: [['ew', 11, 14, 25, 'sun'], ['ew', 14, 14, 25, 'sun'], ['ew', 17, 14, 25, 'sun']],
+    emblems: [[19, 14, 'sun']],
+    props: [
+      ['keep_decor/keep_rack', 6, 4], ['keep_decor/keep_rack', 9, 4], ['keep_decor/keep_rack', 12, 4], ['keep_decor/keep_rack', 27, 4], ['keep_decor/keep_rack', 30, 4], ['keep_decor/keep_rack', 33, 4],
+      ['castle_decor/book_pile', 6, 6, false], ['castle_decor/book_pile', 33, 7, false], ['castle_decor/book_pile', 13, 6, false],
+      ['castle_decor/table', 6, 11], ['castle_decor/table', 8, 11], ['castle_decor/table', 6, 18], ['castle_decor/table', 8, 18],
+      ['castle_decor/table', 31, 11], ['castle_decor/table', 33, 11], ['castle_decor/table', 31, 18], ['castle_decor/table', 33, 18],
+      ['castle_decor/book_pile', 7, 13, false], ['castle_decor/book_pile', 32, 20, false], ['castle_art/pedestal_flame', 10, 11], ['castle_art/pedestal_flame', 29, 18],
+      ['castle_decor/rubble', 29, 7, false], ['castle_decor/rubble', 5, 24, false],
+    ],
+  },
+  // A12 THE CROWNED CROSSING: four ways meeting, the crown runners crossing at the great sun in the middle; candles and
+  // braziers in the north corners, candles and pillars in the south; in from the south, west to the Ember Crucible,
+  // north to the Overseer's Foundry
+  a38: {
+    page: 'rooms/21_crowned_crossing.png', w: 40, h: 32, at: [604, 208],
+    floor: [[3, 2, 36, 28], [16, 0, 22, 1], [16, 29, 22, 31], [0, 13, 2, 17], [37, 13, 39, 17]],
+    doors: { 37: [19, 31, 'S'], 39: [0, 15, 'W'], 41: [19, 0, 'N'] },
+    runners: [['ns', 19, 0, 31, 'crown'], ['ew', 15, 0, 17, 'crown'], ['ew', 15, 21, 39, 'crown']],
+    emblems: [[19, 15, 'sun']],
+    props: [
+      ['castle_art/pedestal_flame', 5, 5], ['castle_art/brazier_gold', 9, 4], ['castle_art/brazier_gold', 29, 4], ['castle_art/pedestal_flame', 34, 5],
+      ['castle_art/pedestal_flame', 5, 25], ['keep_decor/keep_pillar', 10, 24], ['keep_decor/keep_pillar', 29, 24], ['castle_art/pedestal_flame', 34, 25],
+      ['castle_decor/rubble', 12, 8, false], ['castle_decor/rubble', 27, 21, false],
+    ],
+  },
+  // A4 THE SPIRAL KEEP: a tower's well, the great stair winding round it down to the landing in the middle; a brazier in
+  // each corner; doors west and east
+  a43: {
+    page: 'rooms/13_spiral_keep.png', w: 36, h: 34, at: [448, 152],
+    floor: [[3, 3, 32, 30], [0, 23, 2, 27], [33, 23, 35, 27]],
+    doors: { 44: [0, 25, 'W'], 42: [35, 25, 'E'] },
+    spiral: [17, 16, 4, 11],
+    props: [['castle_art/brazier_gold', 6, 5], ['castle_art/brazier_gold', 29, 5], ['castle_art/brazier_gold', 6, 28], ['castle_art/brazier_gold', 29, 28], ['castle_decor/rubble', 27, 10, false], ['castle_decor/rubble', 8, 20, false]],
+  },
+  // A11 THE BELL HALL: the great bell hung from its beam at the head of the hall, its two ropes down to the floor (the
+  // Entrance Seal is opened there); knights in stone with their swords either side, candles at their feet, red banners,
+  // a sigil worn into the floor, braziers at the foot; doors west (to Ashkar) and east
+  a45: {
+    page: 'rooms/20_bell_hall.png', w: 40, h: 30, at: [402, 92],
+    floor: [[3, 3, 36, 24], [13, 25, 26, 26], [0, 7, 2, 11], [37, 7, 39, 11]],
+    doors: { 46: [0, 9, 'W'], 44: [39, 9, 'E'] },
+    rings: [[19, 17]],
+    mechs: { seal45: [19, 11] },
+    props: [
+      ['castle_decor/chain_post', 19, 6], ['castle_decor/chain_post', 13, 11], ['castle_decor/chain_post', 26, 11],
+      ['castle_art/statue_knight', 6, 7], ['castle_art/statue_knight', 33, 7], ['castle_art/pedestal_flame', 6, 11], ['castle_art/pedestal_flame', 33, 11],
+      ['castle_art/banner_crown', 9, 3, false], ['castle_art/banner_crown', 30, 3, false], ['castle_art/banner_crown_torn', 12, 3, false], ['castle_art/banner_crown_torn', 27, 3, false],
+      ['castle_art/brazier_gold', 11, 21], ['castle_art/brazier_gold', 28, 21], ['castle_decor/rubble', 34, 22, false],
+    ],
+  },
+  // A15 THE OVERLOOK: the great arched window over the burning country, where the Great Sun Gate stands; a balustrade
+  // either side of it, sun banners, braziers at the foot; in from the west
+  a47: {
+    page: 'rooms/24_overlook.png', w: 34, h: 26, at: [340, 34],
+    floor: [[3, 2, 30, 21], [0, 8, 2, 12], [31, 8, 33, 12]],
+    doors: { 46: [0, 10, 'W'] },
+    props: [
+      ['castle_art/banner_sun', 5, 3, false], ['castle_art/banner_sun', 28, 3, false],
+      ['keep_decor/keep_rail', 7, 7, false], ['keep_decor/keep_rail', 9, 7, false], ['keep_decor/keep_rail', 11, 7, false], ['keep_decor/keep_rail', 22, 7, false], ['keep_decor/keep_rail', 24, 7, false], ['keep_decor/keep_rail', 26, 7, false],
+      ['castle_art/brazier_gold', 7, 19], ['castle_art/brazier_gold', 26, 19],
+    ],
+  },
   // 04 THE HOLLOW JARLS' COURT: in at the foot through the gate tower; the court an octagon, the great sigil in its
   // middle where the four runners meet; a ritual platform of purple fires either side; broken columns about it, braziers
   // at its corners; the two Jarls in stone on their thrones either side of the sealed gate north, cursed banners beside
