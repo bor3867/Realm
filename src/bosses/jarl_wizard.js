@@ -220,10 +220,19 @@ function blink(g, e) {
   g.sfx('portal');
   later(e, 0.8, 'blinkGo', { x: m.x, y: m.y });
 }
+function blinkTo(g, e, x, y, T, nova) {                   // (the director's step: to a place it chose; T its travel, nova the bolts he comes out in)
+  const H = court(e); x = Math.max(H.x + 2, Math.min(H.x + H.w - 2, x)); y = Math.max(H.y + 2, Math.min(H.y + H.h - 2, y));
+  for (let k = 0; k < 20 && isSolid(g.map, x, y); k++) { x += (H.x + H.w / 2 - x) * 0.15; y += (H.y + H.h / 2 - y) * 0.15; }
+  const m = { x, y }; circle(g, e, x, y, 1.3, T, 0); e.bx.jzTo = m;
+  e.bx.jzTravel = { fx: e.x, fy: e.y, x, y, t0: g.t, t1: g.t + T, fr: e.bx.anim && e.bx.anim.frame, nova };
+  for (let k = 0; k < 4; k++) g.vx({ k: 'burst', x: e.x + (Math.random() - 0.5) * 1.2, y: e.y - 0.4 - k * 0.7, n: 12, colors: SPIRIT });
+  g.fx.push({ kind: 'ring', x: e.x, y: e.y, t: 0, max: 3, color: '#c88aff' }); g.sfx('portal');
+  later(e, T, 'blinkGo', { x, y, nova });
+}
 function blinkGo(g, e, V) {
   e.x = V.x; e.y = V.y; e.bx.jzFormed = g.t;
   g.fx.push({ kind: 'ring', x: e.x, y: e.y, t: 0, max: 2.6, color: '#e6c8ff' });
-  const n = (e.bx.phase || 1) >= 3 ? 14 : 10, a0 = Math.random() * TAU;   // (2026-11-04, the user: "Do not make it feel like he just disappears and reappears with no weight": he comes out of the rift in a nova)
+  const n = V.nova ?? ((e.bx.phase || 1) >= 3 ? 14 : 10), a0 = Math.random() * TAU;   // (2026-11-04, the user: "Do not make it feel like he just disappears and reappears with no weight": he comes out of the rift in a nova)
   for (let k = 0; k < n; k++) shot(g, e, e.x, e.y, a0 + (k / n) * TAU, { ...BOLT, speed: 3.4, range: 9, dmg: D(85) });
   g.vx({ k: 'shake', amt: 3 });
   for (let k = 0; k < 10; k++) { const a = (k / 10) * TAU; g.vx({ k: 'burst', x: e.x + Math.cos(a) * 1.6, y: e.y - 1 + Math.sin(a) * 1.2, n: 3, colors: SPIRIT }); }
@@ -341,6 +350,103 @@ function mageVolley(g, e) {
   const q = target(g, e), lead = (S.jzVk = (S.jzVk || 0) + 1) % 2, tx = lead ? q.x + (S.pvx || 0) * 0.7 : q.x, ty = lead ? q.y + (S.pvy || 0) * 0.7 : q.y, a = angleTo(e.x, e.y, tx, ty), n = enthroned(e) ? 5 : 7;
   for (let k = 0; k < n; k++) shot(g, e, e.x, e.y, a + (k / (n - 1) - 0.5) * deg(enthroned(e) ? 40 : 60), { ...BOLT, speed: 6, range: 26, dmg: D(enthroned(e) ? 85 : 95) });
 }
+// ================================================================ THE DIRECTOR (2026-11-04, the user's boss overhaul: "an intelligent
+// master of battlefield control ... He must not simply teleport, fire a volley, teleport, and repeat ... During the Warrior
+// stage, he acts as an invulnerable support boss. Once the Warrior dies, he becomes the active boss with a different,
+// more dangerous attack director"). The audit found him on the engine's one loop: one list, each spell waiting on the
+// last, a step between most of them; hovering about a mark; his portals opened and closed with each spell. Now:
+//   STAGE 1  on his throne (warded). He keeps two violet SENTINELS (portals that stay until broken, an aimed burst each
+//            every 2.2 s, raised again 10 s after they fall), and lays his formations to work WITH the Warrior: while
+//            the Warrior charges or leaps, bands and tides to close your escape; while he cuts close, the outer court's
+//            streams and gate; otherwise his gateways, crossfire, pentagram, judgement
+//   PHASE II  THE MAGE UNBOUND: he GLIDES (keeps 8 tiles off you, strafing, the way changing); steps only when you close
+//            within 4 or every 9 s (to the far side from you; a full step, his nova out of the rift); two sentinels;
+//            his formations one at a time by weight, never the last two again (the Revolving Gate, the Portal Tide, the
+//            runic wheel turning WITH him as he glides, crossfire, the cage, converging sigils, returning lances, the
+//            pentagram, the anchors); under them, where they leave room, an aimed lance volley every 2.4 s
+//   PHASE III THE UNMAKING: he no longer glides: he PHASE-STEPS, a quick step every 2.6 s to a new angle round you at
+//            seven tiles, three lances at you from where he comes out; three sentinels; his MIRROR RUNES, two
+//            constructs turning round him, each throwing a lance out that turns back to him; THE LATTICE (new): beams
+//            from his sentinels sweeping slowly round the court, you between them; the Unmaking, the gate, the tide,
+//            the pentagram, the cage, crossfire, the anchors
+// His state is in e.bx.md (and e.bx.dbg for /bossdebug); every choice logged (g.bxLog).
+const VIOLET1 = '#b884cc';
+const MPH = {
+  1: { title: 'THE THRONE', sentinels: 2, sentEvery: 2.2 },
+  2: { title: 'THE MAGE UNBOUND', move: 'glide', keep: 8, gap: 0.9, sentinels: 2, sentEvery: 1.9, blinkEvery: 9, light: 2.4,
+    pool: { orbit: 3, tide: 3, wheel: 2, crossfire: 2, prison: 2, converge: 2, royalty: 2, star: 2, anchors: 1 } },
+  3: { title: 'THE UNMAKING', move: 'drift', keep: 7, gap: 0.5, sentinels: 3, sentEvery: 1.7, step: 2.6, runes: true,
+    pool: { lattice: 3, orbit: 2, tide: 2, star: 2, prison: 2, crossfire: 2, unmaking: 1, anchors: 1 } },
+};
+// each formation: how long it holds the court (no second formation laid over it), and whether a lance volley may run under it
+const DUR = { spreads: 8.9, crossing: 6.8, condemn: 3.6, streams: 5.8, judgement: 4.9, orbit: 8.2, tide: 7.4, star: 4.4, wheel: 6.7, crossfire: 7.6, prison: 3.8, converge: 2.4, royalty: 2.8, anchors: 9.5, unmaking: 9.4, lattice: 7.4 };
+const DENSE = { prison: 1, unmaking: 1, anchors: 1, lattice: 1 };
+const MD = (g, e) => e.bx.md || (e.bx.md = { heavy: null, until: g.t + 2.5, hist: [], lightAt: g.t + 3, blinkAt: g.t + 6, stepAt: g.t + 2, sentAt: g.t + 1, near: 0, channel: 0, poseUntil: 0 });
+function mlog(g, e, ev, info) { if (g.bxLog) g.bxLog(e, ev, info); }
+function cast(g, e, name) {                                  // a formation: his cast (his attack clip), then the spell
+  const M = MD(g, e); M.heavy = name; M.until = g.t + DUR[name]; M.hist.push(name); if (M.hist.length > 6) M.hist.shift();
+  M.poseUntil = g.t + 0.5; if (e.bx.anim && e.bx.def) e.bx.anim.play(e.bx.def.phases[e.bx.phase].attack);
+  if (name === 'unmaking') M.channel = g.t + 9.3;
+  mlog(g, e, 'combo', name); SPELL[name](g, e);
+}
+function pickSupport(g, e) {                                 // (on the throne: to work with what the Warrior is doing)
+  const M = MD(g, e), W = partner(e), wc = W && W.bx && W.bx.wd, c = wc && wc.st === 'combo' ? wc.combo : null;
+  const pool = c && /charge|chain|leap|pounce|execution|hunt/i.test(c) ? { condemn: 3, tide: 2, crossing: 1 } : c && /reap|ground|storm|axes/.test(c) ? { orbit: 2, streams: 2, spreads: 1 } : { spreads: 2, crossing: 2, star: 2, judgement: 1, orbit: 1, tide: 1, condemn: 1 };
+  return weighted(pool, M.hist);
+}
+function weighted(pool, hist) {
+  const L = Object.entries(pool).filter(([k]) => !hist.slice(-2).includes(k)), T = L.reduce((a, [, v]) => a + v, 0);
+  let r = Math.random() * T; for (const [k, v] of L) if ((r -= v) <= 0) return k; return L.length ? L[0][0] : Object.keys(pool)[0];
+}
+function director(g, e, dt) {
+  const S = e.bx, M = MD(g, e), ph = S.phase || 1, P = MPH[ph] || MPH[3], q = target(g, e), d = Math.hypot(q.x - e.x, q.y - e.y);
+  if (['sleep', 'intro', 'morph', 'grace', 'death', 'deathhold', 'gone'].includes(S.state) || e.dead) return;
+  // his sentinels: kept up (raised again 10 s after they fall); each an aimed burst on its own beat
+  const sent = (S.jzSent = (S.jzSent || []).filter(live));
+  if (sent.length < P.sentinels && g.t >= M.sentAt) { M.sentAt = g.t + 10; raiseSentinels(g, e, P.sentinels - sent.length); }
+  for (const q2 of sent) if (g.t >= (q2.jzNext || 0)) { q2.jzNext = g.t + P.sentEvery; const a = angleTo(q2.x, q2.y, q.x, q.y); for (const o of [-1, 0, 1]) shot(g, e, q2.x, q2.y, a + o * deg(11), { ...BOLT, speed: 5.4, range: 30, dmg: D(85), free: true }); }
+  if (P.runes) runesTick(g, e);
+  const busy = S.jzAnch || S.jzTravel || M.channel > g.t || S.jzStag > g.t;
+  if (ph === 1) { if (enthroned(e) && !busy && g.t >= M.until + 0.8) cast(g, e, pickSupport(g, e)); dbg(g, e, M, P, 'throne'); return; }
+  // his steps: away when you close in, or on his beat (II); his phase-steps round you (III)
+  M.near = d < 4 ? M.near + dt : 0;
+  M.still = Math.hypot(S.pvx || 0, S.pvy || 0) < 0.6 ? (M.still || 0) + dt : 0;
+  if (M.still > 2 && !S.jzTravel && !(S.jzConv && S.jzConv.length)) { M.still = -2; mlog(g, e, 'punish', 'converge'); later(e, 0, 'convRing', { r: 6.5, at: 0.9 }); }   // (you stood still: his sigils close on you)
+  if (!S.jzTravel && M.channel <= g.t && S.jzStag <= g.t) {
+    if (P.step && g.t >= M.stepAt) { M.stepAt = g.t + P.step; const a = angleTo(q.x, q.y, e.x, e.y) + (Math.random() < 0.5 ? 1 : -1) * deg(60 + Math.random() * 40); blinkTo(g, e, q.x + Math.cos(a) * P.keep, q.y + Math.sin(a) * P.keep, 0.45, 6); later(e, 0.5, 'stepLances'); mlog(g, e, 'step', 'phase-step'); }
+    else if (P.blinkEvery && (M.near > 0.5 || g.t >= M.blinkAt)) { M.blinkAt = g.t + P.blinkEvery; M.near = 0; const far = MARKS(e).sort((a, b) => Math.hypot(b.x - q.x, b.y - q.y) - Math.hypot(a.x - q.x, a.y - q.y))[Math.floor(Math.random() * 2)]; blinkTo(g, e, far.x, far.y, 0.8, 10); mlog(g, e, 'step', 'away'); }
+  }
+  if (!busy && g.t >= M.until + P.gap) cast(g, e, weighted(P.pool, M.hist));
+  if (P.light && g.t >= M.lightAt && !DENSE[M.heavy] && !S.jzTravel) { M.lightAt = g.t + P.light; for (let w = 0; w < 2; w++) later(e, w * 0.42, 'lanceAim', { lead: w % 2 }); }
+  dbg(g, e, M, P, P.move);
+}
+function dbg(g, e, M, P, mv) { e.bx.dbg = { st: e.bx.jzTravel ? 'step' : M.channel > g.t ? 'channel' : M.until > g.t ? 'formation' : 'glide', combo: M.heavy, move: mv, next: Math.max(0, M.until - g.t).toFixed(1), phase: P.title, still: '-', far: (e.bx.jzSent || []).length + ' sent' }; }
+function raiseSentinels(g, e, n) {                            // (the corners farthest from you)
+  const q = target(g, e), L = ['NW', 'NE', 'SW', 'SE', 'W', 'E'].map((k) => [k, at40(e, ...SPOT[k])]).sort((a, b) => Math.hypot(b[1].x - q.x, b[1].y - q.y) - Math.hypot(a[1].x - q.x, a[1].y - q.y)).slice(0, n);
+  for (const [, m] of L) circle(g, e, m.x, m.y, 1.1, 0.8, 0);
+  g.sfx('portal'); later(e, 0.8, 'sentOpen', { pts: L.map(([, m]) => [m.x, m.y]) }); mlog(g, e, 'summon', n + ' sentinels');
+}
+function sentOpen(g, e, V) { for (const [x, y] of V.pts) { const q2 = portalAt(g, e, x, y, 999, 9000, VIOLET1); q2.jzSentinel = true; q2.jzNext = g.t + 1 + Math.random(); (e.bx.jzSent = e.bx.jzSent || []).push(q2); } }
+function stepLances(g, e) { const q = target(g, e), a = angleTo(e.x, e.y, q.x + (e.bx.pvx || 0) * 0.3, q.y + (e.bx.pvy || 0) * 0.3); for (const o of [-1, 0, 1]) shot(g, e, e.x, e.y, a + o * deg(9), { ...LANCE, speed: 7.2, range: 16, dmg: D(110) }); }
+// (III) his MIRROR RUNES: two constructs turning round him, each throwing a lance out 6 tiles every 1.5 s that turns back to him
+function runesTick(g, e) {
+  const S = e.bx, R = S.jzRunes || (S.jzRunes = { a0: Math.random() * TAU, t0: g.t, next: g.t + 1.2 });
+  if (g.t < R.next || S.jzTravel) return; R.next = g.t + 1.5;
+  for (let i = 0; i < 2; i++) {
+    const a = R.a0 + (g.t - R.t0) * 1.1 + i * Math.PI, rx = e.x + Math.cos(a) * 2.6, ry = e.y + Math.sin(a) * 2.6, q = target(g, e), aim = angleTo(rx, ry, q.x, q.y);
+    shot(g, e, rx, ry, aim, { ...LANCE, speed: 6, range: 6, dmg: D(105), free: true });
+    later(e, 1.0, 'runeBack', { x: rx + Math.cos(aim) * 6, y: ry + Math.sin(aim) * 6 });
+  }
+}
+function runeBack(g, e, V) { shot(g, e, V.x, V.y, angleTo(V.x, V.y, e.x, e.y), { ...LANCE, speed: 6, range: Math.hypot(e.x - V.x, e.y - V.y) + 1, dmg: D(105), free: true }); }
+// (III) THE LATTICE: a beam from each sentinel sweeping slowly round it (by turns, one way and the other), shown 1 s, live 6 s (110 a half second you stand in one)
+function lattice(g, e) {
+  const S = e.bx, L = (S.jzSent || []).filter(live), H = court(e), cx = H.x + H.w / 2, cy = H.y + H.h / 2;
+  if (g.banner) g.banner('THE LATTICE', 1200);
+  L.forEach((q2, i) => g.fx.push({ kind: 'lane', x: q2.x, y: q2.y, a: angleTo(q2.x, q2.y, cx, cy), a0: angleTo(q2.x, q2.y, cx, cy), spin: (i % 2 ? -1 : 1) * 0.42, len: 26, w: 0.8, delay: 1.0, t: 0, life: 7, every: 0.5, dmg: g.bxDmg(e, D(110)), by: e.D.name, hitT: 0, cols: VIOLET }));
+  g.sfx('zap');
+}
+const SPELL = { spreads, crossing, condemn, streams, judgement, wheel, crossfire, converge, royalty, prison, anchors, unmaking, orbit, tide, star, lattice, inquisition };
 const P = (name, special, recover, o = {}) => ({ name, special, windup: 0.45, recover, ...o });
 const AT = {
   spreads: P('Hollow Gateways', 'spreads', 1.4), crossing: P('Spectral Crossfire', 'crossing', 1.4), condemn: P('Royal Condemnation', 'condemn', 3.8), streams: P('Rotating Streams', 'streams', 1.4), judgement: P('Judgement', 'judgement', 1.4),   // (each runs while its portals do: choose waits on it)
@@ -357,6 +463,7 @@ const ORDER = {   // (2026-11-04, the user: "too repetitive ... teleport, shoot"
 function choose(g, e) {
   const S = e.bx, C = courtTick(g, e);
   if (S.phase === 1 && !enthroned(e)) { if (C.act === 2) unbind(g, e); return null; }   // (a Wizard on his own: down at once)
+  return null;                                               // (his director chooses: below, the old list, kept for reference, never reached)
   if (S.jzAnch || S.jzSeq || S.jzBusy > g.t || S.jzTravel) return null;   // (his anchors, a throne sequence, the Unmaking or a step still under way)
   if (S.jzPh !== S.phase) { S.jzPh = S.phase; S.jzK = 0; }
   const L = ORDER[S.phase] || ORDER[3];
@@ -377,14 +484,27 @@ export default {
   },
   dmgMult: (g, e) => (e.bx.jzStag > g.t ? 1.33 : 1),        // (faltering: open to you)
   morphGrace: 1.2,
-  phases: { 1: { move: 'throne', pressure: [{ every: 1.3, special: 'mageVolley', delay: 3 }], patterns: Object.values(AT) }, 2: { move: 'hover', pressure: [{ every: 1.1, special: 'mageVolley', delay: 2 }], patterns: Object.values(AT) }, 3: { move: 'hover', pressure: [{ every: 0.9, special: 'mageVolley', delay: 1 }], patterns: Object.values(AT) } },
+  phases: { 1: { move: 'throne', patterns: [] }, 2: { move: 'glide', patterns: [] }, 3: { move: 'drift', patterns: [] } },
+  posing: (g, e) => MD(g, e).poseUntil > g.t,
   specials: { mageVolley, spreads, crossing, streams, judgement, seqOpen, judgeLock, judgeFire, blink, blinkGo, wheel, crossfire, crossOpen, converge, convRing, convFire,
     royalty, royalOut, royalHold, royalBack, inquisition, lanceAim, lanceFire, anchors, condemn, condemnSet, prison, prisonFire, unmaking, unmakingSpent,
-    orbit, orbitOpen, tide, tideSide, tideOpen, star, starOpen },
+    orbit, orbitOpen, tide, tideSide, tideOpen, star, starOpen, sentOpen, stepLances, runeBack, lattice },
   moves: {
     throne(g, e, dt) {                                      // to his throne, and there
       const T = THRONE(e), d = Math.hypot(T.x - e.x, T.y - e.y), sp = 4 * dt;
       if (d > 0.05) g.moveCircle(e, ((T.x - e.x) / d) * Math.min(d, sp), ((T.y - e.y) / d) * Math.min(d, sp), 0.8);
+    },
+    glide(g, e, dt) {                                       // (II) keeping 8 tiles off you, strafing; the way he strafes changing every 4 s; still while he steps or falters
+      const S = e.bx; if (S.jzTravel || S.jzStag > g.t || MD(g, e).channel > g.t) return;
+      const q = target(g, e), d = Math.hypot(e.x - q.x, e.y - q.y) || 1, rx = (e.x - q.x) / d, ry = (e.y - q.y) / d, s = Math.sin(g.t * 0.8) > 0 ? 1 : -1, pull = (8 - d) * 0.5;
+      let ux = rx * pull - ry * s, uy = ry * pull + rx * s; const L = Math.hypot(ux, uy) || 1, H = court(e);
+      if (e.x < H.x + 4) ux += 1; if (e.x > H.x + H.w - 4) ux -= 1; if (e.y < H.y + 4) uy += 1; if (e.y > H.y + H.h - 4) uy -= 1;
+      g.moveCircle(e, (ux / L) * 3.2 * dt, (uy / L) * 3.2 * dt, 0.8);
+    },
+    drift(g, e, dt) {                                       // (III) between his phase-steps: a slow drift about where he came out
+      const S = e.bx; if (S.jzTravel || S.jzStag > g.t || MD(g, e).channel > g.t) return;
+      const m = S.jzTo || (S.jzTo = { x: e.x, y: e.y }), tx = m.x + Math.sin(g.t * 1.3) * 1.0, ty = m.y + Math.cos(g.t * 1.1) * 0.7, dd = Math.hypot(tx - e.x, ty - e.y);
+      if (dd > 0.1) g.moveCircle(e, ((tx - e.x) / dd) * Math.min(dd, 2 * dt), ((ty - e.y) / dd) * Math.min(dd, 2 * dt), 0.8);
     },
     hover(g, e, dt) {                                       // drifting a little about his mark
       const m = e.bx.jzTo || { x: e.x, y: e.y }, tx = m.x + Math.sin(g.t * 0.9) * 1.2, ty = m.y + Math.cos(g.t * 0.7) * 0.8, d = Math.hypot(tx - e.x, ty - e.y), sp = 1.6 * dt;
@@ -394,7 +514,9 @@ export default {
   },
   onWake(g, e) { courtOf(e); if (g.banner) g.banner(partner(e) ? 'THE HOLLOW COURT · "BEND THE KNEE."' : '"THEN BURN THE SOUL."', 2600); },
   onPhase(g, e, ph) {
-    const S = e.bx; S.jzSeq = S.jzCross = S.jzWheel = S.jzOrbit = S.jzStar = null; S.jzTides = []; S.jzConv = []; S.jzStag = 0;
+    const S = e.bx; S.jzSeq = S.jzCross = S.jzWheel = S.jzOrbit = S.jzStar = null; S.jzTides = []; S.jzConv = []; S.jzStag = 0; S.jzSent = []; S.jzRunes = null;
+    const M = MD(g, e); M.heavy = null; M.until = g.t + 2.4; M.hist = []; M.channel = 0; M.sentAt = g.t + 1.2; M.stepAt = g.t + 3; M.blinkAt = g.t + 7; M.lightAt = g.t + 3.5;
+    if (g.banner) g.banner((MPH[ph] || MPH[3]).title, 2000); mlog(g, e, 'phase', ph + ' ' + (MPH[ph] || MPH[3]).title);
     if (S.jzAnch) { for (const q of S.jzAnch.ps) if (live(q)) { q.noLoot = true; q.dead = true; q.deadT = 0; } S.jzAnch = null; }
     closePortals(e); S.wait = Math.min(S.wait || 0, 1.2);
     if (ph === 3) S.tempoK = 0.8;                           // (III: shorter rests)
@@ -428,7 +550,8 @@ export default {
     if (S.jzStar) { if (S.jzStar.n >= 3 || !S.jzStar.ps.some(live)) S.jzStar = null; else starTick(g, e, S.jzStar); }
     if (S.jzConv && S.jzConv.length && S.jzConv.every((R) => g.t > R.gone)) S.jzConv = [];
     if (S.jzPrison && g.t > S.jzPrison.t0 + S.jzPrison.dur + 1.5) S.jzPrison = null;
-    if (S.jzTravel && g.t > S.jzTravel.t1 + 0.05) blinkGo(g, e, S.jzTravel);   // (a step is always finished, whatever cleared his queue: a falter, a change of form)
+    if (S.jzTravel && g.t > S.jzTravel.t1 + 0.05) blinkGo(g, e, S.jzTravel);
+    director(g, e, dt);   // (a step is always finished, whatever cleared his queue: a falter, a change of form)
   },
   onDeath(g, e) { const S = e.bx; S.jzSeq = S.jzCross = S.jzWheel = S.jzAnch = S.jzOrbit = S.jzStar = null; S.jzTides = []; S.jzConv = []; closePortals(e); g.vx({ k: 'burst', x: e.x, y: e.y - 2, n: 40, colors: SPIRIT }); },
   // his afterimage, where he stood as he broke apart, fading
@@ -482,6 +605,11 @@ export default {
       const k = Math.max(0, Math.min(1, (g.t - PR.t0) / PR.dur)), rr = PR.r0 + (PR.r1 - PR.r0) * k;
       for (let i = 0; i < 8; i++) { const a = PR.a0 + (i / 8) * TAU, [x, y] = r.proj(PR.x + Math.cos(a) * rr, PR.y + Math.sin(a) * rr), dk = PR.dark.includes(i) && g.t >= PR.darkAt;
         b.fillStyle = dk ? 'rgba(40,24,52,0.5)' : g.t < PR.t0 ? 'rgba(200,138,255,0.6)' : '#e6c8ff'; b.fillRect(Math.round(x) - 4, Math.round(y) - 4, 8, 8); b.fillStyle = '#8e4ca8'; if (!dk) b.fillRect(Math.round(x) - 2, Math.round(y) - 2, 4, 4); }
+    }
+    const RN = S.jzRunes;
+    if (RN && (S.phase || 1) >= 3 && !e.dead) for (let i = 0; i < 2; i++) {   // his mirror runes, turning round him
+      const a = RN.a0 + (g.t - RN.t0) * 1.1 + i * Math.PI, [x, y] = r.proj(e.x + Math.cos(a) * 2.6, e.y + Math.sin(a) * 2.6);
+      b.fillStyle = '#fff4c4'; b.fillRect(Math.round(x) - 4, Math.round(y) - 4, 8, 8); b.fillStyle = '#c88aff'; b.fillRect(Math.round(x) - 2, Math.round(y) - 2, 4, 4);
     }
     const WH = S.jzWheel;
     if (WH && WH.runes && g.t >= WH.t0) for (let i = 0; i < WH.n; i++) {   // the Cataclysm's four runes turning round him
