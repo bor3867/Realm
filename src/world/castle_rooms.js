@@ -145,6 +145,7 @@ export const ROOMS = {
     page: 'rooms/22_broken_rampart.png', w: 36, h: 28, at: [518, 404],
     floor: [[4, 3, 9, 5], [25, 3, 31, 5], [3, 6, 32, 23], [0, 7, 2, 11], [33, 14, 35, 18], [15, 24, 20, 27]],
     doors: { 20: [0, 9, 'W'], 22: [35, 16, 'E'], 57: [17, 27, 'S'] },
+    debris: [[10, 6, 24, 7, 0.6], [24, 10, 31, 15, 0.7]],
     props: [
       ['castle_decor/rubble', 10, 6, false], ['castle_decor/rock', 12, 6], ['castle_decor/rubble', 14, 7, false], ['castle_decor/rock', 17, 6], ['castle_decor/rubble', 20, 6, false], ['castle_decor/rock', 23, 7], ['castle_decor/rubble', 25, 5, false],
       ['castle_decor/rock', 25, 12], ['castle_decor/rock', 27, 11], ['castle_decor/rock', 28, 13], ['castle_decor/rubble', 26, 14, false], ['castle_decor/rubble', 29, 10, false],
@@ -174,6 +175,7 @@ export const ROOMS = {
     floor: [[15, 2, 20, 5], [3, 6, 40, 29], [0, 11, 2, 15], [41, 11, 43, 15], [19, 30, 24, 31]],
     cut: [[5, 6, 7, 8], [22, 6, 24, 7]],
     doors: { 27: [43, 13, 'E'], 29: [0, 13, 'W'] },
+    debris: [[4, 8, 12, 27, 0.55], [26, 19, 38, 28, 0.55], [14, 4, 21, 6, 0.4]],
     props: [
       ['castle_art/banner_sun_torn', 31, 6, false], ['castle_decor/rubble', 17, 3, false], ['castle_decor/rock', 16, 4], ['castle_decor/rock', 19, 4],
       ['castle_decor/rock', 6, 12], ['castle_decor/rubble', 7, 14, false], ['castle_decor/rock', 8, 17], ['castle_decor/rubble', 5, 19, false], ['castle_decor/rock', 6, 23], ['castle_decor/rubble', 9, 25, false], ['castle_decor/collapsed_pillar', 11, 21],
@@ -217,11 +219,11 @@ export const ROOMS = {
     page: 'rooms/23_chancel.png', w: 40, h: 31, at: [386, 254],
     floor: [[3, 3, 36, 25], [17, 26, 22, 30], [0, 13, 2, 17], [37, 13, 39, 17], [18, 0, 21, 2]],
     doors: { 32: [0, 15, 'W'], 34: [39, 15, 'E'], 55: [19, 0, 'N'] },
-    dais: [[13, 5, 26, 12]],
-    stairs: [[15, 13, 24, 14]],
+    dais: [[15, 5, 24, 12]],
+    stairs: [[16, 13, 23, 14]],
     runners: [['ns', 19, 15, 30, 'crown']],
     props: [
-      ['castle_art/altar', 19, 8], ['castle_art/brazier_gold', 15, 7], ['castle_art/brazier_gold', 24, 7], ['castle_art/banner_sun', 10, 4, false], ['castle_art/banner_sun', 29, 4, false],
+      ['castle_art/altar', 19, 8], ['castle_art/brazier_gold', 15, 7], ['castle_art/brazier_gold', 24, 7], ['castle_art/pedestal_flame', 17, 9], ['castle_art/pedestal_flame', 22, 9], ['castle_art/banner_sun', 10, 4, false], ['castle_art/banner_sun', 29, 4, false],
       ['castle_art/pedestal_flame', 7, 10], ['castle_art/pedestal_flame', 32, 10], ['castle_decor/rubble', 6, 21, false], ['castle_decor/rubble', 33, 19, false],
     ],
   },
@@ -233,12 +235,12 @@ export const ROOMS = {
     floor: [[3, 7, 36, 29], [14, 3, 25, 6], [6, 4, 10, 6], [29, 4, 33, 6], [8, 30, 31, 32], [16, 33, 23, 39]],
     cut: [[3, 7, 6, 9], [33, 7, 36, 9], [3, 27, 5, 29], [34, 27, 36, 29]],
     doors: { 27: [19, 39, 'S'] },
-    dais: [[14, 13, 24, 22]],
+    beds: [[19, 18, 5]],
     rings: [[19, 18]],
     stairs: [[16, 34, 23, 39]],
     runners: [['ns', 19, 23, 33, 'crown']],
     props: [
-      ['castle_art/deadwood_big', 19, 16], ['castle_art/brazier_purple', 14, 6], ['castle_art/brazier_purple', 25, 6], ['castle_art/statue_queen', 8, 5], ['castle_decor/rubble', 30, 5, false], ['castle_decor/shattered_statue', 32, 6],
+      ['castle_art/deadwood_big', 19, 17], ['castle_art/brazier_purple', 14, 6], ['castle_art/brazier_purple', 25, 6], ['castle_art/statue_queen', 8, 5], ['castle_decor/rubble', 30, 5, false], ['castle_decor/shattered_statue', 32, 6],
       ['castle_art/brazier_gold', 8, 16], ['castle_art/brazier_gold', 31, 16], ['castle_art/brazier_gold', 10, 24], ['castle_art/brazier_gold', 29, 24],
       ['castle_art/ember_bloom', 5, 11, false], ['castle_art/ember_bloom', 7, 10, false], ['castle_art/leaf_ember', 6, 12, false], ['castle_art/ember_bloom', 33, 11, false], ['castle_art/ember_bloom', 31, 10, false], ['castle_art/leaf_ember', 34, 12, false],
       ['castle_art/ember_bloom', 6, 26, false], ['castle_art/ember_bloom', 8, 27, false], ['castle_art/leaf_ember', 7, 25, false],
@@ -274,6 +276,7 @@ export const ROOMS = {
     page: 'rooms/11_broken_gallery.png', w: 34, h: 26,
     floor: [[3, 4, 30, 22], [15, 0, 18, 3], [0, 9, 2, 13], [31, 9, 33, 13]],
     doors: { 30: [16, 0, 'N'] },
+    debris: [[4, 6, 12, 15, 0.6]],
     props: [
       ['castle_decor/rock', 6, 8], ['castle_decor/rubble', 8, 9, false], ['castle_decor/rock', 9, 11], ['castle_decor/rubble', 6, 12, false], ['castle_decor/rubble', 11, 17, false], ['castle_decor/rubble', 13, 6, false], ['castle_props/ash_shrub', 22, 6, false],
       ['castle_decor/collapsed_pillar', 19, 10], ['castle_decor/collapsed_pillar', 23, 12], ['keep_decor/keep_pillar', 8, 18], ['keep_decor/keep_pillar', 24, 18],
@@ -430,7 +433,7 @@ export const ROOMS = {
     emblems: [[19, 17, 'sun'], [19, 30, 'sun']],
     props: [
       ['castle_art/banner_cursed', 13, 10, false], ['castle_art/banner_cursed', 25, 10, false], ['castle_art/brazier_purple', 16, 10], ['castle_art/brazier_purple', 22, 10],
-      ['castle_art/banner_crown', 4, 16, false], ['castle_art/brazier_gold', 6, 16], ['castle_art/statue_queen', 8, 16], ['castle_art/brazier_gold', 10, 16], ['castle_art/banner_crown', 12, 16, false],
+      ['castle_art/banner_crown', 4, 16, false], ['castle_art/brazier_gold', 6, 16], ['castle_art/statue_queen', 8, 16], ['castle_art/brazier_gold', 10, 16], ['castle_art/banner_crown', 11, 16, false],
       ['castle_art/brazier_gold', 29, 13], ['castle_art/statue_priest', 32, 13], ['castle_art/brazier_gold', 34, 13],
       ['castle_art/brazier_purple', 27, 18], ['castle_art/brazier_purple', 34, 18], ['castle_art/brazier_purple', 27, 24], ['castle_art/brazier_purple', 34, 24], ['keep_decor/keep_ritual', 30, 21, false],
       ['castle_decor/collapsed_pillar', 25, 13], ['castle_decor/collapsed_pillar', 11, 22], ['castle_decor/collapsed_pillar', 25, 28],

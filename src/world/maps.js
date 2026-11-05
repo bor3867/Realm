@@ -2087,7 +2087,10 @@ export function dungeon(seed, def) {
         for (let d = -2; d <= 2; d++) { capAt(X + d, Y - 3, NS, '_ns_bot_$1'); capAt(X + d, Y + 3, NS, '_ns_top_$1'); capAt(X - 3, Y + d, EW, '_ew_top_$1'); capAt(X + 3, Y + d, EW, '_ew_bot_$1'); }
       }
       const rect = (q, f) => { for (let y = q[1]; y <= q[3]; y++) for (let x = q[0]; x <= q[2]; x++) if (fl(n.x + x, n.y + y)) f(n.x + x, n.y + y, x, y); };
-      for (const q of T.dais || []) rect(q, (X, Y, x, y) => skin(X, Y, x === q[0] || x === q[2] || y === q[1] || y === q[3] ? 'keep_step' : 'keep_dais'));
+      for (const q of T.dais || []) rect(q, (X, Y, x, y) => skin(X, Y, x === q[0] || x === q[2] || y === q[1] || y === q[3] ? 'keep_step' : 'keep_floor_c'));   // (2026-11-04 polish: its field the lighter paving; the big inset squares made a grid that stood out)
+      for (const [bx, by, br] of T.beds || []) for (let y = by - br; y <= by + br; y++) for (let x = bx - br; x <= bx + br; x++) {   // (a round raised bed: a ring of step, the lighter paving inside)
+        const d = Math.hypot(x - bx, y - by), X = n.x + x, Y = n.y + y; if (d > br + 0.5 || !fl(X, Y)) continue; skin(X, Y, d > br - 0.5 ? 'keep_step' : 'keep_floor_c');
+      }
       for (const q of T.stairs || []) rect(q, (X, Y) => skin(X, Y, 'keep_stair'));
       for (const q of T.skins || []) rect(q, (X, Y) => skin(X, Y, q[4]));
       if (T.spiral) {                                         // (a spiral stair: steps round a well, a landing in its middle, a gap where it starts)
@@ -2096,7 +2099,25 @@ export function dungeon(seed, def) {
       }
       for (const [x, y] of T.rings || []) for (let j = 0; j < 5; j++) for (let k = 0; k < 5; k++) { const X = n.x + x - 2 + k, Y = n.y + y - 2 + j; if (fl(X, Y)) { if (tile(X, Y) === TID.kpcarpet) set(X, Y, FLOOR); skin(X, Y, 'keep_ritual_' + (j * 5 + k)); } }
       const free2 = (X, Y) => (tile(X, Y) === TID.grass || fl(X, Y)) && !m.objects.some((o) => Math.floor(o.x) === X && Math.floor(o.y) === Y);   // (a lawn's things stand on its grass)
-      for (const [sp, x, y, solid = true] of T.props || []) if (free2(n.x + x, n.y + y)) put(m, sp, n.x + x, n.y + y, solid);
+      const hangs = (sp) => /^castle_art\/(banner|pennant|garland)/.test(sp);
+      for (const [sp, x, y, solid = true] of T.props || []) {
+        const X = n.x + x; let Y = n.y + y;
+        if (hangs(sp)) {                                         // (a banner hangs on a wall, 2026-11-04 polish: slid up to the wall it was meant for, never standing out in the open floor)
+          const open = (y2) => fl(X, y2) || tile(X, y2) === TID.kpcarpet || tile(X, y2) === TID.grass;
+          let k = 0; while (k < 3 && open(Y - 1)) { Y--; k++; }
+          if (open(Y - 1) || !open(Y)) continue;
+        }
+        if (free2(X, Y)) put(m, sp, X, Y, solid);
+      }
+      for (const [x0, y0, x1, y1, k = 0.5] of T.debris || []) {   // (fallen masonry: heaps of it, a rock in the heart of each, rubble spilling round; cover to fight from, the lanes kept)
+        const h = (x, y) => ((Math.sin((n.x + x) * 12.9898 + (n.y + y) * 78.233) * 43758.5453) % 1 + 1) % 1;
+        for (let y = y0; y <= y1; y += 3) for (let x = x0; x <= x1; x += 3) {
+          if (h(x, y) > k) continue;
+          const cx = x + Math.floor(h(y, x) * 2), cy = y + Math.floor(h(x + 7, y) * 2);
+          if (free2(n.x + cx, n.y + cy)) put(m, 'castle_decor/rock', n.x + cx, n.y + cy, true);
+          for (const [dx, dy] of [[1, 0], [-1, 1], [0, 1], [1, 1], [-1, 0]]) if (h(cx + dx * 3, cy + dy * 5) < 0.6 && free2(n.x + cx + dx, n.y + cy + dy)) put(m, 'castle_decor/rubble', n.x + cx + dx, n.y + cy + dy, false);
+        }
+      }
       return;
     }
     if (n.key === 'a52') {                                   // SOLKHAR'S SANCTUM (2026-11-03, the user's room art and the audited spec, 1):
