@@ -1489,6 +1489,7 @@ export function dungeon(seed, def) {
           for (const [a, b, c, d] of T.cut || []) carve(x + a, y + b, x + c, y + d, TID.void);
           for (const [a, b, c, d] of T.lava || []) carve(x + a, y + b, x + c, y + d, TID.lava);
           for (const [a, b, c, d] of T.boards || []) carve(x + a, y + b, x + c, y + d, BR);
+          for (const [a, b, c, d] of T.grass || []) carve(x + a, y + b, x + c, y + d, TID.grass);
           continue;
         }
         switch (n.form) {
@@ -1607,6 +1608,8 @@ export function dungeon(seed, def) {
         const x0 = Math.max(2, Math.min(s0[0], t0[0]) - 60), x1 = Math.min(S - 3, Math.max(s0[0], t0[0]) + 60), y0 = Math.max(2, Math.min(s0[1], t0[1]) - 60), y1 = Math.min(S - 3, Math.max(s0[1], t0[1]) + 60);
         const W2 = x1 - x0 + 1, H2 = y1 - y0 + 1, blk = new Uint8Array(W2 * H2);
         for (const R of rooms) if (!pass.includes(R)) for (let yy = Math.max(y0, R.y - 3); yy <= Math.min(y1, R.y + R.h + 2); yy++) for (let xx = Math.max(x0, R.x - 3); xx <= Math.min(x1, R.x + R.w + 2); xx++) blk[(yy - y0) * W2 + xx - x0] = 1;
+        for (const i of roadSet) { const rx = i % S, ry = (i / S) | 0; if (rx < x0 - 5 || rx > x1 + 5 || ry < y0 - 5 || ry > y1 + 5) continue; for (let yy = Math.max(y0, ry - 5); yy <= Math.min(y1, ry + 5); yy++) for (let xx = Math.max(x0, rx - 5); xx <= Math.min(x1, rx + 5); xx++) blk[(yy - y0) * W2 + xx - x0] = 1; }   // (and clear of the ways already laid: a wall between)
+        for (const q of [s0, t0]) for (let yy = Math.max(y0, q[1] - 2); yy <= Math.min(y1, q[1] + 2); yy++) for (let xx = Math.max(x0, q[0] - 2); xx <= Math.min(x1, q[0] + 2); xx++) blk[(yy - y0) * W2 + xx - x0] = 0;
         const at = (q) => (q[1] - y0) * W2 + q[0] - x0, si = at(s0), ti = at(t0); blk[si] = blk[ti] = 0;
         const D = new Float32Array(W2 * H2 * 4).fill(1e9), prev = new Int32Array(W2 * H2 * 4).fill(-1), hp = [], DX = [1, 0, -1, 0], DY = [0, 1, 0, -1];
         const push = (c, st) => { hp.push([c, st]); let i = hp.length - 1; while (i) { const j = (i - 1) >> 1; if (hp[j][0] <= hp[i][0]) break; [hp[i], hp[j]] = [hp[j], hp[i]]; i = j; } };
@@ -2067,7 +2070,8 @@ export function dungeon(seed, def) {
       for (const q of T.stairs || []) rect(q, (X, Y) => skin(X, Y, 'keep_stair'));
       for (const q of T.skins || []) rect(q, (X, Y) => skin(X, Y, q[4]));
       for (const [x, y] of T.rings || []) for (let j = 0; j < 5; j++) for (let k = 0; k < 5; k++) { const X = n.x + x - 2 + k, Y = n.y + y - 2 + j; if (fl(X, Y)) { if (tile(X, Y) === TID.kpcarpet) set(X, Y, FLOOR); skin(X, Y, 'keep_ritual_' + (j * 5 + k)); } }
-      for (const [sp, x, y, solid = true] of T.props || []) if (free(n.x + x, n.y + y)) put(m, sp, n.x + x, n.y + y, solid);
+      const free2 = (X, Y) => (tile(X, Y) === TID.grass || fl(X, Y)) && !m.objects.some((o) => Math.floor(o.x) === X && Math.floor(o.y) === Y);   // (a lawn's things stand on its grass)
+      for (const [sp, x, y, solid = true] of T.props || []) if (free2(n.x + x, n.y + y)) put(m, sp, n.x + x, n.y + y, solid);
       return;
     }
     if (n.key === 'a52') {                                   // SOLKHAR'S SANCTUM (2026-11-03, the user's room art and the audited spec, 1):
@@ -2285,7 +2289,7 @@ export function dungeon(seed, def) {
       if (K === 0 && !nearRoad(x, y, 2)) put2(null, x, y, 'castle_decor/rock', true); else put2(null, x, y, 'castle_decor/' + ['rock', 'rubble', 'bones', 'rubble'][K], false);
     }
     if (n.region === 'eclipse') for (let k = 0; k < 4; k++) P('castle_decor/eclipse_obelisk', k % 2 ? 0.15 : 0.85, 0.2 + k * 0.2);
-    switch (n.key) {
+    switch (n.tpl ? '' : n.key) {                                          // (a room from its page has only its page's things)
       case 'a01':                                                    // Realmfall Hollow: the stream, the crater, fallen trees, the broken arch north
         for (let y = n.y; y < n.y + n.h; y++) for (let d = 0; d < 2; d++) { const x = Math.round(n.x + n.w * 0.72 + Math.sin(y / 4) * 2) + d; if (isF(x, y)) set(x, y, TID.shallows); }
         for (let a = 0; a < 6.28; a += 0.3) P('castle_decor/rubble', 0.45 + Math.cos(a) * 0.14, 0.55 + Math.sin(a) * 0.12, false);
@@ -3267,7 +3271,7 @@ export function dungeon(seed, def) {
         m.tiles[i] = TID.kpcarpet; const nm = ns ? `crown_ns_mid${(k - n0) % 4}_${c + 1}` : `crown_ew_mid${(n1 - k) % 4}_${c + 1}`; if (SK[nm] !== undefined) m.skin[i] = SK[nm];
       }
     }
-    for (const n of rooms) if (n.key === 'a22') for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) {   // (the courtyard's lawn: grass to look at, not the keep's flagstones)
+    for (const n of rooms) if (n.key === 'a22' || (n.tpl && n.tpl.grass)) for (let y = n.y; y < n.y + n.h; y++) for (let x = n.x; x < n.x + n.w; x++) {   // (the courtyard's lawn: grass to look at, not the keep's flagstones)
       const i = y * S + x; if (m.tiles[i] === TID.grass) m.skin[i] = ((Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1 + 1) % 1 < 0.3 ? SK.grass_b : SK.grass_a;
     }
     m.keepSkin = null;
