@@ -4730,7 +4730,7 @@ export class Game {
       }
       case 'area': {                                       // /area N: to that area of Sunthief's Castle (its middle, or the nearest floor)
         const C = this.map && this.map.castle, n = C && C.rooms['a' + String(+args[0] || 1).padStart(2, '0')];
-        if (!n) { say(C ? 'No such area (1-52).' : "Not in Sunthief's Castle (/boss god takes you there)."); break; }
+        if (!n) { say(C ? 'No such area (1-53).' : "Not in Sunthief's Castle (/boss god takes you there)."); break; }
         let best = null; for (let r0 = 0; r0 < 30 && !best; r0++) for (let dy = -r0; dy <= r0 && !best; dy++) for (let dx = -r0; dx <= r0; dx++) { const x = Math.floor(n.cx) + dx, y = Math.floor(n.cy) + dy; if (!this.blockedAt(x + 0.5, y + 0.5)) { best = [x + 0.5, y + 0.5]; break; } }
         if (best) { p.x = best[0]; p.y = best[1]; }
         say(`Area ${n.num}: ${n.title || n.key}.`); break;

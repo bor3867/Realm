@@ -2268,7 +2268,7 @@ export function dungeon(seed, def) {
   };
   const castleDress = (n) => {
     if (n.region === 'outer' || n.region === 'inner') keepDress(n);
-    if (/^a(2[0-9]|3[0-9]|4[0-3]|45|47|52)$/.test(n.key)) outerKeep(n);
+    if (/^a(2[0-9]|3[0-9]|4[0-3]|45|47|52|53)$/.test(n.key)) outerKeep(n);
     const at = (fx, fy) => [Math.round(n.x + fx * n.w), Math.round(n.y + fy * n.h)];
     const P = (sprite, fx, fy, solid = true) => { const [x, y] = at(fx, fy); put2(null, x, y, sprite, solid); };
     const wall = (fx0, fy0, fx1, fy1) => { const [x0, y0] = at(fx0, fy0), [x1, y1] = at(fx1, fy1); for (let y = Math.min(y0, y1); y <= Math.max(y0, y1); y++) for (let x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) if (isF(x, y)) set(x, y, TID.void); };   // (a wall inside an area: its rooms, its passages)

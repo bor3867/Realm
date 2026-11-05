@@ -17,7 +17,7 @@ const KIND = {
 // unoutlined by design: tiles, the floor rune decal, the ground shadow
 // sheets whose art already carries its own edge (2026-11-03, the user: "remove the giant black borders from everything": the
 // engine's rim on top of a drawn one doubled it; measured, 87-100% of these sheets' edge pixels are already dark)
-const BAKED = new Set(['rscene', 'realm_user', 'castle_user', 'castle_art', 'castle_decor', 'throne_gate', 'bx_forge_overseer', 'bx_unstruck_god', 'bx_unstruck_smith', 'wiz_kin', 'wiz_shots']);
+const BAKED = new Set(['rscene', 'realm_user', 'castle_user', 'castle_art', 'castle_props', 'castle_decor', 'throne_gate', 'bx_forge_overseer', 'bx_unstruck_god', 'bx_unstruck_smith', 'wiz_kin', 'wiz_shots']);
 const NO_OUTLINE = (def) => BAKED.has(def.sheet) || def.kind === 'tile' || /rune_circle|ground_shadow/.test(def.name) || def.sheet === 'bx_drawbridge_technician' || def.sheet === 'castle_user' || def.sheet === 'sol2' || def.sheet === 'realm_user';   // (Solkhar's v2 shots carry their own one-pixel rim, 2026-11-03)   // (the Technician's edges are drawn in his own shades: no rim, 2026-11-02)
 // the Sunthief's Castle's monsters, bosses and shots: a thin rim in their own colours darkened, not the black one
 const SOFT_RIM = (def) => (def.pack === 'throne' || /^(bx_solkhar|sol_shots)$/.test(def.sheet)) && !['item', 'tile'].includes(def.kind);   // (its scenery too, 2026-11-02)

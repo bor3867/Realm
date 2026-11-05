@@ -1,0 +1,209 @@
+{
+ "rf": true,
+ "meta": {
+  "name": "Sunthief's Castle's props (the user's detail sheet, 2026-11-04)",
+  "version": 1
+ },
+ "sheets": {
+  "castle_props": {
+   "image": "castle_props.png",
+   "kind": "decor",
+   "sprites": {
+    "crate_stack": {
+     "frames": {
+      "f0": [
+       0,
+       5,
+       36,
+       29
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "barrel": {
+     "frames": {
+      "f0": [
+       37,
+       8,
+       22,
+       26
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "double_gate": {
+     "frames": {
+      "f0": [
+       60,
+       1,
+       43,
+       33
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "throne_dais": {
+     "frames": {
+      "f0": [
+       104,
+       2,
+       37,
+       32
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "alcove_niche": {
+     "frames": {
+      "f0": [
+       142,
+       5,
+       23,
+       29
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "sarcophagus": {
+     "frames": {
+      "f0": [
+       166,
+       12,
+       29,
+       22
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "brazier_large": {
+     "frames": {
+      "f0": [
+       196,
+       0,
+       25,
+       34
+      ],
+      "f1": [
+       222,
+       0,
+       25,
+       34
+      ],
+      "f2": [
+       248,
+       0,
+       25,
+       34
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0",
+        "f1",
+        "f2"
+       ],
+       "fps": 6,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "ash_shrub": {
+     "frames": {
+      "f0": [
+       274,
+       11,
+       35,
+       23
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "bell": {
+     "frames": {
+      "f0": [
+       310,
+       10,
+       21,
+       24
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    }
+   }
+  }
+ }
+}
