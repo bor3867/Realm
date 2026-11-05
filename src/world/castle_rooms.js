@@ -99,7 +99,7 @@ export const ROOMS = {
   // in each side wall, purple fires down the nave, broken columns; ruins in the north corners, the way north through
   // the broken arch in the east one (to the Reliquary), a side door east (to the Servants' Spur)
   a31: {
-    page: 'rooms/09_chapel_of_hollow_light.png', w: 44, h: 42, at: [336, 316],
+    page: 'rooms/09_chapel_of_hollow_light.png', w: 44, h: 42, at: [330, 316],   // (6 west of the blueprint: a corridor's width between it and the Barracks)
     floor: [[15, 3, 28, 14], [5, 4, 12, 14], [31, 4, 38, 14], [34, 0, 36, 3], [3, 15, 40, 33], [0, 17, 3, 21], [40, 17, 43, 21], [12, 34, 31, 36], [17, 37, 26, 41], [40, 27, 43, 31]],
     cut: [[3, 15, 5, 16], [38, 15, 40, 16], [13, 4, 14, 8], [29, 4, 30, 8]],
     doors: { 29: [21, 41, 'S'], 32: [35, 0, 'N'], 30: [43, 29, 'E'] },
@@ -286,7 +286,7 @@ export const ROOMS = {
     page: 'rooms/10_side_cloister.png', w: 32, h: 24,
     floor: [[3, 3, 28, 20], [21, 0, 25, 2], [14, 21, 17, 23], [0, 8, 2, 12], [29, 8, 31, 12]],
     doors: { 21: [23, 0, 'N'] },
-    runners: [['ns', 15, 4, 14, 'sun'], ['ew', 16, 3, 28, 'sun']],
+    runners: [['ns', 15, 4, 13, 'sun'], ['ew', 16, 3, 28, 'sun']],
     emblems: [[15, 16, 'sun']],
     props: [['castle_art/banner_sun', 15, 3, false], ['keep_decor/keep_pillar', 9, 5], ['keep_decor/keep_pillar', 21, 5], ['castle_art/pedestal_flame', 9, 8], ['castle_art/pedestal_flame', 21, 8],
       ['castle_art/banner_sun_torn', 6, 3, false], ['castle_art/banner_sun_torn', 26, 3, false], ['castle_art/pedestal_flame', 4, 9], ['castle_art/pedestal_flame', 27, 9], ['castle_art/brazier_gold', 7, 19], ['castle_art/brazier_gold', 24, 19]],
@@ -308,7 +308,7 @@ export const ROOMS = {
     page: 'rooms/18_scriptorium.png', w: 40, h: 30, at: [596, 256],
     floor: [[3, 3, 36, 26], [15, 1, 24, 2], [0, 8, 2, 12], [37, 8, 39, 12]],
     doors: { 36: [0, 10, 'W'], 38: [39, 10, 'E'] },
-    runners: [['ew', 11, 14, 25, 'sun'], ['ew', 14, 14, 25, 'sun'], ['ew', 17, 14, 25, 'sun']],
+    rugs: [[14, 10, 25, 18, 'sun']],
     emblems: [[19, 14, 'sun']],
     props: [
       ['keep_decor/keep_rack', 6, 4], ['keep_decor/keep_rack', 9, 4], ['keep_decor/keep_rack', 12, 4], ['keep_decor/keep_rack', 27, 4], ['keep_decor/keep_rack', 30, 4], ['keep_decor/keep_rack', 33, 4],
@@ -326,7 +326,7 @@ export const ROOMS = {
     page: 'rooms/21_crowned_crossing.png', w: 40, h: 32, at: [604, 208],
     floor: [[3, 2, 36, 28], [16, 0, 22, 1], [16, 29, 22, 31], [0, 13, 2, 17], [37, 13, 39, 17]],
     doors: { 37: [19, 31, 'S'], 39: [0, 15, 'W'], 41: [19, 0, 'N'], 54: [39, 15, 'E'] },
-    runners: [['ns', 19, 0, 31, 'crown'], ['ew', 15, 0, 17, 'crown'], ['ew', 15, 21, 39, 'crown']],
+    runners: [['ns', 19, 0, 31, 'crown'], ['ew', 15, 0, 16, 'crown'], ['ew', 15, 22, 39, 'crown']],
     emblems: [[19, 15, 'sun']],
     props: [
       ['castle_art/pedestal_flame', 5, 5], ['castle_art/brazier_gold', 9, 4], ['castle_art/brazier_gold', 29, 4], ['castle_art/pedestal_flame', 34, 5],
@@ -381,7 +381,7 @@ export const ROOMS = {
     doors: { 25: [25, 49, 'S'], 27: [25, 0, 'N'] },
     dais: [[7, 17, 14, 24], [37, 17, 44, 24]],
     rings: [[10, 20], [41, 20], [25, 27]],
-    runners: [['ns', 25, 1, 21, 'crown'], ['ns', 25, 33, 48, 'crown'], ['ew', 27, 5, 19, 'crown'], ['ew', 27, 31, 46, 'crown']],
+    runners: [['ns', 25, 1, 24, 'crown'], ['ns', 25, 30, 48, 'crown'], ['ew', 27, 5, 22, 'crown'], ['ew', 27, 28, 46, 'crown']],
     props: [
       ['castle_art/statue_king', 16, 11], ['castle_art/statue_king', 35, 11], ['castle_props/brazier_large', 19, 12], ['castle_props/brazier_large', 32, 12],
       ['castle_art/banner_cursed', 10, 6, false], ['castle_art/banner_cursed', 41, 6, false], ['castle_art/banner_cursed_torn', 5, 15, false], ['castle_art/banner_cursed_torn', 46, 15, false],

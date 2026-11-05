@@ -68,6 +68,7 @@ def pack_atlas():                                            # their own atlas, 
     from build_castle_assets import pack, flicker
     deco = [(n, read_png(os.path.join(OUT, n + '.png'))) for n in BOXES]
     deco.append(('bell', BELL()))
+    deco += list(rug_tiles().items())
     FL = {'brazier_large'}; items = []
     for n, g in deco: items += [(f'{n}#{k}', flicker(g, k)) for k in range(3)] if n in FL else [(n, g)]
     sheet, fr = pack(items, 'castle_props', 'decor'); sp = {}
@@ -78,6 +79,38 @@ def pack_atlas():                                            # their own atlas, 
     write_png(os.path.join(od, 'castle_props.png'), sheet)
     json.dump({'rf': True, 'meta': {'name': "Sunthief's Castle's props (the user's detail sheet, 2026-11-04)", 'version': 1}, 'sheets': {'castle_props': {'image': 'castle_props.png', 'kind': 'decor', 'sprites': sp}}},
               open(os.path.join(od, 'atlas_castle_props.json'), 'w', encoding='utf8', newline='\n'), indent=1)
+
+
+
+# a rug's own tiles (2026-11-04, the user: carpets with "no awkward seams, broken corners"): its field plain, the runner's
+# own red (its commonest colour) with a faint dither of the next darker; and each emblem as an inlay in a rug, its stone
+# corners (the colours of its corner tile, outside its ring) given the rug's field instead
+def rug_tiles():
+    import json
+    from collections import Counter
+    od = os.path.join(root, 'art', 'bundle', 'throne')
+    sh = list(json.load(open(os.path.join(od, 'atlas_castle_carpet.json'), encoding='utf8'))['sheets'].values())[0]
+    img = read_png(os.path.join(od, sh['image']))
+    def tile(nm):
+        x, y, w, h = list(sh['sprites'][nm]['frames'].values())[0]
+        return [[img[y + j][x + i] for i in range(w)] for j in range(h)]
+    out = {}
+    for st in ('sun', 'crown'):
+        cnt = Counter(c for k in range(4) for r in tile(f'{st}_ns_mid{k}_1') for c in r if c[0] > c[2] + 40 and c[0] > 90)
+        reds = [c for c, _ in cnt.most_common(6)]; base = reds[0]; dark = min(reds[:4], key=lambda c: c[0] + c[1] + c[2])
+        field = [[dark if (x * 3 + y * 5) % 11 == 0 else base for x in range(8)] for y in range(8)]
+        out[f'rug_{st}'] = field
+        stone = set(c for r in tile(f'emblem_{st}_0') for c in r)
+        for t in range(25):
+            g = tile(f'emblem_{st}_{t}'); jy, ix = divmod(t, 5); o = []
+            for y in range(8):
+                row = []
+                for x in range(8):
+                    gx, gy = ix * 8 + x + 0.5 - 20, jy * 8 + y + 0.5 - 20
+                    row.append(field[y][x] if (g[y][x] in stone and (gx * gx + gy * gy) ** 0.5 > 15.5) else g[y][x])
+                o.append(row)
+            out[f'rugemblem_{st}_{t}'] = o
+    return out
 
 
 if __name__ == '__main__':

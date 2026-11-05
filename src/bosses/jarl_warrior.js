@@ -16,6 +16,7 @@
 // a third more. Damage numbers are effective ones (D(n): set above a Throne-geared character's Defense).
 // Art: tools/build_jarl_warrior.py ('bx_jarl_warrior', 'jarl_shots/<name>').
 import { TAU, angleTo, target } from './kit.js';
+import { isSolid } from '../world/maps.js';
 import { courtTick, partner } from './jarl_court.js';
 
 const FIRE = ['#ff8a1f', '#ffd650', '#ff3a1a'], ASH = ['#5a5560', '#8a8490', '#b884cc'];
@@ -31,10 +32,11 @@ const lane = (g, e, x, y, a, len, delay, dmg, w = 1.2, live = 0.35) => g.fx.push
 const zone = (g, e, r, delay, dmg) => g.fx.push({ kind: 'zone', src: e, x: e.x, y: e.y, r, t: 0, delay, life: delay + 0.15, dmg: dmg ? g.bxDmg(e, dmg) : 0, by: e.D.name, done: !dmg, colors: FIRE });
 // the court, in the spec's own 40x34 tiles, fitted to the room
 const court = (e) => e.room || { x: Math.floor(e.x) - 20, y: Math.floor(e.y) - 20, w: 40, h: 34 };
-function reach(e, a, want) {                               // how far he can go that way and stay in the court
-  const H = court(e); let L = want;
-  while (L > 0.5) { const x = e.x + Math.cos(a) * L, y = e.y + Math.sin(a) * L; if (x > H.x + 1.6 && x < H.x + H.w - 1.6 && y > H.y + 1.6 && y < H.y + H.h - 1.6) break; L -= 0.25; }
-  return L;
+function reach(g, e, a, want) {                            // how far he can go that way: in the court, and short of its walls (2026-11-04: the court an octagon in its box; a charge into one of its cut corners had left him off the floor, out of reach)
+  const H = court(e), M = g.map, solid = (x, y) => isSolid(M, x, y) || isSolid(M, x + 0.9, y) || isSolid(M, x - 0.9, y) || isSolid(M, x, y + 0.9) || isSolid(M, x, y - 0.9);
+  let L = 0;
+  while (L + 0.25 <= want) { const x = e.x + Math.cos(a) * (L + 0.25), y = e.y + Math.sin(a) * (L + 0.25); if (!(x > H.x + 1.6 && x < H.x + H.w - 1.6 && y > H.y + 1.6 && y < H.y + H.h - 1.6) || solid(x, y)) break; L += 0.25; }
+  return Math.max(0.5, L);
 }
 const bearing = (g, e) => { const q = target(g, e); return angleTo(e.x, e.y, q.x, q.y); };
 const swish = (g) => { g.sfx('shatter'); g.vx({ k: 'shake', amt: 3 }); };
@@ -53,11 +55,11 @@ function chargeMark(g, e, V) {                             // the lane follows y
   e.jwPrep = g.t + 0.85;                                   // (his charge stance, through the tell)
   g.float(e.x, e.y - 3.2, '!', '#ff3a1a', e); g.sfx('roar'); g.vx({ k: 'shake', amt: 2 });
   g.vx({ k: 'burst', x: e.x, y: e.y - 0.4, n: 12, colors: ['#ff3a1a', '#ff8a1f', '#5a5560'] });
-  lane(g, e, e.x, e.y, a, reach(e, a, 10), 0.5, 0, 1.2); g.fx[g.fx.length - 1].tell = true;
+  lane(g, e, e.x, e.y, a, reach(g, e, a, 10), 0.5, 0, 1.2); g.fx[g.fx.length - 1].tell = true;
   later(e, 0.5, 'chargeLock', V);
 }
 function chargeLock(g, e, V) {                             // ...locks; 0.35 s on, he goes, past where you stood
-  const q = target(g, e), a = bearing(g, e), want = V.short ? 4 : Math.min(10, Math.hypot(q.x - e.x, q.y - e.y) + 3.5), L = reach(e, a, want);
+  const q = target(g, e), a = bearing(g, e), want = V.short ? 4 : Math.min(10, Math.hypot(q.x - e.x, q.y - e.y) + 3.5), L = reach(g, e, a, want);
   lane(g, e, e.x, e.y, a, L, 0.35, 0, 2.0); g.fx[g.fx.length - 1].tell = true;   // (locked: wider, and a second line down its middle)
   lane(g, e, e.x, e.y, a, L, 0.35, 0, 0.6); g.fx[g.fx.length - 1].tell = true;
   g.fx.push({ kind: 'zone', src: null, x: e.x + Math.cos(a) * L, y: e.y + Math.sin(a) * L, r: 1.6, t: 0, delay: 0.35, life: 0.4, dmg: 0, by: e.D.name, done: true, colors: ['#ff3a1a', '#ff8a1f'] });   // (where he will stop)

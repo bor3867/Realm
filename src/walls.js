@@ -112,6 +112,24 @@ const methods = {
     x.putImageData(img, 0, 0);
     return (this.faceTex[key] = cv);
   },
+  // THE KEEP'S STAINED GLASS (2026-11-04, the user: "Rework them so the full window reads correctly in the wall, including
+  // proper top framing/caps ... intentional gothic castle windows, not cut-off tile fragments"): a whole lancet drawn for
+  // the wall's whole height (8 x 17 at the keep's own doubled pixel, 16 x 34), never a tile stretched up it: its pointed
+  // arch, the stone trim round it, the lead between its panes, a transom across, its sill; set into the keep's own wall
+  // (its stone face, as every other wall tile of it) and glowing (the glass is not darkened by the wall's shade)
+  windowFace(name, d, art, H) {
+    this.winTex = this.winTex || {};
+    const key = name + d + H; if (this.winTex[key]) return this.winTex[key];
+    const base = this.wallFace('kpwall', d, art), cv = Object.assign(document.createElement('canvas'), { width: TS, height: H }), x = cv.getContext('2d');
+    x.imageSmoothingEnabled = false; x.drawImage(base, 0, 0, TS, TS, 0, 0, TS, H);
+    const ROWS = ['...TT...', '..TkkT..', '.TkYYkT.', 'TkYWYYkT', 'TkYRRYkT', 'TkRYYRkT', 'TkkkkkkT', 'TkRYYRkT', 'TkYRRYkT', 'TkRYWRkT', 'TkkkkkkT', 'TkYRRYkT', 'TkRYYRkT', 'TkYRRYkT', 'TkkkkkkT', 'tTTTTTTt', '.tttttt.'];
+    const PAL = name === 'kpwin2'
+      ? { T: '#9a8aa8', t: '#5e5070', k: '#1c1622', Y: '#ff8af0', R: '#7a3cb0', W: '#fff0ff' }   // (violet)
+      : { T: '#9a8aa8', t: '#5e5070', k: '#1c1622', Y: '#ffd66e', R: '#c8343c', W: '#fff4d0' };  // (gold and red)
+    const top = Math.max(0, Math.round((H - ROWS.length * 2) / 2));
+    ROWS.forEach((r, j) => { for (let i = 0; i < 8; i++) { const c = r[i]; if (c === '.') continue; x.fillStyle = PAL[c]; x.fillRect(i * 2, top + j * 2, 2, 2); } });
+    return (this.winTex[key] = cv);
+  },
   // the tops layers: composed with the ground each frame (drawGround), drawn lifted (per height) right after it
   composeWallTops(g, m, ox, oy, cx0, cy0, cx1, cy1, anim) {
     const G = this.ground.width;
@@ -226,8 +244,13 @@ const methods = {
         b.fillStyle = 'rgba(0,0,0,0.3)';
         b.beginPath(); b.moveTo(P0[0], P0[1]); b.lineTo(P1[0], P1[1]); b.lineTo(P1[0] + snx * 3, P1[1] + sny * 3); b.lineTo(P0[0] + snx * 3, P0[1] + sny * 3); b.closePath(); b.fill();
       }
-      const tex = ruin ? RT.faces[d] : this.wallFace(w.name, d, { img: K.ground.c, x: w.lx * TS, y: w.ly * TS });
       const fh = h - lo;                                      // from the neighbour's height up to this one's
+      if (!ruin && !lo && (w.name === 'kpwin' || w.name === 'kpwin2')) {   // (a window: its own whole face, never stretched)
+        const W = this.windowFace(w.name, d, { img: K.ground.c, x: w.lx * TS, y: w.ly * TS }, h);
+        b.save(); b.transform((P1[0] - P0[0]) / TS, (P1[1] - P0[1]) / TS, 0, 1, P0[0], P0[1] - h); b.drawImage(W, 0, 0); b.restore();
+        continue;
+      }
+      const tex = ruin ? RT.faces[d] : this.wallFace(w.name, d, { img: K.ground.c, x: w.lx * TS, y: w.ly * TS });
       b.save(); b.transform((P1[0] - P0[0]) / TS, (P1[1] - P0[1]) / TS, 0, fh / TS, P0[0], P0[1] - h);
       b.drawImage(tex, 0, 0, TS, Math.max(1, Math.round((TS * fh) / h)), 0, 0, TS, TS);
       b.restore();

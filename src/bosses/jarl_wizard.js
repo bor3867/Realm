@@ -38,6 +38,7 @@
 // Art: tools/build_jarl_wizard.py ('bx_jarl_wizard', 'wiz_shots/<name>', 'wiz_kin/portal').
 import { TAU, angleTo, target, ahead } from './kit.js';
 import { courtOf, courtTick, partner, enthroned } from './jarl_court.js';
+import { isSolid } from '../world/maps.js';
 
 const D = (n) => n + 4;
 const deg = (d) => (d * Math.PI) / 180;
@@ -74,6 +75,8 @@ function portalAt(g, e, x, y, life, hp, col) {
   const p = g.player, C = court(e);
   if (p && !p.dead && Math.hypot(p.x - x, p.y - y) < 2.5) { const d = Math.hypot(x - p.x, y - p.y) || 1; x += ((x - p.x) / d) * 2.5; y += ((y - p.y) / d) * 2.5; }
   x = Math.max(C.x + 1.5, Math.min(C.x + C.w - 1.5, x)); y = Math.max(C.y + 1.5, Math.min(C.y + C.h - 1.5, y));
+  const cx = C.x + C.w / 2, cy = C.y + C.h / 2;   // (on the court's floor, never in its wall: drawn in toward its middle till it is)
+  for (let k = 0; k < 24 && isSolid(g.map, x, y); k++) { x += (cx - x) * 0.12; y += (cy - y) * 0.12; }
   const q = g.addEnemy('wiz_portal', x, y);
   q.noLoot = true; q.seen = true; q.jzUntil = g.t + life; q.jzCol = col; if (hp) q.hp = q.maxHp = hp;
   g.vx({ k: 'burst', x, y, n: 14, colors: [col, '#ffffff', col] });
