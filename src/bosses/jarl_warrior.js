@@ -23,7 +23,8 @@ const FIRE = ['#ff8a1f', '#ffd650', '#ff3a1a'], ASH = ['#5a5560', '#8a8490', '#b
 const RED = ['#ff6a1c', '#ff6a1c', '#ff3a1a', '#ffffff'];
 const D = (n) => n + 4;
 const deg = (d) => (d * Math.PI) / 180;
-const CHARGE_V = 15;                                     // (tiles a second: a sprinting player is 7 to 9; 2026-11-04, the user: "Increase the charge speed so it feels dangerous")
+const CHARGE_V = 11;                                     // (tiles a second: a sprinting player is 7 to 9; 2026-11-04 the user asked it faster, then "Everything is too unnaturally fast": 11)
+const TELL = 1.1, TRACK = 0.7;                           // (one long charge-up: the lane follows you 0.7 s, then holds still 0.4 s, then he goes)
 const later = (e, t, name, V = {}) => e.bx.vol.push({ t, V: { form: 'special', ...V, name } });   // (its own name last)
 const shot = (g, e, x, y, a, V) => g.bxShot(e, x, y, a, V);
 const CRESCENT = { sprite: 'jarl_shots/crescent', size: 0.4 }, STONE = { sprite: 'jarl_shots/stone', size: 0.4 };
@@ -50,23 +51,30 @@ const swish = (g) => { g.sfx('shatter'); g.vx({ k: 'shake', amt: 3 }); };
 // where he will stop, 0.35 s; he goes at 15 tiles a second, throwing crescents off both flanks as he runs; and the ground
 // he tore up erupts behind him 0.55 s after)
 function chain(g, e) { e.bx.jwBusy = true; const n = 1 + Math.min(3, e.bx.phase || 1); later(e, 0, 'chargeMark', { left: n - 1, recover: (e.bx.phase || 1) >= 2 }); }
-function chargeMark(g, e, V) {                             // the lane follows you 0.5 s...
+// (2026-11-04, the user: "Why does the warrior have two notifications for one charge. It should be a long charge up with
+// notification and then he should charge": one tell: a red '!' and his roar once as he crouches into his charge stance;
+// one lane out from him, following you 0.7 s, then holding still 0.4 s (the way he will go, readable); then he goes. The
+// lane is drawn from his own state (S.jwTell: drawGround), so online it follows you in every copy)
+function chargeMark(g, e, V) {
   const a = bearing(g, e);
-  e.jwPrep = g.t + 0.85;                                   // (his charge stance, through the tell)
+  e.jwPrep = g.t + TELL;                                   // (his charge stance, through the whole charge-up)
   g.float(e.x, e.y - 3.2, '!', '#ff3a1a', e); g.sfx('roar'); g.vx({ k: 'shake', amt: 2 });
   g.vx({ k: 'burst', x: e.x, y: e.y - 0.4, n: 12, colors: ['#ff3a1a', '#ff8a1f', '#5a5560'] });
-  lane(g, e, e.x, e.y, a, reach(g, e, a, 10), 0.5, 0, 1.2); g.fx[g.fx.length - 1].tell = true;
-  later(e, 0.5, 'chargeLock', V);
+  e.bx.jwTell = { a, len: reach(g, e, a, 10), k: 0, held: false, t0: g.t };
+  later(e, TELL, 'chargeGo', V);
 }
-function chargeLock(g, e, V) {                             // ...locks; 0.35 s on, he goes, past where you stood
-  const q = target(g, e), a = bearing(g, e), want = V.short ? 4 : Math.min(10, Math.hypot(q.x - e.x, q.y - e.y) + 3.5), L = reach(g, e, a, want);
-  lane(g, e, e.x, e.y, a, L, 0.35, 0, 2.0); g.fx[g.fx.length - 1].tell = true;   // (locked: wider, and a second line down its middle)
-  lane(g, e, e.x, e.y, a, L, 0.35, 0, 0.6); g.fx[g.fx.length - 1].tell = true;
-  g.fx.push({ kind: 'zone', src: null, x: e.x + Math.cos(a) * L, y: e.y + Math.sin(a) * L, r: 1.6, t: 0, delay: 0.35, life: 0.4, dmg: 0, by: e.D.name, done: true, colors: ['#ff3a1a', '#ff8a1f'] });   // (where he will stop)
-  e.jwDash = { x0: e.x, y0: e.y, x1: e.x + Math.cos(a) * L, y1: e.y + Math.sin(a) * L, at: g.t + 0.35, until: g.t + 0.35 + L / CHARGE_V, a, dmg: D(175), hit: false,
-    crash: L < want - 0.6, left: V.left, recover: V.recover, next: g.t + 0.35 };
-  e.jwPrep = g.t + 0.35;
-  g.sfx('hammer'); g.vx({ k: 'shake', amt: 3 });
+function tellTick(g, e) {                                  // the lane following you, then held
+  const T = e.bx.jwTell; if (!T) return;
+  const k = Math.min(1, (g.t - T.t0) / TELL); T.k = Math.round(k * 20) / 20;
+  if (g.t - T.t0 < TRACK) { const q = target(g, e), want = Math.min(10, Math.hypot(q.x - e.x, q.y - e.y) + 3.5); T.a = bearing(g, e); T.len = reach(g, e, T.a, want); } else T.held = true;
+}
+function chargeGo(g, e, V) {                               // he goes, down the lane he held
+  const T = e.bx.jwTell; e.bx.jwTell = null;
+  const q = target(g, e), a = T ? T.a : bearing(g, e), want = V.short ? 4 : Math.min(10, Math.hypot(q.x - e.x, q.y - e.y) + 3.5), L = reach(g, e, a, want);
+  e.jwDash = { x0: e.x, y0: e.y, x1: e.x + Math.cos(a) * L, y1: e.y + Math.sin(a) * L, at: g.t, until: g.t + L / CHARGE_V, a, dmg: D(175), hit: false,
+    crash: L < want - 0.6, left: V.left, recover: V.recover, next: g.t };
+  e.jwPrep = 0;
+  g.vx({ k: 'shake', amt: 3 });
 }
 function chargeWake(g, e, C) {                             // the ground he tore up erupts behind him (a lane down his path, 120)
   const L = Math.hypot(C.x1 - C.x0, C.y1 - C.y0); if (L < 1) return;
@@ -75,7 +83,7 @@ function chargeWake(g, e, C) {                             // the ground he tore
 function chargeEnd(g, e, C) {
   chargeWake(g, e, C);
   if (C.crash) { stagger(g, e, 2.2, 'THE JARL STAGGERS'); g.vx({ k: 'shake', amt: 9 }); g.vx({ k: 'burst', x: e.x, y: e.y, n: 30, colors: ASH }); g.sfx('hammer'); return; }
-  if (C.left > 0) { for (let k = 0; k < 8; k++) shot(g, e, e.x, e.y, C.a + (k / 8) * TAU, { ...STONE, speed: 4.4, range: 9, dmg: D(90) }); g.vx({ k: 'shake', amt: 4 }); later(e, 0.2, 'chargeMark', { left: C.left - 1, recover: C.recover }); return; }   // (a burst of stone where each charge stops, then the next tell)
+  if (C.left > 0) { for (let k = 0; k < 8; k++) shot(g, e, e.x, e.y, C.a + (k / 8) * TAU, { ...STONE, speed: 4.4, range: 9, dmg: D(90) }); g.vx({ k: 'shake', amt: 4 }); later(e, 0.7, 'chargeMark', { left: C.left - 1, recover: C.recover }); return; }   // (a burst of stone where each charge stops, then the next tell)
   for (let k = 0; k < 14; k++) { if (k === 4 || k === 9) continue; shot(g, e, e.x, e.y, C.a + (k / 13 - 0.5) * deg(260), { ...CRESCENT, speed: 5.6, range: 11, dmg: D(95) }); }   // (twelve ash crescents, two gaps)
   g.vx({ k: 'shake', amt: 5 }); g.sfx('hammer');
   if (C.recover) { zone(g, e, 2.8, 0.45, D(195)); later(e, 0.45, 'spin'); } else e.bx.jwBusy = false;
@@ -87,7 +95,7 @@ function spin(g, e) {                                      // the recovery: a sp
 // he stands (his flinch held), taking more; the Wizard's portals do not wait
 function stagger(g, e, t, say) {
   const S = e.bx;
-  S.vol = []; e.jwDash = null; e.jwPrep = 0; S.jwHunt = null; S.jwBusy = false; S.jwStag = g.t + t; S.flinch = g.t + t; S.flinchNext = g.t + t + 0.6;
+  S.vol = []; e.jwDash = null; e.jwPrep = 0; S.jwTell = null; S.jwHunt = null; S.jwBusy = false; S.jwStag = g.t + t; S.flinch = g.t + t; S.flinchNext = g.t + t + 0.6;
   S.state = 'recover'; S.wait = t; S.pat = null;
   if (say) { if (g.banner) g.banner(say, 1400); g.float(e.x, e.y - 3, 'STAGGERED', '#ffd650', e); }
 }
@@ -161,12 +169,12 @@ export default {
   charging: (g, e) => !!(e.jwDash && g.t >= e.jwDash.at) || (e.jwPrep > g.t) || !!(e.bx.jwHunt && g.t > e.bx.jwHunt.at && g.t < e.bx.jwHunt.until),   // (his charge clip: a charge, the Death Hunt)
   dmgMult: (g, e) => (e.bx.jwStag > g.t ? 1.33 : 1),        // (staggered: open to you)
   phases: { 1: { move: 'walk', pressure: [{ every: 1.6, special: 'pressureFan', delay: 2 }], patterns: Object.values(AT) }, 2: { move: 'walk', pressure: [{ every: 1.45, special: 'pressureFan', delay: 1.5 }], patterns: Object.values(AT) }, 3: { move: 'walk', pressure: [{ every: 1.3, special: 'pressureFan', delay: 1.5 }], patterns: Object.values(AT) } },
-  specials: { pressureFan, axeStorm, stormEnd, chain, chargeMark, chargeLock, chargeWake, spin, sweep, sweepMark, sweepCut, crownFans, slamThud2, shock, shockRing, deathHunt, huntFan, huntSpent },
+  specials: { pressureFan, axeStorm, stormEnd, chain, chargeMark, chargeGo, chargeWake, spin, sweep, sweepMark, sweepCut, crownFans, slamThud2, shock, shockRing, deathHunt, huntFan, huntSpent },
   moves: {
     walk(g, e, dt) {                                        // after you, 4.6 tiles a second
       if (e.jwDash || e.bx.jwStag > g.t || e.jwPrep > g.t) return;   // (planted through a charge's tell: the lane stays true)
       const q = target(g, e), d = Math.hypot(q.x - e.x, q.y - e.y);
-      if (d > (e.D.keep || 1.6)) g.moveCircle(e, ((q.x - e.x) / d) * 5.6 * dt, ((q.y - e.y) / d) * 5.6 * dt, 0.8);
+      if (d > (e.D.keep || 1.6)) g.moveCircle(e, ((q.x - e.x) / d) * 4.8 * dt, ((q.y - e.y) / d) * 4.8 * dt, 0.8);
     },
     hold() {},
     chase(g, e, dt) {                                       // the Death Hunt: 6 t/s, turning at most 2.6 radians a second
@@ -178,11 +186,12 @@ export default {
     },
   },
   onWake(g, e) { if (g.banner) g.banner(partner(e) ? 'THE HOLLOW COURT · "BEND THE KNEE."' : '"BEND THE KNEE."', 2600); },
-  onPhase(g, e) { e.jwDash = null; e.bx.jwHunt = null; e.bx.jwBusy = false; e.bx.jwStag = 0; e.bx.wait = Math.min(e.bx.wait || 0, 1.2); g.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 30, colors: ASH }); g.sfx('roar'); },
+  onPhase(g, e) { e.jwDash = null; e.jwPrep = 0; e.bx.jwTell = null; e.bx.jwHunt = null; e.bx.jwBusy = false; e.bx.jwStag = 0; e.bx.wait = Math.min(e.bx.wait || 0, 1.2); g.vx({ k: 'burst', x: e.x, y: e.y - 1, n: 30, colors: ASH }); g.sfx('roar'); },
   update(g, e) {
     const S = e.bx;
     courtTick(g, e);
     if (S.state === 'sleep' || S.state === 'intro') return;
+    tellTick(g, e);
     const C = e.jwDash;                                     // a charge: it strikes you once if it runs you down
     if (C && g.t >= C.at) {
       if (g.t >= C.until) { e.x = C.x1; e.y = C.y1; e.jwDash = null; chargeEnd(g, e, C); }
@@ -190,7 +199,7 @@ export default {
         const k = (g.t - C.at) / (C.until - C.at); e.x = C.x0 + (C.x1 - C.x0) * k; e.y = C.y0 + (C.y1 - C.y0) * k;
         const p = g.player; if (!C.hit && p && !p.dead && Math.hypot(p.x - e.x, p.y - e.y) < e.D.r + 0.5) { C.hit = true; g.hurtPlayer(g.bxDmg(e, C.dmg), e.D.name); }
         if (Math.random() < 0.6) g.vx({ k: 'burst', x: e.x - Math.cos(C.a), y: e.y - Math.sin(C.a), n: 2, colors: ASH });
-        if (g.t >= C.next) { C.next += 0.11; for (const o of [-1, 1]) shot(g, e, e.x, e.y, C.a + o * deg(90), { ...CRESCENT, speed: 4.2, range: 6, dmg: D(90) }); }   // (crescents thrown off both flanks as he runs)
+        if (g.t >= C.next) { C.next += 0.2; for (const o of [-1, 1]) shot(g, e, e.x, e.y, C.a + o * deg(90), { ...CRESCENT, speed: 4.2, range: 6, dmg: D(90) }); }   // (crescents thrown off both flanks as he runs)
       }
     }
     const ST = S.jwStorm;                                   // the storm turning
@@ -198,7 +207,11 @@ export default {
     if (S.jwStag > g.t && Math.random() < 0.25) g.vx({ k: 'burst', x: e.x + (Math.random() - 0.5) * 1.5, y: e.y - 2.5, n: 1, colors: ['#ffd650', '#fff4c4'] });   // (reeling: sparks over him)
     if (S.phase >= 2 && Math.random() < 0.2) g.vx({ k: 'burst', x: e.x + (Math.random() - 0.5) * 2, y: e.y - 1 - Math.random(), n: 1, colors: ASH });
   },
-  onDeath(g, e) { e.jwDash = null; e.bx.jwStag = 0; g.vx({ k: 'shake', amt: 8 }); },
+  onDeath(g, e) { e.jwDash = null; e.jwPrep = 0; e.bx.jwTell = null; e.bx.jwStag = 0; g.vx({ k: 'shake', amt: 8 }); },
+  drawGround(r, g, e) {                                     // the charge-up's lane (one, following you, then held: wider and brighter as it comes)
+    const T = e.bx.jwTell; if (!T || e.dead) return;
+    r.laneFx({ kind: 'lane', x: e.x, y: e.y, a: T.a, len: T.len, w: T.held ? 1.9 : 1.3, delay: 1, t: Math.min(0.98, T.k), tell: true, cols: RED }, g);
+  },
   lights(g, e) { return [{ x: e.x, y: e.y, h: 2.4, r: (e.bx.phase || 1) === 3 ? 70 : 45, col: '#ff8a3a', fire: true }]; },
   loot: [], lootLuck: 1.2,                                  // (every class's gear in its band: src/bosses/boss_loot.js)
 };
