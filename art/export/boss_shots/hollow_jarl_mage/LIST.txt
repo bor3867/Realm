@@ -1,0 +1,6 @@
+hollow_jarl_mage: shot sprites (native size, frames)
+  bolt             5x4  1 frame(s)
+  lance            9x3  1 frame(s)
+  dagger           6x3  1 frame(s)
+  shard            3x3  1 frame(s)
+  rune             5x5  1 frame(s)

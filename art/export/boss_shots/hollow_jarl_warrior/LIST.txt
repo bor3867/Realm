@@ -1,0 +1,5 @@
+hollow_jarl_warrior: shot sprites (native size, frames)
+  crescent         5x6  1 frame(s)
+  shard            7x3  1 frame(s)
+  stone            5x5  1 frame(s)
+  sword            8x3  1 frame(s)

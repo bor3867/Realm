@@ -2777,6 +2777,21 @@ export class Renderer {
       const C = bar.e.jcCourt, L = Object.values(C.m).filter((q) => q && !q.dead), A = ACTS[C.act] || '';
       L.forEach((q, k) => this.bossWidget(g, { e: q, name: q.D.name, sub: k === L.length - 1 ? (C.surv ? 'ONE CROWN REMAINS' : 'THE HOLLOW COURT · ' + A) : '', f: q.hp / q.maxHp, hot: (q.bx && q.bx.phase) > 1, pips: [0.66, 0.30] }, k * 52));
     } else if (bar) { const L = [bar, ...also]; L.forEach((q, k) => this.bossWidget(g, k < L.length - 1 ? { ...q, sub: '' } : q, k * 52)); }   // (stacked: the phase line only under the last, as the Jarls')
+    if (g.bxDebug) {                                        // /bossdebug: each awake boss's state, phase, attack, movement and timers; its shots, the portals
+      ctx.save(); ctx.font = '11px monospace'; ctx.textAlign = 'left'; let y = 120;
+      const portals = g.enemies.filter((q) => !q.dead && q.id === 'wiz_portal').length;
+      for (const e of g.notable) {
+        if (!e.bx || e.dead || e.bx.state === 'sleep' || Math.hypot(e.x - g.player.x, e.y - g.player.y) > 60) continue;
+        const S = e.bx, d = S.dbg || {}, shots = g.projectiles.filter((b) => b.owner === e || b.src === e).length;
+        const L = [e.D.name + '  phase ' + S.phase + (d.phase ? ' ' + d.phase : '') + '  engine ' + S.state,
+          'state ' + (d.st || '-') + '  combo ' + (d.combo || (S.pat && S.pat.name) || '-') + '  move ' + (d.move || '-'),
+          'next in ' + (d.next ?? (S.wait || 0).toFixed(1)) + 's  still ' + (d.still ?? '-') + '  far ' + (d.far ?? '-') + '  shots ' + (shots || g.projectiles.length) + '  portals ' + portals + '  hp ' + Math.round((e.hp / e.maxHp) * 100) + '%'];
+        ctx.fillStyle = 'rgba(5,4,10,0.75)'; ctx.fillRect(8, y - 12, 470, L.length * 14 + 6);
+        L.forEach((t, k) => { ctx.fillStyle = k ? '#d8d0e8' : '#ffd650'; ctx.fillText(t, 14, y + k * 14); });
+        y += L.length * 14 + 12;
+      }
+      ctx.restore();
+    }
     const goal = g.map.castle && g.map.castle.goal;          // the castle: what holds the way on (src/castle.js castleGoal)
     if (goal) { ctx.textAlign = 'center'; platedLabel(ctx, goal, Math.round(this.c.width / 2), this.c.height - 28, 16, '#ffd650'); }
     else if (g.map.castle && g.map.castle.exit) { ctx.textAlign = 'center'; platedLabel(ctx, 'THE WAY ON IS OPEN · FOLLOW THE ARROW', Math.round(this.c.width / 2), this.c.height - 28, 16, '#ffd650'); }   // (at the view's foot: clear of the boss bars and the banners)

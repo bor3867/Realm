@@ -4732,6 +4732,11 @@ export class Game {
         this.map.ev[b].progress = Math.min(EVENTS_TO_BOSS - 1, n(args[1], EVENTS_TO_BOSS - 1));
         say(`${b}: ${this.map.ev[b].progress}/${EVENTS_TO_BOSS}`); break;
       }
+      case 'bossdebug': {                                  // /bossdebug [log|off]: each boss's state over it, its choices logged (g.bxLogs; 'log' to the console as well)
+        this.bxDebug = args[0] === 'off' ? false : args[0] === 'log' ? 'log' : !this.bxDebug;
+        say(this.bxDebug ? 'Boss debug on: state, phase, attack and timers over each boss' + (this.bxDebug === 'log' ? ', logged to the console' : '') + '.' : 'Boss debug off.');
+        break;
+      }
       case 'area': {                                       // /area N: to that area of Sunthief's Castle (its middle, or the nearest floor)
         const C = this.map && this.map.castle, n = C && C.rooms['a' + String(+args[0] || 1).padStart(2, '0')];
         if (!n) { say(C ? 'No such area (1-58).' : "Not in Sunthief's Castle (/boss god takes you there)."); break; }

@@ -1,0 +1,3 @@
+ashkar: shot sprites (native size, frames)
+  fetter           8x8  1 frame(s)
+  link             8x8  1 frame(s)

@@ -90,6 +90,7 @@ export const BXF = {
   bxPose(e, dt) {
     const S = e.bx, A = S.anim, P = S.def && S.def.phases[S.phase];
     if (!A || !P || S.state === 'windup' || S.state === 'release') return;
+    if (S.B.posing && S.B.posing(this, e)) return;              // (a boss driving its own clips: its director's slam, its sweep)
     const sp = Math.hypot(e.x - (S.px ?? e.x), e.y - (S.py ?? e.y)) / Math.max(dt, 1e-3); S.px = e.x; S.py = e.y;
     S.spd = (S.spd || 0) + (Math.min(sp, 20) - (S.spd || 0)) * Math.min(1, dt * 8);
     const charging = S.B.charging && S.B.charging(this, e);
@@ -109,7 +110,7 @@ export const BXF = {
     const S = e.bx, PH = this.bxPhaseData(e), list = PH.patterns;
     const pat = S.B.choose ? S.B.choose(this, e, list) : list[S.patIdx++ % list.length];   // (a boss may keep its own schedule: kit.scheduler)
     if (!pat) { S.wait = 0.12; return; }                                                  // (nothing due yet: it keeps moving)
-    S.pat = pat; S.fired = false;
+    S.pat = pat; S.fired = false; this.bxLog(e, 'pattern', pat.name);
     if (pat.special && S.B.specials[pat.special] && pat.instant) { S.B.specials[pat.special](this, e, pat, null); S.state = 'recover'; S.wait = (pat.recover || 0.4) * (S.B.tempo || 1); return; }
     // the windup frame (frame 0 of the attack clip) is held: that's the telegraph
     S.state = 'windup'; S.wait = Math.max(0.45, (pat.windup || 0.6) * (S.B.tempo || 1) * (S.tempoK || 1));   // (tempoK: a boss's last stand runs faster)
@@ -362,6 +363,19 @@ export const BXF = {
     if (S.anim) S.anim.play(ph.enter || ph.idle, { speed: S.B.morphSpeed || 0.55 });   // slow and heavy (a morph can land mid-windup, while the frame is held)
     if (!ph.enter) { S.state = 'grace'; S.wait = 3; e.invulnT = 0; }
     if (S.B.onPhase) S.B.onPhase(this, e, S.phase);
+    this.bxLog(e, 'phase', S.phase + ' ' + (ph.name || ''));
+  },
+  // the boss debug log (2026-11-04, the user's overhaul: "Implement debug logging that records: boss name, current phase,
+  // current behavior state, selected attack, attack start and end times, active portal or summon count, movement state,
+  // projectile count, phase transitions"): kept while /bossdebug is on (g.bxLogs, the last 600); its director's own
+  // state rides in e.bx.dbg; to the console too with /bossdebug log
+  bxLog(e, ev, info) {
+    if (!this.bxDebug) return;
+    const S = e.bx || {}, d = S.dbg || {};
+    const portals = this.enemies.filter((q) => !q.dead && q.id === 'wiz_portal').length, mine = this.projectiles.filter((b) => b.owner === e || b.src === e).length;
+    const L = { t: +this.t.toFixed(2), boss: e.D.name, phase: S.phase, state: S.state, dir: d.st, combo: d.combo || (S.pat && S.pat.name), move: d.move, ev, info, shots: mine || this.projectiles.length, portals };
+    (this.bxLogs = this.bxLogs || []).push(L); if (this.bxLogs.length > 600) this.bxLogs.shift();
+    if (this.bxDebug === 'log') console.log('[boss]', JSON.stringify(L));
   },
   bxClearBullets(e) {
     const keep = [];
