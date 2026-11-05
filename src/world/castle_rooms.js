@@ -69,6 +69,54 @@ export const ROOMS = {
       ['castle_decor/chain_anchor', 16, 32], ['castle_decor/chain_anchor', 23, 32], ['castle_art/brazier_gold', 14, 34], ['castle_art/brazier_gold', 25, 34],
     ],
   },
+  // 08 THE ASHEN BARRACKS: in at the foot between the guards in their alcoves, the crown runner up the hall to the
+  // stair and the dais under the great banner, two knights in its alcoves; the bunks in their alcoves down the west
+  // wall, the long mess table with its benches, the weapon racks and map tables east, a purple-lit arch east (the way
+  // to the Servants' Spur) and the wing out west
+  a29: {
+    page: 'rooms/08_ashen_barracks.png', w: 44, h: 44, at: [386, 300],
+    floor: [[16, 2, 27, 9], [17, 10, 26, 11], [3, 3, 12, 6], [2, 7, 10, 26], [11, 10, 40, 32], [30, 3, 40, 9], [14, 34, 16, 36], [27, 34, 29, 36], [17, 33, 27, 43], [0, 33, 14, 38], [40, 26, 43, 30]],
+    cut: [[2, 13, 7, 13], [2, 19, 7, 19], [30, 9, 33, 9], [11, 10, 11, 12]],
+    doors: { 28: [22, 43, 'S'], 31: [0, 35, 'W'], 30: [43, 28, 'E'] },
+    dais: [[16, 2, 27, 9]],
+    stairs: [[17, 10, 26, 11]],
+    runners: [['ns', 22, 12, 42, 'crown']],
+    props: [
+      ['castle_art/statue_knight', 18, 3], ['castle_art/statue_knight', 25, 3], ['castle_art/banner_crown', 21, 3, false], ['castle_art/brazier_gold', 17, 8], ['castle_art/brazier_gold', 26, 8],
+      ['castle_art/banner_crown', 14, 10, false], ['castle_art/banner_crown', 29, 10, false],
+      ['keep_decor/keep_bunk', 6, 4], ['keep_decor/keep_bunk', 4, 9], ['keep_decor/keep_bunk', 4, 15], ['keep_decor/keep_bunk', 4, 21], ['castle_art/banner_crown', 10, 14, false],
+      ['keep_decor/keep_pew', 13, 18], ['castle_decor/table', 14, 20], ['castle_decor/table', 14, 22], ['keep_decor/keep_pew', 13, 25], ['castle_art/brazier_gold', 14, 19],
+      ['castle_art/brazier_gold', 19, 22], ['castle_art/brazier_gold', 25, 22], ['castle_decor/collapsed_pillar', 18, 15],
+      ['keep_decor/keep_rack', 31, 12], ['keep_decor/keep_rack', 34, 12], ['keep_decor/keep_armor', 37, 12], ['castle_art/banner_crown_torn', 39, 11, false],
+      ['castle_decor/table', 34, 17], ['castle_decor/table', 33, 23], ['keep_decor/keep_pew', 33, 21], ['keep_decor/keep_rack', 38, 5], ['keep_decor/keep_armor', 32, 5],
+      ['castle_art/brazier_purple', 40, 25], ['castle_art/brazier_purple', 40, 31], ['castle_art/banner_crown', 38, 27, false],
+      ['castle_decor/rubble', 13, 12, false], ['castle_decor/rubble', 12, 28, false], ['castle_decor/rubble', 31, 30, false], ['castle_decor/rubble', 8, 36, false],
+      ['castle_art/statue_knight', 15, 35], ['castle_art/statue_knight', 28, 35], ['castle_art/brazier_gold', 19, 36], ['castle_art/brazier_gold', 25, 36], ['castle_art/banner_crown', 4, 33, false],
+    ],
+  },
+  // 09 THE CHAPEL OF HOLLOW LIGHT: in up the steps at the foot, the sun runner up the nave between the broken pews to
+  // the altar on its stepped dais, the great window behind it, a hooded statue either side; a shrine with its candles
+  // in each side wall, purple fires down the nave, broken columns; ruins in the north corners, the way north through
+  // the broken arch in the east one (to the Reliquary), a side door east (to the Servants' Spur)
+  a31: {
+    page: 'rooms/09_chapel_of_hollow_light.png', w: 44, h: 42, at: [336, 316],
+    floor: [[15, 3, 28, 14], [5, 4, 12, 14], [31, 4, 38, 14], [34, 0, 36, 3], [3, 15, 40, 33], [0, 17, 3, 21], [40, 17, 43, 21], [12, 34, 31, 36], [17, 37, 26, 41], [40, 27, 43, 31]],
+    cut: [[3, 15, 5, 16], [38, 15, 40, 16], [13, 4, 14, 8], [29, 4, 30, 8]],
+    doors: { 29: [21, 41, 'S'], 32: [35, 0, 'N'], 30: [43, 29, 'E'] },
+    dais: [[15, 9, 28, 14]],
+    stairs: [[18, 15, 25, 16], [17, 37, 26, 41]],
+    runners: [['ns', 21, 17, 36, 'sun']],
+    props: [
+      ['castle_art/altar', 21, 11], ['castle_art/statue_monk', 16, 6], ['castle_art/statue_monk', 27, 6], ['castle_art/brazier_purple', 18, 13], ['castle_art/brazier_purple', 25, 13],
+      ['castle_art/banner_crown', 15, 4, false], ['castle_art/banner_crown', 28, 4, false], ['castle_art/banner_cursed', 4, 15, false], ['castle_art/banner_cursed', 39, 15, false],
+      ['castle_decor/shrine_altar', 1, 19], ['castle_decor/shrine_altar', 42, 19],
+      ['castle_art/brazier_purple', 9, 19], ['castle_art/brazier_purple', 34, 19], ['castle_art/brazier_purple', 7, 28], ['castle_art/brazier_purple', 17, 32], ['castle_art/brazier_purple', 26, 32],
+      ['keep_decor/keep_pew', 11, 22], ['keep_decor/keep_pew_broken', 11, 25], ['keep_decor/keep_pew_broken', 11, 29], ['keep_decor/keep_pew', 31, 22], ['keep_decor/keep_pew', 31, 25], ['keep_decor/keep_pew_broken', 31, 29],
+      ['castle_decor/collapsed_pillar', 15, 20], ['castle_decor/collapsed_pillar', 36, 25],
+      ['castle_decor/rubble', 7, 6, false], ['castle_decor/rubble', 10, 12, false], ['castle_decor/rubble', 33, 7, false], ['castle_decor/rubble', 37, 11, false], ['castle_decor/rubble', 5, 31, false], ['castle_decor/rubble', 38, 32, false],
+      ['castle_art/banner_crown', 13, 34, false], ['keep_decor/keep_pylon', 16, 36], ['keep_decor/keep_pylon', 27, 36],
+    ],
+  },
   // 04 THE HOLLOW JARLS' COURT: in at the foot through the gate tower; the court an octagon, the great sigil in its
   // middle where the four runners meet; a ritual platform of purple fires either side; broken columns about it, braziers
   // at its corners; the two Jarls in stone on their thrones either side of the sealed gate north, cursed banners beside
