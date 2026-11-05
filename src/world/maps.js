@@ -1488,6 +1488,7 @@ export function dungeon(seed, def) {
           for (const [a, b, c, d] of T.floor) carve(x + a, y + b, x + c, y + d);
           for (const [a, b, c, d] of T.cut || []) carve(x + a, y + b, x + c, y + d, TID.void);
           for (const [a, b, c, d] of T.lava || []) carve(x + a, y + b, x + c, y + d, TID.lava);
+          for (const [a, b, c, d] of T.boards || []) carve(x + a, y + b, x + c, y + d, BR);
           continue;
         }
         switch (n.form) {
@@ -2061,6 +2062,11 @@ export function dungeon(seed, def) {
       const T = n.tpl;
       for (const [d, at, a0, a1, st] of T.runners || []) { if (d === 'ns') runnerNS(n.x + at, n.y + a0, n.y + a1, st); else runnerEW(n.y + at, n.x + a0, n.x + a1, st); }
       for (const [x, y, st] of T.emblems || []) emblem(n.x + x, n.y + y, st);
+      const rect = (q, f) => { for (let y = q[1]; y <= q[3]; y++) for (let x = q[0]; x <= q[2]; x++) if (fl(n.x + x, n.y + y)) f(n.x + x, n.y + y, x, y); };
+      for (const q of T.dais || []) rect(q, (X, Y, x, y) => skin(X, Y, x === q[0] || x === q[2] || y === q[1] || y === q[3] ? 'keep_step' : 'keep_dais'));
+      for (const q of T.stairs || []) rect(q, (X, Y) => skin(X, Y, 'keep_stair'));
+      for (const q of T.skins || []) rect(q, (X, Y) => skin(X, Y, q[4]));
+      for (const [x, y] of T.rings || []) for (let j = 0; j < 5; j++) for (let k = 0; k < 5; k++) { const X = n.x + x - 2 + k, Y = n.y + y - 2 + j; if (fl(X, Y)) { if (tile(X, Y) === TID.kpcarpet) set(X, Y, FLOOR); skin(X, Y, 'keep_ritual_' + (j * 5 + k)); } }
       for (const [sp, x, y, solid = true] of T.props || []) if (free(n.x + x, n.y + y)) put(m, sp, n.x + x, n.y + y, solid);
       return;
     }
