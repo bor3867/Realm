@@ -27,7 +27,7 @@ export const ROOMS = [
   { id: 'entrance', name: 'THE WEST ENTRANCE', kind: 'main', parts: [r(230, 440, 324, 490), r(244, 426, 300, 440), r(244, 490, 300, 504)] },
   { id: 'drawbridge', name: 'THE DRAWBRIDGE GUARD', kind: 'main', boss: 'drawbridge_technician', parts: [oc(322, 392, 468, 524, 30), r(383, 378, 425, 394), r(370, 522, 432, 534)] },
   { id: 'spineW', name: 'THE GREAT HALL (WEST)', kind: 'main', parts: [r(466, 445, 619, 489), r(500, 416, 528, 446), r(566, 416, 594, 446), r(500, 488, 528, 510), r(566, 488, 594, 510)] },
-  { id: 'courtyard', name: 'THE CENTRAL COURTYARD', kind: 'main', parts: [oc(617, 392, 810, 576, 46), r(690, 574, 738, 628)] },
+  { id: 'courtyard', name: 'THE CENTRAL COURTYARD', kind: 'main', parts: [oc(617, 392, 810, 576, 46), r(690, 574, 738, 628)], fit: [617, 392, 810, 540] },   // (its page set out about the great cross: the statue on the route, as the sheet has it)
   { id: 'spineE', name: 'THE GREAT HALL (EAST)', kind: 'main', parts: [r(808, 448, 1006, 488), r(828, 414, 930, 449), r(840, 487, 900, 506), r(906, 487, 932, 506)] },
   { id: 'jarls', name: "THE HOLLOW JARLS' COURT", kind: 'main', boss: 'jarls', parts: [oc(1002, 384, 1126, 544, 38)] },
   { id: 'chainhall', name: 'THE CHAIN HALL', kind: 'main', lock: 'jarls', parts: [r(690, 296, 738, 394)] },
@@ -164,6 +164,47 @@ export function buildMaster() {
     if (near || edge) wall[i] = 1;
   }
   for (let i = 0; i < w * h; i++) if (wall[i]) T[i] = K.WALL;
+  // ---- stage D, the sheet's stonework (the user, 2026-11-05: "don't forget to make the crenellated, jagged wall edges and
+  // small wall projections"): every outside face of the walls crenellated (a merlon every other pair of tiles, out over the
+  // moat or the dark); a buttress or a turret's corner thrown out from the long faces now and then, never the same twice;
+  // and inside the rooms, piers standing out from their walls along the long straight runs (never by a doorway)
+  const hsh = (x, y) => ((Math.sin(x * 127.1 + y * 311.7) * 43758.5453) % 1 + 1) % 1;
+  const isW = (x, y) => { const i = at(x, y); return i >= 0 && T[i] === K.WALL; }, open = (x, y) => { const i = at(x, y); return i < 0 || T[i] === K.WATER || T[i] === K.VOID; };
+  const add = [];
+  for (let y = 1; y < h - 1; y++) for (let x = 1; x < w - 1; x++) {
+    if (!open(x, y)) continue;
+    const nN = isW(x, y - 1), nS = isW(x, y + 1), nE = isW(x + 1, y), nW = isW(x - 1, y);
+    if ((nN || nS) && !(nE || nW) && Math.floor(x / 2) % 2 === 0 && open(x, y + (nN ? 1 : -1))) add.push([x, y]);   // (a merlon on a north or south face)
+    else if ((nE || nW) && !(nN || nS) && Math.floor(y / 2) % 2 === 0 && open(x + (nW ? 1 : -1), y)) add.push([x, y]);   // (on an east or west face)
+  }
+  for (let y = 2; y < h - 2; y++) for (let x = 2; x < w - 2; x++) {   // (a buttress: two out and three wide, from a long straight face, about one in eleven)
+    if (hsh(x, y) > 0.09 || !open(x, y)) continue;
+    for (const [dx, dy] of [[0, 1], [0, -1], [1, 0], [-1, 0]]) {
+      if (!isW(x - dx, y - dy)) continue;
+      const px = -dy, py = dx; if (!isW(x - dx + px * 2, y - dy + py * 2) || !isW(x - dx - px * 2, y - dy - py * 2)) continue;   // (a straight face either side)
+      let room = true; for (let k = 0; k < 4 && room; k++) for (let q = -1; q <= 1; q++) if (!open(x + dx * k + px * q, y + dy * k + py * q)) room = false;   // (water clear in front)
+      if (room) for (let k = 0; k < 2; k++) for (let q = -1; q <= 1; q++) add.push([x + dx * k + px * q, y + dy * k + py * q]);
+      break;
+    }
+  }
+  for (const [x, y] of add) T[at(x, y)] = K.WALL;
+  // the piers inside: one tile of wall out from a straight wall into a room's own floor, every seven or so along it,
+  // only where the room is deep there and no doorway is near (a doorway: within four of floor not the room's own)
+  const flr = (i) => i >= 0 && (T[i] === K.FLOOR || T[i] === K.CARPET);
+  const nearDoor = (x, y) => { const o = owner[at(x, y)]; for (let dy = -4; dy <= 4; dy++) for (let dx = -4; dx <= 4; dx++) { const j = at(x + dx, y + dy); if (j >= 0 && (walk(T[j]) || T[j] === K.STAIR) && owner[j] !== o) return true; } return false; };
+  for (let y = 2; y < h - 2; y++) for (let x = 2; x < w - 2; x++) {
+    const i = at(x, y); if (!flr(i) || owner[i] < 0 || ROOMS[owner[i]].kind === 'tower' || ROOMS[owner[i]].lavaRim) continue;
+    for (const [dx, dy] of [[0, -1], [0, 1], [1, 0], [-1, 0]]) {
+      if (!isW(x + dx, y + dy)) continue;
+      const px = -dy, py = dx, along = dy ? x : y;
+      if (along % 7 !== 3) break;
+      let ok = true;
+      for (let q = -2; q <= 2 && ok; q++) { if (!isW(x + dx + px * q, y + dy + py * q) || !flr(at(x + px * q, y + py * q))) ok = false; }   // (a straight wall, floor along it)
+      for (let k = 1; k <= 4 && ok; k++) if (!flr(at(x - dx * k, y - dy * k))) ok = false;   // (deep enough behind it)
+      if (ok && !nearDoor(x, y)) T[i] = K.WALL;
+      break;
+    }
+  }
   // the secret tunnels: a cracked wall where each meets the room it opens from (the tunnel tile next to that room's floor)
   for (let i = 0; i < w * h; i++) if (T[i] === K.SECRET && owner[i] < 0) {
     const x = i % w, y = Math.floor(i / w); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const j = at(x + dx, y + dy); if (j >= 0 && (T[j] === K.FLOOR || T[j] === K.CARPET || T[j] === K.STAIR || T[j] === K.TOWER)) { T[i] = K.PLUG; plugs.push([x, y]); break; } }
@@ -206,9 +247,17 @@ export function masterAreas() {
     let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (const p of R.parts) { x0 = Math.min(x0, p.b[0]); y0 = Math.min(y0, p.b[1]); x1 = Math.max(x1, p.b[2]); y1 = Math.max(y1, p.b[3]); }
     const tx0 = WX + Math.round((x0 - OX) * S), ty0 = WY + Math.round((y0 - OY) * S), tx1 = WX + Math.round((x1 - OX) * S), ty1 = WY + Math.round((y1 - OY) * S);
     const [num, region, ex = {}] = AREA_OF[R.id], w = tx1 - tx0 + 1, h = ty1 - ty0 + 1;
-    const extra = { master: R.id, ...(R.kind === 'opt' ? { opt: true, role: 'treasure' } : R.kind === 'tower' ? { opt: true, role: 'rest' } : {}), ...ex };
+    const F = R.fit || R.parts[0].b, fx0 = WX + Math.round((F[0] - OX) * S), fy0 = WY + Math.round((F[1] - OY) * S), fx1 = WX + Math.round((F[2] - OX) * S), fy1 = WY + Math.round((F[3] - OY) * S);
+    const extra = { fit: [fx0 - tx0, fy0 - ty0, fx1 - fx0 + 1, fy1 - fy0 + 1], master: R.id, ...(R.kind === 'opt' ? { opt: true, role: 'treasure' } : R.kind === 'tower' ? { opt: true, role: 'rest' } : {}), ...ex };
     return [num, 'a' + num, R.name, region, tx0 + w / 2, ty0 + h / 2, w, h, 'master', extra];
   });
 }
 // a sheet point or box in the world's tiles
 export const toWorld = (px, py) => [WORLD[0] + Math.round((px - ORIGIN[0]) * SCALE), WORLD[1] + Math.round((py - ORIGIN[1]) * SCALE)];
+
+// the main route's runner (stage D): through each of these rooms, on this line of the sheet; a room's own runners on that
+// line join it, its emblems and rings on it break it (capped either side)
+export const MAIN_LINES = [
+  { d: 'ew', at: 466, rooms: ['entrance', 'drawbridge', 'spineW', 'courtyard', 'spineE', 'jarls'], style: 'crown' },
+  { d: 'ns', at: 714, rooms: ['chainhall', 'antechamber', 'northkeep'], style: 'crown' },
+];

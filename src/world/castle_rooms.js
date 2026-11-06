@@ -592,9 +592,10 @@ export const MASTER_PAGES = {
   watch: [PAGES.a28, 3],           // A6 the Collapsed Wing: the south watch, in from the stair east
   chapel: [PAGES.a31, 2],          // 09 the Chapel of Hollow Light: in from the east hall above
 };
-export function fitPage(T0, k, w, h) {
+export function fitPage(T0, k, w, h, fit) {   // (fit: [x, y, w, h] the part of the room its page is set out over; the whole room if none)
   let T = { ...T0 }; delete T.at; for (let i = 0; i < k; i++) T = turn1(T);
-  const sx = (w - 1) / Math.max(1, T.w - 1), sy = (h - 1) / Math.max(1, T.h - 1), X = (x) => Math.round(x * sx), Y = (y) => Math.round(y * sy);
+  const [ox, oy, fw, fh] = fit || [0, 0, w, h];
+  const sx = (fw - 1) / Math.max(1, T.w - 1), sy = (fh - 1) / Math.max(1, T.h - 1), X = (x) => ox + Math.round(x * sx), Y = (y) => oy + Math.round(y * sy);
   const Rc = (q) => [X(q[0]), Y(q[1]), X(q[2]), Y(q[3]), ...q.slice(4)], Pt = ([x, y, ...r]) => [X(x), Y(y), ...r];
   const O = { w, h, floor: [], doors: {}, page: T0.page };
   for (const key of ['cut', 'lava', 'boards', 'grass', 'chasm', 'dais', 'stairs', 'rugs', 'debris', 'skins']) if (T[key]) O[key] = T[key].map(Rc);

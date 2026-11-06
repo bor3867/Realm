@@ -3,7 +3,7 @@ import { keyParen } from '../settings.js';
 import { rng, noise2, dist } from '../util.js';
 import { AREAS, WAYS, LOCKS, MECHS, GEYSERS, SECRETS } from './castle_plan.js';
 import { ROOMS, MASTER_PAGES, fitPage } from './castle_rooms.js';
-import { buildMaster, K as MK, WORLD as MWORLD, LOCK_DOORS, WEST_DOOR, toWorld as mWorld, ROOMS as MROOMS } from './castle_master.js';
+import { buildMaster, K as MK, WORLD as MWORLD, LOCK_DOORS, WEST_DOOR, toWorld as mWorld, ROOMS as MROOMS, MAIN_LINES } from './castle_master.js';
 
 export const TILE_NAMES = ['water', 'deep', 'sand', 'fen', 'mud', 'snow', 'runefloor', 'runeglyph',
   'ash', 'obsidian', 'marble', 'forge', 'forgewall', 'lava', 'void', 'chapelfloor', 'chapelwall', 'goldvein', 'ribwall',
@@ -1476,7 +1476,14 @@ export function dungeon(seed, def) {
       for (const [num, key, title, region, cx, cy, w, h, shape, ex = {}] of AREAS) {
         const n = room(Math.round(cx - w / 2), Math.round(cy - h / 2), w, h, { kind: KIND[key] || 'area', key, title, num, region, form: shape, sect: SECT[region], shape: 'maze', dep: num, ...ex });
         if (ex.opt) n.leaf = true;
-        const T = ex.master ? { ...(MASTER_PAGES[ex.master] ? fitPage(...MASTER_PAGES[ex.master], w, h) : { w, h, floor: [], doors: {} }), master: ex.master } : ROOMS[key];   // (a room of the castle's fixed footprint: laid from it below; otherwise a room laid out from the user's page: its own size, its own place: src/world/castle_rooms.js)
+        const T = ex.master ? { ...(MASTER_PAGES[ex.master] ? fitPage(...MASTER_PAGES[ex.master], w, h, ex.fit) : { w, h, floor: [], doors: {} }), master: ex.master } : ROOMS[key];
+        if (T && T.master) for (const L of MAIN_LINES) if (L.rooms.includes(T.master)) {   // THE MAIN ROUTE'S RUNNER (stage D): one line through the route's rooms; a page's runner on it joins it, its emblems and rings on it break it
+          const ew = L.d === 'ew', at = ew ? mWorld(0, L.at)[1] - Math.round(cy - h / 2) : mWorld(L.at, 0)[0] - Math.round(cx - w / 2), len = ew ? w : h;
+          const mine = (T.runners || []).filter((q) => q[0] === L.d && Math.abs(q[1] - at) <= 6), style = (mine[0] && mine[0][4]) || L.style;
+          const stops = [...(T.emblems || []), ...(T.rings || []), ...(T.beds || [])].filter((q) => Math.abs((ew ? q[1] : q[0]) - at) <= 3).map((q) => [(ew ? q[0] : q[1]) - 3 - (q[2] > 0 && typeof q[2] === 'number' ? q[2] : 0), (ew ? q[0] : q[1]) + 3 + (q[2] > 0 && typeof q[2] === 'number' ? q[2] : 0)]);
+          const segs = []; let a0 = 0; for (const [b0, b1] of stops.sort((u, v) => u[0] - v[0])) { if (b0 - 1 >= a0) segs.push([a0, b0 - 1, a0 > 0, true]); a0 = Math.max(a0, b1 + 1); } if (a0 < len) segs.push([a0, len - 1, a0 > 0, false]);
+          T.runners = [...(T.runners || []).filter((q) => !mine.includes(q)), ...segs.map(([u, v, cA, cB]) => [L.d, at, u, v, style, cA, cB])];
+        }   // (a room of the castle's fixed footprint: laid from it below; otherwise a room laid out from the user's page: its own size, its own place: src/world/castle_rooms.js)
         if (T && T.master) { n.tpl = T; n.master = ex.master; }
         else if (T) { const [ax, ay] = T.at || [cx, cy]; n.w = T.w; n.h = T.h; n.x = Math.round(ax - T.w / 2); n.y = Math.round(ay - T.h / 2); n.cx = n.x + (T.w >> 1); n.cy = n.y + (T.h >> 1); n.tpl = T; }
         A[num] = n; R0[key] = n;
@@ -2106,7 +2113,7 @@ export function dungeon(seed, def) {
     const dais = (cx, cy, w2, h2) => { for (let dy = -h2; dy <= h2; dy++) for (let dx = -w2; dx <= w2; dx++) if (fl(cx + dx, cy + dy)) skin(cx + dx, cy + dy, Math.abs(dx) === w2 || Math.abs(dy) === h2 ? 'keep_step' : 'keep_dais'); };
     if (n.tpl) {                                             // A ROOM FROM ITS PAGE (src/world/castle_rooms.js): its runners, its emblems, its props where the page has them
       const T = n.tpl;
-      for (const [d, at, a0, a1, st] of T.runners || []) { if (d === 'ns') runnerNS(n.x + at, n.y + a0, n.y + a1, st); else runnerEW(n.y + at, n.x + a0, n.x + a1, st); }
+      for (const [d, at, a0, a1, st, cA = true, cB = true] of T.runners || []) { if (d === 'ns') runnerNS(n.x + at, n.y + a0, n.y + a1, st, cA, cB); else runnerEW(n.y + at, n.x + a0, n.x + a1, st, cA, cB); }
       for (const [x0, y0, x1, y1, st] of T.rugs || []) for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {   // (a rug: one border round it, its field between)
         const X = n.x + x, Y = n.y + y; if (!fl(X, Y)) continue; set(X, Y, TID.kpcarpet);
         const edge = y === y0 || y === y1 || x === x0 || x === x1;   // (its field plain, the runner's own red; its border the runner's own: no stripes of motif across it)
@@ -2160,6 +2167,19 @@ export function dungeon(seed, def) {
           const cx = x + Math.floor(h(y, x) * 2), cy = y + Math.floor(h(x + 7, y) * 2);
           if (free2(n.x + cx, n.y + cy)) put(m, 'castle_decor/rock', n.x + cx, n.y + cy, true);
           for (const [dx, dy] of [[1, 0], [-1, 1], [0, 1], [1, 1], [-1, 0]]) if (h(cx + dx * 3, cy + dy * 5) < 0.6 && free2(n.x + cx + dx, n.y + cy + dy)) put(m, 'castle_decor/rubble', n.x + cx + dx, n.y + cy + dy, false);
+        }
+      }
+      if (n.master) {                                          // (stage D: the great halls' walls hung with banners and lit, a fire in each tower, Ashkar's chains)
+        const own = (X, Y) => m.masterOwn(X, Y) === n.master, ok = (X, Y) => own(X, Y) && free2(X, Y) && tile(X, Y) !== TID.kpcarpet && !m.masterDoor(X, Y);
+        const wallN = (X, Y) => tile(X, Y - 1) === WALL || tile(X, Y - 1) === TID.void, wallS = (X, Y) => tile(X, Y + 1) === WALL || tile(X, Y + 1) === TID.void;
+        if (n.master === 'spineW' || n.master === 'spineE') {
+          let k = 0; for (let Y = n.y; Y < n.y + n.h; Y++) for (let X = n.x; X < n.x + n.w; X++) if (ok(X, Y) && wallN(X, Y) && (X + Y) % 6 === 0) put(m, k++ % 2 ? 'castle_art/banner_sun' : 'castle_art/banner_crown', X, Y, false);
+          for (let Y = n.y; Y < n.y + n.h; Y++) for (let X = n.x; X < n.x + n.w; X++) if (ok(X, Y) && wallS(X, Y) && X % 9 === 4) put(m, 'castle_art/brazier_gold', X, Y, true);
+        }
+        if (/^tw/.test(n.master)) { const X = Math.round(n.x + n.w / 2), Y = Math.round(n.y + n.h / 2); if (own(X, Y)) put(m, 'castle_art/brazier_gold', X, Y, true); }
+        if (n.master === 'ashkar') for (const a of [0.6, 2.55, 3.7, 5.65]) {   // (his chains: four posts round the floor's edge, by the lava; none in his lanes)
+          let X = Math.round(n.cx + Math.cos(a) * n.w * 0.33), Y = Math.round(n.cy + Math.sin(a) * n.h * 0.33);
+          if (ok(X, Y)) put(m, 'castle_decor/chain_post', X, Y, false);
         }
       }
       return;
