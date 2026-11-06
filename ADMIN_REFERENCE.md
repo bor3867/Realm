@@ -10,7 +10,7 @@ Type commands in chat (`/` or Enter). Ids use underscores. Regenerate with `node
 | `/teleport NAME` | Teleport to another player in the same place (anyone; every 10 s). Clicking their name or minimap dot does it too |
 | `/w NAME message` | Whisper to one player (anyone; also /whisper, /tell, /msg). Shown in blue, their name in [] |
 | `/bossdebug [log|off]` | Show each nearby boss's state, phase, attack, movement and timers (top left), and log its choices (log: to the console as well) |
-| `/area N` | In Sunthief's Castle: go to area N (1-58) of its blueprint |
+| `/area N` | In Sunthief's Castle: go to area N of its layout (the forest and mountain 1-19; the castle's rooms by the master layout; the eclipse 48-52) |
 | `/r message` | Reply to whoever last whispered to you (anyone; also /reply) |
 | `/lag` | Where lag comes from (anyone; also /fps, /ping): this computer frames and drawing time, the ping to the server, and how hard the server is working |
 | `/cleardeaths` | Forget your own fallen heroes, off your account and the Hall of Legends (asks you to type /cleardeaths confirm; also a button in the Hall of Legends). Fame and achievements stay |

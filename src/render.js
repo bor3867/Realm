@@ -3023,7 +3023,7 @@ export class Renderer {
       const here = Object.values(Rm).find((n) => inBox(n, p)), MAIN = ['a26', 'a46', 'a52'];
       const said = (C.st && C.st.said) || {}, eclipse = Object.values(Rm).some((n) => (n.region === 'eclipse' || n.region === 'sanctum') && said[n.key]) || (here && (here.region === 'eclipse' || here.region === 'sanctum'));
       let want = here && !MAIN.includes(here.key) && pins.some((q) => inBox(here, q)) ? here : null;
-      if (!want) want = !done('26-27') ? Rm.a26 : !done('46-47') ? Rm.a46 : eclipse ? Rm.a52 : null;
+      if (!want) want = !done('28-42') ? Rm.a26 : !done('46-47') ? Rm.a46 : eclipse ? Rm.a52 : null;
       const keep = pins.filter((q) => inBox(want, q)); pins.length = 0;
       if (keep.length) pins.push({ ...keep[0], x: keep.reduce((t, q) => t + q.x, 0) / keep.length, y: keep.reduce((t, q) => t + q.y, 0) / keep.length, key: 'castle:' + want.key });   // (an encounter of two, the Jarls: one mark between them)
     }

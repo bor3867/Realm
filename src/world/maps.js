@@ -1,7 +1,7 @@
 // Map generation: the Nexus (hub), the Realm (procedural island), the Drowned Forge (dungeon).
 import { keyParen } from '../settings.js';
 import { rng, noise2, dist } from '../util.js';
-import { AREAS, WAYS, LOCKS, MECHS, GEYSERS } from './castle_plan.js';
+import { AREAS, WAYS, LOCKS, MECHS, GEYSERS, SECRETS } from './castle_plan.js';
 import { ROOMS } from './castle_rooms.js';
 
 export const TILE_NAMES = ['water', 'deep', 'sand', 'fen', 'mud', 'snow', 'runefloor', 'runeglyph',
@@ -2954,7 +2954,25 @@ export function dungeon(seed, def) {
 
   // ---- secret rooms: a hollow space beyond a chamber's wall, reached by a narrow tunnel plugged with a cracked wall
   const secrets = [];
-  for (let k = 0, tries = 0; k < ((def.layout && def.layout.secrets) || 0) && tries < 200; tries++) {
+  // the castle's secret rooms where its master layout marks them (castle_plan SECRETS): off its room on its side, a short
+  // tunnel from a cracked wall at the edge of that room's floor, along its middle
+  if (m.castle && m.castle.plan) for (const [num, side, title] of SECRETS) {
+    const a = rooms.find((q) => q.num === num); if (!a) continue;
+    const [dx, dy] = { N: [0, -1], S: [0, 1], E: [1, 0], W: [-1, 0] }[side], w = 11, h = 9, gap = 5;
+    let x = Math.round(a.cx), y = Math.round(a.cy), last = null;
+    for (let k = 0; k < 90 && x >= a.x && y >= a.y && x < a.x + a.w && y < a.y + a.h; k++) { const t = tile(x, y); if (t !== TID.void && t !== WALL && !SOLID_TILES.has(t)) last = [x, y]; x += dx; y += dy; }   // (any of the room's floor: its boards, lawns, carpets too)
+    if (!last) continue;
+    const px = last[0] + dx, py = last[1] + dy;
+    const sx = dx > 0 ? a.x + a.w + gap : dx < 0 ? a.x - gap - w : px - (w >> 1), sy = dy > 0 ? a.y + a.h + gap : dy < 0 ? a.y - gap - h : py - (h >> 1);
+    const SX = dx ? sx : sx, SY = dx ? py - (h >> 1) : sy;
+    if (!voidAt(SX - 2, SY - 2, SX + w + 1, SY + h + 1)) continue;
+    const ex = dx > 0 ? SX - 1 : dx < 0 ? SX + w : px, ey = dy > 0 ? SY - 1 : dy < 0 ? SY + h : py;
+    const t0x = Math.min(px + dx, ex), t1x = Math.max(px + dx, ex), t0y = Math.min(py + dy, ey), t1y = Math.max(py + dy, ey);
+    const s = room(SX, SY, w, h, { secret: true, role: 'secret', kind: 'secret', from: a, title, planned: true });
+    rooms.pop(); carveRoom(s); carve(t0x, t0y, t1x, t1y);
+    s.plug = { x: px, y: py }; s.tunnel = [t0x, t0y, t1x, t1y]; secrets.push(s);
+  }
+  for (let k = 0, tries = 0; k < (m.castle && m.castle.plan ? 0 : (def.layout && def.layout.secrets) || 0) && tries < 200; tries++) {
     const pool = rooms.filter((n) => n !== boss && n !== start && !n.few);
     if (!pool.length) break;
     const a = r.pick(pool);
@@ -2994,7 +3012,9 @@ export function dungeon(seed, def) {
   // it, its tunnel or their walls (m.veil; the cracked wall itself is the one clue). game.unveil lifts it
   m.veil = new Uint8Array(m.w * m.h);
   for (const s of secrets) {
-    const A = s.from, inA = (x, y) => x >= A.x - 1 && x <= A.x + A.w && y >= A.y - 1 && y <= A.y + A.h;   // (not the chamber it opens from, nor its walls)
+    const A = s.from, inT = (x, y) => x >= s.tunnel[0] && x <= s.tunnel[2] && y >= s.tunnel[1] && y <= s.tunnel[3];
+    const inA = s.planned ? (x, y) => x >= A.x && x < A.x + A.w && y >= A.y && y < A.y + A.h && !inT(x, y) && !(Math.abs(x - s.tunnel[0]) <= 1 && Math.abs(y - s.tunnel[1]) <= 1) && tile(x, y) !== TID.void && tile(x, y) !== WALL ? true : false
+      : (x, y) => x >= A.x - 1 && x <= A.x + A.w && y >= A.y - 1 && y <= A.y + A.h;   // (not the chamber it opens from, nor its walls; a planned one's tunnel veiled right to its cracked wall)
     const veil = (x0, y0, x1, y1) => { for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) if (x >= 0 && y >= 0 && x < m.w && y < m.h && !inA(x, y)) { m.veil[y * m.w + x] = 1; (s.veilIdx || (s.veilIdx = [])).push(y * m.w + x); } };
     veil(s.x - 1, s.y - 1, s.x + s.w, s.y + s.h); veil(s.tunnel[0] - 1, s.tunnel[1] - 1, s.tunnel[2] + 1, s.tunnel[3] + 1);
   }
@@ -3284,7 +3304,8 @@ export function dungeon(seed, def) {
         else set(x, y, TID.bramble);
       } else if (R === 'mountain') set(x, y, TID.cliff); else if (R === 'eclipse' || R === 'sanctum') set(x, y, TID.starvoid);
     }
-    for (let y = 2; y < 330; y++) for (let x = 640; x < S - 2; x++) if (tile(x, y) === TID.void) set(x, y, TID.starvoid);   // (the eclipse floats in the stars)
+    { const E = rooms.filter((n) => n.region === 'eclipse' || n.region === 'sanctum'), x0 = Math.min(...E.map((n) => n.x)) - 40, x1 = Math.max(...E.map((n) => n.x + n.w)) + 40, y0 = Math.min(...E.map((n) => n.y)) - 20, y1 = Math.max(...E.map((n) => n.y + n.h)) + 25;   // (the eclipse floats in the stars: round its own areas, wherever they stand)
+      for (let y = Math.max(2, y0); y < Math.min(S - 2, y1); y++) for (let x = Math.max(2, x0); x < Math.min(S - 2, x1); x++) if (tile(x, y) === TID.void) set(x, y, TID.starvoid); }
     // the keep (2026-11-02, the user's sheet "CASTLE APPROACH — ROOM LAYOUT VARIANTS": "I want rooms to look like this"):
     // its walls the keep's stone (tall, coursed, a pale cap), its floors flagstones in slow patches with the odd cracked one,
     // a red runner where a hall has one, and in each great hall a gold sun inlaid in the floor
@@ -3398,8 +3419,8 @@ export function dungeon(seed, def) {
       const R = W.w * 1.5 + 1.5;
       for (let y = Math.floor(W.mid[1] - R); y <= W.mid[1] + R; y++) for (let x = Math.floor(W.mid[0] - R); x <= W.mid[0] + R; x++) { const t = tile(x, y); if (Math.hypot(x - W.mid[0], y - W.mid[1]) <= R && t !== TID.void && !SOLID_TILES.has(t)) gate(x, y, name); }
       {                                                             // its look across the way: a piece every two tiles, square to the road
-        const look = { '7-8': 'gate_roots', '19-20': 'gate_rock', '26-27': 'portcullis', '43-44': 'portcullis', '46-47': 'portcullis' }[name] || (name === '23-24' ? null : 'gate_seal');
-        if (name === '26-27') {                                     // (the keep gate: the Jarls' court's sealed double gate, the user's page; one great piece across the way)
+        const look = { '7-8': 'gate_roots', '19-24': 'gate_rock', '28-42': 'portcullis', '46-47': 'portcullis' }[name] || (name === '23-28' ? null : 'gate_seal');
+        if (name === '28-42') {                                     // (the keep gate: the Jarls' court's sealed double gate, the user's page; one great piece across the way)
           (m.castle.gateLooks = m.castle.gateLooks || {})[name] = [];
           put(m, 'castle_props/double_gate', Math.round(W.mid[0]), Math.round(W.mid[1]), false, { gateLook: name, look: 'double_gate' }); m.castle.gateLooks[name].push(m.objects[m.objects.length - 1]);
           if (W.hall) for (const sd of [-1, 1]) { const nx = -Math.sin(W.dir), ny = Math.cos(W.dir), x = Math.round(W.mid[0] + nx * sd * (W.w + 3)), y = Math.round(W.mid[1] + ny * sd * (W.w + 3)); put(m, 'keep_decor/keep_pylon', x, y, true, { gatehouse: name }); }
@@ -3409,7 +3430,7 @@ export function dungeon(seed, def) {
           if (W.hall) for (const sd of [-1, 1]) { const x = Math.round(W.mid[0] + nx * sd * (half + 1.5)), y = Math.round(W.mid[1] + ny * sd * (half + 1.5)); put(m, 'keep_decor/keep_pylon', x, y, true, { gatehouse: name }); }   // (the gatehouse: a tower each side)
         }
       }
-      if (name === '23-24') {                                       // the drawbridge: a moat of lava either side; its gate comes down as planks
+      if (name === '23-28') {                                       // the drawbridge: a moat of lava either side; its gate comes down as planks
         for (const o of m.castle.gates[name]) o.floor = TID.stageboards;
         for (let y = Math.floor(W.mid[1] - R - 1); y <= W.mid[1] + R + 1; y++) for (let x = Math.floor(W.mid[0] - R - 4); x <= W.mid[0] + R + 4; x++) if (tile(x, y) === TID.void || tile(x, y) === WALL) set(x, y, TID.lava);
       }

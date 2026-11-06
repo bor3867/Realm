@@ -304,7 +304,7 @@ const methods = {
   },
   castleOpen(which) {
     const m = this.map;
-    if (which === '23-24' && !this.dbLowering && m.castle.rooms && m.castle.rooms.a23) {   // the drawbridge: it comes down a plank at a time from the engine's side, its chains running out
+    if (which === '23-28' && !this.dbLowering && m.castle.rooms && m.castle.rooms.a23) {   // the drawbridge: it comes down a plank at a time from the engine's side, its chains running out
       this.dbLowering = true; const A = m.castle.rooms.a23, G = (m.castle.gates[which] || []).slice().sort((p, q) => Math.hypot(p.x - A.cx, p.y - A.cy) - Math.hypot(q.x - A.cx, q.y - A.cy));
       this.sfx('chain'); this.vx({ k: 'shake', amt: 5 });
       G.forEach((o, k) => (this.castleLater = this.castleLater || []).push({ t: this.t + 0.3 + k * 0.06, f: () => {

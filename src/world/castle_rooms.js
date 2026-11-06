@@ -18,7 +18,8 @@
 //   boards    rectangles of wooden floor (a bridge, a catwalk)
 //   stairs    rectangles of steps; dais: rectangles of raised floor (its edge a step); rings: [x, y] a 5x5 ritual ring
 //   skins     [x0, y0, x1, y1, tile]: any keep floor tile by name (keep_grate, keep_plate)
-export const ROOMS = {
+// the pages' rooms as they were laid out (each where its page put its doors); the castle's own placing of them is below
+export const PAGES = {
   // 02 THE TWIN WATCHTOWERS: in from the foot up a lantern-lit approach, the sun runner to the great brazier on its dais;
   // a battlement walk across from the west tower to the east; each tower's signal fire on its top (the two mechanisms:
   // smother both and the Barbican's archers never come), the knight's alcove under the west tower, the hooded priest's
@@ -441,6 +442,121 @@ export const ROOMS = {
       ['castle_art/brazier_gold', 15, 23], ['castle_art/brazier_gold', 23, 23],
       ['castle_art/banner_crown', 9, 31, false], ['castle_art/banner_crown', 30, 31, false],
       ['keep_decor/keep_pylon', 15, 37], ['keep_decor/keep_pylon', 23, 37],
+    ],
+  },
+};
+
+// ---- a page's room turned (2026-11-05, the user's master layout: "Reuse existing completed rooms ... adjusting their
+// placement and door orientations to match this layout"): a quarter turn clockwise, k times: its floor, walls, lava,
+// boards, grass, daises, stairs, rugs, debris, props, runners, emblems, rings, beds, its spiral, its mechanisms and its
+// doors all turned with it (a runner north-south becomes east-west; a door south becomes west). Sprites stay upright.
+const SIDE = { N: 'E', E: 'S', S: 'W', W: 'N' };
+function turn1(T) {
+  const h = T.h, P = (x, y) => [h - 1 - y, x], Rc = (q) => { const [a0, b0] = P(q[0], q[1]), [a1, b1] = P(q[2], q[3]); return [Math.min(a0, a1), Math.min(b0, b1), Math.max(a0, a1), Math.max(b0, b1), ...q.slice(4)]; };
+  const O = { ...T, w: T.h, h: T.w };
+  for (const k of ['floor', 'cut', 'lava', 'boards', 'grass', 'chasm', 'dais', 'stairs', 'rugs', 'debris', 'skins']) if (T[k]) O[k] = T[k].map(Rc);
+  for (const k of ['emblems', 'rings', 'beds']) if (T[k]) O[k] = T[k].map(([x, y, ...r]) => [...P(x, y), ...r]);
+  if (T.props) O.props = T.props.map(([sp, x, y, ...r]) => [sp, ...P(x, y), ...r]);
+  if (T.spiral) O.spiral = [...P(T.spiral[0], T.spiral[1]), T.spiral[2], T.spiral[3]];
+  if (T.mechs) O.mechs = Object.fromEntries(Object.entries(T.mechs).map(([k, [x, y]]) => [k, P(x, y)]));
+  if (T.doors) O.doors = Object.fromEntries(Object.entries(T.doors).map(([k, [x, y, sd]]) => [k, [...P(x, y), SIDE[sd]]]));
+  if (T.runners) O.runners = T.runners.map(([d, at, a0, a1, st]) => (d === 'ns' ? ['ew', at, h - 1 - a1, h - 1 - a0, st] : ['ns', h - 1 - at, a0, a1, st]));
+  return O;
+}
+// a page's room for the castle: turned k times; its doors renamed for the rooms they now lead to ({ new neighbour: the
+// neighbour its page named }); and any door of its own the castle needs added (floor to the edge, the door)
+function place(T, k, doors, extra = {}) {
+  let O = { ...T }; delete O.at; for (let i = 0; i < k; i++) O = turn1(O);
+  const D = {}; for (const [nb, old] of Object.entries(doors)) { if (!O.doors[old]) throw new Error((T.page || '?') + ': no door for ' + old); D[nb] = O.doors[old]; }
+  O.doors = { ...D, ...(extra.doors || {}) };
+  if (extra.floor) O.floor = [...O.floor, ...extra.floor];
+  if (extra.props) O.props = [...(O.props || []), ...extra.props];
+  return O;
+}
+
+// ---- THE CASTLE'S ROOMS, by the master layout (src/world/castle_plan.js AREAS: where each stands)
+export const ROOMS = {
+  // the main route
+  a24: place(PAGES.a24, 1, { 19: 23, 23: 25 }),                          // the West Gate: the Barbican, turned: in from the west, out east
+  a23: place(PAGES.a23, 1, { 24: 22, 28: 24 }, {                         // the Drawbridge Guard: the Drawbridge Engine, turned; a way north to the rose court, south to the gatehouse
+    floor: [[18, 0, 22, 2], [26, 37, 30, 39]], doors: { 53: [20, 0, 'N'], 20: [28, 39, 'S'] } }),
+  a26: place(PAGES.a26, 1, { 28: 25 }),                                  // the Hollow Jarls: their court, turned to face the courtyard
+  a47: place(PAGES.a47, 0, {}, { floor: [[14, 21, 18, 25]], doors: { 46: [16, 25, 'S'] } }),   // the North Keep: the Overlook, its Sun Gate in its north wall; in from Ashkar below
+  // the side rooms
+  a53: place(PAGES.a53, 0, { 23: 27 }),                                  // the Corrupted Rose Courtyard, up its steps from the Drawbridge Guard
+  a20: place(PAGES.a20, 0, { 23: 21 }),                                  // the Rope & Cog Gatehouse, south of the Drawbridge Guard
+  a27: place(PAGES.a27, 0, { 28: 26, 37: 28 }),                          // the Royal Gallery (the Procession Hall), off the courtyard's north-west
+  a37: place(PAGES.a37, 0, { 27: 38 }),                                  // the Library (the Scriptorium), beyond the gallery
+  a29: place(PAGES.a29, 0, { 21: 31 }),                                  // the Barracks, beyond the dining hall
+  a43: place(PAGES.a43, 1, { 21: 42 }),                                  // the Tower Overlook (the Spiral Keep), turned: in from the dining hall below
+  a31: place(PAGES.a31, 2, { 28: 29 }),                                  // the Chapel, turned about: in from the courtyard above
+  a33: place(PAGES.a33, 0, { 28: 34 }),                                  // the Side Chapel (the Chancel), off the courtyard's south-west
+  // the rooms the master layout adds
+  // THE CENTRAL COURTYARD: the inner keep's great court, an octagon; the statue on its fountain in the middle, the crown
+  // runners crossing to it from its four great doors; four lawns with their purple-crowned trees; benches, braziers,
+  // banners on its north wall; doors on its corners to the side rooms. Its north gate is the Jarls' to open
+  a28: {
+    w: 100, h: 72,
+    floor: [[12, 4, 87, 67], [4, 12, 95, 59], [8, 8, 91, 63], [47, 0, 53, 4], [47, 67, 53, 71], [0, 33, 4, 39], [95, 33, 99, 39], [19, 0, 25, 4], [75, 0, 81, 4], [75, 67, 81, 71], [19, 67, 25, 71]],
+    grass: [[16, 12, 38, 26], [62, 12, 84, 26], [16, 46, 38, 60], [62, 46, 84, 60]],
+    doors: { 23: [0, 36, 'W'], 26: [99, 36, 'E'], 42: [50, 0, 'N'], 31: [50, 71, 'S'], 27: [22, 0, 'N'], 21: [78, 0, 'N'], 30: [78, 71, 'S'], 33: [22, 71, 'S'] },
+    beds: [[50, 36, 6]],
+    runners: [['ew', 36, 0, 43, 'crown'], ['ew', 36, 57, 99, 'crown'], ['ns', 50, 0, 29, 'crown'], ['ns', 50, 43, 71, 'crown']],
+    props: [
+      ['castle_art/statue_king', 50, 35], ['keep_decor/keep_basin', 50, 38, false], ['castle_art/brazier_gold', 45, 31], ['castle_art/brazier_gold', 55, 31], ['castle_art/brazier_gold', 45, 41], ['castle_art/brazier_gold', 55, 41],
+      ['castle_art/crimson_big', 22, 16], ['castle_art/crimson_mid', 32, 22], ['castle_art/crimson_big', 78, 16], ['castle_art/crimson_mid', 68, 22], ['castle_art/crimson_big', 22, 52], ['castle_art/crimson_mid', 32, 58], ['castle_art/crimson_big', 78, 52], ['castle_art/crimson_mid', 68, 58],
+      ['castle_art/ember_bloom', 18, 24, false], ['castle_art/ember_bloom', 82, 24, false], ['castle_art/ember_bloom', 18, 48, false], ['castle_art/ember_bloom', 82, 48, false], ['castle_art/shrub_small', 36, 14, false], ['castle_art/shrub_small', 64, 58, false],
+      ['keep_decor/keep_pew', 40, 18], ['keep_decor/keep_pew', 60, 18], ['keep_decor/keep_pew', 40, 54], ['keep_decor/keep_pew', 60, 54],
+      ['castle_art/banner_crown', 40, 4, false], ['castle_art/banner_crown', 60, 4, false], ['castle_art/banner_sun', 30, 4, false], ['castle_art/banner_sun', 70, 4, false],
+      ['castle_props/brazier_large', 10, 14], ['castle_props/brazier_large', 89, 14], ['castle_props/brazier_large', 10, 57], ['castle_props/brazier_large', 89, 57],
+      ['keep_decor/keep_pylon', 46, 6], ['keep_decor/keep_pylon', 54, 6], ['keep_decor/keep_pylon', 6, 33], ['keep_decor/keep_pylon', 6, 39], ['keep_decor/keep_pylon', 93, 33], ['keep_decor/keep_pylon', 93, 39],
+    ],
+  },
+  // THE CHAIN HALL: the way north to the forge, its great chains hung down both walls, the runner up the middle
+  a42: {
+    w: 26, h: 36,
+    floor: [[3, 3, 22, 32], [10, 0, 16, 2], [10, 33, 16, 35]],
+    doors: { 28: [13, 35, 'S'], 45: [13, 0, 'N'] },
+    runners: [['ns', 13, 1, 34, 'crown']],
+    props: [
+      ['castle_decor/chain_post', 5, 6], ['castle_decor/chain_post', 20, 6], ['castle_decor/chain_post', 5, 13], ['castle_decor/chain_post', 20, 13], ['castle_decor/chain_post', 5, 20], ['castle_decor/chain_post', 20, 20], ['castle_decor/chain_post', 5, 27], ['castle_decor/chain_post', 20, 27],
+      ['castle_decor/chain_anchor', 8, 4], ['castle_decor/chain_anchor', 17, 4], ['castle_art/banner_chain_forge', 4, 3, false], ['castle_art/banner_chain_forge', 21, 3, false],
+      ['castle_art/brazier_gold', 9, 10], ['castle_art/brazier_gold', 17, 10], ['castle_art/brazier_gold', 9, 24], ['castle_art/brazier_gold', 17, 24], ['castle_decor/rubble', 6, 30, false], ['castle_decor/rubble', 19, 17, false],
+    ],
+  },
+  // THE FORGE ANTECHAMBER: before Ashkar's gate: the forge's furnaces and anvils either side, the Entrance Seal's winch
+  a45: {
+    w: 36, h: 18,
+    floor: [[3, 3, 32, 14], [15, 0, 21, 2], [15, 15, 21, 17]],
+    doors: { 42: [18, 17, 'S'], 46: [18, 0, 'N'] },
+    runners: [['ns', 18, 1, 16, 'forge']],
+    mechs: { seal45: [27, 9] },
+    props: [
+      ['keep_decor/keep_furnace', 6, 5], ['keep_decor/keep_furnace', 30, 5], ['keep_decor/keep_anvil', 9, 11], ['keep_decor/keep_anvil', 13, 7], ['castle_art/banner_forge', 12, 3, false], ['castle_art/banner_forge', 24, 3, false],
+      ['castle_props/brazier_large', 5, 12], ['castle_decor/vent', 22, 12, false], ['castle_decor/chain_anchor', 15, 4], ['castle_decor/chain_anchor', 21, 4],
+    ],
+  },
+  // THE DINING HALL: the long table down its middle, its benches, chandeliers over it; the tower's stair north, the barracks east
+  a21: {
+    w: 34, h: 24,
+    floor: [[3, 3, 30, 20], [0, 10, 2, 14], [15, 0, 19, 2], [31, 10, 33, 14]],
+    doors: { 28: [0, 12, 'W'], 43: [17, 0, 'N'], 29: [33, 12, 'E'] },
+    props: [
+      ['castle_decor/table', 10, 12], ['castle_decor/table', 13, 12], ['castle_decor/table', 16, 12], ['castle_decor/table', 19, 12], ['castle_decor/table', 22, 12],
+      ['keep_decor/keep_pew', 12, 10], ['keep_decor/keep_pew', 20, 10], ['keep_decor/keep_pew', 12, 14], ['keep_decor/keep_pew', 20, 14],
+      ['castle_decor/chandelier', 12, 7, false], ['castle_decor/chandelier', 21, 7, false], ['castle_art/banner_crown', 8, 3, false], ['castle_art/banner_crown', 25, 3, false],
+      ['castle_props/barrel', 5, 18], ['castle_props/crate_stack', 28, 18], ['castle_art/brazier_gold', 5, 5], ['castle_art/brazier_gold', 28, 5],
+    ],
+  },
+  // THE ARMORY: weapon racks down its north wall, armour on its stands, the training dummies, crates of arms
+  a30: {
+    w: 30, h: 24,
+    floor: [[3, 3, 26, 20], [0, 10, 2, 14]],
+    doors: { 28: [0, 12, 'W'] },
+    props: [
+      ['keep_decor/keep_rack', 6, 4], ['keep_decor/keep_rack', 9, 4], ['keep_decor/keep_rack', 12, 4], ['keep_decor/keep_rack', 18, 4], ['keep_decor/keep_rack', 21, 4],
+      ['keep_decor/keep_armor', 24, 8], ['keep_decor/keep_armor', 24, 12], ['keep_decor/keep_dummy', 12, 13], ['keep_decor/keep_dummy', 16, 15],
+      ['castle_props/crate_stack', 6, 18], ['castle_props/barrel', 22, 18], ['castle_art/banner_sun', 15, 3, false], ['castle_art/brazier_gold', 5, 10],
     ],
   },
 };
