@@ -67,7 +67,7 @@ const methods = {
     // seen and felt by that player only, doubled)
     if (!S.bats && !m.netWorld && this.t - S.t0 > 4 && Rm.a01 && this.spawnPending) { S.bats = true; const A = Rm.a01; this.spawnPending([0.3, 0.5, 0.7].map((f) => ['cinder_bat', A.x + f * A.w, A.y + 3])); }
     // the locks (src/world/castle_plan.js LOCKS): each way's gate opens when what holds it is done
-    for (const L of C.locks || []) if (!L.open && this.castleCond(L.cond, Rm)) { L.open = true; this.castleOpen(L.name); this.banner(L.say, 3000); }
+    for (const L of C.locks || []) if (!L.open && this.castleCond(L.cond, Rm)) { L.open = true; this.castleOpen(L.name); if (L.say) this.banner(L.say, 3000); }
     C.goal = n ? this.castleGoal(n, Rm, S) : null;
     // the way on, pointed to once the area's goal is done (2026-11-03, the user: "ensure that players know how to complete
     // rooms"): the gate this area held, open now; an arrow from you to it until you reach it
@@ -304,7 +304,7 @@ const methods = {
   },
   castleOpen(which) {
     const m = this.map;
-    if (which === '23-28' && !this.dbLowering && m.castle.rooms && m.castle.rooms.a23) {   // the drawbridge: it comes down a plank at a time from the engine's side, its chains running out
+    if ((which === '23-28' || which === '23-60') && !this.dbLowering && m.castle.rooms && m.castle.rooms.a23) {   // the drawbridge: it comes down a plank at a time from the engine's side, its chains running out
       this.dbLowering = true; const A = m.castle.rooms.a23, G = (m.castle.gates[which] || []).slice().sort((p, q) => Math.hypot(p.x - A.cx, p.y - A.cy) - Math.hypot(q.x - A.cx, q.y - A.cy));
       this.sfx('chain'); this.vx({ k: 'shake', amt: 5 });
       G.forEach((o, k) => (this.castleLater = this.castleLater || []).push({ t: this.t + 0.3 + k * 0.06, f: () => {

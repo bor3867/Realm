@@ -71,7 +71,7 @@ const L = (pts, w, o = {}) => ({ pts, w, ...o });
 export const LINKS = [
   // off the required route
   L([[346, 440], [346, 372]], 16, { stair: true }),                    // the entrance up to the rose courtyard
-  L([[314, 504], [314, 532]], 12),                                    // the entrance down to the side chapel
+  L([[314, 488], [314, 534]], 12),                                    // the entrance down to the side chapel
   L([[258, 247], [258, 300], [312, 300]], 10),                        // the north-west tower down to the rose courtyard
   L([[452, 414], [452, 312]], 12),                                    // the drawbridge's north-east up to the banner hall
   L([[470, 250], [470, 236]], 10),                                    // the banner hall up to the gallery
@@ -82,7 +82,7 @@ export const LINKS = [
   L([[546, 386], [546, 446]], 12, { stair: true }),                   // the library down to the great hall
   L([[401, 534], [401, 562]], 12, { stair: true }),                   // the drawbridge down to the armory
   L([[446, 584], [476, 584]], 10),                                    // the armory to the gatehouse
-  L([[314, 596], [314, 616], [358, 616]], 10),                        // the side chapel to the armory
+  L([[314, 596], [314, 616], [330, 616]], 10),                        // the side chapel's south walk (to the smuggler's cracked wall; no way on to the armory, which is past the drawbridge)
   L([[546, 488], [546, 526]], 12, { stair: true }),                   // the great hall down to the gatehouse
   L([[534, 602], [534, 625]], 10),                                    // the gatehouse to the south-west tower
   L([[650, 612], [690, 612]], 10),                                    // the south watch to the courtyard's south stair
@@ -171,3 +171,44 @@ export function buildMaster() {
   const parts = ROOMS.map((R) => { let x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1; for (const p of R.parts) { const [a, b] = toT(p.b[0], p.b[1]), [c, d] = toT(p.b[2], p.b[3]); x0 = Math.min(x0, a); y0 = Math.min(y0, b); x1 = Math.max(x1, c); y1 = Math.max(y1, d); } return { ...R, box: [x0, y0, x1, y1] }; });
   return { w, h, tiles: T, owner, parts, plugs, at: toT };
 }
+
+// ---- stage B: the footprint in the game's world (2026-11-05)
+// where the sheet's tile (0, 0) stands in the castle's map (its West Entrance just north of the mountain's Final Rampart)
+export const WORLD = [400, 122];
+// each room's area in the castle plan: [num, key, region, extra] (the old numbers kept where the game's monsters, mechanisms
+// and bosses already know them; new numbers for the rooms new to the layout)
+export const AREA_OF = {
+  entrance: [24, 'outer'], drawbridge: [23, 'outer'], spineW: [60, 'outer'], courtyard: [28, 'outer'], spineE: [61, 'inner'],
+  jarls: [26, 'outer', { prefer: 'warden', court: true }], chainhall: [42, 'inner'], antechamber: [45, 'inner'],
+  ashkar: [46, 'ashkar', { guardhall: true }], northkeep: [47, 'ashkar', { role: 'rest', sundoor: true }],
+  rose: [53, 'outer'], banners: [25, 'outer'], gallery: [27, 'inner'], study: [62, 'inner'], library: [37, 'inner'],
+  overlook: [43, 'inner'], shrine: [63, 'inner'], dining: [21, 'inner'], barracks: [29, 'inner'], sidechapel: [33, 'outer'],
+  armory: [30, 'outer'], ropecog: [20, 'outer'], watch: [64, 'outer'], chapel: [31, 'outer'],
+  twNW: [70, 'outer'], twW: [71, 'outer'], twN1: [72, 'inner'], twN2: [73, 'inner'], twE1: [74, 'inner'], twE2: [75, 'outer'],
+  twSE: [76, 'outer'], twS: [77, 'outer'], twSW: [78, 'outer'],
+};
+// the locks' doorways on the sheet: [x0, y0, x1, y1] (every open tile in it becomes the lock's gate), the side they face
+export const LOCK_DOORS = {
+  '23-60': [[463, 444, 471, 490], 'E'],      // the drawbridge: out of the Drawbridge Guard into the great hall
+  '23-25': [[442, 396, 462, 412], 'N'],      // the guard's north door (to the banner hall and the north-west wing)
+  '23-30': [[390, 536, 412, 550], 'S'],      // the guard's south door (to the armory)
+  '28-42': [[688, 383, 740, 397], 'N'],      // the Jarls' gate: the courtyard's north door, up the chain hall
+  '45-46': [[668, 247, 758, 259], 'N'],      // the forge seal: the antechamber into Ashkar's arena
+  '46-47': [[670, 116, 756, 130], 'N'],      // Ashkar's fall: the arena's north door to the keep
+};
+// the castle's way in from the mountain: a door through the curtain into the West Entrance (sheet px), facing west
+export const WEST_DOOR = [222, 466];
+
+// the areas for the castle plan: [num, key, title, region, cx, cy, w, h, 'master', extra] in the world's tiles
+export function masterAreas() {
+  const S = SCALE, [OX, OY] = ORIGIN, [WX, WY] = WORLD;
+  return ROOMS.filter((R) => AREA_OF[R.id]).map((R) => {
+    let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9; for (const p of R.parts) { x0 = Math.min(x0, p.b[0]); y0 = Math.min(y0, p.b[1]); x1 = Math.max(x1, p.b[2]); y1 = Math.max(y1, p.b[3]); }
+    const tx0 = WX + Math.round((x0 - OX) * S), ty0 = WY + Math.round((y0 - OY) * S), tx1 = WX + Math.round((x1 - OX) * S), ty1 = WY + Math.round((y1 - OY) * S);
+    const [num, region, ex = {}] = AREA_OF[R.id], w = tx1 - tx0 + 1, h = ty1 - ty0 + 1;
+    const extra = { master: R.id, ...(R.kind === 'opt' ? { opt: true, role: 'treasure' } : R.kind === 'tower' ? { opt: true, role: 'rest' } : {}), ...ex };
+    return [num, 'a' + num, R.name, region, tx0 + w / 2, ty0 + h / 2, w, h, 'master', extra];
+  });
+}
+// a sheet point or box in the world's tiles
+export const toWorld = (px, py) => [WORLD[0] + Math.round((px - ORIGIN[0]) * SCALE), WORLD[1] + Math.round((py - ORIGIN[1]) * SCALE)];

@@ -18,7 +18,7 @@ const m = g.map, C = m.castle, [X0, Y0, X1, Y1] = process.argv.length > 5 ? proc
 const W = (X1 - X0) * K, H = (Y1 - Y0) * K, px = new Uint8Array(W * H * 3);
 const put = (x, y, c) => { if (x < 0 || y < 0 || x >= W || y >= H) return; const i = (y * W + x) * 3; px[i] = c[0]; px[i + 1] = c[1]; px[i + 2] = c[2]; };
 const fill = (tx, ty, c) => { for (let j = 0; j < K; j++) for (let i = 0; i < K; i++) put((tx - X0) * K + i, (ty - Y0) * K + j, c); };
-const COL = (t, solid) => t === TID.void ? [6, 4, 10] : t === TID.lava || t === TID.emberlava ? [230, 110, 30] : t === TID.kpcarpet ? [160, 30, 44] : t === TID.grass ? [60, 110, 50] : t === TID.stageboards ? [130, 90, 50]
+const COL = (t, solid) => t === TID.void ? [6, 4, 10] : t === TID.deep ? [18, 30, 58] : t === TID.lava || t === TID.emberlava ? [230, 110, 30] : t === TID.kpcarpet ? [160, 30, 44] : t === TID.grass ? [60, 110, 50] : t === TID.stageboards ? [130, 90, 50]
   : t === TID.nxchasm ? [20, 14, 40] : solid ? [44, 34, 58] : t === TID.kpfloor ? [104, 92, 118] : t === TID.emberfloor || t === TID.forge ? [110, 60, 50] : [90, 80, 70];
 for (let y = Y0; y < Y1; y++) for (let x = X0; x < X1; x++) { const i = y * m.w + x; fill(x, y, COL(m.tiles[i], m.solid[i])); }
 for (const o of m.objects) { if (o.x < X0 || o.y < Y0 || o.x >= X1 || o.y >= Y1) continue; if (o.castleGate) fill(Math.floor(o.x), Math.floor(o.y), [255, 40, 60]); else if (o.interact === 'weak') fill(Math.floor(o.x), Math.floor(o.y), [255, 255, 255]); else if (o.solid) fill(Math.floor(o.x), Math.floor(o.y), [70, 60, 80]); }
@@ -26,7 +26,7 @@ const box = (n, c) => { for (let x = n.x; x < n.x + n.w; x++) for (const y of [n
 // a tiny pixel font for the areas' numbers
 const DIG = ['111101101101111', '010110010010111', '111001111100111', '111001111001111', '101101111001001', '111100111001111', '111100111101111', '111001001001001', '111101111101111', '111101111001111'];
 const label = (x, y, s, c) => { let cx = x; for (const ch of String(s)) { const d = DIG[+ch]; if (!d) continue; for (let j = 0; j < 5; j++) for (let i = 0; i < 3; i++) if (d[j * 3 + i] === '1') for (let a = 0; a < 2; a++) for (let b = 0; b < 2; b++) put(cx + i * 2 + a, y + j * 2 + b, c); cx += 8; } };
-const MAIN = new Set([24, 23, 28, 26, 42, 45, 46, 47]);
+const MAIN = new Set([24, 23, 60, 28, 61, 26, 42, 45, 46, 47]);
 for (const n of Object.values(C.rooms)) { if (n.x + n.w < X0 || n.x > X1 || n.y + n.h < Y0 || n.y > Y1) continue; const c = MAIN.has(n.num) ? [255, 210, 80] : n.region === 'mountain' || n.region === 'forest' ? [160, 160, 160] : [90, 220, 255]; box(n, c); label((n.x - X0) * K + 4, (n.y - Y0) * K + 4, n.num, c); }
 for (const s of m.secrets) box(s, [255, 80, 255]);
 // PNG

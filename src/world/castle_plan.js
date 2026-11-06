@@ -13,6 +13,7 @@
 // A way: [a, b, optional] (from area a to area b); its road winds between their nearest sides.
 // A lock: on the way a->b: what opens it (src/castle.js): mech:<key> (a mechanism turned), clear:<n> (that area's
 // defenders dead), break:<n> (that area's cursed objects broken), jarls, ashkar, seal+chain.
+import { masterAreas } from './castle_master.js';
 export const AREAS = [
   // REGION I, THE ASHEN FOREST (bottom right, the forest's way west then north)
   [1, 'a01', 'REALMFALL HOLLOW', 'forest', 700, 748, 26, 28, 'clearing', { role: 'rest' }],
@@ -35,31 +36,9 @@ export const AREAS = [
   [17, 'a17', 'THE CRUCIBLE TRAVERSE', 'mountain', 366, 448, 35, 33, 'ring'],
   [18, 'a18', 'THE PYRE REDOUBT', 'mountain', 418, 452, 42, 35, 'octa'],
   [19, 'a19', 'THE FINAL RAMPART', 'mountain', 418, 404, 50, 35, 'hall'],
-  // ---- THE CASTLE, FROM THE USER'S MASTER LAYOUT (2026-11-05: "Use this as the layout for the castle ... a single route":
-  // West Entrance > Drawbridge Guard > Central Courtyard > the Hollow Jarls (east) > their fall opens the north gate >
-  // Chain Hall > Forge Antechamber > Ashkar (north centre) > the North Keep, its Sun Gate on to the Eclipse Walk). Laid out
-  // at 0.42 tiles to a pixel of the map, the spine at y 290; the side rooms short branches off the route where the map has
-  // them. The rooms are the pages' (src/world/castle_rooms.js), turned where the map turns their doors.
-  // the main route
-  [24, 'a24', 'THE WEST GATE', 'outer', 355, 290, 44, 40, 'hall'],
-  [23, 'a23', 'THE DRAWBRIDGE GUARD', 'outer', 403, 290, 40, 40, 'hall'],
-  [28, 'a28', 'THE CENTRAL COURTYARD', 'outer', 534, 290, 100, 72, 'court'],
-  [26, 'a26', "THE HOLLOW JARLS' COURT", 'outer', 674, 290, 50, 52, 'court', { prefer: 'warden', court: true }],
-  [42, 'a42', 'THE CHAIN HALL', 'inner', 534, 230, 26, 36, 'hall'],
-  [45, 'a45', 'THE FORGE ANTECHAMBER', 'inner', 534, 194, 36, 18, 'hall'],
-  [46, 'a46', 'ASHKAR, THE CHAINED FORGE-GIANT', 'ashkar', 534, 150, 62, 52, 'octa', { guardhall: true }],
-  [47, 'a47', 'THE NORTH KEEP', 'ashkar', 534, 102, 34, 26, 'hall', { role: 'rest', sundoor: true }],
-  // the side rooms (optional; each off the route, back the way it came)
-  [53, 'a53', 'THE CORRUPTED ROSE COURTYARD', 'outer', 372, 221, 40, 40, 'hall', { opt: true, role: 'treasure' }],
-  [20, 'a20', 'THE ROPE & COG GATEHOUSE', 'outer', 401, 349, 42, 44, 'hall', { opt: true, role: 'treasure' }],
-  [27, 'a27', 'THE ROYAL GALLERY', 'inner', 469, 221, 32, 28, 'hall', { opt: true, role: 'treasure' }],
-  [37, 'a37', 'THE LIBRARY', 'inner', 433, 174, 40, 30, 'hall', { opt: true, role: 'treasure' }],
-  [21, 'a21', 'THE DINING HALL', 'inner', 611, 221, 34, 24, 'hall', { opt: true, role: 'treasure' }],
-  [29, 'a29', 'THE BARRACKS', 'inner', 668, 205, 44, 44, 'hall', { opt: true, role: 'treasure' }],
-  [43, 'a43', 'THE TOWER OVERLOOK', 'inner', 620, 172, 34, 36, 'hall', { opt: true, role: 'treasure' }],
-  [31, 'a31', 'THE CHAPEL', 'outer', 534, 356, 44, 42, 'hall', { opt: true, role: 'treasure' }],
-  [30, 'a30', 'THE ARMORY', 'outer', 607, 336, 30, 24, 'hall', { opt: true, role: 'treasure' }],
-  [33, 'a33', 'THE SIDE CHAPEL', 'outer', 458, 342, 40, 31, 'hall', { opt: true, role: 'treasure' }],
+  // ---- THE CASTLE: the user's master layout as one fixed footprint (2026-11-05 rebuild: src/world/castle_master.js), each
+  // room an area of its own from there (its place, its size, its shape all the footprint's; its tiles laid from it)
+  ...masterAreas(),
   // REGION VI, ECLIPSE WALK (apart: the North Keep's Sun Gate's portal only; moved to the west of the map, 2026-11-05)
   [48, 'a48', 'THE ECLIPSE THRESHOLD', 'eclipse', 150, 40, 32, 32, 'round', { arrive: true }],
   [49, 'a49', 'THE DUSK CAUSEWAY', 'eclipse', 150, 90, 24, 55, 'span'],
@@ -72,15 +51,13 @@ export const AREAS = [
 export const WAYS = [
   [1, 2], [2, 3], [3, 5], [5, 7], [7, 8], [8, 9], [9, 10], [10, 11], [11, 12], [12, 13], [13, 15], [15, 16], [16, 17], [17, 18], [18, 19],
   // the castle's one route (the master layout), then the eclipse
-  [19, 24], [24, 23], [23, 28], [28, 26], [28, 42], [42, 45], [45, 46], [46, 47], [48, 49], [49, 50], [50, 51], [51, 52],
+  [19, 24], [48, 49], [49, 50], [50, 51], [51, 52],   // (the castle's own ways are its footprint's doors and walks: castle_master.js)
   [3, 4, true], [4, 5, true], [5, 6, true], [6, 7, true], [12, 14, true], [14, 15, true],
-  // the castle's side rooms: short branches, each back the way it came
-  [23, 53, true], [23, 20, true], [28, 27, true], [27, 37, true], [28, 21, true], [21, 29, true], [21, 43, true], [28, 31, true], [28, 30, true], [28, 33, true],
 ];
 // the locks: on the way a->b, and what opens it
 export const LOCKS = [
   [7, 8, 'clear:7', 'THE WATCH GATE OPENS'], [19, 24, 'clear:19', 'THE FINAL ASCENT OPENS'],
-  [23, 28, 'mechs:clampL,clampR', 'THE CHAINS RELEASE · THE DRAWBRIDGE LOWERS'], [28, 42, 'jarls', 'THE JARLS ARE FALLEN · THE NORTH GATE GRINDS OPEN'],
+  [23, 60, 'mechs:clampL,clampR', 'THE CHAINS RELEASE · THE DRAWBRIDGE LOWERS'], [28, 42, 'jarls', 'THE JARLS ARE FALLEN · THE NORTH GATE GRINDS OPEN'], [23, 25, 'mechs:clampL,clampR'], [23, 30, 'mechs:clampL,clampR'],
   [45, 46, 'mech:seal45', 'THE ENTRANCE SEAL OPENS'], [46, 47, 'ashkar', 'ASHKAR IS FALLEN · THE GREAT SUN GATE IS OPEN'], [50, 51, 'break:50', 'THE CELESTIAL ANCHORS FAIL · THE WAY STEADIES'],
 ];
 // the mechanisms (stand at one, its area cleared, 3 s): [key, area, name, verb, sprite, at x, at y (0..1; else the middle)]
@@ -92,7 +69,7 @@ export const MECHS = [
 // the cursed things to break (an area's lock): [area, count, enemy id]
 // the secret rooms, where the master layout marks them (2026-11-05): [the room it opens from, the side, its name]; behind a
 // cracked wall there, unseen until it breaks, never on the way
-export const SECRETS = [[53, 'E', 'THE HIDDEN CHAMBER'], [29, 'E', 'THE SERVANT PASSAGE'], [30, 'E', "THE QUARTERMASTER'S CACHE"], [20, 'W', "THE SMUGGLER'S HOLD"]];
+export const SECRETS = [];   // (the castle's secret chambers are its footprint's: castle_master.js)
 export const TARGETS = [[31, 3, 'cursed_altar'], [50, 2, 'celestial_anchor'], [6, 1, 'cursed_altar']];
 // the geysers (src/castle.js): [area, flame vents, lava fissures]; set into the ground on and beside its way
 export const GEYSERS = [[9, 3, 0], [10, 4, 0], [11, 0, 3], [12, 5, 0], [13, 2, 0], [15, 2, 0], [16, 0, 4], [17, 0, 2], [18, 3, 0], [19, 4, 1]];
