@@ -133,7 +133,13 @@ export function buildMaster() {
     }
     if (R.lavaRim) {                                                  // (Ashkar's arena: a ring of lava inside its wall)
       const p = R.parts[0], [x0, y0, x1, y1] = p.b, cx = (x0 + x1) / 2, cy = (y0 + y1) / 2, rx = (x1 - x0) / 2, ry = (y1 - y0) / 2, k0 = 1 - R.lavaRim / Math.min(rx, ry);
-      for (let i = 0; i < w * h; i++) if (owner[i] === k) { const [px, py] = toP(i % w + 0.5, Math.floor(i / w) + 0.5), q = Math.sqrt(((px - cx) / rx) ** 2 + ((py - cy) / ry) ** 2); if (q > k0 && Math.abs(px - cx) > 20) T[i] = K.LAVA; }
+      // (as the sheet has it, 2026-11-05: the lava deepest along the top and down the sides, its edge ragged, thinning to nothing
+      // at the south where you come in; the way north to the keep kept open through it)
+      for (let i = 0; i < w * h; i++) if (owner[i] === k) {
+        const [px, py] = toP(i % w + 0.5, Math.floor(i / w) + 0.5), u = (px - cx) / rx, v = (py - cy) / ry, q = Math.sqrt(u * u + v * v), th = Math.atan2(v, u), up = -Math.sin(th);
+        const rim = up < -0.45 ? 0 : (R.lavaRim * 0.6 + R.lavaRim * 1.5 * Math.max(0, (up + 0.45) / 1.45) + 4 * Math.sin(th * 9) + 3 * Math.sin(th * 23)) / Math.min(rx, ry);
+        if (q > 1 - rim && !(py < cy && Math.abs(px - cx) <= 20)) T[i] = K.LAVA;
+      }
     }
   });
   // the walkways

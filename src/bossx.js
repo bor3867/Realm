@@ -49,7 +49,8 @@ export const BXF = {
     }
     if (S.state === 'sleep' || e.state === 'sleep') {
       const R0 = e.room;
-      if (!R0 || (p.x > R0.x && p.x < R0.x + R0.w && p.y > R0.y && p.y < R0.y + R0.h)) this.bxWake(e);
+      const M0 = R0 && R0.master && this.map.masterOwn;   // (a room of the castle's fixed footprint: in it by its own floor, not its box, which can take in a corner of the next)
+      if (!R0 || (M0 ? this.map.masterOwn(Math.floor(p.x), Math.floor(p.y)) === R0.master : p.x > R0.x && p.x < R0.x + R0.w && p.y > R0.y && p.y < R0.y + R0.h)) this.bxWake(e);
       return;
     }
     if (S.state === 'deathhold') {                              // dead on its last frame, shaking; then it bursts

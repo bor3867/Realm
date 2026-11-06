@@ -116,7 +116,7 @@ export function isSolid(m, x, y) {
 // (low ruin walls and whale ribs you step over: their rows walled players and realm bosses in)
 // only the big things stop you: trees, rocks, spires, pillars and walls, statues, the great furniture, gates. Chests,
 // crates, barrels, braziers, candles, fences, seats, signs, lamps, shrines and people you walk through, as in RotMG
-const BIG = /tree|palm|pine|oak|deadwood|keep_stone|keep_pylon|keep_(?:bunk|armor|dummy|pew|pillar_iron|anvil|basin|furnace|rack|winch)|crimson_(?:big|mid|small)|castle_art\/(?:ruin_(?:swordsman|kneeling|torso|crowned_head)|pedestal|altar|brazier|statue|throne|gargoyle)|keep_brazier|keep_bowl|keep_ritual|keep_wheel|castle_decor\/(?:log|barricade|wagon|siege_engine|tent|pipe|lava_tank|bed|table|winch|valve)$|saguaro|giant_mushroom|rotting_log|boulder|rock|cairn|spire|crystal_cluster|ice_crystal|pillar|column|obelisk|(?<!ruin_)wall|statue|fallen_head|bookshelf|furnace|well$|fountain|throne|sarcophag|coffin|gate|telescope|star_globe|high_striker|circus_cannon|rowboat|ticket_booth|stage_moon|great_lens|golem_husk|anvil_block|crucible|stump|gargoyle/;
+const BIG = /tree|palm|pine|oak|deadwood|keep_stone|keep_pylon|keep_(?:bunk|armor|dummy|pew|pillar_iron|anvil|basin|furnace|rack|winch)|crimson_(?:big|mid|small)|rose_tree|castle_art\/(?:ruin_(?:swordsman|kneeling|torso|crowned_head)|pedestal|altar|brazier|statue|throne|gargoyle)|keep_brazier|keep_bowl|keep_ritual|keep_wheel|castle_decor\/(?:log|barricade|wagon|siege_engine|tent|pipe|lava_tank|bed|table|winch|valve)$|saguaro|giant_mushroom|rotting_log|boulder|rock|cairn|spire|crystal_cluster|ice_crystal|pillar|column|obelisk|(?<!ruin_)wall|statue|fallen_head|bookshelf|furnace|well$|fountain|throne|sarcophag|coffin|gate|telescope|star_globe|high_striker|circus_cannon|rowboat|ticket_booth|stage_moon|great_lens|golem_husk|anvil_block|crucible|stump|gargoyle/;
 export const blocks = (sprite) => BIG.test(sprite || '');
 function finalize(m) {
   for (let i = 0; i < m.tiles.length; i++) if (SOLID_TILES.has(m.tiles[i])) m.solid[i] = 1;
@@ -2176,7 +2176,11 @@ export function dungeon(seed, def) {
           let k = 0; for (let Y = n.y; Y < n.y + n.h; Y++) for (let X = n.x; X < n.x + n.w; X++) if (ok(X, Y) && wallN(X, Y) && (X + Y) % 6 === 0) put(m, k++ % 2 ? 'castle_art/banner_sun' : 'castle_art/banner_crown', X, Y, false);
           for (let Y = n.y; Y < n.y + n.h; Y++) for (let X = n.x; X < n.x + n.w; X++) if (ok(X, Y) && wallS(X, Y) && X % 9 === 4) put(m, 'castle_art/brazier_gold', X, Y, true);
         }
-        if (/^tw/.test(n.master)) { const X = Math.round(n.x + n.w / 2), Y = Math.round(n.y + n.h / 2); if (own(X, Y)) put(m, 'castle_art/brazier_gold', X, Y, true); }
+        if (/^tw/.test(n.master)) {                            // (a tower: its signal fire in the middle, a pennant on its north wall, its stores by the walls)
+          const X = Math.round(n.x + n.w / 2), Y = Math.round(n.y + n.h / 2); if (own(X, Y)) put(m, 'castle_art/brazier_gold', X, Y, true);
+          let y2 = Y; while (own(X, y2 - 1)) y2--; if (ok(X, y2)) put(m, 'castle_art/pennant_crown', X, y2, false);
+          for (const [dx, dy, sp2] of [[-3, 2, 'castle_props/barrel'], [3, 2, 'castle_props/crate_stack'], [-3, -2, 'castle_decor/rubble']]) if (ok(X + dx, Y + dy)) put(m, sp2, X + dx, Y + dy, sp2 !== 'castle_decor/rubble');
+        }
         if (n.master === 'ashkar') for (const a of [0.6, 2.55, 3.7, 5.65]) {   // (his chains: four posts round the floor's edge, by the lava; none in his lanes)
           let X = Math.round(n.cx + Math.cos(a) * n.w * 0.33), Y = Math.round(n.cy + Math.sin(a) * n.h * 0.33);
           if (ok(X, Y)) put(m, 'castle_decor/chain_post', X, Y, false);

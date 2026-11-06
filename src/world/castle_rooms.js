@@ -241,7 +241,7 @@ export const PAGES = {
     stairs: [[16, 34, 23, 39]],
     runners: [['ns', 19, 23, 33, 'crown']],
     props: [
-      ['castle_art/deadwood_big', 19, 17], ['castle_art/brazier_purple', 14, 6], ['castle_art/brazier_purple', 25, 6], ['castle_art/statue_queen', 8, 5], ['castle_decor/rubble', 30, 5, false], ['castle_decor/shattered_statue', 32, 6],
+      ['castle_art/rose_tree', 19, 17], ['castle_art/brazier_purple', 14, 6], ['castle_art/brazier_purple', 25, 6], ['castle_art/statue_queen', 8, 5], ['castle_decor/rubble', 30, 5, false], ['castle_decor/shattered_statue', 32, 6],
       ['castle_art/brazier_gold', 8, 16], ['castle_art/brazier_gold', 31, 16], ['castle_art/brazier_gold', 10, 24], ['castle_art/brazier_gold', 29, 24],
       ['castle_art/ember_bloom', 5, 11, false], ['castle_art/ember_bloom', 7, 10, false], ['castle_art/leaf_ember', 6, 12, false], ['castle_art/ember_bloom', 33, 11, false], ['castle_art/ember_bloom', 31, 10, false], ['castle_art/leaf_ember', 34, 12, false],
       ['castle_art/ember_bloom', 6, 26, false], ['castle_art/ember_bloom', 8, 27, false], ['castle_art/leaf_ember', 7, 25, false],

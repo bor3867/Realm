@@ -47,6 +47,17 @@ def flicker(g, k):                                          # a flame's frame: i
     return [[f(c, x, y) for x, c in enumerate(r)] for y, r in enumerate(g)]
 
 
+def rose(g):                                                # the great crimson tree turned purple (the user's master sheet's corrupted rose tree): its crown
+    h = len(g)                                              # violet, its embers a magenta glow; its trunk left dark wood
+    def f(c, y):
+        if not c[3]: return c
+        r, gg, b, a = c
+        if r > 170 and gg > 70: return (255, min(255, 90 + gg // 3), 235, a)          # (an ember: a magenta glow)
+        if y < h * 0.66 and r >= gg: return (int(r * 0.78), int(gg * 0.45), min(255, int(r * 1.05 + b * 0.3)), a)   # (the crown: violet)
+        return c
+    return [[f(c, y) for c in row] for y, row in enumerate(g)]
+
+
 def pack(items, name, kind):
     W = sum(len(g[0]) + 1 for _, g in items); H = max(len(g) for _, g in items)
     sheet = [[BL] * W for _ in range(H)]; x0 = 0; fr = {}
@@ -62,6 +73,7 @@ if __name__ == '__main__':
     deco = []
     for i, n in enumerate(STATUES): deco.append((n, trim(load('sheet_statues', i))))
     for i, n in enumerate(TREES): deco.append((n, trim(load('sheet_trees', i))))
+    deco.append(('rose_tree', rose(dict(deco)['crimson_big'])))   # (the Corrupted Rose Court's tree, 2026-11-05: the great crimson tree in the sheet's purple)
     for i, n in enumerate(BANNERS): deco.append((n, trim(load('sheet_banners', i))))
     items = []
     for n, g in deco:
