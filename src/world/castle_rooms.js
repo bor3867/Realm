@@ -560,3 +560,48 @@ export const ROOMS = {
     ],
   },
 };
+
+// ---- the castle's fixed footprint (2026-11-05 rebuild, stage C: "Integrate the previously completed room interiors into
+// the fixed footprint. Preserve their visual designs"): each room of src/world/castle_master.js takes the room the user
+// designed for it, turned so its foot faces the way in, its things set out over the footprint's own size (each where it
+// stood in its page, as far across and as far up; the sprites themselves never scaled). The footprint keeps its own
+// floor: a page's floor plan is not used, its pillars, lava and boards are, kept clear of the doorways (src/world/maps.js)
+// [the page, quarter turns clockwise (its foot from the south: 1 = from the west, 2 = from the north, 3 = from the east)]
+export const MASTER_PAGES = {
+  entrance: [PAGES.a24, 1],        // 01 the Barbican Gatehouse: in from the west door
+  drawbridge: [PAGES.a23, 1],      // 03 the Drawbridge Engine: in from the west, the bridge out east
+  spineW: [PAGES.a38, 0],          // A12 the Crowned Crossing: the great hall's four ways (the library north, the gatehouse south)
+  courtyard: [ROOMS.a28, 0],       // the Central Courtyard
+  spineE: [PAGES.a54, 1],          // A3 the Twin Hall: its two runners either side of the way east
+  jarls: [PAGES.a26, 1],           // 04 the Hollow Jarls' Court: in from the west
+  chainhall: [ROOMS.a42, 0],       // the Chain Hall
+  antechamber: [ROOMS.a45, 0],     // the Forge Antechamber (its seal)
+  northkeep: [PAGES.a47, 0],       // A15 the Overlook: the Great Sun Gate in its north wall
+  rose: [PAGES.a53, 0],            // 06 the Corrupted Rose Court: up its steps from the south
+  banners: [PAGES.a25, 0],         // 05 the Hall of Hollow Banners: in at its foot from the Drawbridge Guard
+  gallery: [PAGES.a27, 0],         // A16 the Procession Hall: the Royal Gallery
+  study: [PAGES.a32, 1],           // A7 the Reliquary Niche: in from the banner hall west
+  library: [PAGES.a37, 0],         // A9 the Scriptorium
+  overlook: [PAGES.a43, 0],        // A4 the Spiral Keep: the Tower Overlook
+  shrine: [PAGES.a55, 0],          // A8 the Sanctum Antechamber: the banner shrine
+  dining: [ROOMS.a21, 0],          // the Dining Hall
+  barracks: [PAGES.a29, 1],        // 08 the Ashen Barracks: in from the overlook west
+  sidechapel: [PAGES.a33, 2],      // A14 the Chancel: the side chapel, in from the entrance above
+  armory: [ROOMS.a30, 0],          // the Armory
+  ropecog: [PAGES.a20, 2],         // 07 the Rope Winch Gatehouse: in from the great hall above
+  watch: [PAGES.a28, 3],           // A6 the Collapsed Wing: the south watch, in from the stair east
+  chapel: [PAGES.a31, 2],          // 09 the Chapel of Hollow Light: in from the east hall above
+};
+export function fitPage(T0, k, w, h) {
+  let T = { ...T0 }; delete T.at; for (let i = 0; i < k; i++) T = turn1(T);
+  const sx = (w - 1) / Math.max(1, T.w - 1), sy = (h - 1) / Math.max(1, T.h - 1), X = (x) => Math.round(x * sx), Y = (y) => Math.round(y * sy);
+  const Rc = (q) => [X(q[0]), Y(q[1]), X(q[2]), Y(q[3]), ...q.slice(4)], Pt = ([x, y, ...r]) => [X(x), Y(y), ...r];
+  const O = { w, h, floor: [], doors: {}, page: T0.page };
+  for (const key of ['cut', 'lava', 'boards', 'grass', 'chasm', 'dais', 'stairs', 'rugs', 'debris', 'skins']) if (T[key]) O[key] = T[key].map(Rc);
+  for (const key of ['emblems', 'rings', 'beds']) if (T[key]) O[key] = T[key].map(Pt);
+  if (T.props) O.props = T.props.map(([sp, x, y, ...r]) => [sp, X(x), Y(y), ...r]);
+  if (T.spiral) O.spiral = [X(T.spiral[0]), Y(T.spiral[1]), T.spiral[2], T.spiral[3]];
+  if (T.mechs) O.mechs = Object.fromEntries(Object.entries(T.mechs).map(([q, [x, y]]) => [q, [X(x), Y(y)]]));
+  if (T.runners) O.runners = T.runners.map(([d, at, a0, a1, st]) => (d === 'ns' ? ['ns', X(at), Y(a0), Y(a1), st] : ['ew', Y(at), X(a0), X(a1), st]));
+  return O;
+}

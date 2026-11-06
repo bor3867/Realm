@@ -2,7 +2,7 @@
 import { keyParen } from '../settings.js';
 import { rng, noise2, dist } from '../util.js';
 import { AREAS, WAYS, LOCKS, MECHS, GEYSERS, SECRETS } from './castle_plan.js';
-import { ROOMS } from './castle_rooms.js';
+import { ROOMS, MASTER_PAGES, fitPage } from './castle_rooms.js';
 import { buildMaster, K as MK, WORLD as MWORLD, LOCK_DOORS, WEST_DOOR, toWorld as mWorld, ROOMS as MROOMS } from './castle_master.js';
 
 export const TILE_NAMES = ['water', 'deep', 'sand', 'fen', 'mud', 'snow', 'runefloor', 'runeglyph',
@@ -1476,7 +1476,7 @@ export function dungeon(seed, def) {
       for (const [num, key, title, region, cx, cy, w, h, shape, ex = {}] of AREAS) {
         const n = room(Math.round(cx - w / 2), Math.round(cy - h / 2), w, h, { kind: KIND[key] || 'area', key, title, num, region, form: shape, sect: SECT[region], shape: 'maze', dep: num, ...ex });
         if (ex.opt) n.leaf = true;
-        const T = ex.master ? { w, h, floor: [], doors: {}, master: ex.master } : ROOMS[key];   // (a room of the castle's fixed footprint: laid from it below; otherwise a room laid out from the user's page: its own size, its own place: src/world/castle_rooms.js)
+        const T = ex.master ? { ...(MASTER_PAGES[ex.master] ? fitPage(...MASTER_PAGES[ex.master], w, h) : { w, h, floor: [], doors: {} }), master: ex.master } : ROOMS[key];   // (a room of the castle's fixed footprint: laid from it below; otherwise a room laid out from the user's page: its own size, its own place: src/world/castle_rooms.js)
         if (T && T.master) { n.tpl = T; n.master = ex.master; }
         else if (T) { const [ax, ay] = T.at || [cx, cy]; n.w = T.w; n.h = T.h; n.x = Math.round(ax - T.w / 2); n.y = Math.round(ay - T.h / 2); n.cx = n.x + (T.w >> 1); n.cy = n.y + (T.h >> 1); n.tpl = T; }
         A[num] = n; R0[key] = n;
@@ -1492,8 +1492,25 @@ export function dungeon(seed, def) {
         set(X, Y, t === MK.WALL ? WALL : t === MK.WATER ? TID.deep : t === MK.LAVA ? TID.lava : FLOOR);   // (its cracked walls are laid by the secret rooms below)
       }
       m.master = MASTER;
+      if (MASTER) {
+        const Mw = MASTER.w, Mh = MASTER.h, own = MASTER.owner, walk = (t) => t === MK.FLOOR || t === MK.CARPET || t === MK.STAIR || t === MK.TOWER || t === MK.LAVA;
+        const zone = new Uint8Array(Mw * Mh);
+        for (let y = 0; y < Mh; y++) for (let x = 0; x < Mw; x++) {
+          const i = y * Mw + x; if (!walk(MASTER.tiles[i]) || own[i] < 0) continue;
+          for (let dy = -3; dy <= 3 && !zone[i]; dy++) for (let dx = -3; dx <= 3; dx++) { const X = x + dx, Y = y + dy; if (X < 0 || Y < 0 || X >= Mw || Y >= Mh) continue; const j = Y * Mw + X; if (walk(MASTER.tiles[j]) && own[j] !== own[i]) { zone[i] = 1; break; } }
+        }
+        const local = (x, y) => { const X = x - MWORLD[0], Y = y - MWORLD[1]; return X < 0 || Y < 0 || X >= Mw || Y >= Mh ? -1 : Y * Mw + X; };
+        m.masterOwn = (x, y) => { const i = local(x, y); return i < 0 || own[i] < 0 ? null : MROOMS[own[i]].id; };
+        m.masterDoor = (x, y) => { const i = local(x, y); return i >= 0 && zone[i] === 1; };
+      }
       for (const n of rooms) {
         const { x, y, w, h, cx, cy, num } = n, s = num * 7.3;
+        if (n.tpl && n.master) {                                        // a room of the footprint: its page's pillars, lava, boards and lawns on its own floor, never in a doorway
+          const T = n.tpl, mine = (X, Y) => m.masterOwn(X, Y) === n.master && !m.masterDoor(X, Y) && tile(X, Y) === FLOOR;
+          const lay = (list, t) => { for (const [a, b, c, d] of list || []) for (let Y = y + b; Y <= y + d; Y++) for (let X = x + a; X <= x + c; X++) if (mine(X, Y)) set(X, Y, t); };
+          lay(T.cut, TID.void); lay(T.lava, TID.lava); lay(T.chasm, TID.nxchasm); lay(T.boards, BR); lay(T.grass, TID.grass);
+          continue;
+        }
         if (n.tpl) {                                                    // its page: floor, the blocks standing in it, lava beside
           const T = n.tpl;
           for (const [a, b, c, d] of T.floor) carve(x + a, y + b, x + c, y + d);
@@ -2127,6 +2144,13 @@ export function dungeon(seed, def) {
           let k = 0; while (k < 3 && open(Y - 1)) { Y--; k++; }
           if (open(Y - 1) || !open(Y)) continue;
         }
+        if (n.master) {                                          // (a room of the footprint: the nearest of its own floor, two tiles at most; a solid thing never in a doorway)
+          const ok = (X2, Y2) => free2(X2, Y2) && m.masterOwn(X2, Y2) === n.master && !(solid && m.masterDoor(X2, Y2));
+          let at = ok(X, Y) ? [X, Y] : null;
+          for (let r2 = 1; r2 <= 2 && !at && !hangs(sp); r2++) for (let dy = -r2; dy <= r2 && !at; dy++) for (let dx = -r2; dx <= r2; dx++) if (ok(X + dx, Y + dy)) { at = [X + dx, Y + dy]; break; }
+          if (at) put(m, sp, at[0], at[1], solid);
+          continue;
+        }
         if (free2(X, Y)) put(m, sp, X, Y, solid);
       }
       for (const [x0, y0, x1, y1, k = 0.5] of T.debris || []) {   // (fallen masonry: heaps of it, a rock in the heart of each, rubble spilling round; cover to fight from, the lanes kept)
@@ -2330,7 +2354,7 @@ export function dungeon(seed, def) {
   };
   const castleDress = (n) => {
     if (n.region === 'outer' || n.region === 'inner') keepDress(n);
-    if (/^a(2[0-9]|3[0-9]|4[0-3]|45|47|5[2-8])$/.test(n.key)) outerKeep(n);
+    if (n.master || /^a(2[0-9]|3[0-9]|4[0-3]|45|47|5[2-8])$/.test(n.key)) outerKeep(n);
     const at = (fx, fy) => [Math.round(n.x + fx * n.w), Math.round(n.y + fy * n.h)];
     const P = (sprite, fx, fy, solid = true) => { const [x, y] = at(fx, fy); put2(null, x, y, sprite, solid); };
     const wall = (fx0, fy0, fx1, fy1) => { const [x0, y0] = at(fx0, fy0), [x1, y1] = at(fx1, fy1); for (let y = Math.min(y0, y1); y <= Math.max(y0, y1); y++) for (let x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) if (isF(x, y)) set(x, y, TID.void); };   // (a wall inside an area: its rooms, its passages)
