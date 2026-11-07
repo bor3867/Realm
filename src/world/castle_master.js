@@ -67,7 +67,7 @@ export const ROOMS = [
 ];
 
 // the walkways and stairs between them: [points..., width px, opts]; secret ones end in a cracked wall (plug: the end at the room)
-const L = (pts, w, o = {}) => ({ pts, w, ...o });
+const L = (pts, w, o = {}) => ({ pts, w: o.secret ? w : w + 2, ...o });   // (2026-11-06 polish: every walk a tile wider than the sheet's line, five tiles at the least; the secret tunnels as narrow as they were)
 export const LINKS = [
   // off the required route
   L([[346, 440], [346, 372]], 16, { stair: true }),                    // the entrance up to the rose courtyard
@@ -211,6 +211,21 @@ export function buildMaster() {
       break;
     }
   }
+  // the alcoves (the polish pass, 2026-11-06: "architectural variation through alcoves ... irregular room boundaries"): a
+  // niche three wide and two deep cut into a room's north wall every thirteen or so along it, where the wall is thick
+  // enough behind (never through to the moat or the next room) and no doorway is near; src/world/maps.js stands a statue,
+  // a brazier or a shrine in each
+  const niches = [];
+  for (let y = 5; y < h - 2; y++) for (let x = 3; x < w - 3; x++) {
+    const i = at(x, y); if (!flr(i) || owner[i] < 0) continue;
+    const R0 = ROOMS[owner[i]]; if (R0.kind === 'tower' || R0.kind === 'secret' || R0.lavaRim || x % 9 !== 4) continue;
+    let ok = true;
+    for (let dx = -1; dx <= 1 && ok; dx++) { if (!flr(at(x + dx, y))) ok = false; for (let dy = 1; dy <= 3 && ok; dy++) if (T[at(x + dx, y - dy)] !== K.WALL) ok = false; }
+    for (let dy = 1; dy <= 3 && ok; dy++) for (const dx of [-2, 2]) if (T[at(x + dx, y - dy)] !== K.WALL && dy <= 2) ok = false;
+    if (!ok || nearDoor(x, y)) continue;
+    for (let dx = -1; dx <= 1; dx++) for (let dy = 1; dy <= 2; dy++) { const j = at(x + dx, y - dy); T[j] = T[i] === K.CARPET ? K.FLOOR : K.FLOOR; owner[j] = owner[i]; }
+    niches.push([x, y - 2, R0.id]);
+  }
   // THE GATEHOUSES (2026-11-06, the user: "The gates are terrible designs. They need to actually look like gates"): each
   // locked doorway walled across, one opening six tiles wide left in the middle of it for its gate (the gate fills that
   // opening and nothing else); src/world/maps.js hangs the gate in it
@@ -226,7 +241,7 @@ export function buildMaster() {
     const x = i % w, y = Math.floor(i / w); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const j = at(x + dx, y + dy); if (j >= 0 && (T[j] === K.FLOOR || T[j] === K.CARPET || T[j] === K.STAIR || T[j] === K.TOWER)) { T[i] = K.PLUG; plugs.push([x, y]); break; } }
   }
   const parts = ROOMS.map((R) => { let x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1; for (const p of R.parts) { const [a, b] = toT(p.b[0], p.b[1]), [c, d] = toT(p.b[2], p.b[3]); x0 = Math.min(x0, a); y0 = Math.min(y0, b); x1 = Math.max(x1, c); y1 = Math.max(y1, d); } return { ...R, box: [x0, y0, x1, y1] }; });
-  return { w, h, tiles: T, owner, parts, plugs, locks, at: toT };
+  return { w, h, tiles: T, owner, parts, plugs, locks, niches, at: toT };
 }
 
 // ---- stage B: the footprint in the game's world (2026-11-05)

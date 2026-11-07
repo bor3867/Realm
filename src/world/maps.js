@@ -3,7 +3,7 @@ import { keyParen } from '../settings.js';
 import { rng, noise2, dist } from '../util.js';
 import { AREAS, WAYS, LOCKS, MECHS, GEYSERS, SECRETS } from './castle_plan.js';
 import { ROOMS, MASTER_PAGES, fitPage } from './castle_rooms.js';
-import { buildMaster, K as MK, WORLD as MWORLD, LOCK_DOORS, WEST_DOOR, toWorld as mWorld, ROOMS as MROOMS, MAIN_LINES } from './castle_master.js';
+import { buildMaster, K as MK, WORLD as MWORLD, LOCK_DOORS, WEST_DOOR, toWorld as mWorld, ROOMS as MROOMS, MAIN_LINES, LINKS as MLINKS, SCALE as MSCALE } from './castle_master.js';
 
 export const TILE_NAMES = ['water', 'deep', 'sand', 'fen', 'mud', 'snow', 'runefloor', 'runeglyph',
   'ash', 'obsidian', 'marble', 'forge', 'forgewall', 'lava', 'void', 'chapelfloor', 'chapelwall', 'goldvein', 'ribwall',
@@ -2155,7 +2155,7 @@ export function dungeon(seed, def) {
           const ok = (X2, Y2) => free2(X2, Y2) && m.masterOwn(X2, Y2) === n.master && !(solid && m.masterDoor(X2, Y2));
           let at = ok(X, Y) ? [X, Y] : null;
           for (let r2 = 1; r2 <= 2 && !at && !hangs(sp); r2++) for (let dy = -r2; dy <= r2 && !at; dy++) for (let dx = -r2; dx <= r2; dx++) if (ok(X + dx, Y + dy)) { at = [X + dx, Y + dy]; break; }
-          if (at) put(m, sp, at[0], at[1], solid);
+          if (at) put(m, sp, at[0], at[1], solid, sp === 'castle_art/rose_tree' ? { scale: 2.2 } : {});   // (the Corrupted Rose Court's tree drawn great, the court's heart, 2026-11-06 polish)
           continue;
         }
         if (free2(X, Y)) put(m, sp, X, Y, solid);
@@ -2177,7 +2177,7 @@ export function dungeon(seed, def) {
           for (let Y = n.y; Y < n.y + n.h; Y++) for (let X = n.x; X < n.x + n.w; X++) if (ok(X, Y) && wallS(X, Y) && X % 9 === 4) put(m, 'castle_art/brazier_gold', X, Y, true);
         }
         if (/^tw/.test(n.master)) {                            // (a tower: its signal fire in the middle, a pennant on its north wall, its stores by the walls)
-          const X = Math.round(n.x + n.w / 2), Y = Math.round(n.y + n.h / 2); if (own(X, Y)) put(m, 'castle_art/brazier_gold', X, Y, true);
+          const X = Math.round(n.x + n.w / 2), Y = Math.round(n.y + n.h / 2); if (ok(X, Y)) put(m, 'castle_art/brazier_gold', X, Y, true);
           let y2 = Y; while (own(X, y2 - 1)) y2--; if (ok(X, y2)) put(m, 'castle_art/pennant_crown', X, y2, false);
           for (const [dx, dy, sp2] of [[-3, 2, 'castle_props/barrel'], [3, 2, 'castle_props/crate_stack'], [-3, -2, 'castle_decor/rubble']]) if (ok(X + dx, Y + dy)) put(m, sp2, X + dx, Y + dy, sp2 !== 'castle_decor/rubble');
         }
@@ -3403,6 +3403,115 @@ export function dungeon(seed, def) {
       const i = y * S + x, t = m.tiles[i];
       if (t === WALL || t === TID.void) { let near = false; for (let dy = -2; dy <= 2 && !near; dy++) for (let dx = -2; dx <= 2; dx++) if (KEEP.has(regionOf[(y + dy) * S + x + dx])) { near = true; break; } if (near && t === WALL) set(x, y, TID.kpwall); }
     }
+    if (m.master) {
+      // ---- THE POLISH PASS (2026-11-06, the user: "Sunthief's Castle — Final Layout & Visual Polish Pass"). Each room of the
+      // footprint furnished for what it is, along its walls and in its corners (never out in its floor: the dodge paths and
+      // the doorways kept clear), a statue, a brazier or a shrine in each alcove, the walks hung with banners and their
+      // mouths framed by pillars, every banner on a wall
+      const WALLT = new Set([WALL, TID.kpwall, TID.kpwin, TID.kpwin2]), wallAt = (x, y) => WALLT.has(tile(x, y));
+      const occ = new Set(m.objects.map((o) => Math.floor(o.y) * S + Math.floor(o.x)));
+      const clear = (x, y, r) => { for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) if (occ.has((y + dy) * S + x + dx)) return false; return true; };
+      const onFloor = (x, y) => tile(x, y) === TID.kpfloor || tile(x, y) === TID.grass || tile(x, y) === TID.emberfloor || tile(x, y) === TID.forge;
+      const P2 = (sp, x, y, solid, ex = {}) => { put(m, sp, x, y, solid, { dressed: true, ...ex }); occ.add(y * S + x); };
+      const hsh2 = (x, y) => ((Math.sin(x * 91.17 + y * 47.31) * 43758.5453) % 1 + 1) % 1;
+      const SOLIDP = /statue|brazier|crate|barrel|bunk|rack|armor|dummy|furnace|anvil|pedestal|gargoyle|throne|crimson|pine|pew|sarcophagus|alcove_niche|forge_press/;
+      // [north wall, every], [south wall], [side walls], [corners], [scattered over the floor, not solid], its alcoves
+      const DRESS = {
+        entrance: { N: [['castle_art/pennant_crown', 'castle_art/banner_castle'], 5], C: ['castle_props/crate_stack', 'castle_props/barrel'], F: [['castle_decor/rubble'], 0.006], A: 'castle_art/statue_knight' },
+        drawbridge: { N: [['castle_decor/chain_post', 'castle_decor/gear'], 6], E: [['castle_decor/chain_anchor'], 7], C: ['castle_props/crate_stack', 'castle_props/barrel'], F: [['castle_decor/rubble'], 0.004], A: 'castle_art/brazier_gold' },
+        spineW: { A: 'castle_art/statue_knight', F: [['castle_decor/rubble'], 0.002] },
+        spineE: { A: 'castle_art/statue_king', F: [['castle_decor/rubble'], 0.002] },
+        courtyard: { N: [['castle_art/banner_crown', 'castle_art/brazier_gold'], 6], C: ['castle_art/gargoyle_perched_purple'], G: true },
+        jarls: { N: [['castle_art/banner_cursed', 'castle_art/brazier_purple'], 6], S: [['castle_art/brazier_purple'], 9], C: ['castle_art/gargoyle_perched_purple'], A: 'castle_art/brazier_purple' },
+        chainhall: { E: [['castle_decor/chain_post'], 5] },
+        antechamber: { N: [['keep_decor/keep_furnace', 'castle_art/banner_forge', 'keep_decor/keep_anvil'], 5], C: ['castle_props/crate_stack'], F: [['castle_decor/lava_crack'], 0.006] },
+        ashkar: { L: 'castle_decor/burning_debris' },
+        northkeep: { A: 'castle_art/brazier_gold' },
+        rose: { F: [['castle_art/leaf_ember', 'castle_art/ember_bloom', 'castle_art/grass_ember'], 0.012], A: 'castle_art/statue_queen' },
+        banners: { A: 'castle_art/pedestal_banner' },
+        gallery: { N: [['castle_art/statue_king', 'castle_art/statue_queen', 'castle_art/statue_knight', 'castle_art/statue_monk'], 5], S: [['castle_art/pedestal_banner'], 7], A: 'castle_art/statue_king' },
+        study: { F: [['castle_decor/book_pile'], 0.01], A: 'castle_decor/book_pile' },
+        library: { F: [['castle_decor/book_pile'], 0.008], C: ['castle_props/crate_stack'], A: 'castle_art/pedestal_crystal' },
+        overlook: { N: [['castle_art/pennant_crown'], 6], C: ['castle_props/barrel', 'castle_props/crate_stack'], A: 'castle_art/brazier_gold' },
+        shrine: { A: 'castle_art/pedestal_flame' },
+        dining: { N: [['keep_decor/keep_banner', 'castle_art/brazier_gold'], 5], E: [['castle_props/barrel'], 6], C: ['castle_props/crate_stack', 'castle_props/barrel'], A: 'castle_art/statue_queen' },
+        barracks: { N: [['keep_decor/keep_bunk'], 4], S: [['keep_decor/keep_rack', 'keep_decor/keep_armor'], 4], C: ['castle_props/crate_stack', 'castle_props/barrel'], F: [['castle_decor/shield_broken'], 0.004], A: 'keep_decor/keep_armor' },
+        armory: { N: [['keep_decor/keep_rack'], 3], S: [['keep_decor/keep_armor'], 4], E: [['keep_decor/keep_dummy'], 5], C: ['castle_props/crate_stack'], F: [['castle_decor/shield_broken'], 0.005], A: 'keep_decor/keep_armor' },
+        chapel: { N: [['castle_art/statue_priest', 'castle_art/statue_monk'], 6], E: [['keep_decor/keep_brazier'], 6], A: 'castle_art/statue_priest' },
+        sidechapel: { E: [['keep_decor/keep_brazier'], 6], A: 'castle_art/statue_monk' },
+        ropecog: { N: [['castle_decor/gear', 'castle_decor/chain_post'], 5], C: ['castle_props/crate_stack', 'castle_props/barrel'], F: [['castle_decor/rubble'], 0.005], A: 'castle_decor/gear' },
+        watch: { A: 'castle_decor/collapsed_pillar' },
+      };
+      const tiles = {}; for (let y = 1; y < S - 1; y++) for (let x = 1; x < S - 1; x++) { const r = m.masterOwn(x, y); if (r && DRESS[r] && onFloor(x, y)) (tiles[r] || (tiles[r] = [])).push([x, y]); }
+      for (const [r, D] of Object.entries(DRESS)) for (const [x, y] of tiles[r] || []) {
+        if (m.masterDoor(x, y) || occ.has(y * S + x)) continue;
+        const n = wallAt(x, y - 1), so = wallAt(x, y + 1), we = wallAt(x - 1, y), ea = wallAt(x + 1, y), pick = (L, k) => L[Math.abs(k) % L.length];
+        const place = (sp, ex) => { if (!clear(x, y, 1)) return; const sol = SOLIDP.test(sp); if (sol && tile(x, y) === TID.kpcarpet) return; P2(sp, x, y, sol, ex); };
+        if (D.C && ((n && we) || (n && ea) || (so && we) || (so && ea))) { place(pick(D.C, x + y)); continue; }
+        if (D.N && n && !so && x % D.N[1] === 0) { place(pick(D.N[0], Math.floor(x / D.N[1]))); continue; }
+        if (D.S && so && !n && x % D.S[1] === 0) { place(pick(D.S[0], Math.floor(x / D.S[1]))); continue; }
+        if (D.E && (we || ea) && !n && !so && y % D.E[1] === 0) { place(pick(D.E[0], y)); continue; }
+        if (D.F && !n && !so && !we && !ea && hsh2(x, y) < D.F[1] && clear(x, y, 2)) { P2(pick(D.F[0], x * 7 + y), x, y, false); continue; }
+        if (D.L) { let lava = false; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (tile(x + dx, y + dy) === TID.lava) lava = true; if (lava && hsh2(x, y) < 0.08 && clear(x, y, 2)) P2(D.L, x, y, false); }
+        if (D.G && tile(x, y) === TID.grass && clear(x, y, 2)) {          // (the courtyard's lawns: its trees in a loose order, shrubs and embers under them)
+          let near = false; for (let dy = -2; dy <= 2 && !near; dy++) for (let dx = -2; dx <= 2; dx++) if (tile(x + dx, y + dy) === TID.kpcarpet || tile(x + dx, y + dy) !== TID.grass) { near = true; break; }
+          if (!near && x % 6 === 2 && y % 5 === 1) P2(pick(['castle_art/crimson_small', 'castle_art/crimson_mid'], x + y), x, y, true);
+          else if (hsh2(x, y) < 0.05) P2(pick(['castle_art/shrub_small', 'castle_art/ember_bloom', 'castle_art/grass_small', 'castle_art/leaf_ember'], x * 3 + y), x, y, false);
+        }
+      }
+      for (const [lx, ly, r] of m.master.niches || []) { const D = DRESS[r], x = MWORLD[0] + lx, y = MWORLD[1] + ly; if (D && D.A && !occ.has(y * S + x)) P2(D.A, x, y, SOLIDP.test(D.A), { niche: true }); }   // (each alcove its statue, brazier or shrine)
+      // the open floor: in each wide stretch of a room's paving with nothing on it, a square inset of paler stone stepped round,
+      // a brazier on it (in the boss arenas the inset alone: nothing to stand in a dodge's way); the courtyard's lawns edged
+      // with benches (2026-11-06 polish: "Break up repetitive floor textures with ... deliberate decorative patterns")
+      const ARENA = new Set(['drawbridge', 'jarls', 'ashkar']), ks = m.keepSkin || (m.keepSkin = new Map());
+      for (let y = MWORLD[1] + 3; y < MWORLD[1] + m.master.h - 3; y++) for (let x = MWORLD[0] + 3; x < MWORLD[0] + m.master.w - 3; x++) {
+        if ((x + 2 * y) % 13 !== 0 || y % 4 !== 0) continue;
+        const r = m.masterOwn(x, y); if (!r || /^tw|^sec/.test(r)) continue;
+        let ok = true; for (let dy = -4; dy <= 4 && ok; dy++) for (let dx = -4; dx <= 4; dx++) { const t = tile(x + dx, y + dy); if (t !== TID.kpfloor || m.masterOwn(x + dx, y + dy) !== r || m.masterDoor(x + dx, y + dy) || occ.has((y + dy) * S + x + dx) || ks.has((y + dy) * S + x + dx)) { ok = false; break; } }
+        if (!ok) continue;
+        for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) ks.set((y + dy) * S + x + dx, Math.abs(dx) === 2 || Math.abs(dy) === 2 ? 'keep_step' : 'keep_floor_c');
+        if (!ARENA.has(r)) P2('castle_art/brazier_gold', x, y, true);
+        else occ.add(y * S + x);
+      }
+      for (const [x, y] of tiles.courtyard || []) {                     // (benches along the lawns' edges)
+        if (tile(x, y) !== TID.kpfloor || occ.has(y * S + x) || m.masterDoor(x, y)) continue;
+        const by = [[0, 1], [0, -1]].find(([dx, dy]) => tile(x + dx, y + dy) === TID.grass);
+        if (by && x % 5 === 0 && clear(x, y, 1)) P2('keep_decor/keep_pew', x, y, true);
+      }
+      // the walks: hung with banners along their north walls, a pillar either side of each mouth where a walk meets a room
+      for (let y = 1; y < S - 1; y++) for (let x = 1; x < S - 1; x++) {
+        if (m.masterOwn(x, y) || tile(x, y) !== TID.kpfloor || x < MWORLD[0] || y < MWORLD[1] || x >= MWORLD[0] + m.master.w || y >= MWORLD[1] + m.master.h) continue;
+        if (wallAt(x, y - 1) && !wallAt(x, y + 1) && x % 7 === 3 && clear(x, y, 2)) P2(x % 14 === 3 ? 'keep_decor/keep_banner' : 'castle_art/pennant_crown', x, y, false);
+      }
+      for (const Lk of MLINKS) {
+        if (Lk.secret) continue;
+        for (const e of [0, Lk.pts.length - 1]) {
+          const a = Lk.pts[e], b = Lk.pts[e === 0 ? 1 : Lk.pts.length - 2], [ax, ay] = mWorld(...a), [bx, by] = mWorld(...b), L = Math.max(1, Math.hypot(bx - ax, by - ay)), ux = (bx - ax) / L, uy = (by - ay) / L;
+          let k = 0; while (k < L && m.masterOwn(Math.round(ax + ux * k), Math.round(ay + uy * k))) k++;   // (out of the room to the walk's mouth)
+          if (k >= L || k === 0) continue;
+          const mx = Math.round(ax + ux * k), my = Math.round(ay + uy * k);
+          for (const sd of [-1, 1]) for (let d = 1; d <= 5; d++) { const fx = mx + Math.round(-uy * d * sd), fy = my + Math.round(ux * d * sd); if (wallAt(fx, fy)) { if (!occ.has(fy * S + fx)) P2('keep_decor/keep_pillar', fx, fy, false, { arch: true }); break; } }
+        }
+      }
+      for (const o of m.objects) {                                     // (every banner on a wall: slid up to the wall behind it, three tiles at most, or taken down)
+        if (!/banner|pennant|garland/.test(o.sprite) || o.gateLook) continue;
+        const x = Math.floor(o.x); let y = Math.floor(o.y); if (!m.masterOwn && !(x >= MWORLD[0] && y >= MWORLD[1])) continue;
+        if (x < MWORLD[0] || y < MWORLD[1] || x >= MWORLD[0] + m.master.w || y >= MWORLD[1] + m.master.h) continue;
+        let k = 0; while (k < 3 && !wallAt(x, y - 1) && !WALLT.has(tile(x, y - 1)) && tile(x, y - 1) !== TID.void && !occ.has((y - 1) * S + x)) { y--; k++; }
+        if (wallAt(x, y - 1)) { occ.delete(Math.floor(o.y) * S + x); o.y = y + 0.5; occ.add(y * S + x); } else o.drop = true;
+      }
+      m.objects = m.objects.filter((o) => !o.drop);
+      for (let pass = 0; pass < 3; pass++) {                           // (nothing it set down may shut off any floor: walked from the West Entrance, a solid thing it set by floor that cannot be reached is taken away)
+        const solidAt = new Set(m.objects.filter((o) => o.solid).map((o) => Math.floor(o.y) * S + Math.floor(o.x)));
+        const walkable = (j) => { const t = m.tiles[j]; return t !== TID.void && !WALLT.has(t) && !SOLID_TILES.has(t) && !solidAt.has(j); };
+        const E0 = rooms.find((q) => q.master === 'entrance'), seen = new Uint8Array(S * S); let st = -1;
+        for (let y = E0.y; y < E0.y + E0.h && st < 0; y++) for (let x = E0.x; x < E0.x + E0.w; x++) if (walkable(y * S + x) && m.masterOwn(x, y) === 'entrance') { st = y * S + x; break; }
+        const Q = [st]; seen[st] = 1; while (Q.length) { const j = Q.pop(); for (const k of [j + 1, j - 1, j + S, j - S]) if (!seen[k] && walkable(k)) { seen[k] = 1; Q.push(k); } }
+        const bad = new Set(); for (let y = MWORLD[1]; y < MWORLD[1] + m.master.h; y++) for (let x = MWORLD[0]; x < MWORLD[0] + m.master.w; x++) { const j = y * S + x, rr = m.masterOwn(x, y); if (rr && !/^sec/.test(rr) && walkable(j) && !seen[j] && m.tiles[j] !== TID.lava) for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) bad.add(j + dy * S + dx); }
+        if (!bad.size) break;
+        m.objects = m.objects.filter((o) => !(o.dressed && o.solid && bad.has(Math.floor(o.y) * S + Math.floor(o.x))));
+      }
+    }
     const stood = new Set(); for (const o of m.objects) if (!o.enemy) for (let d = 0; d < 3; d++) stood.add(Math.floor(o.y - d) * S + Math.floor(o.x));   // (nothing standing in front of a window: no banner, no brazier over the glass)
     for (let y = 1; y < S - 1; y++) for (let x = 2; x < S - 2; x++) {   // (the stained glass: a window every fifth tile of a straight wall facing into a room)
       if (x % 5 !== 2 || m.tiles[y * S + x] !== TID.kpwall || stood.has((y + 1) * S + x) || stood.has((y + 2) * S + x)) continue;
@@ -3412,9 +3521,18 @@ export function dungeon(seed, def) {
     for (let i = 0; i < S * S; i++) {
       const t = m.tiles[i]; if (t !== TID.kpfloor && t !== TID.kpwall && t !== TID.kpcarpet && t !== TID.kpwin && t !== TID.kpwin2) continue;
       const x = i % S, y = (i / S) | 0, h = ((Math.sin(x * 12.9898 + y * 78.233) * 43758.5453) % 1 + 1) % 1;
-      m.skin[i] = t === TID.kpwall || t === TID.kpwin || t === TID.kpwin2 ? SK.keep_wall_top : t === TID.kpcarpet ? SK.keep_carpet : h < 0.06 ? SK.keep_floor_c : (Math.sin(x * 0.31) + Math.cos(y * 0.27)) > 0 ? SK.keep_floor_a : SK.keep_floor_b;
+      const edge = t === TID.kpfloor && m.masterOwn && m.masterOwn(x, y) && [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]].some(([dx, dy]) => { const q = m.tiles[i + dy * S + dx]; return q === TID.kpwall || q === TID.kpwin || q === TID.kpwin2 || q === WALL; });
+      m.skin[i] = t === TID.kpwall || t === TID.kpwin || t === TID.kpwin2 ? SK.keep_wall_top : t === TID.kpcarpet ? SK.keep_carpet : edge ? SK.keep_floor_b : m.masterOwn && m.masterOwn(x, y) ? (h < 0.07 ? SK.keep_floor_c : SK.keep_floor_a) : h < 0.06 ? SK.keep_floor_c : (Math.sin(x * 0.31) + Math.cos(y * 0.27)) > 0 ? SK.keep_floor_a : SK.keep_floor_b;   // (2026-11-06 polish: in the footprint's rooms a border of the darker flags along the walls, the paler within, the odd one cracked)
     }
     for (const [i, nm] of m.keepSkin || []) if (SK[nm] !== undefined && (m.tiles[i] === TID.kpfloor || m.tiles[i] === TID.kpcarpet)) m.skin[i] = SK[nm];   // (a dais, a ritual ring, the engine's iron)
+    if (m.master) {                                                   // (2026-11-06 polish: a runner cut short, by a wall, a ring or the floor's end, capped there; never an open end)
+      const NM = new Map(Object.entries(SK).map(([k, v]) => [v, k])), isC = (j) => m.tiles[j] === TID.kpcarpet;
+      for (let i = 0; i < S * S; i++) {
+        if (!isC(i)) continue; const q = /^([a-z]+)_(ns|ew)_mid\d_(\d)(_torn|_burn)?$/.exec(NM.get(m.skin[i]) || ''); if (!q) continue;
+        const ns = q[2] === 'ns', a = ns ? i - S : i + 1, b = ns ? i + S : i - 1, cap = !isC(a) && isC(b) ? 'top' : isC(a) && !isC(b) ? 'bot' : null;
+        if (cap && SK[`${q[1]}_${q[2]}_${cap}_${q[3]}`] !== undefined) m.skin[i] = SK[`${q[1]}_${q[2]}_${cap}_${q[3]}`];
+      }
+    }
     // the corridors: a runner down each, capped where it ends at a room's door, a turning piece at each corner (2026-11-04,
     // the user: "corners, borders, and intersections need to line up correctly"); a stair the whole width where it climbs
     const inRoom = (x, y) => rooms.some((q) => x >= q.x && y >= q.y && x < q.x + q.w && y < q.y + q.h);
