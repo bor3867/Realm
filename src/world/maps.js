@@ -1710,9 +1710,9 @@ export function dungeon(seed, def) {
         link(P, Q);
       }
       if (MASTER) for (const [name, [[a0, b0, a1, b1], side]] of Object.entries(LOCK_DOORS)) {   // (the footprint's locked doorways: every open tile in each its gate)
-        const [x0, y0] = mWorld(a0, b0), [x1, y1] = mWorld(a1, b1), [a, b] = name.split('-').map(Number);
+        const G = MASTER.locks[name], [x0, y0] = G ? [MWORLD[0] + G.open[0], MWORLD[1] + G.open[1]] : mWorld(a0, b0), [x1, y1] = G ? [MWORLD[0] + G.open[2], MWORLD[1] + G.open[3]] : mWorld(a1, b1), [a, b] = name.split('-').map(Number);
         ways[name] = { a, b, mid: [Math.round((x0 + x1) / 2), Math.round((y0 + y1) / 2)], w: Math.floor(((side === 'N' || side === 'S' ? x1 - x0 : y1 - y0) - 2) / 2), dir: side === 'N' ? -Math.PI / 2 : side === 'S' ? Math.PI / 2 : side === 'W' ? Math.PI : 0, rect: [x0, y0, x1, y1], hall: true };
-        link(U(a), U(b));
+        ways[name].side = side; if (U(a) && U(b)) link(U(a), U(b));
       }
       const gate = U(47), arrive = U(48);
       m.castle = { rooms: R0, plan: { ways }, halls, roadTiles: roadSet, door: { x0: gate.cx - 2, x1: gate.cx + 1, y0: gate.y + 2, y1: gate.y + 4 }, arrive: { x: arrive.cx + 0.5, y: arrive.cy + 0.5 } };
@@ -3500,16 +3500,39 @@ export function dungeon(seed, def) {
     m.castle.gates = {};
     // (on a cobble tile of its own: opening it turns that tile back to the floor, so a shared castle's server sends the
     // change and the gate opens for everyone)
-    const gate = (x, y, which) => { put(m, 'seal_gate', x, y, true, { castleGate: which, floor: tile(x, y), hidden: !!m.castle.plan }); const o = m.objects[m.objects.length - 1]; set(x, y, TID.cobble); m.solid[idx(m, x, y)] = 1; m.castle.gates[which].push(o); };
+    const gate = (x, y, which, shut = TID.cobble) => { put(m, 'seal_gate', x, y, true, { castleGate: which, floor: tile(x, y), hidden: !!m.castle.plan, shut }); const o = m.objects[m.objects.length - 1]; set(x, y, shut);
+      if (shut === WALL && m.skin) { o.skinOpen = m.skin[idx(m, x, y)]; m.skin[idx(m, x, y)] = 0; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [2, 0], [-2, 0]]) if (tile(x + dx, y + dy) === WALL && m.skin[idx(m, x + dx, y + dy)]) { m.skin[idx(m, x, y)] = m.skin[idx(m, x + dx, y + dy)]; break; } } m.solid[idx(m, x, y)] = 1; m.castle.gates[which].push(o); };   // (the gatehouse's mass: a wall's top till it opens)
     if (m.castle.plan) m.castle.ways = {};
     if (m.castle.plan) for (const [la, lb, cond, say] of LOCKS) {                 // (each lock's gate: every floor tile round the middle of its way)
       const W = m.castle.plan.ways[la + '-' + lb], name = la + '-' + lb; m.castle.gates[name] = []; (m.castle.locks = m.castle.locks || []).push({ name, cond, say, a: la, b: lb });
       const R = W.w * 1.5 + 1.5;
-      if (W.rect) { for (let y = W.rect[1]; y <= W.rect[3]; y++) for (let x = W.rect[0]; x <= W.rect[2]; x++) { const t = tile(x, y); if (t !== TID.void && t !== TID.deep && !SOLID_TILES.has(t) && t !== WALL) gate(x, y, name); } }
+      if (W.rect) {                                                 // (a gatehouse's opening: the drawbridge's the moat; the others shut solid, a wall block the gate stands in the face of, 2026-11-06, the user: "The gates should look like they are tall, as tall as the blocks of the castle")
+        const ns = W.side === 'N' || W.side === 'S', mx = Math.round((W.rect[0] + W.rect[2]) / 2);
+        for (let y = W.rect[1]; y <= W.rect[3]; y++) for (let x = W.rect[0]; x <= W.rect[2]; x++) {
+          const t = tile(x, y); if (t === TID.void || t === TID.deep || SOLID_TILES.has(t) || t === WALL) continue;
+          const face = W.side ? (ns ? y === W.rect[3] : x === mx) : true;
+          gate(x, y, name, name === '23-60' ? TID.deep : face ? TID.cobble : WALL);
+        }
+      }
+      else if (m.castle.plan) {                                    // (a gate in the open, 2026-11-06, the user: "The gates are terrible designs": no disc of cobble now, a band two tiles deep square across the road, run out each side over whatever can be walked till it meets the trees or the rock; in the woods a hedge of thorn, elsewhere the seal's stone)
+        const ux = Math.cos(W.dir), uy = Math.sin(W.dir), nx = -uy, ny = ux, shut = W.a <= 9 ? TID.bramble : TID.cobble, done = new Set();
+        const open = (x, y) => { const t = tile(x, y); return t !== TID.void && t !== WALL && !SOLID_TILES.has(t); };
+        for (const al of [-0.5, 0.5]) for (const sd of [-1, 1]) for (let k = sd > 0 ? 0 : 1; k <= 14; k++) {
+          const x = Math.round(W.mid[0] + ux * al + nx * k * sd), y = Math.round(W.mid[1] + uy * al + ny * k * sd), key = y * S + x;
+          if (!open(x, y)) { if (k > W.w) break; continue; }
+          if (!done.has(key)) { done.add(key); gate(x, y, name, shut); if (al < 0 && W.a <= 9) { put(m, 'castle_decor/barricade', x, y, false, { gateLook: name, look: 'barricade', scale: 1.4 }); (m.castle.gateLooks = m.castle.gateLooks || {})[name] = [...(m.castle.gateLooks[name] || []), m.objects[m.objects.length - 1]]; } }   // (in the woods a palisade across the road, stake by stake)
+        }
+      }
       else for (let y = Math.floor(W.mid[1] - R); y <= W.mid[1] + R; y++) for (let x = Math.floor(W.mid[0] - R); x <= W.mid[0] + R; x++) { const t = tile(x, y); if (Math.hypot(x - W.mid[0], y - W.mid[1]) <= R && t !== TID.void && !SOLID_TILES.has(t)) gate(x, y, name); }
       {                                                             // its look across the way: a piece every two tiles, square to the road
-        const look = { '7-8': 'gate_roots', '19-24': 'gate_rock', '28-42': 'portcullis', '46-47': 'portcullis' }[name] || (name === '23-28' || name === '23-60' ? null : 'gate_seal');
-        if (name === '28-42') {                                     // (the keep gate: the Jarls' court's sealed double gate, the user's page; one great piece across the way)
+        const look = W.a <= 9 && !W.rect ? null : { '7-8': 'gate_roots', '19-24': 'gate_rock', '28-42': 'portcullis', '46-47': 'portcullis' }[name] || (name === '23-28' || name === '23-60' ? null : 'gate_seal');
+        if (W.rect && W.side) {                                     // (a gatehouse's: its opening six wide in the wall; north or south the great double gate across it, east or west a portcullis down it; the drawbridge its moat)
+          (m.castle.gateLooks = m.castle.gateLooks || {})[name] = [];
+          const [x0, y0, x1, y1] = W.rect, ns = W.side === 'N' || W.side === 'S';
+          if (name === '23-60') { /* (the drawbridge: the moat under it, its planks come down: src/castle.js) */ }
+          else if (ns) { put(m, 'castle_props/double_gate', (x0 + x1 + 1) / 2, y1, false, { gateLook: name, look: 'double_gate', scale: Math.min(1.5, (y1 - y0 + 2) / 4.1) }); m.castle.gateLooks[name].push(m.objects[m.objects.length - 1]); }   // (the great gate, as tall as the gatehouse it stands in)
+          else for (let y = y0; y <= y1; y++) { put(m, 'castle_decor/portcullis', Math.round((x0 + x1) / 2), y, false, { gateLook: name, look: 'portcullis', scale: 1.5 }); m.castle.gateLooks[name].push(m.objects[m.objects.length - 1]); }   // (a portcullis down the passage, its bars standing tall)
+        } else if (name === '28-42') {                                     // (the keep gate: the Jarls' court's sealed double gate, the user's page; one great piece across the way)
           (m.castle.gateLooks = m.castle.gateLooks || {})[name] = [];
           put(m, 'castle_props/double_gate', Math.round(W.mid[0]), Math.round(W.mid[1]), false, { gateLook: name, look: 'double_gate' }); m.castle.gateLooks[name].push(m.objects[m.objects.length - 1]);
           if (W.hall) for (const sd of [-1, 1]) { const nx = -Math.sin(W.dir), ny = Math.cos(W.dir), x = Math.round(W.mid[0] + nx * sd * (W.w + 3)), y = Math.round(W.mid[1] + ny * sd * (W.w + 3)); put(m, 'keep_decor/keep_pylon', x, y, true, { gatehouse: name }); }

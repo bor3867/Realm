@@ -747,7 +747,7 @@ export class Renderer {
         this.drawDef(def, fr, sx, sy + 1, { rot });
         return;
       }
-      if (/^castle_(?:decor|art)\/(pine|oak|deadwood|crimson|ancient)/.test(o.sprite)) {   // a tree stands in its own shade: a broad shadow at its foot, so it never floats (the user, 2026-11-02)
+      if (/^castle_(?:decor|art)\/(pine|oak|deadwood|crimson|ancient|rose_tree)/.test(o.sprite)) {   // a tree stands in its own shade: a broad shadow at its foot, so it never floats (the user, 2026-11-02)
         const b = this.b, x = Math.round(sx), y = Math.round(sy + 7);
         b.fillStyle = 'rgba(0,0,0,0.22)'; b.fillRect(x - 11, y - 2, 22, 5); b.fillRect(x - 9, y - 3, 18, 7);
         b.fillStyle = 'rgba(0,0,0,0.3)'; b.fillRect(x - 6, y - 1, 12, 3);
@@ -755,7 +755,7 @@ export class Renderer {
       if (o.solid) this.shadow(sx, sy + 7, def.size[1] > 8 ? 12 : 10);
       if (o.fuse !== undefined) { this.drawDef(def, fr, sx, sy + 8, { scale: 1.3, flash: Math.floor(this.lastT * 20) % 2 === 0 }); return; }   // a spore pod about to burst
       const bob = o.bob ? Math.round(Math.sin(this.lastT * 1.4 + o.x * 0.9) * 2) : 0;   // (adrift in the Nexus sky: it bobs)
-      this.drawDef(def, fr, sx, sy + 8 + bob, o.unlit ? { alpha: 0.45 } : undefined);   // a brazier gone out is dark and still
+      this.drawDef(def, fr, sx, sy + 8 + bob, o.unlit ? { alpha: 0.45 } : o.scale ? { scale: o.scale } : undefined);   // a brazier gone out is dark and still; a gate drawn as tall as its gatehouse
       if (o.sprite === 'ow_objects/midlands_campfire' && Math.random() < 0.35) {
         const ember = Math.random() < 0.6;
         this.parts.push({ x: o.x + (Math.random() - 0.5) * 0.4, y: o.y, z: 6, vx: (Math.random() - 0.5) * 0.3, vy: 0, vz: ember ? 18 + Math.random() * 14 : 8,

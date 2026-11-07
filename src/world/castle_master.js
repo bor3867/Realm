@@ -211,12 +211,22 @@ export function buildMaster() {
       break;
     }
   }
+  // THE GATEHOUSES (2026-11-06, the user: "The gates are terrible designs. They need to actually look like gates"): each
+  // locked doorway walled across, one opening six tiles wide left in the middle of it for its gate (the gate fills that
+  // opening and nothing else); src/world/maps.js hangs the gate in it
+  const locks = {};
+  for (const [name, [[a0, b0, a1, b1], side]] of Object.entries(LOCK_DOORS)) {
+    const [x0, y0] = toT(a0, b0), [x1, y1] = toT(a1, b1), ns = side === 'N' || side === 'S', cx = Math.round((x0 + x1) / 2), cy = Math.round((y0 + y1) / 2);
+    const inOpen = (x, y) => (ns ? x >= cx - 3 && x <= cx + 2 : y >= cy - 3 && y <= cy + 2);
+    for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) { const i = at(x, y); if (i >= 0 && walk(T[i]) && !inOpen(x, y)) T[i] = K.WALL; }
+    locks[name] = { side, open: ns ? [cx - 3, y0, cx + 2, y1] : [x0, cy - 3, x1, cy + 2] };
+  }
   // the secret tunnels: a cracked wall where each meets the room it opens from (the tunnel tile next to that room's floor)
   for (let i = 0; i < w * h; i++) if (T[i] === K.SECRET && owner[i] < 0) {
     const x = i % w, y = Math.floor(i / w); for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const j = at(x + dx, y + dy); if (j >= 0 && (T[j] === K.FLOOR || T[j] === K.CARPET || T[j] === K.STAIR || T[j] === K.TOWER)) { T[i] = K.PLUG; plugs.push([x, y]); break; } }
   }
   const parts = ROOMS.map((R) => { let x0 = 1e9, y0 = 1e9, x1 = -1, y1 = -1; for (const p of R.parts) { const [a, b] = toT(p.b[0], p.b[1]), [c, d] = toT(p.b[2], p.b[3]); x0 = Math.min(x0, a); y0 = Math.min(y0, b); x1 = Math.max(x1, c); y1 = Math.max(y1, d); } return { ...R, box: [x0, y0, x1, y1] }; });
-  return { w, h, tiles: T, owner, parts, plugs, at: toT };
+  return { w, h, tiles: T, owner, parts, plugs, locks, at: toT };
 }
 
 // ---- stage B: the footprint in the game's world (2026-11-05)
@@ -236,6 +246,7 @@ export const AREA_OF = {
 };
 // the locks' doorways on the sheet: [x0, y0, x1, y1] (every open tile in it becomes the lock's gate), the side they face
 export const LOCK_DOORS = {
+  '19-24': [[216, 458, 229, 474], 'W'],      // the West Door: the castle's own gate, in its curtain (open when the Final Rampart is cleared)
   '23-60': [[463, 444, 471, 490], 'E'],      // the drawbridge: out of the Drawbridge Guard into the great hall
   '23-25': [[442, 396, 462, 412], 'N'],      // the guard's north door (to the banner hall and the north-west wing)
   '23-30': [[390, 536, 412, 550], 'S'],      // the guard's south door (to the armory)

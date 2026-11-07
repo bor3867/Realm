@@ -80,7 +80,7 @@ const methods = {
     if (this.castleLater) this.castleLater = this.castleLater.filter((q) => { if (this.t < q.t) return true; q.f(); return false; });
     if (!m.netWorld) { this.castleWaves(Rm, S); this.castleGeysers(dt, S); if (n && n.form) this.castleHazard(dt, n, S); }
     // a gate the server opened (its tile back to the floor): open in this copy too
-    for (const w of Object.keys(C.gates || {})) for (const o of C.gates[w]) if (o.solid && !m.solid[Math.floor(o.y) * m.w + Math.floor(o.x)] && m.tiles[Math.floor(o.y) * m.w + Math.floor(o.x)] !== TID.cobble) { o.solid = false; o.sprite = 'gate_open'; const L = (C.gateLooks || {})[w]; if (L && L.length && L[0].look === 'double_gate') for (const v of L) v.hidden = true; else if (L && L.length && L[0].sprite === 'castle_decor/' + L[0].look) for (const v of L) v.sprite = 'castle_decor/' + (v.look === 'portcullis' ? 'gate_portcullis_open' : v.look + '_open'); }
+    for (const w of Object.keys(C.gates || {})) for (const o of C.gates[w]) if (o.solid && !m.solid[Math.floor(o.y) * m.w + Math.floor(o.x)] && m.tiles[Math.floor(o.y) * m.w + Math.floor(o.x)] !== (o.shut ?? TID.cobble)) { if (o.skinOpen !== undefined && m.skin) m.skin[Math.floor(o.y) * m.w + Math.floor(o.x)] = o.skinOpen; o.solid = false; o.sprite = 'gate_open'; const L = (C.gateLooks || {})[w]; if (L && L.length && L[0].look === 'double_gate') for (const v of L) v.hidden = true; else if (L && L.length && L[0].sprite === 'castle_decor/' + L[0].look) for (const v of L) v.sprite = 'castle_decor/' + (v.look === 'portcullis' ? 'gate_portcullis_open' : v.look + '_open'); }
     if (!n) return;
     // the causeway: geysers on the lanes near you
     if ((n.kind === 'causeway' || n.kind === 'span') && (S.geyser -= dt) <= 0) {
@@ -320,7 +320,7 @@ const methods = {
     if ((m.castle.gateLooks || {})[which]) this.vx({ k: 'shake', amt: 4 });
     for (const o of (m.castle.gates && m.castle.gates[which]) || []) {
       const i = Math.floor(o.y) * m.w + Math.floor(o.x);
-      o.sprite = 'gate_open'; o.solid = false; m.solid[i] = 0; if (o.floor !== undefined) m.tiles[i] = o.floor;   // (the tile changes: the server sends it on)
+      o.sprite = 'gate_open'; o.solid = false; m.solid[i] = 0; if (o.floor !== undefined) m.tiles[i] = o.floor; if (o.skinOpen !== undefined && m.skin) m.skin[i] = o.skinOpen;   // (the tile changes: the server sends it on)
       this.vx({ k: 'burst', x: o.x, y: o.y - 0.4, n: 6, colors: ['#ff8a1f', '#ffd650'] });
     }
     this.sfx('chain');

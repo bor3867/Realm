@@ -146,6 +146,7 @@ const MOVE = {
 };
 // a Shade's (or a Wraith's) blink: it goes up in smoke where it stood, a wisp runs to where it's going, it forms there
 function shadeBlink(g, e, x, y, cols = ['#8a5ad8', '#3a1a4a', '#1a0c20']) {
+  for (let q = 0; q <= 1; q += 0.08) if (g.blockedAt(e.x + (x - e.x) * q, e.y + (y - e.y) * q, 0.2)) return;   // (never through a shut gate or a wall: nothing solid on the way, 2026-11-06, the user: gates must not let monsters through)
   g.vx({ k: 'burst', x: e.x, y: e.y - 0.6, n: 16, colors: cols });
   for (let k = 1; k < 6; k++) g.vx({ k: 'burst', x: e.x + (x - e.x) * k / 6, y: e.y + (y - e.y) * k / 6 - 0.5, n: 2, colors: cols });
   e.x = x; e.y = y; g.vx({ k: 'burst', x, y: y - 0.6, n: 16, colors: cols }); g.sfx('portal');

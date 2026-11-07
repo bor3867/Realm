@@ -1380,7 +1380,7 @@ const FORMATION = {
   a16: F(['lava_guard', 0.3, 0.86], ['lava_guard', 0.7, 0.86], ['cinder_archer', 0.42, 0.92], ['cinder_archer', 0.58, 0.92], ['sun_cultist', 0.5, 0.95]),   // (the Defended Causeway's: guards on its platforms, archers and a cultist behind; the Broken Span has only its fissures)
   a17: F(['cinder_elemental', 0.2, 0.5], ['cinder_elemental', 0.8, 0.5], ['forge_golem', 0.5, 0.12], ['cinder_archer', 0.5, 0.9], ['lava_slime', 0.3, 0.85]),
   a18: F(['sun_cultist', 0.3, 0.35], ['sun_cultist', 0.7, 0.35], ['solar_acolyte', 0.5, 0.25], ['burning_pyre', 0.3, 0.45], ['burning_pyre', 0.7, 0.45]),
-  a19: F(['sunbound_knight', 0.4, 0.4], ['sunbound_knight', 0.6, 0.4], ['lava_guard', 0.3, 0.6], ['lava_guard', 0.7, 0.6], ['cinder_archer', 0.2, 0.15], ['cinder_archer', 0.8, 0.15]),
+  a19: F(['sunbound_knight', 0.4, 0.4], ['sunbound_knight', 0.6, 0.4], ['lava_guard', 0.3, 0.6], ['lava_guard', 0.7, 0.6], ['cinder_archer', 0.2, 0.25], ['cinder_archer', 0.8, 0.25]),   // (its archers before the rampart's towers, 2026-11-06: at 0.15 they stood in its crenels and towers, stuck)
   a20: F(['sunbound_knight', 0.4, 0.45], ['sunbound_knight', 0.6, 0.45], ['cinder_archer', 0.15, 0.2], ['cinder_archer', 0.5, 0.12], ['cinder_archer', 0.85, 0.2]),
   a21: F(['lava_guard', 0.3, 0.4], ['lava_guard', 0.7, 0.6], ['infernal_hound', 0.5, 0.5], ['infernal_hound', 0.55, 0.55], ['sun_cultist', 0.85, 0.2]),
   a22: F(['sunbound_knight', 0.2, 0.7], ['cinder_archer', 0.12, 0.25], ['cinder_archer', 0.28, 0.25], ['solar_acolyte', 0.8, 0.7], ['sun_cultist', 0.8, 0.25]),

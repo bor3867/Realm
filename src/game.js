@@ -853,12 +853,13 @@ export class Game {
       while (Q.length) { const i = Q.pop(), x = i % m.w, y = (i / m.w) | 0; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const X = x + dx, Y = y + dy, j = Y * m.w + X; if (R.has(j) || X < rm.x - 3 || Y < rm.y - 3 || X >= rm.x + rm.w + 3 || Y >= rm.y + rm.h + 3 || isSolid(m, X + 0.5, Y + 0.5) || m.tiles[j] === TID.lava) continue; R.add(j); Q.push(j); } }
       return (rm._reach = R);
     };
+    const roomy = (x, y) => { let k = 0; for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if (!isSolid(m, x + dx + 0.5, y + dy + 0.5)) k++; return k >= 8; };   // (open all round: never a crenel's slot or a pocket in a wall, where a monster stands stuck, 2026-11-06)
     const spotAt = (rm, fx, fy) => {                     // the free floor nearest a place in a room (a formation's)
       const tx = rm.x + fx * rm.w, ty = rm.y + fy * rm.h, reach = m.castle ? reachOf(rm) : null;
       for (let rad = 0; rad < 12; rad++) for (let dy = -rad; dy <= rad; dy++) for (let dx = -rad; dx <= rad; dx++) {
         if (Math.max(Math.abs(dx), Math.abs(dy)) !== rad) continue;
         const x = Math.floor(tx) + dx, y = Math.floor(ty) + dy;
-        if (x >= rm.x && y >= rm.y && x < rm.x + rm.w && y < rm.y + rm.h && !isSolid(m, x + 0.5, y + 0.5) && m.tiles[y * m.w + x] !== TID.lava && (!reach || reach.has(y * m.w + x))) return [x + 0.5, y + 0.5];
+        if (x >= rm.x && y >= rm.y && x < rm.x + rm.w && y < rm.y + rm.h && !isSolid(m, x + 0.5, y + 0.5) && m.tiles[y * m.w + x] !== TID.lava && (!reach || reach.has(y * m.w + x)) && (rad >= 11 || roomy(x, y))) return [x + 0.5, y + 0.5];
       }
       return spot(rm);
     };
@@ -2425,7 +2426,9 @@ export class Game {
           e.blinkT = 8 + R() * 5;                         // rare
           for (let k = 0; k < 10; k++) {
             const ang = R() * TAU, rr = 3.5 + R() * 2.5, x = p.x + Math.cos(ang) * rr, y = p.y + Math.sin(ang) * rr;
-            if (!isSolid(this.map, x, y)) { e.blinkTo = { x, y, t: 0.9 }; break; }
+            let clear = !isSolid(this.map, x, y);         // (and nothing solid on the straight line there: never through a shut gate or a wall, 2026-11-06)
+            for (let q = 0.1; clear && q < 1; q += 0.1) if (isSolid(this.map, e.x + (x - e.x) * q, e.y + (y - e.y) * q)) clear = false;
+            if (clear) { e.blinkTo = { x, y, t: 0.9 }; break; }
           }
           return;
         }
