@@ -3501,6 +3501,23 @@ export function dungeon(seed, def) {
         if (wallAt(x, y - 1)) { occ.delete(Math.floor(o.y) * S + x); o.y = y + 0.5; occ.add(y * S + x); } else o.drop = true;
       }
       m.objects = m.objects.filter((o) => !o.drop);
+      // the railings (2026-11-06, the user: the small gates "rotate and let enemies through. They need a redesign to look much
+      // better and actually stay vertical"): the pages' rail posts in the footprint's rooms joined into one fence along
+      // their line (a post on every tile between two within four of each other), set in the world along it, solid
+      {
+        const rails = m.objects.filter((o) => o.sprite === 'keep_decor/keep_rail' && m.masterOwn(Math.floor(o.x), Math.floor(o.y)));
+        const at2 = new Set(rails.map((o) => Math.floor(o.y) * S + Math.floor(o.x))), add2 = [];
+        for (const o of rails) {
+          const x = Math.floor(o.x), y = Math.floor(o.y);
+          for (const [dx, dy] of [[1, 0], [0, 1]]) for (let k = 2; k <= 4; k++) if (at2.has((y + dy * k) * S + x + dx * k)) {
+            let ok = true; for (let j = 1; j < k; j++) { const X = x + dx * j, Y = y + dy * j; if (!onFloor(X, Y) && tile(X, Y) !== TID.kpcarpet && tile(X, Y) !== TID.stageboards) ok = false; }
+            if (ok) for (let j = 1; j < k; j++) { const X = x + dx * j, Y = y + dy * j; if (!at2.has(Y * S + X)) { at2.add(Y * S + X); add2.push([X, Y, dx, dy]); } }
+            o.axis = [dx, dy]; break;
+          }
+        }
+        for (const [X, Y, dx, dy] of add2) put(m, 'keep_decor/keep_rail', X, Y, true, { axis: [dx, dy] });
+        for (const o of m.objects) if (o.sprite === 'keep_decor/keep_rail' && m.masterOwn(Math.floor(o.x), Math.floor(o.y))) { o.flat = true; o.axis = o.axis || [1, 0]; o.solid = true; o.dressed = true; o.scale = 1.15; occ.add(Math.floor(o.y) * S + Math.floor(o.x)); }
+      }
       for (let pass = 0; pass < 3; pass++) {                           // (nothing it set down may shut off any floor: walked from the West Entrance, a solid thing it set by floor that cannot be reached is taken away)
         const solidAt = new Set(m.objects.filter((o) => o.solid).map((o) => Math.floor(o.y) * S + Math.floor(o.x)));
         const walkable = (j) => { const t = m.tiles[j]; return t !== TID.void && !WALLT.has(t) && !SOLID_TILES.has(t) && !solidAt.has(j); };
@@ -3619,7 +3636,7 @@ export function dungeon(seed, def) {
     // (on a cobble tile of its own: opening it turns that tile back to the floor, so a shared castle's server sends the
     // change and the gate opens for everyone)
     const gate = (x, y, which, shut = TID.cobble) => { put(m, 'seal_gate', x, y, true, { castleGate: which, floor: tile(x, y), hidden: !!m.castle.plan, shut }); const o = m.objects[m.objects.length - 1]; set(x, y, shut);
-      if (shut === WALL && m.skin) { o.skinOpen = m.skin[idx(m, x, y)]; m.skin[idx(m, x, y)] = 0; for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [2, 0], [-2, 0]]) if (tile(x + dx, y + dy) === WALL && m.skin[idx(m, x + dx, y + dy)]) { m.skin[idx(m, x, y)] = m.skin[idx(m, x + dx, y + dy)]; break; } } m.solid[idx(m, x, y)] = 1; m.castle.gates[which].push(o); };   // (the gatehouse's mass: a wall's top till it opens)
+      if (shut === WALL && m.skin) { o.skinOpen = m.skin[idx(m, x, y)]; m.skin[idx(m, x, y)] = which === '19-24' && SK.keep_grate !== undefined ? SK.keep_grate : 0; if (which === '19-24') { m.solid[idx(m, x, y)] = 1; } if (which !== '19-24') for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [2, 0], [-2, 0]]) if (tile(x + dx, y + dy) === WALL && m.skin[idx(m, x + dx, y + dy)]) { m.skin[idx(m, x, y)] = m.skin[idx(m, x + dx, y + dy)]; break; } } m.solid[idx(m, x, y)] = 1; m.castle.gates[which].push(o); };   // (the gatehouse's mass: a wall's top till it opens)
     if (m.castle.plan) m.castle.ways = {};
     if (m.castle.plan) for (const [la, lb, cond, say] of LOCKS) {                 // (each lock's gate: every floor tile round the middle of its way)
       const W = m.castle.plan.ways[la + '-' + lb], name = la + '-' + lb; m.castle.gates[name] = []; (m.castle.locks = m.castle.locks || []).push({ name, cond, say, a: la, b: lb });
@@ -3628,8 +3645,8 @@ export function dungeon(seed, def) {
         const ns = W.side === 'N' || W.side === 'S', mx = Math.round((W.rect[0] + W.rect[2]) / 2);
         for (let y = W.rect[1]; y <= W.rect[3]; y++) for (let x = W.rect[0]; x <= W.rect[2]; x++) {
           const t = tile(x, y); if (t === TID.void || t === TID.deep || SOLID_TILES.has(t) || t === WALL) continue;
-          const face = W.side ? (ns ? y === W.rect[3] : x === mx) : true;
-          gate(x, y, name, name === '23-60' ? TID.deep : face ? TID.cobble : WALL);
+          gate(x, y, name, name === '23-60' ? TID.deep : WALL);   // (shut, the whole opening a block of the gatehouse: nothing walks or shoots through it)
+          if (!ns && name !== '23-60' && m.skin && SK.keep_grate !== undefined) { const o = m.objects[m.objects.length - 1]; o.grate = true; }   // (a west or east gate seen from above: the portcullis's iron top)
         }
       }
       else if (m.castle.plan) {                                    // (a gate in the open, 2026-11-06, the user: "The gates are terrible designs": no disc of cobble now, a band two tiles deep square across the road, run out each side over whatever can be walked till it meets the trees or the rock; in the woods a hedge of thorn, elsewhere the seal's stone)
@@ -3638,7 +3655,7 @@ export function dungeon(seed, def) {
         for (const al of [-0.5, 0.5]) for (const sd of [-1, 1]) for (let k = sd > 0 ? 0 : 1; k <= 14; k++) {
           const x = Math.round(W.mid[0] + ux * al + nx * k * sd), y = Math.round(W.mid[1] + uy * al + ny * k * sd), key = y * S + x;
           if (!open(x, y)) { if (k > W.w) break; continue; }
-          if (!done.has(key)) { done.add(key); gate(x, y, name, shut); if (al < 0 && W.a <= 9) { put(m, 'castle_decor/barricade', x, y, false, { gateLook: name, look: 'barricade', scale: 1.4 }); (m.castle.gateLooks = m.castle.gateLooks || {})[name] = [...(m.castle.gateLooks[name] || []), m.objects[m.objects.length - 1]]; } }   // (in the woods a palisade across the road, stake by stake)
+          if (!done.has(key)) { done.add(key); gate(x, y, name, shut); if (al < 0 && W.a <= 9) { put(m, 'castle_decor/barricade', x, y, false, { gateLook: name, look: 'barricade', flat: true, axis: [nx, ny], scale: 0.75 }); (m.castle.gateLooks = m.castle.gateLooks || {})[name] = [...(m.castle.gateLooks[name] || []), m.objects[m.objects.length - 1]]; } }   // (in the woods a palisade across the road, stake by stake)
         }
       }
       else for (let y = Math.floor(W.mid[1] - R); y <= W.mid[1] + R; y++) for (let x = Math.floor(W.mid[0] - R); x <= W.mid[0] + R; x++) { const t = tile(x, y); if (Math.hypot(x - W.mid[0], y - W.mid[1]) <= R && t !== TID.void && !SOLID_TILES.has(t)) gate(x, y, name); }
@@ -3648,8 +3665,8 @@ export function dungeon(seed, def) {
           (m.castle.gateLooks = m.castle.gateLooks || {})[name] = [];
           const [x0, y0, x1, y1] = W.rect, ns = W.side === 'N' || W.side === 'S';
           if (name === '23-60') { /* (the drawbridge: the moat under it, its planks come down: src/castle.js) */ }
-          else if (ns) { put(m, 'castle_props/double_gate', (x0 + x1 + 1) / 2, y1, false, { gateLook: name, look: 'double_gate', scale: Math.min(1.5, (y1 - y0 + 2) / 4.1) }); m.castle.gateLooks[name].push(m.objects[m.objects.length - 1]); }   // (the great gate, as tall as the gatehouse it stands in)
-          else for (let y = y0; y <= y1; y++) { put(m, 'castle_decor/portcullis', Math.round((x0 + x1) / 2), y, false, { gateLook: name, look: 'portcullis', scale: 1.5 }); m.castle.gateLooks[name].push(m.objects[m.objects.length - 1]); }   // (a portcullis down the passage, its bars standing tall)
+          else if (ns) { put(m, 'castle_props/double_gate', (x0 + x1 + 1) / 2 - 0.5, y1, false, { gateLook: name, look: 'double_gate', flat: true, axis: [1, 0], scale: (x1 - x0 + 1.6) / (43 / 8) }); m.castle.gateLooks[name].push(m.objects[m.objects.length - 1]); }   // (the great gate: set in the world across its opening, wall to wall, as tall as its gatehouse; it never turns with the camera)
+          else { put(m, 'castle_decor/portcullis', Math.round((x0 + x1) / 2), (y0 + y1 + 1) / 2 - 0.5, false, { gateLook: name, look: 'portcullis', flat: true, axis: [0, 1], scale: (y1 - y0 + 1.4) / 2 }); m.castle.gateLooks[name].push(m.objects[m.objects.length - 1]); }   // (a portcullis across the passage, wall to wall, standing in the world)
         } else if (name === '28-42') {                                     // (the keep gate: the Jarls' court's sealed double gate, the user's page; one great piece across the way)
           (m.castle.gateLooks = m.castle.gateLooks || {})[name] = [];
           put(m, 'castle_props/double_gate', Math.round(W.mid[0]), Math.round(W.mid[1]), false, { gateLook: name, look: 'double_gate' }); m.castle.gateLooks[name].push(m.objects[m.objects.length - 1]);

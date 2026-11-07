@@ -314,7 +314,7 @@ const methods = {
       return;
     }
     for (const o of ((m.castle.gateLooks || {})[which]) || []) {   // its look: opening (dust or sparks where each piece stood), then open
-      const L = o.look; if (L === 'double_gate') o.hidden = true; else o.sprite = 'castle_decor/' + (L === 'portcullis' ? 'gate_portcullis_open' : L + '_open');   // (the double gate swings away: gone in its dust)
+      const L = o.look; if (L === 'double_gate' || o.flat) o.hidden = true; else o.sprite = 'castle_decor/' + (L === 'portcullis' ? 'gate_portcullis_open' : L + '_open');   // (the double gate swings away: gone in its dust)
       this.vx({ k: 'burst', x: o.x, y: o.y - 0.6, n: 10, colors: L === 'gate_seal' ? ['#b884cc', '#e6c8ff', '#ffffff'] : L === 'gate_roots' ? ['#5a3a1a', '#8a6a3a', '#2a1a10'] : ['#8a8490', '#c8c0d8', '#5a5560'] });
     }
     if ((m.castle.gateLooks || {})[which]) this.vx({ k: 'shake', amt: 4 });

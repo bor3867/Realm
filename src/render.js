@@ -655,13 +655,16 @@ export class Renderer {
   // a wide thing standing along a wall (the Sunthief Gate's arch): drawn a column at a time, each at its own place along
   // the world's x, so it stays where it stands and narrows as the camera turns (a sprite drawn whole faces the camera,
   // and swung round into the rooms either side: 2026-11-02)
+  // (2026-11-06, the user: "The big gate door needs to not rotate when I rotate": any of the castle's gates likewise, o.flat;
+  // its line in the world o.axis [dx, dy] (along the world's x if none), drawn o.scale times its size)
   flatDef(def, frame, o) {
     const f = def.frames[frame] || def.frames[Object.keys(def.frames)[0]]; if (!f) return;
-    const b = this.b, ax = def.foot[0], ay = def.foot[1];
+    const b = this.b, ax = def.foot[0], ay = def.foot[1], k = o.scale || 1, [ux, uy] = o.axis || [1, 0];
     for (let c = 0; c < f.w; c++) {
-      const [x0, y0] = this.proj(o.x + (c - ax) / 8, o.y), [x1] = this.proj(o.x + (c + 1 - ax) / 8, o.y);
-      const w = Math.max(1, Math.round(Math.abs(x1 - x0)));
-      b.drawImage(def.img, f.x + c, f.y, 1, f.h, Math.round(Math.min(x0, x1)), Math.round(y0 + 8 - ay * 2), w, f.h * 2);
+      const a0 = ((c - ax) / 8) * k, a1 = ((c + 1 - ax) / 8) * k;
+      const [x0, y0] = this.proj(o.x + ux * a0, o.y + uy * a0), [x1, y1] = this.proj(o.x + ux * a1, o.y + uy * a1);
+      const w = Math.max(1, Math.round(Math.abs(x1 - x0))), yb = (y0 + y1) / 2;
+      b.drawImage(def.img, f.x + c, f.y, 1, f.h, Math.round(Math.min(x0, x1)), Math.round(yb + 8 - ay * 2 * k), w, Math.round(f.h * 2 * k));
     }
   }
   drawDef0(def, frame, x, y, o = {}) {
@@ -739,7 +742,7 @@ export class Renderer {
       else if (o.sdUrn) fr = A.frames[o.cracked ? 1 : 0];
       else if (o.ckCoffin && def.anims.open) fr = (o.openT === undefined ? def.anims.closed : def.anims.open).frames[0];   // a coffin, shut or open
       else if (o.hmStriker && def.anims.ring) { const k = this.lastT - (o.ringT || -9); fr = k < 0.8 ? def.anims.ring.frames[Math.min(def.anims.ring.frames.length - 1, Math.floor(k * 8))] : def.anims.idle.frames[0]; }   // the puck flies up and rings the bell
-      if (o.gateArch) { this.flatDef(def, fr, o); return; }   // (the great arch: set in the world along its wall, not turned to face you)
+      if (o.gateArch || o.flat) { this.flatDef(def, fr, o); return; }   // (the great arch: set in the world along its wall, not turned to face you)
       if (o.lie !== undefined || o.sprite === 'castle_decor/log') {   // a fallen log lies along the ground its own way, and turns as the camera does (2026-11-02, the user: logs "look stupid" upright)
         const L = o.lie || 0, [ax, ay] = this.proj(o.x, o.y), [bx, by] = this.proj(o.x + Math.cos(L), o.y + Math.sin(L));
         const rot = Math.atan2(by - ay, bx - ax);   // (one rigid log turning with the world: never flipped end for end as it passes upright, the user, 2026-11-02)
