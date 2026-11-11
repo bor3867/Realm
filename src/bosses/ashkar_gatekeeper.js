@@ -288,10 +288,10 @@ function coreShot(g, e) {
 // has a rotating beam of fire centered on himself so players have to circle the room, and then finally a new animation of
 // him slamming the giant mace onto the ground and a ring of shots fire out as players are maneuvering the lava cracks and
 // circling"). He strides to the middle of his hall and stands there. Cracks open across the floor (1.2 s marked, then
-// molten for 17 s: 70 a step while you stand in one); 1 s after, two beams of fire turn about him, opposite (in II as
-// in III); 32 degrees a second, 150 while it holds you), so you circle the hall ahead of it, over the cracks; four times he
-// lifts the mace high and drives its handle down into the floor (his smash clip): a ring of 28 waves (115), the last two blows
-// two rings. Everything he does here is drawn from S.akCru (the same in every browser)
+// molten for 17 s: 170 a step, and your armour broken); 1 s after, two beams of fire turn about him, opposite (in II as
+// in III); 42 degrees a second, 260 while it holds you, armour broken), so you circle the hall ahead of it, over the cracks; four times he
+// lifts the mace high and drives its handle down into the floor (his smash clip): two rings of 40 waves (160), the last two blows
+// three. Everything he does here is drawn from S.akCru (the same in every browser)
 // (2026-11-11, the user: "the phase where he sprays the ray and players must circle, dodge the lava cracks, and dodge the
 // center shot must be longer. Also, have the ray have two hands instead of one ray out. Make the lava cracks pixel"): 18 s
 // of it, not 10; two beams out of him, opposite, in II as in III; four blows of the handle, not two; the cracks in blocks
@@ -305,22 +305,37 @@ function crucible(g, e) {
 function cruSet(g, e) {                                       // he stands in the middle: the floor cracks, the beam is marked
   const S = e.bx, Q = S.akCru, C = mid(e), { A } = hall(e), t = g.t, R0 = Math.min(A.w, A.h) / 2 - 1.5;
   Object.assign(Q, { stage: 'set', setAt: t, openAt: t + 1.2, onAt: t + 2.2, closeAt: t + CRU_T, cx: C.x, cy: C.y, cracks: [] });
-  const n = S.phase === 3 ? 10 : 8, by = e.D.name, crackDmg = g.bxDmg(e, D(70));
+  // (2026-11-11, the user: "Ensure that everything is high damage and players should be punished for running into the lava.
+  // Purple armor broken damage from them. Also maybe make the lava cracks a bit more realistic (thicker in the center? and
+  // more irregular?)"): each crack wanders (five to seven legs, each turned freely, of uneven length), widest in its middle
+  // and narrowing to nothing at its ends, often with a short branch off its middle; a point of it carries its width. The
+  // lava of the cracks, the pool and the beams breaks your armour as it burns you (your Defense to nothing for a while:
+  // game.js lane .broken), and the burn lands on the broken armour
+  const n = S.phase === 3 ? 10 : 8, by = e.D.name, crackDmg = g.bxDmg(e, D(170));
+  const crack = (x, y, h, legs, wMax) => {
+    const pts = [];
+    for (let k = 0; k <= legs; k++) {
+      const u = k / legs, w = +(wMax * (0.25 + 0.75 * Math.sin(Math.PI * u))).toFixed(2);   // (narrow at the ends, widest midway)
+      pts.push([+x.toFixed(2), +y.toFixed(2), w]);
+      if (k === legs) break;
+      const L = 0.5 + Math.random() * 0.75, a = h + (Math.random() - 0.5) * 1.6, nx = x + Math.cos(a) * L, ny = y + Math.sin(a) * L;
+      h += (Math.random() - 0.5) * 0.6;                     // (it wanders)
+      g.fx.push({ kind: 'lane', x, y, a, len: L, w: Math.max(0.22, w), delay: 1.2, t: 0, life: CRU_T, dmg: crackDmg, every: 0.4, broken: 3, by, hitT: 0, noDraw: true, boss: e.id });
+      x = nx; y = ny;
+    }
+    Q.cracks.push(pts); return pts;
+  };
   for (let i = 0; i < n; i++) {
     const ang = (i / n) * TAU + Math.random() * 0.4, r = 3.2 + Math.random() * Math.max(1, R0 - 4.5);
-    let x = C.x + Math.cos(ang) * r, y = C.y + Math.sin(ang) * r, h = ang + Math.PI / 2 + (Math.random() < 0.5 ? -1 : 1) * (0.3 + Math.random() * 0.5);
-    const pts = [[+x.toFixed(2), +y.toFixed(2)]];
-    for (let k = 0; k < 4; k++) {                           // (jagged: four legs, each turned a little)
-      const L = 0.8 + Math.random() * 0.5, a = h + (Math.random() - 0.5) * 0.7, nx = x + Math.cos(a) * L, ny = y + Math.sin(a) * L;
-      g.fx.push({ kind: 'lane', x, y, a, len: L, w: 0.42, delay: 1.2, t: 0, life: CRU_T, dmg: crackDmg, every: 0.45, by, hitT: 0, noDraw: true, boss: e.id });
-      x = nx; y = ny; pts.push([+x.toFixed(2), +y.toFixed(2)]);
-    }
-    Q.cracks.push(pts);
+    const P0 = crack(C.x + Math.cos(ang) * r, C.y + Math.sin(ang) * r, ang + Math.PI / 2 + (Math.random() < 0.5 ? -1 : 1) * (0.3 + Math.random() * 0.5), 5 + Math.floor(Math.random() * 3), 0.55);
+    if (Math.random() < 0.6) { const m = P0[Math.floor(P0.length / 2)]; crack(m[0], m[1], Math.atan2(P0[P0.length - 1][1] - P0[0][1], P0[P0.length - 1][0] - P0[0][0]) + (Math.random() < 0.5 ? 1 : -1) * (0.8 + Math.random() * 0.6), 2 + Math.floor(Math.random() * 2), 0.32); }
   }
-  const q = target(g, e), sg = (S.akCruS = -(S.akCruS || 1)), spin = sg * deg(32), a0 = angleTo(C.x, C.y, q.x, q.y) - sg * deg(110), len = R0 + 3;
+  // the pool under him burns too (a square of floor about him: he stands in the middle of it)
+  g.fx.push({ kind: 'lane', x: C.x - POOL_R, y: C.y, a: 0, len: POOL_R * 2, w: POOL_R * 0.8, delay: 1.2, t: 0, life: CRU_T, dmg: crackDmg, every: 0.4, broken: 3, by, hitT: 0, noDraw: true, boss: e.id });
+  const q = target(g, e), sg = (S.akCruS = -(S.akCruS || 1)), spin = sg * deg(42), a0 = angleTo(C.x, C.y, q.x, q.y) - sg * deg(110), len = R0 + 3;
   Q.beam = { a0, spin, n: 2, len };
-  for (let k = 0; k < Q.beam.n; k++) g.fx.push({ kind: 'lane', x: C.x, y: C.y, a0: a0 + k * Math.PI, a: a0 + k * Math.PI, spin, len, w: 0.55, delay: 2.2, t: 0, life: CRU_T, dmg: g.bxDmg(e, D(150)), every: 0.3, by, hitT: 0, noDraw: true, boss: e.id });
-  [[4.4, 1], [8.0, 1], [11.6, 2], [15.2, 2]].forEach(([t, rings]) => later(e, t, 'cruRaise', { rings }));
+  for (let k = 0; k < Q.beam.n; k++) g.fx.push({ kind: 'lane', x: C.x, y: C.y, a0: a0 + k * Math.PI, a: a0 + k * Math.PI, spin, len, w: 0.6, delay: 2.2, t: 0, life: CRU_T, dmg: g.bxDmg(e, D(260)), every: 0.3, broken: 4, by, hitT: 0, noDraw: true, boss: e.id });
+  [[4.4, 2], [8.0, 2], [11.6, 3], [15.2, 3]].forEach(([t, rings]) => later(e, t, 'cruRaise', { rings }));
   later(e, CRU_T + 0.1, 'cruEnd');
   g.sfx('hammer');
 }
@@ -332,10 +347,10 @@ function cruSlam(g, e, V) {
   thud(g, e, e.x, e.y + 1); g.vx({ k: 'shake', amt: 9 });
   g.fx.push({ kind: 'ring', x: e.x, y: e.y, t: 0, max: 3.5, color: '#ffd650' });
   anvilSpit(g, e, 0);
-  cruRing(g, e, { off: 0 });
-  if (V.rings > 1) later(e, 0.4, 'cruRing', { off: 1 });
+  for (let w = 0; w < V.rings; w++) later(e, w * 0.35, 'cruRing', { off: w % 2, sp: 4.3 + w * 0.5 });   // (each ring a little quicker than the last: they never merge)
 }
-function cruRing(g, e, V) { for (let k = 0; k < 28; k++) shot(g, e, e.x, e.y, ((k + V.off * 0.5) / 28) * TAU, { ...WAVE, speed: 4.3, range: 15, dmg: D(115) }); }
+// (2026-11-11, the user: "he can have way more shots when he slams the ground"): 40 waves a ring (was 28), 160 each (was 115)
+function cruRing(g, e, V) { for (let k = 0; k < 40; k++) shot(g, e, e.x, e.y, ((k + V.off * 0.5) / 40) * TAU, { ...WAVE, speed: V.sp || 4.3, range: 15, dmg: D(160) }); }
 function cruEnd(g, e) { const S = e.bx; S.akCru = null; S.akSmash = null; if (S.state === 'recover') S.wait = Math.min(S.wait, 1.0); }
 
 // ================================================================ the anvils (all phases) (2026-11-11, the user: "add some anvils to
@@ -410,21 +425,24 @@ function drawCracks(r, g, e) {
   const open = g.t >= Q.openAt, fade = Math.max(0, Math.min(1, (Q.closeAt - g.t) / 0.5));
   // pixel cracks: the points of each leg on a 2-pixel grid, each drawn as square blocks (a black rim, the red of it, the
   // molten middle flickering block by block), never a smooth line
-  const G = 2, snap = (v) => Math.round(v / G) * G;
+  const G = 2, snap = (v) => Math.round(v / G) * G, px = tilePx(r, Q.cx, Q.cy);
   for (const pts of Q.cracks) {
-    const P = pts.map(([x, y]) => r.proj(x, y)), cells = [];
+    const P = pts.map(([x, y, w]) => [...r.proj(x, y), (w || 0.4) * px]), cells = [];
     for (let i = 0; i + 1 < P.length; i++) {
-      const [x0, y0] = P[i], [x1, y1] = P[i + 1], n = Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0) / G));
-      for (let k = 0; k <= n; k++) { const c = [snap(x0 + (x1 - x0) * k / n), snap(y0 + (y1 - y0) * k / n)]; const L = cells[cells.length - 1]; if (!L || L[0] !== c[0] || L[1] !== c[1]) cells.push(c); }
+      const [x0, y0, w0] = P[i], [x1, y1, w1] = P[i + 1], n = Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0) / G));
+      for (let k = 0; k <= n; k++) { const u = k / n, c = [snap(x0 + (x1 - x0) * u), snap(y0 + (y1 - y0) * u), w0 + (w1 - w0) * u]; const L = cells[cells.length - 1]; if (!L || L[0] !== c[0] || L[1] !== c[1]) cells.push(c); }
     }
     b.globalAlpha = fade;
     if (!open) {                                           // (marked: a seam of single blocks, flickering)
       if (Math.floor(g.t * 8) % 2) { b.fillStyle = '#ff6a1c'; for (const [x, y] of cells) b.fillRect(x - 1, y - 1, G, G); }
       continue;
     }
-    b.fillStyle = '#1a0806'; for (const [x, y] of cells) b.fillRect(x - 4, y - 4, 8, 8);
-    b.fillStyle = '#c8341a'; for (const [x, y] of cells) b.fillRect(x - 3, y - 3, 6, 6);
-    cells.forEach(([x, y], k) => { const f = (k + Math.floor(g.t * 6)) % 5; b.fillStyle = f === 0 ? '#fff4c4' : f < 3 ? '#ffd650' : '#ff8a1f'; b.fillRect(x - 1, y - 1, G, G); });
+    // each block as wide as the crack is there (a black rim, the red, the molten middle), a little ragged block by block
+    const sz = (w, k) => Math.max(G, Math.round((w + ((k * 7) % 3 - 1)) / G) * G);
+    b.fillStyle = '#1a0806'; cells.forEach(([x, y, w], k) => { const q = sz(w + 3, k); b.fillRect(x - q / 2, y - q / 2, q, q); });
+    b.fillStyle = '#c8341a'; cells.forEach(([x, y, w], k) => { const q = sz(w + 1, k); b.fillRect(x - q / 2, y - q / 2, q, q); });
+    b.fillStyle = '#ff6a1c'; cells.forEach(([x, y, w], k) => { const q = sz(w * 0.6, k); b.fillRect(x - q / 2, y - q / 2, q, q); });
+    cells.forEach(([x, y, w], k) => { const f = (k + Math.floor(g.t * 6)) % 5, q = sz(w * 0.3, k); b.fillStyle = f === 0 ? '#fff4c4' : f < 3 ? '#ffd650' : '#ff8a1f'; b.fillRect(x - q / 2, y - q / 2, q, q); });
   }
   b.globalAlpha = 1;
 }
@@ -447,23 +465,48 @@ function drawPool(r, g, e) {
     b.fillStyle = col; b.fillRect(X0 + i * G - 1, Y0 + j * G - 1, G, G);
   }
 }
+// (2026-11-11, the user: "the beam can be a bit more rotmg pixel like ... add a little something at the end of the beams so it
+// doesn't just look flat"): each beam in square blocks on a 3-pixel grid, banded from a dark-red rim in to a white core,
+// its edges ragged and flickering block by block; at its end a blocky flare that swells and shrinks, with blocks of flame
+// thrown off ahead of it
 function drawBeam(r, g, e) {
   const Q = e.bx.akCru, b = r.b; if (!Q || !Q.beam || g.t < Q.openAt || g.t > Q.closeAt) return;
-  const B = Q.beam, on = g.t >= Q.onAt, a = B.a0 + (on ? B.spin * (g.t - Q.onAt) : 0), px = tilePx(r, Q.cx, Q.cy);
-  b.save(); b.lineCap = 'butt';
+  const B = Q.beam, on = g.t >= Q.onAt, a = B.a0 + (on ? B.spin * (g.t - Q.onAt) : 0), px = tilePx(r, Q.cx, Q.cy), G = 3, snap = (v) => Math.round(v / G) * G;
+  const BANDS = ['#5a1408', '#c8341a', '#ff6a1c', '#ffb04a', '#ffe48a', '#fff4c4'], tk = Math.floor(g.t * 14);
   for (let k = 0; k < B.n; k++) {
-    const d = a + k * Math.PI, [x0, y0] = r.proj(Q.cx + Math.cos(d) * POOL_R * 0.85, Q.cy + Math.sin(d) * POOL_R * 0.85), [x1, y1] = r.proj(Q.cx + Math.cos(d) * B.len, Q.cy + Math.sin(d) * B.len);
-    const line = (w, col, al = 1) => { b.globalAlpha = al; b.strokeStyle = col; b.lineWidth = w; b.beginPath(); b.moveTo(x0, y0); b.lineTo(x1, y1); b.stroke(); };
-    if (!on) { if (Math.floor(g.t * 8) % 2) line(2, '#ff6a1c', 0.85); continue; }    // (its one tell: where it begins, flickering)
-    const W = px * 1.1, fl = 0.85 + 0.15 * Math.sin(g.t * 40);
-    line(W * 1.25, '#5a1408', 0.45); line(W, '#e8401a', 0.9); line(W * 0.65 * fl, '#ff8a1f'); line(W * 0.32 * fl, '#ffd650'); line(Math.max(1, W * 0.1), '#fff4c4');
-    b.globalAlpha = 1;
-    for (let t = 0.1; t < 1; t += 0.09) {                  // (blocks of flame boiling off it)
-      const q = (t + g.t * 0.7) % 1, x = x0 + (x1 - x0) * q, y = y0 + (y1 - y0) * q, o = Math.sin(q * 40 + g.t * 9) * W * 0.5;
-      b.fillStyle = (Math.floor(q * 20 + g.t * 10) % 2) ? '#ffd650' : '#ff6a1c'; b.fillRect(Math.round(x - Math.sin(d) * o) - 2, Math.round(y + Math.cos(d) * o) - 2, 4, 4);
+    const d = a + k * Math.PI;
+    let len = POOL_R + 1;                                   // (it stops at the first wall it meets: its flare bursts against the wall, in sight)
+    while (len < B.len && !(g.blockedAt && g.blockedAt(Q.cx + Math.cos(d) * len, Q.cy + Math.sin(d) * len, 0.05))) len += 0.4;
+    if (len < B.len) len -= 1.0;                            // (short of the wall's foot: the wall is drawn over the floor)
+    const [x0, y0] = r.proj(Q.cx + Math.cos(d) * POOL_R * 0.85, Q.cy + Math.sin(d) * POOL_R * 0.85), [x1, y1] = r.proj(Q.cx + Math.cos(d) * len, Q.cy + Math.sin(d) * len);
+    const L = Math.hypot(x1 - x0, y1 - y0), ux = (x1 - x0) / L, uy = (y1 - y0) / L, nx = -uy, ny = ux;
+    if (!on) {                                            // (its one tell: a line of single blocks where it begins, flickering)
+      if (Math.floor(g.t * 8) % 2) { b.fillStyle = '#ff6a1c'; for (let t = 0; t < L; t += G * 2) b.fillRect(snap(x0 + ux * t) - 1, snap(y0 + uy * t) - 1, G, G); }
+      continue;
     }
+    const W = px * 0.62, cells = BANDS.map(() => []);
+    for (let t = 0, i = 0; t < L; t += G, i++) {
+      const hsh = ((i * 2654435761) ^ (tk * 40503)) >>> 0, rag = (hsh % 5) / 4 * G;   // (a ragged edge, block by block)
+      for (let o = -W - rag; o <= W + rag; o += G) {
+        const f = Math.abs(o) / (W + rag), band = f > 0.85 ? 0 : f > 0.65 ? 1 : f > 0.45 ? 2 : f > 0.28 ? 3 : f > 0.12 ? 4 : 5;
+        cells[band].push(snap(x0 + ux * t + nx * o), snap(y0 + uy * t + ny * o));
+      }
+    }
+    BANDS.forEach((col, i) => { b.fillStyle = col; const C = cells[i]; for (let j = 0; j < C.length; j += 2) b.fillRect(C[j] - 1, C[j + 1] - 1, G, G); });
+    // its head: a flare of blocks at the end, swelling and shrinking, and flame thrown on ahead of it
+    const R0 = W * (1.5 + 0.35 * Math.sin(g.t * 13 + k)), cx = x1, cy = y1;
+    for (let j = -Math.ceil(R0 / G); j <= Math.ceil(R0 / G); j++) for (let i = -Math.ceil(R0 / G); i <= Math.ceil(R0 / G); i++) {
+      const hsh = (((i + 40) * 73856093) ^ ((j + 40) * 19349663) ^ (tk * 83492791)) >>> 0, f = Math.hypot(i * G, j * G) / R0 + (hsh % 4) * 0.06;
+      if (f > 1) continue;
+      b.fillStyle = BANDS[f > 0.85 ? 0 : f > 0.65 ? 1 : f > 0.45 ? 2 : f > 0.28 ? 3 : 4]; b.fillRect(snap(cx + i * G) - 1, snap(cy + j * G) - 1, G, G);
+    }
+    for (let m = 0; m < 6; m++) {                          // (flame thrown on ahead: blocks flying out of the head and fading)
+      const q = ((g.t * 2.2 + m / 6) % 1), sp = (m - 2.5) * 0.35, dd = R0 + q * W * 3;
+      b.globalAlpha = 1 - q; b.fillStyle = m % 2 ? '#ffd650' : '#ff6a1c';
+      b.fillRect(snap(cx + (ux + nx * sp) * dd) - 1, snap(cy + (uy + ny * sp) * dd) - 1, G + (q < 0.4 ? G : 0), G + (q < 0.4 ? G : 0));
+    }
+    b.globalAlpha = 1;
   }
-  b.restore(); b.globalAlpha = 1;
 }
 
 export default {

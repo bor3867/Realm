@@ -2791,7 +2791,7 @@ export class Renderer {
       if ((on('dragUntil') && p.dragF < 1) || (g.chillSlow && g.chillSlow() < 1)) L.push(['slow', '#5a8ae0', '#c8e0ff']);
       if (p.owBurn && p.owBurn.until > t) L.push(['burn', '#ff7a1a', '#ffd650']);
       if (on('owInked')) L.push(['blind', '#8d88a0', '#05040a']);
-      if (on('owBroken')) L.push(['broken', '#a8a0b0', '#05040a']);
+      if (on('owBroken')) L.push(['broken', '#b45aff', '#05040a']);   // (armour broken: purple, RotMG's)
       if (S.invuln > 0) L.push(['shield', '#ffd650', '#ffffff']);
       if (S.armored > 0) L.push(['shield', '#5ac8ff', '#ffffff']);
       if (S.berserk > 0) L.push(['up', '#ff4a5a', '#ffd0d8']);
@@ -2808,7 +2808,7 @@ export class Renderer {
       b.fillStyle = '#7ac85a'; for (let k = -5; k <= 5; k += 5) b.fillRect(x + k, y - 4, 1, 2);
     }
     if (on('owBroken')) {                                  // cracked armour: grey shards falling away
-      if (Math.random() < 0.25) this.parts.push({ x: p.x + (Math.random() - 0.5) * 0.5, y: p.y, z: 8 + Math.random() * 6, vx: (Math.random() - 0.5) * 2, vy: 0, vz: 4, g: 30, life: 0.5, max: 0.5, color: Math.random() < 0.5 ? '#c8c0b0' : '#f2c14e' });
+      if (Math.random() < 0.25) this.parts.push({ x: p.x + (Math.random() - 0.5) * 0.5, y: p.y, z: 8 + Math.random() * 6, vx: (Math.random() - 0.5) * 2, vy: 0, vz: 4, g: 30, life: 0.5, max: 0.5, color: Math.random() < 0.5 ? '#b45aff' : '#e0b4ff' });
     }
     if (on('owDazed') || g.invertUntil > t) {             // dazed (white sparks) or confused (birds of stars) round your head
       const n = 3, col = g.invertUntil > t ? '#ff9ad8' : '#fff6a0';

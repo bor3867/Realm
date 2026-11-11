@@ -2034,7 +2034,7 @@ export class Game {
     p.hitT = 0.15;
     this.sfx('hurt');
     this.vx({ k: 'hurt', amt: Math.min(4, 1 + d / 60) });
-    this.pFloat(`-${d}`, '#e2546a');
+    this.pFloat(`-${d}`, p.owBroken > this.t ? '#b45aff' : '#e2546a');   // (purple while your armour is broken: the hit went through it)
     if (p.hp <= 0 && P.cheatdeath && !p.cheatT) {
       p.cheatT = P.cheatdeath; p.hp = this.stat('hp') * 0.4; p.status.invuln = 1.5;
       this.banner('Cheated death!', 1600);
@@ -3054,7 +3054,14 @@ export class Game {
         f.hitT -= dt;
         if (f.spin) f.a = f.a0 + f.spin * (f.t - f.delay);   // (a turning lane, the Technician's winch chain: its angle from its own clock, the same in every copy)
         const dx = p.x - f.x, dy = p.y - f.y, along = dx * Math.cos(f.a) + dy * Math.sin(f.a), across = Math.abs(-dx * Math.sin(f.a) + dy * Math.cos(f.a));
-        if (f.dmg && f.hitT <= 0 && along > 0 && along < f.len && across < f.w) { f.hitT = f.every || 0.3; this.hurtPlayer(f.dmg, f.by); }   // (a lane with no damage is only a mark)
+        if (f.dmg && f.hitT <= 0 && along > 0 && along < f.len && across < f.w) {
+          f.hitT = f.every || 0.3;
+          if (f.broken && !(p.status.invuln > 0) && !this.god) {   // (lava that breaks your armour as it burns: Ashkar's Crucible; the burn lands on the broken armour)
+            if (!(p.owBroken > this.t)) this.pFloat('ARMOR BROKEN', '#b45aff');
+            p.owBroken = Math.max(p.owBroken || 0, this.t + f.broken);
+          }
+          this.hurtPlayer(f.dmg, f.by);
+        }   // (a lane with no damage is only a mark)
       }
       if (f.kind === 'cleave' && !f.done && f.t >= f.delay && !p.dead) {   // a blow over a wedge of floor (a Jarl's axe): marked, then struck once
         f.done = true;
