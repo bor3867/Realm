@@ -428,12 +428,31 @@ function drawCracks(r, g, e) {
   }
   b.globalAlpha = 1;
 }
+// the crucible under him (2026-11-11, the user: "Maybe make a small anvil/lava circle in the middle of the two beams so
+// they don't look weird"): while he stands in the middle, a round pool of lava in an iron rim, in blocks on a 2-pixel grid,
+// bubbling; the beams run out of its edge. It rises over 0.6 s as he plants himself and cools away as the Crucible ends
+const POOL_R = 1.8;                                          // (tiles)
+function drawPool(r, g, e) {
+  const Q = e.bx.akCru, b = r.b; if (!Q || Q.stage !== 'set' || !Q.setAt) return;
+  const k = Math.min(1, (g.t - Q.setAt) / 0.6) * Math.max(0, Math.min(1, (Q.closeAt - g.t) / 0.6)); if (k <= 0) return;
+  const [cx, cy] = r.proj(Q.cx, Q.cy), R = POOL_R * tilePx(r, Q.cx, Q.cy) * (0.4 + 0.6 * k), G = 2, X0 = Math.round(cx / G) * G, Y0 = Math.round(cy / G) * G, n = Math.ceil(R / G) + 1, tk = Math.floor(g.t * 7);
+  const LAVA = ['#c8341a', '#e8401a', '#ff6a1c', '#ff8a1f', '#ffd650', '#fff4c4'];
+  for (let j = -n; j <= n; j++) for (let i = -n; i <= n; i++) {
+    const d = Math.hypot(i * G, j * G) / R; if (d > 1.12) continue;
+    let col;
+    if (d > 1.0) col = '#05040a';                            // (the one thin black rim)
+    else if (d > 0.8) col = j < -n * 0.3 ? '#615a70' : '#2c2834';   // the iron rim, lit along its far side
+    else if (d > 0.68) col = '#1a0806';                      // the crust at the lava's edge
+    else { const h = ((i * 73856093) ^ (j * 19349663) ^ (tk * 83492791)) >>> 0; col = LAVA[Math.min(5, Math.floor((1 - d) * 3) + (h % 7 === 0 ? 2 : h % 3))]; }   // bubbling, hotter in the middle
+    b.fillStyle = col; b.fillRect(X0 + i * G - 1, Y0 + j * G - 1, G, G);
+  }
+}
 function drawBeam(r, g, e) {
   const Q = e.bx.akCru, b = r.b; if (!Q || !Q.beam || g.t < Q.openAt || g.t > Q.closeAt) return;
   const B = Q.beam, on = g.t >= Q.onAt, a = B.a0 + (on ? B.spin * (g.t - Q.onAt) : 0), px = tilePx(r, Q.cx, Q.cy);
   b.save(); b.lineCap = 'butt';
   for (let k = 0; k < B.n; k++) {
-    const d = a + k * Math.PI, [x0, y0] = r.proj(Q.cx + Math.cos(d) * 0.8, Q.cy + Math.sin(d) * 0.8), [x1, y1] = r.proj(Q.cx + Math.cos(d) * B.len, Q.cy + Math.sin(d) * B.len);
+    const d = a + k * Math.PI, [x0, y0] = r.proj(Q.cx + Math.cos(d) * POOL_R * 0.85, Q.cy + Math.sin(d) * POOL_R * 0.85), [x1, y1] = r.proj(Q.cx + Math.cos(d) * B.len, Q.cy + Math.sin(d) * B.len);
     const line = (w, col, al = 1) => { b.globalAlpha = al; b.strokeStyle = col; b.lineWidth = w; b.beginPath(); b.moveTo(x0, y0); b.lineTo(x1, y1); b.stroke(); };
     if (!on) { if (Math.floor(g.t * 8) % 2) line(2, '#ff6a1c', 0.85); continue; }    // (its one tell: where it begins, flickering)
     const W = px * 1.1, fl = 0.85 + 0.15 * Math.sin(g.t * 40);
@@ -567,7 +586,7 @@ export default {
   // lying still by each anchor, red-hot when he works it, and the links that fell off him; in III only the blocks; and the
   // scything links' path ahead
   drawGround(r, g, e) {
-    drawAnvils(r, g, e); drawCracks(r, g, e);
+    drawAnvils(r, g, e); drawCracks(r, g, e); drawBeam(r, g, e); drawPool(r, g, e);
     const S = e.bx, b = r.b, ph = S.phase || 1, [sx, sy] = r.proj(e.x, e.y), hot = S.akHot && g.t < S.akHot.until ? S.akHot.ids : [];
     for (let i = 0; i < 4; i++) {
       const A = anchor(e, i), [ax, ay] = r.proj(A.x, A.y), side = A.x < e.x ? -1 : 1, wx = sx + (side < 0 ? -26 : 40), wy = sy - (side < 0 ? 57 : 40);   // (his wrists, on the user's sprite)
@@ -613,7 +632,6 @@ export default {
       b.globalAlpha = 1;
     }
   },
-  drawTop(r, g, e) { drawBeam(r, g, e); },
   lights(g, e) { const ph = e.bx.phase || 1; return [{ x: e.x, y: e.y, h: 4.4, r: ph === 3 ? 110 : ph === 2 ? 90 : 60, col: '#ff8a1f', fire: true }]; },
   // his relics (boss_loot.js gives them their real, rare chances), and every class's gear in his band
   loot: [{ id: 'fetterbreaker', p: 0.1 }, { id: 'slagplate', p: 0.1 }, { id: 'the_last_link', p: 0.1 }, { id: 'gatekeepers_chain', p: 0.1 }], lootLuck: 1.3,
