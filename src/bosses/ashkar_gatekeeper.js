@@ -288,11 +288,14 @@ function coreShot(g, e) {
 // has a rotating beam of fire centered on himself so players have to circle the room, and then finally a new animation of
 // him slamming the giant mace onto the ground and a ring of shots fire out as players are maneuvering the lava cracks and
 // circling"). He strides to the middle of his hall and stands there. Cracks open across the floor (1.2 s marked, then
-// molten for 9 s: 70 a step while you stand in one); 1 s after, a beam of fire turns about him (one in II, two opposite
-// in III; 32 degrees a second, 150 while it holds you), so you circle the hall ahead of it, over the cracks; twice he
-// lifts the mace high and drives its handle down into the floor (his smash clip): a ring of 28 waves (115), the second blow
+// molten for 17 s: 70 a step while you stand in one); 1 s after, two beams of fire turn about him, opposite (in II as
+// in III); 32 degrees a second, 150 while it holds you), so you circle the hall ahead of it, over the cracks; four times he
+// lifts the mace high and drives its handle down into the floor (his smash clip): a ring of 28 waves (115), the last two blows
 // two rings. Everything he does here is drawn from S.akCru (the same in every browser)
-const CRU_T = 10.2;                                          // (set to closed, s)
+// (2026-11-11, the user: "the phase where he sprays the ray and players must circle, dodge the lava cracks, and dodge the
+// center shot must be longer. Also, have the ray have two hands instead of one ray out. Make the lava cracks pixel"): 18 s
+// of it, not 10; two beams out of him, opposite, in II as in III; four blows of the handle, not two; the cracks in blocks
+const CRU_T = 18.2;                                          // (set to closed, s)
 function crucible(g, e) {
   const S = e.bx;
   if (g.banner) g.banner('THE CRUCIBLE WAKES.', 2200);
@@ -315,9 +318,10 @@ function cruSet(g, e) {                                       // he stands in th
     Q.cracks.push(pts);
   }
   const q = target(g, e), sg = (S.akCruS = -(S.akCruS || 1)), spin = sg * deg(32), a0 = angleTo(C.x, C.y, q.x, q.y) - sg * deg(110), len = R0 + 3;
-  Q.beam = { a0, spin, n: S.phase === 3 ? 2 : 1, len };
+  Q.beam = { a0, spin, n: 2, len };
   for (let k = 0; k < Q.beam.n; k++) g.fx.push({ kind: 'lane', x: C.x, y: C.y, a0: a0 + k * Math.PI, a: a0 + k * Math.PI, spin, len, w: 0.55, delay: 2.2, t: 0, life: CRU_T, dmg: g.bxDmg(e, D(150)), every: 0.3, by, hitT: 0, noDraw: true, boss: e.id });
-  later(e, 4.4, 'cruRaise', { rings: 1 }); later(e, 7.7, 'cruRaise', { rings: 2 }); later(e, CRU_T + 0.1, 'cruEnd');
+  [[4.4, 1], [8.0, 1], [11.6, 2], [15.2, 2]].forEach(([t, rings]) => later(e, t, 'cruRaise', { rings }));
+  later(e, CRU_T + 0.1, 'cruEnd');
   g.sfx('hammer');
 }
 function cruRaise(g, e, V) {                                  // the mace lifted high, then its handle driven into the floor (his smash clip; the blow lands at 0.5 s)
@@ -368,12 +372,12 @@ const AT = {
   press: P('The Press', 'press', 4.2), faults: P('Molten Faultlines', 'faults', 3.0), shatter: P('Armor Shatter', 'shatter', 2.4),
   scythe: P('Scything Links', 'scythe', 6.5, { move: 'hold' }), hunt: P('Forge Hunt', 'hunt', 6.4, { move: 'hold' }),
   inverted: P('Inverted Anvil', 'inverted', 5.6, { move: 'hold' }), gate: P('The Gatebreaker', 'gatebreaker', 11.5, { move: 'hold' }),
-  crucible: P('The Crucible', 'crucible', 14.5, { move: 'crucible', instant: true }),
+  crucible: P('The Crucible', 'crucible', 22.5, { move: 'crucible', instant: true }),
 };
 const CYCLE = {
   1: { len: 20, list: [[0, 'chains'], [3.8, 'sentence'], [7.5, 'teeth'], [12.5, 'press']] },
-  2: { len: 38, list: [[0, 'faults'], [3.3, 'sentence'], [6.8, 'shatter'], [11.4, 'teeth'], [15.2, 'chains'], [19.5, 'press'], [23.7, 'crucible']] },
-  3: { len: 39, list: [[0, 'scythe'], [6.7, 'hunt'], [13.0, 'inverted'], [18.0, 'sentence'], [23.6, 'crucible']] },
+  2: { len: 46.5, list: [[0, 'faults'], [3.3, 'sentence'], [6.8, 'shatter'], [11.4, 'teeth'], [15.2, 'chains'], [19.5, 'press'], [23.7, 'crucible']] },
+  3: { len: 46.5, list: [[0, 'scythe'], [6.7, 'hunt'], [13.0, 'inverted'], [18.0, 'sentence'], [23.6, 'crucible']] },
 };
 const LAST = ['gate', 'sentence', 'hunt'];                 // below 15%
 function choose(g, e) {
@@ -404,14 +408,25 @@ function drawAnvils(r, g, e) {
 function drawCracks(r, g, e) {
   const Q = e.bx.akCru, b = r.b; if (!Q || !Q.cracks) return;
   const open = g.t >= Q.openAt, fade = Math.max(0, Math.min(1, (Q.closeAt - g.t) / 0.5));
-  b.save(); b.lineCap = 'square'; b.lineJoin = 'miter';
+  // pixel cracks: the points of each leg on a 2-pixel grid, each drawn as square blocks (a black rim, the red of it, the
+  // molten middle flickering block by block), never a smooth line
+  const G = 2, snap = (v) => Math.round(v / G) * G;
   for (const pts of Q.cracks) {
-    const P = pts.map(([x, y]) => r.proj(x, y)).map(([x, y]) => [Math.round(x), Math.round(y)]);
-    const line = (w, col, a = 1) => { b.globalAlpha = a * fade; b.strokeStyle = col; b.lineWidth = w; b.beginPath(); b.moveTo(...P[0]); for (const q of P.slice(1)) b.lineTo(...q); b.stroke(); };
-    if (!open) { if (Math.floor(g.t * 8) % 2) line(2, '#ff6a1c', 0.8); continue; }   // (marked: a thin flickering seam)
-    line(9, '#1a0806'); line(6, '#c8341a'); line(3, Math.floor(g.t * 6 + P[0][0]) % 3 ? '#ff8a1f' : '#ffd650'); line(1, '#fff4c4', 0.7);
+    const P = pts.map(([x, y]) => r.proj(x, y)), cells = [];
+    for (let i = 0; i + 1 < P.length; i++) {
+      const [x0, y0] = P[i], [x1, y1] = P[i + 1], n = Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0) / G));
+      for (let k = 0; k <= n; k++) { const c = [snap(x0 + (x1 - x0) * k / n), snap(y0 + (y1 - y0) * k / n)]; const L = cells[cells.length - 1]; if (!L || L[0] !== c[0] || L[1] !== c[1]) cells.push(c); }
+    }
+    b.globalAlpha = fade;
+    if (!open) {                                           // (marked: a seam of single blocks, flickering)
+      if (Math.floor(g.t * 8) % 2) { b.fillStyle = '#ff6a1c'; for (const [x, y] of cells) b.fillRect(x - 1, y - 1, G, G); }
+      continue;
+    }
+    b.fillStyle = '#1a0806'; for (const [x, y] of cells) b.fillRect(x - 4, y - 4, 8, 8);
+    b.fillStyle = '#c8341a'; for (const [x, y] of cells) b.fillRect(x - 3, y - 3, 6, 6);
+    cells.forEach(([x, y], k) => { const f = (k + Math.floor(g.t * 6)) % 5; b.fillStyle = f === 0 ? '#fff4c4' : f < 3 ? '#ffd650' : '#ff8a1f'; b.fillRect(x - 1, y - 1, G, G); });
   }
-  b.restore(); b.globalAlpha = 1;
+  b.globalAlpha = 1;
 }
 function drawBeam(r, g, e) {
   const Q = e.bx.akCru, b = r.b; if (!Q || !Q.beam || g.t < Q.openAt || g.t > Q.closeAt) return;
