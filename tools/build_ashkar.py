@@ -153,22 +153,28 @@ def fall(k):
     return g
 
 
-# ---- his motion (2026-11-02, the user: "Ashkar should wind up and slam his massive hammer with convincing weight... heavy
-# bosses should move with deliberate weight... visibly fracture his armor and eventually break his chains"): frames from
-# his own art a part at a time (tools/boss_motion.py), with room above and beside him (his feet where they were):
-#   walk     a heavy step: a foot lifted, his bulk sinking onto the other, rising over the pass; the hammer swinging
-#   attack   the wind-up (the hammer hauled high, him leaning back, the core brightening), the slam (the hammer down before
-#            him, dust and lava thrown up, the core flaring), the drag back up
-#   charge   leaning in, the hammer drawn back, his feet driving
-#   hurt     a flinch: he sinks, his core and the lava in him flare (no white, no knockback)
-#   enter    II: he staggers, roars (the core flaring), two of his chains snap in sparks; III: he heaves, every chain
-#            bursting, the core blazing, and rises unchained
-#   death    the hammer falls from his hand; he sinks to a knee, the core dimming; it implodes; ash
-from boss_motion import pad, shift, arc, tint  # noqa: E402
-PT, PS = 12, 10
+# ---- his motion, rebuilt (2026-11-11, the user: "fix ashkars animations. We have two of him for some reason overlapped
+# with each other. Provide true animations for him"). The old frames moved parts of the picture about and patched the
+# gaps from the pixels beside them (or left the old place as it was): smeared second hammers, a haft left standing where
+# the hammer had gone. Now he is a rig: his art cut into layers (the hammer with its haft and the gauntlet holding it, the
+# body, each leg) and every frame composed on a clear canvas, each layer moved whole, the hammer turned about his
+# shoulder. Nothing is ever left behind or smeared.
+#   idle     breathing: the body and the hammer sink a pixel and rise, the lava flowing (ashkar's own frames)
+#   walk     a heavy step: one leg lifted, the body settling onto the other, the hammer swaying
+#   attack   the wind-up (the hammer hauled up over his shoulder), the slam (down before him, him crouched into it, debris
+#            thrown up where it struck), the drag back
+#   charge   leaning in, the hammer drawn down and back, his feet driving
+#   hurt     a flinch: he sinks, the lava flaring
+#   enter    II and III: he crouches, roars (the core flaring), the chains burst in sparks, he rises
+import math as _m
+from boss_motion import arc, tint  # noqa: E402
+PT, PS = 34, 26                                 # (room above and beside him for the hammer's swing; his feet where they were)
 W2, H2 = SW + 2 * PS, SH + PT
 O = lambda x, y: (x - PS, y - PT)
-LEG_Y, MIDX = 88, 55                            # (his legs below this row; the left one left of this column)
+SHOULDER = (31, 34)                             # (the hammer's arm turns about his left shoulder)
+FIST = (22, 52)                                 # (or about the fist that grips its haft)
+LAVA = lambda x, y, c: _k(x, y) == 'lava' or (abs(O(x, y)[0] - CORE[0]) < 8 and abs(O(x, y)[1] - CORE[1]) < 8 and c[0] > 200)
+EMB = [(255, 214, 96, 255), (255, 140, 40, 255), (255, 240, 190, 255), (140, 120, 120, 255)]
 
 
 def _k(x, y):
@@ -176,65 +182,91 @@ def _k(x, y):
     return KIND[Y][X] if 0 <= X < SW and 0 <= Y < SH else '.'
 
 
-HAM = lambda x, y, c: O(x, y)[0] < 33 and O(x, y)[1] < LEG_Y + 4     # (the hammer, its haft, the fist that holds it)
-LEFT = lambda x, y, c: O(x, y)[1] >= LEG_Y and 33 <= O(x, y)[0] < MIDX
-RIGHT = lambda x, y, c: O(x, y)[1] >= LEG_Y and O(x, y)[0] >= MIDX
-UPPER = lambda x, y, c: O(x, y)[1] < LEG_Y and O(x, y)[0] >= 33
-ABOVE = lambda x, y, c: O(x, y)[1] < LEG_Y
-LAVA = lambda x, y, c: _k(x, y) == 'lava' or (abs(O(x, y)[0] - CORE[0]) < 8 and abs(O(x, y)[1] - CORE[1]) < 8 and c[0] > 200)
-EMB = [(255, 214, 96, 255), (255, 140, 40, 255), (255, 240, 190, 255), (140, 120, 120, 255)]
+def part(x, y):                                 # which layer a pixel of his art belongs to
+    if x < 33 and not (y >= 74 and x >= 29): return 'ham'
+    if y >= 74 and x < 50: return 'legl'
+    if y >= 74 and x > 76: return 'legr'
+    return 'body'
 
 
-def base(act, f=0, s=False): return pad(ashkar(act, f, s), PT, PS)
+def layers(act, f=0, s=False):
+    g = ashkar(act, f, s); L = {'ham': [], 'legl': [], 'legr': [], 'body': []}
+    for y in range(SH):
+        for x in range(SW):
+            if g[y][x][3]: L[part(x, y)].append((x, y, g[y][x]))
+    return L
+
+
+def rot(pts, ang, piv):                         # a layer turned about a point: each pixel of the result from the art (nearest)
+    if not ang: return pts
+    src = {(x, y): c for x, y, c in pts}; ca, sa = _m.cos(ang), _m.sin(ang); px, py = piv
+    xs = [p[0] for p in pts]; ys = [p[1] for p in pts]; r = int(max(_m.hypot(x - px, y - py) for x, y in ((min(xs), min(ys)), (max(xs), min(ys)), (min(xs), max(ys)), (max(xs), max(ys))))) + 2
+    out = []
+    for Y in range(py - r, py + r + 1):
+        for X in range(px - r, px + r + 1):
+            dx, dy = X - px, Y - py
+            sx, sy = px + dx * ca + dy * sa, py - dx * sa + dy * ca      # (the inverse turn)
+            c = src.get((int(round(sx)), int(round(sy))))
+            if c: out.append((X, Y, c))
+    return out
+
+
+def comp(L, body=(0, 0), legl=(0, 0), legr=(0, 0), ham=0.0, hamd=(0, 0), piv=None):
+    g = [[BLANK] * W2 for _ in range(H2)]
+    def put(pts, d):
+        for x, y, c in pts:
+            X, Y = x + PS + d[0], y + PT + d[1]
+            if 0 <= X < W2 and 0 <= Y < H2: g[Y][X] = c
+    put(L['legl'], legl); put(L['legr'], legr); put(L['body'], body)
+    put(rot(L["ham"], ham, piv or SHOULDER), (body[0] + hamd[0], body[1] + hamd[1]))
+    return g
+
+
+def base(act, f=0, s=False): return comp(layers(act, f, s), body=(0, (0, 1, 1, 0)[f % 4]), hamd=(0, 0))
 
 
 def walk(act, k):
-    g = base(act, k)
-    if k == 0: g = shift(g, LEFT, 0, -3, fill=False); g = shift(g, ABOVE, 0, 2, keep=True)    # (his weight onto the right foot)
-    if k == 2: g = shift(g, RIGHT, 0, -3, fill=False); g = shift(g, ABOVE, 0, 2, keep=True)
-    if k in (1, 3): g = shift(g, ABOVE, 0, -1, keep=True)                                      # (rising over the pass)
-    return shift(g, HAM, 1 if k < 2 else -1, 0, fill=False)
+    L = layers(act, k)
+    if k == 0: return comp(L, body=(0, 2), legl=(0, -3), ham=_m.radians(4), piv=FIST)      # (the left leg lifted, his weight onto the right)
+    if k == 2: return comp(L, body=(0, 2), legr=(0, -3), ham=_m.radians(-4), piv=FIST)
+    return comp(L, body=(0, 0), ham=0)                                                # (rising over the pass)
 
 
 def slam(act, k):
-    if k == 0:
-        g = shift(base(act, 0, True), HAM, 3, -10, fill=False)
-        return tint(shift(g, UPPER, 0, -2, keep=True), LAVA, (255, 220, 140), 0.4)
-    if k == 1:
-        g = shift(base(act), HAM, 14, 10, fill=False); g = shift(g, UPPER, 0, 3)
+    if k == 0:                                  # the wind-up: hauled up over his shoulder, the core brightening
+        g = comp(layers(act, 0, True), body=(1, 0), ham=_m.radians(25), hamd=(4, -14), piv=FIST)
+        return tint(g, LAVA, (255, 220, 140), 0.4)
+    if k == 1:                                  # the slam: down before him, him crouched into it, the ground thrown up
+        g = comp(layers(act, 1, True), body=(0, 4), ham=_m.radians(-35), hamd=(-6, 26), piv=FIST)
         g = tint(g, LAVA, (255, 236, 170), 0.7)
-        return arc(g, [(PS + 30 + i * 4 + (i % 2) * 2, H2 - 2 - (i % 3) * 2) for i in range(12)], EMB)   # (dust and lava thrown up where it struck)
-    return shift(shift(base(act, 1), HAM, 8, 5, fill=False), UPPER, 0, 1)
+        hx, hy = PS - 14, PT + SH - 6
+        return arc(g, [(hx + i * 3 + (i % 2) * 2, hy - (i % 4) * 3) for i in range(14)], EMB)
+    return comp(layers(act, 1), body=(0, 2), ham=_m.radians(-20), hamd=(0, 10), piv=FIST)   # (dragged back up)
 
 
 def rush(act, k):
-    g = shift(base(act, k * 2), UPPER, 0, 3); g = shift(g, HAM, 0, 3, fill=False)   # (the hammer drawn down and back: straight down, so the rectangle round it never tears his fist)
-    g = shift(g, LEFT if k == 0 else RIGHT, 0, -3, fill=False)
-    return arc(g, [(PS + 30 + i * 9 + k * 4, H2 - 1) for i in range(6)], [(120, 104, 112, 255)])
+    L = layers(act, k * 2)
+    return arc(comp(L, body=(0, 3), legl=(0, -3) if k == 0 else (0, 0), legr=(0, 0) if k == 0 else (0, -3), ham=_m.radians(-15), hamd=(0, 8), piv=FIST),
+               [(PS + 30 + i * 9 + k * 4, H2 - 1) for i in range(6)], [(120, 104, 112, 255)])
 
 
-def flinch(act): return tint(shift(base(act, 1), ABOVE, 0, 2, keep=True), LAVA, (255, 210, 120), 0.7)
+def flinch(act): return tint(comp(layers(act, 1), body=(0, 3), ham=_m.radians(6), hamd=(0, 2), piv=FIST), LAVA, (255, 210, 120), 0.7)
 
 
 def enter(act, k):
     if k == 3: return base(act)
-    g = base(act - 1 if k < 2 else act, 1)
-    g = shift(g, ABOVE, 0, 3 if k == 0 else 1, keep=True)
-    if k == 1: g = tint(g, LAVA, (255, 240, 190), 0.8)                                        # (the roar: the core flaring)
-    if k == 2:                                                                                 # (the chains snapping: sparks where they were)
-        if act == 2: pts = [(PS + (CHAINS[n][0] + CHAINS[n][2]) / 2 + math.cos(i * 1.7) * 5, PT + (CHAINS[n][1] + CHAINS[n][3]) / 2 + math.sin(i * 1.7) * 6) for n in CHAINS for i in range(3)]
-        else: pts = [(PS + CORE[0] + math.cos(i * 0.52) * (9 + i % 3 * 4), PT + CORE[1] + math.sin(i * 0.52) * (9 + i % 3 * 4)) for i in range(24)]   # (III: the core bursting)
+    L = layers(act - 1 if k < 2 else act, 1)
+    g = comp(L, body=(0, 4 if k == 0 else 1), ham=_m.radians(-12 if k == 0 else 18), hamd=(0, 6) if k == 0 else (2, -8), piv=FIST)
+    if k == 1: g = tint(g, LAVA, (255, 240, 190), 0.8)                                       # (the roar: the core flaring)
+    if k == 2:
+        if act == 2: pts = [(PS + (CHAINS[n][0] + CHAINS[n][2]) / 2 + _m.cos(i * 1.7) * 5, PT + (CHAINS[n][1] + CHAINS[n][3]) / 2 + _m.sin(i * 1.7) * 6) for n in CHAINS for i in range(3)]
+        else: pts = [(PS + CORE[0] + _m.cos(i * 0.52) * (9 + i % 3 * 4), PT + CORE[1] + _m.sin(i * 0.52) * (9 + i % 3 * 4)) for i in range(24)]
         g = arc(tint(g, LAVA, (255, 240, 190), 0.9), pts, EMB)
     return g
 
 
-def die(k):
-    if k == 4: return pad(fall(2), PT, PS)
-    g = base(3) if k < 2 else pad(fall(k - 2), PT, PS)
-    g = shift(g, HAM, -6, 14, fill=False)                                                      # (the hammer falls from his hand)
-    if k >= 1: g = shift(g, UPPER, 0, 5)                                                       # (to a knee)
-    if k == 1: g = tint(g, LAVA, (90, 40, 30), 0.6)                                            # (the core dimming)
-    return g
+def die(k):                                     # (the castle's bosses fall to a knee in the game itself, src/render.js kneelBoss: these
+    return comp(layers(3, 0), body=(0, 3 + k), ham=_m.radians(-6 - k * 6), hamd=(0, 4 + k * 3), piv=FIST)   # frames are only for a death outside it, never crumbling)
 
 
 def pack(name, entries, W, H, cols=6):
