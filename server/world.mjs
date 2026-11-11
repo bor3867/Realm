@@ -160,7 +160,12 @@ export function makeWorld(seed, send, where = 'realm') {
   g.addBag = function (x, y, items) { const brown = (items || []).filter(isBrown); if (brown.length && onBag) onBag(x, y, brown); return { x, y, items: Array(8).fill(null), kind: 'brown' }; };
   // (a chest's loot is the one who broke it's, in their own bag: none of it lies in a public bag as well. It did, so a
   // chest left a second bag of potions over the first. 2026-10-24)
-  { const bc = g.breakChest.bind(g); g.breakChest = function (o) { const f = onBag; onBag = null; try { return bc(o); } finally { onBag = f; } }; }
+  // (a chest broken here drops nothing of the server's: each player's own browser drops their soulbound loot. Its bag comes
+  // 0.45 s after the break, from the queue, so turning the public bags off just round the break was not enough: the
+  // server's copy of its loot went out as a public bag of its potion, a second bag by every chest. 2026-11-11, the user)
+  { const bc = g.breakChest.bind(g), later = g.addBagLater.bind(g); let inChest = false;
+    g.addBagLater = function (...a) { if (inChest) return; return later(...a); };
+    g.breakChest = function (o) { const f = onBag; onBag = null; inChest = true; try { return bc(o); } finally { onBag = f; inChest = false; } }; }
   const add0 = g.addEnemy.bind(g);                                 // a new monster joins the server's short list at once
   g.addEnemy = function (...a) { const e = add0(...a); (this.netNew = this.netNew || []).push(e); return e; };
   g.updateWorld = ((f) => function (dt) { const o = this.map.objects; this.map.objects = []; try { return f.call(this, dt); } finally { this.map.objects = o; } })(g.updateWorld);   // (no town objects to walk up to)
