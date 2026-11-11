@@ -2734,6 +2734,8 @@ export class Game {
       this.save.gold = (this.save.gold || 0) + gold;
       if (gold >= 20) this.float(...lift(e.x, e.y, 1.6), `+${gold}g`, '#f2c14e');
       if (e.rb) this.vx({ k: 'shake', amt: 6 });
+      { const xp = Math.round(e.D.xp * (this.player.status.rested > 0 ? 1.25 : 1));   // (+N XP over you for each kill, 2026-11-11, the user: "a little plus with the amount of exp")
+        if (xp > 0) { this.pFloatOk = true; this.float(...lift(this.player.x, this.player.y, 1.5), `+${xp} XP`, '#c9f26a'); this.pFloatOk = false; } }
       this.gainXp(e.D.xp);
       if (e.rb) {
         this.banner(`${e.D.name} has fallen!`, 3000);
