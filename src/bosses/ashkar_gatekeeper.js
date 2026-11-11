@@ -296,6 +296,26 @@ function coreShot(g, e) {
 // center shot must be longer. Also, have the ray have two hands instead of one ray out. Make the lava cracks pixel"): 18 s
 // of it, not 10; two beams out of him, opposite, in II as in III; four blows of the handle, not two; the cracks in blocks
 const CRU_T = 18.2;                                          // (set to closed, s)
+// The Last Crucible (2026-11-11, the user: "Make the circle phase a mandatory survival phase at the end. Survival for 20
+// seconds and then he becomes vulnerable while continuing the phase until he's dead"): below 15% in III he strides to the
+// middle and the Crucible begins and never ends. For its first 20 s (from when he stands there) nothing hurts him: you
+// survive it. Then his armour gives and he can be struck, the cracks, the beams and the blows of his handle going on,
+// every 3.6 s, till he falls (they go out with him: game.js, a lane's boss)
+const FINAL_SURVIVE = 20;
+function lastCrucible(g, e) {
+  const S = e.bx;
+  S.akFinal = { startAt: g.t };
+  if (g.banner) g.banner('THE LAST CRUCIBLE · SURVIVE', 3000);
+  g.sfx('roar'); g.vx({ k: 'shake', amt: 10 });
+  S.akCru = { stage: 'walk', startAt: g.t, final: true };
+}
+function cruVulnerable(g, e) {
+  const S = e.bx; if (!S.akFinal) return;
+  S.akFinal.open = true;
+  if (g.banner) g.banner('HIS ARMOUR GIVES · STRIKE HIM DOWN', 2600);
+  g.vx({ k: 'shake', amt: 8 }); g.sfx('shatter');
+  const [cx, cy] = CORE(g, e); g.vx({ k: 'burst', x: cx, y: cy, n: 30, colors: [...GLASS, ...FIRE] });
+}
 function crucible(g, e) {
   const S = e.bx;
   if (g.banner) g.banner('THE CRUCIBLE WAKES.', 2200);
@@ -303,8 +323,9 @@ function crucible(g, e) {
   S.akCru = { stage: 'walk', startAt: g.t };
 }
 function cruSet(g, e) {                                       // he stands in the middle: the floor cracks, the beam is marked
-  const S = e.bx, Q = S.akCru, C = mid(e), { A } = hall(e), t = g.t, R0 = Math.min(A.w, A.h) / 2 - 1.5;
-  Object.assign(Q, { stage: 'set', setAt: t, openAt: t + 1.2, onAt: t + 2.2, closeAt: t + CRU_T, cx: C.x, cy: C.y, cracks: [] });
+  const S = e.bx, Q = S.akCru, C = mid(e), { A } = hall(e), t = g.t, R0 = Math.min(A.w, A.h) / 2 - 1.5, LIFE = Q.final ? 99999 : CRU_T;   // (the last one never closes)
+  Object.assign(Q, { stage: 'set', setAt: t, openAt: t + 1.2, onAt: t + 2.2, closeAt: t + LIFE, cx: C.x, cy: C.y, cracks: [] });
+  if (Q.final) { S.akFinal.vulnAt = t + FINAL_SURVIVE; later(e, FINAL_SURVIVE, 'cruVulnerable'); }
   // (2026-11-11, the user: "Ensure that everything is high damage and players should be punished for running into the lava.
   // Purple armor broken damage from them. Also maybe make the lava cracks a bit more realistic (thicker in the center? and
   // more irregular?)"): each crack wanders (five to seven legs, each turned freely, of uneven length), widest in its middle
@@ -320,7 +341,7 @@ function cruSet(g, e) {                                       // he stands in th
       if (k === legs) break;
       const L = 0.5 + Math.random() * 0.75, a = h + (Math.random() - 0.5) * 1.6, nx = x + Math.cos(a) * L, ny = y + Math.sin(a) * L;
       h += (Math.random() - 0.5) * 0.6;                     // (it wanders)
-      g.fx.push({ kind: 'lane', x, y, a, len: L, w: Math.max(0.22, w), delay: 1.2, t: 0, life: CRU_T, dmg: crackDmg, every: 0.4, broken: 3, by, hitT: 0, noDraw: true, boss: e.id });
+      g.fx.push({ kind: 'lane', x, y, a, len: L, w: Math.max(0.22, w), delay: 1.2, t: 0, life: LIFE, dmg: crackDmg, every: 0.4, broken: 3, by, hitT: 0, noDraw: true, boss: e.id });
       x = nx; y = ny;
     }
     Q.cracks.push(pts); return pts;
@@ -331,10 +352,11 @@ function cruSet(g, e) {                                       // he stands in th
     if (Math.random() < 0.6) { const m = P0[Math.floor(P0.length / 2)]; crack(m[0], m[1], Math.atan2(P0[P0.length - 1][1] - P0[0][1], P0[P0.length - 1][0] - P0[0][0]) + (Math.random() < 0.5 ? 1 : -1) * (0.8 + Math.random() * 0.6), 2 + Math.floor(Math.random() * 2), 0.32); }
   }
   // the pool under him burns too (a square of floor about him: he stands in the middle of it)
-  g.fx.push({ kind: 'lane', x: C.x - POOL_R, y: C.y, a: 0, len: POOL_R * 2, w: POOL_R * 0.8, delay: 1.2, t: 0, life: CRU_T, dmg: crackDmg, every: 0.4, broken: 3, by, hitT: 0, noDraw: true, boss: e.id });
+  g.fx.push({ kind: 'lane', x: C.x - POOL_R, y: C.y, a: 0, len: POOL_R * 2, w: POOL_R * 0.8, delay: 1.2, t: 0, life: LIFE, dmg: crackDmg, every: 0.4, broken: 3, by, hitT: 0, noDraw: true, boss: e.id });
   const q = target(g, e), sg = (S.akCruS = -(S.akCruS || 1)), spin = sg * deg(42), a0 = angleTo(C.x, C.y, q.x, q.y) - sg * deg(110), len = R0 + 3;
   Q.beam = { a0, spin, n: 2, len };
-  for (let k = 0; k < Q.beam.n; k++) g.fx.push({ kind: 'lane', x: C.x, y: C.y, a0: a0 + k * Math.PI, a: a0 + k * Math.PI, spin, len, w: 0.6, delay: 2.2, t: 0, life: CRU_T, dmg: g.bxDmg(e, D(260)), every: 0.3, broken: 4, by, hitT: 0, noDraw: true, boss: e.id });
+  for (let k = 0; k < Q.beam.n; k++) g.fx.push({ kind: 'lane', x: C.x, y: C.y, a0: a0 + k * Math.PI, a: a0 + k * Math.PI, spin, len, w: 0.6, delay: 2.2, t: 0, life: LIFE, dmg: g.bxDmg(e, D(260)), every: 0.3, broken: 4, by, hitT: 0, noDraw: true, boss: e.id });
+  if (Q.final) { later(e, 4.4, 'cruRaise', { rings: 2, again: true }); return void g.sfx('hammer'); }   // (the last: a blow every 3.6 s, for ever)
   [[4.4, 2], [8.0, 2], [11.6, 3], [15.2, 3]].forEach(([t, rings]) => later(e, t, 'cruRaise', { rings }));
   later(e, CRU_T + 0.1, 'cruEnd');
   g.sfx('hammer');
@@ -342,6 +364,7 @@ function cruSet(g, e) {                                       // he stands in th
 function cruRaise(g, e, V) {                                  // the mace lifted high, then its handle driven into the floor (his smash clip; the blow lands at 0.5 s)
   e.bx.akSmash = { at: g.t, until: g.t + 1.0 };
   later(e, 0.5, 'cruSlam', { rings: V.rings });
+  if (V.again && e.bx.akCru) later(e, 3.6, 'cruRaise', { rings: V.rings === 2 ? 3 : 2, again: true });   // (the last Crucible: on and on, two rings and three by turns)
 }
 function cruSlam(g, e, V) {
   thud(g, e, e.x, e.y + 1); g.vx({ k: 'shake', amt: 9 });
@@ -388,16 +411,18 @@ const AT = {
   scythe: P('Scything Links', 'scythe', 6.5, { move: 'hold' }), hunt: P('Forge Hunt', 'hunt', 6.4, { move: 'hold' }),
   inverted: P('Inverted Anvil', 'inverted', 5.6, { move: 'hold' }), gate: P('The Gatebreaker', 'gatebreaker', 11.5, { move: 'hold' }),
   crucible: P('The Crucible', 'crucible', 22.5, { move: 'crucible', instant: true }),
+  last: P('The Last Crucible', 'lastCrucible', 99999, { move: 'crucible', instant: true }),
 };
 const CYCLE = {
   1: { len: 20, list: [[0, 'chains'], [3.8, 'sentence'], [7.5, 'teeth'], [12.5, 'press']] },
   2: { len: 46.5, list: [[0, 'faults'], [3.3, 'sentence'], [6.8, 'shatter'], [11.4, 'teeth'], [15.2, 'chains'], [19.5, 'press'], [23.7, 'crucible']] },
   3: { len: 46.5, list: [[0, 'scythe'], [6.7, 'hunt'], [13.0, 'inverted'], [18.0, 'sentence'], [23.6, 'crucible']] },
 };
-const LAST = ['gate', 'sentence', 'hunt'];                 // below 15%
+const LAST = ['gate', 'sentence', 'hunt'];                 // (below 15%: the Gatebreaker cycle, before the Last Crucible took its place)
 function choose(g, e) {
   const S = e.bx, C = S.akDir && S.akDir.ph === S.phase ? S.akDir : (S.akDir = { ph: S.phase, t0: g.t, i: 0, last: 0 });
-  if (S.phase === 3 && e.hp / e.maxHp <= 0.15) return AT[LAST[C.last++ % LAST.length]];   // (each starts once the last has run its course)
+  if (S.phase === 3 && e.hp / e.maxHp <= 0.15) return S.akFinal ? null : AT.last;   // (below 15%: the Last Crucible, once; it never ends)
+  void LAST;
   const Y = CYCLE[S.phase] || CYCLE[3];
   if (C.i >= Y.list.length) { if (g.t < C.t0 + Y.len) return null; C.t0 = g.t; C.i = 0; }
   const [off, k] = Y.list[C.i];
@@ -522,7 +547,9 @@ export default {
   charging: (g, e) => !!(e.akDash && g.t >= e.akDash.at),   // (his Forge Hunt's charges)
   specials: { sentence, sentenceLock, sentenceWave, chains, chainSweep, teeth, tooth, teethDone, press, pressMark, pressWall, faults, fault, shatter, plates, sparkle,
     scythe, scytheGo, scytheFan, hunt, charge, inverted, invRing, invHold, invBack, gatebreaker, gateLinks, gateCone, gateFaults, anchorShot, coreShot,
-    crucible, cruRaise, cruSlam, cruRing, cruEnd, anvilStrike },
+    crucible, cruRaise, cruSlam, cruRing, cruEnd, anvilStrike, lastCrucible, cruVulnerable },
+  // the Last Crucible's survival: nothing hurts him till its 20 s are over
+  immune: (g, e) => e.bx.phase === 3 && e.hp / e.maxHp <= 0.15 && !(e.bx.akFinal && e.bx.akFinal.open), immuneText: 'SURVIVE',   // (from 15% till its 20 s are over: no one bursts him past it)
   // his own clips between attacks: the Crucible's great blow, an anvil struck, standing still in the Crucible (src/bossx.js bxPose)
   posing(g, e) {
     const S = e.bx, A = S.anim, ph = S.phase || 1, P0 = S.def.phases[ph];
@@ -582,11 +609,12 @@ export default {
   update(g, e, dt) {
     const S = e.bx;
     if (S.state === 'sleep' || S.state === 'intro') return;
+    if (S.phase === 3 && e.hp / e.maxHp <= 0.15 && !S.akFinal && !S.akCru && S.state === 'recover') S.wait = Math.min(S.wait, 0.3);   // (the Last Crucible: at once)
     if (S.akStrike && !S.akStrike.done && g.t >= S.akStrike.hitAt) { S.akStrike.done = true; anvilSpit(g, e, S.akStrike.i); }   // (the anvil struck)
     if (S.akStrike && g.t > S.akStrike.until) S.akStrike = null;
     if (S.akSmash && g.t > S.akSmash.until) S.akSmash = null;
     const Qc = S.akCru;                                    // (a Crucible cut short, by a change of phase: its fire runs out on its own)
-    if (Qc && (Qc.stage === 'walk' ? g.t - Qc.startAt > 4 : g.t > Qc.closeAt + 0.3)) { S.akCru = null; S.akSmash = null; }
+    if (Qc && !Qc.final && (Qc.stage === 'walk' ? g.t - Qc.startAt > 4 : g.t > Qc.closeAt + 0.3)) { S.akCru = null; S.akSmash = null; }
     const Dh = e.akDash;                                   // a charge in flight: it strikes you once, then cinders where it ends
     if (Dh && g.t >= Dh.at) {
       if (g.t >= Dh.until) {

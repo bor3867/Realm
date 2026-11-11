@@ -323,8 +323,28 @@ def enter(act, k):
     return g
 
 
-def die(k):                                     # (the castle's bosses fall to a knee in the game itself, src/render.js kneelBoss: these
-    return comp(layers(3, 0), body=(0, 3 + k), ham=_m.radians(-6 - k * 6), hamd=(0, 4 + k * 3), piv=FIST)   # frames are only for a death outside it, never crumbling)
+def die(k):
+    # his fall (2026-11-11, the user: "The death animation is terrible. You basically condensed the sprite down instead of
+    # providing a proper animation of him kneeling before exploding"): a rig of his own, five beats. He staggers, the mace
+    # slipping in his grip; drops, the right leg folding; lands on that knee (its shin under him, out of sight, the knee on
+    # the floor), the left foot planted, the mace's head on the floor at his side, him bent over it; slumps lower, the core
+    # flaring; and the last beat before he bursts, the core white and the lava in him blazing (the burst is the game's,
+    # src/render.js bossBlast). Drawn in his third look, the one he dies in
+    R = _m.radians
+    L = layers(3, k % 4)
+    def kneel_leg(cut):                         # the right leg: only what is above the knee, the rest folded under him
+        return dict(L, legr=[(x, y, c) for (x, y, c) in L['legr'] if y < cut])
+    if k == 0:                                  # the stagger: reeling back, the mace slipping
+        return tint(comp(L, body=(1, 2), legl=(-1, 0), bang=R(4), ham=R(-14), hamd=(-2, 8), piv=FIST), LAVA, (255, 214, 130), 0.3)
+    if k == 1:                                  # dropping: the right leg giving way under him
+        return tint(comp(kneel_leg(97), body=(0, 9), legl=(-1, 1), legr=(1, 8), bang=R(-2), ham=R(-34), hamd=(-2, 22), piv=FIST), LAVA, (255, 220, 140), 0.35)
+    if k == 2:                                  # on his knee: the knee on the floor, the mace's head beside him, bent over it
+        return tint(comp(kneel_leg(88), body=(0, 19), legl=(-2, 3), legr=(1, 19), bang=R(-5), ham=R(-52), hamd=(-1, 34), piv=FIST), LAVA, (255, 228, 160), 0.45)
+    if k == 3:                                  # slumped lower, the core flaring
+        return tint(comp(kneel_leg(88), body=(0, 21), legl=(-2, 3), legr=(1, 19), bang=R(-8), ham=R(-55), hamd=(-1, 35), piv=FIST), LAVA, (255, 244, 200), 0.75)
+    g = comp(kneel_leg(88), body=(0, 21), legl=(-2, 3), legr=(1, 19), bang=R(-8), ham=R(-55), hamd=(-1, 35), piv=FIST)   # the moment before: white-hot
+    g = tint(g, LAVA, (255, 255, 240), 0.95)
+    return arc(g, [(PS + CORE[0] + _m.cos(i * 0.7) * (8 + i % 4 * 4), PT + CORE[1] + 21 + _m.sin(i * 0.7) * (8 + i % 4 * 4)) for i in range(22)], [(255, 255, 240, 255), (255, 214, 96, 255)])
 
 
 def pack(name, entries, W, H, cols=6):
@@ -380,6 +400,8 @@ if __name__ == '__main__':
         anims[f'hurt{act}'] = {'frames': [f'h{act}'], 'fps': 5, 'loop': False}
         if act > 1: anims[f'enter{act}'] = {'frames': [f'e{act}_{k}' for k in range(4)], 'fps': 3.5, 'loop': False}
     anims['death'] = {'frames': [f'd{k}' for k in range(5)], 'fps': 1.7, 'loop': False}
+    # his kneel (src/render.js kneelBoss plays it over the time he kneels: the stagger, the drop, a long stay on the knee, the white)
+    anims['kneel'] = {'frames': ['d0', 'd1', 'd2', 'd2', 'd2', 'd3', 'd3', 'd3', 'd4', 'd4'], 'fps': 4.5, 'loop': False}
     sheets = {f'bx_{BID}': {'image': f'{BID}.png', 'kind': 'boss', 'sprites': {BID: {'frames': fr, 'anims': anims,
               'phases': {str(a): {'name': NAMES[a], 'idle': f'idle{a}', 'attack': f'attack{a}', 'walk': f'walk{a}', 'charge': f'charge{a}', 'hurt': f'hurt{a}', **({'enter': f'enter{a}'} if a > 1 else {})} for a in (1, 2, 3)}, 'death': 'death', 'meta': {'half': True}}}}}
     json.dump({'rf': True, 'meta': {'name': 'Ashkar, the Chained Forge-Giant (the user\'s sprite)', 'version': 4}, 'sheets': sheets},

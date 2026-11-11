@@ -1679,7 +1679,14 @@ export class Renderer {
   // a great boss falling to a knee (bossx bxDie): its hurt pose, the body above the hips sinking as the legs fold under it
   // (the legs drawn shorter, the feet where they stood), a lean forward, then trembling till it bursts
   kneelBoss(g, e, S, sx, sy) {
-    const def = S.def, f = def.frames[S.kneel.fr]; if (!f) return;
+    const def = S.def, KN = def.anims && def.anims.kneel;
+    if (KN) {                                                // a boss drawn with its own kneel (Ashkar: tools/build_ashkar.py die), played over the time it kneels
+      const q = Math.max(0, Math.min(0.999, (g.t - S.kneel.at) / S.kneel.T)), fr = KN.frames[Math.floor(q * KN.frames.length)], K = S.drawK || S.B.drawScale || 1;
+      const shake = q > 0.5 ? Math.round((Math.random() - 0.5) * 2) : 0;
+      this.drawDef(def, fr, Math.round(sx) + shake, sy, { flip: !!e.face, scale: K });
+      return;
+    }
+    const f = def.frames[S.kneel.fr]; if (!f) return;
     const k0 = Math.min(1, (g.t - S.kneel.at) / 0.45), k = 1 - (1 - k0) ** 3;          // (a heavy drop, quick then settling)
     const U = this.U || 1, Kd = 2 * (S.drawK || S.B.drawScale || 1), I = outlinedFrame(def.img, f.x, f.y, f.w, f.h, U * Kd, undefined, U >= 2 ? 2 : 1), pad = I.pad / U;
     const ay = def.foot[1], hip = ay * 0.6, q = 1 - 0.55 * k, legH = I.height / U - pad - hip * Kd, sink = legH * (1 - q);

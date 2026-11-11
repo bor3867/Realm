@@ -781,6 +781,22 @@
        ],
        "fps": 1.7,
        "loop": false
+      },
+      "kneel": {
+       "frames": [
+        "d0",
+        "d1",
+        "d2",
+        "d2",
+        "d2",
+        "d3",
+        "d3",
+        "d3",
+        "d4",
+        "d4"
+       ],
+       "fps": 4.5,
+       "loop": false
       }
      },
      "phases": {
