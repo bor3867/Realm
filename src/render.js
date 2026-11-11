@@ -1371,6 +1371,7 @@ export class Renderer {
     else if (e.abil && def.anims.ability) { const A = def.anims.ability; fr = A.frames[Math.min(A.frames.length - 1, Math.floor(e.abil.t * A.fps))]; }   // an elite's ability: the clip is the telegraph
     else if (e.dead && def.anims.death) { const A = def.anims.death; fr = A.frames[Math.min(A.frames.length - 1, Math.floor(e.deadT * A.fps))]; }
     else if (e.dead) fr = fHurt;
+    else if (e.state === 'charge' && e.cvx !== undefined && def.anims.charge) { const A = def.anims.charge; fr = A.frames[Math.floor(g.t * A.fps + e.phase) % A.frames.length]; }   // (a charge: its own gallop, 2026-11-11)
     else if (def.anims.shoot && (e.state === 'tell' || e.state === 'charge' || e.state === 'attack' || (e.shootSeen && g.t - e.shootSeen.t < 0.36 && e.shootSeen.s === 'attack'))) {
       // a full shot (the castle's redrawn defenders): the wind-up and the draw through its telegraph, the release and the
       // recovery as it fires. Timed by this copy's clock from when it saw the state change (online the state is the server's)
