@@ -2502,6 +2502,86 @@
       }
      },
      "meta": {}
+    },
+    "pine_snow_big": {
+     "frames": {
+      "f0": [
+       2696,
+       0,
+       25,
+       41
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "pine_snow_small": {
+     "frames": {
+      "f0": [
+       2722,
+       8,
+       17,
+       33
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "ctree_tall": {
+     "frames": {
+      "f0": [
+       2740,
+       17,
+       29,
+       24
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
+    },
+    "cstump_big": {
+     "frames": {
+      "f0": [
+       2770,
+       28,
+       18,
+       13
+      ]
+     },
+     "anims": {
+      "idle": {
+       "frames": [
+        "f0"
+       ],
+       "fps": 1,
+       "loop": true
+      }
+     },
+     "meta": {}
     }
    }
   }

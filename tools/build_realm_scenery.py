@@ -36,12 +36,27 @@ NAMES = {
                          'reeds', 'rock_moss_swamp', 'reeds_b', 'glowcap', 'arch_moss_swamp', 'glowcaps', 'pillar_moss', 'pillar_moss_b'],
 }
 FLAME = {'brazier_fire'}
+SPLIT = {'pines_snow': ('pine_snow_big', 'pine_snow_small'), 'ctree_big': ('ctree_tall', 'cstump_big')}
+
+
+def split_pair(g):
+    """two things in one picture: cut along the emptiest column between their trunks (the middle half of it), each trimmed"""
+    W = len(g[0]); cnt = [sum(1 for r in g if r[x][3]) for x in range(W)]
+    c = min(range(W // 4, W * 3 // 4), key=lambda x: (cnt[x], abs(x - W // 2)))
+    L = [r[:c] for r in g]; R = [r[c:] for r in g]
+    return trim(keep_biggest(L)), trim(keep_biggest(R))
 
 if __name__ == '__main__':
     deco = []
     for (sheet, panel), names in NAMES.items():
         for k, n in enumerate(names):
             if n: g = read_png(os.path.join(OBJ, f'{sheet}_{panel}_{k}.png')); deco.append((n, trim(keep_biggest(g) if n in ALONE else g))) if n else None
+    # (2026-11-11, the user: "both of these trees are combined into one sprite so when I rotate the trunks move": a picture
+    # of two things stands at one spot, so the second slides over the ground as the camera turns. Each cut in two along the
+    # emptiest column between them, each piece its own sprite, set down on its own tile by src/world/maps.js PAIRS)
+    whole = dict(deco)
+    for n, (ln, rn) in SPLIT.items():
+        L, R = split_pair(whole[n]); deco += [(ln, L), (rn, R)]
     items = []
     for n, g in deco: items += [(f'{n}#{k}', flicker(g, k)) for k in range(3)] if n in FLAME else [(n, g)]
     sheet, fr = pack(items, 'rscene', 'decor'); sp = {}

@@ -711,12 +711,16 @@ export function realm(seed) {
     cliff: (x, y) => nearTile(x, y, 2, (t) => t === TID.cliff),
     rift: (x, y) => nearTile(x, y, 1, (t) => t === TID.rift),
   };
+  // a picture that held two things (2026-11-11, the user: "both of these trees are combined into one sprite so when I
+  // rotate the trunks move"): its pieces (tools/build_realm_scenery.py SPLIT), each where it stood in the picture, in tiles
+  const PAIRS = { [R + 'pines_snow']: [[R + 'pine_snow_big', -1.06], [R + 'pine_snow_small', 1.56]], [R + 'ctree_big']: [[R + 'ctree_tall', -1.1], [R + 'cstump_big', 1.8]] };
   for (let y = 3; y < S - 3; y++) for (let x = 3; x < S - 3; x++) {
     const b = m.biome[idx(m, x, y)];
     if (b < 0 || !plain(x, y) || nearTile(x, y, 1, (t) => t === TID.dirt || t === TID.cobble)) continue;
     let placed = false;
     for (const [spr, p, solid, where] of STAND[b]) {
       if (!r.chance(p) || (where && !WHERE[where](x, y))) continue;
+      if (PAIRS[spr]) { for (const [s2, ox] of PAIRS[spr]) put(m, s2, x + ox, y, solid); placed = true; break; }   // (two things in one picture, set down each on its own spot: their trunks stay put as the camera turns)
       put(m, spr, x, y, solid); placed = true; break;
     }
     if (!placed && r.chance(0.045)) m.decor.push({ name: r.pick(DECOR_BIOME[b]), x, y });
