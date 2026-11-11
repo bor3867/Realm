@@ -77,8 +77,15 @@ const methods = {
     return b;
   },
   armSetCount(name) { const S = ARMORY_SETS[name]; return S ? this.player.equip.filter((x) => x && ITEMS[x] && ITEMS[x].armSet === name).length : 0; },
-  // the Hosanna set's 2-piece bonus: +5 WIS, +40 MP
-  armStat(s) { if (!this.player || !this.player.equip) return 0; const n = this.armSetCount('Hosanna'); return n >= 2 ? ({ wis: 5, mp: 40 })[s] || 0 : 0; },
+  // the sets' 2-piece bonuses: Hosanna +5 WIS, +40 MP; Everbloom +5 DEX, +40 MP (and the Sylvan Mantle's +15 Speed while you are gone into the green)
+  armStat(s) {
+    const p = this.player; if (!p || !p.equip) return 0;
+    let v = 0;
+    if (this.armSetCount('Hosanna') >= 2) v += ({ wis: 5, mp: 40 })[s] || 0;
+    if (this.armSetCount('Everbloom') >= 2) v += ({ dex: 5, mp: 40 })[s] || 0;
+    if (s === 'spd' && p.armS && p.armS.leafT > this.t) v += 15;
+    return v;
+  },
 
   // ---------------------------------------------------------------- weapons
   armoryVolley(W, sp, ox, oy, a, mult) {
@@ -131,6 +138,18 @@ const methods = {
         this.armBreak(e.x, e.y, 3, A.st.dmg, ID('Aureole')); for (const o of this.armNear(e.x, e.y, 3)) { this.armHurt(o, A.st.dmg, undefined, undefined, { id: ID('Aureole') }); o.armDazeT = this.t + 1.5; o.slowT = Math.max(o.slowT || 0, 1.5); o.slowF = Math.max(o.slowF || 0, 0.5); }
       } finally { S.crowning = false; }
     }
+    if (this.armHeld(ID('Verdance')) && (S.leaf || 0) >= 1 && !S.marking && !e.dead) {   // Hunter's Mark
+      S.leaf = 0; S.marking = true;
+      try {
+        const A = this.armA(ID('Verdance'));
+        e.armHuntT = this.t + 5;
+        this.armVis({ k: 'ring', x: e.x, y: e.y, r: 3, col: '#6fd36a', life: 0.5 });
+        this.vx({ k: 'burst', x: e.x, y: e.y - 0.5, n: 24, colors: ['#6fd36a', '#2f9e44', '#a7f3d0', '#f6c453'] });
+        this.armSay(e.x, e.y - 0.6, 'MARKED', '#7ef0a8');
+        this.armBreak(e.x, e.y, 3, A.st.dmg, ID('Verdance'));
+        for (const o of this.armNear(e.x, e.y, 3)) { this.armHurt(o, A.st.dmg, undefined, undefined, { id: ID('Verdance') }); o.slowT = Math.max(o.slowT || 0, 1); o.slowF = Math.max(o.slowF || 0, 0.4); }
+      } finally { S.marking = false; }
+    }
     const tt = S.tether;
     if (tt && tt.until > this.t && tt.set.has(e) && !S.sharing && dealt > 0) {
       S.sharing = true;
@@ -142,17 +161,24 @@ const methods = {
   armTaken(e, dmg) {
     if (e.armSleepT > this.t) { e.armSleepT = 0; e.stunT = 0; dmg *= 1.5; this.float(e.x, e.y - 1.6, 'WOKEN ×1.5', '#c4b5fd'); }
     if (e.armCrownT > this.t) dmg *= 1.1;
+    if (e.armHuntT > this.t) dmg *= 1.15;                  // (Verdance's mark)
     return Math.round(dmg);
   },
   // before you're hurt: true when nothing gets through
   armPreHurt() {
     const p = this.player, S = this.armS();
     if (S.phase) return true;                              // Null Walker: out of reality
+    if (S.leafT > this.t) { if (!S.immSay || S.immSay < this.t) { S.immSay = this.t + 0.5; this.armSay(p.x, p.y, 'UNSEEN', '#7ef0a8'); } return true; }   // the Sylvan Mantle: gone into the green
     if (S.wingsT > this.t) { if (!S.immSay || S.immSay < this.t) { S.immSay = this.t + 0.5; this.armSay(p.x, p.y, 'IMMUNE', '#fff3c4'); } return true; }
     return false;
   },
   armPostHurt() {
     const p = this.player, S = this.armS(), max = this.stat('hp');
+    if (this.armHeld(ID('Sylvan Mantle')) && p.hp > 0 && p.hp < max * 0.3 && !((S.leafCd || 0) > this.t)) {   // Into the Green
+      S.leafT = this.t + 2; S.leafCd = this.t + 30;
+      this.armSay(p.x, p.y - 0.4, 'INTO THE GREEN', '#7ef0a8'); this.armHeal(max * 0.15, '#7ef0a8');
+      this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.6), n: 30, colors: ['#6fd36a', '#2f9e44', '#a7f3d0'] });
+    }
     if (this.armHeld(ID('Empyrean')) && p.hp > 0 && p.hp < max * 0.3 && !((S.wingCd || 0) > this.t)) {   // Unfolding
       S.wingsT = this.t + 1.5; S.wingCd = this.t + 30;
       this.armSay(p.x, p.y - 0.4, 'UNFOLDING', '#fff3c4'); this.armHeal(max * 0.15, '#fff3c4');
@@ -177,6 +203,7 @@ const methods = {
       S.hosHp = p.hp; p.armHealOk = undefined;
     }
     if (this.armHeld(ID('Aureole'))) S.halo = Math.min(1, (S.halo || 0) + dt / 6);   // Crown of Light: 6s to gather
+    if (this.armHeld(ID('Verdance'))) S.leaf = Math.min(1, (S.leaf || 0) + dt / 5);   // Hunter's Mark: 5s to gather
   },
 };
 
@@ -373,6 +400,31 @@ const FIRE = {
     // (Judgment no longer unmakes the enemy shots on screen: unfair and no fun against bosses, the user's call 2026-10-22)
     for (let i = 0; i < 7; i++) { const aa = (i / 7) * TAU - Math.PI / 2; this.armLater(i * 0.08, () => smite(tx + Math.cos(aa) * 1.55, ty + Math.sin(aa) * 1.55, EX(A, 0))); }
     this.armLater(0.3, () => { const ab = full ? 0.35 : 0.2; this.armHeal(max * ab, '#fff1b8'); this.armSay(p.x, p.y - 0.3, `ABSOLUTION +${Math.round(max * ab)}`, '#fff1b8'); });
+  },
+  // three piercing arrows of green light; every 6th volley the Wild Hunt (7 great arrows, rooting, healing you per enemy
+  // struck); a volley that strikes nothing costs 4% of your max Life (never below 1). The set: 3 roots 2s and costs 2%, 4 every 4th and heals 3%
+  Everbloom(A, id, S, ox, oy, a) {
+    const p = this.player, n = this.armSetCount('Everbloom'), W = ITEMS[id].weapon, max = this.stat('hp');
+    S.ebN = (S.ebN || 0) + 1;
+    const hunt = S.ebN % (n >= 4 ? 4 : 6) === 0, grp = { hit: false, left: 0 };
+    const end = () => {                                    // the price, when the whole volley is spent and struck nothing
+      if (--grp.left > 0 || grp.hit) return;
+      const f = Math.min(max * (n >= 3 ? 0.02 : 0.04), Math.max(0, p.hp - 1));
+      if (f > 0) { p.hp -= f; this.float(...lift(p.x, p.y, 1.2), `-${Math.round(f)}`, '#ff6b6b'); }
+    };
+    const mk = (ang, idx, dmgR, sc, onHit) => {
+      const sh = this.armShot(id, idx, ox, oy, ang, W.speed, W.range, dmgR, { pierce: true, sc });
+      grp.left++; sh.armOnHit = (b, e) => { grp.hit = true; if (onHit) onHit(b, e); }; sh.armEnd = end;
+      return sh;
+    };
+    if (!hunt) { for (const g of [-1, 0, 1]) mk(a + g * 0.12, 0, A.st.dmg, 4); return; }
+    this.armSay(p.x, p.y - 1.4, 'WILD HUNT', '#7ef0a8');
+    this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.6), n: 16, colors: ['#6fd36a', '#a7f3d0', '#f6c453'] });
+    const struck = new Set(), root = n >= 3 ? 2 : 1, heal = n >= 4 ? 0.03 : 0.02;
+    for (let i = 0; i < 7; i++) mk(a + (i - 3) * 0.16, 1, EX(A, 0), 6, (b, e) => {
+      e.slowT = Math.max(e.slowT || 0, root); e.slowF = Math.max(e.slowF || 0, 0.4);
+      if (!struck.has(e)) { struck.add(e); this.armHeal(max * heal, '#7ef0a8'); }
+    });
   },
   // shots fly to your cursor and feed a black hole (max 20 mass); stop firing 0.4s and it collapses, then spits back what it swallowed
   'Singularity Core'(A, id, S, ox, oy) {
@@ -590,6 +642,14 @@ const CAST = {
     const N = ['FIRE', 'FROST', 'STORM', 'ARCANE', 'EARTH', 'THE LAST VERSE'], CL = ['#f87171', '#a5f3fc', '#fde047', '#d8b4fe', '#a3e635', '#fff1a8'];
     this.armSay(c.x, c.y - 1.5, N[k], CL[k]); if (fin) this.vx({ k: 'shake', amt: 5 });
   },
+  // a grove at your cursor (9 tiles) for 4s, 5 tiles wide: thorns on everything inside, slowed 40%; your shots through it +25%
+  Thornsong(A, id, S) {
+    const p = this.player, aim = this.armAim(), follow = this.armSetCount('Everbloom') >= 4;
+    const d = follow ? 0 : Math.min(9, dist(p.x, p.y, aim.x, aim.y)), ang = Math.atan2(aim.y - p.y, aim.x - p.x);
+    S.grove = { x: p.x + Math.cos(ang) * d, y: p.y + Math.sin(ang) * d, t: 0, k: 0, follow, seed: R() * 100 };
+    this.armSay(S.grove.x, S.grove.y - 1.5, 'THORNSONG', '#7ef0a8');
+    this.vx({ k: 'burst', x: S.grove.x, y: S.grove.y - 0.3, n: 26, colors: ['#6fd36a', '#2f9e44', '#a7f3d0'] });
+  },
   // opens heaven above you for 4s: heals 200 at once, then 40 a second inside; enemy shots inside slow by 40%
   Gloria(A, id, S) {
     const p = this.player;
@@ -599,7 +659,7 @@ const CAST = {
 };
 
 // ---------------------------------------------------------------- what runs every frame (while held, or always for live effects)
-const TICK_ALWAYS = new Set(['Mirror Maw', 'Celestial Weaver', 'Singularity Core', 'Starfall Engine', 'Phantom Thread', 'Bone Garden', 'Apocalypse Chorus', 'Reality Unbound', 'The Hunger', 'World Ripper', 'The Last Verse', 'Gloria', 'Void Leech', 'Null Walker', 'Paradox Script']);
+const TICK_ALWAYS = new Set(['Thornsong', 'Mirror Maw', 'Celestial Weaver', 'Singularity Core', 'Starfall Engine', 'Phantom Thread', 'Bone Garden', 'Apocalypse Chorus', 'Reality Unbound', 'The Hunger', 'World Ripper', 'The Last Verse', 'Gloria', 'Void Leech', 'Null Walker', 'Paradox Script']);
 const TICK = {
   'Mirror Maw'(A, id, S) {                                // enemy shots that strike the mirror are spat back at the nearest enemy
     const m = S.mir;
@@ -813,6 +873,20 @@ const TICK = {
       }
       if (el === 4 && (kk > 0.52 || m.t < dt * 2)) { m.kk[el] = 0; m.w4++; for (let i = 0; i < 4; i++) { const b = this.armShot(id, 4, ox, oy, i * 1.5708 + m.w4 * 0.785, 4.5, 7.2, dmg, { sc: 5, spin: 3 }); b.armOnHit = effect(4); } }
     }
+  },
+  Thornsong(A, id, S, dt) {                               // the grove: thorns every 0.25s, slowed; your shots through it bloom (+25%)
+    const c = S.grove, p = this.player;
+    if (!c) return;
+    c.t += dt; c.k += dt;
+    if (c.follow) { c.x = p.x; c.y = p.y; }
+    if (c.t <= 4) {
+      if (c.k >= 0.25) {
+        c.k = 0;
+        for (const e of this.armNear(c.x, c.y, 2.5)) { this.armHurt(e, PT(A, 0), undefined, undefined, { id, quiet: true }); e.slowT = Math.max(e.slowT || 0, 0.4); e.slowF = Math.max(e.slowF || 0, 0.4); }
+      }
+      for (const b of this.projectiles) if (b.from === 'p' && b.life > 0 && !b.grove && Math.hypot(b.x - c.x, b.y - c.y) < 2.5) { b.grove = true; b.dmg = Math.round(b.dmg * 1.25); }
+    }
+    if (c.t > 4.4) S.grove = null;
   },
   Gloria(A, id, S, dt) {                                  // heaven's column: 40 a second inside, enemy shots inside slowed by 40%
     const c = S.col, p = this.player;

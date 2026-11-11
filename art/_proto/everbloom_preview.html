@@ -1,0 +1,22 @@
+<!doctype html><meta charset="utf-8"><title>Everbloom preview</title>
+<body style="background:#2a2c31;margin:0;padding:16px;font:12px monospace;color:#ddd">
+<canvas id="c" width="1200" height="360"></canvas>
+<script type="module">
+import { EVERBLOOM } from '../../src/data/armory_everbloom.js';
+const c = document.getElementById('c').getContext('2d'), Z = 12;
+const cells = [...EVERBLOOM.map((it) => [it.name, it.item]), ['Arrow', EVERBLOOM[0].shots[0]], ['Wild Hunt', EVERBLOOM[0].shots[1]], ['Leaf', EVERBLOOM[0].shots[2]], ['Mark', EVERBLOOM[3].shots[0]]];
+const draw = (f, p, ox, oy, z) => { for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) { const ch = f[y][x]; if (ch === '.') continue; c.fillStyle = p[ch]; c.fillRect(ox + x * z, oy + y * z, z, z); } };
+let t = 0;
+function frame() {
+  c.clearRect(0, 0, 1200, 360);
+  cells.forEach(([n, d], k) => {
+    const ox = 10 + k * 130, fr = d.f[Math.floor(t * d.fps / 60) % d.f.length];
+    c.fillStyle = '#ddd'; c.fillText(n, ox, 12);
+    draw(fr, d.p, ox, 20, Z);
+    draw(fr, d.p, ox + 30, 130, 4);                       // the size it is in the inventory
+    draw(fr, d.p, ox + 30, 180, 2);
+  });
+  t++; requestAnimationFrame(frame);
+}
+frame();
+</script>

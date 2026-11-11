@@ -4552,7 +4552,7 @@ export class Game {
       case 'help':
         say('Player: /w NAME message (a whisper)  /r message (reply)  /teleport NAME (to someone here)  /dance  /lag (frames, ping, server)  · Enter to chat, Esc for settings and your keys.');
         if (!this.adminOk()) break;
-        say('/cleardeaths (forget your fallen heroes, off the Hall of Legends too)  /rift (the void opens under the realm now: everyone in it to the Throne, a new realm)  /admin  /ascend (top level, stats maxed; a priest gets the Hosanna set)  /backpack  /maxlevel  /level N  /maxstats  /heal  /god  /give ITEM [N]  /give dungeon ID (its whole loot set)  /items TEXT  /spawn ID [N] (any monster, elite or boss; /spawn chicken N, /spawn pigeon N: up to 100 XP birds)  /boss ID  ' +
+        say('/cleardeaths (forget your fallen heroes, off the Hall of Legends too)  /rift (the void opens under the realm now: everyone in it to the Throne, a new realm)  /admin  /ascend (top level, stats maxed; a priest gets the Hosanna set, a ranger the Everbloom)  /backpack  /maxlevel  /level N  /maxstats  /heal  /god  /give ITEM [N]  /give dungeon ID (its whole loot set)  /items TEXT  /spawn ID [N] (any monster, elite or boss; /spawn chicken N, /spawn pigeon N: up to 100 XP birds)  /boss ID  ' +
             '/bx BOSS (a three-phase boss beside you)  /kraken  /treant  /melon  /event BIOME  /adminchest [N] (best loot)  /armory [TIER] (the Mad God Armory)  /keys [dungeon N] (dungeon keys)  /pet [kind rarity max]  /star (a falling star in Godfall)  /seals (open a dungeon boss gate)  /progress BIOME N  /gold N  /essence N  /bosses  /tp LAND|nexus|realm|DUNGEON (lands: shore fen runeholt godfall dunes thornwood steppe lowlands)  /killall  /clearbags  /fame N  /portal DUNGEON  (all ids: ADMIN_REFERENCE.md; final boss: /portal throne)');
         break;
       case 'w': case 'whisper': case 'tell': case 'msg': case 'r': case 'reply': {   // a whisper: one player only (src/net.js)
@@ -4583,22 +4583,23 @@ export class Game {
         while (p.level < to) { p.level++; for (const st of STATS) p.base[st] = Math.min(C.max[st], p.base[st] + R.int(...C.grow[st])); }
         p.hp = this.stat('hp'); p.mp = this.stat('mp'); say(`Level ${p.level}.`); break;
       }
-      case 'ascend': {                                    // /ascend: top level, every stat maxed, and a priest wears the Hosanna set (what it wore goes to the backpack)
+      case 'ascend': {                                    // /ascend: top level, every stat maxed, and a priest wears the Hosanna set, a ranger the Everbloom (what it wore goes to the backpack)
         const C = CLASSES[p.cls];
         while (p.level < MAX_LEVEL) p.level++;
         p.xp = 0; Object.assign(p.base, C.max);
         let worn = '';
-        if (p.cls === 'priest') {
-          for (const id of ARMORY_IDS.filter((q) => ITEMS[q].armSet === 'Hosanna')) {
+        const SETS = { priest: 'Hosanna', ranger: 'Everbloom' }, setName = SETS[p.cls];
+        if (setName) {
+          for (const id of ARMORY_IDS.filter((q) => ITEMS[q].armSet === setName)) {
             const k = SLOT_ORDER.indexOf(TYPE_SLOT[ITEMS[id].type]), old = p.equip[k];
             if (k < 0) continue;
             if (old && old !== id) { const f = p.inv.indexOf(null); if (f >= 0) p.inv[f] = old; else this.addBag(p.x, p.y + 0.4, [old]); }
             p.equip[k] = id;
           }
-          worn = ', the Hosanna set on';
+          worn = `, the ${setName} set on`;
         }
         p.hp = this.stat('hp'); p.mp = this.stat('mp'); this.events.push({ type: 'ground' });
-        say(`Level ${p.level}, every stat maxed${worn}${p.cls === 'priest' ? '' : ' (the Hosanna set is for a priest)'}.`); break;
+        say(`Level ${p.level}, every stat maxed${worn}${setName ? '' : ' (the Hosanna set is for a priest, the Everbloom for a ranger)'}.`); break;
       }
       case 'maxstats': Object.assign(p.base, CLASSES[p.cls].max); p.hp = this.stat('hp'); p.mp = this.stat('mp'); say('All stats maxed.'); break;
       case 'heal': p.hp = this.stat('hp'); p.mp = this.stat('mp'); say('Healed.'); break;
@@ -4634,8 +4635,8 @@ export class Game {
         say(hits.length ? hits.map((it) => it.id).join(', ') : 'No matching items.'); break;
       }
       case 'armory': {                                     // /armory [TIER]: the Mad God Armory's items (tiers: ut mythic legendary celestial divine; divine is the Hosanna set)
-        const t = (args[0] || '').toLowerCase(), ids = ARMORY_IDS.filter((id) => !t || ITEMS[id].armTier.toLowerCase() === t || (t === 'hosanna' && ITEMS[id].armSet));
-        if (!ids.length) { say('Tiers: ut, mythic, legendary, celestial, divine (the Hosanna set). Or /armory for all 28.'); break; }
+        const t = (args[0] || '').toLowerCase(), ids = ARMORY_IDS.filter((id) => !t || ITEMS[id].armTier.toLowerCase() === t || (ITEMS[id].armSet && ITEMS[id].armSet.toLowerCase() === t));
+        if (!ids.length) { say('Tiers: ut, mythic, legendary, celestial, divine (the Hosanna and Everbloom sets), or hosanna, everbloom. Or /armory for all 32.'); break; }
         const left = [];
         for (const id of ids) { const f = p.inv.indexOf(null); if (f >= 0) p.inv[f] = id; else left.push(id); }
         if (left.length) this.addBag(p.x, p.y + 0.4, left);

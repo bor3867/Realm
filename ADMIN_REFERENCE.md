@@ -22,13 +22,13 @@ Type commands in chat (`/` or Enter). Ids use underscores. Regenerate with `node
 | `/maxlevel` | Level 20 |
 | `/level N` | Level up to N |
 | `/maxstats` | Every stat to your class maximum |
-| `/ascend` | Top level and every stat maxed; a priest also wears the Hosanna set (what it wore goes to the backpack) |
+| `/ascend` | Top level and every stat maxed; a priest also wears the Hosanna set, a ranger the Everbloom set (what it wore goes to the backpack) |
 | `/backpack` | Add the second backpack |
 | `/give ITEM [N]` | Give N of an item (id or name; enchanted ids work, see below) |
 | `/give dungeon ID` | Give a dungeon boss's whole loot set |
 | `/items TEXT` | Search item ids and names |
 | `/keys [DUNGEON] [N]` | A key for every dungeon, or N for one |
-| `/armory [TIER]` | The Mad God Armory: all 28 items, or one tier (`ut`, `mythic`, `legendary`, `celestial`, `divine`; divine is the admin-only Hosanna set, also `/armory hosanna`) |
+| `/armory [TIER]` | The Mad God Armory: all 32 items, or one tier (`ut`, `mythic`, `legendary`, `celestial`, `divine`; divine is the admin-only Hosanna and Everbloom sets, also `/armory hosanna` or `/armory everbloom`) |
 | `/adminchest [N]` | Up to 5 admin chests (top-tier loot); online, every player here gets their own |
 | `/spawn chicken N` | Up to 100 XP chickens (10,000 XP each); online, for every player here (shared ones in the realm). /chickens N does the same |
 | `/spawn pigeon N` | Up to 100 XP pigeons (5,000 XP each): they fly, and are quicker; /pigeons N does the same |
@@ -159,7 +159,7 @@ Type commands in chat (`/` or Enter). Ids use underscores. Regenerate with `node
 
 ## The Mad God Armory
 
-- `/armory` gives all 28, `/armory TIER` one tier; `/give ID` one item. The Divine tier is the Hosanna set (the priest): admin-only, it never drops.
+- `/armory` gives all 32, `/armory TIER` one tier; `/give ID` one item. The Divine tier is the Hosanna set (the priest) and the Everbloom set (the ranger): admin-only, it never drops.
 
 | Id | Name | Tier | Kind |
 | --- | --- | --- | --- |
@@ -191,3 +191,7 @@ Type commands in chat (`/` or Enter). Ids use underscores. Regenerate with `node
 | `arm_gloria` | Gloria | Divine | Ability · Hymn |
 | `arm_empyrean` | Empyrean | Divine | Robe |
 | `arm_aureole` | Aureole | Divine | Ring |
+| `arm_everbloom` | Everbloom | Divine | Bow |
+| `arm_thornsong` | Thornsong | Divine | Ability · Thornsong |
+| `arm_sylvan_mantle` | Sylvan Mantle | Divine | Leather |
+| `arm_verdance` | Verdance | Divine | Ring |

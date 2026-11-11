@@ -32,6 +32,17 @@ const methods = {
       const gr = b.createLinearGradient(sx - w, 0, sx + w, 0); gr.addColorStop(0, 'rgba(255,243,196,0)'); gr.addColorStop(0.5, `rgba(255,243,196,${0.28 * k})`); gr.addColorStop(1, 'rgba(255,243,196,0)');
       b.fillStyle = gr; b.fillRect(sx - w, 0, w * 2, this.buf.height); b.restore();   // (no ring round you: the user, 2026-11-02)
     }
+    // Thornsong's grove: a ring of green on the ground, thorns falling inside it
+    if (S.grove && S.grove.t < 4.4) {
+      const c = S.grove, k = Math.min(1, c.t / 0.2, (4.4 - c.t) / 0.4), [sx, sy] = this.proj(c.x, c.y), r = 2.5 * TS, L = art('Thornsong');
+      b.save(); b.globalAlpha = 0.22 * k; b.fillStyle = '#2f9e44'; b.beginPath(); b.ellipse(sx, sy, r, r, 0, 0, 7); b.fill();
+      b.globalAlpha = 0.8 * k; b.strokeStyle = '#6fd36a'; b.lineWidth = 1; b.setLineDash([3, 3]); b.lineDashOffset = -c.t * 12; b.beginPath(); b.ellipse(sx, sy, r, r, 0, 0, 7); b.stroke(); b.restore();
+      for (let i = 0; i < 9; i++) {                         // thorns falling, each on its own spot, again and again
+        const u = (c.t * 1.6 + i / 9) % 1, a = (i * 2.4 + c.seed) % 6.283, rr = ((i * 0.37 + c.seed) % 1) * 2.2;
+        const [x, y] = this.proj(c.x + Math.cos(a) * rr, c.y + Math.sin(a) * rr);
+        this.armSpr(L.shots[0], 2, x, y - (1 - u) * 26, '#7ef0a8', 0.6, k * Math.min(1, (1 - u) * 4));
+      }
+    }
     // Celestial Weaver: the constellation's lines and stars
     const st = S.stars && S.stars.filter((s) => s.until > t);
     if (st && st.length > 1) {
@@ -136,6 +147,14 @@ const methods = {
     // a halo over your head (Hosanna, or the Aureole's gathering Crown of Light: dim while it gathers, bright when full)
     const hos = g.armHeld && g.armHeld(this.armId('Hosanna')), aur = g.armHeld && g.armHeld(this.armId('Aureole'));
     if (hos || aur) { const ch = aur ? S.halo || 0 : 1; this.armHaloOver(px, py - 18 + Math.sin(now / 420) * 1, aur ? 0.4 + 0.6 * ch : 0.9, aur && ch >= 1); }
+    if (S.leafT > t) {                                    // the Sylvan Mantle: a whirl of leaves round you
+      const SM = art('Sylvan Mantle'), k = Math.min(1, (S.leafT - t) / 0.25);
+      for (let i = 0; i < 8; i++) { const a = (i / 8) * 6.283 + now * 0.006; this.armSpr(SM.shots[0], 2, px + Math.cos(a) * 11, py - 8 + Math.sin(a) * 6, '#7ef0a8', a, k); }
+    }
+    if (g.armHeld && g.armHeld(this.armId('Verdance'))) {  // Verdance: the emerald leaf over your head, dim while it gathers
+      const V = art('Verdance'), ch = S.leaf || 0;
+      this.armSpr(V.shots[0], 2, px + 10, py - 18 + Math.sin(now / 420), '#7ef0a8', 0, 0.35 + 0.65 * ch, ch >= 1 ? 1.6 : 0.6);
+    }
     if (S.wingsT > t) {
       const E = art('Empyrean'), def = E.shots[1], U = this.U || 1, scale = Math.max(1, Math.round(5 * (TS / 40) * U)), img = sprAt(def, scale, now), gl = glowLayer(def, scale, frameOf(def, now)[0], '#fff3c4'), k = Math.min(1, (S.wingsT - t) / 0.25);
       for (const s of [-1, 1]) { b.save(); b.translate(px + s * 10, py - 14); b.scale((-s) / U, 1 / U); b.globalAlpha = k; b.globalCompositeOperation = 'lighter'; b.drawImage(gl, -gl.width / 2, -gl.height / 2); b.globalCompositeOperation = 'source-over'; b.drawImage(img, -img.width / 2, -img.height / 2); b.restore(); }
@@ -172,6 +191,7 @@ const methods = {
       if (e.armMoon > t) { b.fillStyle = '#c4b5fd'; b.beginPath(); b.arc(x + 4, y - 14, 2, 0, 7); b.fill(); b.fillStyle = '#17181d'; b.beginPath(); b.arc(x + 5, y - 15, 1.6, 0, 7); b.fill(); }
       if (e.armSleepT > t) { b.save(); b.font = '6px monospace'; b.fillStyle = '#c4b5fd'; for (let i = 0; i < 3; i++) { const u = (t / 0.7 + i / 3) % 1; b.globalAlpha = 1 - u; b.fillText('z', x + 4 + u * 6, y - 10 - u * 10); } b.restore(); }
       if (e.armCrownT > t) this.armSpr(AU.shots[0], 2, x, y - 14, '#fff3c4', 0, 0.9);
+      if (e.armHuntT > t) this.armSpr(art('Verdance').shots[0], 2, x, y - 16, '#7ef0a8', 0, 0.9);
     }
   },
   // a halo: a thin flat ring of gold light, its back half darker, its front half bright (no round glow: it read as a

@@ -1522,7 +1522,7 @@ for (const [id, k] of Object.entries(LADDER_TUNE)) {
 // (Untiered, Mythic, Legendary, Celestial, Divine); the Divine tier is the priest's Hosanna set, admin-only (it never
 // drops: /give or /armory). it.arm is the armory entry; src/armory.js runs what each one does. They are made last,
 // after every pass above, so none of them changes an armory item: each is exactly as the armory has it.
-const ARM_TYPE = { Staff: 'staff', Wand: 'wand', Bow: 'bow', Dagger: 'dagger', Ability: 'relic', Tome: 'halo', Robe: 'robe', Ring: 'ring' };
+const ARM_TYPE = { Staff: 'staff', Wand: 'wand', Bow: 'bow', Dagger: 'dagger', Ability: 'relic', Tome: 'halo', Robe: 'robe', Ring: 'ring', Quiver: 'skyfall', Leather: 'leather' };
 const ARM_STAT = { DEF: 'def', SPD: 'spd', DEX: 'dex', WIS: 'wis', ATT: 'att', VIT: 'vit', HP: 'hp', MP: 'mp' };
 export const armId = (name) => 'arm_' + name.toLowerCase().replace(/'/g, '').replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
 export const ARMORY_IDS = [];
