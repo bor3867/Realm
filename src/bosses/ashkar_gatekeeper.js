@@ -413,7 +413,8 @@ function cruSlam(g, e, V) {
   for (let w = 0; w < V.rings; w++) later(e, w * 0.35, 'cruRing', { off: w % 2, sp: 4.3 + w * 0.5 });   // (each ring a little quicker than the last: they never merge)
 }
 // (2026-11-11, the user: "he can have way more shots when he slams the ground"): 40 waves a ring (was 28), 160 each (was 115)
-function cruRing(g, e, V) { for (let k = 0; k < 40; k++) shot(g, e, e.x, e.y, ((k + V.off * 0.5) / 40) * TAU, { ...WAVE, speed: V.sp || 4.3, range: 15, dmg: D(160) }); }
+// (2026-11-11, the user: "Remove the animation from the ring shots"): each wave one steady frame, no trail (render.js pr.still)
+function cruRing(g, e, V) { for (let k = 0; k < 40; k++) { const b = shot(g, e, e.x, e.y, ((k + V.off * 0.5) / 40) * TAU, { ...WAVE, speed: V.sp || 4.3, range: 15, dmg: D(160) }); if (b) b.still = true; } }
 function cruEnd(g, e) { const S = e.bx; S.akCru = null; S.akSmash = null; if (S.state === 'recover') S.wait = Math.min(S.wait, 1.0); }
 
 // ================================================================ the anvils (all phases) (2026-11-11, the user: "add some anvils to
@@ -531,12 +532,12 @@ function drawPool(r, g, e) {
   }
 }
 // (2026-11-11, the user: "the beam can be a bit more rotmg pixel like ... add a little something at the end of the beams so it
-// doesn't just look flat"): each beam in square blocks on a 3-pixel grid, banded from a dark-red rim in to a white core,
+// doesn't just look flat"): each beam in square blocks on a 2-pixel grid, banded from a dark-red rim in to a white core,
 // its edges ragged and flickering block by block; at its end a blocky flare that swells and shrinks, with blocks of flame
 // thrown off ahead of it
 function drawBeam(r, g, e) {
   const Q = e.bx.akCru, b = r.b; if (!Q || !Q.beam || g.t < Q.openAt || g.t > Q.closeAt) return;
-  const B = Q.beam, on = g.t >= Q.onAt, a = B.a0 + (on ? B.spin * (g.t - Q.onAt) : 0), px = tilePx(r, Q.cx, Q.cy), G = 3, snap = (v) => Math.round(v / G) * G;
+  const B = Q.beam, on = g.t >= Q.onAt, a = B.a0 + (on ? B.spin * (g.t - Q.onAt) : 0), px = tilePx(r, Q.cx, Q.cy), G = 2, snap = (v) => Math.round(v / G) * G;   // (2026-11-11, the user: "reduce the pixelation of the beams": 2-pixel blocks, was 3, and a gentler edge)
   const BANDS = ['#5a1408', '#c8341a', '#ff6a1c', '#ffb04a', '#ffe48a', '#fff4c4'], tk = Math.floor(g.t * 14);
   for (let k = 0; k < B.n; k++) {
     const d = a + k * Math.PI;
@@ -551,7 +552,7 @@ function drawBeam(r, g, e) {
     }
     const W = px * 0.62, cells = BANDS.map(() => []);
     for (let t = 0, i = 0; t < L; t += G, i++) {
-      const hsh = ((i * 2654435761) ^ (tk * 40503)) >>> 0, rag = (hsh % 5) / 4 * G;   // (a ragged edge, block by block)
+      const hsh = ((i * 2654435761) ^ (tk * 40503)) >>> 0, rag = (hsh % 3) / 2 * G * 0.5;   // (a ragged edge, block by block)
       for (let o = -W - rag; o <= W + rag; o += G) {
         const f = Math.abs(o) / (W + rag), band = f > 0.85 ? 0 : f > 0.65 ? 1 : f > 0.45 ? 2 : f > 0.28 ? 3 : f > 0.12 ? 4 : 5;
         cells[band].push(snap(x0 + ux * t + nx * o), snap(y0 + uy * t + ny * o));

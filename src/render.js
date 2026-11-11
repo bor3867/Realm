@@ -2537,7 +2537,7 @@ export class Renderer {
         }
       }
       const k0 = this.W.projectiles[pr.sprite] ?? 0, nf = this.W.projFrames || 1;
-      const k = k0 + (nf > 1 && pr.from === 'e' ? Math.floor(g.t * 12 + (pr.x + pr.y) * 2) % nf : 0);   // (a player's shot is one still frame: docs/projectile_art_standard.md)
+      const k = k0 + (nf > 1 && pr.from === 'e' && !pr.still ? Math.floor(g.t * 12 + (pr.x + pr.y) * 2) % nf : 0);   // (a player's shot is one still frame: docs/projectile_art_standard.md)
       const [sx0, sy0] = this.proj(pr.x, pr.y);
       let sx = Math.round(sx0), sy = Math.round(sy0);
       if (pr.lob) {                                          // a mortar: marker on the ground, the shot arcing over
@@ -2550,7 +2550,7 @@ export class Renderer {
       }
       if (pr.frozen) { b.globalAlpha = 0.55; }
       if (sx < -12 || sy < -12 || sx > BW + 12 || sy > BH + 12) continue;
-      if (pr.from === 'e' && Math.random() < trailP) {          // (no trails behind a player's shots)
+      if (pr.from === 'e' && !pr.still && Math.random() < trailP) {   // (pr.still: one steady frame, no trail; Ashkar's rings, 2026-11-11)          // (no trails behind a player's shots)
         const cols = this.colorsOf('p:' + pr.sprite, PI, (k % pc) * PS, Math.floor(k / pc) * PS, PS, PS);
         this.parts.push({ x: pr.x, y: pr.y, z: 0, vx: 0, vy: 0, vz: 0, g: 0, life: 0.18, max: 0.18, color: cols[Math.floor(Math.random() * Math.min(2, cols.length))] });
       }
