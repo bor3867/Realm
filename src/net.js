@@ -283,7 +283,8 @@ const methods = {
     const p = this.player;
     if (!p) return;
     const parts = [{ t: 'st', room, name: (this.account && this.account.name) || '', cls: p.cls, x: +p.x.toFixed(2), y: +p.y.toFixed(2), dir: p.dir, mv: !!p.moving, hp: Math.round(p.hp), mhp: Math.round(this.stat('hp')),
-      dead: !!p.dead, ab: p.abilityT > 0, sh: this.t - p.lastShot < 0.25, dn: p.danceT > 0, lv: p.level, eq: p.equip }];
+      dead: !!p.dead, ab: p.abilityT > 0, sh: this.t - p.lastShot < 0.25, dn: p.danceT > 0, lv: p.level }];
+    { const eq = JSON.stringify(p.equip || null); if (eq !== N.lastEq || (N.statT || 0) - SEND <= 0) { N.lastEq = eq; parts[0].eq = p.equip; } }   // (what you wear: when it changes, and once a second for anyone who came late; it went with every step, ten times a second to everyone, 2026-11-11)
     if ((N.statT = (N.statT || 0) - SEND) <= 0) { N.statT = 1; parts[0].stats = Object.fromEntries(['hp', 'mp', 'att', 'def', 'spd', 'dex', 'vit', 'wis'].map((k) => [k, Math.round(this.stat(k))])); parts[0].fame = Math.round(p.fame || 0); }
     if (N.shots.length && room) parts.push({ t: 'shot', room, list: N.shots });
     N.shots = [];

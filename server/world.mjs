@@ -113,7 +113,19 @@ export function makeWorld(seed, send, where = 'realm') {
   // a dungeon's changes since it was made (gates, broken walls; chests, levers), for those inside and latecomers
   const baseT = dung ? M0.tiles.slice() : null, objKey = (o) => o.interact || o.sprite || '';
   const OBJ = (o) => { const f = {}; for (const k in o) { const v = o[k]; if (typeof v === 'number' || typeof v === 'boolean' || typeof v === 'string') f[k] = v; } return f; };
-  const baseO = dung ? M0.objects.map((o) => JSON.stringify(OBJ(o))) : null, sentO = dung ? baseO.slice() : null;
+  // (2026-11-11, for speed: a thing's state as one short string of its plain fields, not JSON of a copy of it; and the
+  // tiles compared four bytes at a time with a copy of themselves, only the changed ones looked at: the castle's check of
+  // its 640,000 tiles and 2,900 things, three times a second, had cost ten times its whole simulation)
+  const SIG = (o) => { let q = ''; for (const k in o) { const v = o[k], t = typeof v; if (t === 'number' || t === 'boolean' || t === 'string') q += k + '\u0001' + v + '\u0002'; } return q; };
+  const baseO = dung ? M0.objects.map(SIG) : null, sentO = dung ? baseO.slice() : null;
+  const prevT = dung ? M0.tiles.slice() : null;
+  const words = (a) => new Uint32Array(a.buffer, a.byteOffset, a.byteLength >> 2);
+  const changedTiles = (T) => {                                   // the tiles changed since the last look (and the copy brought up to date)
+    const out = [], A = words(T), B = words(prevT), per = 4 / T.BYTES_PER_ELEMENT;
+    for (let w = 0; w < A.length; w++) if (A[w] !== B[w]) for (let i = w * per; i < (w + 1) * per; i++) if (T[i] !== prevT[i]) { prevT[i] = T[i]; out.push(i); }
+    for (let i = A.length * per; i < T.length; i++) if (T[i] !== prevT[i]) { prevT[i] = T[i]; out.push(i); }
+    return out;
+  };
   const dTiles = new Map(), dObjs = new Map();
   // (the Observatory's clockwork arms turn in each browser, on the same rhythm: their tiles are never sent, or the
   // server's turning fought each browser's own)
@@ -284,9 +296,9 @@ export function makeWorld(seed, send, where = 'realm') {
       for (const b of g.bubbles || []) if (!seenBub.has(b) && b.e && b.e.nid) out.push({ k: 'say', id: b.e.nid, text: b.text, col: b.col });
       if (dung && sendNow && Math.floor(g.t * 10) % 3 === 0) {          // a dungeon's changes, about three times a second
         const T = g.map.tiles, nt = [], no = [];
-        for (let i = 0; i < T.length; i++) if (!ownT.has(i) && (dTiles.has(i) ? dTiles.get(i)[1] !== T[i] : T[i] !== baseT[i])) {   // (a tile back as it began goes too: a bridge back after a nightmare trial used to stay gone for you. 2026-10-24)
+        for (const i of changedTiles(T)) if (!ownT.has(i) && (dTiles.has(i) ? dTiles.get(i)[1] !== T[i] : T[i] !== baseT[i])) {   // (a tile back as it began goes too: a bridge back after a nightmare trial used to stay gone for you. 2026-10-24)
           const a = [i, T[i], g.map.solid ? g.map.solid[i] : 0]; dTiles.set(i, a); nt.push(a); }
-        g.map.objects.forEach((o, i) => { if (i >= sentO.length) return; const j = JSON.stringify(OBJ(o)); if (j !== sentO[i]) { sentO[i] = j; const a = [i, objKey(o), OBJ(o)]; dObjs.set(i, a); no.push(a); } });
+        g.map.objects.forEach((o, i) => { if (i >= sentO.length) return; const j = SIG(o); if (j !== sentO[i]) { sentO[i] = j; const a = [i, objKey(o), OBJ(o)]; dObjs.set(i, a); no.push(a); } });
         if (nt.length || no.length) for (const q of P.values()) send(q.netId, { t: 'dlog', tiles: nt, objs: no });
       }
       if (sendNow && Math.floor(g.t * 10) % 10 === 0) {            // the bosses here, wherever they are, once a second: for everyone's minimap

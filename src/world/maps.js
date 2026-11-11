@@ -3078,13 +3078,15 @@ export function dungeon(seed, def) {
     secrets.push(s); k++;
   }
 
-  // ---- walls around every floor tile
-  for (let y = 1; y < S - 1; y++) for (let x = 1; x < S - 1; x++) {
-    if (tile(x, y) !== TID.void) continue;
-    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]]) {
-      const t = tile(x + dx, y + dy);
-      if (t !== TID.void && t !== WALL) { m.tiles[idx(m, x, y)] = WALL; break; }
+  // ---- walls around every floor tile (2026-11-11, for speed: from each tile of floor out to the void beside it, not
+  // from every void tile in to its neighbours; the same walls, a fraction of the work)
+  {
+    const T = m.tiles, VOID = TID.void, mark = new Uint8Array(S * S);
+    for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) {
+      const t = T[y * S + x]; if (t === VOID || t === WALL) continue;
+      for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) { const X = x + dx, Y = y + dy; if ((dx || dy) && X >= 1 && Y >= 1 && X < S - 1 && Y < S - 1) mark[Y * S + X] = 1; }
     }
+    for (let i = 0; i < S * S; i++) if (mark[i] && T[i] === VOID) T[i] = WALL;
   }
   for (const s of secrets) { m.tiles[idx(m, s.plug.x, s.plug.y)] = WALL; put(m, 'weak_wall', s.plug.x, s.plug.y, true, { interact: 'weak', hp: 4 }); }
   // the Throne's barricades: wall to wall across a hall, one life between them (game.hitWeak), so it falls all at once
@@ -3364,7 +3366,12 @@ export function dungeon(seed, def) {
   }
   if (m.castle && m.castle.plan) {                                    // THE CASTLE: each region its floor and its edge (src/world/castle_plan.js)
     const bd = (n, x, y) => Math.max(n.x - x, 0, x - (n.x + n.w - 1)) + Math.max(n.y - y, 0, y - (n.y + n.h - 1));
-    const areaAt = (x, y) => { let best = null, bdist = 1e9; for (const n of rooms) { if (!n.region) continue; const d = bd(n, x, y); if (d < bdist) { bdist = d; best = n; } } return best; };
+    const areaAt0 = (x, y) => { let best = null, bdist = 1e9; for (const n of rooms) { if (!n.region) continue; const d = bd(n, x, y); if (d < bdist) { bdist = d; best = n; } } return best; };
+    // (2026-11-11, for speed: the rooms that can be nearest a tile, by a grid of 16-tile cells, each listing the rooms whose
+    // box comes within 32 of it; a nearer one than 32 found among them is the nearest of all, as before; farther, all of them)
+    const CELL = 16, NC = Math.ceil(S / CELL), MRG = 32, cand = Array.from({ length: NC * NC }, () => []);
+    for (const n of rooms) { if (!n.region) continue; const cx0 = Math.max(0, Math.floor((n.x - MRG) / CELL)), cx1 = Math.min(NC - 1, Math.floor((n.x + n.w - 1 + MRG) / CELL)), cy0 = Math.max(0, Math.floor((n.y - MRG) / CELL)), cy1 = Math.min(NC - 1, Math.floor((n.y + n.h - 1 + MRG) / CELL)); for (let cy = cy0; cy <= cy1; cy++) for (let cx = cx0; cx <= cx1; cx++) cand[cy * NC + cx].push(n); }
+    const areaAt = (x, y) => { const L = cand[Math.floor(y / CELL) * NC + Math.floor(x / CELL)]; let best = null, bdist = 1e9; if (L) for (const n of L) { const d = bd(n, x, y); if (d < bdist) { bdist = d; best = n; } } return best && bdist <= MRG ? best : areaAt0(x, y); };
     const nz = (x, y) => ((Math.sin(x * 0.37 + y * 0.21) + Math.sin(x * 0.13 - y * 0.29)) / 4 + 0.5);
     // the woods: grass, a few patches of bare earth and ash, and a worn footpath along the way through each clearing (2026-11-02,
     // the user: "instead of the blotchy/oval patches ... make the forest part more of a pathway of sorts. You can keep some of
@@ -3381,7 +3388,10 @@ export function dungeon(seed, def) {
       const paved = bd(n, x, y) === 0 && (n.tpl || n.pave || (n.region === 'mountain' && n.form === 'viaduct') || (n.form === 'twin' && y > n.spanY + 3 && x > n.x + 5 && x < n.x + n.w - 6));
       if (t === FLOOR) set(x, y, paved ? TID.kpfloor : AREA_FL[n.key] && bd(n, x, y) === 0 ? AREA_FL[n.key] : FL[n.region](x, y, n));
     }
+    const nearR = new Uint8Array(S * S);                                // (2026-11-11, for speed: which tiles have an area within two of them)
+    for (let y = 0; y < S; y++) for (let x = 0; x < S; x++) if (regionOf[y * S + x]) for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) { const X = x + dx, Y = y + dy; if (X >= 0 && Y >= 0 && X < S && Y < S) nearR[Y * S + X] = 1; }
     for (let y = 3; y < S - 3; y++) for (let x = 3; x < S - 3; x++) {          // the edges: woods (thorn), cliffs, or the star-void; the keep's stay its walls
+      if (!nearR[y * S + x]) continue;
       if (tile(x, y) !== TID.void && tile(x, y) !== WALL) continue;   // (the castle's wall ring too: in the woods it is the woods, on the mountain the cliff)
       let r0 = 0, d0 = 9; for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) { const rr = regionOf[(y + dy) * S + x + dx]; if (rr && Math.max(Math.abs(dx), Math.abs(dy)) < d0) { d0 = Math.max(Math.abs(dx), Math.abs(dy)); r0 = rr; } }
       const R = REG[r0 - 1];
@@ -3401,7 +3411,7 @@ export function dungeon(seed, def) {
     const KEEP = new Set([REG.indexOf('outer') + 1, REG.indexOf('inner') + 1]);
     for (let y = 3; y < S - 3; y++) for (let x = 3; x < S - 3; x++) {
       const i = y * S + x, t = m.tiles[i];
-      if (t === WALL || t === TID.void) { let near = false; for (let dy = -2; dy <= 2 && !near; dy++) for (let dx = -2; dx <= 2; dx++) if (KEEP.has(regionOf[(y + dy) * S + x + dx])) { near = true; break; } if (near && t === WALL) set(x, y, TID.kpwall); }
+      if (t === WALL) { let near = false; for (let dy = -2; dy <= 2 && !near; dy++) for (let dx = -2; dx <= 2; dx++) if (KEEP.has(regionOf[(y + dy) * S + x + dx])) { near = true; break; } if (near && t === WALL) set(x, y, TID.kpwall); }
     }
     if (m.master) {
       // ---- THE POLISH PASS (2026-11-06, the user: "Sunthief's Castle — Final Layout & Visual Polish Pass"). Each room of the
@@ -3599,7 +3609,8 @@ export function dungeon(seed, def) {
       const n = rooms.find((q) => q.num === num); if (!n) continue;
       const cand = [];
       // (the Twin Bridges' geysers on the Broken Span alone)
-      for (let y = n.y + 2; y < n.y + n.h - 2; y++) for (let x = n.x + 2; x < n.x + n.w - 2; x++) { if (n.form === 'twin' && (y > n.spanY + 2 || x < n.x + 7 || x > n.x + n.w - 8)) continue; const t = tile(x, y); if (t !== TID.void && t !== TID.lava && !SOLID_TILES.has(t) && t !== TID.goldvein && !m.objects.some((o) => Math.floor(o.x) === x && Math.floor(o.y) === y)) cand.push([x, y]); }
+      const stoodOn = new Set(m.objects.map((o) => Math.floor(o.y) * S + Math.floor(o.x)));   // (2026-11-11, for speed)
+      for (let y = n.y + 2; y < n.y + n.h - 2; y++) for (let x = n.x + 2; x < n.x + n.w - 2; x++) { if (n.form === 'twin' && (y > n.spanY + 2 || x < n.x + 7 || x > n.x + n.w - 8)) continue; const t = tile(x, y); if (t !== TID.void && t !== TID.lava && !SOLID_TILES.has(t) && t !== TID.goldvein && !stoodOn.has(y * S + x)) cand.push([x, y]); }
       const hsh = (x, y) => ((Math.sin(x * 91.7 + y * 37.3 + num) * 43758.5) % 1 + 1) % 1;
       cand.sort((a, b) => hsh(...a) - hsh(...b));
       const put1 = (kind) => { const c = cand.find(([x, y]) => m.castle.geysers.every((G) => Math.hypot(G.x - x, G.y - y) >= 4)); if (!c) return; put(m, 'castle_decor/' + (kind === 'lava' ? 'fissure' : 'vent'), c[0], c[1], false); m.castle.geysers.push({ kind, x: c[0], y: c[1], o: m.objects[m.objects.length - 1], area: num, t: 1 + hsh(c[1], c[0]) * 5 }); };

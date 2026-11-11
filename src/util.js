@@ -33,8 +33,15 @@ export function rng(seed) {
 }
 export const R = rng((Date.now() ^ 0x9e3779b9) >>> 0);
 
-// Value noise for terrain.
+// Value noise for terrain. (2026-11-11, for speed: one per seed, kept: the Mirerot made one for every tile it mossed, two
+// seconds of its build; a noise is the same for the same seed, and nothing changes it)
+const NOISE = new Map();
 export function noise2(seed) {
+  const key = seed >>> 0; if (NOISE.has(key)) return NOISE.get(key);
+  if (NOISE.size > 64) NOISE.clear();
+  const f = noise2New(key); NOISE.set(key, f); return f;
+}
+function noise2New(seed) {
   const r = rng(seed);
   const P = new Float32Array(256 * 256).map(() => r());
   const at = (x, y) => P[((y & 255) << 8) | (x & 255)];
