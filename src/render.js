@@ -2675,10 +2675,30 @@ export class Renderer {
   }
 
   // how far above its feet something's head is drawn, in buffer pixels (for the numbers that float over it)
+  // the highest row its standing (idle) frames have drawn in them (its art's top within its frame), measured once
+  artTop(def) {
+    if (def.artTop !== undefined) return def.artTop;
+    let top = 0;
+    try {
+      const idle = Object.entries(def.anims || {}).filter(([k]) => /^idle/.test(k)).flatMap(([, A]) => A.frames).map((n) => def.frames[n]).filter(Boolean);   // (standing: a hammer raised in a swing is not its head)
+      const fs = (idle.length ? idle : Object.values(def.frames)).slice(0, 8), cv = document.createElement('canvas'), x = cv.getContext('2d', { willReadFrequently: true });
+      top = 1e9;
+      for (const f of fs) {
+        cv.width = f.w; cv.height = f.h; x.clearRect(0, 0, f.w, f.h); x.drawImage(def.img, f.x, f.y, f.w, f.h, 0, 0, f.w, f.h);
+        const d = x.getImageData(0, 0, f.w, f.h).data;
+        for (let y = 0; y < Math.min(top, f.h); y++) { let hit = false; for (let i = 0; i < f.w; i++) if (d[(y * f.w + i) * 4 + 3] > 40) { hit = true; break; } if (hit) { top = Math.min(top, y); break; } }
+      }
+      if (top === 1e9) top = 0;
+    } catch { top = 0; }
+    if (def.img && def.img.complete) def.artTop = top;
+    return top;
+  }
   headPx(g, e) {
     if (e === g.player) return 24;
     if (e.rfH) return e.rfH + 6;                                 // a Realmforge creature or boss (src/rf/draw.js)
-    if (e.bx && e.bx.def) return e.bx.def.foot[1] * 2 + 6 - (e.bxLift ? Math.round(e.bxLift * TS) : 0);
+    // (2026-11-11, the user: "ashkars damage numbers are showing up way too high above him. They should remain just above the
+    // box"): from the top of its art, not of its frame (a frame has room above for a swing), at the size it is drawn
+    if (e.bx && e.bx.def) return Math.round((e.bx.def.foot[1] - this.artTop(e.bx.def)) * 2 * (e.bx.drawK || e.bx.B.drawScale || 1)) + 6 - (e.bxLift ? Math.round(e.bxLift * TS) : 0);
     if (e.rb && rbK(e) > 1) return 88;                           // an overworld boss, twice life-size
     if (e.rb && !e.D.reg) return 44;
     if (e.D && e.D.reg) {
