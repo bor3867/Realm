@@ -2319,6 +2319,7 @@ export class Renderer {
     const r = 10 + 3 * Math.sin(g.t * 4) + L.length * 2; b.globalAlpha = 0.5; b.strokeStyle = '#d090ff'; b.lineWidth = 2; b.beginPath(); b.ellipse(gx, gy, r, r * 0.6, 0, 0, Math.PI * 2); b.stroke(); b.globalAlpha = 1;
   }
   laneFx(f, g) {
+    if (f.noDraw) return;                                    // (a boss draws this one itself: Ashkar's cracks and beam)
     const b = this.b, live = f.t >= f.delay, L = f.len, n = Math.ceil(L * 2);
     if (f.spin) f.a = f.a0 + f.spin * Math.max(0, f.t - f.delay);   // (a turning lane)
     if (f.tell && !live) {                                  // a charge's tell (2026-11-04, the user: "ground mark, cone, line, or effect showing the locked charge direction"): a band its own width, brightening as it comes, its edges crisp, chevrons running down it the way he will go

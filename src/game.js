@@ -3049,6 +3049,7 @@ export class Game {
         this.revealAt(p.x, p.y, 10);
         this.vx({ k: 'shake', amt: 5 });
       }
+      if (f.kind === 'lane' && f.boss && f.t >= f.delay && !this.enemies.some((q) => q.id === f.boss && !q.dead && !(q.bx && q.bx.kneel))) f.life = 0.001;   // (its boss fallen: its fire goes out)
       if (f.kind === 'lane' && f.t >= f.delay && !p.dead) {                // standing on a lane of fire burns
         f.hitT -= dt;
         if (f.spin) f.a = f.a0 + f.spin * (f.t - f.delay);   // (a turning lane, the Technician's winch chain: its angle from its own clock, the same in every copy)

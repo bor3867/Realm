@@ -29,6 +29,11 @@ HAMMER = (0, 0, 31, 33)                                             # the hammer
 # the chains, by where they hang (x0, y0, x1, y1); II breaks the first two, III all of them
 CHAINS = {'r_shoulder': (73, 29, 83, 50), 'l_dangle': (11, 59, 21, 81), 'l_shoulder': (41, 28, 51, 49), 'l_forearm': (27, 41, 37, 63),
           'r_wrist': (86, 54, 107, 61), 'r_dangle': (101, 58, 109, 92), 'belt_l': (45, 55, 53, 69), 'belt_r': (69, 55, 78, 69)}
+# (2026-11-11, the user: "parts of the chains stay on the map and continue to follow him": the boxes were tight, and links
+# were left on his right forearm, his left arm and his chest, moving with him once he was free. Each a little wider, and
+# the loops round his right forearm their own)
+CHAINS = {n: (x0 - 2, y0 - 2, x1 + 2, y1 + 2) for n, (x0, y0, x1, y1) in CHAINS.items()}
+CHAINS.update({'r_forearm': (84, 42, 108, 64), 'l_arm': (9, 40, 21, 60)})
 BROKEN = {1: (), 2: tuple(CHAINS), 3: tuple(CHAINS)}
 BARE = {'l_dangle': (11, 59, 19, 82), 'r_dangle': (104, 58, 109, 92)}     # (where only the chain is: everything in it goes)
 
@@ -211,14 +216,41 @@ def rot(pts, ang, piv):                         # a layer turned about a point: 
     return out
 
 
-def comp(L, body=(0, 0), legl=(0, 0), legr=(0, 0), ham=0.0, hamd=(0, 0), piv=None):
+# (2026-11-11, the user: "when ashkar attacks his arm separates from his shoulder ... maybe add some smoothness/full body
+# movement"): the arm from under his pauldron to the fist is drawn each frame, a plated sleeve in his armour's own colours,
+# so however the fist moves it stays joined to him; and his whole body leans into a blow (turned a few degrees at the hips)
+JOINT, HIP = (30, 38), (62, 74)
+def _avg(box, kinds):
+    x0, y0, x1, y1 = box; px = [SRC[y][x] for y in range(y0, y1) for x in range(x0, x1) if SRC[y][x][3] and KIND[y][x] in kinds]
+    return tuple(int(sum(c[i] for c in px) / max(1, len(px))) for i in range(3)) + (255,)
+ARM = tuple(int(v * 0.8) for v in _avg((14, 42, 31, 60), ('body',))[:3]) + (255,); ARM_HI = _avg((14, 42, 31, 60), ('body',)); ARM_DK = tuple(int(v * 0.45) for v in ARM[:3]) + (255,); TRIM = _avg((10, 30, 40, 70), ('bronze',))
+
+
+def sleeve(g, a, b, r=5.6):
+    (ax, ay), (bx, by) = a, b; L = max(1e-6, _m.hypot(bx - ax, by - ay))
+    for Y in range(int(min(ay, by) - r - 2), int(max(ay, by) + r + 3)):
+        for X in range(int(min(ax, bx) - r - 2), int(max(ax, bx) + r + 3)):
+            if not (0 <= X < W2 and 0 <= Y < H2): continue
+            t = max(0, min(1, ((X - ax) * (bx - ax) + (Y - ay) * (by - ay)) / (L * L))); d = _m.hypot(X - (ax + (bx - ax) * t), Y - (ay + (by - ay) * t))
+            if d <= r - 1.2: g[Y][X] = ARM_HI if X - (ax + (bx - ax) * t) < -r * 0.35 else (TRIM if abs(t - 0.5) * L < 1 else ARM)   # (lit on its left, a bronze band at the elbow)
+            elif d <= r: g[Y][X] = ARM_DK
+
+
+def comp(L, body=(0, 0), legl=(0, 0), legr=(0, 0), ham=0.0, hamd=(0, 0), piv=None, bang=0.0):
     g = [[BLANK] * W2 for _ in range(H2)]
     def put(pts, d):
         for x, y, c in pts:
             X, Y = x + PS + d[0], y + PT + d[1]
             if 0 <= X < W2 and 0 <= Y < H2: g[Y][X] = c
-    put(L['legl'], legl); put(L['legr'], legr); put(L['body'], body)
-    put(rot(L["ham"], ham, piv or SHOULDER), (body[0] + hamd[0], body[1] + hamd[1]))
+    put(L['legl'], legl); put(L['legr'], legr); put(rot(L['body'], bang, HIP), body)
+    ca, sa = _m.cos(bang), _m.sin(bang); jx, jy = JOINT[0] - HIP[0], JOINT[1] - HIP[1]
+    J = (HIP[0] + jx * ca - jy * sa + body[0] + PS, HIP[1] + jx * sa + jy * ca + body[1] + PT)
+    P0 = piv or SHOULDER; F = (FIST[0] + body[0] + hamd[0] + PS, FIST[1] - 6 + body[1] + hamd[1] + PT)
+    if piv != FIST:                             # (turned about the shoulder: where the fist went)
+        fx, fy = FIST[0] - P0[0], FIST[1] - 6 - P0[1]; c2, s2 = _m.cos(ham), _m.sin(ham)
+        F = (P0[0] + fx * c2 - fy * s2 + body[0] + hamd[0] + PS, P0[1] + fx * s2 + fy * c2 + body[1] + hamd[1] + PT)
+    sleeve(g, J, F)
+    put(rot(L["ham"], ham, P0), (body[0] + hamd[0], body[1] + hamd[1]))
     return g
 
 
@@ -233,15 +265,41 @@ def walk(act, k):
 
 
 def slam(act, k):
-    if k == 0:                                  # the wind-up: hauled up over his shoulder, the core brightening
-        g = comp(layers(act, 0, True), body=(1, 0), ham=_m.radians(25), hamd=(4, -14), piv=FIST)
-        return tint(g, LAVA, (255, 220, 140), 0.4)
-    if k == 1:                                  # the slam: down before him, him crouched into it, the ground thrown up
-        g = comp(layers(act, 1, True), body=(0, 4), ham=_m.radians(-35), hamd=(-6, 26), piv=FIST)
-        g = tint(g, LAVA, (255, 236, 170), 0.7)
-        hx, hy = PS - 14, PT + SH - 6
-        return arc(g, [(hx + i * 3 + (i % 2) * 2, hy - (i % 4) * 3) for i in range(14)], EMB)
-    return comp(layers(act, 1), body=(0, 2), ham=_m.radians(-20), hamd=(0, 10), piv=FIST)   # (dragged back up)
+    # (2026-11-11, the user: "It should feel like the mace is heavy, like he has to really use muscles to swing it"): seven
+    # beats. He sinks to gather it (the head dipping behind him), heaves it up leaning back on braced legs, holds it at the
+    # top a moment, brings it down with his whole body, sinks into the blow and stays bent over it, catching his breath,
+    # then drags it back up. The clip (below) gives the lift and the stay at the bottom more time than the fall.
+    R = _m.radians
+    if k == 0:                                  # (held as the tell) sinking to gather it, the head dipping back
+        return tint(comp(layers(act, 0, True), body=(0, 2), legl=(-1, 0), bang=R(-2), ham=R(-8), hamd=(-2, 5), piv=FIST), LAVA, (255, 214, 130), 0.25)
+    if k == 1:                                  # the heave: leaning back, the hammer coming up, legs braced
+        return tint(comp(layers(act, 1, True), body=(1, 1), legl=(-1, 0), legr=(1, 0), bang=R(3), ham=R(10), hamd=(2, -6), piv=FIST), LAVA, (255, 222, 145), 0.4)
+    if k == 2:                                  # the top: up over his shoulder, his whole frame stretched under its weight
+        return tint(comp(layers(act, 2, True), body=(2, 0), legl=(-1, 0), legr=(2, 0), bang=R(5), ham=R(28), hamd=(5, -16), piv=FIST), LAVA, (255, 232, 160), 0.55)
+    if k in (3, 4):                             # the blow: down with all of him behind it, the ground thrown up; then sunk into it
+        g = comp(layers(act, 3, True), body=(0, 5 + (k - 3)), legl=(-2, 0), legr=(2, 0), bang=R(-4), ham=R(-35), hamd=(-6, 26 + (k - 3)), piv=FIST)
+        g = tint(g, LAVA, (255, 236, 170), 0.75 - 0.2 * (k - 3)); hx, hy = PS - 14, PT + SH - 6
+        return arc(g, [(hx + i * 3 + (i % 2) * 2, hy - (i % 4) * (3 + k - 3)) for i in range(14 if k == 3 else 8)], EMB)
+    if k == 5:                                  # bent over it, catching his breath
+        return comp(layers(act, 0), body=(0, 4), legl=(-1, 0), legr=(1, 0), bang=R(-3), ham=R(-32), hamd=(-5, 24), piv=FIST)
+    return comp(layers(act, 1), body=(0, 2), bang=R(-1), ham=R(-18), hamd=(0, 9), piv=FIST)   # dragging it back up
+
+
+def smash(act, k):
+    # the Crucible's blow (2026-11-11, the user: "slam the handle of the mace into the ground, not the mace part. He should
+    # reach high up and slam it"): he lifts the mace upright at his side, reaches up high with it, the head above his
+    # horns, and drives the butt of its haft down into the floor, sinking with it; the head stays up
+    if k == 0:                                  # brought before him, upright, gathering
+        return comp(layers(act, 0, True), body=(0, 2), legl=(-1, 0), legr=(1, 0), hamd=(6, -3), piv=FIST)
+    if k in (1, 2):                             # reaching high: the mace lifted overhead, him stretched tall (2: held, the core white)
+        g = comp(layers(act, 1, True), body=(0, -2), legl=(-1, 0), legr=(1, 0), bang=_m.radians(2), hamd=(8, -30), piv=FIST)
+        return tint(g, LAVA, (255, 244, 200), 0.45 if k == 1 else 0.8)
+    if k in (3, 4):                             # driven down: the butt in the floor before him, him crouched over it, the floor broken round it
+        g = comp(layers(act, 2, True), body=(0, 6 + (k - 3)), legl=(-2, 0), legr=(2, 0), bang=_m.radians(-3), hamd=(8, 8 + (k - 3)), piv=FIST)
+        g = tint(g, LAVA, (255, 240, 190), 0.8 - 0.25 * (k - 3))
+        bx, by = PS + 25 + 8, PT + SH - 2
+        return arc(g, [(bx + _m.cos(i * 0.5) * (6 + i % 3 * 5 + (k - 3) * 4), by + _m.sin(i * 0.5) * (2 + i % 2 * 2)) for i in range(26)], EMB)
+    return comp(layers(act, 0), body=(0, 3), hamd=(6, 2), piv=FIST)       # drawing it up out of the floor
 
 
 def rush(act, k):
@@ -255,7 +313,7 @@ def flinch(act): return tint(comp(layers(act, 1), body=(0, 3), ham=_m.radians(6)
 
 def enter(act, k):
     if k == 3: return base(act)
-    L = layers(act - 1 if k < 2 else act, 1)
+    L = layers(act, 1)                          # (unchained from the first frame: what broke off him lies on the floor, never back on him)
     g = comp(L, body=(0, 4 if k == 0 else 1), ham=_m.radians(-12 if k == 0 else 18), hamd=(0, 6) if k == 0 else (2, -8), piv=FIST)
     if k == 1: g = tint(g, LAVA, (255, 240, 190), 0.8)                                       # (the roar: the core flaring)
     if k == 2:
@@ -305,7 +363,7 @@ if __name__ == '__main__':
     BID, NAMES = 'ashkar_gatekeeper', {1: 'The Bound Giant', 2: 'The Furnace Fractures', 3: 'The Unchained'}
     frames = []
     for act in (1, 2, 3):
-        frames += [(f'i{act}_{k}', base(act, k)) for k in range(4)] + [(f'a{act}_{k}', slam(act, k)) for k in range(3)]
+        frames += [(f'i{act}_{k}', base(act, k)) for k in range(4)] + [(f'a{act}_{k}', slam(act, k)) for k in range(7)] + [(f'm{act}_{k}', smash(act, k)) for k in range(6)]
         frames += [(f'w{act}_{k}', walk(act, k)) for k in range(4)] + [(f'c{act}_{k}', rush(act, k)) for k in range(2)] + [(f'h{act}', flinch(act))]
         if act > 1: frames += [(f'e{act}_{k}', enter(act, k)) for k in range(4)]
     frames += [(f'd{k}', die(k)) for k in range(5)]
@@ -313,7 +371,10 @@ if __name__ == '__main__':
     anims = {}
     for act in (1, 2, 3):
         anims[f'idle{act}'] = {'frames': [f'i{act}_{k}' for k in range(4)], 'fps': 7, 'loop': True}
-        anims[f'attack{act}'] = {'frames': [f'a{act}_0', f'a{act}_1', f'a{act}_2', f'a{act}_2'], 'fps': 7, 'loop': False}
+        anims[f'attack{act}'] = {'frames': [f'a{act}_{k}' for k in (0, 1, 2, 2, 3, 4, 4, 5, 6)], 'fps': 10, 'loop': False}   # (slow up, held at the top, fast down, a long stay)
+        # the Crucible's great blow (src/bosses/ashkar_gatekeeper.js): over his head, down before him; the blow lands at 0.6 s
+        anims[f'strike{act}'] = {'frames': [f'a{act}_{k}' for k in (1, 2, 3, 4, 5, 6)], 'fps': 10, 'loop': False}   # (an anvil struck between attacks: the blow at 0.2 s)
+        anims[f'smash{act}'] = {'frames': [f'm{act}_{k}' for k in (0, 1, 1, 2, 3, 4, 4, 5)], 'fps': 8, 'loop': False}   # (the blow at 0.5 s)
         anims[f'walk{act}'] = {'frames': [f'w{act}_{k}' for k in range(4)], 'fps': 5, 'loop': True}
         anims[f'charge{act}'] = {'frames': [f'c{act}_0', f'c{act}_1'], 'fps': 9, 'loop': True}
         anims[f'hurt{act}'] = {'frames': [f'h{act}'], 'fps': 5, 'loop': False}

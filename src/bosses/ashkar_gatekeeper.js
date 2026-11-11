@@ -271,14 +271,94 @@ function gateFaults(g, e, V) {
 // ================================================================ under the cycle: the anchors (I, II), his core (III)
 // by turns at you and where you are going (a steady circle is no way through)
 function anchorShot(g, e) {
+  if (e.bx.akCru) return;                                  // (not while the Crucible burns)
   const S = e.bx, ids = S.phase === 1 ? [0, 1, 2, 3] : [0, 1], n = (S.akAn = (S.akAn || 0) + 1);
   const i = ids[n % ids.length], P = anchor(e, i), q = target(g, e), [tx, ty] = n % 2 ? ahead(g, e, 0.9) : [q.x, q.y], a = angleTo(P.x, P.y, tx, ty);
   for (let k = 0; k < 4; k++) shot(g, e, P.x, P.y, a + (k - 1.5) * deg(11), { ...LINK, speed: 5, range: 16, dmg: D(85) });
   g.vx({ k: 'burst', x: P.x, y: P.y, n: 6, colors: FIRE });
 }
 function coreShot(g, e) {
+  if (e.bx.akCru) return;
   const S = e.bx, n = (S.akCo = (S.akCo || 0) + 1), [cx, cy] = FEET(g, e), q = target(g, e), [tx, ty] = n % 2 ? ahead(g, e, 0.8) : [q.x, q.y], a = angleTo(cx, cy, tx, ty);
   for (let k = 0; k < 4; k++) shot(g, e, cx, cy, a + (k - 1.5) * deg(11), { sprite: 'cinder', size: 0.5, speed: 6, range: 14, dmg: D(90) });
+}
+
+// ================================================================ A11 The Crucible (II, III) (2026-11-11, the user: "he should have a
+// new attack where he stands in the center of the room, has lava cracks that open and do damage if players step in them,
+// has a rotating beam of fire centered on himself so players have to circle the room, and then finally a new animation of
+// him slamming the giant mace onto the ground and a ring of shots fire out as players are maneuvering the lava cracks and
+// circling"). He strides to the middle of his hall and stands there. Cracks open across the floor (1.2 s marked, then
+// molten for 9 s: 70 a step while you stand in one); 1 s after, a beam of fire turns about him (one in II, two opposite
+// in III; 32 degrees a second, 150 while it holds you), so you circle the hall ahead of it, over the cracks; twice he
+// lifts the mace high and drives its handle down into the floor (his smash clip): a ring of 28 waves (115), the second blow
+// two rings. Everything he does here is drawn from S.akCru (the same in every browser)
+const CRU_T = 10.2;                                          // (set to closed, s)
+function crucible(g, e) {
+  const S = e.bx;
+  if (g.banner) g.banner('THE CRUCIBLE WAKES.', 2200);
+  g.sfx('roar'); g.vx({ k: 'shake', amt: 5 });
+  S.akCru = { stage: 'walk', startAt: g.t };
+}
+function cruSet(g, e) {                                       // he stands in the middle: the floor cracks, the beam is marked
+  const S = e.bx, Q = S.akCru, C = mid(e), { A } = hall(e), t = g.t, R0 = Math.min(A.w, A.h) / 2 - 1.5;
+  Object.assign(Q, { stage: 'set', setAt: t, openAt: t + 1.2, onAt: t + 2.2, closeAt: t + CRU_T, cx: C.x, cy: C.y, cracks: [] });
+  const n = S.phase === 3 ? 10 : 8, by = e.D.name, crackDmg = g.bxDmg(e, D(70));
+  for (let i = 0; i < n; i++) {
+    const ang = (i / n) * TAU + Math.random() * 0.4, r = 3.2 + Math.random() * Math.max(1, R0 - 4.5);
+    let x = C.x + Math.cos(ang) * r, y = C.y + Math.sin(ang) * r, h = ang + Math.PI / 2 + (Math.random() < 0.5 ? -1 : 1) * (0.3 + Math.random() * 0.5);
+    const pts = [[+x.toFixed(2), +y.toFixed(2)]];
+    for (let k = 0; k < 4; k++) {                           // (jagged: four legs, each turned a little)
+      const L = 0.8 + Math.random() * 0.5, a = h + (Math.random() - 0.5) * 0.7, nx = x + Math.cos(a) * L, ny = y + Math.sin(a) * L;
+      g.fx.push({ kind: 'lane', x, y, a, len: L, w: 0.42, delay: 1.2, t: 0, life: CRU_T, dmg: crackDmg, every: 0.45, by, hitT: 0, noDraw: true, boss: e.id });
+      x = nx; y = ny; pts.push([+x.toFixed(2), +y.toFixed(2)]);
+    }
+    Q.cracks.push(pts);
+  }
+  const q = target(g, e), sg = (S.akCruS = -(S.akCruS || 1)), spin = sg * deg(32), a0 = angleTo(C.x, C.y, q.x, q.y) - sg * deg(110), len = R0 + 3;
+  Q.beam = { a0, spin, n: S.phase === 3 ? 2 : 1, len };
+  for (let k = 0; k < Q.beam.n; k++) g.fx.push({ kind: 'lane', x: C.x, y: C.y, a0: a0 + k * Math.PI, a: a0 + k * Math.PI, spin, len, w: 0.55, delay: 2.2, t: 0, life: CRU_T, dmg: g.bxDmg(e, D(150)), every: 0.3, by, hitT: 0, noDraw: true, boss: e.id });
+  later(e, 4.4, 'cruRaise', { rings: 1 }); later(e, 7.7, 'cruRaise', { rings: 2 }); later(e, CRU_T + 0.1, 'cruEnd');
+  g.sfx('hammer');
+}
+function cruRaise(g, e, V) {                                  // the mace lifted high, then its handle driven into the floor (his smash clip; the blow lands at 0.5 s)
+  e.bx.akSmash = { at: g.t, until: g.t + 1.0 };
+  later(e, 0.5, 'cruSlam', { rings: V.rings });
+}
+function cruSlam(g, e, V) {
+  thud(g, e, e.x, e.y + 1); g.vx({ k: 'shake', amt: 9 });
+  g.fx.push({ kind: 'ring', x: e.x, y: e.y, t: 0, max: 3.5, color: '#ffd650' });
+  anvilSpit(g, e, 0);
+  cruRing(g, e, { off: 0 });
+  if (V.rings > 1) later(e, 0.4, 'cruRing', { off: 1 });
+}
+function cruRing(g, e, V) { for (let k = 0; k < 28; k++) shot(g, e, e.x, e.y, ((k + V.off * 0.5) / 28) * TAU, { ...WAVE, speed: 4.3, range: 15, dmg: D(115) }); }
+function cruEnd(g, e) { const S = e.bx; S.akCru = null; S.akSmash = null; if (S.state === 'recover') S.wait = Math.min(S.wait, 1.0); }
+
+// ================================================================ the anvils (all phases) (2026-11-11, the user: "add some anvils to
+// existing phases in the center of the room or wherever appropriate that constantly get 'hit' by the mace and shoot
+// chunks of molten metal out"). One before him where his hammer falls (in I where he stands bound; from II in the middle);
+// from II two more beside the middle, where he prowls. Between his attacks, whenever he stands by one, he strikes it (his strike clip, every 2 s or so): it spits
+// five molten chunks in a fan at you (105) and three shards wild (80). The Crucible's blows strike the middle one too
+const anvils = (e, ph) => {                               // (I: by him where he stands bound; from II by the middle, where the Crucible stands him)
+  const C = ph === 1 && e.akHome ? e.akHome : mid(e), M = mid(e), L = [{ x: C.x - 2.2, y: C.y + 0.9 }];
+  if (ph >= 2) L.push({ x: M.x - 5.5, y: M.y - 3.5 }, { x: M.x + 5.5, y: M.y + 3.5 });
+  return L;
+};
+function anvilStrike(g, e) {
+  const S = e.bx;
+  if (S.akCru || S.akStrike || !(S.state === 'recover' || S.state === 'fight')) return;
+  const L = anvils(e, S.phase || 1); let best = -1, bd = 3.4;
+  L.forEach((A, i) => { const d = Math.hypot(A.x - e.x, A.y - e.y); if (d < bd) { bd = d; best = i; } });
+  if (best < 0) return;
+  S.akStrike = { at: g.t, hitAt: g.t + 0.2, until: g.t + 0.6, i: best, done: false };   // (the strike clip's blow at 0.2 s)
+}
+function anvilSpit(g, e, i) {
+  const S = e.bx, A = anvils(e, S.phase || 1)[i]; if (!A) return;
+  const q = target(g, e), a = angleTo(A.x, A.y, q.x, q.y);
+  for (let k = 0; k < 5; k++) shot(g, e, A.x, A.y - 0.3, a + (k / 4 - 0.5) * deg(80), { ...CHUNK, size: 0.8, speed: 4.0, range: 10, dmg: D(105) });
+  for (let k = 0; k < 3; k++) shot(g, e, A.x, A.y - 0.3, Math.random() * TAU, { ...SLAG, speed: 5.5, range: 8, dmg: D(80) });
+  g.vx({ k: 'burst', x: A.x, y: A.y - 0.6, n: 14, colors: FIRE }); g.vx({ k: 'shake', amt: 3 }); g.sfx('hammer');
+  (S.akAnvHot = S.akAnvHot || [])[i] = g.t;
 }
 
 // ================================================================ the director: the spec's cycles
@@ -288,11 +368,12 @@ const AT = {
   press: P('The Press', 'press', 4.2), faults: P('Molten Faultlines', 'faults', 3.0), shatter: P('Armor Shatter', 'shatter', 2.4),
   scythe: P('Scything Links', 'scythe', 6.5, { move: 'hold' }), hunt: P('Forge Hunt', 'hunt', 6.4, { move: 'hold' }),
   inverted: P('Inverted Anvil', 'inverted', 5.6, { move: 'hold' }), gate: P('The Gatebreaker', 'gatebreaker', 11.5, { move: 'hold' }),
+  crucible: P('The Crucible', 'crucible', 14.5, { move: 'crucible', instant: true }),
 };
 const CYCLE = {
   1: { len: 20, list: [[0, 'chains'], [3.8, 'sentence'], [7.5, 'teeth'], [12.5, 'press']] },
-  2: { len: 23, list: [[0, 'faults'], [3.3, 'sentence'], [6.8, 'shatter'], [11.4, 'teeth'], [15.2, 'chains'], [19.5, 'press']] },
-  3: { len: 24, list: [[0, 'scythe'], [6.7, 'hunt'], [13.0, 'inverted'], [18.0, 'sentence']] },
+  2: { len: 38, list: [[0, 'faults'], [3.3, 'sentence'], [6.8, 'shatter'], [11.4, 'teeth'], [15.2, 'chains'], [19.5, 'press'], [23.7, 'crucible']] },
+  3: { len: 39, list: [[0, 'scythe'], [6.7, 'hunt'], [13.0, 'inverted'], [18.0, 'sentence'], [23.6, 'crucible']] },
 };
 const LAST = ['gate', 'sentence', 'hunt'];                 // below 15%
 function choose(g, e) {
@@ -306,19 +387,74 @@ function choose(g, e) {
   return AT[k];
 }
 
+// ---- the Crucible and the anvils, drawn (from S.akCru and the anvils' places: the same in every browser)
+const tilePx = (r, x, y) => { const [ax, ay] = r.proj(x, y), [bx, by] = r.proj(x + 1, y); return Math.hypot(bx - ax, by - ay); };
+function drawAnvils(r, g, e) {
+  const S = e.bx, b = r.b; if (S.akDead) return;
+  anvils(e, S.phase || 1).forEach((A, i) => {
+    const [x0, y0] = r.proj(A.x, A.y), x = Math.round(x0), y = Math.round(y0), hot = g.t - ((S.akAnvHot || [])[i] || -9);
+    b.fillStyle = '#05040a'; b.fillRect(x - 11, y - 13, 23, 15);                        // (one thin black rim round it all)
+    b.fillStyle = '#2c2834'; b.fillRect(x - 7, y - 3, 15, 4);                           // the foot
+    b.fillStyle = '#433d4e'; b.fillRect(x - 3, y - 8, 7, 5);                            // the waist
+    b.fillStyle = '#615a70'; b.fillRect(x - 10, y - 12, 21, 4); b.fillRect(x - 10, y - 8, 4, 1);   // the face and its horn
+    b.fillStyle = hot < 0.5 ? (hot < 0.15 ? '#fff4c4' : '#ffb04a') : '#8c84a2'; b.fillRect(x - 9, y - 12, 19, 1);   // its striking face: white-hot when struck
+    if (hot < 0.5) { b.fillStyle = '#ff6a1c'; b.fillRect(x - 6, y - 11, 13, 1); }
+  });
+}
+function drawCracks(r, g, e) {
+  const Q = e.bx.akCru, b = r.b; if (!Q || !Q.cracks) return;
+  const open = g.t >= Q.openAt, fade = Math.max(0, Math.min(1, (Q.closeAt - g.t) / 0.5));
+  b.save(); b.lineCap = 'square'; b.lineJoin = 'miter';
+  for (const pts of Q.cracks) {
+    const P = pts.map(([x, y]) => r.proj(x, y)).map(([x, y]) => [Math.round(x), Math.round(y)]);
+    const line = (w, col, a = 1) => { b.globalAlpha = a * fade; b.strokeStyle = col; b.lineWidth = w; b.beginPath(); b.moveTo(...P[0]); for (const q of P.slice(1)) b.lineTo(...q); b.stroke(); };
+    if (!open) { if (Math.floor(g.t * 8) % 2) line(2, '#ff6a1c', 0.8); continue; }   // (marked: a thin flickering seam)
+    line(9, '#1a0806'); line(6, '#c8341a'); line(3, Math.floor(g.t * 6 + P[0][0]) % 3 ? '#ff8a1f' : '#ffd650'); line(1, '#fff4c4', 0.7);
+  }
+  b.restore(); b.globalAlpha = 1;
+}
+function drawBeam(r, g, e) {
+  const Q = e.bx.akCru, b = r.b; if (!Q || !Q.beam || g.t < Q.openAt || g.t > Q.closeAt) return;
+  const B = Q.beam, on = g.t >= Q.onAt, a = B.a0 + (on ? B.spin * (g.t - Q.onAt) : 0), px = tilePx(r, Q.cx, Q.cy);
+  b.save(); b.lineCap = 'butt';
+  for (let k = 0; k < B.n; k++) {
+    const d = a + k * Math.PI, [x0, y0] = r.proj(Q.cx + Math.cos(d) * 0.8, Q.cy + Math.sin(d) * 0.8), [x1, y1] = r.proj(Q.cx + Math.cos(d) * B.len, Q.cy + Math.sin(d) * B.len);
+    const line = (w, col, al = 1) => { b.globalAlpha = al; b.strokeStyle = col; b.lineWidth = w; b.beginPath(); b.moveTo(x0, y0); b.lineTo(x1, y1); b.stroke(); };
+    if (!on) { if (Math.floor(g.t * 8) % 2) line(2, '#ff6a1c', 0.85); continue; }    // (its one tell: where it begins, flickering)
+    const W = px * 1.1, fl = 0.85 + 0.15 * Math.sin(g.t * 40);
+    line(W * 1.25, '#5a1408', 0.45); line(W, '#e8401a', 0.9); line(W * 0.65 * fl, '#ff8a1f'); line(W * 0.32 * fl, '#ffd650'); line(Math.max(1, W * 0.1), '#fff4c4');
+    b.globalAlpha = 1;
+    for (let t = 0.1; t < 1; t += 0.09) {                  // (blocks of flame boiling off it)
+      const q = (t + g.t * 0.7) % 1, x = x0 + (x1 - x0) * q, y = y0 + (y1 - y0) * q, o = Math.sin(q * 40 + g.t * 9) * W * 0.5;
+      b.fillStyle = (Math.floor(q * 20 + g.t * 10) % 2) ? '#ffd650' : '#ff6a1c'; b.fillRect(Math.round(x - Math.sin(d) * o) - 2, Math.round(y + Math.cos(d) * o) - 2, 4, 4);
+    }
+  }
+  b.restore(); b.globalAlpha = 1;
+}
+
 export default {
   id: 'ashkar_gatekeeper', art: 'ashkar_gatekeeper', drawScale: 0.5, name: 'Ashkar, the Chained Forge-Giant', biome: 'dungeon', hp: 540000, def: 30, xp: 16000,
   r: 1.2, speed: 3.3, keep: 4, faces: false, tempo: 1, dmgScale: 1, spawnCentre: true, thresholds: [0.70, 0.35], morphGrace: 1.4,
   phases: {
-    1: { move: 'bound', patterns: Object.values(AT), pressure: [{ special: 'anchorShot', every: 1.35, delay: 1.5 }] },
-    2: { move: 'prowl', patterns: Object.values(AT), pressure: [{ special: 'anchorShot', every: 1.35, delay: 1.5 }] },
-    3: { move: 'hunt', patterns: Object.values(AT), pressure: [{ special: 'coreShot', every: 1.15, delay: 1.5 }] },
+    1: { move: 'bound', patterns: Object.values(AT), pressure: [{ special: 'anchorShot', every: 1.35, delay: 1.5 }, { special: 'anvilStrike', every: 2.2, delay: 2.0 }] },
+    2: { move: 'prowl', patterns: Object.values(AT), pressure: [{ special: 'anchorShot', every: 1.35, delay: 1.5 }, { special: 'anvilStrike', every: 2.2, delay: 2.0 }] },
+    3: { move: 'hunt', patterns: Object.values(AT), pressure: [{ special: 'coreShot', every: 1.15, delay: 1.5 }, { special: 'anvilStrike', every: 2.2, delay: 2.0 }] },
   },
   choose,
   walkPace: 3.0,                                            // (his heavy step at the pace he moves)
   charging: (g, e) => !!(e.akDash && g.t >= e.akDash.at),   // (his Forge Hunt's charges)
   specials: { sentence, sentenceLock, sentenceWave, chains, chainSweep, teeth, tooth, teethDone, press, pressMark, pressWall, faults, fault, shatter, plates, sparkle,
-    scythe, scytheGo, scytheFan, hunt, charge, inverted, invRing, invHold, invBack, gatebreaker, gateLinks, gateCone, gateFaults, anchorShot, coreShot },
+    scythe, scytheGo, scytheFan, hunt, charge, inverted, invRing, invHold, invBack, gatebreaker, gateLinks, gateCone, gateFaults, anchorShot, coreShot,
+    crucible, cruRaise, cruSlam, cruRing, cruEnd, anvilStrike },
+  // his own clips between attacks: the Crucible's great blow, an anvil struck, standing still in the Crucible (src/bossx.js bxPose)
+  posing(g, e) {
+    const S = e.bx, A = S.anim, ph = S.phase || 1, P0 = S.def.phases[ph];
+    const clip = (name, speed = 1) => { if (A.clip !== name && S.def.anims[name]) A.play(name, { speed }); return true; };
+    if (S.akSmash && g.t < S.akSmash.until) return clip('smash' + ph);
+    if (S.akStrike && g.t < S.akStrike.until) return clip('strike' + ph);
+    if (S.akCru && S.akCru.stage === 'set') return clip(P0.idle);
+    return false;
+  },
   moves: {
     bound(g, e) { const H = e.akHome || (e.akHome = { x: e.x, y: e.y }); e.x = H.x; e.y = H.y; },   // I: held at his chains
     prowl(g, e, dt) {                                      // II: 3.3 tiles a second, never more than 7 from the middle
@@ -326,6 +462,13 @@ export default {
       let tx = p.x + Math.cos(a) * 4, ty = p.y + Math.sin(a) * 4; const d = Math.hypot(tx - C.x, ty - C.y);
       if (d > 7) { tx = C.x + (tx - C.x) * 7 / d; ty = C.y + (ty - C.y) * 7 / d; }
       const dd = Math.hypot(tx - e.x, ty - e.y); if (dd > 0.2) g.moveCircle(e, ((tx - e.x) / dd) * Math.min(dd, 3.3 * dt), ((ty - e.y) / dd) * Math.min(dd, 3.3 * dt), 0.8);
+    },
+    crucible(g, e, dt) {                                   // the Crucible: to the middle of his hall, 4 tiles a second; then he stands
+      const Q = e.bx.akCru, C = mid(e); if (!Q) return;
+      if (Q.stage !== 'walk') { e.x = C.x; e.y = C.y; return; }
+      const d = Math.hypot(C.x - e.x, C.y - e.y);
+      if (d < 0.35 || g.t - Q.startAt > 3.2) { e.x = C.x; e.y = C.y; cruSet(g, e); return; }
+      g.moveCircle(e, ((C.x - e.x) / d) * Math.min(d, 4 * dt), ((C.y - e.y) / d) * Math.min(d, 4 * dt), 0.8);
     },
     hunt(g, e, dt) {                                       // III: after you, steadily (his charges are the quick part)
       const p = target(g, e), d = Math.hypot(p.x - e.x, p.y - e.y);
@@ -347,7 +490,7 @@ export default {
         const A = anchor(e, i), side = A.x < e.x ? -1 : 1, Wx = e.x + side * 1.6, Wy = e.y;
         for (let k = 0; k < 11; k++) {
           const t = 0.32 + (k / 10) * 0.68;
-          S.akLinks.push({ x: A.x + (Wx - A.x) * t, y: A.y + (Wy - A.y) * t, h: 0.3 + t * 2.3, vx: (Math.random() - 0.5) * 0.8, vy: (Math.random() - 0.5) * 0.8, t0: g.t + Math.random() * 0.2, k });
+          S.akLinks.push({ x: A.x + (Wx - A.x) * t, y: A.y + (Wy - A.y) * t, h: 0.3 + t * 2.3, vx: (Math.random() - 0.5) * 0.8, vy: (Math.random() - 0.5) * 0.8, at: g.t + Math.random() * 0.2, k });
         }
         g.vx({ k: 'burst', x: Wx, y: Wy, n: 10, colors: ['#a39bb2', '#766e84', ...FIRE] });
       }
@@ -362,6 +505,11 @@ export default {
   update(g, e, dt) {
     const S = e.bx;
     if (S.state === 'sleep' || S.state === 'intro') return;
+    if (S.akStrike && !S.akStrike.done && g.t >= S.akStrike.hitAt) { S.akStrike.done = true; anvilSpit(g, e, S.akStrike.i); }   // (the anvil struck)
+    if (S.akStrike && g.t > S.akStrike.until) S.akStrike = null;
+    if (S.akSmash && g.t > S.akSmash.until) S.akSmash = null;
+    const Qc = S.akCru;                                    // (a Crucible cut short, by a change of phase: its fire runs out on its own)
+    if (Qc && (Qc.stage === 'walk' ? g.t - Qc.startAt > 4 : g.t > Qc.closeAt + 0.3)) { S.akCru = null; S.akSmash = null; }
     const Dh = e.akDash;                                   // a charge in flight: it strikes you once, then cinders where it ends
     if (Dh && g.t >= Dh.at) {
       if (g.t >= Dh.until) {
@@ -389,12 +537,12 @@ export default {
     for (const q of S.akVents || []) if (q && q.dead && !(S.akVentDown || [])[q.akVent]) { (S.akVentDown = S.akVentDown || [])[q.akVent] = g.t + 6; }
     if (S.akVentDown) S.akVentDown = S.akVentDown.map((t) => (t > g.t ? t : 0));
     if (S.akHot && g.t > S.akHot.until) S.akHot = null;
-    if (S.akLinks && S.akLinks.every((L) => g.t - L.t0 > LINK_LIE + 1.6)) S.akLinks = null;   // (the fallen links, crumbled away)
+    if (S.akLinks && S.akLinks.every((L) => g.t - L.at > LINK_LIE + 1.6)) S.akLinks = null;   // (the fallen links, crumbled away)
     if (S.phase === 3 && Math.random() < 0.3) { const [cx, cy] = CORE(g, e); g.vx({ k: 'burst', x: cx + (Math.random() - 0.5), y: cy + (Math.random() - 0.5), n: 2, colors: FIRE }); }
   },
   onDeath(g, e) {                                          // the hammer falls, the core implodes, the chains fall silent
     const S = e.bx, [cx, cy] = CORE(g, e);
-    teethDone(g, e); e.akDash = null; S.akHot = null; S.akScythe = null; S.akChains = null; S.akDead = true;
+    teethDone(g, e); e.akDash = null; S.akHot = null; S.akScythe = null; S.akChains = null; S.akDead = true; S.akCru = null; S.akSmash = null; S.akStrike = null;
     for (let k = 0; k < 10; k++) { const a = (k / 10) * TAU; g.vx({ k: 'burst', x: cx + Math.cos(a) * 3, y: cy + Math.sin(a) * 3, n: 6, colors: FIRE }); }
     g.fx.push({ kind: 'ring', x: e.x, y: e.y, t: 0, max: 5, color: '#fff4c4' }); g.vx({ k: 'shake', amt: 10 }); g.sfx('hammer');
     if (g.banner) g.banner('THE GREAT SUN DOOR IS UNSEALED.', 3200);
@@ -404,6 +552,7 @@ export default {
   // lying still by each anchor, red-hot when he works it, and the links that fell off him; in III only the blocks; and the
   // scything links' path ahead
   drawGround(r, g, e) {
+    drawAnvils(r, g, e); drawCracks(r, g, e);
     const S = e.bx, b = r.b, ph = S.phase || 1, [sx, sy] = r.proj(e.x, e.y), hot = S.akHot && g.t < S.akHot.until ? S.akHot.ids : [];
     for (let i = 0; i < 4; i++) {
       const A = anchor(e, i), [ax, ay] = r.proj(A.x, A.y), side = A.x < e.x ? -1 : 1, wx = sx + (side < 0 ? -26 : 40), wy = sy - (side < 0 ? 57 : 40);   // (his wrists, on the user's sprite)
@@ -432,7 +581,7 @@ export default {
       }
     }
     for (const L of S.akLinks || []) {                     // the links that fell off him: dropping where they hung, lying, crumbling
-      const T = g.t - L.t0; if (T < 0) continue;
+      const T = g.t - L.at; if (T < 0) continue;
       const fall = Math.min(T, Math.sqrt(L.h / 4.9)), h = Math.max(0, L.h - 4.9 * fall * fall), bounce = T > fall && T < fall + 0.25 ? Math.sin(((T - fall) / 0.25) * Math.PI) * 0.12 : 0;
       const [x, y] = r.proj(...g.up(L.x + L.vx * fall * 0.5, L.y + L.vy * fall * 0.5, h + bounce)), al = T < LINK_LIE ? 1 : Math.max(0, 1 - (T - LINK_LIE) / 1.6);
       if (al <= 0) continue;
@@ -449,6 +598,7 @@ export default {
       b.globalAlpha = 1;
     }
   },
+  drawTop(r, g, e) { drawBeam(r, g, e); },
   lights(g, e) { const ph = e.bx.phase || 1; return [{ x: e.x, y: e.y, h: 4.4, r: ph === 3 ? 110 : ph === 2 ? 90 : 60, col: '#ff8a1f', fire: true }]; },
   // his relics (boss_loot.js gives them their real, rare chances), and every class's gear in his band
   loot: [{ id: 'fetterbreaker', p: 0.1 }, { id: 'slagplate', p: 0.1 }, { id: 'the_last_link', p: 0.1 }, { id: 'gatekeepers_chain', p: 0.1 }], lootLuck: 1.3,
