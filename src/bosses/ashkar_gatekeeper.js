@@ -37,7 +37,9 @@ const LINK_LIE = 6;                                         // (how long a falle
 const later = (e, t, name, V = {}) => e.bx.vol.push({ t, V: { form: 'special', ...V, name } });   // (its own name last: a spread V may carry the caller's)
 // (2026-11-11, the user: "make ashkars shots nearly infinite range until it hits a wall or something"): every shot of his flies
 // 60 tiles (more than his hall), so a wall is what stops it; only a chain's sweeping links keep their marked band (keepRange)
-const shot = (g, e, x, y, a, V) => g.bxShot(e, x, y, a, V.keepRange ? V : { ...V, range: Math.max(V.range || 0, 60) });
+// (2026-11-11, the user: "There is still the old animated shots in ashkars rings"): every shot of his one steady frame, no trail
+// (the anvils' chunks and shards had still flickered among the Crucible's waves)
+const shot = (g, e, x, y, a, V) => { const b = g.bxShot(e, x, y, a, V.keepRange ? V : { ...V, range: Math.max(V.range || 0, 60) }); if (b) b.still = true; return b; };
 const lane = (g, e, x, y, a, len, delay, dmg = 0, w = 1, cols) => g.fx.push({ kind: 'lane', x, y, a, len, w, delay, t: 0, life: delay + (dmg ? 0.35 : 0.02), dmg: dmg ? g.bxDmg(e, dmg) : 0, by: e.D.name, hitT: 0, ...(cols ? { cols } : {}) });
 const cleave = (g, e, x, y, a, r, spread, delay, dmg) => g.fx.push({ kind: 'cleave', x, y, a, r, spread, delay, t: 0, life: delay + 0.3, dmg: dmg ? g.bxDmg(e, dmg) : 0, by: e.D.name, done: !dmg });
 const CYAN = ['#8af0ff', '#8af0ff', '#8af0ff', '#ffffff'];
@@ -325,7 +327,7 @@ function coreShot(g, e) {
 // him slamming the giant mace onto the ground and a ring of shots fire out as players are maneuvering the lava cracks and
 // circling"). He strides to the middle of his hall and stands there. Cracks open across the floor (1.2 s marked, then
 // molten for 17 s: 170 a step, and your armour broken); 1 s after, two beams of fire turn about him, opposite (in II as
-// in III); 42 degrees a second, 260 while it holds you, armour broken), so you circle the hall ahead of it, over the cracks; four times he
+// in III); 36 degrees a second, 260 while it holds you, armour broken), so you circle the hall ahead of it, over the cracks; four times he
 // lifts the mace high and drives its handle down into the floor (his smash clip): two rings of 35 waves (160), the last two blows
 // three. Everything he does here is drawn from S.akCru (the same in every browser)
 // (2026-11-11, the user: "the phase where he sprays the ray and players must circle, dodge the lava cracks, and dodge the
@@ -375,8 +377,8 @@ function cruSet(g, e) {                                       // he stands in th
       const u = k / legs, w = +(wMax * (0.25 + 0.75 * Math.sin(Math.PI * u))).toFixed(2);   // (narrow at the ends, widest midway)
       pts.push([+x.toFixed(2), +y.toFixed(2), w]);
       if (k === legs) break;
-      const L = 0.5 + Math.random() * 0.75, a = h + (Math.random() - 0.5) * 1.6, nx = x + Math.cos(a) * L, ny = y + Math.sin(a) * L;
-      h += (Math.random() - 0.5) * 0.6;                     // (it wanders)
+      const L = 0.35 + Math.random() * 1.1, a = h + (Math.random() - 0.5) * 1.9, nx = x + Math.cos(a) * L, ny = y + Math.sin(a) * L;
+      h += (Math.random() - 0.5) * 0.9;                     // (it wanders, and no two legs alike)
       g.fx.push({ kind: 'lane', x, y, a, len: L, w: Math.max(0.22, w), delay: 1.2, t: 0, life: LIFE, dmg: crackDmg, every: 0.4, broken: 3, by, hitT: 0, noDraw: true, boss: e.id });
       x = nx; y = ny;
     }
@@ -384,12 +386,16 @@ function cruSet(g, e) {                                       // he stands in th
   };
   for (let i = 0; i < n; i++) {
     const ang = (i / n) * TAU + Math.random() * 0.4, r = 3.2 + Math.random() * Math.max(1, R0 - 4.5);
-    const P0 = crack(C.x + Math.cos(ang) * r, C.y + Math.sin(ang) * r, ang + Math.PI / 2 + (Math.random() < 0.5 ? -1 : 1) * (0.3 + Math.random() * 0.5), 5 + Math.floor(Math.random() * 3), 0.55);
+    // (2026-11-11, the user: "Make them more random and maybe some larger ones"): each its own size; one in four a great
+    // rift, long and wide, with branches of its own
+    const big = Math.random() < 0.25, legs = big ? 8 + Math.floor(Math.random() * 4) : 3 + Math.floor(Math.random() * 6), wMax = big ? 0.85 + Math.random() * 0.35 : 0.3 + Math.random() * 0.4;
+    const P0 = crack(C.x + Math.cos(ang) * r, C.y + Math.sin(ang) * r, ang + Math.PI / 2 + (Math.random() < 0.5 ? -1 : 1) * (0.2 + Math.random() * 0.9), legs, wMax);
+    if (big) { const m = P0[Math.floor(P0.length / 3)]; crack(m[0], m[1], Math.atan2(P0[P0.length - 1][1] - P0[0][1], P0[P0.length - 1][0] - P0[0][0]) - (0.7 + Math.random() * 0.7), 3 + Math.floor(Math.random() * 3), wMax * 0.5); }
     if (Math.random() < 0.6) { const m = P0[Math.floor(P0.length / 2)]; crack(m[0], m[1], Math.atan2(P0[P0.length - 1][1] - P0[0][1], P0[P0.length - 1][0] - P0[0][0]) + (Math.random() < 0.5 ? 1 : -1) * (0.8 + Math.random() * 0.6), 2 + Math.floor(Math.random() * 2), 0.32); }
   }
   // the pool under him burns too (a square of floor about him: he stands in the middle of it)
   g.fx.push({ kind: 'lane', x: C.x - POOL_R, y: C.y, a: 0, len: POOL_R * 2, w: POOL_R * 0.8, delay: 1.2, t: 0, life: LIFE, dmg: crackDmg, every: 0.4, broken: 3, by, hitT: 0, noDraw: true, boss: e.id });
-  const q = target(g, e), sg = (S.akCruS = -(S.akCruS || 1)), spin = sg * deg(42), a0 = angleTo(C.x, C.y, q.x, q.y) - sg * deg(110), len = R0 + 3;
+  const q = target(g, e), sg = (S.akCruS = -(S.akCruS || 1)), spin = sg * deg(36), a0 = angleTo(C.x, C.y, q.x, q.y) - sg * deg(110), len = R0 + 3;
   Q.beam = { a0, spin, n: 2, len };
   for (let k = 0; k < Q.beam.n; k++) g.fx.push({ kind: 'lane', x: C.x, y: C.y, a0: a0 + k * Math.PI, a: a0 + k * Math.PI, spin, len, w: 0.6, delay: 2.2, t: 0, life: LIFE, dmg: g.bxDmg(e, D(260)), every: 0.3, broken: 4, by, hitT: 0, noDraw: true, boss: e.id });
   if (Q.final) { later(e, 4.4, 'cruRaise', { rings: 3, again: true }); return void g.sfx('hammer'); }   // (the last: a blow every 3.6 s, for ever)
@@ -514,8 +520,9 @@ function crackCanvas(Q) {
       const [ax, ay, aw] = pts[i], [bx, by, bw] = pts[i + 1], n = Math.max(1, Math.ceil(Math.hypot(bx - ax, by - ay) * CRACK_PX));
       for (let k = 0; k <= n; k++) { const u = k / n; cells.push([(ax + (bx - ax) * u - x0) * CRACK_PX, (ay + (by - ay) * u - y0) * CRACK_PX, ((aw || 0.4) + ((bw || 0.4) - (aw || 0.4)) * u) * CRACK_PX]); }
     }
-    for (const [x, y, w] of cells) put(x, y, Math.max(2, Math.round(w + 2)), '#1a0806');            // (the black rim)
-    for (const [x, y, w] of cells) put(x, y, Math.max(1, Math.round(w)), '#c8341a');                 // the red
+    for (const [x, y, w] of cells) put(x, y, Math.max(3, Math.round(w + 2)), '#05040a');            // (one thin black rim, as every sprite has: 2026-11-11, the user)
+    for (const [x, y, w] of cells) put(x, y, Math.max(1, Math.round(w)), '#3a0c08');                 // (the scorched lip inside it)
+    for (const [x, y, w] of cells) put(x, y, Math.max(1, Math.round(w - 1)), '#c8341a');             // the red
     for (const [x, y, w] of cells) put(x, y, Math.max(1, Math.round(w * 0.55)), '#ff8a1f');          // the molten middle
     for (const [x, y, w] of cells) if (w > 3) put(x, y, Math.max(1, Math.round(w * 0.25)), '#ffd650');   // (its hottest line, where it is wide)
   }
