@@ -66,6 +66,14 @@ export const OW_SIGS = {
 const SIG_SAY = { burn: 'Ablaze!', armor: 'Armour broken!', confuse: 'Confused!', daze: 'Dazed!', ink: 'Blinded by ink!', root: 'Rooted!' };
 
 const methods = {
+  // the bosses and heralds among the monsters (2026-11-11, for speed: the realm played alone holds some 5,700, and these
+  // ran through all of them every frame). Made again when the list is replaced (a death is cleared) or grows (a spawn);
+  // a monster's rb, herald and ow are set as it is added, before the next frame.
+  specialFoes() {
+    const E = this.enemies;
+    if (this.spOf !== E || this.spLen !== E.length) { this.spOf = E; this.spLen = E.length; this.spList = E.filter((e) => e.ow || e.rb || e.herald); }
+    return this.spList;
+  },
   // a boss rises: its Life and its hits, and the clock for its adds
   owTune(e) {
     const T = OW_BOSSES[e.id];
@@ -81,7 +89,7 @@ const methods = {
   // keeps a shared boss's Life (its copy here only shows it)
   partyHp() {
     const who = (this.netTargets || [this.player]).filter((q) => q && !q.dead);
-    for (const e of this.enemies) {
+    for (const e of this.specialFoes()) {
       if (e.dead || e.net || !(e.rb || e.herald)) continue;
       const P = (e.party = e.party || { base: e.maxHp, k: 1, n: 1, at: 0 });
       const n = Math.max(1, who.filter((q) => (q.x - e.x) ** 2 + (q.y - e.y) ** 2 < 400).length);
@@ -125,7 +133,7 @@ const methods = {
     }
     if (this.map.kind !== 'realm') return;
     this.partyHp();
-    for (const e of this.enemies) {
+    for (const e of this.specialFoes()) {
       if (!e.ow) continue;
       const W = e.ow, A = W.T.adds;
       const dying = e.bx && (e.bx.state === 'death' || e.bx.state === 'deathhold' || e.bx.state === 'gone');   // (its death clip: it fires no more)

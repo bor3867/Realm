@@ -1054,10 +1054,12 @@ export class Game {
   eventClock(dt) {
     const m = this.map;
     if (!m.ev) m.ev = Object.fromEntries(BIOMES.map((b) => [b, { herald: null, progress: 0, cd: 25 + R() * 35 }]));
+    const up = new Set();                                         // (the lands with a boss up: one pass, not one a land)
+    for (const e of this.enemies) if (e.rb && !e.dead) up.add(e.D.biome);
     for (const b of BIOMES) {
       const ev = m.ev[b];
       if (!HERALDS[b]) continue;
-      const bossUp = this.enemies.some((e) => e.rb && !e.dead && e.D.biome === b);
+      const bossUp = up.has(b);
       if (bossUp || (ev.herald && !ev.herald.dead)) continue;
       ev.cd -= dt;
       if (ev.cd <= 0) this.startEvent(b);
@@ -2185,6 +2187,20 @@ export class Game {
       for (const e of this.netNew || []) if (!this.netNear.includes(e)) this.netNear.push(e);
       this.netNew = [];
       L = this.netNear;
+    } else if (this.enemies.length > 800) {
+      // (2026-11-11, for speed) the realm played alone holds some 5,700 monsters; those more than ACTIVE_R away do nothing,
+      // yet each frame went through all of them twice and copied the list. So, as the server does: a short list, made
+      // twice a second, of those within 48 tiles, every boss, herald, warden and melon, and the dead; new ones join at once
+      // (addEnemy puts them at the end). The dead are cleared from the whole list only when one of them is due to go.
+      const E = this.enemies;
+      if (!this.offNear || this.offOf !== E || this.t >= this.offNearT) {
+        this.offNearT = this.t + 0.5; this.offOf = E;
+        this.offNear = E.filter((e) => e.dead || e.rb || e.herald || e.warden || e.D.melon || (Math.abs(e.x - p.x) < 48 && Math.abs(e.y - p.y) < 48));
+        this.offLen = E.length;
+      } else if (E.length > this.offLen) { for (let i = this.offLen; i < E.length; i++) this.offNear.push(E[i]); this.offLen = E.length; }
+      L = this.offNear;
+      fresh = false;
+      for (const e of L) if (e.dead && e.deadT + dt >= (e.rb ? 1.4 : 0.6)) { fresh = true; break; }
     }
     for (const e of L) {
       if (e.dead) continue;
@@ -2319,7 +2335,10 @@ export class Game {
         }
       }
     }
-    if (fresh) this.enemies = this.map.enemies = this.enemies.filter((e) => !e.dead || e.deadT < (e.rb ? 1.4 : 0.6));   // (the server: once a second)
+    if (fresh) {
+      this.enemies = this.map.enemies = this.enemies.filter((e) => !e.dead || e.deadT < (e.rb ? 1.4 : 0.6));   // (the server: once a second)
+      if (this.offNear && !T) { this.offNear = this.offNear.filter((e) => !e.dead || e.deadT < (e.rb ? 1.4 : 0.6)); this.offOf = this.enemies; this.offLen = this.enemies.length; }
+    }
   }
   // Movement styles (ENEMIES[id].ai):
   //   shamble, kite, orbit, drift, charge - the originals
@@ -4352,8 +4371,10 @@ export class Game {
       }
     }
     // altars: run their trials
-    for (const o of m.objects) {
-      if (o.interact !== 'altar' || o.state !== 'trial') continue;
+    // (the map's altars picked out once, again only when things are added or taken: the realm has 40,000 things. 2026-11-11)
+    if (!m.altarList || m.altarOf !== m.objects || m.altarLen !== m.objects.length) { m.altarOf = m.objects; m.altarLen = m.objects.length; m.altarList = m.objects.filter((o) => o.interact === 'altar'); }
+    for (const o of m.altarList) {
+      if (o.state !== 'trial') continue;
       o.spawned = o.spawned.filter((e) => !e.dead);
       if (o.spawned.length) continue;
       o.waveT -= dt;

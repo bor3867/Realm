@@ -7,7 +7,7 @@ const cache = new WeakMap();
 // the frame at its own pixels with its drawn black edge taken off (src/outline_strip.js), so the rim below is the only one
 function bare(img, sx, sy, w, h) {
   const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
-  const x = cv.getContext('2d'); x.drawImage(img, sx, sy, w, h, 0, 0, w, h);
+  const x = cv.getContext('2d', { willReadFrequently: true }); x.drawImage(img, sx, sy, w, h, 0, 0, w, h);   // (read back: kept in memory, not on the graphics card: 0.26 ms a sprite, not 1.7. 2026-11-11)
   try { const D = x.getImageData(0, 0, w, h); if (stripEdge(D.data, w, h)) x.putImageData(D, 0, 0); } catch { /* (a picture from elsewhere: as it is) */ }
   return cv;
 }

@@ -284,5 +284,8 @@ export async function loadRegistry() {
   await Promise.all([...imgs.entries()].map(([path, im]) => imageLoaded(im, BASE + path)));
   for (const d of R.defs.values()) if (d.needsFoot) d.foot = footFromPixels(d);
   R.images = imgs;
+  // (every sheet decoded now, off the game's thread, not the first time one of its sprites is drawn: a big sheet's first
+  // monster or shot cost up to 40 ms then. 2026-11-11, for speed)
+  for (const im of imgs.values()) if (im.decode) im.decode().catch(() => {});
   return R;
 }

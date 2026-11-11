@@ -176,7 +176,7 @@ const methods = {
     this.ruinT = this.ruinT || {};
     if (this.ruinT[name]) return this.ruinT[name];
     const W = this.W, k = W.objects[name], c = W.objectsCols, img = this.A.img.objects;
-    const sc = Object.assign(document.createElement('canvas'), { width: TS, height: TS }), sx = sc.getContext('2d');
+    const sc = Object.assign(document.createElement('canvas'), { width: TS, height: TS }), sx = sc.getContext('2d', { willReadFrequently: true });
     sx.drawImage(img, (k % c) * TS, Math.floor(k / c) * TS, TS, TS, 0, 0, TS, TS);
     const d = sx.getImageData(0, 0, TS, TS).data, cols = [];
     for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 200) cols.push([d[i], d[i + 1], d[i + 2]]);

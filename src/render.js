@@ -617,7 +617,7 @@ export class Renderer {
   }
   avgColor(img, x, y, w, h) {
     try {
-      const c = Object.assign(document.createElement('canvas'), { width: w, height: h }), q = c.getContext('2d'); q.drawImage(img, x, y, w, h, 0, 0, w, h);
+      const c = Object.assign(document.createElement('canvas'), { width: w, height: h }), q = c.getContext('2d', { willReadFrequently: true }); q.drawImage(img, x, y, w, h, 0, 0, w, h);
       const d = q.getImageData(0, 0, w, h).data; let r = 0, g = 0, b = 0, n = 0;
       for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 100) { r += d[i]; g += d[i + 1]; b += d[i + 2]; n++; }
       return n ? [r / n, g / n, b / n] : null;
@@ -753,7 +753,7 @@ export class Renderer {
   colorsOf(key, img, sx, sy, w, h) {                        // dominant sprite colours, for death bursts and trails
     if (this.colorCache.has(key)) return this.colorCache.get(key);
     const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
-    const x = cv.getContext('2d'); x.drawImage(img, sx, sy, w, h, 0, 0, w, h);
+    const x = cv.getContext('2d', { willReadFrequently: true }); x.drawImage(img, sx, sy, w, h, 0, 0, w, h);   // (read back once: kept in memory)
     const d = x.getImageData(0, 0, w, h).data, count = new Map();
     for (let i = 0; i < d.length; i += 4) {
       if (d[i + 3] < 200 || d[i] + d[i + 1] + d[i + 2] < 120) continue;
