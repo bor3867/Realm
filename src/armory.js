@@ -404,7 +404,7 @@ const FIRE = {
     for (let i = 0; i < 7; i++) { const aa = (i / 7) * TAU - Math.PI / 2; this.armLater(i * 0.08, () => smite(tx + Math.cos(aa) * 1.55, ty + Math.sin(aa) * 1.55, EX(A, 0))); }
     this.armLater(0.3, () => { const ab = full ? 0.35 : 0.2; this.armHeal(max * ab, '#fff1b8'); this.armSay(p.x, p.y - 0.3, `ABSOLUTION +${Math.round(max * ab)}`, '#fff1b8'); });
   },
-  // three piercing arrows of green light; every 6th volley the Wild Hunt (7 great arrows, rooting, healing you per enemy
+  // two piercing arrows of green light; every 6th volley the Wild Hunt (7 great arrows, rooting, healing you per enemy
   // struck); a volley that strikes nothing costs 4% of your max Life (never below 1). The set: 3 roots 2s and costs 2%, 4 every 4th and heals 3%
   Everbloom(A, id, S, ox, oy, a) {
     const p = this.player, n = this.armSetCount('Everbloom'), W = ITEMS[id].weapon, max = this.stat('hp');
@@ -420,7 +420,7 @@ const FIRE = {
       grp.left++; sh.armOnHit = (b, e) => { if (!grp.hit) this.armHeal(max * 0.015, '#7ef0a8', true); grp.hit = true; if (onHit) onHit(b, e); }; sh.armEnd = end;   // (Sap: the first arrow of a volley to strike heals you)
       return sh;
     };
-    if (!hunt) { for (const g of [-1, 0, 1]) mk(a + g * 0.12, 0, A.st.dmg, 4); return; }
+    if (!hunt) { for (const g of [-0.5, 0.5]) mk(a + g * 0.12, 0, A.st.dmg, 4); return; }   // (two arrows, not three: too strong, the user 2026-11-11)
     this.armSay(p.x, p.y - 1.4, 'WILD HUNT', '#7ef0a8');
     this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.6), n: 16, colors: ['#6fd36a', '#a7f3d0', '#f6c453'] });
     const struck = new Set(), root = n >= 3 ? 2 : 1, heal = n >= 4 ? 0.07 : 0.05;
