@@ -18,3 +18,6 @@ exports/
 
 # the multiplayer server's local test database (DB=file)
 server/.data/
+
+# the offline game for friends (tools/build_offline.mjs)
+dist/

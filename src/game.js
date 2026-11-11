@@ -322,7 +322,8 @@ export class Game {
     if (this.account && this.account.online) this.netSave(data);   // an online account's save is kept on the server (src/net.js)
   }
   // admin commands: on this computer always; online, for admin accounts only
-  adminOk() { return typeof location === 'undefined' || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) || !!(this.account && this.account.online && this.account.admin); }
+  // (the offline build for friends: an ordinary player there, though it runs on localhost; REALM_OFFLINE_ADMIN opens it)
+  adminOk() { if (globalThis.REALM_OFFLINE && !globalThis.REALM_OFFLINE_ADMIN) return false; return typeof location === 'undefined' || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname) || !!(this.account && this.account.online && this.account.admin); }
 
   // a dungeon's way out leads back where you came in from: the Nexus (a key used there) or the realm (2026-10-19)
   exitLabel() { return this.exitTo === 'nexus' ? 'Back to the Nexus' : 'Back to the Realm'; }

@@ -13,6 +13,7 @@ const NET_DUNGEONS = (to) => !!DUNGEON_DEFS[to] || /^rf_[a-z_]+$/.test(to);   //
 // where the server is: ?server=wss://... in the address wins; on this computer, the local one; online, SERVER_URL
 export const SERVER_URL = 'wss://realm-7ila.onrender.com';   // the multiplayer server (Render)
 function serverUrl() {
+  if (globalThis.REALM_OFFLINE) return '';                  // (the offline build for friends, tools/build_offline.mjs: never online)
   const q = new URLSearchParams(location.search).get('server');
   if (q) return q;
   if (/^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) return `ws://${location.hostname}:8787`;
