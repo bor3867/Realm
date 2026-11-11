@@ -243,7 +243,11 @@ export function buildRegistry(atlases, hover, img = () => null) {
   }
   buildRedirects(R);
   if (hover) applyHover(R, hover);
-  for (const d of R.defs.values()) { d.outline = !NO_OUTLINE(d); if (SOFT_RIM(d)) d.rim = 'soft'; }
+  // (2026-11-11, the user: "ensure all borders are thin black": every sprite gets the game's one thin black rim; a sheet with
+  // its own drawn edge (BAKED, the soft-rimmed castle) has that edge taken off first (src/outline.js), so none doubles or
+  // thickens when drawn big. Only the floor goes without: tiles, the rune decal, the ground shadow)
+  for (const d of R.defs.values()) d.outline = !(d.kind === 'tile' || /rune_circle|ground_shadow/.test(d.name));
+  void NO_OUTLINE; void SOFT_RIM;
   return R;
 }
 

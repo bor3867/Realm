@@ -2,7 +2,15 @@
 // black rim and cached. U is the upscale the frame is baked at (the screen's pixels per art-buffer pixel),
 // so the rim can be a crisp 1-2 screen pixels instead of a whole chunky art pixel.
 // The returned canvas is the frame at U x, padded by `pad` on each side (canvas.pad).
+import { stripEdge } from './outline_strip.js';
 const cache = new WeakMap();
+// the frame at its own pixels with its drawn black edge taken off (src/outline_strip.js), so the rim below is the only one
+function bare(img, sx, sy, w, h) {
+  const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+  const x = cv.getContext('2d'); x.drawImage(img, sx, sy, w, h, 0, 0, w, h);
+  try { const D = x.getImageData(0, 0, w, h); if (stripEdge(D.data, w, h)) x.putImageData(D, 0, 0); } catch { /* (a picture from elsewhere: as it is) */ }
+  return cv;
+}
 
 // rim: the outline's width in screen pixels; the same for every monster, however fine its own pixels (left out: the
 // old rule, 2 only when baked at 4x or more, gave fine-pixel monsters a rim half as thick as their neighbours')
@@ -19,8 +27,10 @@ export function outlinedFrame(img, sx, sy, w, h, U = 1, col = '#05040a', rim = 0
   const art = document.createElement('canvas'); art.width = W; art.height = H;
   const a = art.getContext('2d');
   a.imageSmoothingEnabled = false;
-  if (col === 'self') a.drawImage(softEdge(img, sx, sy, w, h), 0, 0, W, H);
-  else a.drawImage(img, sx, sy, w, h, 0, 0, W, H);
+  // (2026-11-11, the user: "ensure all borders are thin black": every sprite's drawn edge off, the one thin black rim on;
+  // the soft rim in the sprite's own darkened colours (the castle's, 2026-11-02) is black now too)
+  if (col === 'self') col = '#05040a';
+  a.drawImage(bare(img, sx, sy, w, h), 0, 0, W, H);
   const sil = document.createElement('canvas'); sil.width = W; sil.height = H;
   const s = sil.getContext('2d');
   s.drawImage(art, 0, 0);
