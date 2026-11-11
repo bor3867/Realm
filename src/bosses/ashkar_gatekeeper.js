@@ -326,7 +326,7 @@ function coreShot(g, e) {
 // circling"). He strides to the middle of his hall and stands there. Cracks open across the floor (1.2 s marked, then
 // molten for 17 s: 170 a step, and your armour broken); 1 s after, two beams of fire turn about him, opposite (in II as
 // in III); 42 degrees a second, 260 while it holds you, armour broken), so you circle the hall ahead of it, over the cracks; four times he
-// lifts the mace high and drives its handle down into the floor (his smash clip): two rings of 40 waves (160), the last two blows
+// lifts the mace high and drives its handle down into the floor (his smash clip): two rings of 35 waves (160), the last two blows
 // three. Everything he does here is drawn from S.akCru (the same in every browser)
 // (2026-11-11, the user: "the phase where he sprays the ray and players must circle, dodge the lava cracks, and dodge the
 // center shot must be longer. Also, have the ray have two hands instead of one ray out. Make the lava cracks pixel"): 18 s
@@ -409,14 +409,19 @@ function cruSlam(g, e, V) {
   if (e.bx.akCru && e.bx.akCru.final) {                   // (2026-11-11, the user: "Make the ring of shots easier to dodge during the survival/end. One
     // ring shoots out fastest, one normal, one slower"): the Last Crucible's blow, three rings at once, each its own speed and
     // set a third of a gap round from the last: they draw apart at once, so there is room between them to slip through
-    [6.2, 4.3, 2.8].forEach((sp, w) => cruRing(g, e, { off: w * (2 / 3), sp }));
+    [6.2, 4.3, 2.8].forEach((sp) => cruRing(g, e, { off: 0, sp }));
     return;
   }
-  for (let w = 0; w < V.rings; w++) later(e, w * 0.35, 'cruRing', { off: w % 2, sp: 4.3 + w * 0.5 });   // (each ring a little quicker than the last: they never merge)
+  for (let w = 0; w < V.rings; w++) later(e, w * 0.35, 'cruRing', { off: 0, sp: 4.3 + w * 0.5 });   // (each ring a little quicker than the last: they never merge)
 }
 // (2026-11-11, the user: "he can have way more shots when he slams the ground"): 40 waves a ring (was 28), 160 each (was 115)
 // (2026-11-11, the user: "Remove the animation from the ring shots"): each wave one steady frame, no trail (render.js pr.still)
-function cruRing(g, e, V) { for (let k = 0; k < 40; k++) { const b = shot(g, e, e.x, e.y, ((k + V.off * 0.5) / 40) * TAU, { ...WAVE, speed: V.sp || 4.3, range: 15, dmg: D(160) }); if (b) b.still = true; } }
+// (2026-11-11, the user: "the beginning of the survival still has the undodgeable shots. Make them all dodgeable and ... remove the
+// amount of shots in the rings by 4-5 for larger gaps"): 35 waves a ring (was 40), and every ring of a blow on the same angles
+// (they were turned to fill each other's gaps, so near him they made a wall): the gaps line up into lanes straight out from
+// him; stand in one and every ring of that blow goes by
+const RING_N = 35;
+function cruRing(g, e, V) { for (let k = 0; k < RING_N; k++) { const b = shot(g, e, e.x, e.y, ((k + V.off * 0.5) / RING_N) * TAU, { ...WAVE, speed: V.sp || 4.3, range: 15, dmg: D(160) }); if (b) b.still = true; } }
 function cruEnd(g, e) { const S = e.bx; S.akCru = null; S.akSmash = null; if (S.state === 'recover') S.wait = Math.min(S.wait, 1.0); }
 
 // ================================================================ the anvils (all phases) (2026-11-11, the user: "add some anvils to
@@ -488,31 +493,43 @@ function drawAnvils(r, g, e) {
     if (hot < 0.5) { b.fillStyle = '#ff6a1c'; b.fillRect(x - 6, y - 11, 13, 1); }
   });
 }
-function drawCracks(r, g, e) {
-  const Q = e.bx.akCru, b = r.b; if (!Q || !Q.cracks) return;
-  const open = g.t >= Q.openAt, fade = Math.max(0, Math.min(1, (Q.closeAt - g.t) / 0.5));
-  // pixel cracks: the points of each leg on a 2-pixel grid, each drawn as square blocks (a black rim, the red of it, the
-  // molten middle flickering block by block), never a smooth line
-  const G = 2, snap = (v) => Math.round(v / G) * G, px = tilePx(r, Q.cx, Q.cy);
+// (2026-11-11, the user: "either fix the lava cracks or remove the animation and reduce the pixel count because when I rotate
+// the cracks look like they're flickering/vibrating"): they were drawn each frame on the screen's own pixel grid after the
+// camera's turn, so as it turned every block jumped from pixel to pixel, and their middles flickered. Now they are painted
+// once, still, as pixel art on the floor (8 pixels a tile, blocks of one), and that picture is laid down with the floor's
+// own turn, as the ground is: steady as the ground under them. Marked (before they open) the same picture, faint
+const CRACK_PX = 8, crackArt = new Map();
+function crackCanvas(Q) {
+  const key = Q.cracks.map((c) => c[0].join(',')).join(';');
+  let A = crackArt.get(key); if (A) return A;
+  if (crackArt.size > 6) crackArt.clear();
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  for (const c of Q.cracks) for (const [x, y] of c) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+  x0 -= 1; y0 -= 1; x1 += 1; y1 += 1;
+  const W = Math.ceil((x1 - x0) * CRACK_PX), H = Math.ceil((y1 - y0) * CRACK_PX), cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const c2 = cv.getContext('2d'), put = (x, y, q, col) => { c2.fillStyle = col; c2.fillRect(Math.round(x - q / 2), Math.round(y - q / 2), q, q); };
   for (const pts of Q.cracks) {
-    const P = pts.map(([x, y, w]) => [...r.proj(x, y), (w || 0.4) * px]), cells = [];
-    for (let i = 0; i + 1 < P.length; i++) {
-      const [x0, y0, w0] = P[i], [x1, y1, w1] = P[i + 1], n = Math.max(1, Math.ceil(Math.hypot(x1 - x0, y1 - y0) / G));
-      for (let k = 0; k <= n; k++) { const u = k / n, c = [snap(x0 + (x1 - x0) * u), snap(y0 + (y1 - y0) * u), w0 + (w1 - w0) * u]; const L = cells[cells.length - 1]; if (!L || L[0] !== c[0] || L[1] !== c[1]) cells.push(c); }
+    const cells = [];
+    for (let i = 0; i + 1 < pts.length; i++) {
+      const [ax, ay, aw] = pts[i], [bx, by, bw] = pts[i + 1], n = Math.max(1, Math.ceil(Math.hypot(bx - ax, by - ay) * CRACK_PX));
+      for (let k = 0; k <= n; k++) { const u = k / n; cells.push([(ax + (bx - ax) * u - x0) * CRACK_PX, (ay + (by - ay) * u - y0) * CRACK_PX, ((aw || 0.4) + ((bw || 0.4) - (aw || 0.4)) * u) * CRACK_PX]); }
     }
-    b.globalAlpha = fade;
-    if (!open) {                                           // (marked: a seam of single blocks, flickering)
-      if (Math.floor(g.t * 8) % 2) { b.fillStyle = '#ff6a1c'; for (const [x, y] of cells) b.fillRect(x - 1, y - 1, G, G); }
-      continue;
-    }
-    // each block as wide as the crack is there (a black rim, the red, the molten middle), a little ragged block by block
-    const sz = (w, k) => Math.max(G, Math.round((w + ((k * 7) % 3 - 1)) / G) * G);
-    b.fillStyle = '#1a0806'; cells.forEach(([x, y, w], k) => { const q = sz(w + 3, k); b.fillRect(x - q / 2, y - q / 2, q, q); });
-    b.fillStyle = '#c8341a'; cells.forEach(([x, y, w], k) => { const q = sz(w + 1, k); b.fillRect(x - q / 2, y - q / 2, q, q); });
-    b.fillStyle = '#ff6a1c'; cells.forEach(([x, y, w], k) => { const q = sz(w * 0.6, k); b.fillRect(x - q / 2, y - q / 2, q, q); });
-    cells.forEach(([x, y, w], k) => { const f = (k + Math.floor(g.t * 6)) % 5, q = sz(w * 0.3, k); b.fillStyle = f === 0 ? '#fff4c4' : f < 3 ? '#ffd650' : '#ff8a1f'; b.fillRect(x - q / 2, y - q / 2, q, q); });
+    for (const [x, y, w] of cells) put(x, y, Math.max(2, Math.round(w + 2)), '#1a0806');            // (the black rim)
+    for (const [x, y, w] of cells) put(x, y, Math.max(1, Math.round(w)), '#c8341a');                 // the red
+    for (const [x, y, w] of cells) put(x, y, Math.max(1, Math.round(w * 0.55)), '#ff8a1f');          // the molten middle
+    for (const [x, y, w] of cells) if (w > 3) put(x, y, Math.max(1, Math.round(w * 0.25)), '#ffd650');   // (its hottest line, where it is wide)
   }
-  b.globalAlpha = 1;
+  A = { cv, x0, y0 }; crackArt.set(key, A); return A;
+}
+function drawCracks(r, g, e) {
+  const Q = e.bx.akCru, b = r.b; if (!Q || !Q.cracks || !Q.cracks.length) return;
+  const A = crackCanvas(Q), [ox, oy] = r.proj(A.x0, A.y0), [xx, xy] = r.proj(A.x0 + 1, A.y0), [yx, yy] = r.proj(A.x0, A.y0 + 1);
+  const fade = Math.max(0, Math.min(1, (Q.closeAt - g.t) / 0.5)), open = g.t >= Q.openAt;
+  b.save(); b.imageSmoothingEnabled = false;
+  b.globalAlpha = (open ? 1 : 0.35) * fade;
+  b.transform((xx - ox) / CRACK_PX, (xy - oy) / CRACK_PX, (yx - ox) / CRACK_PX, (yy - oy) / CRACK_PX, ox, oy);   // (the floor's own turn and size)
+  b.drawImage(A.cv, 0, 0);
+  b.restore(); b.globalAlpha = 1;
 }
 // the crucible under him (2026-11-11, the user: "Maybe make a small anvil/lava circle in the middle of the two beams so
 // they don't look weird"): while he stands in the middle, a round pool of lava in an iron rim, in blocks on a 2-pixel grid,
