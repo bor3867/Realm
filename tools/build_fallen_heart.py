@@ -88,7 +88,7 @@ def heart(act=1, f=0, attack=False):
     if attack:                                                         # a flare round it as it beats hard
         for k in range(16):
             a = k / 16 * math.tau; c.p(cx + math.cos(a) * 20, cy + math.sin(a) * 18, 'R' if k % 2 else 'G')
-    return c.outline().rows()
+    return c.rows()   # (no drawn outline: the game draws its own thin rim; the two together read thick, the user 2026-11-11)
 
 
 def death(k):
@@ -122,7 +122,7 @@ def saint(f=0):                                                       # a kneeli
     c.line(12, 12 + by, 12, 15 + by, 'H'); c.ell(12, 13 + by, 1.6, 2.2, 'h')       # hands together
     for k in range(12):
         a = k / 12 * math.tau; c.p(12 + math.cos(a) * 5, 2 + by + math.sin(a) * 1.4, 'G')   # a halo
-    return c.outline().rows()
+    return c.rows()   # (no drawn outline: the game draws its own thin rim; the two together read thick, the user 2026-11-11)
 
 
 def pack(name, cell, cols, entries):
