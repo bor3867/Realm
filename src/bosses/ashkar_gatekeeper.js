@@ -5,7 +5,7 @@
 //   I   The Bound Giant (100-70%), held at his chains; 20 s: Red-Hot Chains, Anvil's Sentence, Furnace Teeth, The Press
 //   II  The Furnace Fractures (70-35%), prowling within 7 tiles of the middle; 23 s: Molten Faultlines, Anvil's
 //       Sentence, Armor Shatter, Furnace Teeth, Red-Hot Chains, The Press
-//   III The Unchained (35-0%), hunting; 24 s: Scything Links, Forge Hunt, Inverted Anvil, Anvil's Sentence
+//   III The Unchained (35-0%), hunting; 24 s: The Bellows (once Scything Links), Forge Hunt, Inverted Anvil, Anvil's Sentence
 //   below 15%: The Gatebreaker (an 11.5 s choreography: corridors, inward chains, three hammer cones, eight fissures),
 //       then Anvil's Sentence and Forge Hunt, then again. He can be struck all the while (no immune finale).
 // Under the cycle, in I and II, the anchors throw chain links at you now and then. The vents of Furnace Teeth can be
@@ -200,6 +200,40 @@ function scytheFan(g, e) {
   g.sfx('chain');
 }
 
+// ================================================================ A7b The Bellows (III) (2026-11-11, the user: "the phase where the black
+// circles rotate ashkar is rough. Uninteresting and boring. Need a new unique attack pattern to replace it": the Scything
+// Links, gone). He draws breath for 1 s (its one tell: embers streaming in to his core), then breathes fire for 4.5 s: a fan
+// of three jets every 0.12 s (120), its middle swinging back and forth across 160 degrees like a pendulum, the whole swing
+// turning slowly after you (30 degrees a second), so standing still behind him does not last; each jet bursts into three
+// shards as it dies (80). Leaning in as he breathes (his charge clip). Drawn from S.akBel
+function bellows(g, e) {
+  const S = e.bx, q = target(g, e);
+  S.akBel = { drawAt: g.t, at: g.t + 1.0, until: g.t + 5.5, aim: angleTo(e.x, e.y, q.x, q.y), side: (S.akBelS = -(S.akBelS || 1)), next: 0 };
+  if (g.banner) g.banner('THE BELLOWS DRAW.', 1400);
+  g.sfx('bellows');
+}
+function bellowsTick(g, e, dt) {
+  const S = e.bx, B = S.akBel; if (!B) return;
+  if (g.t > B.until) { S.akBel = null; return; }
+  if (g.t < B.at) return;
+  const q = target(g, e), want = angleTo(e.x, e.y, q.x, q.y), da = Math.atan2(Math.sin(want - B.aim), Math.cos(want - B.aim));
+  B.aim += Math.max(-deg(30) * dt, Math.min(deg(30) * dt, da));          // (the swing turns after you)
+  if (g.t < B.next) return;
+  B.next = g.t + 0.12;
+  const u = (g.t - B.at) / (B.until - B.at), mid0 = B.aim + B.side * deg(80) * Math.sin(u * TAU * 1.25);   // (a pendulum: one and a quarter swings)
+  for (let k = -1; k <= 1; k++) shot(g, e, e.x, e.y, mid0 + k * deg(13), { sprite: 'cinder', size: 0.55, speed: 7.5, range: 11, dmg: D(120), mv: { split: { at: 1.35, n: 3, speed: 4, range: 4, proj: 'slag_shard' } } });
+  if (Math.random() < 0.3) g.vx({ k: 'burst', x: e.x + Math.cos(mid0) * 1.2, y: e.y + Math.sin(mid0) * 1.2 - 1, n: 4, colors: FIRE });
+}
+function drawBellows(r, g, e) {                              // his breath drawn in: embers streaming to his core from all round
+  const B = e.bx.akBel, b = r.b; if (!B || g.t >= B.at) return;
+  const u = (g.t - B.drawAt) / (B.at - B.drawAt), [cx, cy] = r.proj(...CORE(g, e)), px = tilePx(r, e.x, e.y);
+  for (let k = 0; k < 18; k++) {
+    const a = k * 2.399 + k, q = (u * 1.6 + k / 18) % 1, d = (1 - q) * px * 4.5;
+    b.fillStyle = (k + Math.floor(g.t * 12)) % 3 ? '#ff8a1f' : '#ffd650';
+    b.fillRect(Math.round(cx + Math.cos(a) * d) - 1, Math.round(cy + Math.sin(a) * d * 0.7) - 1, q > 0.7 ? 2 : 3, q > 0.7 ? 2 : 3);
+  }
+}
+
 // ================================================================ A8 Forge Hunt (III)
 // three charges at you, each marked 0.85 s (the line locked), up to 5 tiles in 0.65 s (210); at the end of each, seven slow
 // wide cinders on the way he went (90)
@@ -356,7 +390,7 @@ function cruSet(g, e) {                                       // he stands in th
   const q = target(g, e), sg = (S.akCruS = -(S.akCruS || 1)), spin = sg * deg(42), a0 = angleTo(C.x, C.y, q.x, q.y) - sg * deg(110), len = R0 + 3;
   Q.beam = { a0, spin, n: 2, len };
   for (let k = 0; k < Q.beam.n; k++) g.fx.push({ kind: 'lane', x: C.x, y: C.y, a0: a0 + k * Math.PI, a: a0 + k * Math.PI, spin, len, w: 0.6, delay: 2.2, t: 0, life: LIFE, dmg: g.bxDmg(e, D(260)), every: 0.3, broken: 4, by, hitT: 0, noDraw: true, boss: e.id });
-  if (Q.final) { later(e, 4.4, 'cruRaise', { rings: 2, again: true }); return void g.sfx('hammer'); }   // (the last: a blow every 3.6 s, for ever)
+  if (Q.final) { later(e, 4.4, 'cruRaise', { rings: 3, again: true }); return void g.sfx('hammer'); }   // (the last: a blow every 3.6 s, for ever)
   [[4.4, 2], [8.0, 2], [11.6, 3], [15.2, 3]].forEach(([t, rings]) => later(e, t, 'cruRaise', { rings }));
   later(e, CRU_T + 0.1, 'cruEnd');
   g.sfx('hammer');
@@ -364,12 +398,18 @@ function cruSet(g, e) {                                       // he stands in th
 function cruRaise(g, e, V) {                                  // the mace lifted high, then its handle driven into the floor (his smash clip; the blow lands at 0.5 s)
   e.bx.akSmash = { at: g.t, until: g.t + 1.0 };
   later(e, 0.5, 'cruSlam', { rings: V.rings });
-  if (V.again && e.bx.akCru) later(e, 3.6, 'cruRaise', { rings: V.rings === 2 ? 3 : 2, again: true });   // (the last Crucible: on and on, two rings and three by turns)
+  if (V.again && e.bx.akCru) later(e, 3.6, 'cruRaise', { rings: 3, again: true });   // (the last Crucible: on and on, a blow every 3.6 s)
 }
 function cruSlam(g, e, V) {
   thud(g, e, e.x, e.y + 1); g.vx({ k: 'shake', amt: 9 });
   g.fx.push({ kind: 'ring', x: e.x, y: e.y, t: 0, max: 3.5, color: '#ffd650' });
   anvilSpit(g, e, 0);
+  if (e.bx.akCru && e.bx.akCru.final) {                   // (2026-11-11, the user: "Make the ring of shots easier to dodge during the survival/end. One
+    // ring shoots out fastest, one normal, one slower"): the Last Crucible's blow, three rings at once, each its own speed and
+    // set a third of a gap round from the last: they draw apart at once, so there is room between them to slip through
+    [6.2, 4.3, 2.8].forEach((sp, w) => cruRing(g, e, { off: w * (2 / 3), sp }));
+    return;
+  }
   for (let w = 0; w < V.rings; w++) later(e, w * 0.35, 'cruRing', { off: w % 2, sp: 4.3 + w * 0.5 });   // (each ring a little quicker than the last: they never merge)
 }
 // (2026-11-11, the user: "he can have way more shots when he slams the ground"): 40 waves a ring (was 28), 160 each (was 115)
@@ -408,7 +448,7 @@ const P = (name, special, recover, o = {}) => ({ name, special, windup: 0.45, re
 const AT = {
   sentence: P("Anvil's Sentence", 'sentence', 2.1), chains: P('Red-Hot Chains', 'chains', 3.3), teeth: P('Furnace Teeth', 'teeth', 4.3),
   press: P('The Press', 'press', 4.2), faults: P('Molten Faultlines', 'faults', 3.0), shatter: P('Armor Shatter', 'shatter', 2.4),
-  scythe: P('Scything Links', 'scythe', 6.5, { move: 'hold' }), hunt: P('Forge Hunt', 'hunt', 6.4, { move: 'hold' }),
+  bellows: P('The Bellows', 'bellows', 6.0, { move: 'hold' }), hunt: P('Forge Hunt', 'hunt', 6.4, { move: 'hold' }),
   inverted: P('Inverted Anvil', 'inverted', 5.6, { move: 'hold' }), gate: P('The Gatebreaker', 'gatebreaker', 11.5, { move: 'hold' }),
   crucible: P('The Crucible', 'crucible', 22.5, { move: 'crucible', instant: true }),
   last: P('The Last Crucible', 'lastCrucible', 99999, { move: 'crucible', instant: true }),
@@ -416,7 +456,7 @@ const AT = {
 const CYCLE = {
   1: { len: 20, list: [[0, 'chains'], [3.8, 'sentence'], [7.5, 'teeth'], [12.5, 'press']] },
   2: { len: 46.5, list: [[0, 'faults'], [3.3, 'sentence'], [6.8, 'shatter'], [11.4, 'teeth'], [15.2, 'chains'], [19.5, 'press'], [23.7, 'crucible']] },
-  3: { len: 46.5, list: [[0, 'scythe'], [6.7, 'hunt'], [13.0, 'inverted'], [18.0, 'sentence'], [23.6, 'crucible']] },
+  3: { len: 46.5, list: [[0, 'bellows'], [6.7, 'hunt'], [13.0, 'inverted'], [18.0, 'sentence'], [23.6, 'crucible']] },
 };
 const LAST = ['gate', 'sentence', 'hunt'];                 // (below 15%: the Gatebreaker cycle, before the Last Crucible took its place)
 function choose(g, e) {
@@ -547,7 +587,7 @@ export default {
   charging: (g, e) => !!(e.akDash && g.t >= e.akDash.at),   // (his Forge Hunt's charges)
   specials: { sentence, sentenceLock, sentenceWave, chains, chainSweep, teeth, tooth, teethDone, press, pressMark, pressWall, faults, fault, shatter, plates, sparkle,
     scythe, scytheGo, scytheFan, hunt, charge, inverted, invRing, invHold, invBack, gatebreaker, gateLinks, gateCone, gateFaults, anchorShot, coreShot,
-    crucible, cruRaise, cruSlam, cruRing, cruEnd, anvilStrike, lastCrucible, cruVulnerable },
+    crucible, cruRaise, cruSlam, cruRing, cruEnd, anvilStrike, lastCrucible, cruVulnerable, bellows },
   // the Last Crucible's survival: nothing hurts him till its 20 s are over
   immune: (g, e) => e.bx.phase === 3 && e.hp / e.maxHp <= 0.15 && !(e.bx.akFinal && e.bx.akFinal.open), immuneText: 'SURVIVE',   // (from 15% till its 20 s are over: no one bursts him past it)
   // his own clips between attacks: the Crucible's great blow, an anvil struck, standing still in the Crucible (src/bossx.js bxPose)
@@ -557,6 +597,7 @@ export default {
     if (S.akSmash && g.t < S.akSmash.until) return clip('smash' + ph);
     if (S.akStrike && g.t < S.akStrike.until) return clip('strike' + ph);
     if (S.akCru && S.akCru.stage === 'set') return clip(P0.idle);
+    if (S.akBel && g.t >= S.akBel.at) return clip(P0.charge || P0.idle);   // (breathing fire: leaning in)
     return false;
   },
   moves: {
@@ -582,7 +623,7 @@ export default {
   onWake(g) { if (g.banner) g.banner('THE CHAINED FORGE-GIANT', 2800); },
   onPhase(g, e, ph) {
     const S = e.bx, [cx, cy] = CORE(g, e);
-    S.akScythe = null; S.akChains = null; e.akDash = null;
+    S.akScythe = null; S.akChains = null; e.akDash = null; S.akBel = null;
     if (ph === 2) {                                        // the armour cracks; every chain snaps off him; ash, but no harm
       if (g.banner) g.banner('THE FURNACE FRACTURES', 2400);
       g.vx({ k: 'shake', amt: 8 }); g.vx({ k: 'burst', x: cx, y: cy, n: 40, colors: [...GLASS, ...FIRE] }); g.sfx('shatter'); g.sfx('chain');
@@ -610,6 +651,7 @@ export default {
     const S = e.bx;
     if (S.state === 'sleep' || S.state === 'intro') return;
     if (S.phase === 3 && e.hp / e.maxHp <= 0.15 && !S.akFinal && !S.akCru && S.state === 'recover') S.wait = Math.min(S.wait, 0.3);   // (the Last Crucible: at once)
+    bellowsTick(g, e, dt);
     if (S.akStrike && !S.akStrike.done && g.t >= S.akStrike.hitAt) { S.akStrike.done = true; anvilSpit(g, e, S.akStrike.i); }   // (the anvil struck)
     if (S.akStrike && g.t > S.akStrike.until) S.akStrike = null;
     if (S.akSmash && g.t > S.akSmash.until) S.akSmash = null;
@@ -647,7 +689,7 @@ export default {
   },
   onDeath(g, e) {                                          // the hammer falls, the core implodes, the chains fall silent
     const S = e.bx, [cx, cy] = CORE(g, e);
-    teethDone(g, e); e.akDash = null; S.akHot = null; S.akScythe = null; S.akChains = null; S.akDead = true; S.akCru = null; S.akSmash = null; S.akStrike = null;
+    teethDone(g, e); e.akDash = null; S.akHot = null; S.akScythe = null; S.akChains = null; S.akDead = true; S.akBel = null; S.akCru = null; S.akSmash = null; S.akStrike = null;
     for (let k = 0; k < 10; k++) { const a = (k / 10) * TAU; g.vx({ k: 'burst', x: cx + Math.cos(a) * 3, y: cy + Math.sin(a) * 3, n: 6, colors: FIRE }); }
     g.fx.push({ kind: 'ring', x: e.x, y: e.y, t: 0, max: 5, color: '#fff4c4' }); g.vx({ k: 'shake', amt: 10 }); g.sfx('hammer');
     if (g.banner) g.banner('THE GREAT SUN DOOR IS UNSEALED.', 3200);
@@ -657,7 +699,7 @@ export default {
   // lying still by each anchor, red-hot when he works it, and the links that fell off him; in III only the blocks; and the
   // scything links' path ahead
   drawGround(r, g, e) {
-    drawAnvils(r, g, e); drawCracks(r, g, e); drawBeam(r, g, e); drawPool(r, g, e);
+    drawAnvils(r, g, e); drawBellows(r, g, e); drawCracks(r, g, e); drawBeam(r, g, e); drawPool(r, g, e);
     const S = e.bx, b = r.b, ph = S.phase || 1, [sx, sy] = r.proj(e.x, e.y), hot = S.akHot && g.t < S.akHot.until ? S.akHot.ids : [];
     for (let i = 0; i < 4; i++) {
       const A = anchor(e, i), [ax, ay] = r.proj(A.x, A.y), side = A.x < e.x ? -1 : 1, wx = sx + (side < 0 ? -26 : 40), wy = sy - (side < 0 ? 57 : 40);   // (his wrists, on the user's sprite)

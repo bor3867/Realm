@@ -69,7 +69,7 @@ Then open http://localhost:5173.
    | The Fallen Star | star mines, burning constellations |
    | The Tidebound Lich | the soul swap, lights out |
    | The Forgeheart Colossus | eruption lanes, the reflecting bulwark |
-   | Ashkar, the Chained Forge-Giant | chains swept from four anchors, anvils he strikes that spit molten chunks, the Crucible (cracks of lava, a fire beam turning about him, the handle of his mace driven into the floor in rings of waves) |
+   | Ashkar, the Chained Forge-Giant | chains swept from four anchors, anvils he strikes that spit molten chunks, the Bellows (a fan of fire jets swinging like a pendulum, turning after you), the Crucible (cracks of lava, a fire beam turning about him, the handle of his mace driven into the floor in rings of waves) |
 
    All bosses have 60% more life and hit 30% harder than before.
 4. **Permadeath**: when you die the character is gone, but your fame, vault and graveyard remain.
