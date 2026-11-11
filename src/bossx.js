@@ -10,6 +10,8 @@ import { lift, angleUp } from './util.js';
 import { Anim } from './anim.js';
 import { BX } from './bosses/index.js';
 import { isSolid, TID } from './world/maps.js';
+// the castle's great bosses, and how long each kneels before it bursts (s): Solkhar keeps the 4 s his death had
+const KNEEL = { drawbridge_technician: 1.8, jarl_warrior: 1.8, jarl_wizard: 1.8, forge_overseer: 1.8, ashkar_gatekeeper: 2.2, unstruck_god: 3.6 };
 
 const TAU = Math.PI * 2, R = Math.random;
 const angleTo = (x0, y0, x1, y1) => Math.atan2(y1 - y0, x1 - x0);
@@ -51,6 +53,16 @@ export const BXF = {
       const R0 = e.room;
       const M0 = R0 && R0.master && this.map.masterOwn;   // (a room of the castle's fixed footprint: in it by its own floor, not its box, which can take in a corner of the next)
       if (!R0 || (M0 ? this.map.masterOwn(Math.floor(p.x), Math.floor(p.y)) === R0.master : p.x > R0.x && p.x < R0.x + R0.w && p.y > R0.y && p.y < R0.y + R0.h)) this.bxWake(e);
+      return;
+    }
+    if (S.kneel && !S.finished) {                               // on its knee: trembling, then it bursts (bxDie)
+      const k = (this.t - S.kneel.at) / S.kneel.T;
+      if (k > 0.35 && Math.random() < 0.1) this.vx({ k: 'shake', amt: 1 + k * 4 });
+      if (k >= 1) {
+        this.vx({ k: 'shake', amt: 12 }); this.sfx('bigkill');
+        if (S.B.death && S.B.death.burst) { S.burstUntil = this.t + 1.5; S.B.death.burst(this, e); }
+        this.bxFinish(e);
+      }
       return;
     }
     if (S.state === 'deathhold') {                              // dead on its last frame, shaking; then it bursts
@@ -391,6 +403,14 @@ export const BXF = {
     S.state = 'death'; S.vol = []; e.invulnT = 99; e.hp = 1;
     this.bxClearBullets(e);
     if (S.B.onDeath) S.B.onDeath(this, e);
+    // the castle's great bosses (2026-11-11, the user: "instead of a million pixel death animation, animate them 'falling'
+    // onto a knee or something before exploding on death. The million pixel fade thing looks terrible"): no death clip, no
+    // fade; it staggers, drops to a knee and trembles as its light gathers, then bursts and is gone (render.js kneelBoss)
+    if (KNEEL[S.B.id]) {
+      const P = S.def.phases && S.def.phases[S.phase], H = P && P.hurt && S.def.anims[P.hurt];
+      S.kneel = { at: this.t, T: KNEEL[S.B.id], fr: (H && H.frames[0]) || (S.anim && S.anim.frame) || Object.keys(S.def.frames)[0] };
+      return;
+    }
     if (S.anim && S.def.anims[S.def.death]) S.anim.play(S.def.death, { speed: (S.B.death && S.B.death.speed) || 1 }); else this.bxFinish(e);   // a boss may die slower
   },
   bxFinish(e) {

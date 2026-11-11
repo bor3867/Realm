@@ -374,6 +374,7 @@ export class Renderer {
     if (g.activeMap === m) for (const e of g.notable) if (e.bx && e.bx.B.drawTop && !e.dead) { try { e.bx.B.drawTop(this, g, e); } catch (err) { if (!e.net) throw err; } }   // a boss's layer over the bullets (the Orrery's umbra)
     this.drawZaps(dt);
     this.drawParticles(dt);
+    this.drawBlasts(dt);
     this.drawSprFx(dt);
     if (g.activeMap === m) this.statusIcons(g);                  // what ails each monster, and you: little icons over the head
     if (g.darkUntil > g.t && g.darkBy && !g.darkBy.dead) this.darkFx(g);
@@ -1623,6 +1624,7 @@ export class Renderer {
   bxBoss(g, e, sx, sy) {
     const S = e.bx;
     if (!S || !S.def || !S.anim) return;
+    if (S.kneel) { if (!e.dead) this.kneelBoss(g, e, S, sx, sy); return; }   // (dying to a knee; once it bursts, gone at once)
     const def = S.def, fr = e.dead ? def.anims[def.death].frames.slice(-1)[0] : S.anim.frame;
     const K0 = S.B.drawScale || 1;                         // (its art's own scale: Ashkar's is drawn at half)
     S.drawK = (S.drawK || K0) + ((S.B.scaleFor ? S.B.scaleFor(g, e) : 1) * K0 - (S.drawK || K0)) * 0.04;   // a boss may grow (the Orrery in its Collapse), eased
@@ -1638,6 +1640,58 @@ export class Renderer {
     } else this.drawDef(def, fr, sx, sy + hy - (S.leapZ || 0) + (e.bxLift ? Math.round(e.bxLift * TS * K) : 0), { flip: !!e.face, scale: K });   // no hit flash on bosses (a grounded one: centred on its spot)
     this.b.globalAlpha = 1;
     if (S.B.draw) { try { S.B.draw(this, g, e, sx, sy); } catch (err) { if (!e.net) throw err; } }
+  }
+  // a great boss's burst (2026-11-11, the user: "before exploding on death. The million pixel fade thing looks terrible"):
+  // a blocky fireball swelling and going out, and heavy chunks in the boss's own colours thrown out and falling; each
+  // block 3 to 6 buffer pixels, never single specks
+  bossBlast(e, cols) {
+    const [x, y] = lift(e.x, e.y, (e.hitUp || 1) * 0.6), C = (cols && cols.length ? cols : ['#c8c0d8']).slice(0, 6);
+    const chunks = [];
+    for (let i = 0; i < 26; i++) { const a = (i / 26) * Math.PI * 2 + Math.random() * 0.3, v = 3 + Math.random() * 5; chunks.push({ vx: Math.cos(a) * v, vy: Math.sin(a) * v * 0.7 - 2.5, s: 3 + Math.floor(Math.random() * 4), c: C[i % C.length], spin: Math.random() < 0.5 }); }
+    (this.blasts = this.blasts || []).push({ x, y, t: 0, chunks });
+  }
+  drawBlasts(dt) {
+    if (!this.blasts || !this.blasts.length) return;
+    const b = this.b, FIRE = ['#ffffff', '#fff1b0', '#ffd650', '#ff8a1f', '#e8401a', '#7a2a1a'];
+    for (const B of this.blasts) {
+      B.t += dt;
+      const [cx, cy] = this.proj(B.x, B.y), T = B.t;
+      if (T < 0.7) {                                          // the fireball: rings of blocks, hottest inside, swelling then thinning
+        const R = 6 + T * 70, n = Math.floor(R / 4);
+        for (let r = 0; r < n; r++) {
+          const rr = r * 4, col = FIRE[Math.min(5, Math.floor((rr / R) * 4 + T * 4))], m = Math.max(6, Math.floor(rr * 0.8));
+          if (T > 0.35 && (r + Math.floor(T * 20)) % 3 === 0) continue;   // (breaking up as it burns out)
+          b.fillStyle = col;
+          for (let k = 0; k < m; k++) { const a = (k / m) * Math.PI * 2 + r; b.fillRect(Math.round(cx + Math.cos(a) * rr) - 2, Math.round(cy + Math.sin(a) * rr * 0.75) - 2, 4, 4); }
+        }
+      }
+      for (const c of B.chunks) {                             // the pieces: thrown out, falling, gone at 1.2 s
+        const px = cx + c.vx * T * 12, py = cy + (c.vy * T + 9 * T * T) * 12;
+        if (T > 1.2) continue;
+        b.globalAlpha = T > 0.9 ? (1.2 - T) / 0.3 : 1;
+        b.fillStyle = '#05040a'; b.fillRect(Math.round(px) - 1, Math.round(py) - 1, c.s + 2, c.s + 2);
+        b.fillStyle = c.c; b.fillRect(Math.round(px), Math.round(py), c.s, c.spin && Math.floor(T * 12) % 2 ? Math.max(2, c.s - 2) : c.s);
+        b.globalAlpha = 1;
+      }
+    }
+    this.blasts = this.blasts.filter((B) => B.t < 1.3);
+  }
+  // a great boss falling to a knee (bossx bxDie): its hurt pose, the body above the hips sinking as the legs fold under it
+  // (the legs drawn shorter, the feet where they stood), a lean forward, then trembling till it bursts
+  kneelBoss(g, e, S, sx, sy) {
+    const def = S.def, f = def.frames[S.kneel.fr]; if (!f) return;
+    const k0 = Math.min(1, (g.t - S.kneel.at) / 0.45), k = 1 - (1 - k0) ** 3;          // (a heavy drop, quick then settling)
+    const U = this.U || 1, Kd = 2 * (S.drawK || S.B.drawScale || 1), I = outlinedFrame(def.img, f.x, f.y, f.w, f.h, U * Kd, undefined, U >= 2 ? 2 : 1), pad = I.pad / U;
+    const ay = def.foot[1], hip = ay * 0.6, q = 1 - 0.55 * k, legH = I.height / U - pad - hip * Kd, sink = legH * (1 - q);
+    const b = this.b, shake = (g.t - S.kneel.at) / S.kneel.T > 0.35 ? Math.round((Math.random() - 0.5) * 2) : 0;
+    if (!S.B.noShadow) this.shadow(sx, sy, Math.min(48 * Kd / 2, f.w * Kd * 0.55));
+    b.save(); b.translate(Math.round(sx) + shake, Math.round(sy));
+    if (e.face) b.scale(-1, 1);
+    b.rotate(-0.07 * k);                                                                  // (leaning forward over the knee)
+    const dx = -Math.round(def.foot[0] * Kd) - pad, dy = -Math.round(ay * Kd) - pad, cut = Math.round((pad + hip * Kd) * U);
+    b.drawImage(I, 0, 0, I.width, cut, dx, dy + sink, I.width / U, cut / U);                                   // above the hips
+    b.drawImage(I, 0, cut, I.width, I.height - cut, dx, dy + cut / U + sink, I.width / U, (I.height - cut) / U * q);   // the legs, folding
+    b.restore();
   }
   // the overworld bosses keep the sprites they always had, though they fight on the three-phase engine now: their sheet
   // in realm_bosses, and the remaster's later phases, morphs and death (src/remaster.js), read from the engine's state
@@ -2555,6 +2609,7 @@ export class Renderer {
           cols = this.colorsOf('e:' + e.id, S.img, 0, row * 16, 16, 16);
         } else cols = ['#ffffff', '#c8c0d8', '#8a8098'];                 // anything without art on the old sheets: a plain burst, never a crash
         const champ = e.D.sheet === 'champions';
+        if (e.bx && e.bx.kneel) { this.bossBlast(e, cols); continue; }   // (a great castle boss bursts: big blocks of fire and of itself, not a spray of specks)
         if (!e.rb) this.sprFx('death_poof', ...lift(e.x, e.y, 0.5), 12);
         this.spray(e.x, e.y, v.big ? 70 : champ ? 30 : 16, cols, v.big ? 9 : champ ? 7 : 5, v.big ? 1.1 : 0.8, v.big ? 30 : champ ? 16 : 8);
       }
