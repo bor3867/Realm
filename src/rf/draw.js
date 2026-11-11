@@ -100,6 +100,7 @@ const methods = {
   rfEnemy(g, E, e, rx, ry) {
     const A = this.rfCreature(g.map, e.k), d = e.d, b = this.b;
     if (!A) return;
+    if (e.hp <= 0 && !e.boss) return;                           // (an ordinary creature is gone the moment it dies: no fade. 2026-11-11, the user)
     const im = e.dormant && A.idle ? A.idle[0] : fr(A.f, e.f), K = im.height <= 10 ? 2 : 1;   // 8px art at the player's pixel size, bigger art at the fine size
     const zy = Math.round((e.z || 0) * TS), h = im.height * K; e.rfH = h;
     if (e.hidden) {                                            // under the ground (or phased): only a stir of dust

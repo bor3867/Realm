@@ -280,7 +280,8 @@ export class Renderer {
     }
     const drawn = g.activeMap === m ? new Set(g.active) : null;
     if (drawn) { for (const e of g.notable) drawn.add(e); for (const e of g.enemies) if (e.dead && e.deadT < 1.4) drawn.add(e); }
-    for (const e of drawn || g.enemies) add(e.x, e.y, (sx, sy) => this.enemy(g, e, sx, sy));
+    // (the dead are not drawn: no fade, no death frames, RotMG's way, 2026-11-11; only a boss, or the melon, falls on screen)
+    for (const e of drawn || g.enemies) if (!e.dead || e.rb || e.bx || e.D.bx || e.D.melon) add(e.x, e.y, (sx, sy) => this.enemy(g, e, sx, sy));
     add(g.player.x, g.player.y, (sx, sy) => this.player(g, g.player, sx, sy));
     for (const o of g.netHere()) add(o.x, o.y, (sx, sy) => this.player(g, o, sx, sy));   // the other players (src/net.js)
     for (const L of g.player.orbsLive || []) add(...lift(L.B.x, L.B.y, -0.5), () => this.orbiter(g, L));   // what circles you (src/orbiters.js)
@@ -2534,6 +2535,7 @@ export class Renderer {
         this.spray(v.x, v.y, 2, [col], 1.2, 0.35, 3, true);
       } else if (v.k === 'death') {
         const e = v.e;
+        if (!(e.rb || e.bx || e.D.bx || e.D.melon)) continue;          // (an ordinary monster just vanishes: no poof, no spray. 2026-11-11, the user)
         let cols;
         const xd = e.bx && e.bx.def, xf = xd && Object.values(xd.frames)[0];
         if (xf) cols = this.colorsOf('bx:' + e.D.bx, xd.img, xf.x, xf.y, xf.w, xf.h);   // a three-phase boss: its own art (it has no row on the old sheets)

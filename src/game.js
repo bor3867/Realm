@@ -2916,7 +2916,10 @@ export class Game {
   // loot waits for what dropped it to be gone (2026-11-01, the user: "have the bag spawn the moment after the sprite fully
   // goes away. Wait for any death animation to finish"): a monster fades out in 0.6 s, an old-style boss in 1.4 s; a
   // boss on the newer engine has played its whole death before it is dead, and is gone 0.2 s after
-  deathDelay(e) { return e.bx ? 0.25 : e.rb ? 1.4 : 0.6; }
+  // (2026-11-11, the user: "Instead of death animations on any non-boss creature, let's just have the classic rotmg
+  // experience where they disappear and bags appear the frame right after": a boss keeps its fall; anything else is gone
+  // the moment it dies, its bag on the next frame)
+  deathDelay(e) { return e.bx ? 0.25 : e.rb ? 1.4 : 0.001; }
   addBagLater(delay, x, y, items, one = false, then = null) {
     (this.bagQ || (this.bagQ = [])).push({ at: this.t + delay, map: this.map, x, y, items, one, then });
   }
