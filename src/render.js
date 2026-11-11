@@ -389,6 +389,33 @@ export class Renderer {
     this.overlays(g);
     if (g.map.rf) this.rfModHud(g, g.map);                    // a Realmforge module's status line (src/rf/draw.js)
     this.minimap(g);
+    this.warmOutlines(g, 2);
+  }
+  // the map's things readied ahead (2026-11-11, for speed): a sprite is outlined the first time it is drawn, a few
+  // milliseconds for a big tree, and walking the realm brought several into view at once: a stutter. So each frame
+  // spends up to `ms` outlining the map's things before they are needed, the nearest kinds first.
+  warmOutlines(g, ms) {
+    const m = g.map, U = this.U || 1;
+    if (!m || !this.R) return;
+    if (this.warmOf !== m || this.warmU !== U) {
+      this.warmOf = m; this.warmU = U; this.warmQ = []; this.warmI = 0;
+      const near = new Map(), p = g.player;
+      for (const o of m.objects) {
+        if (!o.sprite || !o.sprite.includes('/') || o.hidden) continue;
+        const d = p ? Math.abs(o.x - p.x) + Math.abs(o.y - p.y) : 0, k = o.sprite + '|' + (o.scale || 1);
+        if (!(near.get(k) <= d)) near.set(k, d);
+      }
+      for (const [k] of [...near].sort((a, b) => a[1] - b[1])) {
+        const [name, sc] = k.split('|'), def = this.R.resolve(name);
+        if (!def || !def.outline) continue;
+        const K = 2 * +sc, fs = new Set();
+        for (const A of Object.values(def.anims || {})) for (const fn of A.frames) fs.add(fn);
+        for (const fn of fs) { const f = def.frames[fn]; if (f) this.warmQ.push([def.img, f.x, f.y, f.w, f.h, U * K]); }
+      }
+    }
+    const Q = this.warmQ; if (this.warmI >= Q.length) return;
+    const t0 = performance.now();
+    while (this.warmI < Q.length && performance.now() - t0 < ms) { const [img, x, y, w, h, UK] = Q[this.warmI++]; outlinedFrame(img, x, y, w, h, UK, undefined, U >= 2 ? 2 : 1); }
   }
 
   // ------------------------------------------------------------ ground (rotates as one image)
@@ -409,6 +436,7 @@ export class Renderer {
     if (this.chunkMap !== m) { this.chunkMap = m; this.chunks = new Map(); this.fogs = new Map(); }
     const C = GROUND_CHUNK, cx0 = Math.floor(tx0 / C), cy0 = Math.floor(ty0 / C), cx1 = Math.floor((tx0 + n) / C), cy1 = Math.floor((ty0 + n) / C);
     for (let cy = cy0; cy <= cy1; cy++) for (let cx = cx0; cx <= cx1; cx++) gc.drawImage(this.groundChunk(g, m, cx, cy, anim).c, cx * C * TS - ox, cy * C * TS - oy);
+    this.readyNext(m, cx0, cy0, cx1, cy1, anim, 3);
     this.composeWallTops(g, m, ox, oy, cx0, cy0, cx1, cy1, anim);   // the walls' tops, lifted over all this (src/walls.js)
     // ground light first, then the fog over it: the unexplored stays black, never tinted
     if (!this.settings || this.settings.groundLight !== false) {
@@ -437,12 +465,34 @@ export class Renderer {
   groundChunk(g, m, cx, cy, anim) {
     const key = cx * 65536 + cy, K0 = this.chunks.get(key), base = this.chunkSig(m, cx, cy, 1, false);
     if (K0 && K0.base === base && (!K0.moving || (K0.moving === 2 ? K0.anim === anim : K0.anim >> 2 === anim >> 2))) return this.keepChunk(this.chunks, key, K0);
+    // (its next step, drawn ahead by readyNext: swapped in, the same picture, without the work landing on this frame)
+    if (K0 && K0.nx && K0.nxBase === base && K0.moving && (K0.moving === 2 ? K0.nxAnim === anim : K0.nxAnim >> 2 === anim >> 2)) {
+      const c = K0.c; K0.c = K0.nx; K0.nx = c; K0.anim = K0.nxAnim; K0.nxAnim = -1;
+      return this.keepChunk(this.chunks, key, K0);
+    }
     const C = GROUND_CHUNK, K = K0 || { c: Object.assign(document.createElement('canvas'), { width: C * TS, height: C * TS }) };
     const ctx = K.c.getContext('2d'); ctx.imageSmoothingEnabled = false; ctx.clearRect(0, 0, C * TS, C * TS);
     let moving = 0;
     for (let ty = cy * C; ty < cy * C + C; ty++) for (let tx = cx * C; tx < cx * C + C; tx++) moving = Math.max(moving, this.groundTile(ctx, m, tx, ty, (tx - cx * C) * TS, (ty - cy * C) * TS, anim));
     K.base = base; K.moving = moving; K.anim = anim;
     return this.keepChunk(this.chunks, key, K);
+  }
+  // the ground's moving chunks in view (water, lava, swaying grass) step together: every one of them redrawn in the same
+  // frame, a stutter two to nine times a second in the realm (2026-11-11, for speed). So between steps each one's next
+  // step is drawn ahead, a few a frame, into a second canvas; groundChunk swaps it in when the step comes.
+  readyNext(m, cx0, cy0, cx1, cy1, anim, ms) {
+    const t0 = performance.now(), C = GROUND_CHUNK;
+    for (let cy = cy0; cy <= cy1; cy++) for (let cx = cx0; cx <= cx1; cx++) {
+      const K = this.chunks.get(cx * 65536 + cy);
+      if (!K || !K.moving) continue;
+      const next = K.moving === 2 ? K.anim + 1 : ((K.anim >> 2) + 1) << 2;
+      if (K.nxAnim === next && K.nxBase === K.base) continue;
+      if (performance.now() - t0 > ms) return;
+      if (!K.nx) K.nx = Object.assign(document.createElement('canvas'), { width: C * TS, height: C * TS });
+      const ctx = K.nx.getContext('2d'); ctx.imageSmoothingEnabled = false; ctx.clearRect(0, 0, C * TS, C * TS);
+      for (let ty = cy * C; ty < cy * C + C; ty++) for (let tx = cx * C; tx < cx * C + C; tx++) this.groundTile(ctx, m, tx, ty, (tx - cx * C) * TS, (ty - cy * C) * TS, next);
+      K.nxAnim = next; K.nxBase = K.base;
+    }
   }
   // a fluid's tile, its texture shifted by off pixels (down and to the right, slowly), wrapping round: every tile of it
   // on the same shift, so the whole sheet drifts together, RotMG's way (it used to flip between frames, each tile at

@@ -62,7 +62,8 @@ const methods = {
       e.dead = true; e.deadT = 9; e.rotted = true;
       this.vx({ k: 'burst', ...liftO(e.x, e.y, 0.4), n: 20, colors: ['#4a6a2a', '#8a6a3a', '#3a3a2a'] });
     }
-    if (m.objects.some((o) => o.melonOpen && this.t > o.until)) { m.objects = m.objects.filter((o) => !o.melonOpen || this.t <= o.until); m.ogridDirty = true; }
+    if (m.melonHalves && m.objects.some((o) => o.melonOpen && this.t > o.until)) {   // (only while a burst melon's halves lie there)
+      m.melonHalves = m.objects.filter((o) => o.melonOpen).length - m.objects.filter((o) => o.melonOpen && this.t > o.until).length; m.objects = m.objects.filter((o) => !o.melonOpen || this.t <= o.until); m.ogridDirty = true; }
   },
   melonLoot() {
     const items = [];
@@ -84,6 +85,7 @@ const methods = {
     for (const dx of [-1.3, 1.3]) this.vx({ k: 'regfx', key: 'mx_effects/juice_splash', x: e.x + dx, y: e.y - 0.2, fps: 10 });   // a splash each side: the burst itself stays in view
     this.vx({ k: 'shake', amt: 3 });
     (m.melonDrops = m.melonDrops || []).push({ x: e.x, y: e.y, at: this.t + MELON.dropAt, items: this.melonLoot() });
+    m.melonHalves = (m.melonHalves || 0) + 1;
     m.objects.push({ sprite: ART, x: e.x, y: e.y, solid: false, melonOpen: true, born: this.t + MELON.dropAt, until: this.t + MELON.dropAt + MELON.open });
     m.ogridDirty = true;
     this.banner('The Giant Watermelon bursts open!', 2400);

@@ -30,7 +30,10 @@ export function outlinedFrame(img, sx, sy, w, h, U = 1, col = '#05040a', rim = 0
   // (2026-11-11, the user: "ensure all borders are thin black": every sprite's drawn edge off, the one thin black rim on;
   // the soft rim in the sprite's own darkened colours (the castle's, 2026-11-02) is black now too)
   if (col === 'self') col = '#05040a';
-  a.drawImage(bare(img, sx, sy, w, h), 0, 0, W, H);
+  // (the stripped frame kept once per frame, not made again for every size and colour it is drawn at: 2026-11-11, for speed)
+  const bk = `b${sx}|${sy}|${w}|${h}`;
+  let bf = per.get(bk); if (!bf) { bf = bare(img, sx, sy, w, h); per.set(bk, bf); }
+  a.drawImage(bf, 0, 0, W, H);
   const sil = document.createElement('canvas'); sil.width = W; sil.height = H;
   const s = sil.getContext('2d');
   s.drawImage(art, 0, 0);

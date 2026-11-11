@@ -4,7 +4,7 @@ import { R, rng, clamp, dist, dist2, angleTo, TAU, CAM, lift, liftO, liftA, lift
 import { CLASSES, START_KIT, STATS, MAX_LEVEL, FAME_XP, FAME_GOALS, xpToNext, moveSpeed, fireRate, dmgMult, hpRegen, mpRegen, mitigate } from './data/classes.js';
 import { ITEMS, SETS, rollLoot, bagFor, canEquip, TYPE_SLOT, BAG_ORDER, BAG_NAMES, WEAPON_TYPES, ARMOR_TYPES, ABILITY_TYPES, ADMIN_SET, TIER_CAP, ladderTier, LOOT_GATE, ARMORY_IDS, bagRank } from './data/items.js';
 import { ENEMIES, PACKS, CAMP_LOOT, BIOME_SPAWNS, REALM_BOSSES, PARENTS, HERALDS, BIOME_BOSS, EVENTS_TO_BOSS, GROUPS, DUNGEONS, DUNGEON_BOSSES, FIRECAMP_BANDS, DUNGEON_RATING, portalDrop2 as portalDrop } from './data/enemies.js';
-import { nexus, vaultRoom, realm, dungeon, isSolid, shotBlocked, biomeAt, randomTileInBiome, BIOMES, BIOME_RING, BIOME_LABEL, TID } from './world/maps.js';
+import { nexus, vaultRoom, realm, dungeon, isSolid, shotBlocked, objectsIn, biomeAt, randomTileInBiome, BIOMES, BIOME_RING, BIOME_LABEL, TID } from './world/maps.js';
 import { writeSave } from './save.js';
 import { keyParen } from './settings.js';
 import { SHOT_BOXES, SHOT_BIG } from './data/shot_boxes.js';
@@ -3802,7 +3802,8 @@ export class Game {
   }
   openChests() {                                             // walking up to a chest only tells you what to do
     const p = this.player;
-    for (const o of this.map.objects) {
+    // (only the things beside you: the realm holds 40,000 and this runs every frame. 2026-11-11, for speed)
+    for (const o of objectsIn(this.map, p.x - 3, p.y - 3, p.x + 3, p.y + 3)) {
       if (o.interact !== 'chest' || o.opened || o.told || dist2(o.x, o.y, p.x, p.y) > 2.2) continue;
       o.told = true;
       if (o.guards && o.guards.some((g) => !g.dead)) this.toast('The guards still stand. Deal with them first.');
@@ -4033,7 +4034,7 @@ export class Game {
     if (best !== this.nearBag) { this.nearBag = best; this.events.push({ type: 'ground' }); }
     // nexus objects
     let vault = null, npc = null;
-    for (const o of this.map.objects) {
+    for (const o of objectsIn(this.map, p.x - 3, p.y - 3, p.x + 3, p.y + 3)) {     // (the things beside you, not all of the realm's)
       if (!o.interact || dist(o.x, o.y, p.x, p.y) > 1.6) continue;
       if (o.interact === 'vault') vault = o.chest || 0;
       if (o.interact === 'fountain') { p.hp = this.stat('hp'); p.mp = this.stat('mp'); }
@@ -4311,8 +4312,9 @@ export class Game {
     // waypoints and named sites: discovered when you first walk up to them
     if (m.kind === 'realm' && (this.frameN || 0) % 10 === 0) {
       const known = p.waypoints || (p.waypoints = []);
-      for (const o of m.objects) {
-        if (o.interact !== 'waypoint') continue;
+      // (the realm's waypoints picked out of its 40,000 things once, again only when things are added or taken: 2026-11-11, for speed)
+      if (!m.wpList || m.wpOf !== m.objects || m.wpLen !== m.objects.length) { m.wpOf = m.objects; m.wpLen = m.objects.length; m.wpList = m.objects.filter((o) => o.interact === 'waypoint'); }
+      for (const o of m.wpList) {
         const has = known.includes(o.name);
         if (has && o.sprite !== 'waypoint_on') o.sprite = 'waypoint_on';
         if (!has && dist2(o.x, o.y, p.x, p.y) < 9) {

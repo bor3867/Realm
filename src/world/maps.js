@@ -1,6 +1,6 @@
 // Map generation: the Nexus (hub), the Realm (procedural island), the Drowned Forge (dungeon).
 import { keyParen } from '../settings.js';
-import { rng, noise2, dist } from '../util.js';
+import { rng, noise2, dist, TAU } from '../util.js';
 import { AREAS, WAYS, LOCKS, MECHS, GEYSERS, SECRETS } from './castle_plan.js';
 import { ROOMS, MASTER_PAGES, fitPage } from './castle_rooms.js';
 import { buildMaster, K as MK, WORLD as MWORLD, LOCK_DOORS, WEST_DOOR, toWorld as mWorld, ROOMS as MROOMS, MAIN_LINES, LINKS as MLINKS, SCALE as MSCALE } from './castle_master.js';
@@ -549,6 +549,8 @@ const SITES = [
   { name: 'The Bleeding Fountain', in: [3], kind: 'bloodfountain' }, { name: 'Thistle Farm', in: [7], kind: 'farm' },
 ];
 
+// an angle brought into -PI..PI (as atan2(sin q, cos q) did, at a tenth of the cost: 2026-11-11, for speed)
+const wrapA = (q) => { while (q > Math.PI) q -= TAU; while (q < -Math.PI) q += TAU; return q; };
 export function realm(seed) {
   const S = REALM_SIZE, C = S / 2;
   const m = makeMap('realm', 'The Realm', S, S, TID.deep);
@@ -570,7 +572,7 @@ export function realm(seed) {
     const wob = (px, py) => (n4(px / (40 * RK), py / (40 * RK)) - 0.5) * 1.1;
     let d = d0, ang = Math.atan2(y - C, x - C) + wob(x, y);
     let near = Math.abs(d0 - 0.78) < 0.03 || Math.abs(d0 - 0.52) < 0.03 || Math.abs(d0 - 0.27) < 0.03;
-    for (let k = 0; k < SEC.length && !near; k++) { const q = ang - SEC[k][0]; near = Math.abs(Math.abs(Math.atan2(Math.sin(q), Math.cos(q))) - SEC[k][1]) < 0.09; }
+    for (let k = 0; k < SEC.length && !near; k++) near = Math.abs(Math.abs(wrapA(ang - SEC[k][0])) - SEC[k][1]) < 0.09;
     if (near) {
       const xs = x + (hash01(x, y) - 0.5) * 6, ys = y + (hash01(y + 7919, x + 104729) - 0.5) * 6;
       d = dist(xs, ys, C, C) / R0 + (n(xs / (26 * RK), ys / (26 * RK)) - 0.5) * 0.32;
@@ -583,9 +585,9 @@ export function realm(seed) {
     else { b = 3; t = v > 0.6 ? TID.obsidian : TID.ash; }
     // the new lands take a wedge out of their ring (its edge wanders with the noise)
     for (let k = 0; k < SECN.length; k++) {
-      const [nb, a0, w] = SECN[k];
+      const e = SECN[k], nb = e[0];
       if (BIOME_RING[nb] !== b) continue;
-      if (Math.abs(Math.atan2(Math.sin(ang - a0), Math.cos(ang - a0))) < w) { b = nb; break; }
+      if (Math.abs(wrapA(ang - e[1])) < e[2]) { b = nb; break; }
     }
     const pv = patch(x, y);
     if (b === 4) t = v < 0.2 ? TID.glassflat : TID.dune;
@@ -713,13 +715,16 @@ export function realm(seed) {
   };
   // a picture that held two things (2026-11-11, the user: "both of these trees are combined into one sprite so when I
   // rotate the trunks move"): its pieces (tools/build_realm_scenery.py SPLIT), each where it stood in the picture, in tiles
+  const roadBy = (x, y) => { for (let yy = y - 1; yy <= y + 1; yy++) for (let xx = x - 1; xx <= x + 1; xx++) { const t = m.tiles[yy * S + xx]; if (t === TID.dirt || t === TID.cobble) return true; } return false; };
   const PAIRS = { [R + 'pines_snow']: [[R + 'pine_snow_big', -1.06], [R + 'pine_snow_small', 1.56]], [R + 'ctree_big']: [[R + 'ctree_tall', -1.1], [R + 'cstump_big', 1.8]] };
   for (let y = 3; y < S - 3; y++) for (let x = 3; x < S - 3; x++) {
     const b = m.biome[idx(m, x, y)];
-    if (b < 0 || !plain(x, y) || nearTile(x, y, 1, (t) => t === TID.dirt || t === TID.cobble)) continue;
+    if (b < 0 || !plain(x, y) || roadBy(x, y)) continue;
     let placed = false;
-    for (const [spr, p, solid, where] of STAND[b]) {
-      if (!r.chance(p) || (where && !WHERE[where](x, y))) continue;
+    const list = STAND[b];
+    for (let k = 0; k < list.length; k++) {
+      const e = list[k], spr = e[0], solid = e[2], where = e[3];
+      if (!(r() < e[1]) || (where && !WHERE[where](x, y))) continue;
       if (PAIRS[spr]) { for (const [s2, ox] of PAIRS[spr]) put(m, s2, x + ox, y, solid); placed = true; break; }   // (two things in one picture, set down each on its own spot: their trunks stay put as the camera turns)
       put(m, spr, x, y, solid); placed = true; break;
     }
