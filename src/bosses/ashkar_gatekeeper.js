@@ -35,7 +35,9 @@ const CORE = (g, e) => at(g, e, 0, 4.4);                    // (his core: where 
 const FEET = (g, e) => [e.x, e.y];
 const LINK_LIE = 6;                                         // (how long a fallen link lies before it crumbles)
 const later = (e, t, name, V = {}) => e.bx.vol.push({ t, V: { form: 'special', ...V, name } });   // (its own name last: a spread V may carry the caller's)
-const shot = (g, e, x, y, a, V) => g.bxShot(e, x, y, a, V);
+// (2026-11-11, the user: "make ashkars shots nearly infinite range until it hits a wall or something"): every shot of his flies
+// 60 tiles (more than his hall), so a wall is what stops it; only a chain's sweeping links keep their marked band (keepRange)
+const shot = (g, e, x, y, a, V) => g.bxShot(e, x, y, a, V.keepRange ? V : { ...V, range: Math.max(V.range || 0, 60) });
 const lane = (g, e, x, y, a, len, delay, dmg = 0, w = 1, cols) => g.fx.push({ kind: 'lane', x, y, a, len, w, delay, t: 0, life: delay + (dmg ? 0.35 : 0.02), dmg: dmg ? g.bxDmg(e, dmg) : 0, by: e.D.name, hitT: 0, ...(cols ? { cols } : {}) });
 const cleave = (g, e, x, y, a, r, spread, delay, dmg) => g.fx.push({ kind: 'cleave', x, y, a, r, spread, delay, t: 0, life: delay + 0.3, dmg: dmg ? g.bxDmg(e, dmg) : 0, by: e.D.name, done: !dmg });
 const CYAN = ['#8af0ff', '#8af0ff', '#8af0ff', '#ffffff'];
@@ -78,7 +80,7 @@ function chains(g, e) {
 }
 function chainSweep(g, e, V) {
   const P = anchor(e, V.i), links = [], a = V.dir > 0 ? Math.PI / 2 : -Math.PI / 2;
-  for (let d = 0.6; d <= V.L; d += 0.55) links.push(shot(g, e, P.x + V.sx * d, P.y, a, { ...LINK, speed: 4.5, range: V.sweep, dmg: D(170) }));
+  for (let d = 0.6; d <= V.L; d += 0.55) links.push(shot(g, e, P.x + V.sx * d, P.y, a, { ...LINK, speed: 4.5, range: V.sweep, dmg: D(170), keepRange: true }));
   (e.bx.akChains = e.bx.akChains || []).push({ links, a: a + Math.PI, next: g.t + 0.55, until: g.t + 2.2 });
   g.sfx('chain'); g.vx({ k: 'shake', amt: 3 });
 }
