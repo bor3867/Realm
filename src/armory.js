@@ -59,10 +59,12 @@ const methods = {
     if (d > 0) this.armAnyHit(e, null, d);
     return d;
   },
-  armHeal(n, col = '#86efac') {
+  armHeal(n, col = '#86efac', quiet = false) {
     const p = this.player, max = this.stat('hp'), h0 = p.hp;
     p.hp = Math.min(max, p.hp + n); p.armHealOk = p.hp;    // (a heal the armory gave: Hosanna's price lets it through)
-    if (p.hp > h0) this.float(...lift(p.x, p.y, 1.4), `+${Math.round(p.hp - h0)}`, col);
+    if (p.hp <= h0) return;
+    if (quiet) { const S = this.armS(); S.healAcc = (S.healAcc || 0) + (p.hp - h0); S.healCol = col; return; }   // (summed: shown every half second, armTick)
+    this.float(...lift(p.x, p.y, 1.4), `+${Math.round(p.hp - h0)}`, col);
   },
   // one of its shots: art `idx` of the item's projectiles, armory scale sc, at your Attack unless raw
   armShot(id, idx, x, y, a, speed, range, dmgR, o = {}) {
@@ -145,7 +147,7 @@ const methods = {
         e.armHuntT = this.t + 5;
         this.armVis({ k: 'ring', x: e.x, y: e.y, r: 3, col: '#6fd36a', life: 0.5 });
         this.vx({ k: 'burst', x: e.x, y: e.y - 0.5, n: 24, colors: ['#6fd36a', '#2f9e44', '#a7f3d0', '#f6c453'] });
-        this.armSay(e.x, e.y - 0.6, 'MARKED', '#7ef0a8');
+        this.armSay(e.x, e.y - 0.6, 'MARKED', '#7ef0a8'); this.armHeal(this.stat('hp') * 0.1, '#7ef0a8');
         this.armBreak(e.x, e.y, 3, A.st.dmg, ID('Verdance'));
         for (const o of this.armNear(e.x, e.y, 3)) { this.armHurt(o, A.st.dmg, undefined, undefined, { id: ID('Verdance') }); o.slowT = Math.max(o.slowT || 0, 1); o.slowF = Math.max(o.slowF || 0, 0.4); }
       } finally { S.marking = false; }
@@ -176,7 +178,7 @@ const methods = {
     const p = this.player, S = this.armS(), max = this.stat('hp');
     if (this.armHeld(ID('Sylvan Mantle')) && p.hp > 0 && p.hp < max * 0.3 && !((S.leafCd || 0) > this.t)) {   // Into the Green
       S.leafT = this.t + 2; S.leafCd = this.t + 30;
-      this.armSay(p.x, p.y - 0.4, 'INTO THE GREEN', '#7ef0a8'); this.armHeal(max * 0.15, '#7ef0a8');
+      this.armSay(p.x, p.y - 0.4, 'INTO THE GREEN', '#7ef0a8'); this.armHeal(max * 0.3, '#7ef0a8');
       this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.6), n: 30, colors: ['#6fd36a', '#2f9e44', '#a7f3d0'] });
     }
     if (this.armHeld(ID('Empyrean')) && p.hp > 0 && p.hp < max * 0.3 && !((S.wingCd || 0) > this.t)) {   // Unfolding
@@ -204,6 +206,7 @@ const methods = {
     }
     if (this.armHeld(ID('Aureole'))) S.halo = Math.min(1, (S.halo || 0) + dt / 6);   // Crown of Light: 6s to gather
     if (this.armHeld(ID('Verdance'))) S.leaf = Math.min(1, (S.leaf || 0) + dt / 5);   // Hunter's Mark: 5s to gather
+    if (S.healAcc && !(S.healShowT > this.t)) { S.healShowT = this.t + 0.5; if (S.healAcc >= 1) this.float(...lift(p.x, p.y, 1.4), `+${Math.round(S.healAcc)}`, S.healCol); S.healAcc = 0; }
   },
 };
 
@@ -414,16 +417,16 @@ const FIRE = {
     };
     const mk = (ang, idx, dmgR, sc, onHit) => {
       const sh = this.armShot(id, idx, ox, oy, ang, W.speed, W.range, dmgR, { pierce: true, sc });
-      grp.left++; sh.armOnHit = (b, e) => { grp.hit = true; if (onHit) onHit(b, e); }; sh.armEnd = end;
+      grp.left++; sh.armOnHit = (b, e) => { if (!grp.hit) this.armHeal(max * 0.015, '#7ef0a8', true); grp.hit = true; if (onHit) onHit(b, e); }; sh.armEnd = end;   // (Sap: the first arrow of a volley to strike heals you)
       return sh;
     };
     if (!hunt) { for (const g of [-1, 0, 1]) mk(a + g * 0.12, 0, A.st.dmg, 4); return; }
     this.armSay(p.x, p.y - 1.4, 'WILD HUNT', '#7ef0a8');
     this.vx({ k: 'burst', ...liftO(p.x, p.y, 0.6), n: 16, colors: ['#6fd36a', '#a7f3d0', '#f6c453'] });
-    const struck = new Set(), root = n >= 3 ? 2 : 1, heal = n >= 4 ? 0.03 : 0.02;
+    const struck = new Set(), root = n >= 3 ? 2 : 1, heal = n >= 4 ? 0.07 : 0.05;
     for (let i = 0; i < 7; i++) mk(a + (i - 3) * 0.16, 1, EX(A, 0), 6, (b, e) => {
       e.slowT = Math.max(e.slowT || 0, root); e.slowF = Math.max(e.slowF || 0, 0.4);
-      if (!struck.has(e)) { struck.add(e); this.armHeal(max * heal, '#7ef0a8'); }
+      if (!struck.has(e) && struck.size < 4) { struck.add(e); this.armHeal(max * heal, '#7ef0a8', true); }   // (Harvest: up to 4 enemies)
     });
   },
   // shots fly to your cursor and feed a black hole (max 20 mass); stop firing 0.4s and it collapses, then spits back what it swallowed
@@ -647,7 +650,7 @@ const CAST = {
     const p = this.player, aim = this.armAim(), follow = this.armSetCount('Everbloom') >= 4;
     const d = follow ? 0 : Math.min(9, dist(p.x, p.y, aim.x, aim.y)), ang = Math.atan2(aim.y - p.y, aim.x - p.x);
     S.grove = { x: p.x + Math.cos(ang) * d, y: p.y + Math.sin(ang) * d, t: 0, k: 0, follow, seed: R() * 100 };
-    this.armSay(S.grove.x, S.grove.y - 1.5, 'THORNSONG', '#7ef0a8');
+    this.armSay(S.grove.x, S.grove.y - 1.5, 'THORNSONG', '#7ef0a8'); this.armHeal(this.stat('hp') * 0.1, '#7ef0a8');
     this.vx({ k: 'burst', x: S.grove.x, y: S.grove.y - 0.3, n: 26, colors: ['#6fd36a', '#2f9e44', '#a7f3d0'] });
   },
   // opens heaven above you for 4s: heals 200 at once, then 40 a second inside; enemy shots inside slow by 40%
@@ -882,6 +885,7 @@ const TICK = {
     if (c.t <= 4) {
       if (c.k >= 0.25) {
         c.k = 0;
+        if (Math.hypot(p.x - c.x, p.y - c.y) < 2.5) this.armHeal(this.stat('hp') * 0.01, '#7ef0a8', true);   // (inside it: 4% of your max Life a second)
         for (const e of this.armNear(c.x, c.y, 2.5)) { this.armHurt(e, PT(A, 0), undefined, undefined, { id, quiet: true }); e.slowT = Math.max(e.slowT || 0, 0.4); e.slowF = Math.max(e.slowF || 0, 0.4); }
       }
       for (const b of this.projectiles) if (b.from === 'p' && b.life > 0 && !b.grove && Math.hypot(b.x - c.x, b.y - c.y) < 2.5) { b.grove = true; b.dmg = Math.round(b.dmg * 1.25); }
