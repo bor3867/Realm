@@ -106,7 +106,8 @@ export function makeWorld(seed, send, where = 'realm') {
   // itself (a burn, a trap, a boss's creatures going with it) levelled it up, and its 'Level 2', 'Level 3' banners went
   // to everyone there. 2026-10-24)
   g.gainXp = () => {};
-  if (where === 'realm') { g.realmMap = realm(seed); g.enter('realm'); }
+  let realmN = 0;
+  if (where === 'realm') { g.realmMap = realm(seed); realmN = g.realmMap.objects.length; g.enter('realm'); }   // (realmN: how many things the realm is built with: a browser on other code builds another number, src/net.js)
   else g.enter(where, { seed });                // a shared dungeon: the same seed as every player's copy
   g.god = true;
   const M0 = g.map, dung = M0.kind === 'dungeon';
@@ -194,7 +195,13 @@ export function makeWorld(seed, send, where = 'realm') {
     },
     // a player's blow on something breakable (a chest, an urn, a crate, a weak wall, a spore pod): the world takes it,
     // as that player; everyone sees what changed; a chest that breaks gives each who hit it their own loot
-    ohit(id, i, k, d) {
+    realmN,
+    ohit(id, i, k, d, x, y) {
+      // (the thing by its number, or, if that is not it, the thing of its kind nearest the place the browser says: a
+      // browser on older code numbers the realm's things otherwise. 2026-11-11: chests could not be broken after an update)
+      if (x !== undefined && !(g.map.objects[i] && objKey(g.map.objects[i]) === k && Math.hypot(g.map.objects[i].x - x, g.map.objects[i].y - y) < 1.5)) {
+        let best = -1, bd = 1.5; g.map.objects.forEach((q2, j) => { if (objKey(q2) !== k) return; const dd = Math.hypot(q2.x - x, q2.y - y); if (dd < bd) { bd = dd; best = j; } }); if (best >= 0) i = best;
+      }
       const q = P.get(id), o = g.map.objects[i];
       if (!q || !o || objKey(o) !== k || Math.hypot(o.x - q.x, o.y - q.y) > 14 || !(d > 0)) return;
       (o.netHit || (o.netHit = new Set())).add(id);
@@ -202,7 +209,7 @@ export function makeWorld(seed, send, where = 'realm') {
       if (o.guards && o.guards.some((e) => !e.dead)) { send(id, { t: 'ofloat', i, k, text: 'GUARDED' }); return; }
       g.player = q; try { g.hitObject(o.x, o.y, Math.min(d, 12000)); } catch (err) { console.warn('ohit', k, err.message); } finally { g.player = anchor; }
       const f = OBJ(o); out.push({ k: 'ostate', i, key: k, f, x: o.x, y: o.y });
-      if (!was && o.opened && o.interact === 'chest') for (const h of o.netHit) send(h, { t: 'oopen', i, k });
+      if (!was && o.opened && o.interact === 'chest') for (const h of o.netHit) send(h, { t: 'oopen', i, k, x: o.x, y: o.y });
     },
     // a player used something here (a lever, a door, a chest): the world uses it too, for everyone
     use(id, i, k) {

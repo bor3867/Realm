@@ -343,7 +343,7 @@ export class Game {
     else if (where === 'vault') this.map = vaultRoom();
     else if (where === 'realm') {
       if (this.realmStale || (!this.netSeed() && this.realmMap && this.realmBorn !== undefined && Date.now() - this.realmBorn > REALM_LIFE)) { this.realmMap = null; this.realmStale = false; }   // (it erupted: a new one)
-      if (!this.realmMap) { this.realmMap = realm(this.netSeed() || ((Date.now() & 0xffffff) | 1)); if (!this.netSeed()) { this.realmBorn = Date.now(); this.realmWarned = {}; } }   // the shared realm when online (src/net.js)
+      if (!this.realmMap) { this.realmMap = realm(this.netSeed() || ((Date.now() & 0xffffff) | 1)); this.realmMap.baseN = this.realmMap.objects.length; this.netStaleCheck && this.netStaleCheck(); if (!this.netSeed()) { this.realmBorn = Date.now(); this.realmWarned = {}; } }   // the shared realm when online (src/net.js)
       this.map = this.realmMap;
     } else if (DUNGEONS[where]) this.map = dungeon((opt && opt.seed) || ((Date.now() & 0xffffff) | 3), DUNGEONS[where]);
     else if (where.startsWith('rfa_')) { const m = this.rfArenaMap(where); if (!m) { this.banner('That boss is not ready.', 2000); return; } this.map = m; }   // a boss's own room (src/rf/boss.js)

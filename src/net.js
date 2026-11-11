@@ -55,7 +55,7 @@ const methods = {
       return;
     }
     if (m.t === 'welcome') {
-      N.id = m.id; N.online = m.online; N.world = !!m.world; N.nexusWorld = !!m.nexus; N.db = !!m.db;
+      N.id = m.id; N.realmN = m.realmN || 0; N.online = m.online; setTimeout(() => this.netStaleCheck(), 0); N.world = !!m.world; N.nexusWorld = !!m.nexus; N.db = !!m.db;
       for (const f of N.waiters || []) f(true); N.waiters = [];
       if (N.seed !== m.seed) { N.seed = m.seed; if (this.realmMap && this.realmMap.seed !== m.seed && this.map !== this.realmMap) this.realmMap = null; }   // the shared realm from now on
       N.realmEnds = m.ends ? Date.now() + Math.max(0, m.ends - (m.now || Date.now())) : 0;   // (when it erupts: src/game.js realmClock)
@@ -80,7 +80,7 @@ const methods = {
     else if (m.t === 'bags') { if (this.map) { this.bags = this.map.bags = this.bags.filter((b) => !b.shared); for (const b of m.list) this.netBag(b); } }
     else if (m.t === 'bag') this.netBag(m);
     else if (m.t === 'chest') this.netChest(m);
-    else if (m.t === 'oopen') { const o = this.map && this.map.netWorld && this.netObj2(m.i, m.k); if (o) { o.guards = null; this.breakChest(o); this.map.brk = null; } }   // you hit it: your loot
+    else if (m.t === 'oopen') { const o = this.map && this.map.netWorld && this.netObj2(m.i, m.k, m.x, m.y); if (o) { o.guards = null; this.breakChest(o); this.map.brk = null; } }   // you hit it: your loot
     else if (m.t === 'ofloat') { const o = this.map && this.netObj2(m.i, m.k); if (o) this.float(o.x, o.y - 1, m.text, '#8d88a0'); }
     else if ((m.t === 'dropped' || m.t === 'took') && N.pending) { const f = N.pending.get(m.rid); if (f) { N.pending.delete(m.rid); f(m); } }
     else if (m.t === 'moveto') { const p = this.player; if (p && !p.dead && this.map.netWorld) { p.x = m.x; p.y = m.y; } }
@@ -113,6 +113,7 @@ const methods = {
       else this.say(`[to ${m.to}] ${m.text}`, '#5ab4ff');
     }
     else if (m.t === 'realmseed') {                                                   // a new realm has risen (the old one erupted)
+      if (m.realmN) N.realmN = m.realmN;
       N.realmEnds = m.ends ? Date.now() + Math.max(0, m.ends - (m.now || Date.now())) : 0;
       if (N.seed !== m.seed) { N.seed = m.seed; if (this.realmMap && this.realmMap.seed !== m.seed) { if (this.map === this.realmMap) this.realmStale = true; else this.realmMap = null; } }
     }
@@ -196,11 +197,28 @@ const methods = {
   netObjHit(o, dmg) {
     const N = this.net, i = this.map.objects.indexOf(o);
     if (!N || !N.open || i < 0) return;
-    N.ws.send(JSON.stringify({ t: 'ohit', i, k: o.interact || o.sprite || '', d: Math.round(dmg) }));
+    N.ws.send(JSON.stringify({ t: 'ohit', i, k: o.interact || o.sprite || '', d: Math.round(dmg), x: o.x, y: o.y }));
     if (o.interact === 'chest') { this.float(...lift(o.x, o.y, 0.9), `${Math.round(dmg)}`, '#ffd650'); o.hurtT = this.t; }
     this.vx({ k: 'burst', x: o.x, y: o.y - 0.4, n: 3, colors: ['#c98a44', '#ffd650'] });
   },
-  netObj2(i, k) { const o = this.map.objects[i]; return o && (o.interact || o.sprite || '') === k ? o : null; },
+  // this page's code against the server's (2026-11-11): the shared realm built here must have the things the server's has,
+  // or every shared thing is numbered otherwise (chests that would not break after an update, in a tab open from before it).
+  // Not the same: the game was updated while this page was open; it reloads (once a minute at most)
+  netStaleCheck() {
+    const N = this.net, M = this.realmMap;
+    if (!N || !N.realmN || !M || !M.baseN || M.seed !== N.seed || M.baseN === N.realmN) return;
+    let last = 0; try { last = +sessionStorage.getItem('realm.staleReload') || 0; } catch {}
+    if (Date.now() - last < 60000) { this.banner('The game was updated: reload the page to play online.', 6000); return; }
+    try { sessionStorage.setItem('realm.staleReload', String(Date.now())); } catch {}
+    this.banner('The game was updated. Reloading...', 2000); if (this.persist) this.persist();
+    setTimeout(() => location.reload(), 1500);
+  },
+  netObj2(i, k, x, y) {                                     // a shared thing by its number, or (the numbering not the same) the one of its kind at its place
+    const key = (o) => o.interact || o.sprite || '', o = this.map.objects[i];
+    if (o && key(o) === k && (x === undefined || Math.hypot(o.x - x, o.y - y) < 1.5)) return o;
+    if (x === undefined) return null;
+    let best = null, bd = 1.5; for (const q of this.map.objects) { if (key(q) !== k) continue; const d = Math.hypot(q.x - x, q.y - y); if (d < bd) { bd = d; best = q; } } return best;
+  },
   // a shared admin chest: placed, hurt, broken (loot for each who hit it) or gone
   netChest(m) {
     const M = this.map;
@@ -401,7 +419,7 @@ const methods = {
         if (M.kind === 'dungeon' && !M.portals.some((q) => q.to === 'realm' && q.life && Math.hypot(q.x - x.x, q.y - x.y) < 4)) M.portals.push({ kind: 'realm', x: x.x + 1.5, y: x.y + 1, label: this.exitLabel(), to: 'realm', life: 90 });
         this.banner(`${x.name} has fallen!`, 3000);
       }
-      else if (x.k === 'ostate') { const o = this.netObj2(x.i, x.key); if (o) { const { opened, ...f } = x.f; Object.assign(o, f); if (opened === false && o.opened) { o.opened = false; const M = this.map; if (M.solid && o.solid) M.solid[Math.floor(o.y) * M.w + Math.floor(o.x)] = 1; M.ogridDirty = true; }   /* (a chest closed again: the realm's come back) */ if (opened && !o.opened) { o.opened = true; o.sprite = f.sprite || 'chest_open'; if (o.interact === 'chest' || /chest/.test(o.sprite)) this.eraseChest(o); } this.map.brk = null; this.map.ogridDirty = true; } }   // something broke or changed, for all
+      else if (x.k === 'ostate') { const o = this.netObj2(x.i, x.key, x.x, x.y); if (o) { const { opened, ...f } = x.f; Object.assign(o, f); if (opened === false && o.opened) { o.opened = false; const M = this.map; if (M.solid && o.solid) M.solid[Math.floor(o.y) * M.w + Math.floor(o.x)] = 1; M.ogridDirty = true; }   /* (a chest closed again: the realm's come back) */ if (opened && !o.opened) { o.opened = true; o.sprite = f.sprite || 'chest_open'; if (o.interact === 'chest' || /chest/.test(o.sprite)) this.eraseChest(o); } this.map.brk = null; this.map.ogridDirty = true; } }   // something broke or changed, for all
       else if (x.k === 'tile') this.netTile(x.a);
       else if (x.k === 'obj') this.netObj(x.o);
     }

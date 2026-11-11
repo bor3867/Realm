@@ -67,7 +67,7 @@ function newRealm() {
   SEED = randomInt(1, 0xffffff) | 1; REALM = 'realm:' + SEED;
   if (makeWorld) { world = makeWorld(SEED, (id, obj) => { const c = clients.get(id); if (c) send(c, obj); }); world.onBag = (x, y, items) => publicBag(REALM, x, y, items); }
   realmBorn = Date.now(); realmWarned = new Set();
-  toAll({ t: 'realmseed', seed: SEED, ends: realmEnds(), now: Date.now() });
+  toAll({ t: 'realmseed', seed: SEED, realmN: world ? world.realmN : 0, ends: realmEnds(), now: Date.now() });
   console.log(`a new realm, seed ${SEED}`);
 }
 function erupt(by) {
@@ -111,7 +111,7 @@ function onMessage(c, text) {
   if (m.t === 'hi') {
     c.name = str(m.name, LIMIT.name).trim() || `Player ${c.id}`;
     c.cls = CLASSES.has(m.cls) ? m.cls : 'priest';
-    send(c, { t: 'welcome', id: c.id, seed: SEED, ends: realmEnds(), now: Date.now(), online: clients.size, world: !!world, nexus: !!nexusWorld, db: !!db });
+    send(c, { t: 'welcome', realmN: world ? world.realmN : 0, id: c.id, seed: SEED, ends: realmEnds(), now: Date.now(), online: clients.size, world: !!world, nexus: !!nexusWorld, db: !!db });
     return;
   }
   if (m.t === 'tk' && Array.isArray(m.parts)) { for (const part of m.parts.slice(0, 6)) if (part && typeof part === 'object' && part.t !== 'tk') onMessage(c, JSON.stringify(part)); return; }   // one bundle a tick
@@ -205,7 +205,7 @@ function onMessage(c, text) {
     toRoom(c.room, { t: 'portal', iid, seed, to: m.to, x: num(m.x, 0, 4096), y: num(m.y, 0, 4096), life, served: 1 });   // (served: the server runs it, Realmforge's too)
     return;
   }
-  if (m.t === 'ohit' && worldOf(c.room)) { worldOf(c.room).ohit(c.id, num(m.i, 0, 1e6), str(m.k, 40), num(m.d, 0, 1e6)); return; }   // a blow on something breakable
+  if (m.t === 'ohit' && worldOf(c.room)) { worldOf(c.room).ohit(c.id, num(m.i, 0, 1e6), str(m.k, 40), num(m.d, 0, 1e6), typeof m.x === 'number' ? num(m.x, 0, 4096) : undefined, typeof m.y === 'number' ? num(m.y, 0, 4096) : undefined); return; }   // a blow on something breakable
   if (m.t === 'rfgate' && dungeons.has(c.room) && dungeons.get(c.room).world) { dungeons.get(c.room).world.rfGate(c.id, num(m.i, 0, 1e4)); return; }   // a Realmforge gate a player's copy opened
   if (m.t === 'use' && dungeons.has(c.room) && dungeons.get(c.room).world) { dungeons.get(c.room).world.use(c.id, num(m.i, 0, 1e5), str(m.k, 40)); return; }
   if (m.t === 'efx' && worldOf(c.room) && Array.isArray(m.list)) {     // your stuns, slows, knockback on them
